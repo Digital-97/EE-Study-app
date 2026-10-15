@@ -1,0 +1,1178 @@
+{
+  "id": "sx-sampling",
+  "title": "Sampling & Discrete Time",
+  "description": "Sample signals without aliasing, describe sequences with the z-transform and read spectra from DFT bins.",
+  "reference": "Phillips §6.4–6.5, §9.1, §11.1, §12.4",
+  "study": [
+    {
+      "title": "The sampling theorem",
+      "body": "Sampling $x(t)$ every $T_s$ seconds ($f_s = 1/T_s$) makes the spectrum periodic: copies of $X(f)$ appear around every multiple of $f_s$. If $x(t)$ is band-limited to $B$ and $f_s > 2B$, the copies do not overlap and $x(t)$ can be recovered exactly from its samples. $2B$ is the **Nyquist rate**; $f_s/2$ is the Nyquist (folding) frequency.",
+      "formula": "f_s > 2B",
+      "plot": {
+        "x": {
+          "min": -4.5,
+          "max": 4.5,
+          "label": "f / B",
+          "ticks": [
+            -3,
+            -1,
+            0,
+            1,
+            3
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 1.3,
+          "label": "|X_s(f)|"
+        },
+        "curves": [
+          {
+            "f": "max(0,1-abs(x-(-6)))+max(0,1-abs(x-(-3)))+max(0,1-abs(x-(0)))+max(0,1-abs(x-(3)))+max(0,1-abs(x-(6)))",
+            "labelAt": 0.5
+          }
+        ],
+        "labels": [
+          {
+            "x": 2.5,
+            "y": 1.15,
+            "text": "copy at f_s"
+          },
+          {
+            "x": -0.6,
+            "y": 1.15,
+            "text": "X(f)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Aliasing",
+      "body": "If $f_s < 2B$, the copies overlap and high frequencies masquerade as low ones. A sinusoid at $f_0$ produces exactly the same samples as one at $|f_0 - kf_s|$ for any integer $k$; after reconstruction it appears at the alias in $0 \\ldots f_s/2$, using the multiple $kf_s$ nearest to $f_0$. Drag $f_0$: below $f_s/2$ the red reconstruction lies on the grey signal; above it the same dots trace a slower red wave, which folds back to 0 at $f_0 = f_s$.",
+      "formula": "f_a = |f_0 - k f_s|",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 10,
+          "label": "t / T_s"
+        },
+        "y": {
+          "min": -1.3,
+          "max": 1.3,
+          "label": "x"
+        },
+        "sliders": [
+          {
+            "name": "r",
+            "label": "$f_0 / f_s$",
+            "min": 0,
+            "max": 2,
+            "step": 0.01,
+            "value": 0.9
+          }
+        ],
+        "let": {
+          "ra": "abs(r - round(r))"
+        },
+        "curves": [
+          {
+            "f": "cos(2*pi*r*x)",
+            "color": "grey"
+          },
+          {
+            "f": "cos(2*pi*ra*x)",
+            "color": "red",
+            "dash": true
+          }
+        ],
+        "points": [
+          {
+            "x": 0,
+            "y": "cos(2*pi*r*0)",
+            "guides": false
+          },
+          {
+            "x": 1,
+            "y": "cos(2*pi*r*1)",
+            "guides": false
+          },
+          {
+            "x": 2,
+            "y": "cos(2*pi*r*2)",
+            "guides": false
+          },
+          {
+            "x": 3,
+            "y": "cos(2*pi*r*3)",
+            "guides": false
+          },
+          {
+            "x": 4,
+            "y": "cos(2*pi*r*4)",
+            "guides": false
+          },
+          {
+            "x": 5,
+            "y": "cos(2*pi*r*5)",
+            "guides": false
+          },
+          {
+            "x": 6,
+            "y": "cos(2*pi*r*6)",
+            "guides": false
+          },
+          {
+            "x": 7,
+            "y": "cos(2*pi*r*7)",
+            "guides": false
+          },
+          {
+            "x": 8,
+            "y": "cos(2*pi*r*8)",
+            "guides": false
+          },
+          {
+            "x": 9,
+            "y": "cos(2*pi*r*9)",
+            "guides": false
+          },
+          {
+            "x": 10,
+            "y": "cos(2*pi*r*10)",
+            "guides": false
+          }
+        ],
+        "readouts": [
+          {
+            "label": "apparent $f_a / f_s$",
+            "value": "ra"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Reconstruction and anti-aliasing",
+      "body": "An ideal low-pass filter with cutoff $f_s/2$ keeps only the original copy of the spectrum; in time this is sinc interpolation between the samples. In practice an **anti-aliasing** low-pass filter removes everything above $f_s/2$ **before** the sampler, and the DAC output is smoothed by a reconstruction filter. Sampling well above $2B$ (oversampling) leaves room for gentle filters.",
+      "formula": "x(t) = \\sum_n x(nT_s)\\,\\mathrm{sinc}\\left(\\frac{t - nT_s}{T_s}\\right)"
+    },
+    {
+      "title": "Discrete-time signals",
+      "body": "The samples form a sequence $x[n] = x(nT_s)$. A sinusoid $\\cos(2\\pi f_0 t)$ becomes $\\cos(\\Omega n)$ with the discrete frequency $\\Omega$ in rad/sample. $\\Omega$ and $\\Omega + 2\\pi$ give identical sequences, so only $0 \\leq \\Omega \\leq \\pi$ (i.e. $0 \\ldots f_s/2$) is unique: aliasing again. Basic sequences: $\\delta[n]$, $u[n]$, $a^n u[n]$.",
+      "formula": "\\Omega = 2\\pi\\frac{f_0}{f_s} = \\omega T_s"
+    },
+    {
+      "title": "The z-transform",
+      "body": "The discrete counterpart of the Laplace transform. Pairs: $\\delta[n] \\to 1$, $u[n] \\to \\frac{z}{z - 1}$, $a^n u[n] \\to \\frac{z}{z - a}$ for $|z| > |a|$. A delay of one sample multiplies by $z^{-1}$. A causal system $H(z)$ is stable when all its poles lie **inside the unit circle** $|z| < 1$; $a^n$ decays only if $|a| < 1$.",
+      "formula": "X(z) = \\sum_{n=0}^{\\infty} x[n]\\,z^{-n}"
+    },
+    {
+      "title": "The DFT and frequency resolution",
+      "body": "The DFT turns $N$ samples into $N$ frequency bins $X[k] = \\sum_{n=0}^{N-1} x[n]e^{-j2\\pi kn/N}$. Bin $k$ corresponds to $f_k = k f_s/N$ (for $k \\leq N/2$). The bin spacing, the **frequency resolution**, is $f_s/N$ = 1 / (record length). Zero-padding interpolates the spectrum but does not improve the true resolution; only a longer record does.",
+      "formula": "\\Delta f = \\frac{f_s}{N} = \\frac{1}{NT_s}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sx-sampling-1",
+      "title": "Sampling and aliasing",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Sampling",
+          "body": "An ADC measures $x(t)$ every $T_s$ seconds. The **sampling theorem**: a signal with no frequencies above $B$ is completely determined by its samples if the sampling rate exceeds twice the bandwidth. The minimum rate $2B$ is the **Nyquist rate**.",
+          "formula": "f_s = \\frac{1}{T_s} > 2B"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Bk": [
+              3.4,
+              4,
+              5,
+              15,
+              20
+            ]
+          },
+          "derived": {
+            "B": "Bk*1000"
+          },
+          "prompt": "An audio signal contains frequencies up to {{B|Hz}}. What is its Nyquist rate?",
+          "answer": "2*B",
+          "unit": "Hz",
+          "explanation": "The Nyquist rate is twice the highest frequency: $2B$ = 2 × {{B|Hz}} = {{2*B|Hz}}. Sampling must be faster than this to avoid aliasing."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "f1": [
+              100,
+              200,
+              300
+            ],
+            "f2": [
+              500,
+              800,
+              1000
+            ]
+          },
+          "prompt": "What is the minimum sampling rate for $x(t) = \\cos(2\\pi \\cdot {{f1}}t) + 3\\sin(2\\pi \\cdot {{f2}}t)$ (frequencies in Hz)?",
+          "options": [
+            "{{2*f2|Hz}}",
+            "{{2*f1|Hz}}",
+            "{{f2|Hz}}",
+            "{{2*(f1+f2)|Hz}}"
+          ],
+          "answer": 0,
+          "explanation": "The highest frequency present is {{f2|Hz}} (the amplitude 3 does not matter). The Nyquist rate is $2f_{max}$ = {{2*f2|Hz}}. Adding the frequencies is wrong: a **sum** of sinusoids contains only the original frequencies."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Aliasing",
+          "body": "Sample too slowly and a high frequency produces the **same samples** as a lower one. The graph shows a sine at $0.9f_s$ (grey) and one at $0.1f_s$ (red): they pass through identical sample points. After reconstruction you hear the $0.1f_s$ tone, the **alias**. In general $kf_s$ is the multiple of $f_s$ nearest to $f_0$.",
+          "formula": "f_a = |f_0 - kf_s|",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 10,
+              "label": "t / T_s"
+            },
+            "y": {
+              "min": -1.3,
+              "max": 1.3,
+              "label": "x"
+            },
+            "curves": [
+              {
+                "f": "cos(2*pi*0.9*x)",
+                "color": "grey"
+              },
+              {
+                "f": "cos(2*pi*0.1*x)",
+                "color": "red",
+                "dash": true
+              }
+            ],
+            "points": [
+              {
+                "x": 0,
+                "y": "cos(2*pi*0.1*0)",
+                "guides": false
+              },
+              {
+                "x": 1,
+                "y": "cos(2*pi*0.1*1)",
+                "guides": false
+              },
+              {
+                "x": 2,
+                "y": "cos(2*pi*0.1*2)",
+                "guides": false
+              },
+              {
+                "x": 3,
+                "y": "cos(2*pi*0.1*3)",
+                "guides": false
+              },
+              {
+                "x": 4,
+                "y": "cos(2*pi*0.1*4)",
+                "guides": false
+              },
+              {
+                "x": 5,
+                "y": "cos(2*pi*0.1*5)",
+                "guides": false
+              },
+              {
+                "x": 6,
+                "y": "cos(2*pi*0.1*6)",
+                "guides": false
+              },
+              {
+                "x": 7,
+                "y": "cos(2*pi*0.1*7)",
+                "guides": false
+              },
+              {
+                "x": 8,
+                "y": "cos(2*pi*0.1*8)",
+                "guides": false
+              },
+              {
+                "x": 9,
+                "y": "cos(2*pi*0.1*9)",
+                "guides": false
+              },
+              {
+                "x": 10,
+                "y": "cos(2*pi*0.1*10)",
+                "guides": false
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "fsk": [
+              8,
+              10,
+              20
+            ],
+            "r": [
+              0.6,
+              0.7,
+              0.75,
+              0.9
+            ]
+          },
+          "derived": {
+            "fs": "fsk*1000",
+            "f0": "r*fs"
+          },
+          "prompt": "A {{f0|Hz}} sinusoid is sampled at {{fs|Hz}} without an anti-aliasing filter. At what frequency does it appear after reconstruction?",
+          "answer": "fs-f0",
+          "unit": "Hz",
+          "explanation": "{{f0|Hz}} is above the Nyquist frequency $f_s/2$ = {{fs/2|Hz}}, so it aliases. The nearest multiple of $f_s$ is $f_s$ itself: $f_a = |f_0 - f_s|$ = |{{f0|Hz}} − {{fs|Hz}}| = {{fs-f0|Hz}}. It folds back around $f_s/2$."
+        },
+        {
+          "id": "i5",
+          "type": "info",
+          "title": "Try it: aliasing",
+          "body": "A cosine at $f_0$ is sampled at $f_s$ = 1 kHz (dots). The red dashed curve is what an ideal reconstruction makes of the samples. Drag $f_0$ past 500 Hz: the apparent frequency falls again, reaching 0 at 1 kHz, and rises once more up to 1.5 kHz. Any $f_0$ and $|f_0 - kf_s|$ give the same dots.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.01,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": -1.3,
+              "max": 1.3,
+              "label": "x"
+            },
+            "sliders": [
+              {
+                "name": "f0",
+                "label": "$f_0$",
+                "min": 0,
+                "max": 2500,
+                "step": 10,
+                "value": 200,
+                "unit": "Hz"
+              }
+            ],
+            "let": {
+              "fa": "abs(f0 - 1000*round(f0/1000))"
+            },
+            "curves": [
+              {
+                "f": "cos(2*pi*f0*x)",
+                "color": "grey"
+              },
+              {
+                "f": "cos(2*pi*fa*x)",
+                "color": "red",
+                "dash": true
+              }
+            ],
+            "points": [
+              {
+                "x": 0.0,
+                "y": "cos(2*pi*f0*0/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.001,
+                "y": "cos(2*pi*f0*1/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.002,
+                "y": "cos(2*pi*f0*2/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.003,
+                "y": "cos(2*pi*f0*3/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.004,
+                "y": "cos(2*pi*f0*4/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.005,
+                "y": "cos(2*pi*f0*5/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.006,
+                "y": "cos(2*pi*f0*6/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.007,
+                "y": "cos(2*pi*f0*7/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.008,
+                "y": "cos(2*pi*f0*8/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.009,
+                "y": "cos(2*pi*f0*9/1000)",
+                "guides": false
+              },
+              {
+                "x": 0.01,
+                "y": "cos(2*pi*f0*10/1000)",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "apparent frequency $f_a$",
+                "value": "fa",
+                "unit": "Hz"
+              }
+            ]
+          }
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Discrete-time frequency",
+          "body": "The samples form a sequence $x[n] = x(nT_s)$. A sinusoid $\\cos(2\\pi f_0 t)$ becomes $\\cos(\\Omega n)$, where the **discrete frequency** $\\Omega$ is measured in radians per sample. $\\Omega = \\pi$ corresponds to $f_s/2$, the highest frequency a sequence can represent.",
+          "formula": "\\Omega = 2\\pi\\frac{f_0}{f_s}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "f0": [
+              50,
+              100,
+              250,
+              1000
+            ],
+            "fs": [
+              1000,
+              2000,
+              8000
+            ]
+          },
+          "require": "fs-2*f0-1",
+          "prompt": "A {{f0|Hz}} sinusoid is sampled at {{fs|Hz}}. Find its discrete frequency $\\Omega$ in rad/sample.",
+          "answer": "2*pi*f0/fs",
+          "unit": "rad",
+          "explanation": "$\\Omega = 2\\pi f_0/f_s$ = 2π × {{f0}}/{{fs}} = {{2*pi*f0/fs}} rad/sample. That is {{f0/fs}} of a full cycle per sample."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "The z-transform",
+          "body": "For sequences, the z-transform plays the role of the Laplace transform. Each sample is weighted by a power of $z^{-1}$, so $z^{-1}$ stands for a delay of one sample.",
+          "formula": "X(z) = \\sum_{n=0}^{\\infty} x[n]\\,z^{-n}"
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "k": [
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "What is the z-transform of $x[n] = \\delta[n - {{k}}]$, a single unit sample at $n$ = {{k}}?",
+          "options": [
+            "$z^{-{{k}}}$",
+            "$z^{{{k}}}$",
+            "$\\frac{z}{z - {{k}}}$",
+            "$1$"
+          ],
+          "answer": 0,
+          "explanation": "Only the term $n$ = {{k}} survives in $\\sum x[n]z^{-n}$, so $X(z) = z^{-{{k}}}$. A delay of {{k}} samples multiplies the transform by $z^{-{{k}}}$; the undelayed $\\delta[n]$ has transform 1."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A band-limited signal is sampled at $f_s = 2.5B$. Which cutoff is the standard choice for the ideal reconstruction low-pass filter?",
+          "options": [
+            "$f_s/2$",
+            "$f_s$",
+            "$2f_s$",
+            "$B/2$"
+          ],
+          "answer": 0,
+          "explanation": "The sampled spectrum contains the original between $-B$ and $B$ plus copies centred on multiples of $f_s$. The filter must keep the original and remove the copies; the cutoff halfway, at $f_s/2 = 1.25B$, has margin on both sides. $B/2$ would cut away part of the signal, $f_s$ and $2f_s$ would let copies through."
+        }
+      ]
+    },
+    {
+      "id": "sx-sampling-2",
+      "title": "Sequences and the DFT",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "DFT bins",
+          "body": "The DFT of $N$ samples gives $N$ bins. Bin $k$ sits at $f_k = kf_s/N$ and the bins are $\\Delta f = f_s/N$ apart. Since $N/f_s$ is the record length $T_0$, the resolution is $1/T_0$: to see finer frequency detail you must record longer.",
+          "formula": "f_k = k\\frac{f_s}{N}, \\qquad \\Delta f = \\frac{f_s}{N}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "fsk": [
+              1,
+              2,
+              5,
+              10
+            ],
+            "r": [
+              0.3,
+              1.2,
+              1.7,
+              2.4,
+              3.1,
+              3.6
+            ]
+          },
+          "derived": {
+            "fs": "fsk*1000",
+            "f0": "r*fs"
+          },
+          "prompt": "A {{f0|Hz}} tone is sampled at {{fs|Hz}} with no anti-aliasing filter. Which frequency between 0 and $f_s/2$ appears after reconstruction?",
+          "answer": "abs(f0-fs*round(f0/fs))",
+          "unit": "Hz",
+          "explanation": "Find the multiple of $f_s$ nearest to $f_0$: $f_0/f_s$ = {{f0/fs}}, so $k$ = {{round(f0/fs)}}.\n$f_a = |f_0 - kf_s|$ = |{{f0|Hz}} − {{round(f0/fs)}} × {{fs|Hz}}| = {{abs(f0-fs*round(f0/fs))|Hz}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000,
+              10000,
+              44100,
+              48000
+            ],
+            "N": [
+              256,
+              512,
+              1024,
+              4096
+            ]
+          },
+          "prompt": "A signal sampled at {{fs|Hz}} is analysed with an $N$ = {{N||4}}-point DFT.",
+          "ask": [
+            {
+              "prompt": "Find the frequency resolution (bin spacing).",
+              "answer": "fs/N",
+              "unit": "Hz",
+              "explanation": "$\\Delta f = f_s/N$ = {{fs}} / {{N||4}} = {{fs/N|Hz}}."
+            },
+            {
+              "prompt": "Find the record length.",
+              "answer": "N/fs",
+              "unit": "s",
+              "explanation": "$N$ samples spaced $T_s = 1/f_s$ apart: $T_0 = N/f_s$ = {{N||4}} / {{fs}} = {{N/fs|s}}. (The resolution is $1/T_0$ = {{fs/N|Hz}}.)"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000,
+              16000
+            ],
+            "N": [
+              64,
+              128,
+              256
+            ],
+            "k": [
+              5,
+              10,
+              20,
+              25
+            ]
+          },
+          "derived": {
+            "fk": "k*fs/N"
+          },
+          "prompt": "A {{N||4}}-point DFT is taken of a signal sampled at {{fs|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Which frequency does bin $k$ = {{k}} represent?",
+              "answer": "k*fs/N",
+              "unit": "Hz",
+              "explanation": "$f_k = kf_s/N$ = {{k}} × {{fs}} / {{N||4}} = {{k*fs/N|Hz}}."
+            },
+            {
+              "prompt": "A tone at {{fk|Hz|4}} falls exactly on a bin. Which bin index $k$?",
+              "answer": "k",
+              "unit": "",
+              "explanation": "$k = f N/f_s$ = {{fk||4}} × {{N||4}} / {{fs}} = {{k}}.",
+              "tolerance": 0,
+              "absTolerance": 0.4
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000,
+              10000,
+              20000
+            ],
+            "df": [
+              1,
+              2,
+              5,
+              10
+            ]
+          },
+          "prompt": "Signals sampled at {{fs|Hz}} must be analysed with a frequency resolution of {{df|Hz}}.",
+          "ask": [
+            {
+              "prompt": "How many samples $N$ are needed?",
+              "answer": "fs/df",
+              "unit": "",
+              "explanation": "$\\Delta f = f_s/N$, so $N = f_s/\\Delta f$ = {{fs}} / {{df}} = {{fs/df||4}} samples."
+            },
+            {
+              "prompt": "How long must the record be?",
+              "answer": "1/df",
+              "unit": "s",
+              "explanation": "The resolution is 1 / (record length), so $T_0 = 1/\\Delta f$ = 1 / {{df|Hz}} = {{1/df|s}}, whatever the sampling rate."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "c0": [
+              1,
+              2,
+              3
+            ],
+            "c1": [
+              2,
+              4,
+              5
+            ],
+            "c2": [
+              1,
+              3,
+              5
+            ]
+          },
+          "require": "abs(c0-c2)",
+          "prompt": "What is the z-transform of the sequence $x[0]$ = {{c0}}, $x[1]$ = {{c1}}, $x[2]$ = {{c2}} (zero elsewhere)?",
+          "options": [
+            "${{c0}} + {{c1}}z^{-1} + {{c2}}z^{-2}$",
+            "${{c0}} + {{c1}}z + {{c2}}z^{2}$",
+            "${{c0}}z^{-1} + {{c1}}z^{-2} + {{c2}}z^{-3}$",
+            "${{c2}} + {{c1}}z^{-1} + {{c0}}z^{-2}$"
+          ],
+          "answer": 0,
+          "explanation": "$X(z) = \\sum x[n]z^{-n}$: sample $n$ gets the factor $z^{-n}$. So $X(z)$ = {{c0}} + {{c1}}$z^{-1}$ + {{c2}}$z^{-2}$. Positive powers of $z$ would mean samples at negative $n$."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "params": {
+            "a": [
+              -1.5,
+              -0.8,
+              0.5,
+              0.9,
+              1.2,
+              2
+            ]
+          },
+          "prompt": "A causal system with impulse response $h[n] = ({{a}})^n u[n]$ is stable.",
+          "answer": "1-abs(a)",
+          "explanation": "$H(z) = \\frac{z}{z - a}$ has a pole at $z = a$ = {{a}}. A causal system is stable if all poles lie inside the unit circle, $|a| < 1$, so that $a^n$ dies out. Here $|a|$ = {{abs(a)}}."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each sequence to its z-transform.",
+          "pairs": [
+            [
+              "$\\delta[n]$",
+              "$1$"
+            ],
+            [
+              "$u[n]$",
+              "$\\dfrac{z}{z - 1}$"
+            ],
+            [
+              "$a^n u[n]$",
+              "$\\dfrac{z}{z - a}$"
+            ],
+            [
+              "$x[n - 1]$",
+              "$z^{-1}X(z)$"
+            ],
+            [
+              "$n\\,u[n]$",
+              "$\\dfrac{z}{(z - 1)^2}$"
+            ]
+          ],
+          "explanation": "$a^n u[n]$ is a geometric series: $\\sum (az^{-1})^n = \\frac{1}{1 - az^{-1}} = \\frac{z}{z - a}$. With $a = 1$ it gives the step. A one-sample delay multiplies by $z^{-1}$, and the ramp has a double pole at $z = 1$."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9,
+              -0.5
+            ],
+            "k": [
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "A filter computes $y[n] = {{a}}\\,y[n-1] + x[n]$. Find its impulse response $h[n]$ at $n$ = {{k}}.",
+          "answer": "a^k",
+          "unit": "",
+          "explanation": "With $x[n] = \\delta[n]$: $h[0] = 1$, $h[1]$ = {{a}}, $h[2]$ = {{a}}², …, so $h[n] = ({{a}})^n$. (In the z-domain: $H(z) = \\frac{1}{1 - {{a}}z^{-1}} = \\frac{z}{z - {{a}}}$.)\n$h[{{k}}] = ({{a}})^{{{k}}}$ = {{a^k}}."
+        }
+      ]
+    },
+    {
+      "id": "sx-sampling-3",
+      "title": "Sampling in practice",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "B": [
+              2000,
+              3000,
+              4000,
+              5000
+            ],
+            "q": [
+              1.2,
+              1.5,
+              1.6
+            ]
+          },
+          "derived": {
+            "fs": "q*B"
+          },
+          "prompt": "The graph shows the magnitude spectrum of a band-limited signal.",
+          "tolerance": 0.05,
+          "plot": {
+            "x": {
+              "min": "-1.5*B",
+              "max": "1.5*B",
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.2,
+              "label": "|X(f)|"
+            },
+            "curves": [
+              {
+                "f": "max(0,1-abs(x)/B)",
+                "label": "|X(f)|",
+                "labelAt": 0.75
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Read the Nyquist rate.",
+              "answer": "2*B",
+              "unit": "Hz",
+              "explanation": "The spectrum ends at $B$ = {{B|Hz}}, so the Nyquist rate is $2B$ = {{2*B|Hz}}."
+            },
+            {
+              "prompt": "It is sampled at $f_s$ = {{fs|Hz}}. Above which frequency is the reconstructed signal corrupted by aliasing?",
+              "answer": "fs-B",
+              "unit": "Hz",
+              "explanation": "The spectrum reaches $B$ = {{B|Hz}}. The copy centred on $f_s$ reaches down to $f_s - B$ = {{fs|Hz}} − {{B|Hz}} = {{fs-B|Hz}}. Between there and $f_s/2$ = {{fs/2|Hz}} the copies overlap the original, so everything above {{fs-B|Hz}} is corrupted."
+            }
+          ]
+        },
+        {
+          "id": "g2",
+          "type": "multipleChoice",
+          "prompt": "A signal band-limited to $B$ is sampled at $f_s = 3B$. Which graph shows the spectrum of the sampled signal? (Horizontal axis from $-7B$ to $7B$.)",
+          "answer": 0,
+          "explanation": "Sampling repeats $X(f)$ around every multiple of $f_s = 3B$: copies centred at $0, \\pm 3B, \\pm 6B, \\ldots$ With $f_s > 2B$ they do not overlap (gaps from $B$ to $2B$). Overlapping copies mean $f_s < 2B$ (here $1.5B$); copies that just touch mean $f_s = 2B$; a single copy is the unsampled signal.",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -7,
+                "max": 7,
+                "label": "f/B",
+                "ticks": [
+                  -6,
+                  -3,
+                  0,
+                  3,
+                  6
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 1.3,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "max(0,1-abs(x-(-6)))+max(0,1-abs(x-(-3)))+max(0,1-abs(x-(0)))+max(0,1-abs(x-(3)))+max(0,1-abs(x-(6)))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -7,
+                "max": 7,
+                "label": "f/B",
+                "ticks": [
+                  -6,
+                  -3,
+                  0,
+                  3,
+                  6
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 1.3,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "max(0,1-abs(x-(-7.5)))+max(0,1-abs(x-(-6.0)))+max(0,1-abs(x-(-4.5)))+max(0,1-abs(x-(-3.0)))+max(0,1-abs(x-(-1.5)))+max(0,1-abs(x-(0.0)))+max(0,1-abs(x-(1.5)))+max(0,1-abs(x-(3.0)))+max(0,1-abs(x-(4.5)))+max(0,1-abs(x-(6.0)))+max(0,1-abs(x-(7.5)))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -7,
+                "max": 7,
+                "label": "f/B",
+                "ticks": [
+                  -6,
+                  -3,
+                  0,
+                  3,
+                  6
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 1.3,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "max(0,1-abs(x-(-8)))+max(0,1-abs(x-(-6)))+max(0,1-abs(x-(-4)))+max(0,1-abs(x-(-2)))+max(0,1-abs(x-(0)))+max(0,1-abs(x-(2)))+max(0,1-abs(x-(4)))+max(0,1-abs(x-(6)))+max(0,1-abs(x-(8)))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -7,
+                "max": 7,
+                "label": "f/B",
+                "ticks": [
+                  -6,
+                  -3,
+                  0,
+                  3,
+                  6
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 1.3,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "max(0,1-abs(x-(0)))"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "fs": [
+              800,
+              1000,
+              1200,
+              1500,
+              2000
+            ],
+            "ra": [
+              0.15,
+              0.2,
+              0.25,
+              0.3,
+              0.35,
+              0.4
+            ]
+          },
+          "derived": {
+            "fa": "ra*fs"
+          },
+          "prompt": "A cosine is sampled at $f_s$ = {{fs|Hz}} (dots). Find an input frequency **above** $f_s/2$ whose samples lie on the dashed orange {{fa|Hz}} cosine, i.e. that aliases to {{fa|Hz}}.",
+          "hint": "Aliases of $f_0$ are $|f_0 - kf_s|$. Which $f_0$ above {{fs/2|Hz}} is {{fa|Hz}} away from a multiple of $f_s$?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "10/fs",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": -1.3,
+              "max": 1.3,
+              "label": "x"
+            },
+            "sliders": [
+              {
+                "name": "f0",
+                "label": "$f_0$",
+                "min": 0,
+                "max": "3*fs",
+                "step": 5,
+                "value": "0.1*fs",
+                "unit": "Hz"
+              }
+            ],
+            "let": {
+              "fal": "abs(f0 - fs*round(f0/fs))"
+            },
+            "curves": [
+              {
+                "f": "cos(2*pi*f0*x)",
+                "color": "grey"
+              },
+              {
+                "f": "cos(2*pi*fa*x)",
+                "color": "orange",
+                "dash": true
+              }
+            ],
+            "points": [
+              {
+                "x": "0/fs",
+                "y": "cos(2*pi*f0*0/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "1/fs",
+                "y": "cos(2*pi*f0*1/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "2/fs",
+                "y": "cos(2*pi*f0*2/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "3/fs",
+                "y": "cos(2*pi*f0*3/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "4/fs",
+                "y": "cos(2*pi*f0*4/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "5/fs",
+                "y": "cos(2*pi*f0*5/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "6/fs",
+                "y": "cos(2*pi*f0*6/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "7/fs",
+                "y": "cos(2*pi*f0*7/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "8/fs",
+                "y": "cos(2*pi*f0*8/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "9/fs",
+                "y": "cos(2*pi*f0*9/fs)",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "10/fs",
+                "y": "cos(2*pi*f0*10/fs)",
+                "guides": false,
+                "color": "blue"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "apparent frequency",
+                "value": "fal",
+                "unit": "Hz",
+                "reveal": true
+              }
+            ]
+          },
+          "check": "min(fs/100 - abs(fal - fa), f0 - fs/2)",
+          "solution": "$f_0 = kf_s \\pm f_a$: {{fs-fa|Hz}}, {{fs+fa|Hz}}, {{2*fs-fa|Hz}}, {{2*fs+fa|Hz}} or {{3*fs-fa|Hz}}",
+          "explanation": "A cosine at $f_0$ and one at $|f_0 - kf_s|$ give identical samples, because $\\cos(2\\pi f_0 nT_s)$ only changes by whole turns $2\\pi kn$. So every $f_0 = kf_s \\pm f_a$ works: {{fs-fa|Hz}}, {{fs+fa|Hz}}, {{2*fs-fa|Hz}}, {{2*fs+fa|Hz}}, … The grey signal wiggles fast between the dots, but the dots only show the slow {{fa|Hz}} wave. This is why the anti-aliasing filter must remove everything above {{fs/2|Hz}} **before** sampling."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "f1": [
+              100,
+              200,
+              500
+            ],
+            "f2": [
+              1000,
+              2000,
+              3000
+            ]
+          },
+          "prompt": "What is the Nyquist rate of $x(t) = \\cos(2\\pi \\cdot {{f1}}t)\\cos(2\\pi \\cdot {{f2}}t)$ (frequencies in Hz)?",
+          "answer": "2*(f1+f2)",
+          "unit": "Hz",
+          "explanation": "A product of cosines contains the sum and difference frequencies: $\\frac{1}{2}[\\cos 2\\pi({{f2-f1}})t + \\cos 2\\pi({{f1+f2}})t]$. The highest is {{f1+f2|Hz}}, so the Nyquist rate is {{2*(f1+f2)|Hz}}. (Taking $2f_2$ = {{2*f2|Hz}} would alias the sum component.)"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9,
+              0.95
+            ],
+            "X0": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "The filter $y[n] = {{a}}\\,y[n-1] + x[n]$ receives a constant input $x[n]$ = {{X0}} for $n \\geq 0$. What value does $y[n]$ settle to?",
+          "answer": "X0/(1-a)",
+          "unit": "",
+          "explanation": "$H(z) = \\frac{z}{z - {{a}}}$ has its pole inside the unit circle, so the output settles. The DC gain is $H(1) = \\frac{1}{1 - {{a}}}$ = {{1/(1-a)}}, so $y \\to$ {{X0}} × {{1/(1-a)}} = {{X0/(1-a)}}. (Check: in steady state $y = {{a}}y + {{X0}}$.)"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000
+            ],
+            "N": [
+              256,
+              512,
+              1024
+            ],
+            "f0": [
+              455,
+              1100,
+              1234,
+              2740,
+              3330
+            ]
+          },
+          "require": "abs(mod(f0*N/fs,1)-0.5)-0.1",
+          "prompt": "A {{f0|Hz}} tone is sampled at {{fs|Hz}} and analysed with an $N$ = {{N||4}}-point DFT. Which bin $k$ (between 0 and $N/2$) shows the largest magnitude?",
+          "answer": "round(f0*N/fs)",
+          "unit": "",
+          "explanation": "Bin $k$ is at $kf_s/N$, so the tone sits at $k = f_0N/f_s$ = {{f0}} × {{N||4}} / {{fs}} = {{f0*N/fs||4}}. It falls between bins; the nearest one, $k$ = {{round(f0*N/fs)}}, is the largest. (Some energy leaks into the neighbouring bins.)",
+          "tolerance": 0,
+          "absTolerance": 0.4
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the blocks of a digital signal-processing chain in order.",
+          "items": [
+            "Anti-aliasing low-pass filter",
+            "Sample-and-hold",
+            "Quantise (ADC)",
+            "Digital processing",
+            "DAC (zero-order hold)",
+            "Reconstruction low-pass filter"
+          ],
+          "explanation": "The anti-aliasing filter must come **before** sampling: once aliased, components cannot be separated from genuine ones. After processing, the DAC holds each value for $T_s$ (a staircase) and the reconstruction filter removes the copies of the spectrum around multiples of $f_s$."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "The anti-aliasing filter can be placed **after** the sampler, as long as it is a good low-pass filter.",
+          "answer": false,
+          "explanation": "Aliasing happens at the moment of sampling: a 0.9$f_s$ component produces exactly the same samples as a 0.1$f_s$ one. No filter afterwards can tell them apart. The low-pass filter must remove everything above $f_s/2$ before the signal is sampled."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "Zero-padding a record from $N$ to $4N$ samples before the DFT lets you separate two tones that are closer together than $f_s/N$.",
+          "answer": false,
+          "explanation": "Zero-padding adds no new information: it only computes the same underlying spectrum at more closely spaced points (interpolation). The ability to separate two tones is set by the record length $T_0 = N/f_s$: about $1/T_0 = f_s/N$. To resolve closer tones you need a longer record."
+        }
+      ]
+    }
+  ]
+}

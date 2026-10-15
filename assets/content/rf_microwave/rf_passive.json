@@ -1,0 +1,551 @@
+{
+  "id": "rf-passive",
+  "title": "Dividers, Couplers & Circulators",
+  "description": "Split, combine, sample and steer microwave power: T-junctions, Wilkinson dividers, couplers, hybrids, circulators, isolators and attenuators.",
+  "reference": "Pozar §7.1–7.3, §7.5, §7.8; ch. 9",
+  "study": [
+    {
+      "title": "The three-port dilemma",
+      "body": "A three-port cannot be **lossless, reciprocal and matched at all ports** at the same time (the S-matrix would have to be unitary, symmetric and zero on the diagonal, which is impossible). Every practical three-port gives one up:\n- the lossless **T-junction** has unmatched outputs\n- the **resistive divider** (three $Z_0/3$ resistors) is matched but loses half the power: each output gets −6 dB\n- the **Wilkinson** divider is matched and lossless for the wanted signals, but dissipates in its resistor whatever is unbalanced\n- the **circulator** is matched and lossless, but non-reciprocal.",
+      "formula": "S_{resistive} = \\frac{1}{2}\\begin{pmatrix} 0 & 1 & 1 \\\\ 1 & 0 & 1 \\\\ 1 & 1 & 0 \\end{pmatrix}"
+    },
+    {
+      "title": "The lossless T-junction",
+      "body": "Two output lines $Z_1$ and $Z_2$ (each terminated in its own characteristic impedance) are simply in parallel at the junction. The input is matched when their parallel combination equals $Z_0$, and the power divides in proportion to the admittances: the lower-impedance arm gets more. Example: 66.7 Ω and 200 Ω arms on a 50 Ω line split 3 : 1. The outputs are not matched, and λ/4 transformers are needed to bring them back to $Z_0$.",
+      "formula": "\\begin{aligned}& \\frac{1}{Z_1} + \\frac{1}{Z_2} = \\frac{1}{Z_0}\\\\ & P_1 = P_{in}\\frac{Z_0}{Z_1},\\quad P_2 = P_{in}\\frac{Z_0}{Z_2}\\end{aligned}"
+    },
+    {
+      "title": "The Wilkinson divider",
+      "body": "Two λ/4 arms of $\\sqrt{2}Z_0$ (70.7 Ω in a 50 Ω system) transform the two 50 Ω outputs to 100 Ω each, so their parallel combination matches the input. A resistor $2Z_0$ between the outputs carries no current when both outputs are driven equally from port 1, but it absorbs any signal entering one output, which **isolates** the outputs and matches them. Each output is −3 dB with a −90° phase shift. Unequal splits $P_3/P_2 = K^2$ use $Z_{03} = Z_0\\sqrt{(1+K^2)/K^3}$, $Z_{02} = K^2Z_{03}$ and $R = Z_0(K + 1/K)$ (outputs loaded by $KZ_0$ and $Z_0/K$).",
+      "formula": "\\begin{aligned}& Z_{arm} = \\sqrt{2}\\,Z_0,\\quad R = 2Z_0\\\\ & S = \\frac{-j}{\\sqrt{2}}\\begin{pmatrix} 0 & 1 & 1 \\\\ 1 & 0 & 0 \\\\ 1 & 0 & 0 \\end{pmatrix}\\end{aligned}"
+    },
+    {
+      "title": "Directional couplers",
+      "body": "A four-port that samples a wave travelling in one direction. Power enters port 1, most continues to the **through** port 2, a small sample leaves the **coupled** port 3 and ideally nothing reaches the **isolated** port 4. Coupling C says how small the sample is, directivity D how well the coupler tells forward from backward waves, isolation I = C + D. A lossless 20 dB coupler takes only 1 % from the main line: 0.044 dB through loss.",
+      "formula": "\\begin{aligned}& C = 10\\log\\frac{P_1}{P_3},\\quad D = 10\\log\\frac{P_3}{P_4}\\\\ & I = 10\\log\\frac{P_1}{P_4} = C + D\\\\ & P_2 = P_1\\left(1 - 10^{-C/10}\\right)\\end{aligned}"
+    },
+    {
+      "title": "Directivity limits reflection measurements",
+      "body": "A reflectometer measures the reflected wave with a backward-facing coupler. Because of finite directivity, a small part of the much larger forward wave leaks into the same port, with an unknown phase. Relative to the incident wave the error is $10^{-D/20}$, so the measured |Γ| lies anywhere between |Γ| − ε and |Γ| + ε. Example: D = 30 dB (ε = 0.032) and a true return loss of 20 dB (|Γ| = 0.1) can read from 17.6 dB to 23.3 dB. Measure good matches only with high-directivity couplers or a calibrated VNA.",
+      "formula": "|\\Gamma|_{meas} = |\\Gamma| \\pm \\varepsilon,\\qquad \\varepsilon = 10^{-D/20}"
+    },
+    {
+      "title": "90° and 180° hybrids",
+      "body": "Hybrids are 3 dB couplers. The **branch-line (90°) hybrid** has four λ/4 arms, two of $Z_0/\\sqrt{2}$ (35.4 Ω) and two of $Z_0$: driving port 1 gives equal outputs at ports 2 and 3 that are **90° apart** (−90° and −180°), port 4 is isolated. The **rat-race (180°) hybrid** is a ring of $\\sqrt{2}Z_0$, 1.5 λ around: driving the sum port Σ gives two equal **in-phase** outputs, driving the difference port Δ gives two equal outputs **180° apart**; Σ and Δ are isolated from each other. Uses: balanced amplifiers, balanced and image-reject mixers, antenna feeds.",
+      "formula": "S_{90°} = \\frac{-1}{\\sqrt{2}}\\begin{pmatrix} 0 & j & 1 & 0 \\\\ j & 0 & 0 & 1 \\\\ 1 & 0 & 0 & j \\\\ 0 & 1 & j & 0 \\end{pmatrix}"
+    },
+    {
+      "title": "Circulators and isolators",
+      "body": "A magnetized ferrite makes a matched, lossless, **non-reciprocal** three-port: power entering port 1 leaves port 2, port 2 goes to port 3 and port 3 to port 1. With an antenna on port 2, a transmitter on port 1 and a receiver on port 3 it works as a duplexer. Terminate port 3 in a matched load and you get an **isolator**: forward loss typically 0.3–0.5 dB, reverse isolation 20–30 dB. It protects power amplifiers and oscillators from reflections (load pulling).",
+      "formula": "\\begin{aligned}& S_{circ} = \\begin{pmatrix} 0 & 0 & 1 \\\\ 1 & 0 & 0 \\\\ 0 & 1 & 0 \\end{pmatrix}\\\\ & S_{iso} = \\begin{pmatrix} 0 & 0 \\\\ 1 & 0 \\end{pmatrix}\\end{aligned}"
+    },
+    {
+      "title": "Attenuators (pads)",
+      "body": "A matched resistive Π or T network reduces power by A dB and presents $Z_0$ at both ends. Because a reflection crosses the pad twice, a pad in front of a poorly matched load improves the return loss by **2A**: a cheap way to clean up a test setup, at the price of signal level. With $K = 10^{A/20}$, a Π pad uses two shunt resistors $R_1$ and one series resistor $R_2$; a 6 dB pad in 50 Ω is 150 Ω, 37.4 Ω, 150 Ω.",
+      "formula": "\\begin{aligned}& R_1 = Z_0\\frac{K+1}{K-1},\\quad R_2 = Z_0\\frac{K^2-1}{2K}\\\\ & RL_{in} = RL_L + 2A\\end{aligned}",
+      "circuit": {"elements": [
+        {"type": "terminal", "at": [0, 0]},
+        {"type": "terminal", "at": [0, 2]},
+        {"type": "wire", "points": [[0, 0], [1, 0]]},
+        {"type": "resistor", "from": [1, 0], "to": [1, 2], "label": "R_1"},
+        {"type": "resistor", "from": [1, 0], "to": [3, 0], "label": "R_2"},
+        {"type": "resistor", "from": [3, 0], "to": [3, 2], "label": "R_1"},
+        {"type": "wire", "points": [[3, 0], [4, 0]]},
+        {"type": "terminal", "at": [4, 0]},
+        {"type": "terminal", "at": [4, 2]},
+        {"type": "wire", "points": [[0, 2], [4, 2]]},
+        {"type": "node", "at": [1, 0]},
+        {"type": "node", "at": [3, 0]},
+        {"type": "node", "at": [1, 2]},
+        {"type": "node", "at": [3, 2]}
+      ]}
+    }
+  ],
+  "lessons": [
+    {
+      "id": "rf-passive-1",
+      "title": "Power dividers",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Splitting power",
+          "body": "A divider sends the power entering port 1 to ports 2 and 3. Ideally it is matched at every port and lossless, but a reciprocal three-port cannot be both lossless and matched everywhere. Each practical divider therefore makes a compromise: unmatched outputs, resistive loss, or a resistor that only absorbs unbalanced signals."
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "A three-port can be lossless, reciprocal and matched at all three ports.",
+          "answer": false,
+          "explanation": "False. With all $S_{ii} = 0$, symmetry and unitarity, the equations force at least two of $S_{12}$, $S_{13}$, $S_{23}$ to zero, which then breaks the unit-length condition of some column. Drop one requirement: allow loss (resistive or Wilkinson divider), mismatch (T-junction) or non-reciprocity (circulator)."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"k": [1, 2, 3, 4], "Z0": [50, 75]},
+          "prompt": "A lossless T-junction on a {{Z0}} Ω input line must split the power 1 : {{k}} between arm 2 and arm 3, with a matched input.",
+          "ask": [
+            {
+              "prompt": "What characteristic impedance must arm 2 have?",
+              "answer": "Z0*(1+k)",
+              "unit": "Ω",
+              "explanation": "Power divides as the admittances: $P_2 = P_{in}Z_0/Z_2$ must be 1/{{1+k}} of the input, so $Z_2 = Z_0(1+k)$ = {{Z0}} × {{1+k}} = **{{Z0*(1+k)|Ω}}**. Check: 1/$Z_2$ + 1/$Z_3$ = 1/{{Z0}}."
+            },
+            {
+              "prompt": "What characteristic impedance must arm 3 have?",
+              "answer": "Z0*(1+k)/k",
+              "unit": "Ω",
+              "explanation": "Arm 3 takes {{k}}/{{1+k}} of the power: $Z_3 = Z_0(1+k)/k$ = **{{Z0*(1+k)/k|Ω}}**. With $Z_2$ = {{Z0*(1+k)|Ω}}, the parallel combination is {{par(Z0*(1+k), Z0*(1+k)/k)|Ω}} = $Z_0$, so the input is matched."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"P": [0, 10, 20, 27]},
+          "prompt": "{{P}} dBm enters a matched resistive three-port divider (three $Z_0/3$ resistors in a star). How much power leaves each output, in dBm?",
+          "answer": "P-6.02",
+          "unit": "dBm",
+          "absTolerance": 0.05,
+          "explanation": "$|S_{21}| = |S_{31}| = 1/2$, so each output gets $|S_{21}|^2$ = 1/4 of the input power: −6.02 dB. Output: {{P}} − 6.02 = **{{P-6.02}} dBm**. Together the outputs carry only half the input power; the other half heats the resistors."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The Wilkinson divider",
+          "body": "Two λ/4 arms of $\\sqrt{2}Z_0$ turn the 50 Ω outputs into 100 Ω each, which in parallel match the input. A $2Z_0$ resistor between the outputs isolates them: it carries no current when the outputs are driven equally, and absorbs anything that enters a single output.",
+          "formula": "Z_{arm} = \\sqrt{2}Z_0,\\qquad R = 2Z_0"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"Z0": [50, 75], "f": [900000000.0, 2400000000.0, 5800000000.0], "ee": [1.9, 2.9, 6.5]},
+          "prompt": "Design an equal-split Wilkinson divider for a {{Z0}} Ω system at {{f|Hz}} in microstrip with $\\varepsilon_{eff}$ = {{ee}} (for both line impedances, for simplicity).",
+          "ask": [
+            {
+              "prompt": "What characteristic impedance do the two arms need?",
+              "answer": "sqrt(2)*Z0",
+              "unit": "Ω",
+              "explanation": "Each arm must turn $Z_0$ into $2Z_0$ (two of those in parallel give $Z_0$): $Z_{arm} = \\sqrt{Z_0\\cdot 2Z_0} = \\sqrt{2}Z_0$ = **{{sqrt(2)*Z0|Ω}}**."
+            },
+            {
+              "prompt": "What resistor goes between the outputs?",
+              "answer": "2*Z0",
+              "unit": "Ω",
+              "explanation": "The isolation resistor is $R = 2Z_0$ = **{{2*Z0|Ω}}**."
+            },
+            {
+              "prompt": "How long is each arm?",
+              "answer": "3e8/(4*f*sqrt(ee))",
+              "unit": "m",
+              "explanation": "Each arm is λ/4 on the strip: $\\lambda$ = 3 × $10^8$ / ({{f|Hz}} × √{{ee}}) = {{3e8/(f*sqrt(ee))|m}}, so λ/4 = **{{3e8/(4*f*sqrt(ee))|m}}**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A signal enters **output** port 2 of an ideal equal-split Wilkinson divider while ports 1 and 3 are matched. Where does its power go?",
+          "options": [
+            "Half to port 1, half into the resistor, nothing to port 3",
+            "All of it to port 1",
+            "Half to port 1, half to port 3",
+            "All of it into the resistor"
+          ],
+          "answer": 0,
+          "explanation": "$S_{12} = -j/\\sqrt{2}$, so half the power reaches port 1, and $S_{32} = 0$ (the outputs are isolated). The divider is matched at port 2 ($S_{22} = 0$), so nothing reflects: the remaining half is dissipated in the 2$Z_0$ resistor. This is the price of matching and isolating the outputs."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {"P": [0, 10, 20], "phi": [0, 30, 60, 90, 120]},
+          "prompt": "A Wilkinson divider is used backwards as a combiner: two signals of {{P}} dBm each enter ports 2 and 3, with a phase difference of {{phi}}°. How much power leaves port 1, in dBm?",
+          "answer": "P+10*log10(1+cos(rad(phi)))",
+          "unit": "dBm",
+          "absTolerance": 0.05,
+          "explanation": "$b_1 = \\frac{-j}{\\sqrt{2}}(a_2 + a_3)$, so $|b_1|^2 = \\frac{1}{2}|a_2 + a_3|^2 = P(1 + \\cos\\varphi)$ for equal amplitudes. 1 + cos {{phi}}° = {{1+cos(rad(phi))}}, so $P_1$ = {{P}} + 10 log({{1+cos(rad(phi))}}) = **{{P+10*log10(1+cos(rad(phi)))}} dBm**. The rest, $P(1 - \\cos\\varphi)$, heats the resistor; in phase, the two signals add to +3 dB."
+        },
+        {
+          "id": "q7",
+          "type": "slider",
+          "params": {"P": [0, 10], "d": [2, 0, -3, -6]},
+          "derived": {"T": "P+d", "pt": "deg(acos(10^(d/10)-1))"},
+          "prompt": "Two equal signals of {{P}} dBm drive the outputs of a Wilkinson combiner. The green curve is the combined power at port 1, the orange curve the power burnt in the resistor, both versus the phase difference φ. Drag φ until port 1 delivers {{T}} dBm.",
+          "plot": {
+            "x": {"min": 0, "max": 180, "label": "phase difference φ", "unit": "°"},
+            "y": {"min": "P-20", "max": "P+5", "label": "power (dBm)"},
+            "sliders": [{"name": "ph", "label": "φ", "min": 0, "max": 180, "step": 0.5, "value": 0, "unit": "°"}],
+            "curves": [
+              {"f": "P+10*log10(max(1+cos(rad(x)), 0.001))", "label": "port 1", "labelAt": 0.2},
+              {"f": "P+10*log10(max(1-cos(rad(x)), 0.001))", "color": "orange", "label": "resistor", "labelAt": 0.8}
+            ],
+            "hlines": [{"y": "T", "color": "grey"}],
+            "vlines": [{"x": "ph"}],
+            "readouts": [
+              {"label": "port 1", "value": "10^(P/10)*(1+cos(rad(ph)))/1000", "unit": "W"},
+              {"label": "resistor", "value": "10^(P/10)*(1-cos(rad(ph)))/1000", "unit": "W"}
+            ]
+          },
+          "answer": {"ph": "pt"},
+          "tolerance": 0.001,
+          "absTolerance": 2,
+          "explanation": "Port 1 gets $P(1 + \\cos\\varphi)$. For {{T}} dBm: 1 + cos φ = $10^{({{T}} - {{P}})/10}$ = {{10^(d/10)}}, so φ = arccos({{10^(d/10)-1}}) = **{{pt}}°**. The remaining $P(1 - \\cos\\varphi)$ goes into the resistor, so in milliwatts the two curves always add up to the total input, {{P+3.01}} dBm."
+        }
+      ]
+    },
+    {
+      "id": "rf-passive-2",
+      "title": "Directional couplers and hybrids",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Coupling, directivity, isolation",
+          "body": "Port 1 is the input, port 2 the through port, port 3 the coupled port and port 4 the isolated port. Coupling C: how far the sample is below the input. Directivity D: how far the leakage at the isolated port is below the sample. Isolation I = C + D.",
+          "formula": "\\begin{aligned}& C = 10\\log\\frac{P_1}{P_3},\\quad D = 10\\log\\frac{P_3}{P_4}\\\\ & I = C + D\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"P1": [20, 30, 40], "C": [10, 20, 30], "D": [20, 25, 30, 35]},
+          "prompt": "{{P1}} dBm enters port 1 of a lossless directional coupler with C = {{C}} dB and D = {{D}} dB; all other ports are matched.",
+          "absTolerance": 0.1,
+          "ask": [
+            {
+              "prompt": "How much power leaves the coupled port, in dBm?",
+              "answer": "P1-C",
+              "unit": "dBm",
+              "explanation": "$P_3 = P_1 - C$ = {{P1}} − {{C}} = **{{P1-C}} dBm**."
+            },
+            {
+              "prompt": "How much power leaks out of the isolated port, in dBm?",
+              "answer": "P1-C-D",
+              "unit": "dBm",
+              "explanation": "The isolation is I = C + D = {{C+D}} dB, so $P_4$ = {{P1}} − {{C+D}} = **{{P1-C-D}} dBm**."
+            },
+            {
+              "prompt": "How much power continues to the through port, in dBm?",
+              "answer": "P1+10*log10(1-10^(-C/10))",
+              "unit": "dBm",
+              "tolerance": 0.001,
+              "absTolerance": 0.05,
+              "explanation": "The coupler takes $10^{-C/10}$ = {{10^(-C/10)}} of the power (the leakage to port 4 is negligible). Lossless: $P_2 = P_1(1 - 10^{-C/10})$, i.e. {{P1}} + 10 log({{1-10^(-C/10)}}) = **{{P1+10*log10(1-10^(-C/10))}} dBm**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "matchPairs",
+          "prompt": "Match each port of a directional coupler (driven at port 1) to its role.",
+          "pairs": [["Port 1", "Input"], ["Port 2", "Through: most of the power"], ["Port 3", "Coupled: a small sample"], ["Port 4", "Isolated: ideally nothing"]],
+          "explanation": "The wave travelling from port 1 continues to port 2 and couples into port 3. A wave travelling the other way (from port 2) would couple into port 4 instead; that is what makes the coupler directional."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Directivity and reflection measurements",
+          "body": "To measure a reflection, sample the backward wave with a coupler. Finite directivity lets a fraction $\\varepsilon = 10^{-D/20}$ of the forward wave leak into the same port with an unknown phase, so the reading lies between |Γ| − ε and |Γ| + ε.",
+          "formula": "|\\Gamma| - \\varepsilon \\leq |\\Gamma|_{meas} \\leq |\\Gamma| + \\varepsilon"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"RL": [10, 14, 20], "D": [25, 30, 35, 40]},
+          "derived": {"G": "10^(-RL/20)", "eps": "10^(-D/20)"},
+          "require": "D-RL-6",
+          "prompt": "A load with a true return loss of {{RL}} dB is measured with a reflectometer whose coupler has {{D}} dB directivity.",
+          "ask": [
+            {
+              "prompt": "What is the lowest return loss the meter could show?",
+              "answer": "-20*log10(G+eps)",
+              "unit": "dB",
+              "explanation": "|Γ| = $10^{-RL/20}$ = {{G}}, ε = $10^{-D/20}$ = {{eps}}. Worst case the leakage adds in phase: {{G+eps}}, i.e. RL = **{{-20*log10(G+eps)}} dB**."
+            },
+            {
+              "prompt": "What is the highest return loss the meter could show?",
+              "answer": "-20*log10(G-eps)",
+              "unit": "dB",
+              "explanation": "|Γ| = {{G}}, ε = {{eps}}. If the leakage is in antiphase: {{G-eps}}, i.e. RL = **{{-20*log10(G-eps)}} dB**: the load looks better than it is."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Hybrids",
+          "body": "A hybrid is a 3 dB coupler: the input splits equally. In the branch-line (90°) hybrid the two outputs are 90° apart; in the rat-race (180°) hybrid they are in phase when fed from the Σ port and 180° apart when fed from the Δ port. In both, one port stays isolated.",
+          "formula": "\\begin{aligned}& Z_{series} = Z_0/\\sqrt{2}\\\\ & Z_{shunt} = Z_0\\end{aligned}"
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "What comes out of an ideal branch-line (90°) hybrid driven at port 1?",
+          "options": [
+            "Equal halves (−3 dB) at ports 2 and 3, 90° apart; nothing at port 4",
+            "Equal halves at ports 2 and 3, in phase",
+            "Equal halves at ports 2 and 3, 180° apart",
+            "A quarter of the power (−6 dB) at each of ports 2, 3 and 4"
+          ],
+          "answer": 0,
+          "explanation": "From the S-matrix: $S_{21} = -j/\\sqrt{2}$ (−90°), $S_{31} = -1/\\sqrt{2}$ (−180°), $S_{41} = 0$. Both outputs carry half the power and differ by 90°. In-phase or 180° outputs are what a rat-race hybrid gives."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {"Z0": [50, 75, 100]},
+          "prompt": "What characteristic impedance do the two series (through) arms of a branch-line hybrid for {{Z0}} Ω need?",
+          "answer": "Z0/sqrt(2)",
+          "unit": "Ω",
+          "explanation": "The through arms are $Z_0/\\sqrt{2}$ = {{Z0}}/1.414 = **{{Z0/sqrt(2)|Ω}}**; the two shunt arms are {{Z0}} Ω. All four arms are λ/4 long at the centre frequency."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Feeding the Δ port of a rat-race hybrid gives two equal outputs 180° apart, and nothing comes out of the Σ port.",
+          "answer": true,
+          "explanation": "True. The ring paths from the Δ port to the two outputs differ by λ/2, so the outputs are in antiphase, and the two paths to the Σ port cancel. Used backwards, the same hybrid delivers the sum of two inputs at Σ and their difference at Δ."
+        }
+      ]
+    },
+    {
+      "id": "rf-passive-3",
+      "title": "Circulators, isolators and attenuators",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {"p": [1, 2, 3]},
+          "prompt": "A circulator passes power 1 → 2 → 3 → 1. A signal enters port {{p}}. Where does it leave?",
+          "options": ["Port 1", "Port 2", "Port 3"],
+          "shuffle": false,
+          "answer": "mod(p, 3)",
+          "explanation": "Follow the arrow: port 1 goes to 2, port 2 to 3, port 3 back to 1. So a signal entering port {{p}} leaves port **{{mod(p,3)+1}}**. Nothing goes against the arrow (ideally)."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"P": [30, 37, 43], "IL": [0.3, 0.5], "S": [1.5, 2, 3], "I": [20, 25, 30]},
+          "derived": {"G": "(S-1)/(S+1)"},
+          "prompt": "A {{P}} dBm power amplifier drives an antenna with VSWR {{S}} through an isolator with {{IL}} dB insertion loss and {{I}} dB isolation.",
+          "ask": [
+            {
+              "prompt": "How much reflected power gets back to the amplifier, in dBm?",
+              "answer": "P-IL+20*log10(G)-I",
+              "unit": "dBm",
+              "explanation": "Forward through the isolator: {{P}} − {{IL}} = {{P-IL}} dBm reaches the antenna. |Γ| = ({{S}} − 1)/({{S}} + 1) = {{G}}, so {{20*log10(G)}} dB of that reflects: {{P-IL+20*log10(G)}} dBm. The isolator lets only −{{I}} dB of it through backward: **{{P-IL+20*log10(G)-I}} dBm** at the amplifier."
+            },
+            {
+              "prompt": "How much power does the isolator's internal load absorb, in dBm?",
+              "answer": "P-IL+20*log10(G)",
+              "unit": "dBm",
+              "explanation": "The reflected wave, {{P}} − {{IL}} + 20 log({{G}}) = **{{P-IL+20*log10(G)}} dBm**, is steered by the circulator into the load on its third port (neglecting the small reverse loss). That load must be rated for it."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"A": [3, 6, 10, 20], "Z0": [50, 75]},
+          "derived": {"K": "10^(A/20)"},
+          "prompt": "Design a matched Π attenuator of {{A}} dB for a {{Z0}} Ω system.",
+          "ask": [
+            {
+              "prompt": "Find the shunt resistors $R_1$.",
+              "answer": "Z0*(K+1)/(K-1)",
+              "unit": "Ω",
+              "explanation": "$K = 10^{A/20}$ = {{K||4}}. $R_1 = Z_0\\frac{K+1}{K-1}$ = {{Z0}} × {{K+1||4}}/{{K-1||4}} = **{{Z0*(K+1)/(K-1)|Ω}}**."
+            },
+            {
+              "prompt": "Find the series resistor $R_2$.",
+              "answer": "Z0*(K^2-1)/(2*K)",
+              "unit": "Ω",
+              "explanation": "$K = 10^{A/20}$ = {{K||4}}. $R_2 = Z_0\\frac{K^2-1}{2K}$ = {{Z0}} × {{K^2-1||4}}/{{2*K||4}} = **{{Z0*(K^2-1)/(2*K)|Ω}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"Vs": [1, 2, 5], "A": [3, 6, 10]},
+          "derived": {"K": "10^(A/20)", "R1": "50*(K+1)/(K-1)", "R2": "50*(K^2-1)/(2*K)"},
+          "prompt": "A source with open-circuit voltage {{Vs|V}} and 50 Ω internal resistance drives a 50 Ω load through a matched {{A}} dB Π pad ($R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}}). Find the voltage across the load.",
+          "answer": "abs(V_RL)",
+          "unit": "V",
+          "explanation": "The pad is matched, so the source sees 50 Ω and the pad input sits at $V_s/2$ = {{Vs/2|V}}. The pad divides the voltage by $K = 10^{A/20}$ = {{K}}: $V_L$ = {{Vs/2|V}} / {{K}} = **{{abs(V_RL)|V}}**. (Power: {{A}} dB less than the {{(Vs/2)^2/50|W}} a direct connection would deliver.)",
+          "circuit": {"elements": [
+            {"type": "vsource", "name": "Vs", "val": "Vs", "from": [0, 3], "to": [0, 0], "label": "V_s"},
+            {"type": "resistor", "name": "Rs", "val": "50", "from": [0, 0], "to": [2, 0], "label": "R_s"},
+            {"type": "resistor", "name": "R1a", "val": "R1", "from": [2, 0], "to": [2, 3], "label": "R_1"},
+            {"type": "resistor", "name": "R2", "val": "R2", "from": [2, 0], "to": [4, 0], "label": "R_2"},
+            {"type": "resistor", "name": "R1b", "val": "R1", "from": [4, 0], "to": [4, 3], "label": "R_1"},
+            {"type": "wire", "points": [[4, 0], [6, 0]]},
+            {"type": "resistor", "name": "RL", "val": "50", "from": [6, 0], "to": [6, 3], "label": "R_L", "polarity": "+-"},
+            {"type": "wire", "points": [[0, 3], [6, 3]]},
+            {"type": "node", "at": [2, 0]},
+            {"type": "node", "at": [4, 0]},
+            {"type": "node", "at": [2, 3]},
+            {"type": "node", "at": [4, 3]},
+            {"type": "ground", "at": [0, 3]}
+          ]}
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {"RLL": [3, 6, 9], "A": [3, 6, 10]},
+          "derived": {"G": "10^(-(RLL+2*A)/20)"},
+          "prompt": "A badly matched load has a return loss of {{RLL}} dB. You put a matched {{A}} dB pad in front of it. What VSWR does the source now see?",
+          "answer": "(1+G)/(1-G)",
+          "unit": "",
+          "explanation": "The reflection passes the pad twice: RL = {{RLL}} + 2 × {{A}} = {{RLL+2*A}} dB, so |Γ| = {{G}} and VSWR = (1 + {{G}})/(1 − {{G}}) = **{{(1+G)/(1-G)}}** (the load alone: {{(1+10^(-RLL/20))/(1-10^(-RLL/20))}}). The price: {{A}} dB less power at the load."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {"P": [40, 47, 50], "C": [20, 30, 40], "A": [10, 20]},
+          "prompt": "To monitor a {{P}} dBm transmitter, a {{C}} dB directional coupler feeds a power meter through a {{A}} dB attenuator. What does the meter read, in dBm?",
+          "answer": "P-C-A",
+          "unit": "dBm",
+          "absTolerance": 0.1,
+          "explanation": "Losses in dB simply add: {{P}} − {{C}} − {{A}} = **{{P-C-A}} dBm**. The coupler takes only $10^{-C/10}$ of the power, so the transmitter barely notices."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each component to its key property.",
+          "pairs": [
+            ["Wilkinson divider", "Matched everywhere, outputs isolated"],
+            ["Lossless T-junction", "Input matched, outputs not"],
+            ["Resistive divider", "Matched, but −6 dB to each output"],
+            ["Circulator", "Matched and lossless, non-reciprocal"]
+          ],
+          "explanation": "Each three-port gives up one ideal: the T-junction its output match, the resistive divider half its power, the Wilkinson only unbalanced power (in its resistor), the circulator reciprocity."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "Replacing an isolator in front of an oscillator by a 10 dB attenuator gives the same protection against load changes without any drawback.",
+          "answer": false,
+          "explanation": "False. The pad does reduce what reflects back by 2 × 10 = 20 dB, about what an isolator achieves, but it also throws away 90 % (10 dB) of the forward power. An isolator gives 20–30 dB of reverse isolation for only 0.3–0.5 dB of forward loss."
+        }
+      ]
+    },
+    {
+      "id": "rf-passive-4",
+      "title": "Divider and coupler challenge",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {"r": [2, 3, 4], "Z0": [50]},
+          "derived": {"K": "sqrt(r)"},
+          "prompt": "Design an unequal Wilkinson divider for 50 Ω with $P_3/P_2 = K^2$ = {{r}}. Use $Z_{03} = Z_0\\sqrt{(1+K^2)/K^3}$, $Z_{02} = K^2Z_{03}$ and $R = Z_0(K + 1/K)$ (outputs loaded by $KZ_0$ and $Z_0/K$).",
+          "ask": [
+            {
+              "prompt": "Find $Z_{03}$.",
+              "answer": "50*sqrt((1+K^2)/K^3)",
+              "unit": "Ω",
+              "explanation": "$K = \\sqrt{ {{r}} }$ = {{K}}. $Z_{03}$ = 50 × √({{1+r}}/{{K^3}}) = **{{50*sqrt((1+K^2)/K^3)|Ω}}**."
+            },
+            {
+              "prompt": "Find $Z_{02}$.",
+              "answer": "r*50*sqrt((1+K^2)/K^3)",
+              "unit": "Ω",
+              "explanation": "$Z_{03}$ = {{50*sqrt((1+K^2)/K^3)|Ω}}, so $Z_{02} = K^2Z_{03}$ = {{r}} × {{50*sqrt((1+K^2)/K^3)}} = **{{r*50*sqrt((1+K^2)/K^3)|Ω}}**. The arm feeding the weaker output has the higher impedance."
+            },
+            {
+              "prompt": "Find the isolation resistor $R$.",
+              "answer": "50*(K+1/K)",
+              "unit": "Ω",
+              "explanation": "$R = Z_0(K + 1/K)$ = 50 × ({{K}} + {{1/K}}) = **{{50*(K+1/K)|Ω}}** (for K = 1 this gives the familiar 100 Ω)."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {"P": [-10, 0, 10], "G": [0.2, 0.3, 0.4, 0.5]},
+          "prompt": "A balanced amplifier uses two identical amplifiers between two 90° hybrids. Each amplifier input has $|\\Gamma_A|$ = {{G}}. {{P}} dBm drives the input hybrid.",
+          "ask": [
+            {
+              "prompt": "What $|\\Gamma_{in}|$ does the source see (ideal hybrids)?",
+              "answer": "0",
+              "unit": "",
+              "absTolerance": 0.005,
+              "explanation": "One reflection travels the hybrid's −90° path twice (−180° in total), the other its −180° path twice (−360°). At the input port they arrive 180° apart and cancel: $|\\Gamma_{in}|$ = **0** for any $|\\Gamma_A|$, here {{G}} (in practice limited by hybrid imbalance). At the isolated port both arrive with −270° and add."
+            },
+            {
+              "prompt": "How much power ends up in the termination of the input hybrid's isolated port, in dBm?",
+              "answer": "P+20*log10(G)",
+              "unit": "dBm",
+              "explanation": "All reflected power, $|\\Gamma_A|^2$ of the input, is steered to the isolated port: {{P}} + 20 log({{G}}) = **{{P+20*log10(G)}} dBm**. That is why balanced amplifiers give a good input match even with mismatched (e.g. noise-matched) transistors."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {"P": [-20, -10, 0], "phi": [30, 60, 90, 120, 150]},
+          "prompt": "Two signals of {{P}} dBm each, {{phi}}° apart in phase, enter the two outputs of a rat-race hybrid (used as a combiner).",
+          "ask": [
+            {
+              "prompt": "How much power leaves the Σ port, in dBm?",
+              "answer": "P+10*log10(1+cos(rad(phi)))",
+              "unit": "dBm",
+              "absTolerance": 0.05,
+              "explanation": "Σ sums the inputs: $|b_\\Sigma|^2 = \\frac{1}{2}|a_2 + a_3|^2 = P(1 + \\cos\\varphi)$. 1 + cos {{phi}}° = {{1+cos(rad(phi))}}: {{P}} + 10 log({{1+cos(rad(phi))}}) = **{{P+10*log10(1+cos(rad(phi)))}} dBm**."
+            },
+            {
+              "prompt": "How much power leaves the Δ port, in dBm?",
+              "answer": "P+10*log10(1-cos(rad(phi)))",
+              "unit": "dBm",
+              "absTolerance": 0.05,
+              "explanation": "Δ takes the difference: $P(1 - \\cos\\varphi)$. 1 − cos {{phi}}° = {{1-cos(rad(phi))}}: {{P}} + 10 log({{1-cos(rad(phi))}}) = **{{P+10*log10(1-cos(rad(phi)))}} dBm**. Monopulse radars use exactly this to find the direction of a target."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {"k": [1, 2, 3]},
+          "derived": {"Z2": "50*(1+k)", "Z3": "50*(1+k)/k", "Zs": "par(50, 50*(1+k)/k)"},
+          "prompt": "A lossless T-junction splits a 50 Ω line into arms of $Z_2$ = {{Z2|Ω}} and $Z_3$ = {{Z3|Ω}}. Looking back into the junction from arm 2 (input and arm 3 terminated in their own $Z_0$), what is $|\\Gamma|$?",
+          "answer": "abs(Zs-Z2)/(Zs+Z2)",
+          "unit": "",
+          "explanation": "From arm 2 you see the input line and arm 3 in parallel: 50 ∥ {{Z3}} = {{Zs|Ω}}. On a {{Z2|Ω}} line: |Γ| = |{{Zs}} − {{Z2}}| / ({{Zs}} + {{Z2}}) = **{{abs(Zs-Z2)/(Zs+Z2)}}**. That is the unmatched output of the lossless T."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {"P": [30, 40], "IL": [0.4], "I": [20, 25], "S": [1.5, 2]},
+          "derived": {"G": "(S-1)/(S+1)"},
+          "prompt": "A circulator is used as a duplexer: transmitter ({{P}} dBm) on port 1, antenna on port 2, receiver on port 3. It has {{IL}} dB insertion loss and {{I}} dB isolation; the antenna has VSWR {{S}}.",
+          "ask": [
+            {
+              "prompt": "How much transmitter power leaks directly from port 1 to the receiver, in dBm?",
+              "answer": "P-I",
+              "unit": "dBm",
+              "explanation": "Port 1 → port 3 is the reverse direction, attenuated by the isolation: {{P}} − {{I}} = **{{P-I}} dBm**."
+            },
+            {
+              "prompt": "How much transmitter power reaches the receiver via the antenna reflection, in dBm?",
+              "answer": "P-2*IL+20*log10(G)",
+              "unit": "dBm",
+              "explanation": "To the antenna: −{{IL}} dB; reflection |Γ| = {{G}}: {{20*log10(G)}} dB; back through the circulator in the forward direction 2 → 3: −{{IL}} dB. Total: {{P}} − {{2*IL}} + ({{20*log10(G)}}) = **{{P-2*IL+20*log10(G)}} dBm**, compared with {{P-I}} dBm of direct leakage. The antenna match often limits TX–RX isolation."
+            }
+          ]
+        },
+        {
+          "id": "c6",
+          "type": "trueFalse",
+          "prompt": "In a balanced amplifier, if one of the two amplifiers fails completely, the output power drops by 6 dB.",
+          "answer": true,
+          "explanation": "True. The input hybrid sends half the power to each amplifier. With one dead, only the working half arrives at the output hybrid, which splits it again: half to the output, half to its terminated isolated port. 1/2 × 1/2 = 1/4, i.e. −6 dB. The amplifier still works, at reduced power: graceful degradation."
+        }
+      ]
+    }
+  ]
+}

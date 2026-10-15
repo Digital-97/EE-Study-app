@@ -1,0 +1,1296 @@
+{
+  "id": "mdc-discretize",
+  "title": "Sampling & Discretization",
+  "description": "Put a computer in the loop: the zero-order hold, exact discrete state models, the mapping from the s-plane to the z-plane and the choice of sample rate.",
+  "reference": "FPE ch. 8 (§8.1–8.2)",
+  "study": [
+    {
+      "title": "The sampled-data loop",
+      "body": "A computer closes the loop in steps of $T$ seconds. The **A/D converter** samples the error (or $y$), the processor evaluates a difference equation $D(z)$, and the **D/A converter** with a **zero-order hold** (ZOH) keeps $u$ constant until the next sample. The plant itself stays continuous. The sample rate is $f_s = 1/T$, or $\\omega_s = 2\\pi/T$ in rad/s.",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                0.7,
+                0
+              ]
+            ],
+            "label": "r"
+          },
+          {
+            "type": "sum",
+            "at": [
+              1,
+              0
+            ],
+            "kind": "+-"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.3,
+                0
+              ],
+              [
+                1.9,
+                0
+              ]
+            ],
+            "label": "e"
+          },
+          {
+            "type": "block",
+            "at": [
+              2.5,
+              0
+            ],
+            "size": [
+              1.2,
+              0.8
+            ],
+            "label": "A/D",
+            "value": "every T"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3.1,
+                0
+              ],
+              [
+                3.6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4.2,
+              0
+            ],
+            "size": [
+              1.2,
+              0.8
+            ],
+            "label": "D(z)"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.8,
+                0
+              ],
+              [
+                5.4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              6,
+              0
+            ],
+            "size": [
+              1.2,
+              0.8
+            ],
+            "label": "ZOH",
+            "value": "D/A"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.6,
+                0
+              ],
+              [
+                7.6,
+                0
+              ]
+            ],
+            "label": "u"
+          },
+          {
+            "type": "block",
+            "at": [
+              8.2,
+              0
+            ],
+            "size": [
+              1.2,
+              0.8
+            ],
+            "label": "G(s)"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                8.8,
+                0
+              ],
+              [
+                9.3,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              9.3,
+              0
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                9.3,
+                0
+              ],
+              [
+                10,
+                0
+              ]
+            ],
+            "label": "y"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                9.3,
+                0
+              ],
+              [
+                9.3,
+                1.3
+              ],
+              [
+                1,
+                1.3
+              ],
+              [
+                1,
+                0.3
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: the hold and its delay",
+      "body": "The ZOH turns the samples into a staircase. On average the staircase lags the signal by half a sample, $T/2$: at frequency $\\omega$ that is a phase lag of $\\omega T/2$, or $180°/N$ with $N$ samples per period. Fewer samples per period mean a coarser staircase and more lag, which eats phase margin.",
+      "formula": "G_{ZOH}(s) = \\frac{1 - e^{-sT}}{s} \\approx Te^{-sT/2}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 2,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": -1.3,
+          "max": 1.3,
+          "label": "u(t)"
+        },
+        "sliders": [
+          {
+            "name": "N",
+            "label": "samples per period $N$",
+            "min": 4,
+            "max": 40,
+            "step": 1,
+            "value": 8
+          }
+        ],
+        "let": {
+          "Ts": "1/N"
+        },
+        "curves": [
+          {
+            "f": "sin(2*pi*x)",
+            "color": "grey",
+            "dash": true,
+            "label": "signal",
+            "labelAt": 0.06
+          },
+          {
+            "f": "sin(2*pi*Ts*floor(x/Ts))",
+            "label": "held",
+            "labelAt": 0.4
+          },
+          {
+            "f": "sin(2*pi*(x - Ts/2))",
+            "color": "orange",
+            "dash": true,
+            "label": "delayed by T/2",
+            "labelAt": 0.7
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "readouts": [
+          {
+            "label": "phase lag of the hold, $180°/N$",
+            "value": "180/N",
+            "unit": "°"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Discretizing the state equations",
+      "body": "With $u$ held constant over each interval, the state equations can be solved exactly from one sample to the next. The result is a discrete model with $\\Phi = e^{\\mathbf{A}T}$ and $\\Gamma = \\int_0^T e^{\\mathbf{A}\\eta}\\,d\\eta\\,\\mathbf{B}$; $\\mathbf{C}$ and $D$ stay the same. It is exact at the sample instants (no approximation), because the ZOH really does keep $u$ constant. The eigenvalues of $\\Phi$ are $e^{\\lambda_iT}$.",
+      "formula": "\\mathbf{x}[k+1] = \\Phi\\,\\mathbf{x}[k] + \\Gamma u[k]"
+    },
+    {
+      "title": "Two standard results",
+      "body": "- First order, $\\dot x = -ax + bu$: $\\Phi = e^{-aT}$, $\\Gamma = \\frac{b}{a}(1 - e^{-aT})$.\n- Double integrator, $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix}$, $\\mathbf{B} = [0 \\;\\; 1]^T$: the series for $e^{\\mathbf{A}T}$ stops after two terms, so $\\Phi = \\begin{bmatrix} 1 & T \\\\ 0 & 1 \\end{bmatrix}$ and $\\Gamma = \\begin{bmatrix} T^2/2 \\\\ T \\end{bmatrix}$ (a constant acceleration for $T$ seconds).\n**Example:** $a = 2$, $b = 4$, $T = 0.1$ s: $\\Phi = e^{-0.2} = 0.819$, $\\Gamma = 2(1 - 0.819) = 0.363$.",
+      "formula": "\\Gamma = \\frac{b}{a}\\left(1 - e^{-aT}\\right)"
+    },
+    {
+      "title": "ZOH-equivalent transfer function",
+      "body": "The same discretization in transfer-function form: $G(z) = \\mathbf{C}(z\\mathbf{I} - \\Phi)^{-1}\\Gamma + D$, or directly from $G(s)$ with the formula below. For $G(s) = \\frac{a}{s + a}$ it gives $G(z) = \\frac{1 - e^{-aT}}{z - e^{-aT}}$: the pole maps as $z = e^{-aT}$ and the DC gain stays 1. The poles always map by $z = e^{sT}$; the zeros do not follow a simple rule.",
+      "formula": "G(z) = (1 - z^{-1})\\,\\mathcal{Z}\\left\\{\\frac{G(s)}{s}\\right\\}"
+    },
+    {
+      "title": "From s to z",
+      "body": "Sampling maps every pole $s = \\sigma + j\\omega$ to $z = e^{sT}$: radius $|z| = e^{\\sigma T}$, angle $\\angle z = \\omega T$.\n- left half-plane → inside the unit circle; imaginary axis → the unit circle; $s = 0$ → $z = 1$\n- vertical lines (constant decay $\\sigma$) → circles of radius $e^{\\sigma T}$\n- horizontal lines (constant $\\omega$) → rays at angle $\\omega T$; $\\omega = \\omega_s/2$ → the negative real axis\n- $\\omega$ and $\\omega + \\omega_s$ give the same $z$: aliasing",
+      "formula": "z = e^{sT}"
+    },
+    {
+      "title": "Explore: s-plane to z-plane",
+      "body": "Move a pole pair $\\sigma \\pm j\\omega$ around the s-plane ($T$ = 0.1 s, so $\\omega_s$ = 62.8 rad/s). Faster decay pulls the poles toward the origin; at $\\sigma = 0$ they sit on the unit circle; positive $\\sigma$ pushes them outside. Raising $\\omega$ to $\\omega_s/2$ = 31.4 rad/s swings them round to the negative real axis.",
+      "plot": {
+        "x": {
+          "min": -1.2,
+          "max": 1.2,
+          "label": "Re z"
+        },
+        "y": {
+          "min": -1.2,
+          "max": 1.2,
+          "label": "Im z"
+        },
+        "equal": true,
+        "height": 260,
+        "sliders": [
+          {
+            "name": "sg",
+            "label": "$\\sigma$ (real part of $s$)",
+            "min": -10,
+            "max": 2,
+            "step": 0.1,
+            "value": -2
+          },
+          {
+            "name": "w",
+            "label": "$\\omega$",
+            "min": 0,
+            "max": 31,
+            "step": 0.5,
+            "value": 10,
+            "unit": "rad/s"
+          }
+        ],
+        "let": {
+          "rz": "exp(sg*0.1)",
+          "th": "w*0.1"
+        },
+        "curves": [
+          {
+            "x": "1*cos(t)",
+            "y": "1*sin(t)",
+            "t": [
+              0,
+              "2*pi"
+            ],
+            "color": "grey"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0
+          }
+        ],
+        "points": [
+          {
+            "x": "rz*cos(th)",
+            "y": "rz*sin(th)",
+            "marker": "x",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": "rz*cos(th)",
+            "y": "-rz*sin(th)",
+            "marker": "x",
+            "guides": false,
+            "color": "red"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$|z| = e^{\\sigma T}$",
+            "value": "rz"
+          },
+          {
+            "label": "$\\angle z = \\omega T$",
+            "value": "deg(th)",
+            "unit": "°"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Choosing the sample rate",
+      "body": "Nyquist ($\\omega_s > 2\\omega_{BW}$) is only the bare minimum for reconstructing a signal. For control, the hold delay $T/2$, the computation time and an anti-alias filter all add phase lag, and a coarse staircase makes the response rough. A practical rule (FPE): sample at roughly **20 to 30 times the closed-loop bandwidth**. Much faster gives little extra and needs more computing power and more numerical precision (all poles crowd near $z = 1$).",
+      "formula": "\\omega_s \\approx (20\\text{–}30)\\,\\omega_{BW}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "mdc-discretize-1",
+      "title": "Sampling and the hold",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "A computer in the loop",
+          "body": "In a digital controller the error is sampled every $T$ seconds, the processor computes a new control value, and the D/A converter holds it until the next sample. Between samples the controller is blind: it neither sees $y$ nor changes $u$. Everything in this unit follows from that.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.7,
+                    0
+                  ]
+                ],
+                "label": "r"
+              },
+              {
+                "type": "sum",
+                "at": [
+                  1,
+                  0
+                ],
+                "kind": "+-"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.3,
+                    0
+                  ],
+                  [
+                    1.9,
+                    0
+                  ]
+                ],
+                "label": "e"
+              },
+              {
+                "type": "block",
+                "at": [
+                  2.5,
+                  0
+                ],
+                "size": [
+                  1.2,
+                  0.8
+                ],
+                "label": "A/D",
+                "value": "every T"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    3.1,
+                    0
+                  ],
+                  [
+                    3.6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  4.2,
+                  0
+                ],
+                "size": [
+                  1.2,
+                  0.8
+                ],
+                "label": "D(z)"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.8,
+                    0
+                  ],
+                  [
+                    5.4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  6,
+                  0
+                ],
+                "size": [
+                  1.2,
+                  0.8
+                ],
+                "label": "ZOH",
+                "value": "D/A"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.6,
+                    0
+                  ],
+                  [
+                    7.6,
+                    0
+                  ]
+                ],
+                "label": "u"
+              },
+              {
+                "type": "block",
+                "at": [
+                  8.2,
+                  0
+                ],
+                "size": [
+                  1.2,
+                  0.8
+                ],
+                "label": "G(s)"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    8.8,
+                    0
+                  ],
+                  [
+                    9.3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  9.3,
+                  0
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    9.3,
+                    0
+                  ],
+                  [
+                    10,
+                    0
+                  ]
+                ],
+                "label": "y"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    9.3,
+                    0
+                  ],
+                  [
+                    9.3,
+                    1.3
+                  ],
+                  [
+                    1,
+                    1.3
+                  ],
+                  [
+                    1,
+                    0.3
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "orderSteps",
+          "prompt": "Put what happens during one sample period in order.",
+          "items": [
+            "The A/D converter samples $e(kT)$",
+            "The processor computes $u[k]$ from the difference equation",
+            "The D/A converter outputs $u[k]$",
+            "The zero-order hold keeps $u[k]$ until $t = (k+1)T$"
+          ],
+          "explanation": "Sample, compute, output, hold. The computation takes some time too, which adds delay; the hold then keeps the value constant over the whole interval. These delays are why the sample rate matters for stability, not just for accuracy."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The zero-order hold",
+          "body": "The hold turns the sequence $u[k]$ into a staircase. Compared with a smooth signal through the sample points, the staircase lags by half a sample on average. So the ZOH acts approximately like a delay $e^{-sT/2}$, a phase lag that grows with frequency.",
+          "formula": "\\Delta\\phi = \\frac{\\omega T}{2}\\;\\text{rad} = 180°\\cdot\\frac{f}{f_s}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "wc": [
+              5,
+              10,
+              20,
+              50
+            ],
+            "T": [
+              0.001,
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "require": "0.6 - wc*T",
+          "prompt": "A loop has its crossover at $\\omega_c$ = {{wc}} rad/s and is sampled with $T$ = {{T|s}}. How much phase lag does the zero-order hold add at crossover (in degrees)?",
+          "answer": "deg(wc*T/2)",
+          "unit": "°",
+          "tolerance": 0.02,
+          "explanation": "Half a sample of delay: $\\Delta\\phi = \\omega_cT/2$ = {{wc}} × {{T}}/2 = {{wc*T/2}} rad = {{deg(wc*T/2)}}°. That comes straight off the phase margin, so a slow sample rate can destabilize a loop that was fine in continuous time."
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "X": [
+              9,
+              10,
+              15,
+              18,
+              30
+            ]
+          },
+          "prompt": "A 1 Hz sine is sampled and held. Choose the number of samples per period $N$ so that the hold lags the signal by {{X}}°.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 2,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": -1.3,
+              "max": 1.3,
+              "label": "u(t)"
+            },
+            "sliders": [
+              {
+                "name": "N",
+                "label": "samples per period $N$",
+                "min": 4,
+                "max": 40,
+                "step": 1,
+                "value": 4
+              }
+            ],
+            "let": {
+              "Ts": "1/N"
+            },
+            "curves": [
+              {
+                "f": "sin(2*pi*x)",
+                "color": "grey",
+                "dash": true,
+                "label": "signal",
+                "labelAt": 0.06
+              },
+              {
+                "f": "sin(2*pi*Ts*floor(x/Ts))",
+                "label": "held",
+                "labelAt": 0.4
+              },
+              {
+                "f": "sin(2*pi*(x - Ts/2))",
+                "color": "orange",
+                "dash": true,
+                "label": "delayed by T/2",
+                "labelAt": 0.7,
+                "reveal": true
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "readouts": [
+              {
+                "label": "phase lag of the hold, $180°/N$",
+                "value": "180/N",
+                "unit": "°",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "N": "180/X"
+          },
+          "absTolerance": 0.6,
+          "explanation": "The hold delays by $T/2$, a phase lag of $360° \\cdot \\frac{T/2}{1\\,\\mathrm{s}} = \\frac{180°}{N}$. For {{X}}°: $N$ = 180/{{X}} = {{180/X}} samples per period. The orange dashed curve is the signal delayed by $T/2$; the staircase wraps around it."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "How fast to sample?",
+          "body": "Sampling at twice the bandwidth (Nyquist) is far too slow for control: the hold alone would add 90° of lag at that frequency. Rule of thumb: sample **20 to 30 times faster than the closed-loop bandwidth**. Then the hold costs only a few degrees and the digital controller behaves almost like the continuous design.",
+          "formula": "\\omega_s \\ge 20\\,\\omega_{BW}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "wb": [
+              5,
+              10,
+              20,
+              50,
+              100
+            ]
+          },
+          "prompt": "A closed-loop design has a bandwidth of {{wb}} rad/s. What is the slowest sample rate $f_s$ (in Hz) that follows the rule $\\omega_s \\ge 20\\,\\omega_{BW}$?",
+          "answer": "20*wb/(2*pi)",
+          "unit": "Hz",
+          "explanation": "$\\omega_s = 20 \\times$ {{wb}} = {{20*wb}} rad/s, so $f_s = \\omega_s/2\\pi$ = {{20*wb/(2*pi)|Hz}}, a sample period of {{2*pi/(20*wb)|s}}. Mixing up rad/s and Hz (a factor $2\\pi$) is the classic mistake here."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Sampling at twice the closed-loop bandwidth (the Nyquist rate) is enough for good digital control.",
+          "answer": false,
+          "explanation": "The Nyquist rate only guarantees that a band-limited signal can be reconstructed by an ideal filter. In a loop, the hold adds a lag of $\\omega T/2$, which at $\\omega_s = 2\\omega_{BW}$ is $\\pi/2$ (90°) at the bandwidth, and the response becomes a coarse staircase. That is why 20–30× is used."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "PM": [
+              45,
+              50,
+              60
+            ],
+            "wc": [
+              10,
+              20,
+              30
+            ],
+            "T": [
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "A continuous design has {{PM}}° phase margin at $\\omega_c$ = {{wc}} rad/s. It is implemented with sample period $T$ = {{T|s}}. Estimate the phase margin left after the zero-order hold (in degrees).",
+          "answer": "PM - deg(wc*T/2)",
+          "unit": "°",
+          "tolerance": 0.02,
+          "explanation": "The hold adds a lag of $\\omega_cT/2$ = {{wc*T/2}} rad = {{deg(wc*T/2)}}° at crossover (computation delay would add more). New margin ≈ {{PM}}° − {{deg(wc*T/2)}}° = {{PM - deg(wc*T/2)}}°."
+        }
+      ]
+    },
+    {
+      "id": "mdc-discretize-2",
+      "title": "Discrete state equations",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Exact discretization",
+          "body": "Between samples $u$ is constant, so the solution of $\\dot{\\mathbf{x}} = \\mathbf{A}\\mathbf{x} + \\mathbf{B}u$ over one interval follows from the matrix exponential: the free part $e^{\\mathbf{A}T}\\mathbf{x}[k]$ plus the response to a constant input. This is exact at the sample instants.",
+          "formula": "\\Phi = e^{\\mathbf{A}T}, \\quad \\Gamma = \\int_0^Te^{\\mathbf{A}\\eta}d\\eta\\,\\mathbf{B}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              5,
+              10
+            ],
+            "b": [
+              1,
+              2,
+              4
+            ],
+            "T": [
+              0.01,
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "Discretize $\\dot x = -ax + bu$ with $a$ = {{a}}, $b$ = {{b}} for a ZOH with $T$ = {{T|s}}.",
+          "ask": [
+            {
+              "prompt": "Find $\\Phi$.",
+              "answer": "exp(-a*T)",
+              "unit": "",
+              "explanation": "$\\Phi = e^{-aT} = e^{-{{a*T}}}$ = {{exp(-a*T)||4}}. This is also the discrete pole: the continuous pole $-a$ mapped by $z = e^{sT}$."
+            },
+            {
+              "prompt": "Find $\\Gamma$.",
+              "answer": "b/a*(1 - exp(-a*T))",
+              "unit": "",
+              "explanation": "$\\Gamma = \\int_0^Te^{-a\\eta}d\\eta\\cdot b = \\frac{b}{a}(1 - e^{-aT})$ = ({{b}}/{{a}})(1 − {{exp(-a*T)||4}}) = {{b/a*(1 - exp(-a*T))}}. For small $aT$ this is close to $bT$ = {{b*T}} (Euler)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "m": [
+              0.5,
+              1,
+              2,
+              5
+            ],
+            "T": [
+              0.01,
+              0.02,
+              0.1
+            ]
+          },
+          "prompt": "A {{m}} kg mass driven by a force, $\\ddot p = F/m$, with states $[p \\;\\; \\dot p]^T$, is sampled with a ZOH at $T$ = {{T|s}}.",
+          "ask": [
+            {
+              "prompt": "Find the first entry of $\\Gamma$.",
+              "answer": "T^2/(2*m)",
+              "unit": "",
+              "explanation": "$\\mathbf{B} = [0 \\;\\; 1/m]^T$ and $e^{\\mathbf{A}\\eta} = \\begin{bmatrix} 1 & \\eta \\\\ 0 & 1 \\end{bmatrix}$, so $\\Gamma = \\frac{1}{m}\\begin{bmatrix} T^2/2 \\\\ T \\end{bmatrix}$. First entry: $T^2/(2m)$ = {{T^2/(2*m)}} (the distance travelled under a unit force held for $T$)."
+            },
+            {
+              "prompt": "Find the second entry of $\\Gamma$.",
+              "answer": "T/m",
+              "unit": "",
+              "explanation": "$\\Gamma = \\frac{1}{m}[T^2/2 \\;\\; T]^T$; second entry $T/m$ = {{T/m}} (the velocity gained under a unit force held for $T$)."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Poles map by $z = e^{sT}$",
+          "body": "The eigenvalues of $\\Phi = e^{\\mathbf{A}T}$ are $e^{\\lambda_iT}$. So a continuous pole $\\sigma \\pm j\\omega$ becomes a discrete pole with radius $e^{\\sigma T}$ and angle $\\pm\\omega T$. Stable poles ($\\sigma < 0$) land inside the unit circle.",
+          "formula": "|z| = e^{\\sigma T}, \\quad \\angle z = \\omega T"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "sg": [
+              1,
+              2,
+              5,
+              10
+            ],
+            "w": [
+              5,
+              10,
+              20
+            ],
+            "T": [
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "require": "pi - w*T",
+          "prompt": "A continuous pole at $s = -{{sg}} + j{{w}}$ is sampled with $T$ = {{T|s}}.",
+          "ask": [
+            {
+              "prompt": "Find $|z|$.",
+              "answer": "exp(-sg*T)",
+              "unit": "",
+              "explanation": "$|z| = e^{\\sigma T} = e^{-{{sg}} \\times {{T}}}$ = {{exp(-sg*T)}}. Only the real part of $s$ sets the radius."
+            },
+            {
+              "prompt": "Find the angle of $z$ in degrees.",
+              "answer": "deg(w*T)",
+              "unit": "°",
+              "explanation": "$\\angle z = \\omega T$ = {{w}} × {{T}} = {{w*T}} rad = {{deg(w*T)}}°. Only the imaginary part sets the angle; at $\\omega = \\omega_s/2$ it would reach 180°."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each s-plane feature to its image in the z-plane.",
+          "pairs": [
+            [
+              "Left half-plane",
+              "Inside the unit circle"
+            ],
+            [
+              "Imaginary axis",
+              "The unit circle"
+            ],
+            [
+              "$s = 0$",
+              "$z = 1$"
+            ],
+            [
+              "Vertical line $\\mathrm{Re}\\,s = -\\sigma$",
+              "Circle of radius $e^{-\\sigma T}$"
+            ],
+            [
+              "$\\omega = \\omega_s/2$",
+              "Negative real axis"
+            ]
+          ],
+          "explanation": "$z = e^{sT}$: $|z| = e^{\\sigma T}$ is below 1 exactly for $\\sigma < 0$ and equal to 1 on the imaginary axis; $s = 0$ gives $e^0 = 1$. A fixed $\\sigma$ fixes the radius. The angle $\\omega T$ reaches $\\pi$ at $\\omega = \\pi/T = \\omega_s/2$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.5,
+              0.6,
+              0.7
+            ],
+            "th": [
+              0.35,
+              0.5,
+              0.8
+            ],
+            "T": [
+              0.01,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "The z-plane plot shows the closed-loop poles of a digital control system with $T$ = {{T|s}}. Read their position and estimate the 2 % settling time.",
+          "answer": "-4*T/ln(r)",
+          "unit": "s",
+          "tolerance": 0.15,
+          "explanation": "The poles are at about {{r*cos(th)}} ± j{{r*sin(th)}}, so $|z| = \\sqrt{ {{r*cos(th)}}^2 + {{r*sin(th)}}^2 }$ ≈ {{r}}. From $|z| = e^{\\sigma T}$ ($\\sigma$ the real part of the s-plane poles): $\\sigma = \\ln|z|/T$ = {{ln(r)/T}} $\\mathrm{s^{-1}}$, and $T_s \\approx 4/|\\sigma|$ = {{-4*T/ln(r)|s}}. Equivalently: the envelope shrinks by $|z|$ per sample and needs about {{-4/ln(r)}} samples to reach 2 %.",
+          "plot": {
+            "x": {
+              "min": -0.2,
+              "max": 1.2,
+              "label": "Re z",
+              "ticks": [
+                -0.2,
+                0,
+                0.2,
+                0.4,
+                0.6,
+                0.8,
+                1,
+                1.2
+              ]
+            },
+            "y": {
+              "min": -0.8,
+              "max": 0.8,
+              "label": "Im z",
+              "ticks": [
+                -0.8,
+                -0.6,
+                -0.4,
+                -0.2,
+                0,
+                0.2,
+                0.4,
+                0.6,
+                0.8
+              ]
+            },
+            "equal": true,
+            "height": 300,
+            "curves": [
+              {
+                "x": "1*cos(t)",
+                "y": "1*sin(t)",
+                "t": [
+                  0,
+                  "2*pi"
+                ],
+                "color": "grey"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0
+              }
+            ],
+            "points": [
+              {
+                "x": "r*cos(th)",
+                "y": "r*sin(th)",
+                "marker": "x",
+                "color": "red",
+                "guides": true
+              },
+              {
+                "x": "r*cos(th)",
+                "y": "-r*sin(th)",
+                "marker": "x",
+                "color": "red",
+                "guides": false
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mdc-discretize-3",
+      "title": "From s to z in practice",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              5,
+              10,
+              20
+            ],
+            "T": [
+              0.01,
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "Find the ZOH equivalent of $G(s) = \\frac{ {{a}} }{s + {{a}}}$ for $T$ = {{T|s}}, written as $G(z) = \\frac{\\beta}{z - p}$.",
+          "ask": [
+            {
+              "prompt": "Find the pole $p$.",
+              "answer": "exp(-a*T)",
+              "unit": "",
+              "explanation": "Scalar model $\\dot x = -{{a}}x + {{a}}u$: $\\Phi = e^{-aT}$ = {{exp(-a*T)||4}}, which is the pole of $G(z) = \\frac{\\Gamma}{z - \\Phi}$."
+            },
+            {
+              "prompt": "Find $\\beta$.",
+              "answer": "1 - exp(-a*T)",
+              "unit": "",
+              "explanation": "$\\Gamma = \\frac{b}{a}(1 - e^{-aT})$ with $b = a$: $\\beta = 1 - e^{-aT}$ = {{1 - exp(-a*T)||4}}. Check the DC gain: $G(1) = \\frac{\\beta}{1 - p} = 1$, the same as $G(0)$, as it must be for a ZOH equivalent."
+            }
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2
+            ],
+            "l2": [
+              -5,
+              -10,
+              -20
+            ],
+            "T": [
+              0.01,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} {{l1}} & 0 \\\\ 0 & {{l2}} \\end{bmatrix}$ is discretized with $T$ = {{T|s}}. Find the bottom-right entry of $\\Phi$.",
+          "answer": "exp(l2*T)",
+          "unit": "",
+          "explanation": "For a diagonal $\\mathbf{A}$, $\\Phi = e^{\\mathbf{A}T} = \\mathrm{diag}(e^{\\lambda_1T}, e^{\\lambda_2T})$. Bottom-right: $e^{ {{l2}} \\times {{T}} }$ = {{exp(l2*T)}}."
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "T": [
+              0.01,
+              0.02,
+              0.05,
+              0.1
+            ],
+            "Ts": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "A digital design with $T$ = {{T|s}} must settle (2 %) within {{Ts|s}}. All closed-loop poles must then lie inside a circle of radius $r$ in the z-plane. Find $r$.",
+          "answer": "exp(-4*T/Ts)",
+          "unit": "",
+          "explanation": "$T_s \\approx 4/|\\sigma|$ needs a decay rate $|\\sigma| \\ge 4/T_s$ = {{4/Ts}} $\\mathrm{s^{-1}}$. The vertical line $\\mathrm{Re}\\,s = -4/T_s$ maps to a circle of radius $e^{-4T/T_s}$ = $e^{-{{4*T/Ts}}}$ = {{exp(-4*T/Ts)}}. Poles inside that circle are fast enough."
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {
+            "wd": [
+              2,
+              5,
+              10,
+              20
+            ],
+            "T": [
+              0.005,
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "require": "2*pi/(wd*T) - 4",
+          "prompt": "Closed-loop poles have a damped frequency $\\omega_d$ = {{wd}} rad/s and the sample period is $T$ = {{T|s}}. How many samples fall in one period of the damped oscillation?",
+          "answer": "2*pi/(wd*T)",
+          "unit": "",
+          "explanation": "The pole angle is $\\omega_dT$ = {{wd*T}} rad per sample; a full period needs $2\\pi$ rad, so $N = \\frac{2\\pi}{\\omega_dT}$ = {{2*pi/(wd*T)}} samples. With fewer than about 10 the response looks coarse; FPE's rule of 20–30× the bandwidth gives many more."
+        },
+        {
+          "id": "p5",
+          "type": "multipleChoice",
+          "prompt": "With $T$ = 0.5 s ($\\omega_s = 4\\pi \\approx 12.57$ rad/s), which s-plane pole maps to the **same** $z$ as $s = -1 + j2$?",
+          "options": [
+            "$s = -1 + j14.57$",
+            "$s = -1 + j8.28$",
+            "$s = -1 - j2$",
+            "$s = -2 + j2$"
+          ],
+          "answer": 0,
+          "explanation": "$z = e^{sT}$ is periodic in $\\omega$ with period $\\omega_s = 2\\pi/T$: $e^{(\\sigma + j(\\omega + \\omega_s))T} = e^{(\\sigma + j\\omega)T}e^{j2\\pi}$. So $-1 + j(2 + 12.57)$ gives the same $z$: the two are aliases. Adding $\\omega_s/2$ gives the opposite angle, the conjugate gives the conjugate $z$, and a different real part a different radius."
+        },
+        {
+          "id": "p6",
+          "type": "trueFalse",
+          "prompt": "$\\Phi = e^{\\mathbf{A}T}$ is invertible for every $\\mathbf{A}$ and every $T$.",
+          "answer": true,
+          "explanation": "$\\det e^{\\mathbf{A}T} = e^{\\mathrm{tr}(\\mathbf{A})T} > 0$, and $e^{-\\mathbf{A}T}$ is its inverse. So a discretized continuous plant never has an eigenvalue at $z = 0$: every pole $e^{\\lambda T}$ is nonzero. Poles at $z = 0$ only appear when delays are modelled as extra states (computation delay, transport delay) or in the digital controller itself (deadbeat designs)."
+        }
+      ]
+    },
+    {
+      "id": "mdc-discretize-4",
+      "title": "Discrete models",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              5,
+              10
+            ],
+            "b": [
+              10,
+              20,
+              50
+            ],
+            "T": [
+              0.01,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "A motor $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ 0 & -{{a}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ {{b}} \\end{bmatrix}$ (angle, speed) is discretized with a ZOH, $T$ = {{T|s}}.",
+          "ask": [
+            {
+              "prompt": "Find the top-right entry of $\\Phi$.",
+              "answer": "(1 - exp(-a*T))/a",
+              "unit": "",
+              "explanation": "The speed decays as $e^{-at}$ and the angle integrates it: $\\Phi = \\begin{bmatrix} 1 & \\frac{1 - e^{-aT}}{a} \\\\ 0 & e^{-aT} \\end{bmatrix}$. Top-right: (1 − {{exp(-a*T)||4}})/{{a}} = {{(1 - exp(-a*T))/a}}."
+            },
+            {
+              "prompt": "Find the first entry of $\\Gamma$.",
+              "answer": "b/a*(T - (1 - exp(-a*T))/a)",
+              "unit": "",
+              "explanation": "$\\Gamma = b\\int_0^T\\begin{bmatrix} \\frac{1 - e^{-a\\eta}}{a} \\\\ e^{-a\\eta} \\end{bmatrix}d\\eta$, first entry $\\frac{b}{a}\\left(T - \\frac{1 - e^{-aT}}{a}\\right)$ = ({{b}}/{{a}})({{T}} − {{(1 - exp(-a*T))/a||4}}) = {{b/a*(T - (1 - exp(-a*T))/a)}}."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              5
+            ],
+            "T": [
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "The ZOH equivalent of the motor $G(s) = \\frac{ {{a}} }{s(s + {{a}})}$ with $T$ = {{T|s}} has two poles ($z = 1$ and $z = e^{-aT}$) and one zero. Find the zero.",
+          "answer": "-(1 - exp(-a*T) - a*T*exp(-a*T))/(a*T - 1 + exp(-a*T))",
+          "unit": "",
+          "explanation": "With $E = e^{-aT}$ = {{exp(-a*T)||4}}: $\\Phi = \\begin{bmatrix} 1 & \\frac{1-E}{a} \\\\ 0 & E \\end{bmatrix}$, $\\Gamma = \\begin{bmatrix} T - \\frac{1-E}{a} \\\\ 1 - E \\end{bmatrix}$ (here $b = a$), $\\mathbf{C} = [1 \\;\\; 0]$.\n$G(z) = \\mathbf{C}(z\\mathbf{I} - \\Phi)^{-1}\\Gamma = \\frac{\\gamma_1(z - E) + \\phi_{12}\\gamma_2}{(z - 1)(z - E)}$, so the zero is at $z = E - \\frac{\\phi_{12}\\gamma_2}{\\gamma_1} = -\\frac{1 - E - aTE}{aT - 1 + E}$ = {{-(1 - exp(-a*T) - a*T*exp(-a*T))/(a*T - 1 + exp(-a*T))}}.\nIt lies just inside $-1$ for fast sampling: sampling creates a zero that has no continuous counterpart."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "wc": [
+              5,
+              10,
+              20,
+              50
+            ],
+            "X": [
+              5,
+              10,
+              15
+            ]
+          },
+          "prompt": "A loop crosses over at $\\omega_c$ = {{wc}} rad/s. The hold may cost at most {{X}}° of phase margin. Find the longest allowed sample period $T$.",
+          "answer": "2*rad(X)/wc",
+          "unit": "s",
+          "explanation": "Hold lag $\\omega_cT/2 \\le$ {{X}}° = {{rad(X)}} rad, so $T \\le 2 \\times {{rad(X)}}/{{wc}}$ = {{2*rad(X)/wc|s}}, i.e. $f_s = 1/T \\ge$ {{wc/(2*rad(X))|Hz}}. Computation delay would tighten this further."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "zt": [
+              0.5,
+              0.6,
+              0.7,
+              0.8
+            ],
+            "wn": [
+              2,
+              5,
+              10
+            ],
+            "T": [
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "A design asks for continuous-time poles with $\\zeta$ = {{zt}} and $\\omega_n$ = {{wn}} rad/s. Where should the discrete closed-loop poles go for $T$ = {{T|s}}?",
+          "ask": [
+            {
+              "prompt": "Find $|z|$.",
+              "answer": "exp(-zt*wn*T)",
+              "unit": "",
+              "explanation": "$s = -\\zeta\\omega_n \\pm j\\omega_n\\sqrt{1-\\zeta^2}$ = −{{zt*wn}} ± j{{wn*sqrt(1-zt^2)}}. $|z| = e^{-\\zeta\\omega_nT} = e^{-{{zt*wn*T}}}$ = {{exp(-zt*wn*T)}}."
+            },
+            {
+              "prompt": "Find the angle of $z$ in degrees.",
+              "answer": "deg(wn*sqrt(1 - zt^2)*T)",
+              "unit": "°",
+              "explanation": "$\\angle z = \\omega_dT = \\omega_n\\sqrt{1-\\zeta^2}\\,T$ = {{wn*sqrt(1-zt^2)}} × {{T}} = {{wn*sqrt(1-zt^2)*T}} rad = {{deg(wn*sqrt(1 - zt^2)*T)}}°."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              5
+            ],
+            "b": [
+              1,
+              2,
+              4
+            ],
+            "T": [
+              0.1,
+              0.2
+            ],
+            "k": [
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "$\\dot x = -ax + bu$ ($a$ = {{a}}, $b$ = {{b}}) is discretized with $T$ = {{T|s}} and starts at $x[0] = 0$; a unit step $u[k] = 1$ is applied. Find $x[{{k}}]$ by iterating $x[k+1] = \\Phi x[k] + \\Gamma u[k]$.",
+          "answer": "b/a*(1 - exp(-a*k*T))",
+          "unit": "",
+          "explanation": "$\\Phi = e^{-aT}$ = {{exp(-a*T)||4}}, $\\Gamma = \\frac{b}{a}(1 - \\Phi)$ = {{b/a*(1 - exp(-a*T))||4}}. Iterating gives $x[k] = \\frac{b}{a}(1 - \\Phi^k)$, here {{b/a*(1 - exp(-a*k*T))}}. That equals the continuous step response $\\frac{b}{a}(1 - e^{-at})$ at $t = kT$ = {{k*T|s}}: the ZOH model is exact at the samples."
+        },
+        {
+          "id": "c6",
+          "type": "trueFalse",
+          "prompt": "Sampling a stable continuous system always gives a stable discrete model, whatever $T$ is.",
+          "answer": true,
+          "explanation": "Every eigenvalue maps as $z = e^{\\lambda T}$ with $|z| = e^{\\mathrm{Re}(\\lambda)T} < 1$ for $\\mathrm{Re}\\,\\lambda < 0$ and any $T > 0$. The open-loop plant stays stable. What a slow sample rate can destabilize is the **closed loop**, through the extra phase lag of the hold."
+        }
+      ]
+    }
+  ]
+}

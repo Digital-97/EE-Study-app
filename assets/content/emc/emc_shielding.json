@@ -1,0 +1,1085 @@
+{
+ "id": "emc-shielding",
+ "title": "Shielding",
+ "description": "Predict how much a metal shield attenuates near and far fields, and keep apertures, seams and cavities from ruining it.",
+ "reference": "Ott ch. 6",
+ "study": [
+  {
+   "title": "Near field and far field",
+   "body": "Close to a source the field is a **near field**, and its wave impedance $Z_w = E/H$ depends on the source. A high-voltage, low-current source (a short wire, a fast voltage node) gives a mainly **electric** field with $Z_w$ > 377 Ω; a high-current loop gives a mainly **magnetic** field with $Z_w$ < 377 Ω. Beyond $r = \\lambda/2\\pi$ (about $\\lambda/6$) both become a **plane wave** with $Z_w$ = 377 Ω.",
+   "formula": "\\begin{aligned}r &= \\frac{\\lambda}{2\\pi} = \\frac{c}{2\\pi f}\\\\ Z_0 &= \\sqrt{\\mu_0/\\varepsilon_0} = 377\\ \\Omega\\end{aligned}",
+   "plot": {
+    "x": {
+     "min": 0.01,
+     "max": 100,
+     "label": "r / (λ/2π)",
+     "log": true
+    },
+    "y": {
+     "min": 1,
+     "max": 100000.0,
+     "label": "|Z_w|",
+     "unit": "Ω",
+     "log": true
+    },
+    "curves": [
+     {
+      "f": "377*sqrt(((1 - 1/x^2)^2 + 1/x^2)/(1 + 1/x^2))",
+      "color": "red",
+      "label": "electric source (E)",
+      "labelAt": 0.12
+     },
+     {
+      "f": "377*sqrt((1 + 1/x^2)/((1 - 1/x^2)^2 + 1/x^2))",
+      "color": "blue",
+      "label": "magnetic source (H)",
+      "labelAt": 0.12
+     }
+    ],
+    "hlines": [
+     {
+      "y": 377,
+      "label": "377 Ω"
+     }
+    ],
+    "vlines": [
+     {
+      "x": 1,
+      "label": "λ/2π"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Shielding effectiveness",
+   "body": "Shielding effectiveness compares the field without and with the shield. For a solid sheet it is the sum of the **absorption** loss $A$ (the wave decays inside the metal), the **reflection** loss $R$ (mismatch between the wave impedance and the metal) and a correction $B$ for multiple reflections in thin shields, negligible once $A$ > 9 dB. The metal's own impedance is tiny: copper has 0.37 mΩ at 1 MHz. Material constants are given relative to copper: $\\sigma_r$ and $\\mu_r$.",
+   "formula": "\\begin{aligned}SE &= 20\\log\\frac{E_0}{E_1} = A + R + B\\ \\text{dB}\\\\ |Z_s| &= 3.68\\times10^{-7}\\sqrt{\\mu_r f/\\sigma_r}\\ \\Omega\\end{aligned}"
+  },
+  {
+   "title": "Explore: absorption loss",
+   "body": "Inside the shield the field decays as $e^{-t/\\delta}$, so every skin depth adds 8.69 dB, the same for electric fields, magnetic fields and plane waves. Copper: $\\sigma_r$ = 1, $\\mu_r$ = 1; aluminium: 0.61, 1; steel: 0.1, ≈ 1000 (falling above ~100 kHz); mu-metal: 0.03, ≈ 25 000 (only below ~10 kHz). Drag the thickness (green: copper, blue: aluminium, grey: steel): thin metal absorbs well at MHz frequencies, but at 50 Hz only thick steel gives real absorption.",
+   "formula": "\\begin{aligned}A &= 8.69\\,\\frac{t}{\\delta}\\ \\text{dB}\\\\ \\delta &= \\frac{1}{\\sqrt{\\pi f\\mu\\sigma}} = \\frac{66\\ \\text{mm}}{\\sqrt{f\\mu_r\\sigma_r}}\\end{aligned}",
+   "plot": {
+    "x": {
+     "min": 10,
+     "max": 1000000.0,
+     "label": "f",
+     "unit": "Hz",
+     "log": true
+    },
+    "y": {
+     "min": 0,
+     "max": 150,
+     "label": "A (dB)"
+    },
+    "sliders": [
+     {
+      "name": "t",
+      "label": "$t$",
+      "min": 1e-05,
+      "max": 0.005,
+      "log": true,
+      "value": 0.0005,
+      "unit": "m"
+     }
+    ],
+    "curves": [
+     {
+      "f": "8.69*t*sqrt(100*x)/0.066",
+      "color": "grey",
+      "label": "steel",
+      "labelAt": 0.3
+     },
+     {
+      "f": "8.69*t*sqrt(0.61*x)/0.066",
+      "color": "blue"
+     },
+     {
+      "f": "8.69*t*sqrt(x)/0.066"
+     }
+    ],
+    "readouts": [
+     {
+      "label": "steel, 50 Hz",
+      "value": "8.69*t*sqrt(100*50)/0.066",
+      "unit": "dB"
+     },
+     {
+      "label": "copper, 50 Hz",
+      "value": "8.69*t*sqrt(50)/0.066",
+      "unit": "dB"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Reflection loss",
+   "body": "$R = 20\\log\\frac{|Z_w|}{4|Z_s|}$: the larger the mismatch, the more is reflected. A near electric field (high $Z_w$) reflects even better than a plane wave; a near **magnetic** field (low $Z_w$) much worse, and if the formula gives a negative value use 0. Good conductors reflect best, so a magnetic material lowers $R$. $r$ is the distance from source to shield in metres.",
+   "formula": "\\begin{aligned}R_{plane} &= 168 + 10\\log\\frac{\\sigma_r}{\\mu_r f}\\\\ R_E &= 322 + 10\\log\\frac{\\sigma_r}{\\mu_r f^3 r^2}\\\\ R_H &= 14.6 + 10\\log\\frac{f r^2\\sigma_r}{\\mu_r}\\end{aligned}"
+  },
+  {
+   "title": "Low-frequency magnetic fields",
+   "body": "A low-frequency magnetic field is the hardest to shield: its low wave impedance gives little reflection and the large skin depth little absorption. Use a high-permeability material (steel, mu-metal): it raises the absorption and diverts the flux through a low-reluctance path around the protected area. But $\\mu_r$ falls with frequency (by 100 kHz mu-metal is no better than steel, and steel's own $\\mu_r$ drops above ~100 kHz) and collapses when the material **saturates** in a strong field; then use two layers, with the low-µ, high-saturation layer facing the source. Machining or dropping mu-metal spoils it unless it is re-annealed.",
+   "formula": "\\begin{aligned}A &\\propto t\\sqrt{f\\mu_r\\sigma_r}\\\\ R &= \\ldots + 10\\log\\frac{\\sigma_r}{\\mu_r}\\end{aligned}"
+  },
+  {
+   "title": "Explore: apertures",
+   "body": "At high frequency holes and seams, not the metal, limit the shielding. An aperture leaks like a slot antenna set by its **longest dimension** $\\ell$, not its area: 0 dB at $\\ell = \\lambda/2$ and 20 dB more per decade below. $n$ equal holes close together in a row lose another $20\\log\\sqrt n$ dB (for an array, count the longest row). Keep openings below $\\lambda/20$ (20 dB). Seams are slots too: bond them at short intervals with screws, contact fingers or conductive gaskets on conductive finishes (transfer impedance ≤ a few mΩ).",
+   "formula": "\\begin{aligned}SE &= 20\\log\\frac{\\lambda}{2\\ell\\sqrt n}\\\\ &= 20\\log\\frac{150}{f_{\\mathrm{MHz}}\\,\\ell_{\\mathrm{m}}\\sqrt n}\\end{aligned}",
+   "plot": {
+    "x": {
+     "min": 1000000.0,
+     "max": 10000000000.0,
+     "label": "f",
+     "unit": "Hz",
+     "log": true
+    },
+    "y": {
+     "min": 0,
+     "max": 80,
+     "label": "SE (dB)"
+    },
+    "sliders": [
+     {
+      "name": "l",
+      "label": "$\\ell$",
+      "min": 0.001,
+      "max": 0.5,
+      "log": true,
+      "value": 0.1,
+      "unit": "m"
+     },
+     {
+      "name": "n",
+      "label": "$n$",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "value": 1
+     }
+    ],
+    "curves": [
+     {
+      "f": "max(0, 20*log10(1.5e8/(x*l*sqrt(n))))"
+     }
+    ],
+    "hlines": [
+     {
+      "y": 20,
+      "label": "20 dB",
+      "color": "orange"
+     }
+    ],
+    "readouts": [
+     {
+      "label": "20 dB up to",
+      "value": "1.5e7/(l*sqrt(n))",
+      "unit": "Hz"
+     },
+     {
+      "label": "0 dB ($\\ell\\sqrt{n} = \\lambda/2$) at",
+      "value": "1.5e8/(l*sqrt(n))",
+      "unit": "Hz"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Waveguides, cavities and grounding",
+   "body": "A hole with depth $t$ is a **waveguide below cutoff**: far below $f_c$ it adds $27.2\\,t/\\ell$ dB (rectangular, $\\ell$ = largest side) or $32\\,t/d$ dB (round) to the aperture SE; a honeycomb vent with $t = 4d$ gains about 128 dB. A closed box is a **cavity**: at its resonances (lowest for a cube of side $\\ell$ in m: $212/\\ell$ MHz) the internal fields peak. A closed shield need not be earthed to shield, but bond all parts together, and earth it for safety and against static charge.",
+   "formula": "\\begin{aligned}\\text{rectangular: } f_c &= \\frac{c}{2\\ell}\\\\ \\text{round: } f_c &\\approx \\frac{1.76\\times10^{8}\\ \\text{m/s}}{d}\\end{aligned}"
+  }
+ ],
+ "lessons": [
+  {
+   "id": "emc-shielding-1",
+   "title": "Fields and shield materials",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Near field and far field",
+     "body": "Close to a source the field is a **near field** whose wave impedance $Z_w = E/H$ depends on the source: a high-voltage, low-current source gives a mainly **electric** field ($Z_w$ > 377 Ω), a high-current loop a mainly **magnetic** field ($Z_w$ < 377 Ω). Beyond about $\\lambda/2\\pi$ both become a **plane wave** with $Z_w$ = 377 Ω.",
+     "formula": "r = \\frac{\\lambda}{2\\pi} = \\frac{c}{2\\pi f}",
+     "plot": {
+      "x": {
+       "min": 0.01,
+       "max": 100,
+       "label": "r / (λ/2π)",
+       "log": true
+      },
+      "y": {
+       "min": 1,
+       "max": 100000.0,
+       "label": "|Z_w|",
+       "unit": "Ω",
+       "log": true
+      },
+      "curves": [
+       {
+        "f": "377*sqrt(((1 - 1/x^2)^2 + 1/x^2)/(1 + 1/x^2))",
+        "color": "red",
+        "label": "electric source (E)",
+        "labelAt": 0.12
+       },
+       {
+        "f": "377*sqrt((1 + 1/x^2)/((1 - 1/x^2)^2 + 1/x^2))",
+        "color": "blue",
+        "label": "magnetic source (H)",
+        "labelAt": 0.12
+       }
+      ],
+      "hlines": [
+       {
+        "y": 377,
+        "label": "377 Ω"
+       }
+      ],
+      "vlines": [
+       {
+        "x": 1,
+        "label": "λ/2π"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "f": [
+       1000000.0,
+       3000000.0,
+       10000000.0,
+       30000000.0,
+       100000000.0,
+       300000000.0
+      ]
+     },
+     "prompt": "At {{f|Hz}}, up to what distance from a small source is the field a near field?",
+     "answer": "3e8/(2*pi*f)",
+     "unit": "m",
+     "explanation": "$\\lambda = c/f$ = {{3e8/f|m}}, so $r = \\lambda/2\\pi$ = {{3e8/(2*pi*f)|m}}. Closer than this, electric and magnetic fields must be treated separately."
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "10 cm from a switching transistor's heatsink, which swings hundreds of volts at 1 MHz but carries little current, what kind of field do you expect?",
+     "options": [
+      "A near electric field, $|Z_w|$ > 377 Ω",
+      "A near magnetic field, $|Z_w|$ < 377 Ω",
+      "A plane wave, $|Z_w|$ = 377 Ω",
+      "A near magnetic field, $|Z_w|$ > 377 Ω"
+     ],
+     "answer": 0,
+     "explanation": "At 1 MHz, $\\lambda/2\\pi$ ≈ 48 m, so 10 cm is deep in the near field. A high-voltage, low-current source makes a mainly electric field with a high wave impedance. A high-current loop (a transformer, a current path) would make a low-impedance magnetic field."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Shielding effectiveness",
+     "body": "Shielding effectiveness compares the field strength without and with the shield, in dB. For a solid sheet it is the sum of the **absorption** loss $A$, the **reflection** loss $R$, and a correction $B$ for multiple reflections inside thin shields, which is negligible once $A$ > 9 dB.",
+     "formula": "SE = 20\\log\\frac{E_0}{E_1} = A + R + B\\ \\text{dB}"
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "E0": [
+       1,
+       3,
+       10
+      ],
+      "E1u": [
+       1,
+       10,
+       30,
+       100
+      ]
+     },
+     "derived": {
+      "E1": "E1u*1e-6"
+     },
+     "prompt": "Without the enclosure the field at a receiver is {{E0}} V/m; with it, {{E1u}} µV/m. What is the shielding effectiveness?",
+     "answer": "20*log10(E0/E1)",
+     "unit": "dB",
+     "explanation": "$SE = 20\\log(E_0/E_1)$ = 20 log({{E0}} V/m / {{E1u}} µV/m) = 20 log {{E0}} − 20 log({{E1u}} × 10⁻⁶) = {{20*log10(E0)||3}} dB + {{-20*log10(E1)||3}} dB = {{20*log10(E0/E1)|dB}}."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Absorption loss",
+     "body": "Inside the metal the wave decays as $e^{-t/\\delta}$: every skin depth of thickness gives 8.69 dB, for any kind of field. In copper $\\delta$ = 66 mm/$\\sqrt f$; for other metals divide by $\\sqrt{\\mu_r\\sigma_r}$, with $\\sigma_r$ and $\\mu_r$ relative to copper.",
+     "formula": "A = 8.69\\,\\frac{t}{\\delta}\\ \\text{dB}, \\qquad \\delta = \\frac{0.066}{\\sqrt{f\\mu_r\\sigma_r}}\\ \\text{m}"
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "t": [
+       5e-05,
+       0.0001,
+       0.0002,
+       0.0005,
+       0.001
+      ],
+      "f": [
+       10000.0,
+       100000.0,
+       1000000.0,
+       10000000.0
+      ]
+     },
+     "derived": {
+      "dl": "0.066/sqrt(f)",
+      "A": "8.69*t/dl"
+     },
+     "require": "min(A - 1, 300 - A)",
+     "prompt": "Find the absorption loss of a {{t|m}} copper sheet at {{f|Hz}}.",
+     "answer": "A",
+     "unit": "dB",
+     "explanation": "$\\delta = 0.066/\\sqrt{f}$ m = {{dl|m}}. $A = 8.69\\,t/\\delta$ = 8.69 × {{t|m}} / {{dl|m}} = {{A|dB}}."
+    },
+    {
+     "id": "i4",
+     "type": "info",
+     "title": "Reflection loss",
+     "body": "Reflection comes from the mismatch between the wave impedance and the very low impedance of the metal, $|Z_s| = 3.68\\times10^{-7}\\sqrt{\\mu_r f/\\sigma_r}$ Ω. For a plane wave ($Z_w$ = 377 Ω) $R = 20\\log(377/4|Z_s|)$, which works out as below. Good conductors reflect best, and reflection falls with frequency.",
+     "formula": "R = 168 + 10\\log\\frac{\\sigma_r}{\\mu_r f}\\ \\text{dB}"
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "f": [
+       1000.0,
+       10000.0,
+       100000.0
+      ]
+     },
+     "prompt": "Find the plane-wave reflection loss at {{f|Hz}} of a sheet of",
+     "unit": "dB",
+     "ask": [
+      {
+       "prompt": "copper ($\\sigma_r$ = 1, $\\mu_r$ = 1).",
+       "answer": "168 + 10*log10(1/f)",
+       "explanation": "$R = 168 + 10\\log\\frac{\\sigma_r}{\\mu_r f}$ = 168 + 10 log(1 / {{f||3}}) = {{168 + 10*log10(1/f)|dB}}."
+      },
+      {
+       "prompt": "aluminium ($\\sigma_r$ = 0.61, $\\mu_r$ = 1).",
+       "answer": "168 + 10*log10(0.61/f)",
+       "explanation": "$R = 168 + 10\\log\\frac{\\sigma_r}{\\mu_r f}$ = 168 + 10 log(0.61 / {{f||3}}) = {{168 + 10*log10(0.61/f)|dB}}."
+      },
+      {
+       "prompt": "steel ($\\sigma_r$ = 0.1, $\\mu_r$ = 1000).",
+       "answer": "168 + 10*log10(0.1/(1000*f))",
+       "explanation": "$R = 168 + 10\\log\\frac{\\sigma_r}{\\mu_r f}$ = 168 + 10 log(0.1 / (1000 × {{f||3}})) = {{168 + 10*log10(0.1/(1000*f))|dB}}: 40 dB less than copper, because steel's impedance is $\\sqrt{\\mu_r/\\sigma_r}$ = 100 times higher."
+      }
+     ]
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "Which field is hardest to shield with a 1 mm aluminium sheet?",
+     "options": [
+      "A 50 Hz magnetic field close to a transformer",
+      "A 50 Hz electric field close to a mains cable",
+      "A 100 MHz plane wave",
+      "A 10 MHz magnetic field"
+     ],
+     "answer": 0,
+     "explanation": "At 50 Hz the skin depth in aluminium is about 12 mm, so 1 mm absorbs only ≈ 0.7 dB, and a low-impedance magnetic field is hardly reflected. A low-frequency electric field reflects very well (high $Z_w$), and at 10–100 MHz absorption alone is hundreds of dB."
+    }
+   ]
+  },
+  {
+   "id": "emc-shielding-2",
+   "title": "Shielding effectiveness calculations",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "f": [
+       1000.0,
+       10000.0,
+       100000.0
+      ]
+     },
+     "prompt": "Find the skin depth at {{f|Hz}} in",
+     "unit": "m",
+     "ask": [
+      {
+       "prompt": "copper ($\\sigma_r$ = 1, $\\mu_r$ = 1).",
+       "answer": "0.066/sqrt(f)",
+       "explanation": "$\\delta = \\frac{0.066}{\\sqrt{f\\mu_r\\sigma_r}}$ m = 0.066 / √{{f||3}} = {{0.066/sqrt(f)|m}}."
+      },
+      {
+       "prompt": "aluminium ($\\sigma_r$ = 0.61, $\\mu_r$ = 1).",
+       "answer": "0.066/sqrt(0.61*f)",
+       "explanation": "$\\delta = \\frac{0.066}{\\sqrt{f\\mu_r\\sigma_r}}$ m = 0.066 / √(0.61 × {{f||3}}) = {{0.066/sqrt(0.61*f)|m}}."
+      },
+      {
+       "prompt": "steel ($\\sigma_r$ = 0.1, $\\mu_r$ = 1000).",
+       "answer": "0.066/sqrt(100*f)",
+       "explanation": "$\\delta = \\frac{0.066}{\\sqrt{f\\mu_r\\sigma_r}}$ m = 0.066 / √(100 × {{f||3}}) = {{0.066/sqrt(100*f)|m}}: ten times thinner than in copper."
+      }
+     ]
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "t": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002
+      ],
+      "f": [
+       50,
+       1000.0,
+       10000.0
+      ]
+     },
+     "derived": {
+      "dl": "0.066/sqrt(100*f)"
+     },
+     "prompt": "Find the absorption loss of a {{t|m}} steel plate ($\\sigma_r$ = 0.1, $\\mu_r$ = 1000) at {{f|Hz}}.",
+     "answer": "8.69*t/dl",
+     "unit": "dB",
+     "explanation": "$\\delta = 0.066/\\sqrt{f\\mu_r\\sigma_r}$ = 0.066 / √(100 × {{f||3}}) = {{dl|m}}. $A = 8.69\\,t/\\delta$ = 8.69 × {{t|m}} / {{dl|m}} = {{8.69*t/dl|dB}}."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "t": [
+       0.0001,
+       0.0005,
+       0.001
+      ],
+      "f": [
+       100000.0,
+       1000000.0,
+       10000000.0
+      ]
+     },
+     "derived": {
+      "dl": "0.066/sqrt(0.61*f)",
+      "A": "8.69*t/dl",
+      "R": "168 + 10*log10(0.61/f)"
+     },
+     "require": "A - 9",
+     "prompt": "A {{t|m}} aluminium sheet ($\\sigma_r$ = 0.61) is hit by a plane wave of {{f|Hz}}. Find its total shielding effectiveness (no apertures).",
+     "answer": "A + R",
+     "unit": "dB",
+     "explanation": "$\\delta = 0.066/\\sqrt{0.61f}$ m = {{dl|m}}, so $A = 8.69\\,t/\\delta$ = {{A|dB}}. $R = 168 + 10\\log(\\sigma_r/\\mu_rf)$ = {{R|dB}}. $A$ > 9 dB, so $B$ is negligible: $SE = A + R$ = {{A+R|dB}}. Any real enclosure will be limited by its apertures long before this."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "f": [
+       10000.0,
+       100000.0,
+       1000000.0
+      ],
+      "r": [
+       0.05,
+       0.1,
+       0.3
+      ]
+     },
+     "prompt": "A magnetic-field source is {{r|m}} from a shield; the frequency is {{f|Hz}}. Find the reflection loss for",
+     "unit": "dB",
+     "ask": [
+      {
+       "prompt": "copper ($\\sigma_r$ = 1, $\\mu_r$ = 1).",
+       "answer": "14.6 + 10*log10(f*r^2)",
+       "explanation": "$R_H = 14.6 + 10\\log\\frac{fr^2\\sigma_r}{\\mu_r}$ = 14.6 + 10 log({{f*r^2||3}}) = {{14.6 + 10*log10(f*r^2)|dB}}. Much less than for a plane wave."
+      },
+      {
+       "prompt": "aluminium ($\\sigma_r$ = 0.61, $\\mu_r$ = 1).",
+       "answer": "14.6 + 10*log10(f*r^2*0.61)",
+       "explanation": "$R_H = 14.6 + 10\\log\\frac{fr^2\\sigma_r}{\\mu_r}$ = 14.6 + 10 log({{f*r^2*0.61||3}}) = {{14.6 + 10*log10(f*r^2*0.61)|dB}}."
+      }
+     ]
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "f": [
+       100000.0,
+       1000000.0,
+       10000000.0
+      ],
+      "r": [
+       0.05,
+       0.1,
+       0.5
+      ]
+     },
+     "prompt": "An electric-field source is {{r|m}} from a copper shield. Find the reflection loss at {{f|Hz}}.",
+     "answer": "322 + 10*log10(1/(f^3*r^2))",
+     "unit": "dB",
+     "explanation": "The shield is well inside $\\lambda/2\\pi$ = {{3e8/(2*pi*f)|m}}, so use the near-field electric formula: $R_E = 322 + 10\\log\\frac{\\sigma_r}{\\mu_rf^3r^2} = 322 - 30\\log f - 20\\log r$ = 322 − {{30*log10(f)||3}} − ({{20*log10(r)||3}}) = {{322 + 10*log10(1/(f^3*r^2))|dB}}. Electric fields are easy to stop."
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "tr": [
+       0.1,
+       0.2,
+       0.3,
+       0.5,
+       0.8,
+       1,
+       1.5
+      ]
+     },
+     "prompt": "A thin shield is {{tr}} skin depths thick ($t/\\delta$ = {{tr}}). Find the multiple-reflection correction $B$ for a magnetic field.",
+     "answer": "20*log10(1 - exp(-2*tr))",
+     "unit": "dB",
+     "absTolerance": 0.2,
+     "explanation": "$B = 20\\log(1 - e^{-2t/\\delta})$ = 20 log(1 − $e^{-{{2*tr}}}$) = {{20*log10(1 - exp(-2*tr))|dB}}. $B$ is negative: in a thin shield the wave bounces back and forth and part of it escapes on every pass."
+    },
+    {
+     "id": "q7",
+     "type": "slider",
+     "params": {
+      "ft": [
+       1000.0,
+       10000.0
+      ],
+      "At": [
+       20,
+       30,
+       40,
+       60
+      ]
+     },
+     "derived": {
+      "dt": "0.066/sqrt(100*ft)",
+      "tt": "At*dt/8.69"
+     },
+     "prompt": "Choose the thickness of a steel shield ($\\sigma_r$ = 0.1, $\\mu_r$ = 1000) that gives {{At}} dB absorption loss at {{ft|Hz}}.",
+     "plot": {
+      "x": {
+       "min": 100,
+       "max": 1000000.0,
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": 0,
+       "max": 150,
+       "label": "A (dB)"
+      },
+      "sliders": [
+       {
+        "name": "t",
+        "label": "$t$",
+        "min": 5e-05,
+        "max": 0.003,
+        "step": 1e-05,
+        "value": 0.003,
+        "unit": "m"
+       }
+      ],
+      "curves": [
+       {
+        "f": "8.69*t*sqrt(100*x)/0.066",
+        "label": "steel",
+        "labelAt": 0.15
+       }
+      ],
+      "vlines": [
+       {
+        "x": "ft",
+        "label": "f_t",
+        "color": "orange"
+       }
+      ],
+      "hlines": [
+       {
+        "y": "At",
+        "label": "target",
+        "color": "orange"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$A$ at {{ft|Hz}}",
+        "value": "8.69*t*sqrt(100*ft)/0.066",
+        "unit": "dB",
+        "reveal": true
+       }
+      ]
+     },
+     "answer": {
+      "t": "tt"
+     },
+     "tolerance": 0.05,
+     "explanation": "$\\delta$ = 0.066 / √(100 × {{ft||3}}) = {{dt|m}}. $A = 8.69\\,t/\\delta$ gives $t = A\\delta/8.69$ = {{At}} × {{dt|m}} / 8.69 = {{tt|m}}."
+    },
+    {
+     "id": "q8",
+     "type": "multipleChoice",
+     "prompt": "A sensitive sensor amplifier picks up 50 Hz hum from a nearby power transformer. Which shield helps most?",
+     "options": [
+      "A closed steel or mu-metal can, thick enough (or two layers)",
+      "Thin copper foil around the amplifier",
+      "Aluminium foil tape grounded at one point",
+      "Conductive paint on the plastic housing"
+     ],
+     "answer": 0,
+     "explanation": "A 50 Hz magnetic field is hardly reflected, and in copper or aluminium the skin depth is about 1 cm, so foils and coatings do almost nothing. High-permeability material absorbs more and diverts the flux around the circuit. Moving the amplifier away from the transformer, or turning it, may be cheaper still."
+    },
+    {
+     "id": "q9",
+     "type": "trueFalse",
+     "prompt": "Because its permeability is far higher, mu-metal is always a better magnetic shield than ordinary steel.",
+     "answer": false,
+     "explanation": "Mu-metal's permeability drops fast with frequency (it is most useful below about 10 kHz, and by 100 kHz it is no better than plain steel) and it saturates at low field strengths. In strong fields, a steel layer facing the source and a mu-metal layer inside work best."
+    }
+   ]
+  },
+  {
+   "id": "emc-shielding-3",
+   "title": "Apertures, seams and waveguides",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Apertures",
+     "body": "An opening leaks like a slot antenna. Its **longest dimension** $\\ell$ counts, not its area: 0 dB at $\\ell = \\lambda/2$, and 20 dB more for every decade shorter. $n$ equal holes close together in a row lose another $20\\log\\sqrt n$ dB; for a 2-D array use the number in the longest row.",
+     "formula": "\\begin{aligned}SE &= 20\\log\\frac{\\lambda}{2\\ell} - 20\\log\\sqrt n\\\\ &= 20\\log\\frac{150}{f_{\\mathrm{MHz}}\\,\\ell_{\\mathrm{m}}\\sqrt n}\\end{aligned}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "l": [
+       0.01,
+       0.02,
+       0.05,
+       0.1,
+       0.2
+      ],
+      "f": [
+       30000000.0,
+       100000000.0,
+       300000000.0,
+       1000000000.0
+      ]
+     },
+     "require": "1.5e8/(f*l) - 1.5",
+     "prompt": "A shielded enclosure has a single {{l|m}} long ventilation slot. Estimate its shielding effectiveness at {{f|Hz}}.",
+     "answer": "20*log10(1.5e8/(f*l))",
+     "unit": "dB",
+     "explanation": "$\\lambda$ = {{3e8/f|m}}. $SE = 20\\log\\frac{\\lambda}{2\\ell}$ = 20 log({{3e8/f|m}} / (2 × {{l|m}})) = {{20*log10(1.5e8/(f*l))|dB}}."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "S": [
+       20,
+       30,
+       40
+      ],
+      "f": [
+       100000000.0,
+       300000000.0,
+       1000000000.0,
+       2400000000.0
+      ]
+     },
+     "prompt": "An enclosure must provide {{S}} dB of shielding up to {{f|Hz}}. What is the longest single opening allowed?",
+     "answer": "1.5e8/(f*10^(S/20))",
+     "unit": "m",
+     "explanation": "From $SE = 20\\log\\frac{\\lambda}{2\\ell}$: $\\ell = \\frac{\\lambda}{2\\cdot 10^{SE/20}}$ = {{3e8/f|m}} / (2 × {{10^(S/20)||3}}) = {{1.5e8/(f*10^(S/20))|m}}."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "rows": [
+       3,
+       4,
+       5,
+       6
+      ],
+      "cols": [
+       8,
+       10,
+       12,
+       16,
+       20
+      ],
+      "d": [
+       0.003,
+       0.004,
+       0.005
+      ],
+      "f": [
+       300000000.0,
+       1000000000.0
+      ]
+     },
+     "prompt": "A panel has a {{rows}} × {{cols}} array of round {{d|m}} cooling holes, closely spaced. Estimate its shielding effectiveness at {{f|Hz}}.",
+     "answer": "20*log10(1.5e8/(f*d*sqrt(cols)))",
+     "unit": "dB",
+     "explanation": "One hole: $20\\log\\frac{\\lambda}{2d}$ = {{20*log10(1.5e8/(f*d))|dB}}. The longest row has $n$ = {{cols}} holes: $-20\\log\\sqrt n$ = −{{10*log10(cols)|dB}}. Total ≈ {{20*log10(1.5e8/(f*d*sqrt(cols)))|dB}}. The other rows add little extra leakage."
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "A seam 100 mm long and 0.1 mm wide leaks about as little as a 3 mm × 3 mm hole, since both have an area of about 10 mm².",
+     "answer": false,
+     "explanation": "Leakage depends on the longest dimension: 100 mm versus 4.2 mm (the diagonal of the square). At 300 MHz that is about 14 dB versus 41 dB of shielding. A seam needs electrical contact at short intervals along its length."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "l": [
+       0.005,
+       0.01,
+       0.02
+      ],
+      "d": [
+       0.003,
+       0.006,
+       0.01
+      ]
+     },
+     "prompt": "Find the cutoff frequency of the waveguide formed by",
+     "unit": "Hz",
+     "ask": [
+      {
+       "prompt": "a rectangular opening whose largest side is {{l|m}}.",
+       "answer": "3e8/(2*l)",
+       "explanation": "$f_c = \\frac{c}{2\\ell}$ = 3 × 10⁸ / (2 × {{l|m}}) = {{3e8/(2*l)|Hz}}. Well below this frequency the opening attenuates like a waveguide below cutoff."
+      },
+      {
+       "prompt": "a round hole of {{d|m}} diameter.",
+       "answer": "1.76e8/d",
+       "explanation": "$f_c \\approx \\frac{1.76\\times10^8}{d}$ = 1.76 × 10⁸ / {{d|m}} = {{1.76e8/d|Hz}}."
+      }
+     ]
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "d": [
+       0.003,
+       0.004,
+       0.006
+      ],
+      "tt": [
+       2,
+       3,
+       4
+      ],
+      "f": [
+       100000000.0,
+       1000000000.0
+      ]
+     },
+     "derived": {
+      "t": "tt*d"
+     },
+     "prompt": "A round {{d|m}} hole is made into a tube {{t|m}} long (a waveguide below cutoff). Estimate its shielding effectiveness at {{f|Hz}}.",
+     "answer": "20*log10(1.5e8/(f*d)) + 32*tt",
+     "unit": "dB",
+     "explanation": "Aperture: $20\\log\\frac{\\lambda}{2d}$ = {{20*log10(1.5e8/(f*d))|dB}}. Waveguide: $32\\,t/d$ = 32 × {{tt}} = {{32*tt|dB}} (valid since $f \\ll f_c$ = {{1.76e8/d|Hz}}). Total ≈ {{20*log10(1.5e8/(f*d)) + 32*tt|dB}}."
+    },
+    {
+     "id": "q7",
+     "type": "numeric",
+     "params": {
+      "ZT": [
+       0.001,
+       0.0025,
+       0.005,
+       0.01,
+       0.05
+      ]
+     },
+     "prompt": "A gasketed seam has a transfer impedance of {{ZT|Ω}}. Estimate its shielding effectiveness for a plane wave.",
+     "answer": "20*log10(377/ZT)",
+     "unit": "dB",
+     "explanation": "$SE \\approx 20\\log\\frac{Z_w}{Z_T}$ = 20 log(377 / {{ZT}}) = {{20*log10(377/ZT)|dB}}. Aim for a few mΩ that stays low as the finish ages."
+    },
+    {
+     "id": "q8",
+     "type": "numeric",
+     "params": {
+      "a": [
+       0.3,
+       0.4,
+       0.5
+      ],
+      "b": [
+       0.2,
+       0.25
+      ],
+      "c": [
+       0.1,
+       0.15
+      ]
+     },
+     "prompt": "Find the lowest cavity resonance of",
+     "unit": "Hz",
+     "ask": [
+      {
+       "prompt": "a cubic metal enclosure with {{a|m}} sides.",
+       "answer": "2.12e8/a",
+       "explanation": "For a cube $f = 212/\\ell$ MHz = 212 / {{a}} = {{2.12e8/a|Hz}}. Clock harmonics near this frequency excite strong internal fields."
+      },
+      {
+       "prompt": "a {{a|m}} × {{b|m}} × {{c|m}} metal enclosure.",
+       "answer": "1.5e8*sqrt(1/a^2 + 1/b^2)",
+       "explanation": "The lowest mode uses the two largest dimensions: $f = 150\\sqrt{(1/a)^2 + (1/b)^2}$ MHz = 150 × √(1/{{a}}² + 1/{{b}}²) = {{1.5e8*sqrt(1/a^2 + 1/b^2)|Hz}}."
+      }
+     ]
+    },
+    {
+     "id": "q9",
+     "type": "orderSteps",
+     "prompt": "Order these single openings from most to least leakage at 300 MHz.",
+     "items": [
+      "An 80 mm × 1 mm slot",
+      "A 25 mm × 25 mm square hole",
+      "A round hole of 30 mm diameter",
+      "A round hole of 3 mm diameter"
+     ],
+     "explanation": "Rank by the longest dimension: 80 mm, then the square's diagonal of 35 mm, then the 30 mm hole, then 3 mm. The round hole has the larger area (707 mm² versus 625 mm²) but still leaks less than the square."
+    }
+   ]
+  },
+  {
+   "id": "emc-shielding-4",
+   "title": "Designing an enclosure",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "trueFalse",
+     "params": {
+      "f": [
+       50000.0,
+       150000.0,
+       1000000.0,
+       10000000.0,
+       100000000.0
+      ],
+      "r": [
+       0.05,
+       0.3,
+       1,
+       3
+      ]
+     },
+     "require": "abs(3e8/(2*pi*f) - r)/r - 0.5",
+     "prompt": "A noise source is {{r|m}} from a shield and radiates at {{f|Hz}}. The shield is in the near field, so the near-field reflection formulas apply.",
+     "answer": "3e8/(2*pi*f) - r",
+     "explanation": "The boundary is $\\lambda/2\\pi = c/(2\\pi f)$ = {{3e8/(2*pi*f)|m}}. The shield is in the near field if it is closer than that: compare {{r|m}} with {{3e8/(2*pi*f)|m}}."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "over": [
+       10,
+       15,
+       20
+      ],
+      "f": [
+       200000000.0,
+       500000000.0,
+       1000000000.0
+      ],
+      "n": [
+       4,
+       10,
+       20
+      ]
+     },
+     "derived": {
+      "S": "over + 6"
+     },
+     "prompt": "Without its enclosure a product exceeds the radiated-emission limit by {{over}} dB at {{f|Hz}}. You want 6 dB margin.",
+     "ask": [
+      {
+       "prompt": "What is the longest single opening allowed?",
+       "answer": "1.5e8/(f*10^(S/20))",
+       "unit": "m",
+       "explanation": "Required $SE$ = {{over}} + 6 = {{S}} dB. $\\ell = \\frac{\\lambda}{2\\cdot10^{SE/20}}$ = {{3e8/f|m}} / (2 × {{10^(S/20)||3}}) = {{1.5e8/(f*10^(S/20))|m}}."
+      },
+      {
+       "prompt": "A seam forms a row of {{n}} equal slots between its screws. How long may each slot be?",
+       "answer": "1.5e8/(f*10^(S/20)*sqrt(n))",
+       "unit": "m",
+       "explanation": "Required $SE$ = {{S}} dB, and the row of {{n}} slots costs $20\\log\\sqrt n$ = {{10*log10(n)|dB}} extra. $\\ell = \\frac{\\lambda}{2\\sqrt n\\cdot10^{SE/20}}$ = {{1.5e8/(f*10^(S/20)*sqrt(n))|m}}."
+      }
+     ]
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "f": [
+       20000.0,
+       50000.0,
+       100000.0
+      ],
+      "t": [
+       0.0005,
+       0.001,
+       0.002
+      ],
+      "r": [
+       0.05,
+       0.1,
+       0.2
+      ]
+     },
+     "derived": {
+      "dl": "0.066/sqrt(0.61*f)",
+      "A": "8.69*t/dl",
+      "Rm": "14.6 + 10*log10(f*r^2*0.61)"
+     },
+     "require": "A - 9",
+     "prompt": "A {{t|m}} aluminium shield ($\\sigma_r$ = 0.61) is {{r|m}} from the magnetic field of a {{f|Hz}} switching inductor.",
+     "unit": "dB",
+     "ask": [
+      {
+       "prompt": "Find the absorption loss.",
+       "answer": "A",
+       "explanation": "$\\delta$ = 0.066 / √(0.61 × {{f||3}}) = {{dl|m}}; $A = 8.69\\,t/\\delta$ = {{A|dB}}."
+      },
+      {
+       "prompt": "Find the total shielding effectiveness of the solid sheet.",
+       "answer": "A + Rm",
+       "explanation": "$A = 8.69\\,t/\\delta$ = {{A|dB}} with $\\delta$ = {{dl|m}}. Near magnetic field: $R_H = 14.6 + 10\\log(fr^2\\sigma_r)$ = {{Rm|dB}}. $A$ > 9 dB, so $B$ ≈ 0: $SE$ = {{A + Rm|dB}}."
+      }
+     ]
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "t": [
+       0.0005,
+       0.001,
+       0.002
+      ],
+      "r": [
+       0.05,
+       0.1,
+       0.3
+      ]
+     },
+     "derived": {
+      "f": "1000",
+      "dS": "0.066/sqrt(100*f)",
+      "dC": "0.066/sqrt(f)",
+      "AS": "8.69*t/dS",
+      "RS0": "14.6 + 10*log10(f*r^2*0.1/1000)",
+      "RS": "max(0, RS0)",
+      "AC": "8.69*t/dC",
+      "RC": "14.6 + 10*log10(f*r^2)",
+      "BC": "20*log10(1 - exp(-2*t/dC))"
+     },
+     "prompt": "A {{t|m}} shield is {{r|m}} from a 1 kHz magnetic-field source. Compare materials (steel: $\\sigma_r$ = 0.1, $\\mu_r$ = 1000; copper: 1, 1).",
+     "unit": "dB",
+     "ask": [
+      {
+       "prompt": "Find the shielding effectiveness of a steel shield.",
+       "answer": "AS + RS",
+       "explanation": "$\\delta$ = {{dS|m}}, $A$ = 8.69 × {{t|m}} / {{dS|m}} = {{AS|dB}}. $R_H = 14.6 + 10\\log(fr^2\\sigma_r/\\mu_r)$ = {{RS0|dB}}; a negative result means use 0. $A$ > 9 dB so $B$ ≈ 0: $SE$ ≈ {{AS + RS|dB}}, almost all absorption."
+      },
+      {
+       "prompt": "Find the shielding effectiveness of a copper shield, including the multiple-reflection correction.",
+       "answer": "AC + RC + BC",
+       "explanation": "$\\delta$ = {{dC|m}}, so $A$ = {{AC|dB}} (below 9 dB: include $B$). $R_H = 14.6 + 10\\log(fr^2)$ = {{RC|dB}}. $B = 20\\log(1 - e^{-2t/\\delta})$ = {{BC|dB}}. $SE = A + R + B$ = {{AC + RC + BC|dB}}. Compare steel: {{AS + RS|dB}}."
+      }
+     ]
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "d": [
+       0.003,
+       0.004,
+       0.005
+      ],
+      "nr": [
+       10,
+       20
+      ],
+      "f": [
+       1000000000.0,
+       2400000000.0
+      ],
+      "S": [
+       60,
+       80
+      ]
+     },
+     "derived": {
+      "SEa": "20*log10(1.5e8/(f*d*sqrt(nr)))",
+      "t": "d*(S - SEa)/32"
+     },
+     "require": "min(S - SEa - 5, SEa)",
+     "prompt": "A ventilation panel has rows of {{nr}} round {{d|m}} holes (longest row) and must give {{S}} dB at {{f|Hz}}.",
+     "ask": [
+      {
+       "prompt": "What shielding does the panel give if it is a thin sheet?",
+       "answer": "SEa",
+       "unit": "dB",
+       "explanation": "$SE = 20\\log\\frac{150}{f_{\\mathrm{MHz}}\\,d\\sqrt n}$ = 20 log(150 / ({{f/1e6||4}} × {{d}} × √{{nr}})) = {{SEa|dB}}."
+      },
+      {
+       "prompt": "How thick (deep) must the panel be so each hole acts as a waveguide below cutoff?",
+       "answer": "t",
+       "unit": "m",
+       "explanation": "Thin sheet: {{SEa|dB}}. Missing: {{S}} − {{SEa||3}} = {{S - SEa|dB}}. Each tube adds $32\\,t/d$ dB, so $t = d\\,(S - SE_a)/32$ = {{d|m}} × {{S - SEa||3}} / 32 = {{t|m}} (a honeycomb panel)."
+      }
+     ]
+    },
+    {
+     "id": "c6",
+     "type": "multipleChoice",
+     "prompt": "A shielded cable enters a well-shielded enclosure. Inside, its shield is connected to the enclosure with a 5 cm wire (pigtail). What happens at 200 MHz?",
+     "options": [
+      "The pigtail's inductance lets noise current on the shield drive the inside; bond the shield 360° to the enclosure wall at the entry",
+      "Nothing: the shield is grounded, so the shielding is intact",
+      "The pigtail improves shielding because its inductance blocks noise",
+      "The cable shield should not be connected to the enclosure at all"
+     ],
+     "answer": 0,
+     "explanation": "5 cm of wire is about 50 nH: $2\\pi fL$ ≈ 63 Ω at 200 MHz. Shield current must flow through it, so a noise voltage appears inside the box, and the cable is effectively an antenna entering the enclosure. Every cable that crosses the shield must be shielded with a 360° bond at the entry point, or filtered."
+    },
+    {
+     "id": "c7",
+     "type": "trueFalse",
+     "prompt": "A completely closed metal enclosure only shields if it is connected to earth.",
+     "answer": false,
+     "explanation": "A closed conductive box (a Faraday cage) shields at any potential. It is earthed for other reasons: safety (fault current must trip the breaker), to drain static charge, and to define the potential relative to the circuits inside. All its parts must be bonded together in any case."
+    }
+   ]
+  }
+ ]
+}

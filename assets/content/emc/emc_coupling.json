@@ -1,0 +1,1539 @@
+{
+  "id": "emc-coupling",
+  "title": "Capacitive & Inductive Coupling",
+  "description": "How electric and magnetic fields couple noise between conductors, and how shields, twisting and good terminations stop it.",
+  "reference": "Ott §2.1–2.17",
+  "study": [
+    {
+      "title": "Capacitive coupling",
+      "body": "Stray capacitance $C_{12}$ couples the voltage $V_1$ on conductor 1 into receptor conductor 2, which has resistance $R$ and capacitance $C_{2G}$ to ground. When $R \\ll 1/[\\omega(C_{12}+C_{2G})]$, the usual case, the noise is proportional to frequency, $R$, $C_{12}$ and $V_1$. It acts like a noise **current** $j\\omega C_{12}V_1$ injected into the receptor; capacitance across the source ($C_{1G}$) does not matter.",
+      "formula": "V_N = j\\omega R C_{12} V_1",
+      "circuit": {
+        "elements": [
+          {
+            "type": "acsource",
+            "from": [
+              0,
+              3
+            ],
+            "to": [
+              0,
+              1
+            ],
+            "label": "V_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              1,
+              1
+            ],
+            "to": [
+              3,
+              1
+            ],
+            "label": "C_{12}"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              1
+            ],
+            "to": [
+              3,
+              3
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                1
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              5,
+              1
+            ],
+            "to": [
+              5,
+              3
+            ],
+            "label": "C_{2G}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                1
+              ],
+              [
+                6,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              6,
+              1
+            ],
+            "label": "V_N"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                3
+              ],
+              [
+                6,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              1
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              1
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              3
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              3
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              3,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: capacitive coupling vs frequency",
+      "body": "At high frequency or high $R$ the noise stops rising and levels off at the capacitive divider ratio, the worst case. The corner lies at $\\omega = 1/[R(C_{12}+C_{2G})]$. Lowering $R$ shifts the rising part down; reducing $C_{12}$ (spacing, orientation, a grounded shield) lowers everything. Here $C_{12}$ = 10 pF and $C_{2G}$ = 90 pF.",
+      "formula": "V_N = \\frac{C_{12}}{C_{12}+C_{2G}}V_1",
+      "plot": {
+        "x": {
+          "min": 1000.0,
+          "max": 100000000.0,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": -80,
+          "max": 0,
+          "label": "|V_N/V_1| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "R",
+            "label": "$R$",
+            "min": 10,
+            "max": 1000000.0,
+            "log": true,
+            "value": 1000,
+            "unit": "Ω"
+          }
+        ],
+        "let": {
+          "fk": "1/(2*pi*R*100e-12)"
+        },
+        "curves": [
+          {
+            "f": "20*log10(2*pi*x*R*10e-12/sqrt(1+(2*pi*x*R*100e-12)^2))",
+            "label": "|V_N/V_1|",
+            "labelAt": 0.3
+          },
+          {
+            "f": "-20",
+            "dash": true,
+            "color": "grey",
+            "label": "C_12/(C_12+C_2G)",
+            "labelAt": 0.75
+          }
+        ],
+        "vlines": [
+          {
+            "x": "fk",
+            "label": "corner"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "corner $1/[2\\pi R(C_{12}+C_{2G})]$",
+            "value": "fk",
+            "unit": "Hz"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Shields against electric fields",
+      "body": "A shield only works when it is **grounded**. An ungrounded shield picks up $V_S = \\frac{C_{1S}}{C_{1S}+C_{SG}}V_1$ and passes it straight on to the conductor inside. Grounded, the remaining $C_{12}$ comes from the part of the conductor that **sticks out** of the shield and from holes in a braid, so keep that length minimal. At low frequency one ground point is enough as long as the cable is shorter than about λ/20."
+    },
+    {
+      "title": "Inductive coupling",
+      "body": "A current $I_1$ produces flux that links the receptor loop of area $A$ and induces a noise **voltage in series** with the receptor. Near a long wire $B = \\mu_0 I/(2\\pi r)$. Reduce it by shrinking the receptor's loop area (return conductor close by, twisted pair), moving circuits apart, twisting the source wires, or orienting the loops at right angles ($\\cos\\theta \\to 0$).",
+      "formula": "V_N = j\\omega M I_1 = j\\omega B A\\cos\\theta",
+      "circuit": {
+        "elements": [
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "R_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "acsource",
+            "from": [
+              1,
+              0
+            ],
+            "to": [
+              3,
+              0
+            ],
+            "label": "V_N",
+            "value": "jωMI_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: shield cutoff frequency",
+      "body": "A current in a tubular shield produces no field inside it, so all its flux encircles the inner conductor: $M = L_S$. Grounded at **both** ends, a shield carries induced (or return) current that cancels the magnetic coupling above $\\omega_c = R_S/L_S$; above about $5\\omega_c$ nearly all return current flows on the shield. Typical $f_c$: 0.6–7 kHz. Grounded at one end, a non-magnetic shield does nothing against magnetic fields.",
+      "formula": "\\omega_c = \\frac{R_S}{L_S}",
+      "plot": {
+        "x": {
+          "min": 10,
+          "max": 1000000.0,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": -40,
+          "max": 60,
+          "label": "V_N (dB, relative)"
+        },
+        "sliders": [
+          {
+            "name": "fc",
+            "label": "$f_c$",
+            "min": 300,
+            "max": 20000,
+            "log": true,
+            "value": 2000,
+            "unit": "Hz"
+          }
+        ],
+        "curves": [
+          {
+            "f": "20*log10(x/1000)",
+            "color": "grey",
+            "dash": true,
+            "label": "unshielded",
+            "labelAt": 0.8
+          },
+          {
+            "f": "20*log10(x/1000) - 10*log10(1+(x/fc)^2)",
+            "label": "shield grounded at both ends",
+            "labelAt": 0.25
+          }
+        ],
+        "vlines": [
+          {
+            "x": "fc",
+            "label": "f_c"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$5f_c$",
+            "value": "5*fc",
+            "unit": "Hz"
+          },
+          {
+            "label": "shielding at 100 kHz",
+            "value": "10*log10(1+(1e5/fc)^2)",
+            "unit": "dB"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Coax, twisted pair and transfer impedance",
+      "body": "At low frequency use a **shielded twisted pair**: the twist handles magnetic fields, the shield (grounded at one end) electric fields, and shield noise current does not flow in a signal conductor. A coax grounded at both ends suffers common-impedance coupling $V = I_S R_S$ at low frequency, but above ~1 MHz skin effect separates the signal current (inside of the shield) from the noise current (outside). Shield quality is the **transfer impedance** $Z_T$; for braid (60–98 % coverage) it rises again above ~1 MHz because of the holes in the braid.",
+      "formula": "Z_T = \\frac{1}{I_S}\\frac{dV}{dl}"
+    },
+    {
+      "title": "Shield terminations and long cables",
+      "body": "Terminate shields **360°** (connector backshell, cable clamp) to the **enclosure**. A pigtail has roughly 1 nH per mm, and the shield current through it adds $V = j\\omega L_p I_S$ in series with the signal. Ground the shield at one end below ~100 kHz (no ground loop), at both ends above that or when the cable is longer than about λ/20; a capacitor at one end gives a hybrid termination. In ribbon cables give every signal its own adjacent ground.",
+      "formula": "V = j\\omega L_p I_S,\\quad L_p \\approx 1\\ \\text{nH/mm}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "emc-coupling-1",
+      "title": "Electric-field coupling",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Capacitive coupling model",
+          "body": "Conductor 1 carries a voltage $V_1$. The stray capacitance $C_{12}$ to the receptor, and the receptor's own resistance $R$ and capacitance $C_{2G}$ to ground form a divider. In the usual case $R \\ll 1/[\\omega(C_{12}+C_{2G})]$ the noise voltage is:",
+          "formula": "V_N = j\\omega R C_{12} V_1",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  1
+                ],
+                "label": "V_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  1,
+                  1
+                ],
+                "to": [
+                  3,
+                  1
+                ],
+                "label": "C_{12}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  1
+                ],
+                "to": [
+                  3,
+                  3
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    1
+                  ],
+                  [
+                    5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  5,
+                  1
+                ],
+                "to": [
+                  5,
+                  3
+                ],
+                "label": "C_{2G}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    1
+                  ],
+                  [
+                    6,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6,
+                  1
+                ],
+                "label": "V_N"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  3
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  3
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "C12": [
+              2e-12,
+              5e-12,
+              1e-11,
+              2e-11
+            ],
+            "R": [
+              50,
+              100,
+              470,
+              1000
+            ],
+            "f": [
+              10000.0,
+              100000.0,
+              1000000.0
+            ],
+            "V1": [
+              5,
+              10,
+              24
+            ]
+          },
+          "require": "0.1 - 2*pi*f*R*(C12+100e-12)",
+          "prompt": "Two adjacent wires have $C_{12}$ = {{C12|F}}. Wire 1 carries {{V1|V}} at {{f|Hz}}. Wire 2 is terminated in {{R|Ω}} to ground and has $C_{2G}$ = 100 pF. Estimate the coupled noise voltage on wire 2.",
+          "answer": "2*pi*f*R*C12*V1",
+          "unit": "V",
+          "explanation": "Check: $1/[\\omega(C_{12}+C_{2G})]$ = {{1/(2*pi*f*(C12+100e-12))|Ω}} ≫ {{R|Ω}}, so $V_N = 2\\pi f R C_{12} V_1$ = 2π × {{f|Hz}} × {{R|Ω}} × {{C12|F}} × {{V1|V}} = **{{2*pi*f*R*C12*V1|V}}**."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "In the usual low-$R$ case, which change **halves** the capacitively coupled noise?",
+          "options": [
+            "Halve the receptor resistance $R$",
+            "Halve the receptor's capacitance to ground $C_{2G}$",
+            "Double the noise frequency",
+            "Halve the capacitance $C_{1G}$ of the source wire to ground"
+          ],
+          "answer": 0,
+          "explanation": "$V_N = j\\omega R C_{12} V_1$ is proportional to $R$, so halving $R$ halves the noise. $C_{2G}$ and $C_{1G}$ do not appear in the low-$R$ formula ($C_{1G}$ sits directly across the source and never matters), and doubling $f$ doubles the noise."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "High receptor impedance",
+          "body": "If $R$ is very large (an open or high-impedance input) or the frequency is high, the noise stops rising with frequency and levels off at the capacitive divider of $C_{12}$ and $C_{2G}$: the worst case. Below, $R$ = 10 kΩ, $C_{12}$ = 10 pF and $C_{2G}$ = 90 pF; the corner is at $1/[2\\pi R(C_{12}+C_{2G})]$ ≈ 160 kHz.",
+          "formula": "V_N = \\frac{C_{12}}{C_{12}+C_{2G}}V_1",
+          "plot": {
+            "x": {
+              "min": 1000.0,
+              "max": 100000000.0,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": -60,
+              "max": 0,
+              "label": "|V_N/V_1| (dB)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(2*pi*x*1e4*10e-12/sqrt(1+(2*pi*x*1e4*100e-12)^2))",
+                "label": "|V_N/V_1|",
+                "labelAt": 0.45
+              },
+              {
+                "f": "20*log10(2*pi*x*1e4*10e-12)",
+                "dash": true,
+                "color": "grey",
+                "to": 2000000.0,
+                "label": "jωRC_12",
+                "labelAt": 0.5
+              }
+            ],
+            "hlines": [
+              {
+                "y": -20,
+                "label": "C_12/(C_12+C_2G)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "C12": [
+              2e-12,
+              5e-12,
+              1e-11
+            ],
+            "C2G": [
+              2e-11,
+              5e-11,
+              1e-10
+            ],
+            "V1": [
+              5,
+              12,
+              230
+            ]
+          },
+          "prompt": "An unterminated, high-impedance input wire runs next to a conductor carrying {{V1|V}}. The wires have $C_{12}$ = {{C12|F}}, and the input wire has $C_{2G}$ = {{C2G|F}} to ground. What noise voltage appears on the input wire?",
+          "answer": "C12/(C12+C2G)*V1",
+          "unit": "V",
+          "explanation": "With (practically) infinite $R$ the coupling is a capacitive divider: $V_N = \\frac{C_{12}}{C_{12}+C_{2G}}V_1$ = {{C12|F}} / ({{C12|F}} + {{C2G|F}}) × {{V1|V}} = **{{C12/(C12+C2G)*V1|V}}**, independent of frequency."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "A receptor wire with resistance $R$ to ground picks up noise capacitively from a nearby wire. Which graph shows $|V_N|$ versus frequency (log–log scales)?",
+          "answer": 0,
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0.01,
+                "max": 100,
+                "label": "f / f_corner",
+                "log": true
+              },
+              "y": {
+                "min": -50,
+                "max": 10,
+                "label": "dB"
+              },
+              "curves": [
+                {
+                  "f": "20*log10(x/sqrt(1+x^2))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0.01,
+                "max": 100,
+                "label": "f / f_corner",
+                "log": true
+              },
+              "y": {
+                "min": -50,
+                "max": 10,
+                "label": "dB"
+              },
+              "curves": [
+                {
+                  "f": "-20*log10(sqrt(1+x^2))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0.01,
+                "max": 100,
+                "label": "f / f_corner",
+                "log": true
+              },
+              "y": {
+                "min": -50,
+                "max": 10,
+                "label": "dB"
+              },
+              "curves": [
+                {
+                  "f": "-20 + 0*x"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0.01,
+                "max": 100,
+                "label": "f / f_corner",
+                "log": true
+              },
+              "y": {
+                "min": -50,
+                "max": 10,
+                "label": "dB"
+              },
+              "curves": [
+                {
+                  "f": "-30 + 20*log10(x)"
+                }
+              ]
+            }
+          ],
+          "explanation": "At low frequency $V_N = j\\omega R C_{12}V_1$ rises by 20 dB per decade. Above the corner $\\omega = 1/[R(C_{12}+C_{2G})]$ it levels off at the divider value $C_{12}/(C_{12}+C_{2G})\\cdot V_1$. It never keeps rising for ever, and it is not a low-pass shape."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Shielding against electric fields",
+          "body": "A shield only works when it is **grounded**. An ungrounded shield simply takes on the voltage $\\frac{C_{1S}}{C_{1S}+C_{SG}}V_1$ and passes it to the conductor inside. Grounded, what remains is the capacitance from the part of the conductor that **sticks out** of the shield (and through holes in a braid). At low frequency, one ground point is enough for a cable shorter than about λ/20."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Placing an **ungrounded** metal shield around the receptor wire reduces the capacitively coupled noise.",
+          "answer": false,
+          "explanation": "No current can flow from the floating shield, so the inner conductor takes on the shield's own pickup voltage $V_S = \\frac{C_{1S}}{C_{1S}+C_{SG}}V_1$: no improvement. Grounding the shield sets $V_S = 0$."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A grounded shield has been fitted around a high-impedance receptor wire, but some capacitive pickup remains. What is the most likely remaining path?",
+          "options": [
+            "The part of the conductor that sticks out beyond the shield",
+            "Magnetic flux passing through the shield",
+            "The capacitance between the shield and ground",
+            "The capacitance $C_{1G}$ of the source wire to ground"
+          ],
+          "answer": 0,
+          "explanation": "With the shield grounded, the remaining $C_{12}$ is mainly due to the unshielded end of the conductor (and holes in braid). Keep that length as short as possible. Shield-to-ground capacitance is harmless, $C_{1G}$ never matters, and magnetic flux is a different mechanism."
+        }
+      ]
+    },
+    {
+      "id": "emc-coupling-2",
+      "title": "Magnetic-field coupling",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Inductive coupling",
+          "body": "A changing current $I_1$ produces magnetic flux that links the loop of the receptor circuit. This induces a noise **voltage in series** with the receptor, set by the mutual inductance $M$ or by the flux density $B$ through the loop area $A$ (θ is the angle between $B$ and the loop's normal).",
+          "formula": "V_N = j\\omega M I_1 = j\\omega B A\\cos\\theta",
+          "circuit": {
+            "elements": [
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "acsource",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "V_N",
+                "value": "jωMI_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "M": [
+              1e-07,
+              2e-07,
+              5e-07,
+              1e-06
+            ],
+            "I1": [
+              0.5,
+              1,
+              2,
+              5
+            ],
+            "f": [
+              50,
+              1000.0,
+              10000.0,
+              100000.0
+            ]
+          },
+          "prompt": "Two circuits have a mutual inductance of {{M|H}}. The source circuit carries {{I1|A}} (rms) at {{f|Hz}}. What noise voltage (rms) is induced in the receptor?",
+          "answer": "2*pi*f*M*I1",
+          "unit": "V",
+          "explanation": "$V_N = \\omega M I_1 = 2\\pi f M I_1$ = 2π × {{f|Hz}} × {{M|H}} × {{I1|A}} = **{{2*pi*f*M*I1|V}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "I": [
+              5,
+              10,
+              20
+            ],
+            "r": [
+              0.1,
+              0.2,
+              0.3
+            ],
+            "Acm": [
+              2,
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "A mains cable carries {{I|A}} (rms, 50 Hz). A small sensor loop of {{Acm}} cm² lies {{r|m}} from it, facing the field ($\\theta$ = 0). Assume $B$ is uniform over the loop. What noise voltage (rms) is induced?",
+          "answer": "2*pi*50*(2e-7*I/r)*Acm*1e-4",
+          "unit": "V",
+          "explanation": "$B = \\frac{\\mu_0 I}{2\\pi r}$ = 2×10⁻⁷ × {{I}} / {{r}} = {{2e-7*I/r|T}}. $V_N = 2\\pi f B A$ = 2π × 50 × {{2e-7*I/r|T}} × {{Acm*1e-4}} m² = **{{2*pi*50*(2e-7*I/r)*Acm*1e-4|V}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Electric or magnetic? A quick test",
+          "body": "Electric coupling behaves like a noise **current** source into the receptor; magnetic coupling like a noise **voltage** source in series with it. So lower the termination impedance at the far end of the receptor cable and watch the noise at the near end: if it **drops**, the pickup is electric; if it **rises**, it is magnetic."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "You lower the termination resistance at the far end of a sensor cable, and the noise measured at the amplifier end **increases**. The coupling is mainly:",
+          "options": [
+            "Magnetic (inductive)",
+            "Electric (capacitive)",
+            "Common-impedance coupling",
+            "A radiated far field"
+          ],
+          "answer": 0,
+          "explanation": "A series noise voltage (magnetic coupling) drives more current, and a larger share of the voltage across the near-end impedance, when the far-end impedance goes down. A shunt noise current (electric coupling) would produce less voltage across the lower impedance."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Shield and inner conductor",
+          "body": "A current in a tubular shield produces no field inside it, so all of its flux encircles the inner conductor: the mutual inductance equals the shield's self-inductance, $M = L_S$. Together with the shield resistance $R_S$ this defines the **shield cutoff frequency**. Above about $5\\omega_c$, a voltage induced in the shield appears almost entirely on the centre conductor too. Typical $f_c$: 0.6–0.7 kHz (RG-6A, RG-213) up to 7 kHz (thin aluminium-foil shield).",
+          "formula": "f_c = \\frac{R_S}{2\\pi L_S}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Rm": [
+              10,
+              15,
+              20,
+              30
+            ],
+            "Ls": [
+              5e-07,
+              1e-06,
+              2e-06
+            ]
+          },
+          "derived": {
+            "Rs": "Rm*1e-3"
+          },
+          "prompt": "A cable shield has resistance $R_S$ = {{Rs|Ω}} and inductance $L_S$ = {{Ls|H}}.",
+          "ask": [
+            {
+              "prompt": "What is its shield cutoff frequency $f_c$?",
+              "answer": "Rs/(2*pi*Ls)",
+              "unit": "Hz",
+              "explanation": "$f_c = \\frac{R_S}{2\\pi L_S}$ = {{Rs|Ω}} / (2π × {{Ls|H}}) = **{{Rs/(2*pi*Ls)|Hz}}**."
+            },
+            {
+              "prompt": "Above which frequency does practically all return current flow on the shield ($5f_c$)?",
+              "answer": "5*Rs/(2*pi*Ls)",
+              "unit": "Hz",
+              "explanation": "$f_c = \\frac{R_S}{2\\pi L_S}$ = {{Rs/(2*pi*Ls)|Hz}}, so $5f_c$ = **{{5*Rs/(2*pi*Ls)|Hz}}**. Above this the shield current almost equals the centre-conductor current."
+            }
+          ]
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Shield grounded at both ends",
+          "body": "Grounded at one end only, a non-magnetic shield changes nothing for magnetic fields. Grounded at **both** ends, the shield forms a shorted turn: induced shield current cancels the external field above $f_c$, so the noise stops rising and levels off. Every resistance in the shield loop (shield, terminations, ground) weakens this, so never terminate a shield through a resistor."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "A cable shield grounded at **one** end protects the inner conductor against low-frequency magnetic fields.",
+          "answer": false,
+          "explanation": "With one ground point no shield current can flow, and a non-magnetic shield does not change the flux through the receptor loop. Magnetic protection needs a small loop area (twisted pair) or, above the cutoff frequency, a shield grounded at both ends that carries current."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each cable arrangement to its main benefit",
+          "pairs": [
+            [
+              "Twisted pair",
+              "Cancels magnetic pickup"
+            ],
+            [
+              "Shield grounded at one end",
+              "Stops electric-field pickup"
+            ],
+            [
+              "Shield grounded at both ends, $f \\gg f_c$",
+              "Return current flows on the shield"
+            ],
+            [
+              "Coax above ~1 MHz",
+              "Skin effect separates the currents"
+            ]
+          ],
+          "explanation": "Twisting makes the induced voltages of successive loops cancel. A grounded shield intercepts electric field lines. Above $5f_c$ a shield grounded at both ends carries the return current so its field cancels the conductor's. At high frequency skin effect keeps signal current on the inside and noise current on the outside of a coax shield."
+        }
+      ]
+    },
+    {
+      "id": "emc-coupling-3",
+      "title": "Coupling calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "C12": [
+              5e-12,
+              1e-11,
+              2e-11
+            ],
+            "f": [
+              100000.0,
+              1000000.0
+            ],
+            "V1": [
+              3.3,
+              5
+            ],
+            "R": [
+              50,
+              100,
+              200
+            ],
+            "Vmax": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "derived": {
+            "Rmax": "Vmax/(2*pi*f*C12*V1)"
+          },
+          "require": "0.15 - 2*pi*f*max(R, Rmax)*(C12+50e-12)",
+          "prompt": "A {{V1|V}} clock line at {{f|Hz}} runs next to a signal line with $C_{12}$ = {{C12|F}}; the signal line has $C_{2G}$ = 50 pF to ground.",
+          "ask": [
+            {
+              "prompt": "The signal line is terminated in {{R|Ω}}. Estimate the coupled noise voltage.",
+              "answer": "2*pi*f*R*C12*V1",
+              "unit": "V",
+              "explanation": "$R$ is far below $1/[\\omega(C_{12}+C_{2G})]$ = {{1/(2*pi*f*(C12+50e-12))|Ω}}, so $V_N = 2\\pi f R C_{12} V_1$ = 2π × {{f|Hz}} × {{R|Ω}} × {{C12|F}} × {{V1|V}} = **{{2*pi*f*R*C12*V1|V}}**."
+            },
+            {
+              "prompt": "What is the largest termination resistance that keeps the noise below {{Vmax|V}}?",
+              "answer": "Rmax",
+              "unit": "Ω",
+              "explanation": "$V_N = 2\\pi f R C_{12} V_1 \\le V_{max}$ gives $R \\le \\frac{V_{max}}{2\\pi f C_{12} V_1}$ = {{Vmax|V}} / (2π × {{f|Hz}} × {{C12|F}} × {{V1|V}}) = **{{Rmax|Ω}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "C12": [
+              1e-12,
+              2e-12,
+              5e-12
+            ],
+            "C2S": [
+              1e-10,
+              2e-10,
+              5e-10
+            ],
+            "C2G": [
+              1e-12,
+              2e-12
+            ],
+            "V1": [
+              10,
+              50,
+              230
+            ]
+          },
+          "prompt": "A high-impedance (unterminated) conductor runs inside a **grounded** shield, but its end sticks out. The exposed end has $C_{12}$ = {{C12|F}} to a nearby conductor at {{V1|V}}; the conductor has $C_{2S}$ = {{C2S|F}} to the shield and $C_{2G}$ = {{C2G|F}} to ground. What noise voltage appears on it?",
+          "answer": "C12/(C12+C2G+C2S)*V1",
+          "unit": "V",
+          "explanation": "With the shield grounded, $C_{2S}$ acts as an extra capacitance to ground: $V_N = \\frac{C_{12}}{C_{12}+C_{2G}+C_{2S}}V_1$ = {{C12|F}} / {{C12+C2G+C2S|F}} × {{V1|V}} = **{{C12/(C12+C2G+C2S)*V1|V}}**. Shortening the exposed end reduces $C_{12}$ further."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "l": [
+              0.5,
+              1,
+              2
+            ],
+            "am": [
+              5,
+              10,
+              20
+            ],
+            "wm": [
+              2,
+              5,
+              10
+            ],
+            "I1": [
+              0.5,
+              1,
+              2
+            ],
+            "f": [
+              10000.0,
+              100000.0
+            ]
+          },
+          "derived": {
+            "a": "am*1e-3",
+            "b": "(am+wm)*1e-3"
+          },
+          "prompt": "A long wire carrying {{I1|A}} at {{f|Hz}} runs parallel to a rectangular receptor loop of length {{l|m}} in the same plane. The loop's near side is {{a|m}} and its far side {{b|m}} from the wire. Use $M = \\frac{\\mu_0 l}{2\\pi}\\ln\\frac{b}{a}$.",
+          "ask": [
+            {
+              "prompt": "What is the mutual inductance $M$?",
+              "answer": "2e-7*l*ln(b/a)",
+              "unit": "H",
+              "explanation": "$M = 2\\times10^{-7}\\,l\\ln\\frac{b}{a}$ = 2×10⁻⁷ × {{l}} × ln({{b/a||3}}) = **{{2e-7*l*ln(b/a)|H}}**."
+            },
+            {
+              "prompt": "What noise voltage is induced in the loop?",
+              "answer": "2*pi*f*2e-7*l*ln(b/a)*I1",
+              "unit": "V",
+              "explanation": "$M = 2\\times10^{-7}\\,l\\ln\\frac{b}{a}$ = {{2e-7*l*ln(b/a)|H}}. $V_N = 2\\pi f M I_1$ = 2π × {{f|Hz}} × {{2e-7*l*ln(b/a)|H}} × {{I1|A}} = **{{2*pi*f*2e-7*l*ln(b/a)*I1|V}}**. A narrower loop (b closer to a) helps more than you might think."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "B": [
+              1e-06,
+              5e-06,
+              1e-05
+            ],
+            "Acm": [
+              10,
+              25,
+              50
+            ],
+            "th": [
+              0,
+              30,
+              60
+            ],
+            "f": [
+              50,
+              1000,
+              20000
+            ]
+          },
+          "prompt": "A uniform magnetic field of {{B|T}} (rms) at {{f|Hz}} passes through a {{Acm}} cm² circuit loop at an angle θ = {{th}}° to the loop's normal. What noise voltage is induced?",
+          "answer": "2*pi*f*B*Acm*1e-4*cos(th*pi/180)",
+          "unit": "V",
+          "explanation": "$V_N = 2\\pi f B A\\cos\\theta$ = 2π × {{f|Hz}} × {{B|T}} × {{Acm*1e-4}} m² × cos {{th}}° = **{{2*pi*f*B*Acm*1e-4*cos(th*pi/180)|V}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "fc": [
+              1000.0,
+              2000.0,
+              5000.0
+            ],
+            "f": [
+              1000.0,
+              5000.0,
+              10000.0,
+              50000.0,
+              100000.0
+            ]
+          },
+          "prompt": "A coax connects two circuits that are both grounded, and its shield is grounded at both ends. The shield cutoff frequency is $f_c$ = {{fc|Hz}}; the signal frequency is {{f|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What percentage of the return current flows on the shield (rather than through the ground plane)?",
+              "answer": "100*f/sqrt(f^2+fc^2)",
+              "unit": "%",
+              "explanation": "$\\left|\\frac{I_S}{I_1}\\right| = \\frac{f}{\\sqrt{f^2+f_c^2}} = \\frac{1}{\\sqrt{1+(f_c/f)^2}}$ = 1/√(1 + {{fc/f||3}}²) = **{{100*f/sqrt(f^2+fc^2)|%}}**. The rest returns through the ground plane."
+            },
+            {
+              "prompt": "By how many dB does the grounded shield reduce magnetic pickup compared with an unshielded cable?",
+              "answer": "10*log10(1+(f/fc)^2)",
+              "unit": "dB",
+              "absTolerance": 0.2,
+              "explanation": "Shielded pickup is the unshielded value times $\\frac{f_c}{\\sqrt{f^2+f_c^2}}$, so the reduction is $20\\log_{10}\\sqrt{1+(f/f_c)^2}$ = 10 log(1 + ({{f/fc||3}})²) = **{{10*log10(1+(f/fc)^2)||3}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "B": [
+              0.5,
+              1,
+              2
+            ],
+            "Vmax": [
+              100,
+              200,
+              300
+            ]
+          },
+          "derived": {
+            "Amax": "Vmax/(2*pi*B)"
+          },
+          "require": "min(90 - Amax, Amax - 6)",
+          "prompt": "A switch-mode transformer creates a {{B}} µT field at 10 kHz at the location of a sensor circuit. Set the **largest** loop area $A$ that keeps the induced voltage at 10 kHz below {{Vmax}} µV.",
+          "plot": {
+            "x": {
+              "min": 1000.0,
+              "max": 100000.0,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": "Vmax*1e-9",
+              "max": "Vmax*1e-3",
+              "label": "V_N",
+              "unit": "V",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "A",
+                "label": "$A$ (cm²)",
+                "min": 1,
+                "max": 100,
+                "step": 0.5,
+                "value": 100
+              }
+            ],
+            "curves": [
+              {
+                "f": "2*pi*x*B*1e-6*A*1e-4",
+                "label": "V_N(f)",
+                "labelAt": 0.3
+              }
+            ],
+            "hlines": [
+              {
+                "y": "Vmax*1e-6",
+                "label": "limit",
+                "color": "red"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 10000.0,
+                "label": "10 kHz"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$V_N$ at 10 kHz",
+                "value": "2*pi*1e4*B*1e-6*A*1e-4",
+                "unit": "V",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "A": "Amax"
+          },
+          "tolerance": 0.05,
+          "explanation": "$V_N = 2\\pi f B A \\le V_{max}$ gives $A_{max} = \\frac{V_{max}}{2\\pi f B}$ = {{Vmax}} µV / (2π × 10 kHz × {{B}} µT) = **{{Amax||3}} cm²**. Routing the return conductor right next to the signal conductor is the cheapest way to get there."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "len": [
+              10,
+              20,
+              30,
+              50
+            ],
+            "Is": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "f": [
+              10000000.0,
+              30000000.0,
+              100000000.0
+            ]
+          },
+          "prompt": "A cable shield is terminated with a {{len}} mm pigtail (assume 1 nH/mm). A {{Is|A}} common-mode current at {{f|Hz}} flows on the shield. What noise voltage does the pigtail add in series with the signal?",
+          "answer": "2*pi*f*len*1e-9*Is",
+          "unit": "V",
+          "explanation": "$L_p$ ≈ {{len}} mm × 1 nH/mm = {{len*1e-9|H}}. $V = 2\\pi f L_p I_S$ = 2π × {{f|Hz}} × {{len*1e-9|H}} × {{Is|A}} = **{{2*pi*f*len*1e-9*Is|V}}**. A 360° termination avoids this."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "f": [
+              10000000.0,
+              30000000.0,
+              100000000.0,
+              300000000.0,
+              1000000000.0
+            ]
+          },
+          "prompt": "Beyond which length does a cable carrying {{f|Hz}} noise stop being 'electrically short' (λ/20 criterion, free-space λ)?",
+          "answer": "3e8/(20*f)",
+          "unit": "m",
+          "explanation": "$\\lambda = c/f$ = 3×10⁸ / {{f|Hz}} = {{3e8/f|m}}, so λ/20 = **{{3e8/(20*f)|m}}**. Longer cables need the shield grounded at more than one point, and lumped coupling models become approximate."
+        }
+      ]
+    },
+    {
+      "id": "emc-coupling-4",
+      "title": "Cable design problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "C12": [
+              1e-11,
+              2e-11,
+              5e-11
+            ],
+            "C2G": [
+              5e-11,
+              1e-10,
+              1.5e-10
+            ],
+            "R": [
+              10000.0,
+              47000.0,
+              100000.0
+            ],
+            "f": [
+              100000.0,
+              1000000.0
+            ],
+            "V1": [
+              5,
+              10
+            ]
+          },
+          "prompt": "A {{V1|V}} signal at {{f|Hz}} couples into a receptor through $C_{12}$ = {{C12|F}}. The receptor has $R$ = {{R|Ω}} and $C_{2G}$ = {{C2G|F}} to ground, so the low-$R$ approximation may not hold.",
+          "ask": [
+            {
+              "prompt": "Find $|V_N|$ with the full formula $|V_N| = \\frac{\\omega R C_{12} V_1}{\\sqrt{1+[\\omega R(C_{12}+C_{2G})]^2}}$.",
+              "answer": "2*pi*f*R*C12*V1/sqrt(1+(2*pi*f*R*(C12+C2G))^2)",
+              "unit": "V",
+              "explanation": "$\\omega R(C_{12}+C_{2G})$ = {{2*pi*f*R*(C12+C2G)||3}}. Numerator $\\omega R C_{12}V_1$ = {{2*pi*f*R*C12*V1|V}}. $|V_N|$ = {{2*pi*f*R*C12*V1|V}} / $\\sqrt{1 + {{2*pi*f*R*(C12+C2G)||3}}^2}$ = **{{2*pi*f*R*C12*V1/sqrt(1+(2*pi*f*R*(C12+C2G))^2)|V}}**. It can never exceed the divider value {{C12/(C12+C2G)*V1|V}}."
+            },
+            {
+              "prompt": "Above which frequency does the coupled noise stop rising (the corner frequency)?",
+              "answer": "1/(2*pi*R*(C12+C2G))",
+              "unit": "Hz",
+              "explanation": "$f = \\frac{1}{2\\pi R(C_{12}+C_{2G})}$ = 1 / (2π × {{R|Ω}} × {{C12+C2G|F}}) = **{{1/(2*pi*R*(C12+C2G))|Hz}}**."
+            },
+            {
+              "prompt": "What is the maximum noise voltage this coupling can produce at any frequency?",
+              "answer": "C12/(C12+C2G)*V1",
+              "unit": "V",
+              "explanation": "At high frequency the coupling is the divider $\\frac{C_{12}}{C_{12}+C_{2G}}V_1$ = {{C12|F}} / {{C12+C2G|F}} × {{V1|V}} = **{{C12/(C12+C2G)*V1|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "M": [
+              2e-07,
+              5e-07,
+              1e-06
+            ],
+            "I1": [
+              1,
+              2,
+              5
+            ],
+            "fc": [
+              1000.0,
+              2000.0,
+              5000.0
+            ],
+            "f": [
+              20000.0,
+              50000.0,
+              100000.0
+            ]
+          },
+          "prompt": "A power cable carrying {{I1|A}} at {{f|Hz}} has a mutual inductance of {{M|H}} to a nearby coax. The coax shield, grounded at both ends, has a cutoff frequency of {{fc|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What noise voltage would an unshielded conductor in the same position pick up?",
+              "answer": "2*pi*f*M*I1",
+              "unit": "V",
+              "explanation": "$V_N = 2\\pi f M I_1$ = 2π × {{f|Hz}} × {{M|H}} × {{I1|A}} = **{{2*pi*f*M*I1|V}}**."
+            },
+            {
+              "prompt": "What noise voltage does the shielded centre conductor pick up?",
+              "answer": "2*pi*f*M*I1*fc/sqrt(f^2+fc^2)",
+              "unit": "V",
+              "explanation": "Unshielded: {{2*pi*f*M*I1|V}}. The shield current cancels all but the factor $\\frac{f_c}{\\sqrt{f^2+f_c^2}}$ = {{fc/sqrt(f^2+fc^2)||3}}, so $V_N$ = **{{2*pi*f*M*I1*fc/sqrt(f^2+fc^2)|V}}**. Well above $f_c$ this is $M I_1 R_S/L_S$, independent of frequency."
+            },
+            {
+              "prompt": "How much shielding (in dB) does the grounded shield provide at this frequency?",
+              "answer": "10*log10(1+(f/fc)^2)",
+              "unit": "dB",
+              "absTolerance": 0.2,
+              "explanation": "Shielding = $20\\log_{10}\\sqrt{1+(f/f_c)^2}$ = 10 log(1 + {{f/fc||3}}²) = **{{10*log10(1+(f/fc)^2)||3}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "Is": [
+              0.02,
+              0.05,
+              0.1
+            ],
+            "f": [
+              30000000.0,
+              100000000.0
+            ],
+            "Vmax": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "A cable shield carries {{Is|A}} of common-mode current at {{f|Hz}}. How long may a pigtail termination be (1 nH/mm) if the noise it adds must stay below {{Vmax|V}}? Answer in metres.",
+          "answer": "Vmax/(2*pi*f*Is)/1e-6",
+          "unit": "m",
+          "explanation": "$L_p \\le \\frac{V_{max}}{2\\pi f I_S}$ = {{Vmax|V}} / (2π × {{f|Hz}} × {{Is|A}}) = {{Vmax/(2*pi*f*Is)|H}}. At 1 nH/mm (= 1 µH/m) that is **{{Vmax/(2*pi*f*Is)/1e-6|m}}**: a pigtail is hopeless at these frequencies; use a 360° termination."
+        },
+        {
+          "id": "c4",
+          "type": "orderSteps",
+          "prompt": "Rank these ribbon-cable conductor assignments from **best** to **worst** EMC performance",
+          "items": [
+            "Signal and ground alternate (G-S-G-S…)",
+            "Two signals per ground (G-S-S-G…)",
+            "One ground conductor in the middle",
+            "One ground conductor at the edge"
+          ],
+          "explanation": "A ground next to every signal gives the smallest loop areas, no shared return and little crosstalk. G-S-S-G uses 25 % fewer conductors with slightly more crosstalk and some common return. A single ground makes large loops and a common impedance for all signals; placed at the edge it makes the outer loops even larger."
+        },
+        {
+          "id": "c5",
+          "type": "multipleChoice",
+          "prompt": "A thermocouple, grounded at the measuring point, feeds an amplifier with a floating input over a shielded twisted pair. The signal is below 10 Hz. Where should the shield be grounded?",
+          "options": [
+            "At the thermocouple (source) end only",
+            "At the amplifier end only",
+            "At both ends",
+            "Nowhere: leave it floating"
+          ],
+          "answer": 0,
+          "explanation": "At low frequency ground the shield at **one** end to avoid a ground loop through the shield, and choose the end where the signal circuit is grounded, here the source. Then the shield sits at the signal's reference potential. A floating shield gives no electric-field protection."
+        },
+        {
+          "id": "c6",
+          "type": "multipleChoice",
+          "prompt": "A 3 m cable between two enclosures carries 50 MHz clock harmonics. How should its shield be terminated?",
+          "options": [
+            "At both ends, 360°, to the enclosures",
+            "At one end only, via a short pigtail",
+            "At one end only, to avoid a ground loop",
+            "Not at all, to keep it floating"
+          ],
+          "answer": 0,
+          "explanation": "At 50 MHz, λ = 6 m and λ/20 = 0.3 m, so the 3 m cable is electrically long: ground the shield at both ends. High-frequency shield current must leave via a 360° connection to the enclosures (not to circuit ground, and not through a pigtail with its ~1 nH/mm)."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,857 @@
+{
+ "id": "ac-phasors",
+ "title": "Phasors",
+ "description": "Represent sinusoids as complex numbers and add them with simple complex arithmetic.",
+ "reference": "Hambley §5.2",
+ "study": [
+  {
+   "title": "Phasor definition",
+   "body": "A sinusoid $v(t) = V_m\\cos(\\omega t + \\theta)$ is represented by the complex number $\\mathbf{V} = V_m\\angle\\theta$ (bold letters for phasors). In Hambley ch. 5 the phasor magnitude is the **peak** value; power engineers often use rms phasors and then label them as rms. The frequency is not stored in the phasor, so all sinusoids in one phasor calculation must have the same $\\omega$.",
+   "formula": "V_m\\cos(\\omega t + \\theta) \\;\\leftrightarrow\\; \\mathbf{V} = V_m\\angle\\theta"
+  },
+  {
+   "title": "Sines and minus signs",
+   "body": "Always convert to cosine form first: $V_m\\sin(\\omega t + \\theta) = V_m\\cos(\\omega t + \\theta - 90^\\circ)$. A negative amplitude is a $\\pm 180^\\circ$ shift: $-5\\cos(\\omega t + 30^\\circ) \\leftrightarrow 5\\angle(-150^\\circ)$.",
+   "formula": "V_m\\sin(\\omega t + \\theta) \\;\\leftrightarrow\\; V_m\\angle(\\theta - 90^\\circ)"
+  },
+  {
+   "title": "Back to the time domain",
+   "body": "Bring the phasor to polar form $V_m\\angle\\theta$ and write $V_m\\cos(\\omega t + \\theta)$ using the $\\omega$ of the circuit. The phasor is a rotating arrow $\\mathbf{V}e^{j\\omega t}$ frozen at $t=0$; the real signal is its projection on the real axis.",
+   "formula": "v(t) = \\mathrm{Re}\\left(\\mathbf{V}e^{j\\omega t}\\right)"
+  },
+  {
+   "title": "Adding sinusoids",
+   "body": "To add sinusoids of the same frequency: write each as a cosine, take the phasors, add them in rectangular form, convert the sum to polar form and read off the cosine.\nExample: $10\\cos\\omega t + 10\\sin\\omega t \\to 10\\angle 0^\\circ + 10\\angle(-90^\\circ) = 10 - j10 = 14.14\\angle(-45^\\circ)$, so the sum is $14.14\\cos(\\omega t - 45^\\circ)$.",
+   "formula": "v_1(t) + v_2(t) \\;\\leftrightarrow\\; \\mathbf{V}_1 + \\mathbf{V}_2"
+  },
+  {
+   "title": "Phase relationships",
+   "body": "Phasors rotate counter-clockwise, so in a phasor diagram the phasor that is further counter-clockwise **leads**. $\\mathbf{V}_1 = 3\\angle 40^\\circ$ leads $\\mathbf{V}_2 = 5\\angle(-20^\\circ)$ by $60^\\circ$; equivalently $\\mathbf{V}_2$ lags $\\mathbf{V}_1$ by $60^\\circ$. The magnitudes play no role in the phase relationship."
+  },
+  {
+   "title": "Pitfalls",
+   "body": "- Peak values only add when the sinusoids are in phase; in general $|\\mathbf{V}_1 + \\mathbf{V}_2| < |\\mathbf{V}_1| + |\\mathbf{V}_2|$.\n- Phasors only combine sinusoids of the **same frequency**.\n- Peak vs rms: be consistent, $|\\mathbf{V}_{rms}| = |\\mathbf{V}|/\\sqrt2$.\n- Converting a sum back to polar form: watch the quadrant (atan2)."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ac-phasors-1",
+   "title": "From sinusoid to phasor",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "What is a phasor?",
+     "body": "A sinusoid $V_m\\cos(\\omega t + \\theta)$ is fully described by its peak value and its phase (the frequency is the same everywhere in the circuit). The **phasor** packs these two into one complex number: magnitude = peak value, angle = phase.",
+     "formula": "V_m\\cos(\\omega t + \\theta) \\;\\leftrightarrow\\; \\mathbf{V} = V_m\\angle\\theta"
+    },
+    {
+     "id": "q1",
+     "type": "multipleChoice",
+     "params": {
+      "Im": [
+       2,
+       5,
+       10
+      ],
+      "th": [
+       20,
+       35,
+       50,
+       65,
+       80
+      ]
+     },
+     "prompt": "What is the phasor of $i(t) = {{Im}}\\cos(\\omega t + {{th}}^\\circ)$ A?",
+     "options": [
+      "$\\mathbf{I} = {{Im}}\\angle {{th}}^\\circ$ A",
+      "$\\mathbf{I} = {{Im/sqrt(2)}}\\angle {{th}}^\\circ$ A",
+      "$\\mathbf{I} = {{Im}}\\angle {{-th}}^\\circ$ A",
+      "$\\mathbf{I} = {{Im}}\\angle {{th-90}}^\\circ$ A"
+     ],
+     "answer": 0,
+     "explanation": "The function is already a cosine, so magnitude = peak value ${{Im}}$ A and angle = phase ${{th}}^\\circ$. Dividing by $\\sqrt2$ would give an rms phasor, which this course only uses when it is labelled 'rms'."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Sines first become cosines",
+     "body": "The phasor angle refers to a **cosine**. For a sine, subtract $90^\\circ$ first: $V_m\\sin(\\omega t + \\theta) = V_m\\cos(\\omega t + \\theta - 90^\\circ) \\leftrightarrow V_m\\angle(\\theta - 90^\\circ)$."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       3,
+       6,
+       12
+      ],
+      "th": [
+       10,
+       30,
+       60,
+       120,
+       150
+      ]
+     },
+     "prompt": "$v(t) = {{Vm}}\\sin(\\omega t + {{th}}^\\circ)$ V. What is the angle of its phasor $\\mathbf{V}$, in degrees?",
+     "answer": "th-90",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "explanation": "${{Vm}}\\sin(\\omega t + {{th}}^\\circ) = {{Vm}}\\cos(\\omega t + {{th}}^\\circ - 90^\\circ)$, so $\\mathbf{V} = {{Vm}}\\angle {{th-90}}^\\circ$ V."
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "params": {
+      "Vm": [
+       4,
+       8,
+       15
+      ],
+      "th": [
+       25,
+       40,
+       75
+      ],
+      "w": [
+       100,
+       500,
+       1000
+      ]
+     },
+     "prompt": "The phasor $\\mathbf{V} = {{Vm}}\\angle {{th}}^\\circ$ V describes a sinusoid with $\\omega$ = {{w}} rad/s. Which time function is it?",
+     "options": [
+      "${{Vm}}\\cos({{w}}t + {{th}}^\\circ)$ V",
+      "${{Vm}}\\sin({{w}}t + {{th}}^\\circ)$ V",
+      "${{Vm/sqrt(2)}}\\cos({{w}}t + {{th}}^\\circ)$ V",
+      "${{Vm}}\\cos({{w}}t - {{th}}^\\circ)$ V"
+     ],
+     "answer": 0,
+     "explanation": "Magnitude ${{Vm}}$ is the peak value, the angle is the phase of a **cosine**, and $\\omega$ comes from the circuit: $v(t) = {{Vm}}\\cos({{w}}t + {{th}}^\\circ)$ V."
+    },
+    {
+     "id": "g1",
+     "type": "multipleChoice",
+     "params": {
+      "Vm": [
+       4,
+       6,
+       10
+      ],
+      "th": [
+       -120,
+       -60,
+       -45,
+       -30,
+       30,
+       45,
+       60,
+       120
+      ]
+     },
+     "prompt": "The graph shows a voltage $v(t)$ against $\\omega t$ (in degrees). Which phasor represents it?",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 360,
+       "label": "ωt (°)",
+       "ticks": [
+        0,
+        90,
+        180,
+        270,
+        360
+       ]
+      },
+      "y": {
+       "min": "-1.3*Vm",
+       "max": "1.3*Vm",
+       "label": "v (V)"
+      },
+      "curves": [
+       {
+        "f": "Vm*cos(rad(x)+rad(th))"
+       }
+      ]
+     },
+     "options": [
+      "$\\mathbf{V} = {{Vm}}\\angle{{{th}}}^\\circ$ V",
+      "$\\mathbf{V} = {{Vm}}\\angle{{{-th}}}^\\circ$ V",
+      "$\\mathbf{V} = {{Vm}}\\angle{{{th-180*sign(th)}}}^\\circ$ V",
+      "$\\mathbf{V} = {{2*Vm}}\\angle{{{th}}}^\\circ$ V"
+     ],
+     "answer": 0,
+     "explanation": "Magnitude: the peak value $V_m$ = {{Vm}} V (not the peak-to-peak value {{2*Vm}} V). Angle: the positive peak is at $\\omega t$ = {{mod(-th,360)}}°. A cosine peaks where $\\omega t + \\theta = 0$ (mod 360°), so $\\theta$ = −{{mod(-th,360)}}° ≡ {{th}}°. So $v(t) = {{Vm}}\\cos(\\omega t + {{th}}^\\circ)$ V and $\\mathbf{V} = {{Vm}}\\angle {{th}}^\\circ$ V. A peak **before** $\\omega t = 360^\\circ$ means a positive angle (leading); a peak shortly **after** 0 means a negative angle."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Adding sinusoids with phasors",
+     "body": "KVL and KCL make us add sinusoids. With trig identities that is painful; with phasors it is just complex addition, because adding the time functions corresponds to adding their phasors (same $\\omega$).\nExample: $3\\cos\\omega t + 4\\cos(\\omega t + 90^\\circ) \\to 3 + j4 = 5\\angle 53.1^\\circ$, i.e. $5\\cos(\\omega t + 53.1^\\circ)$."
+    },
+    {
+     "id": "q4",
+     "type": "orderSteps",
+     "prompt": "Put the steps for adding two sinusoids of the same frequency in order.",
+     "items": [
+      "Write every term as a cosine",
+      "Write the phasor of each term",
+      "Convert the phasors to rectangular form and add them",
+      "Convert the sum to polar form",
+      "Write the result as a cosine with the same ω"
+     ],
+     "explanation": "Cosine form first (so the angles mean the right thing), then phasors, then add in rectangular form (addition does not work in polar form), then back to polar and to the time domain."
+    },
+    {
+     "id": "q5",
+     "type": "trueFalse",
+     "prompt": "If $v_1(t)$ has a peak of 3 V and $v_2(t)$ a peak of 4 V (same frequency), then $v_1 + v_2$ always has a peak of 7 V.",
+     "answer": false,
+     "explanation": "Peaks only add when the sinusoids are in phase. Phasors add as arrows: the result can be anything from $|4-3| = 1$ V (opposite phase) to $7$ V (in phase); for example $5$ V when they are $90^\\circ$ apart."
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "params": {
+      "A": [
+       3,
+       5
+      ],
+      "B": [
+       4,
+       8
+      ],
+      "t1": [
+       30,
+       50,
+       70
+      ],
+      "t2": [
+       -40,
+       -20,
+       10
+      ]
+     },
+     "prompt": "$\\mathbf{V}_1 = {{A}}\\angle {{t1}}^\\circ$ and $\\mathbf{V}_2 = {{B}}\\angle {{t2}}^\\circ$. Which statement is correct?",
+     "options": [
+      "$v_1$ leads $v_2$ by {{t1-t2}}°",
+      "$v_1$ lags $v_2$ by {{t1-t2}}°",
+      "$v_1$ leads $v_2$ by {{t1+t2}}°",
+      "$v_1$ lags $v_2$ by {{t1+t2}}°"
+     ],
+     "answer": 0,
+     "explanation": "Compare angles: ${{t1}}^\\circ - ({{t2}}^\\circ) = {{t1-t2}}^\\circ > 0$, so $\\mathbf{V}_1$ is further counter-clockwise and $v_1$ leads $v_2$ by ${{t1-t2}}^\\circ$. The magnitudes don't matter."
+    }
+   ]
+  },
+  {
+   "id": "ac-phasors-2",
+   "title": "Adding sinusoids",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "A": [
+       3,
+       5,
+       6,
+       8,
+       10,
+       12
+      ],
+      "B": [
+       4,
+       5,
+       6,
+       8,
+       12
+      ]
+     },
+     "prompt": "Find the peak value of $v(t) = {{A}}\\cos(\\omega t) + {{B}}\\sin(\\omega t)$ V.",
+     "answer": "sqrt(A^2+B^2)",
+     "unit": "V",
+     "explanation": "Phasors: ${{A}}\\angle 0^\\circ + {{B}}\\angle(-90^\\circ) = {{A}} - j{{B}}$. Magnitude: $\\sqrt{ {{A}}^2 + {{B}}^2} = {{sqrt(A^2+B^2)}}$ V; angle: $-\\arctan({{B}}/{{A}}) = {{-deg(atan(B/A))}}^\\circ$. So $v(t) = {{sqrt(A^2+B^2)}}\\cos(\\omega t - {{deg(atan(B/A))}}^\\circ)$ V."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "A": [
+       2,
+       4,
+       5,
+       10
+      ],
+      "B": [
+       3,
+       6,
+       8,
+       12
+      ]
+     },
+     "prompt": "Write $v(t) = {{A}}\\cos(\\omega t) - {{B}}\\sin(\\omega t)$ as $V_m\\cos(\\omega t + \\theta)$. Find $\\theta$ in degrees.",
+     "answer": "deg(atan2(B,A))",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "explanation": "$-\\sin(\\omega t) = \\cos(\\omega t + 90^\\circ)$, so the second term has phasor ${{B}}\\angle 90^\\circ = j{{B}}$. Sum: ${{A}} + j{{B}}$, with angle $\\arctan({{B}}/{{A}}) = {{deg(atan2(B,A))}}^\\circ$ and magnitude ${{sqrt(A^2+B^2)}}$."
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "A": [
+       5,
+       8,
+       10
+      ],
+      "t1": [
+       0,
+       30,
+       45,
+       60
+      ],
+      "B": [
+       4,
+       6,
+       10
+      ],
+      "t2": [
+       -90,
+       -60,
+       -30,
+       90,
+       120
+      ]
+     },
+     "derived": {
+      "x1": "round(1000*(A*cos(rad(t1))))/1000",
+      "y1": "round(1000*(A*sin(rad(t1))))/1000",
+      "x2": "round(1000*(B*cos(rad(t2))))/1000",
+      "y2": "round(1000*(B*sin(rad(t2))))/1000",
+      "x": "x1+x2",
+      "y": "y1+y2"
+     },
+     "prompt": "Find the peak value of $v(t) = {{A}}\\cos(\\omega t + {{t1}}^\\circ) + {{B}}\\cos(\\omega t + ({{t2}}^\\circ))$ V.",
+     "answer": "sqrt(x^2+y^2)",
+     "unit": "V",
+     "explanation": "In rectangular form:\n- ${{A}}\\angle {{t1}}^\\circ = {{x1}} + j({{y1}})$\n- ${{B}}\\angle {{t2}}^\\circ = {{x2}} + j({{y2}})$\nSum: ${{x}} + j({{y}}) = {{sqrt(x^2+y^2)}}\\angle {{deg(atan2(y,x))}}^\\circ$. The peak value is {{sqrt(x^2+y^2)|V}}, less than ${{A}} + {{B}}$ because the terms are not in phase."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       10,
+       20,
+       50
+      ],
+      "A": [
+       4,
+       6,
+       8
+      ],
+      "t1": [
+       30,
+       45,
+       60,
+       90
+      ]
+     },
+     "derived": {
+      "x1": "round(1000*(A*cos(rad(t1))))/1000",
+      "y1": "round(1000*(A*sin(rad(t1))))/1000",
+      "x": "Vs-x1",
+      "y": "-y1"
+     },
+     "prompt": "In the circuit, $v_s = v_1 + v_2$ with $v_s(t) = {{Vs}}\\cos(\\omega t)$ V and $v_1(t) = {{A}}\\cos(\\omega t + {{t1}}^\\circ)$ V. Find the peak value of $v_2(t)$.",
+     "answer": "sqrt(x^2+y^2)",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_s",
+        "value": "{{Vs}} cos(ωt) V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "v_1",
+        "polarity": "+-"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "v_2",
+        "polarity": "+-"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     },
+     "explanation": "KVL with phasors: $\\mathbf{V}_2 = \\mathbf{V}_s - \\mathbf{V}_1 = {{Vs}}\\angle 0^\\circ - {{A}}\\angle {{t1}}^\\circ = {{Vs}} - ({{x1}} + j{{y1}}) = {{x}} + j({{y}})$.\n$|\\mathbf{V}_2| = \\sqrt{({{x}})^2 + ({{y}})^2} = {{sqrt(x^2+y^2)}}$ V (angle ${{deg(atan2(y,x))}}^\\circ$). Simply subtracting peaks, ${{Vs}} - {{A}}$, would be wrong."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "A": [
+       1,
+       2,
+       3
+      ],
+      "t1": [
+       0,
+       20,
+       45
+      ],
+      "B": [
+       1,
+       2,
+       4
+      ],
+      "t2": [
+       0,
+       30,
+       60,
+       150
+      ]
+     },
+     "derived": {
+      "x1": "round(1000*(A*cos(rad(t1))))/1000",
+      "y1": "round(1000*(A*sin(rad(t1))))/1000",
+      "x2": "round(1000*(B*cos(rad(t2-90))))/1000",
+      "y2": "round(1000*(B*sin(rad(t2-90))))/1000",
+      "x": "x1+x2",
+      "y": "y1+y2"
+     },
+     "prompt": "KCL at the node gives $i_3 = i_1 + i_2$ with $i_1(t) = {{A}}\\cos(\\omega t + {{t1}}^\\circ)$ A and $i_2(t) = {{B}}\\sin(\\omega t + {{t2}}^\\circ)$ A. Find the phase angle of $i_3$ (cosine form, in degrees between −180° and 180°).",
+     "answer": "deg(atan2(y,x))",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "circuit": {
+      "elements": [
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          1
+         ],
+         [
+          2,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          -0.5
+         ],
+         [
+          2,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "arrow",
+        "from": [
+         2,
+         -0.5
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "i_2"
+       },
+       {
+        "type": "arrow",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         4,
+         1
+        ],
+        "label": "i_3"
+       }
+      ]
+     },
+     "explanation": "$\\mathbf{I}_1 = {{A}}\\angle {{t1}}^\\circ = {{x1}} + j({{y1}})$ and, after converting the sine, $\\mathbf{I}_2 = {{B}}\\angle {{t2-90}}^\\circ = {{x2}} + j({{y2}})$.\n$\\mathbf{I}_3 = {{x}} + j({{y}}) = {{sqrt(x^2+y^2)}}\\angle {{deg(atan2(y,x))}}^\\circ$ A, so $i_3(t) = {{sqrt(x^2+y^2)}}\\cos(\\omega t + ({{deg(atan2(y,x))}}^\\circ))$ A."
+    },
+    {
+     "id": "p6",
+     "type": "multipleChoice",
+     "prompt": "Two sinusoidal currents with peak values 3 A and 4 A (same frequency) enter a node, and one current leaves. Which peak value of the leaving current is **impossible**?",
+     "options": [
+      "8 A",
+      "1 A",
+      "5 A",
+      "7 A"
+     ],
+     "answer": 0,
+     "explanation": "The leaving current's phasor is the sum of two arrows of length 3 and 4. Its length lies between $4 - 3 = 1$ A (opposite phase) and $4 + 3 = 7$ A (in phase); 5 A occurs at $90^\\circ$ apart. 8 A cannot occur."
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "params": {
+      "A": [
+       10,
+       20
+      ],
+      "t1": [
+       0,
+       30
+      ],
+      "B": [
+       10,
+       15,
+       20
+      ],
+      "t2": [
+       -45,
+       60,
+       90,
+       120
+      ]
+     },
+     "derived": {
+      "x1": "round(1000*(A*cos(rad(t1))))/1000",
+      "y1": "round(1000*(A*sin(rad(t1))))/1000",
+      "x2": "round(1000*(B*cos(rad(t2))))/1000",
+      "y2": "round(1000*(B*sin(rad(t2))))/1000",
+      "x": "x1+x2",
+      "y": "y1+y2"
+     },
+     "prompt": "Find the **rms** value of $v(t) = {{A}}\\cos(\\omega t + {{t1}}^\\circ) + {{B}}\\cos(\\omega t + ({{t2}}^\\circ))$ V.",
+     "answer": "sqrt(x^2+y^2)/sqrt(2)",
+     "unit": "V",
+     "explanation": "Phasor sum: $({{x1}} + {{x2}}) + j({{y1}} + {{y2}}) = {{x}} + j({{y}})$, so the peak value is ${{sqrt(x^2+y^2)}}$ V. The sum is again a sinusoid, so $V_{rms} = {{sqrt(x^2+y^2)}}/\\sqrt2$ = {{sqrt(x^2+y^2)/sqrt(2)|V}}."
+    },
+    {
+     "id": "p8",
+     "type": "trueFalse",
+     "prompt": "You can add $5\\cos(100t)$ and $5\\cos(200t)$ by adding their phasors $5\\angle 0^\\circ + 5\\angle 0^\\circ$.",
+     "answer": false,
+     "explanation": "A phasor does not store the frequency; adding phasors is only valid when all sinusoids have the **same** $\\omega$. The sum of a 100 rad/s and a 200 rad/s sinusoid is not a sinusoid at all."
+    },
+    {
+     "id": "g1",
+     "type": "numeric",
+     "params": {
+      "A": [
+       3,
+       6,
+       8
+      ],
+      "B": [
+       4,
+       6
+      ],
+      "ph": [
+       -90,
+       90,
+       -60,
+       60
+      ]
+     },
+     "derived": {
+      "re": "A+B*cos(rad(ph))",
+      "im": "B*sin(rad(ph))"
+     },
+     "prompt": "The graph shows $v_1(t)$ (solid) and $v_2(t)$ (dashed) against $\\omega t$. Find the peak value of $v = v_1 + v_2$.",
+     "hint": "Write both as phasors: read each peak value and the angle $\\omega t$ at which each one peaks.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 360,
+       "label": "ωt (°)",
+       "ticks": [
+        0,
+        60,
+        120,
+        180,
+        240,
+        300,
+        360
+       ]
+      },
+      "y": {
+       "min": -10,
+       "max": 10,
+       "label": "v (V)"
+      },
+      "curves": [
+       {
+        "f": "A*cos(rad(x))"
+       },
+       {
+        "f": "B*cos(rad(x)+rad(ph))",
+        "color": "orange",
+        "dash": true
+       }
+      ]
+     },
+     "answer": "sqrt(re^2+im^2)",
+     "unit": "V",
+     "tolerance": 0.05,
+     "explanation": "$v_1$ peaks at $\\omega t = 0$ with {{A}} V, so $\\mathbf{V}_1 = {{A}}\\angle 0^\\circ$. $v_2$ has peak {{B}} V and peaks at $\\omega t$ = {{mod(-ph,360)}}°, so its angle is {{ph}}°: $\\mathbf{V}_2 = {{B}}\\angle {{ph}}^\\circ$ = $({{round(100*B*cos(rad(ph)))/100}}) + j({{im}})$ V. Sum: $\\mathbf{V} = ({{re}}) + j({{im}})$ V, with magnitude $\\sqrt{{{re}}^2 + ({{im}})^2}$ = {{sqrt(re^2+im^2)|V}}. Peaks only add directly ({{A+B}} V) when the waveforms are in phase."
+    }
+   ]
+  },
+  {
+   "id": "ac-phasors-3",
+   "title": "Phasor puzzles",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "A": [
+       5,
+       10,
+       15
+      ],
+      "B": [
+       4,
+       8,
+       12
+      ],
+      "C": [
+       3,
+       6,
+       9
+      ]
+     },
+     "derived": {
+      "x": "round(1000*(A*cos(rad(30)) + B*cos(rad(45)) - C))/1000",
+      "y": "round(1000*(-A*sin(rad(30)) - B*sin(rad(45))))/1000"
+     },
+     "prompt": "Find the peak value of $v(t) = {{A}}\\cos(\\omega t - 30^\\circ) + {{B}}\\sin(\\omega t + 45^\\circ) - {{C}}\\cos(\\omega t)$ V.",
+     "answer": "sqrt(x^2+y^2)",
+     "unit": "V",
+     "explanation": "Phasors (cosine reference):\n- ${{A}}\\angle(-30^\\circ) = {{A*cos(rad(30))}} - j{{A/2}}$\n- ${{B}}\\sin(\\omega t + 45^\\circ) \\to {{B}}\\angle(-45^\\circ) = {{B*cos(rad(45))}} - j{{B*cos(rad(45))}}$\n- $-{{C}}\\cos(\\omega t) \\to -{{C}}$\nSum: ${{x}} + j({{y}})$, magnitude {{sqrt(x^2+y^2)|V}} (angle ${{deg(atan2(y,x))}}^\\circ$)."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "A": [
+       5,
+       10,
+       15
+      ],
+      "B": [
+       4,
+       8,
+       12
+      ],
+      "C": [
+       3,
+       6,
+       9
+      ]
+     },
+     "derived": {
+      "x": "round(1000*(A*cos(rad(30)) + B*cos(rad(45)) - C))/1000",
+      "y": "round(1000*(-A*sin(rad(30)) - B*sin(rad(45))))/1000"
+     },
+     "prompt": "Write $v(t) = {{A}}\\cos(\\omega t - 30^\\circ) + {{B}}\\sin(\\omega t + 45^\\circ) - {{C}}\\cos(\\omega t)$ V as $V_m\\cos(\\omega t + \\theta)$. Find $\\theta$ in degrees (between −180° and 180°).",
+     "answer": "deg(atan2(y,x))",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "explanation": "Phasor sum: ${{A}}\\angle(-30^\\circ) + {{B}}\\angle(-45^\\circ) - {{C}} = {{x}} + j({{y}})$. The imaginary part is negative, and the sign of the real part decides between the 4th and 3rd quadrant: $\\theta = {{deg(atan2(y,x))}}^\\circ$ (with $V_m$ = {{sqrt(x^2+y^2)|V}})."
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "V0": [
+       5,
+       10,
+       20
+      ],
+      "k": [
+       0.6,
+       1,
+       1.2,
+       1.4,
+       1.8
+      ]
+     },
+     "prompt": "Two sinusoids of the same frequency both have a peak value of {{V0}} V. Their sum has a peak value of {{k*V0}} V. What is the phase difference between them, in degrees (between 0° and 180°)?",
+     "answer": "deg(2*acos(k/2))",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "explanation": "Take $\\mathbf{V}_1 = V_0\\angle 0^\\circ$ and $\\mathbf{V}_2 = V_0\\angle\\Delta$. The two equal arrows form a rhombus, so $|\\mathbf{V}_1 + \\mathbf{V}_2| = 2V_0\\cos(\\Delta/2)$.\n$\\cos(\\Delta/2) = \\frac{ {{k*V0}} }{2\\times {{V0}} } = {{k/2}}$, so $\\Delta = 2\\arccos({{k/2}}) = {{deg(2*acos(k/2))}}^\\circ$."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "a": [
+       3,
+       4,
+       6,
+       -5
+      ],
+      "b": [
+       2,
+       5,
+       -3,
+       8
+      ]
+     },
+     "prompt": "The phasor of $v(t)$ is $\\mathbf{V} = ({{a}}) + j({{b}})$ V. What is $v(t)$ a quarter period after $t = 0$, i.e. at $\\omega t = 90^\\circ$?",
+     "answer": "-b",
+     "unit": "V",
+     "absTolerance": 0.01,
+     "explanation": "$v(t) = |\\mathbf{V}|\\cos(\\omega t + \\theta)$. At $\\omega t = 90^\\circ$: $|\\mathbf{V}|\\cos(90^\\circ + \\theta) = -|\\mathbf{V}|\\sin\\theta = -\\mathrm{Im}(\\mathbf{V}) = {{-b}}$ V. (Equivalently, the rotating arrow $\\mathbf{V}e^{j\\omega t}$ has turned by $90^\\circ$, i.e. been multiplied by $j$: $\\mathrm{Re}(j\\mathbf{V}) = -b$.) At $t=0$ the value would be the real part, ${{a}}$ V."
+    },
+    {
+     "id": "c5",
+     "type": "multipleChoice",
+     "params": {
+      "f": [
+       50,
+       60,
+       1000
+      ],
+      "d": [
+       30,
+       45,
+       60,
+       90
+      ]
+     },
+     "prompt": "$\\mathbf{V} = 10\\angle 0^\\circ$ V and $\\mathbf{I} = 2\\angle(-{{d}}^\\circ)$ A at $f$ = {{f|Hz}}. How long after $v(t)$ peaks does $i(t)$ peak?",
+     "options": [
+      "{{d/360/f|s}}",
+      "{{d/(2*pi*f)|s}}",
+      "{{d/180/f|s}}",
+      "{{d/360*f|s}}"
+     ],
+     "answer": 0,
+     "explanation": "$\\mathbf{I}$ lags $\\mathbf{V}$ by ${{d}}^\\circ$. One period is $T = 1/f$ = {{1/f|s}}, so the delay is $\\frac{ {{d}} }{360}\\,T$ = {{d/360/f|s}}. (Dividing degrees by $2\\pi f$ mixes degrees with radians.)"
+    },
+    {
+     "id": "c6",
+     "type": "trueFalse",
+     "prompt": "Differentiating a sinusoid $v(t)$ corresponds to multiplying its phasor $\\mathbf{V}$ by $j\\omega$.",
+     "answer": true,
+     "explanation": "$\\frac{d}{dt}V_m\\cos(\\omega t + \\theta) = -\\omega V_m\\sin(\\omega t + \\theta) = \\omega V_m\\cos(\\omega t + \\theta + 90^\\circ)$, whose phasor is $\\omega V_m\\angle(\\theta + 90^\\circ) = j\\omega\\,\\mathbf{V}$. This is where the impedance $j\\omega L$ of an inductor comes from."
+    }
+   ]
+  }
+ ]
+}

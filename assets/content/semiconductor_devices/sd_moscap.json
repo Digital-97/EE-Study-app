@@ -1,0 +1,430 @@
+{
+  "id": "sd-moscap",
+  "title": "The MOS Capacitor",
+  "description": "The heart of the MOSFET: band bending, accumulation, depletion and inversion, flat-band and threshold voltage, and the C–V curve.",
+  "reference": "Neamen §10.1–10.2",
+  "study": [
+    {
+      "title": "Accumulation, depletion, inversion",
+      "body": "A MOS capacitor is a gate (metal or heavily doped polysilicon), a thin SiO$_2$ layer and the silicon substrate, here p-type. The gate voltage $V_G$ controls the charge at the silicon surface:\n- **Accumulation** ($V_G < V_{FB}$): holes pile up at the surface.\n- **Depletion** ($V_{FB} < V_G < V_T$): holes are pushed away, uncovering negative acceptors over a depth $x_d$.\n- **Inversion** ($V_G > V_T$): electrons collect in a thin surface layer: the surface has become n-type. This electron layer is the MOSFET channel.",
+      "formula": "C_{ox} = \\frac{\\varepsilon_{ox}}{t_{ox}}, \\quad \\varepsilon_{ox} = 3.9\\,\\varepsilon_0"
+    },
+    {
+      "title": "Explore: band bending",
+      "body": "The **surface potential** $\\phi_s$ is how far the bands bend down at the surface (p-type substrate, $N_a = 10^{16}$ cm⁻³, depth on the horizontal axis). $E_F$ stays flat because no current flows through the oxide. When $E_{Fi}$ at the surface drops below $E_F$, the surface is inverted; at $\\phi_s = 2\\phi_{fp}$ = 0.69 V the surface electron density equals the bulk hole density: **threshold**. Negative $\\phi_s$ bends the bands up: accumulation.",
+      "formula": "\\phi_{fp} = \\frac{kT}{q}\\ln\\frac{N_a}{n_i}",
+      "plot": {
+        "x": {"min": 0, "max": 0.5, "label": "depth (µm)"},
+        "y": {"min": -1, "max": 1.4, "label": "E - E_v,bulk (eV)"},
+        "sliders": [{"name": "ps", "label": "$\\phi_s$", "min": -0.2, "max": 0.85, "step": 0.01, "value": 0.3, "unit": "V"}],
+        "let": {
+          "w": "if(ps, min(sqrt(2*1.03545e-12*ps/(1.602e-19*1e16)), 2.997e-5), 1.23e-5)*1e4"
+        },
+        "curves": [
+          {"f": "1.12 - ps*max(1 - x/w, 0)^2", "label": "E_c", "labelAt": 0.9},
+          {"f": "0.56 - ps*max(1 - x/w, 0)^2", "label": "E_{Fi}", "color": "grey", "dash": true, "labelAt": 0.9},
+          {"f": "-ps*max(1 - x/w, 0)^2", "label": "E_v", "color": "blue", "labelAt": 0.9},
+          {"f": "0.213", "label": "E_F", "color": "red", "labelAt": 0.7}
+        ],
+        "readouts": [
+          {"label": "surface $p_s$", "value": "1e16*exp(-ps/0.0259)", "unit": "cm⁻³"},
+          {"label": "surface $n_s$", "value": "2.25e4*exp(ps/0.0259)", "unit": "cm⁻³"}
+        ]
+      }
+    },
+    {
+      "title": "Depletion width and threshold",
+      "body": "In depletion the band bending is carried by a layer of ionized acceptors of depth $x_d = \\sqrt{2\\varepsilon_s\\phi_s/qN_a}$. At threshold ($\\phi_s = 2\\phi_{fp}$) it reaches its maximum $x_{dT}$: beyond threshold, extra gate charge is balanced by the inversion electrons, which respond exponentially to $\\phi_s$, so the depletion layer stops growing. The depletion charge per area at threshold is $|Q'_{SD}(max)| = qN_ax_{dT}$.",
+      "formula": "x_{dT} = \\sqrt{\\frac{4\\varepsilon_s\\phi_{fp}}{qN_a}}"
+    },
+    {
+      "title": "Flat-band voltage",
+      "body": "Even at $V_G = 0$ the bands are usually bent, for two reasons:\n- The gate and the substrate have different work functions. Measured from the oxide conduction band, $\\phi_{ms} = \\phi'_m - (\\chi' + E_g/2q + \\phi_{fp})$ for p-type Si (gate work function minus semiconductor work function). For an $n^+$ poly gate on p-type Si, $\\phi_{ms} \\approx -(E_g/2q + \\phi_{fp})$; for a $p^+$ poly gate, $+(E_g/2q - \\phi_{fp})$; for aluminium (with $\\phi'_m$ = 3.20 V, $\\chi'$ = 3.25 V), $-(0.61\\ \\text{V} + \\phi_{fp})$.\n- Positive charge trapped in the oxide near the interface, $Q'_{ss}$ (C/cm²), attracts electrons by itself.\nThe **flat-band voltage** undoes both:",
+      "formula": "V_{FB} = \\phi_{ms} - \\frac{Q'_{ss}}{C_{ox}}"
+    },
+    {
+      "title": "Threshold voltage",
+      "body": "At threshold the gate must (1) cancel $\\phi_{ms}$ and the oxide charge ($V_{FB}$), (2) bend the bands by $2\\phi_{fp}$, and (3) carry the depletion charge $|Q'_{SD}(max)|$ across the oxide capacitance. Higher doping or a thicker oxide raises $V_T$; positive oxide charge lowers it. For an n-type substrate (PMOS) all signs flip: $V_{TP} = -|Q'_{SD}|/C_{ox}$ $- Q'_{ss}/C_{ox}$ $+ \\phi_{ms} - 2\\phi_{fn}$.",
+      "formula": "V_{TN} = \\frac{|Q'_{SD}(max)|}{C_{ox}} + V_{FB} + 2\\phi_{fp}"
+    },
+    {
+      "title": "Explore: the C–V curve",
+      "body": "The small-signal capacitance is the oxide capacitance in series with the depletion capacitance $\\varepsilon_s/x_d$. Accumulation: $C = C_{ox}$. Depletion: $C$ falls as $x_d$ grows. Beyond $V_T$ at **high frequency** (red) the inversion electrons cannot follow the signal, so $C$ stays at $C_{min}$; at **low frequency** (dashed) they can and $C$ returns to $C_{ox}$. $n^+$ poly gate, no oxide charge. The curves use the depletion approximation and an abrupt switch at $V_T$: real curves are rounded near $V_{FB}$, and the low-frequency curve climbs back to $C_{ox}$ gradually above $V_T$.",
+      "formula": "C'_{min} = \\frac{\\varepsilon_{ox}}{t_{ox} + (\\varepsilon_{ox}/\\varepsilon_s)\\,x_{dT}}",
+      "plot": {
+        "x": {"min": "min(-3, VFB - 1)", "max": "max(3, VT + 1)", "label": "V_G", "unit": "V"},
+        "y": {"min": 0, "max": 1.15, "label": "C / C_{ox}"},
+        "sliders": [
+          {"name": "tox", "label": "$t_{ox}$", "min": 2, "max": 50, "step": 1, "value": 10, "unit": "nm"},
+          {"name": "Na", "label": "$N_a$", "min": 1e15, "max": 1e18, "log": true, "value": 1e16, "unit": "cm⁻³"}
+        ],
+        "let": {
+          "Cox": "3.4515e-13/(tox*1e-7)",
+          "phi": "0.0259*ln(Na/1.5e10)",
+          "xdT": "sqrt(4*1.03545e-12*phi/(1.602e-19*Na))",
+          "VFB": "-(0.56 + phi)",
+          "VT": "VFB + 2*phi + 1.602e-19*Na*xdT/Cox",
+          "g": "sqrt(2*1.602e-19*1.03545e-12*Na)/Cox",
+          "k": "sqrt(2*1.03545e-12/(1.602e-19*Na))"
+        },
+        "curves": [
+          {"f": "1/(1 + Cox/1.03545e-12*min(k*(-g + sqrt(g^2 + 4*max(x - VFB, 0)))/2, xdT))", "label": "high f", "color": "red", "labelAt": 0.85},
+          {"f": "if(x - VT, 1, 1/(1 + Cox/1.03545e-12*min(k*(-g + sqrt(g^2 + 4*max(x - VFB, 0)))/2, xdT)))", "label": "low f", "dash": true, "labelAt": 0.92}
+        ],
+        "vlines": [{"x": "VFB", "label": "V_{FB}"}, {"x": "VT", "label": "V_T"}],
+        "readouts": [
+          {"label": "$C_{ox}$", "value": "Cox", "unit": "F/cm²"},
+          {"label": "$C_{min}/C_{ox}$", "value": "1/(1 + Cox*xdT/1.03545e-12)"},
+          {"label": "$V_{FB}$", "value": "VFB", "unit": "V"},
+          {"label": "$V_T$", "value": "VT", "unit": "V"}
+        ]
+      }
+    },
+    {
+      "title": "Oxide charge and the C–V curve",
+      "body": "Fixed positive oxide charge $Q'_{ss}$ shifts the whole C–V curve to the **left** by $Q'_{ss}/C_{ox}$ without changing its shape: the gate needs less voltage because the oxide charge already attracts electrons. Measuring the shift of $V_{FB}$ against the ideal curve gives the oxide charge, a standard process check. Charges at the interface that can change state (interface traps) instead stretch the curve out.",
+      "formula": "\\Delta V_{FB} = -\\frac{Q'_{ss}}{C_{ox}}"
+    },
+    {
+      "title": "Worked example",
+      "body": "p-type Si, $N_a = 10^{16}$ cm⁻³, $t_{ox}$ = 10 nm, $n^+$ poly gate, $Q'_{ss}/q = 5\\times10^{10}$ cm$^{-2}$:\n- $\\phi_{fp}$ = 0.0259 ln($10^{16}$/1.5$\\times10^{10}$) = 0.347 V\n- $x_{dT}$ = 0.300 µm, $|Q'_{SD}(max)|$ = 4.80$\\times10^{-8}$ C/cm²\n- $C_{ox}$ = 3.9 × 8.85$\\times10^{-14}$ / $10^{-6}$ = 3.45$\\times10^{-7}$ F/cm²\n- $\\phi_{ms}$ = −(0.56 + 0.347) = −0.907 V; $Q'_{ss}/C_{ox}$ = 0.023 V; $V_{FB}$ = −0.931 V\n- $V_{TN}$ = 0.139 − 0.931 + 0.695 = **−0.097 V**: this transistor would already conduct at $V_G$ = 0, so real NMOS channels get a higher (implanted) doping."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sd-moscap-1",
+      "title": "Bending the bands",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "The MOS capacitor",
+          "body": "Gate, oxide, semiconductor: a parallel-plate capacitor whose bottom plate is the silicon surface. With a p-type substrate, a negative gate voltage attracts holes (**accumulation**), a positive one first pushes holes away (**depletion**) and then pulls electrons to the surface (**inversion**). The oxide capacitance per area sets how much charge a volt on the gate controls.",
+          "formula": "C_{ox} = \\frac{\\varepsilon_{ox}}{t_{ox}}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"t": [2, 5, 10, 20, 50]},
+          "prompt": "Find the oxide capacitance per unit area for a {{t}} nm SiO$_2$ gate oxide. ($\\varepsilon_{ox} = 3.9 \\times 8.85\\times10^{-14}$ F/cm)",
+          "answer": "3.9*8.85e-14/(t*1e-7)",
+          "unit": "F/cm²",
+          "absTolerance": 0,
+          "explanation": "$t_{ox}$ = {{t}} nm = {{t}}$\\times10^{-7}$ cm. $C_{ox} = \\varepsilon_{ox}/t_{ox}$ = 3.45$\\times10^{-13}$ F/cm / {{t}}$\\times10^{-7}$ cm = **{{3.9*8.85e-14/(t*1e-7)|F/cm²}}**. (1 nm = $10^{-7}$ cm, not $10^{-9}$: that is metres.)"
+        },
+        {
+          "id": "q2", "type": "matchPairs",
+          "prompt": "Match each regime of a p-type MOS capacitor with what sits at the silicon surface",
+          "pairs": [
+            ["Accumulation", "Extra holes"],
+            ["Depletion", "Uncovered negative acceptors"],
+            ["Inversion", "A thin layer of electrons"],
+            ["Flat band", "No net charge, flat bands"]
+          ],
+          "explanation": "A negative gate (relative to $V_{FB}$) attracts the majority holes. A moderately positive gate repels them, leaving ionized acceptors. A strongly positive gate attracts enough minority electrons to make the surface n-type. At $V_G = V_{FB}$ the semiconductor is neutral right up to the surface."
+        },
+        {
+          "id": "i2", "type": "info", "title": "Surface potential and threshold",
+          "body": "The band bending at the surface is the surface potential $\\phi_s$. In the bulk of p-type Si, $E_F$ sits $q\\phi_{fp}$ below $E_{Fi}$. When the bands bend down by $\\phi_{fp}$ the surface is intrinsic; at $2\\phi_{fp}$ it is as n-type as the bulk is p-type. That is the **threshold** of strong inversion.",
+          "formula": "\\phi_{fp} = \\frac{kT}{q}\\ln\\frac{N_a}{n_i}, \\quad \\phi_s(V_T) = 2\\phi_{fp}"
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"Na": [1e15, 1e16, 5e16, 1e17, 5e17]},
+          "prompt": "A MOS capacitor has a p-type substrate with $N_a$ = {{Na}} cm⁻³. Find the surface potential at threshold, $2\\phi_{fp}$. ($kT/q$ = 0.0259 V)",
+          "answer": "2*0.0259*ln(Na/1.5e10)",
+          "unit": "V",
+          "explanation": "$\\phi_{fp} = (kT/q)\\ln(N_a/n_i)$ = 0.0259 × ln({{Na}} / 1.5$\\times10^{10}$) = {{0.0259*ln(Na/1.5e10)||3}} V, so the bands must bend by $2\\phi_{fp}$ = **{{2*0.0259*ln(Na/1.5e10)|V}}**."
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "prompt": "Which band diagram (energy against depth, surface on the left) shows a p-type MOS capacitor in **inversion**? Red: $E_F$; dashed: $E_{Fi}$.",
+          "optionPlots": [
+            {"x": {"min": 0, "max": 1}, "y": {"min": -0.9, "max": 1.3}, "curves": [
+              {"f": "1.12 - 0.75*max(1 - x/0.5, 0)^2"}, {"f": "0.56 - 0.75*max(1 - x/0.5, 0)^2", "dash": true, "color": "grey"},
+              {"f": "-0.75*max(1 - x/0.5, 0)^2", "color": "blue"}, {"f": "0.213", "color": "red"}]},
+            {"x": {"min": 0, "max": 1}, "y": {"min": -0.9, "max": 1.3}, "curves": [
+              {"f": "1.12 - 0.25*max(1 - x/0.3, 0)^2"}, {"f": "0.56 - 0.25*max(1 - x/0.3, 0)^2", "dash": true, "color": "grey"},
+              {"f": "-0.25*max(1 - x/0.3, 0)^2", "color": "blue"}, {"f": "0.213", "color": "red"}]},
+            {"x": {"min": 0, "max": 1}, "y": {"min": -0.9, "max": 1.3}, "curves": [
+              {"f": "1.12 + 0.2*max(1 - x/0.1, 0)^2"}, {"f": "0.56 + 0.2*max(1 - x/0.1, 0)^2", "dash": true, "color": "grey"},
+              {"f": "0.2*max(1 - x/0.1, 0)^2", "color": "blue"}, {"f": "0.213", "color": "red"}]},
+            {"x": {"min": 0, "max": 1}, "y": {"min": -0.9, "max": 1.3}, "curves": [
+              {"f": "1.12"}, {"f": "0.56", "dash": true, "color": "grey"},
+              {"f": "0", "color": "blue"}, {"f": "0.213", "color": "red"}]}
+          ],
+          "answer": 0,
+          "explanation": "In inversion the bands bend down so far that at the surface $E_{Fi}$ lies **below** $E_F$: there the electron concentration exceeds the hole concentration. Bending down a little (with $E_{Fi}$ still above $E_F$) is depletion, bending up is accumulation, and straight bands are flat band."
+        },
+        {
+          "id": "q5", "type": "trueFalse",
+          "prompt": "A p-type MOS capacitor is driven into accumulation by a gate voltage above the flat-band voltage.",
+          "answer": false,
+          "explanation": "Accumulation of holes needs a gate that is **negative** relative to $V_{FB}$: the negative gate charge attracts the positive holes. Gate voltages above $V_{FB}$ give depletion and, beyond $V_T$, inversion."
+        }
+      ]
+    },
+    {
+      "id": "sd-moscap-2",
+      "title": "Flat-band and threshold voltage",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Maximum depletion width",
+          "body": "Up to threshold the gate charge is balanced by uncovered acceptors in a layer of depth $x_d$. At threshold that layer is $x_{dT}$ deep; beyond it the inversion electrons take over. The depletion charge at threshold is $qN_ax_{dT}$ per unit area.",
+          "formula": "x_{dT} = \\sqrt{\\frac{4\\varepsilon_s\\phi_{fp}}{qN_a}}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Na": [1e15, 1e16, 1e17]},
+          "derived": {"phi": "0.0259*ln(Na/1.5e10)"},
+          "prompt": "Find the maximum depletion width $x_{dT}$ under the gate of a MOS capacitor on p-type Si with $N_a$ = {{Na}} cm⁻³. ($\\varepsilon_s$ = 1.035$\\times10^{-12}$ F/cm)",
+          "answer": "sqrt(4*1.03545e-12*phi/(1.602e-19*Na))*1e-2",
+          "unit": "m",
+          "absTolerance": 0,
+          "explanation": "$\\phi_{fp}$ = 0.0259 ln({{Na}}/1.5$\\times10^{10}$) = {{phi||3}} V. $x_{dT} = \\sqrt{4\\varepsilon_s\\phi_{fp}/qN_a}$ = {{sqrt(4*1.03545e-12*phi/(1.602e-19*Na))}} cm = **{{sqrt(4*1.03545e-12*phi/(1.602e-19*Na))*1e-2|m}}**."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Na": [1e15, 1e16, 1e17]},
+          "derived": {"phi": "0.0259*ln(Na/1.5e10)", "xdT": "sqrt(4*1.03545e-12*phi/(1.602e-19*Na))"},
+          "prompt": "For $N_a$ = {{Na}} cm⁻³ the maximum depletion width is {{xdT*1e4||3}} µm. Find the depletion charge per area at threshold, $|Q'_{SD}(max)|$.",
+          "answer": "1.602e-19*Na*xdT",
+          "unit": "C/cm²",
+          "absTolerance": 0,
+          "explanation": "$|Q'_{SD}(max)| = qN_ax_{dT}$ = 1.602$\\times10^{-19}$ × {{Na}} × {{xdT}} cm = **{{1.602e-19*Na*xdT|C/cm²}}**. It grows roughly as $\\sqrt{N_a}$."
+        },
+        {
+          "id": "i2", "type": "info", "title": "Flat band",
+          "body": "The work-function difference $\\phi_{ms}$ between gate and substrate, and fixed positive charge $Q'_{ss}$ in the oxide, bend the bands even at $V_G = 0$. The flat-band voltage is the gate voltage that straightens them again. For an $n^+$ polysilicon gate on p-type Si, $\\phi_{ms} \\approx -(E_g/2q + \\phi_{fp})$.",
+          "formula": "V_{FB} = \\phi_{ms} - \\frac{Q'_{ss}}{C_{ox}}"
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"Na": [1e15, 1e16, 1e17], "Nss": [1e10, 5e10, 1e11], "t": [5, 10, 20]},
+          "derived": {"phi": "0.0259*ln(Na/1.5e10)", "Cox": "3.4515e-13/(t*1e-7)"},
+          "prompt": "An $n^+$ poly gate sits on {{t}} nm of oxide over p-type Si ($N_a$ = {{Na}} cm⁻³). The oxide contains a fixed positive charge of {{Nss}} $q$/cm². Find the flat-band voltage.",
+          "answer": "-(0.56 + phi) - 1.602e-19*Nss/Cox",
+          "unit": "V",
+          "absTolerance": 0.005,
+          "explanation": "$\\phi_{ms} = -(0.56 + \\phi_{fp})$ = −(0.56 + {{phi||3}}) = {{-(0.56+phi)||3}} V. $C_{ox}$ = {{Cox|F/cm²}} and $Q'_{ss}$ = {{1.602e-19*Nss|C/cm²}}, so $Q'_{ss}/C_{ox}$ = {{1.602e-19*Nss/Cox|V}}. $V_{FB}$ = **{{-(0.56 + phi) - 1.602e-19*Nss/Cox|V}}**."
+        },
+        {
+          "id": "i3", "type": "info", "title": "Threshold voltage",
+          "body": "To reach threshold the gate must first undo the flat-band offset, then bend the bands by $2\\phi_{fp}$, and finally supply the voltage $|Q'_{SD}(max)|/C_{ox}$ that the depletion charge drops across the oxide.",
+          "formula": "V_{TN} = \\frac{|Q'_{SD}(max)|}{C_{ox}} + V_{FB} + 2\\phi_{fp}"
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"Na": [1e16, 5e16, 1e17], "t": [5, 10, 20], "Nss": [1e10, 5e10]},
+          "derived": {
+            "phi": "0.0259*ln(Na/1.5e10)", "xdT": "sqrt(4*1.03545e-12*phi/(1.602e-19*Na))",
+            "Q": "1.602e-19*Na*xdT", "Cox": "3.4515e-13/(t*1e-7)", "VFB": "-(0.56 + phi) - 1.602e-19*Nss/Cox"
+          },
+          "prompt": "An NMOS capacitor has $N_a$ = {{Na}} cm⁻³, $t_{ox}$ = {{t}} nm, an $n^+$ poly gate and $Q'_{ss}/q$ = {{Nss}} cm$^{-2}$. Find the threshold voltage.",
+          "answer": "Q/Cox + VFB + 2*phi",
+          "unit": "V",
+          "absTolerance": 0.01,
+          "explanation": "$\\phi_{fp}$ = {{phi||3}} V, $x_{dT}$ = {{xdT*1e4||3}} µm, $|Q'_{SD}|$ = {{Q|C/cm²}}, $C_{ox}$ = {{Cox|F/cm²}}, so $|Q'_{SD}|/C_{ox}$ = {{Q/Cox||3}} V. $V_{FB}$ = {{VFB||3}} V. $V_{TN}$ = {{Q/Cox||3}} + ({{VFB||3}}) + {{2*phi||3}} = **{{Q/Cox + VFB + 2*phi||3}} V**."
+        },
+        {
+          "id": "q5", "type": "trueFalse",
+          "prompt": "Fixed positive charge in the gate oxide makes the threshold voltage of an NMOS capacitor **more negative**.",
+          "answer": true,
+          "explanation": "$V_{FB}$ contains $-Q'_{ss}/C_{ox}$: positive oxide charge already attracts electrons to the surface, so less gate voltage is needed. The whole C–V curve shifts to the left."
+        }
+      ]
+    },
+    {
+      "id": "sd-moscap-3",
+      "title": "Reading C–V curves",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Na": [1e15, 1e16, 1e17], "t": [5, 10, 20, 50]},
+          "derived": {"phi": "0.0259*ln(Na/1.5e10)", "xdT": "sqrt(4*1.03545e-12*phi/(1.602e-19*Na))"},
+          "prompt": "Find the ratio $C_{min}/C_{ox}$ of the high-frequency C–V curve for $N_a$ = {{Na}} cm⁻³ and $t_{ox}$ = {{t}} nm.",
+          "answer": "(t*1e-7)/(t*1e-7 + 3.9/11.7*xdT)",
+          "unit": "",
+          "explanation": "$x_{dT}$ = {{xdT*1e4||3}} µm. In series, $C'_{min} = \\varepsilon_{ox}/(t_{ox} + (\\varepsilon_{ox}/\\varepsilon_s)x_{dT})$, so $C_{min}/C_{ox}$ = $t_{ox}/(t_{ox} + 0.333\\,x_{dT})$ = {{t}} nm / ({{t}} nm + {{3.9/11.7*xdT*1e7||3}} nm) = **{{(t*1e-7)/(t*1e-7 + 3.9/11.7*xdT)||3}}**. A thin oxide or light doping gives a deep dip."
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"Na": [1e16, 5e16, 1e17], "t": [10, 20]},
+          "derived": {
+            "Cox": "3.4515e-13/(t*1e-7)", "phi": "0.0259*ln(Na/1.5e10)",
+            "xdT": "sqrt(4*1.03545e-12*phi/(1.602e-19*Na))", "VFB": "-(0.56 + phi)",
+            "VT": "VFB + 2*phi + 1.602e-19*Na*xdT/Cox",
+            "g": "sqrt(2*1.602e-19*1.03545e-12*Na)/Cox", "k": "sqrt(2*1.03545e-12/(1.602e-19*Na))"
+          },
+          "prompt": "The high-frequency C–V curve of an $n^+$-poly MOS capacitor ($N_a$ = {{Na}} cm⁻³, $t_{ox}$ = {{t}} nm). Drag $V_G$ to the threshold voltage, where the capacitance stops falling.",
+          "plot": {
+            "x": {"min": "VFB - 1", "max": "VT + 1.5", "label": "V_G", "unit": "V"},
+            "y": {"min": 0, "max": 1.15, "label": "C / C_{ox}"},
+            "sliders": [{"name": "VG", "label": "$V_G$", "min": "VFB - 1", "max": "VT + 1.5", "step": 0.01, "value": "VFB - 0.5", "unit": "V"}],
+            "curves": [{"f": "1/(1 + Cox/1.03545e-12*min(k*(-g + sqrt(g^2 + 4*max(x - VFB, 0)))/2, xdT))", "label": "C(V_G)", "labelAt": 0.85}],
+            "vlines": [{"x": "VG", "label": "V_G", "color": "orange"}]
+          },
+          "answer": {"VG": "VT"},
+          "absTolerance": 0.04,
+          "explanation": "$\\phi_{fp}$ = {{phi||3}} V, $V_{FB} = -(0.56 + \\phi_{fp})$ = {{VFB||3}} V, $|Q'_{SD}|/C_{ox}$ = {{1.602e-19*Na*xdT/Cox||3}} V, so $V_T = V_{FB} + 2\\phi_{fp} + |Q'_{SD}|/C_{ox}$ = **{{VT|V}}**. There the depletion layer reaches $x_{dT}$; above it the inversion electrons screen the substrate and the high-frequency capacitance stays at $C_{min}$."
+        },
+        {
+          "id": "q2", "type": "multipleChoice",
+          "prompt": "Why does the low-frequency C–V curve of a MOS capacitor rise back to $C_{ox}$ in strong inversion, while the high-frequency curve stays at $C_{min}$?",
+          "options": [
+            "At low frequency, thermal generation can supply and remove inversion electrons in step with the signal; at high frequency it is too slow, so only the depletion edge responds",
+            "At high frequency the oxide capacitance decreases",
+            "At low frequency holes accumulate at the surface",
+            "At high frequency the depletion layer collapses"
+          ],
+          "answer": 0,
+          "explanation": "The inversion layer is made of minority electrons, which must be generated thermally (or come from a nearby source region, as in a MOSFET). That takes milliseconds or more. A slow signal lets the charge change right at the surface (capacitance $C_{ox}$); a fast one forces the change to the depletion edge at $x_{dT}$ ($C_{min}$)."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"Na": [1e15, 1e16, 1e17], "t": [10, 20, 50]},
+          "derived": {"LD": "sqrt(1.03545e-12*0.0259/(1.602e-19*Na))"},
+          "prompt": "At flat band the capacitance is set by the extrinsic Debye length $L_D = \\sqrt{\\varepsilon_s(kT/q)/(qN_a)}$: $C'_{FB} = \\varepsilon_{ox}/(t_{ox} + (\\varepsilon_{ox}/\\varepsilon_s)L_D)$. Find $C'_{FB}/C_{ox}$ for $N_a$ = {{Na}} cm⁻³ and $t_{ox}$ = {{t}} nm.",
+          "answer": "(t*1e-7)/(t*1e-7 + 3.9/11.7*LD)",
+          "unit": "",
+          "explanation": "$L_D = \\sqrt{\\varepsilon_s(kT/q)/(qN_a)}$ = {{LD*1e7||3}} nm. $C'_{FB}/C_{ox} = t_{ox}/(t_{ox} + 0.333L_D)$ = {{t}} / ({{t}} + {{3.9/11.7*LD*1e7||3}}) = **{{(t*1e-7)/(t*1e-7 + 3.9/11.7*LD)||3}}**. The flat-band point is well below $C_{ox}$, which is how $V_{FB}$ is located on a measured curve."
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "params": {"s": [0, 1]},
+          "derived": {"sh": "0.4 - 0.8*s"},
+          "prompt": "The dashed curve is the ideal high-frequency C–V curve of a p-type MOS capacitor, the solid one is measured. What does the shift tell you about the oxide?",
+          "plot": {
+            "x": {"min": -3, "max": 2, "label": "V_G", "unit": "V"},
+            "y": {"min": 0, "max": 1.15, "label": "C / C_{ox}"},
+            "curves": [
+              {"f": "1/(1 + 2.5*min((-0.3 + sqrt(0.09 + 4*max(x + 0.9, 0)))/2, 0.6))", "label": "ideal", "color": "grey", "dash": true, "labelAt": 0.05},
+              {"f": "1/(1 + 2.5*min((-0.3 + sqrt(0.09 + 4*max(x - sh + 0.9, 0)))/2, 0.6))", "label": "measured", "labelAt": 0.85}
+            ]
+          },
+          "options": ["It contains positive fixed charge", "It contains negative fixed charge", "It contains no charge; only $\\phi_{ms}$ differs"],
+          "answer": "1 - s",
+          "explanation": "$\\Delta V_{FB} = -Q'_{ss}/C_{ox}$. Here the measured curve is shifted by {{sh}} V (negative means to the left). A shift to the **left** means positive oxide charge: it already attracts electrons, so less gate voltage is needed. A shift to the right means negative charge. The work-function difference is already included in the ideal curve."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"dV": [0.1, 0.2, 0.3, 0.5], "t": [10, 20, 50]},
+          "prompt": "A measured C–V curve is shifted {{dV}} V to the **left** of the ideal curve. The oxide is {{t}} nm thick. Find the fixed oxide charge density $Q'_{ss}/q$ in charges per cm² (answer in cm$^{-2}$).",
+          "answer": "dV*3.4515e-13/(t*1e-7)/1.602e-19",
+          "unit": "",
+          "explanation": "$Q'_{ss} = -C_{ox}\\Delta V_{FB}$ with $\\Delta V_{FB}$ = −{{dV}} V and $C_{ox}$ = {{3.4515e-13/(t*1e-7)|F/cm²}}: $Q'_{ss}$ = {{dV*3.4515e-13/(t*1e-7)|C/cm²}}. Dividing by $q$: **{{dV*3.4515e-13/(t*1e-7)/1.602e-19}}** cm$^{-2}$. Good modern oxides reach $10^{10}$ cm$^{-2}$ or less."
+        },
+        {
+          "id": "q6", "type": "trueFalse",
+          "prompt": "A MOS capacitor on more heavily doped p-type silicon shows a **higher** minimum capacitance $C_{min}/C_{ox}$ (a shallower dip).",
+          "answer": true,
+          "explanation": "$x_{dT} = \\sqrt{4\\varepsilon_s\\phi_{fp}/qN_a}$ shrinks with doping (the $\\ln N_a$ in $\\phi_{fp}$ grows only slowly), so the depletion capacitance at threshold is larger and $C_{min}$ rises towards $C_{ox}$."
+        }
+      ]
+    },
+    {
+      "id": "sd-moscap-4",
+      "title": "Designing the threshold",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "s1", "type": "slider",
+          "params": {"Nt": [5e15, 1e16, 3e16, 1e17, 3e17], "t": [5, 10]},
+          "derived": {
+            "Cox": "3.4515e-13/(t*1e-7)", "phiT": "0.0259*ln(Nt/1.5e10)",
+            "VTt": "sqrt(4*1.602e-19*1.03545e-12*Nt*phiT)/Cox - (0.56 + phiT) + 2*phiT"
+          },
+          "prompt": "An NMOS process uses an $n^+$ poly gate, $t_{ox}$ = {{t}} nm and no oxide charge. Drag the substrate doping until the threshold voltage is {{VTt||3}} V (dashed line).",
+          "plot": {
+            "x": {"min": 15, "max": 18, "label": "log_{10} N_a (cm⁻³)"},
+            "y": {"min": -0.5, "max": 2, "label": "V_T (V)"},
+            "sliders": [{"name": "Na", "label": "$N_a$", "min": 1e15, "max": 1e18, "log": true, "value": 1e15, "unit": "cm⁻³"}],
+            "let": {"VTa": "sqrt(4*1.602e-19*1.03545e-12*Na*0.0259*ln(Na/1.5e10))/Cox - (0.56 + 0.0259*ln(Na/1.5e10)) + 2*0.0259*ln(Na/1.5e10)"},
+            "curves": [{"f": "sqrt(4*1.602e-19*1.03545e-12*10^x*0.0259*ln(10^x/1.5e10))/Cox - (0.56 + 0.0259*ln(10^x/1.5e10)) + 2*0.0259*ln(10^x/1.5e10)", "label": "V_T(N_a)", "labelAt": 0.88}],
+            "hlines": [{"y": "VTt", "label": "target", "color": "orange"}],
+            "points": [{"x": "log10(Na)", "y": "VTa", "guides": false}],
+            "readouts": [{"label": "$V_T$", "value": "VTa", "unit": "V"}]
+          },
+          "answer": {"Na": "Nt"},
+          "tolerance": 0.12,
+          "explanation": "$V_T = |Q'_{SD}|/C_{ox}$ $- (0.56 + \\phi_{fp}) + 2\\phi_{fp}$ must equal {{VTt||3}} V, which happens at $N_a$ ≈ **{{Nt}} cm⁻³** ($\\phi_{fp}$ = {{phiT||3}} V, $|Q'_{SD}|/C_{ox}$ = {{sqrt(4*1.602e-19*1.03545e-12*Nt*phiT)/Cox||3}} V). In practice the threshold is set with a shallow channel implant rather than the whole substrate doping."
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 5e16], "t": [5, 10, 20]},
+          "derived": {
+            "phi": "0.0259*ln(Nd/1.5e10)", "xdT": "sqrt(4*1.03545e-12*phi/(1.602e-19*Nd))",
+            "Q": "1.602e-19*Nd*xdT", "Cox": "3.4515e-13/(t*1e-7)"
+          },
+          "prompt": "A PMOS capacitor has an n-type substrate ($N_d$ = {{Nd}} cm⁻³), $t_{ox}$ = {{t}} nm, a $p^+$ poly gate ($\\phi_{ms} = +(0.56 + \\phi_{fn})$) and no oxide charge. Find $V_{TP} = -|Q'_{SD}(max)|/C_{ox}$ $+ \\phi_{ms} - 2\\phi_{fn}$.",
+          "answer": "-Q/Cox + (0.56 + phi) - 2*phi",
+          "unit": "V",
+          "absTolerance": 0.01,
+          "explanation": "$\\phi_{fn} = (kT/q)\\ln(N_d/n_i)$ = {{phi||3}} V; $|Q'_{SD}|$ = {{Q|C/cm²}}, $C_{ox}$ = {{Cox|F/cm²}}, so $|Q'_{SD}|/C_{ox}$ = {{Q/Cox||3}} V. $\\phi_{ms}$ = {{0.56+phi||3}} V. $V_{TP}$ = −{{Q/Cox||3}} + {{0.56+phi||3}} − {{2*phi||3}} = **{{-Q/Cox + (0.56 + phi) - 2*phi||3}} V**. Mirror image of the NMOS case: a $p^+$ gate gives a PMOS threshold of the same size as an $n^+$ gate gives NMOS."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Na": [1e15, 1e16, 1e17]},
+          "prompt": "An aluminium gate ($\\phi'_m$ = 3.20 V) sits on SiO$_2$ over p-type Si ($\\chi'$ = 3.25 V, $E_g$ = 1.12 eV) with $N_a$ = {{Na}} cm⁻³. Find $\\phi_{ms} = \\phi'_m - (\\chi' + E_g/2q + \\phi_{fp})$.",
+          "answer": "3.20 - (3.25 + 0.56 + 0.0259*ln(Na/1.5e10))",
+          "unit": "V",
+          "absTolerance": 0.005,
+          "explanation": "$\\phi_{fp}$ = 0.0259 ln({{Na}}/1.5$\\times10^{10}$) = {{0.0259*ln(Na/1.5e10)||3}} V. $\\phi_{ms}$ = 3.20 − (3.25 + 0.56 + {{0.0259*ln(Na/1.5e10)||3}}) = **{{3.20 - (3.25 + 0.56 + 0.0259*ln(Na/1.5e10))||3}} V**. The primes denote the modified values measured from the SiO$_2$ conduction band."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"t": [2, 5, 10], "Vov": [0.5, 1, 2]},
+          "prompt": "Above threshold every extra volt on the gate adds inversion charge $Q'_n = -C_{ox}(V_G - V_T)$. For $t_{ox}$ = {{t}} nm and $V_G - V_T$ = {{Vov}} V, how many electrons per cm² are in the channel? (answer in cm$^{-2}$)",
+          "answer": "3.4515e-13/(t*1e-7)*Vov/1.602e-19",
+          "unit": "",
+          "explanation": "$|Q'_n| = C_{ox}(V_G - V_T)$ = {{3.4515e-13/(t*1e-7)|F/cm²}} × {{Vov}} V = {{3.4515e-13/(t*1e-7)*Vov|C/cm²}}. Divide by $q$: **{{3.4515e-13/(t*1e-7)*Vov/1.602e-19}}** cm$^{-2}$. This sheet charge is what carries the MOSFET current in the next unit; a thinner oxide gives more charge per volt."
+        },
+        {
+          "id": "q4", "type": "orderSteps",
+          "prompt": "Put the steps to calculate the depletion-charge term and the threshold voltage of an NMOS capacitor in order",
+          "items": [
+            "Compute $\\phi_{fp}$ from $N_a$",
+            "Use $\\phi_{fp}$ to find the maximum depletion width $x_{dT}$",
+            "Multiply by $qN_a$ to get $|Q'_{SD}(max)|$",
+            "Divide by $C_{ox}$ to get the voltage across the oxide",
+            "Add $V_{FB}$ and $2\\phi_{fp}$ to get $V_T$"
+          ],
+          "explanation": "Each step needs the result of the one before: $\\phi_{fp}$ sets $x_{dT} = \\sqrt{4\\varepsilon_s\\phi_{fp}/qN_a}$, which gives the depletion charge $qN_ax_{dT}$; $C_{ox}$ converts that charge into a voltage, and adding $V_{FB} = \\phi_{ms} - Q'_{ss}/C_{ox}$ and the band bending $2\\phi_{fp}$ gives $V_T$."
+        },
+        {
+          "id": "q5", "type": "multipleChoice",
+          "params": {"k": [2, 4]},
+          "prompt": "The gate oxide of an NMOS capacitor is made {{k}} times thinner, everything else unchanged (no oxide charge). Which term of $V_T$ changes?",
+          "options": [
+            "Only $|Q'_{SD}(max)|/C_{ox}$, which becomes {{k}} times smaller",
+            "Only $2\\phi_{fp}$, which becomes {{k}} times smaller",
+            "$\\phi_{ms}$ becomes {{k}} times smaller",
+            "All terms scale by {{k}}"
+          ],
+          "answer": 0,
+          "explanation": "$C_{ox} = \\varepsilon_{ox}/t_{ox}$ grows {{k}}-fold, so the depletion-charge term $|Q'_{SD}|/C_{ox}$ drops {{k}}-fold. $\\phi_{ms}$ and $2\\phi_{fp}$ depend only on the materials and doping. (With oxide charge, the $Q'_{ss}/C_{ox}$ term shrinks too.)"
+        },
+        {
+          "id": "q6", "type": "numeric",
+          "params": {"Na": [1e16, 1e17], "t": [5, 10, 20], "Nss": [5e10, 1e11]},
+          "derived": {
+            "phi": "0.0259*ln(Na/1.5e10)", "xdT": "sqrt(4*1.03545e-12*phi/(1.602e-19*Na))",
+            "Q": "1.602e-19*Na*xdT", "Cox": "3.4515e-13/(t*1e-7)"
+          },
+          "prompt": "An aluminium-gate NMOS capacitor ($\\phi_{ms} = -(0.61\\ \\text{V} + \\phi_{fp})$) has $N_a$ = {{Na}} cm⁻³, $t_{ox}$ = {{t}} nm and $Q'_{ss}/q$ = {{Nss}} cm$^{-2}$. Find $V_{TN}$.",
+          "answer": "Q/Cox - (0.61 + phi) - 1.602e-19*Nss/Cox + 2*phi",
+          "unit": "V",
+          "absTolerance": 0.01,
+          "explanation": "$\\phi_{fp}$ = {{phi||3}} V, $|Q'_{SD}|/C_{ox}$ = {{Q/Cox||3}} V, $\\phi_{ms}$ = {{-(0.61+phi)||3}} V, $Q'_{ss}/C_{ox}$ = {{1.602e-19*Nss/Cox||3}} V. $V_{TN}$ = {{Q/Cox||3}} − {{0.61+phi||3}} − {{1.602e-19*Nss/Cox||3}} + {{2*phi||3}} = **{{Q/Cox - (0.61 + phi) - 1.602e-19*Nss/Cox + 2*phi||3}} V**."
+        },
+        {
+          "id": "q7", "type": "trueFalse",
+          "params": {"Na": [1e15, 1e16, 1e17, 3e17]},
+          "prompt": "An NMOS capacitor with an $n^+$ poly gate, a 10 nm oxide, no oxide charge and $N_a$ = {{Na}} cm⁻³ is already in inversion at $V_G$ = 0.",
+          "answer": "-(sqrt(4*1.602e-19*1.03545e-12*Na*0.0259*ln(Na/1.5e10))/3.4515e-7 + 0.0259*ln(Na/1.5e10) - 0.56)",
+          "explanation": "$V_T = |Q'_{SD}|/C_{ox}$ $- (0.56 + \\phi_{fp}) + 2\\phi_{fp}$ = {{sqrt(4*1.602e-19*1.03545e-12*Na*0.0259*ln(Na/1.5e10))/3.4515e-7||3}} − 0.56 + {{0.0259*ln(Na/1.5e10)||3}} = {{sqrt(4*1.602e-19*1.03545e-12*Na*0.0259*ln(Na/1.5e10))/3.4515e-7 + 0.0259*ln(Na/1.5e10) - 0.56||3}} V. A negative $V_T$ means the surface is inverted at $V_G$ = 0 (a depletion-mode device), so the statement is true when $V_T < 0$."
+        }
+      ]
+    }
+  ]
+}

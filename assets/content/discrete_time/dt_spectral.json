@@ -1,0 +1,1792 @@
+{
+  "id": "dt-spectral",
+  "title": "Spectral Analysis with the DFT",
+  "description": "Use the DFT to measure spectra: resolution, leakage, windows, fast convolution, correlation and the DCT.",
+  "reference": "Phillips §12.6–12.7",
+  "study": [
+    {
+      "title": "The DFT as a Fourier-transform estimate",
+      "body": "Sample $x(t)$ with spacing $T$, take $N$ samples and compute the DFT. Then $T\\cdot X[k]$ approximates the continuous Fourier transform at $f_k = k/(NT)$. Three errors creep in: **aliasing** if $f_s$ is too low, **truncation** if the record is shorter than the signal, and the fact that you only see the spectrum at the bin frequencies.",
+      "formula": "X(f_k) \\approx T\\,X[k], \\qquad f_k = \\frac{k}{NT}"
+    },
+    {
+      "title": "Resolution: record length, not zero padding",
+      "body": "The bin spacing is $f_s/N$, but the ability to **separate** two tones is set by the record length $T_0 = LT$: about $1/T_0$. Zero padding to $N > L$ samples the same DTFT more densely; it interpolates the picture but adds no detail. Explore: tones at $0.2f_s$ and $0.27f_s$ (grey lines). Pad $L = 8$ as much as you like, they stay one blob; a longer record separates them.",
+      "formula": "\\Delta f_{res} \\approx \\frac{1}{T_0} = \\frac{f_s}{L}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 0.5,
+          "label": "f / f_s"
+        },
+        "y": {
+          "min": 0,
+          "max": 2.3,
+          "label": "|X| / L"
+        },
+        "sliders": [
+          {
+            "name": "L",
+            "label": "record length $L$ (samples)",
+            "min": 8,
+            "max": 40,
+            "step": 8,
+            "value": 8
+          },
+          {
+            "name": "Np",
+            "label": "DFT length $N$ (zero padded)",
+            "min": 8,
+            "max": 64,
+            "step": 8,
+            "value": 8
+          }
+        ],
+        "let": {
+          "M": "max(Np, L)"
+        },
+        "curves": [
+          {
+            "f": "sqrt((sin(pi*L*(x-0.2+1e-7))/sin(pi*(x-0.2+1e-7))*cos(pi*(x-0.2)*(L-1)) + sin(pi*L*(x-0.27+1e-7))/sin(pi*(x-0.27+1e-7))*cos(pi*(x-0.27)*(L-1)))^2 + (sin(pi*L*(x-0.2+1e-7))/sin(pi*(x-0.2+1e-7))*sin(pi*(x-0.2)*(L-1)) + sin(pi*L*(x-0.27+1e-7))/sin(pi*(x-0.27+1e-7))*sin(pi*(x-0.27)*(L-1)))^2)/L",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "if(0.0011 - abs(x - round(x*M)/M), sqrt((sin(pi*L*(round(x*M)/M-0.2+1e-7))/sin(pi*(round(x*M)/M-0.2+1e-7))*cos(pi*(round(x*M)/M-0.2)*(L-1)) + sin(pi*L*(round(x*M)/M-0.27+1e-7))/sin(pi*(round(x*M)/M-0.27+1e-7))*cos(pi*(round(x*M)/M-0.27)*(L-1)))^2 + (sin(pi*L*(round(x*M)/M-0.2+1e-7))/sin(pi*(round(x*M)/M-0.2+1e-7))*sin(pi*(round(x*M)/M-0.2)*(L-1)) + sin(pi*L*(round(x*M)/M-0.27+1e-7))/sin(pi*(round(x*M)/M-0.27+1e-7))*sin(pi*(round(x*M)/M-0.27)*(L-1)))^2)/L, 0)"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0.2
+          },
+          {
+            "x": 0.27
+          }
+        ],
+        "readouts": [
+          {
+            "label": "bin spacing / $f_s$",
+            "value": "1/M"
+          },
+          {
+            "label": "resolution / $f_s$ ≈ $1/L$",
+            "value": "1/L"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: leakage",
+      "body": "The DFT assumes the record repeats. If a tone completes a whole number of cycles in the record, it lands in exactly one bin. Otherwise the periodic extension has a jump, and the bins sample the window's spectrum off its nulls: energy **leaks** into all bins. Drag the slider: at $\\delta = 0.5$ the largest bin drops 3.9 dB (scalloping) and about 60 % of the energy lies outside it.",
+      "formula": "\\text{no leakage} \\iff f_0 = k\\,\\frac{f_s}{N}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 20,
+          "label": "bin k"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.15,
+          "label": "|X[k]| (norm.)"
+        },
+        "sliders": [
+          {
+            "name": "d",
+            "label": "tone offset $\\delta$ (bins)",
+            "min": 0,
+            "max": 1,
+            "step": 0.05,
+            "value": 0.5
+          }
+        ],
+        "let": {
+          "dd": "d - round(d)"
+        },
+        "curves": [
+          {
+            "f": "abs(sinc(x - 10 - d))",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "if(0.04000 - abs(x - round(x)), abs(sinc(round(x) - 10 - d)), 0)"
+          }
+        ],
+        "points": [
+          {
+            "x": 0,
+            "y": "abs(sinc(0 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 1,
+            "y": "abs(sinc(1 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 2,
+            "y": "abs(sinc(2 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 3,
+            "y": "abs(sinc(3 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 4,
+            "y": "abs(sinc(4 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 5,
+            "y": "abs(sinc(5 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 6,
+            "y": "abs(sinc(6 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 7,
+            "y": "abs(sinc(7 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 8,
+            "y": "abs(sinc(8 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 9,
+            "y": "abs(sinc(9 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 10,
+            "y": "abs(sinc(10 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 11,
+            "y": "abs(sinc(11 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 12,
+            "y": "abs(sinc(12 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 13,
+            "y": "abs(sinc(13 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 14,
+            "y": "abs(sinc(14 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 15,
+            "y": "abs(sinc(15 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 16,
+            "y": "abs(sinc(16 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 17,
+            "y": "abs(sinc(17 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 18,
+            "y": "abs(sinc(18 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 19,
+            "y": "abs(sinc(19 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 20,
+            "y": "abs(sinc(20 - 10 - d))",
+            "guides": false,
+            "color": "primary"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "largest bin",
+            "value": "20*log10(abs(sinc(dd)))",
+            "unit": "dB"
+          },
+          {
+            "label": "energy leaked out of it",
+            "value": "100*(1 - sinc(dd)^2)",
+            "unit": "%",
+            "sig": 2
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: windows",
+      "body": "Multiplying the record by a window that tapers to zero at the ends removes the jump. Trade-off: lower side lobes, but a wider main lobe and a lower peak (coherent gain 0.5 for Hann, 0.54 for Hamming). Highest side lobes: rectangular −13 dB, Hann −31 dB, Hamming −43 dB; main lobe 2 bins for rectangular, 4 bins for Hann and Hamming. In the plot, the dot marks the selected window.",
+      "formula": "w_{Hann}[n] = 0.5 - 0.5\\cos\\frac{2\\pi n}{N-1}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 20,
+          "label": "bin k"
+        },
+        "y": {
+          "min": -80,
+          "max": 5,
+          "label": "|X[k]| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "w",
+            "label": "window: 0 rect, 1 Hann, 2 Hamming",
+            "min": 0,
+            "max": 2,
+            "step": 1,
+            "value": 1
+          },
+          {
+            "name": "d",
+            "label": "tone offset $\\delta$ (bins)",
+            "min": 0,
+            "max": 0.5,
+            "step": 0.05,
+            "value": 0.3
+          }
+        ],
+        "let": {
+          "a0": "if(w - 0.5, if(w - 1.5, 0.54, 0.5), 1)",
+          "a1": "if(w - 0.5, if(w - 1.5, 0.23, 0.25), 0)"
+        },
+        "curves": [
+          {
+            "f": "20*log10(max(abs(a0*sinc(x - 10 - d) + a1*(sinc(x - 10 - d - 1) + sinc(x - 10 - d + 1)))/a0, 1e-5))",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "if(0.04 - abs(x - round(x)), 20*log10(max(abs(a0*sinc(round(x) - 10 - d) + a1*(sinc(round(x) - 10 - d - 1) + sinc(round(x) - 10 - d + 1)))/a0, 1e-5)), -150)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "highest side lobe",
+            "value": "if(w - 0.5, if(w - 1.5, -42.7, -31.5), -13.3)",
+            "unit": "dB"
+          },
+          {
+            "label": "main lobe (null to null)",
+            "value": "if(w - 0.5, 4, 2)",
+            "unit": "bins"
+          },
+          {
+            "label": "largest bin",
+            "value": "20*log10(abs(a0*sinc(d) + a1*(sinc(d - 1) + sinc(d + 1)))/a0)",
+            "unit": "dB"
+          }
+        ],
+        "height": 260,
+        "labels": [
+          {
+            "x": 13.9,
+            "y": -5,
+            "text": "rectangular",
+            "color": "grey"
+          },
+          {
+            "x": 13.9,
+            "y": -11.5,
+            "text": "Hann",
+            "color": "grey"
+          },
+          {
+            "x": 13.9,
+            "y": -18,
+            "text": "Hamming",
+            "color": "grey"
+          }
+        ],
+        "points": [
+          {
+            "x": 13.3,
+            "y": "if(w - 0.5, if(w - 1.5, -18, -11.5), -5)",
+            "guides": false,
+            "color": "primary"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Circular and fast convolution",
+      "body": "Multiplying two DFTs gives the **circular** convolution: what slides off the end wraps around to the start. To get the ordinary linear convolution of lengths $N_1$ and $N_2$, zero pad both to $N \\ge N_1 + N_2 - 1$. With FFTs (two forward, one inverse) this costs about $\\frac{3N}{2}\\log_2 N + N$ multiplications instead of $N_1N_2$; for two sequences of equal length the FFT route wins from about 32 samples each. Long signals are filtered block by block (overlap-add).",
+      "formula": "N \\ge N_1 + N_2 - 1"
+    },
+    {
+      "title": "Correlation and energy spectrum",
+      "body": "The cross-correlation $r_{xy}[l]$ measures how much $y$ looks like $x$ shifted by $l$ samples; its peak gives the **delay** between two signals, $\\tau = l_{peak}T$ (echo ranging, time-of-arrival). In the DFT domain it is $X^*[k]Y[k]$, so it is computed quickly with FFTs. For $y = x$ the transform of the autocorrelation is $|X[k]|^2$: the energy spectral density.",
+      "formula": "r_{xy}[l] = \\sum_n x[n]\\,y[n+l]"
+    },
+    {
+      "title": "The DCT and energy compaction",
+      "body": "The discrete cosine transform uses only real cosines. It implicitly extends the block **symmetrically**, so there is no jump at the edges and smooth data needs only a few coefficients: **energy compaction**. JPEG takes the 2-D DCT of 8×8 pixel blocks, quantises the small high-frequency coefficients coarsely or to zero, and entropy-codes the rest. Below: an 8-sample ramp (mean removed), both transforms scaled to the same total energy.",
+      "formula": "X[k] = c_k\\sum_{n=0}^{N-1} x[n]\\cos\\frac{\\pi(2n+1)k}{2N}",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 7.5,
+          "label": "coefficient k",
+          "ticks": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 7.5,
+          "label": "|coefficient|"
+        },
+        "curves": [
+          {
+            "f": "0.0000*(1-abs(x-(-0.15))/0.035)",
+            "from": -0.185,
+            "to": -0.115,
+            "color": "red"
+          },
+          {
+            "f": "3.6955*(1-abs(x-(0.85))/0.035)",
+            "from": 0.815,
+            "to": 0.885,
+            "color": "red"
+          },
+          {
+            "f": "2.0000*(1-abs(x-(1.85))/0.035)",
+            "from": 1.815,
+            "to": 1.885,
+            "color": "red"
+          },
+          {
+            "f": "1.5307*(1-abs(x-(2.85))/0.035)",
+            "from": 2.815,
+            "to": 2.885,
+            "color": "red"
+          },
+          {
+            "f": "1.4142*(1-abs(x-(3.85))/0.035)",
+            "from": 3.815,
+            "to": 3.885,
+            "color": "red"
+          },
+          {
+            "f": "1.5307*(1-abs(x-(4.85))/0.035)",
+            "from": 4.815,
+            "to": 4.885,
+            "color": "red"
+          },
+          {
+            "f": "2.0000*(1-abs(x-(5.85))/0.035)",
+            "from": 5.815,
+            "to": 5.885,
+            "color": "red"
+          },
+          {
+            "f": "3.6955*(1-abs(x-(6.85))/0.035)",
+            "from": 6.815,
+            "to": 6.885,
+            "color": "red"
+          },
+          {
+            "f": "0.0000*(1-abs(x-(0.15))/0.035)",
+            "from": 0.115,
+            "to": 0.185
+          },
+          {
+            "f": "6.4423*(1-abs(x-(1.15))/0.035)",
+            "from": 1.115,
+            "to": 1.185
+          },
+          {
+            "f": "0.0000*(1-abs(x-(2.15))/0.035)",
+            "from": 2.115,
+            "to": 2.185
+          },
+          {
+            "f": "0.6735*(1-abs(x-(3.15))/0.035)",
+            "from": 3.115,
+            "to": 3.185
+          },
+          {
+            "f": "0.0000*(1-abs(x-(4.15))/0.035)",
+            "from": 4.115,
+            "to": 4.185
+          },
+          {
+            "f": "0.2009*(1-abs(x-(5.15))/0.035)",
+            "from": 5.115,
+            "to": 5.185
+          },
+          {
+            "f": "0.0000*(1-abs(x-(6.15))/0.035)",
+            "from": 6.115,
+            "to": 6.185
+          },
+          {
+            "f": "0.0507*(1-abs(x-(7.15))/0.035)",
+            "from": 7.115,
+            "to": 7.185
+          }
+        ],
+        "points": [
+          {
+            "x": -0.15,
+            "y": 0.0,
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 0.85,
+            "y": 3.6955,
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 1.85,
+            "y": 2.0,
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 2.85,
+            "y": 1.5307,
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 3.85,
+            "y": 1.4142,
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 4.85,
+            "y": 1.5307,
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 5.85,
+            "y": 2.0,
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 6.85,
+            "y": 3.6955,
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 0.15,
+            "y": 0.0,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 1.15,
+            "y": 6.4423,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 2.15,
+            "y": 0.0,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 3.15,
+            "y": 0.6735,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 4.15,
+            "y": 0.0,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 5.15,
+            "y": 0.2009,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 6.15,
+            "y": 0.0,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 7.15,
+            "y": 0.0507,
+            "guides": false,
+            "color": "primary"
+          }
+        ],
+        "labels": [
+          {
+            "x": 2.3,
+            "y": 6.5,
+            "text": "DCT: 98.8 % of the energy in k = 1",
+            "color": "primary"
+          },
+          {
+            "x": 2.3,
+            "y": 5.3,
+            "text": "DFT: spread over all bins",
+            "color": "red"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dt-spectral-1",
+      "title": "Leakage and windows",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Fourier transforms from samples",
+          "body": "To estimate the spectrum of an analog signal, sample it with spacing $T$ and take an $N$-point DFT. The DFT sum approximates the Fourier integral with rectangles of width $T$, so scale by $T$. Bin $k$ sits at $f_k = k/(NT)$.",
+          "formula": "X(f_k) \\approx T\\,X[k]"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              2,
+              5,
+              10
+            ],
+            "tau": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "r": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "derived": {
+            "T": "r*tau",
+            "X0": "A/(1-exp(-T/tau))"
+          },
+          "prompt": "$x(t) = {{A}}e^{-t/\\tau}u(t)$ V with $\\tau$ = {{tau|s}} is sampled every $T$ = {{T|s}}. The DFT of a long record gives $X[0]$ = {{X0||4}} V.",
+          "ask": [
+            {
+              "prompt": "Estimate $X(f)$ at $f = 0$ (in V·s).",
+              "answer": "T*X0",
+              "unit": "V·s",
+              "explanation": "$X(0) \\approx T\\,X[0]$ = {{T|s}} × {{X0||4}} V = {{T*X0|V·s}}. The exact value is $\\int x\\,dt = A\\tau$ = {{A*tau|V·s}}; the small difference ({{T*X0 - A*tau|V·s}} ≈ $AT/2$) comes from the rectangle approximation at the jump at $t = 0$."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Frequency resolution",
+          "body": "Bins are $f_s/N = 1/T_0$ apart, where $T_0 = NT$ is the record length. Two tones closer than about one bin merge into one peak. To see finer detail you must **record longer**; a higher $f_s$ only extends the frequency range.",
+          "formula": "\\Delta f = \\frac{f_s}{N} = \\frac{1}{T_0}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "df": [
+              0.5,
+              1,
+              2,
+              5,
+              10
+            ],
+            "fs": [
+              1000,
+              2000,
+              8000,
+              10000
+            ]
+          },
+          "prompt": "You want a bin spacing of {{df|Hz}} at $f_s$ = {{fs|Hz}}.",
+          "ask": [
+            {
+              "prompt": "How long must the record be?",
+              "answer": "1/df",
+              "unit": "s",
+              "explanation": "$T_0 = 1/\\Delta f$ = 1/{{df|Hz}} = {{1/df|s}}, independent of $f_s$."
+            },
+            {
+              "prompt": "How many samples $N$ is that?",
+              "answer": "fs/df",
+              "unit": "",
+              "explanation": "$N = f_s T_0 = f_s/\\Delta f$ = {{fs}} / {{df}} = {{fs/df||5}} samples."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Leakage",
+          "body": "The DFT treats the record as one period of a periodic signal. A tone with a whole number of cycles in the record joins up smoothly and lands in **one** bin. Any other frequency leaves a jump at the record edges, and its energy spreads over many bins: **leakage**. Drag $\\delta$ to move the tone between bins.",
+          "formula": "\\text{cycles in record} = \\frac{f_0 N}{f_s}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 20,
+              "label": "bin k"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.15,
+              "label": "|X[k]| (norm.)"
+            },
+            "sliders": [
+              {
+                "name": "d",
+                "label": "tone offset $\\delta$ (bins)",
+                "min": 0,
+                "max": 1,
+                "step": 0.05,
+                "value": 0.5
+              }
+            ],
+            "let": {
+              "dd": "d - round(d)"
+            },
+            "curves": [
+              {
+                "f": "abs(sinc(x - 10 - d))",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "if(0.04000 - abs(x - round(x)), abs(sinc(round(x) - 10 - d)), 0)"
+              }
+            ],
+            "points": [
+              {
+                "x": 0,
+                "y": "abs(sinc(0 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 1,
+                "y": "abs(sinc(1 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 2,
+                "y": "abs(sinc(2 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 3,
+                "y": "abs(sinc(3 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 4,
+                "y": "abs(sinc(4 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 5,
+                "y": "abs(sinc(5 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 6,
+                "y": "abs(sinc(6 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 7,
+                "y": "abs(sinc(7 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 8,
+                "y": "abs(sinc(8 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 9,
+                "y": "abs(sinc(9 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 10,
+                "y": "abs(sinc(10 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 11,
+                "y": "abs(sinc(11 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 12,
+                "y": "abs(sinc(12 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 13,
+                "y": "abs(sinc(13 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 14,
+                "y": "abs(sinc(14 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 15,
+                "y": "abs(sinc(15 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 16,
+                "y": "abs(sinc(16 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 17,
+                "y": "abs(sinc(17 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 18,
+                "y": "abs(sinc(18 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 19,
+                "y": "abs(sinc(19 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 20,
+                "y": "abs(sinc(20 - 10 - d))",
+                "guides": false,
+                "color": "primary"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "largest bin",
+                "value": "20*log10(abs(sinc(dd)))",
+                "unit": "dB"
+              },
+              {
+                "label": "energy leaked out of it",
+                "value": "100*(1 - sinc(dd)^2)",
+                "unit": "%",
+                "sig": 2
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "params": {
+            "f0": [
+              1000,
+              1100,
+              1250,
+              1062.5,
+              1500,
+              1031.25
+            ],
+            "N": [
+              64,
+              128,
+              256
+            ]
+          },
+          "prompt": "A {{f0||6}} Hz tone is sampled at 8 kHz and analysed with an $N$ = {{N}}-point DFT (rectangular window). The tone appears in a single bin, without leakage.",
+          "answer": "0.01 - abs(f0*N/8000 - round(f0*N/8000))",
+          "explanation": "Bin spacing $f_s/N$ = 8000/{{N}} = {{8000/N|Hz}}. Cycles in the record: $f_0N/f_s$ = {{f0||6}} × {{N}} / 8000 = {{f0*N/8000}}. Only a whole number of cycles (tone exactly on a bin) avoids leakage."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Windows",
+          "body": "Leakage comes from the abrupt start and end of the record. A **window** tapers the samples smoothly to zero, which lowers the side lobes, at the cost of a wider main lobe (poorer resolution) and a lower peak. Try the windows (the dot marks the selected one) and tone offsets.",
+          "formula": "w_{Hamming}[n] = 0.54 - 0.46\\cos\\frac{2\\pi n}{N-1}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 20,
+              "label": "bin k"
+            },
+            "y": {
+              "min": -80,
+              "max": 5,
+              "label": "|X[k]| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "w",
+                "label": "window: 0 rect, 1 Hann, 2 Hamming",
+                "min": 0,
+                "max": 2,
+                "step": 1,
+                "value": 1
+              },
+              {
+                "name": "d",
+                "label": "tone offset $\\delta$ (bins)",
+                "min": 0,
+                "max": 0.5,
+                "step": 0.05,
+                "value": 0.3
+              }
+            ],
+            "let": {
+              "a0": "if(w - 0.5, if(w - 1.5, 0.54, 0.5), 1)",
+              "a1": "if(w - 0.5, if(w - 1.5, 0.23, 0.25), 0)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(max(abs(a0*sinc(x - 10 - d) + a1*(sinc(x - 10 - d - 1) + sinc(x - 10 - d + 1)))/a0, 1e-5))",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "if(0.04 - abs(x - round(x)), 20*log10(max(abs(a0*sinc(round(x) - 10 - d) + a1*(sinc(round(x) - 10 - d - 1) + sinc(round(x) - 10 - d + 1)))/a0, 1e-5)), -150)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "highest side lobe",
+                "value": "if(w - 0.5, if(w - 1.5, -42.7, -31.5), -13.3)",
+                "unit": "dB"
+              },
+              {
+                "label": "main lobe (null to null)",
+                "value": "if(w - 0.5, 4, 2)",
+                "unit": "bins"
+              },
+              {
+                "label": "largest bin",
+                "value": "20*log10(abs(a0*sinc(d) + a1*(sinc(d - 1) + sinc(d + 1)))/a0)",
+                "unit": "dB"
+              }
+            ],
+            "height": 260,
+            "labels": [
+              {
+                "x": 13.9,
+                "y": -5,
+                "text": "rectangular",
+                "color": "grey"
+              },
+              {
+                "x": 13.9,
+                "y": -11.5,
+                "text": "Hann",
+                "color": "grey"
+              },
+              {
+                "x": 13.9,
+                "y": -18,
+                "text": "Hamming",
+                "color": "grey"
+              }
+            ],
+            "points": [
+              {
+                "x": 13.3,
+                "y": "if(w - 0.5, if(w - 1.5, -18, -11.5), -5)",
+                "guides": false,
+                "color": "primary"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each window to its highest side lobe (relative to the main lobe).",
+          "pairs": [
+            [
+              "Rectangular",
+              "−13 dB"
+            ],
+            [
+              "Hann",
+              "−31 dB"
+            ],
+            [
+              "Hamming",
+              "−43 dB"
+            ],
+            [
+              "Blackman",
+              "−58 dB"
+            ]
+          ],
+          "explanation": "The rectangular window has the narrowest main lobe but high side lobes (−13 dB). Hann (−31 dB) and Hamming (−43 dB) have main lobes twice as wide; Blackman (−58 dB) is wider still. Hann's side lobes fall off fast (18 dB/octave), Hamming's barely fall but start lower."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Two tones of **equal** amplitude lie only 1.5 bins apart, and leakage from other signals is not a concern. Which window separates them best?",
+          "options": [
+            "Rectangular",
+            "Hann",
+            "Hamming"
+          ],
+          "answer": 0,
+          "explanation": "Resolving close tones of similar size needs the **narrowest main lobe**: the rectangular window (2 bins null to null). Hann and Hamming have 4-bin main lobes, so two tones 1.5 bins apart merge. Tapered windows win when a weak tone must be seen next to a strong one."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "prompt": "$f_s$ = 1 kHz, $N$ = 32 (bins 31.25 Hz apart). Tune the tone so that the DFT shows a **single** line, without leakage.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 15,
+              "label": "bin k"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.15,
+              "label": "|X[k]| (norm.)"
+            },
+            "sliders": [
+              {
+                "name": "f0",
+                "label": "$f_0$",
+                "min": 100,
+                "max": 400,
+                "step": 1.5625,
+                "value": 120,
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "abs(sinc(x - f0/31.25))",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "if(0.03000 - abs(x - round(x)), abs(sinc(round(x) - f0/31.25)), 0)"
+              }
+            ],
+            "points": [
+              {
+                "x": 0,
+                "y": "abs(sinc(0 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 1,
+                "y": "abs(sinc(1 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 2,
+                "y": "abs(sinc(2 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 3,
+                "y": "abs(sinc(3 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 4,
+                "y": "abs(sinc(4 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 5,
+                "y": "abs(sinc(5 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 6,
+                "y": "abs(sinc(6 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 7,
+                "y": "abs(sinc(7 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 8,
+                "y": "abs(sinc(8 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 9,
+                "y": "abs(sinc(9 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 10,
+                "y": "abs(sinc(10 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 11,
+                "y": "abs(sinc(11 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 12,
+                "y": "abs(sinc(12 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 13,
+                "y": "abs(sinc(13 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 14,
+                "y": "abs(sinc(14 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 15,
+                "y": "abs(sinc(15 - f0/31.25))",
+                "guides": false,
+                "color": "primary"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "cycles in record $f_0N/f_s$",
+                "value": "f0/31.25"
+              }
+            ]
+          },
+          "check": "0.02 - abs(f0/31.25 - round(f0/31.25))",
+          "solution": "any multiple of 31.25 Hz, e.g. 125 Hz, 250 Hz or 375 Hz",
+          "explanation": "Leakage disappears when the record holds a whole number of cycles: $f_0 = k f_s/N = k$ × 31.25 Hz, e.g. 125, 156.25, 187.5, 218.75, 250 Hz … Then all other bins fall exactly on nulls of the sinc envelope."
+        }
+      ]
+    },
+    {
+      "id": "dt-spectral-2",
+      "title": "Measuring spectra",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              1000,
+              8000,
+              10000,
+              48000
+            ],
+            "N": [
+              256,
+              512,
+              1024,
+              2048
+            ]
+          },
+          "prompt": "A signal sampled at {{fs|Hz}} is analysed with an $N$ = {{N||5}}-point DFT.",
+          "ask": [
+            {
+              "prompt": "How wide is the main lobe (null to null) with a rectangular window, in Hz?",
+              "answer": "2*fs/N",
+              "unit": "Hz",
+              "explanation": "Rectangular window: main lobe 2 bins wide. $2f_s/N$ = 2 × {{fs}} / {{N||5}} = {{2*fs/N|Hz}}."
+            },
+            {
+              "prompt": "How wide is the main lobe (null to null) with a Hann window, in Hz?",
+              "answer": "4*fs/N",
+              "unit": "Hz",
+              "explanation": "Hann window: main lobe 4 bins wide. $4f_s/N$ = 4 × {{fs}} / {{N||5}} = {{4*fs/N|Hz}}, twice the rectangular value."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "L": [
+              100,
+              200,
+              250,
+              500
+            ],
+            "fs": [
+              1000,
+              5000,
+              10000
+            ],
+            "N": [
+              1024,
+              2048,
+              4096
+            ]
+          },
+          "prompt": "A record of $L$ = {{L}} samples at $f_s$ = {{fs|Hz}} is zero-padded to $N$ = {{N||5}} points.",
+          "ask": [
+            {
+              "prompt": "What is the bin spacing of the padded DFT?",
+              "answer": "fs/N",
+              "unit": "Hz",
+              "explanation": "Bin spacing $f_s/N$ = {{fs}} / {{N||5}} = {{fs/N|Hz}}. The bins are closer together, but they only interpolate the same spectrum."
+            },
+            {
+              "prompt": "About how far apart must two tones be to be resolved (the true resolution)?",
+              "answer": "fs/L",
+              "unit": "Hz",
+              "explanation": "Resolution is set by the record length: $1/T_0 = f_s/L$ = {{fs}} / {{L}} = {{fs/L|Hz}}. Zero padding does not change it."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "A tone falls exactly halfway between two bins and a **rectangular** window is used. By how much does its largest bin drop compared with a tone exactly on a bin?",
+          "options": [
+            "−3.9 dB",
+            "−1.4 dB",
+            "−6.0 dB",
+            "−13 dB"
+          ],
+          "answer": 0,
+          "explanation": "Halfway between bins the bins sit at $\\delta = 0.5$ on the sinc envelope: $|\\mathrm{sinc}(0.5)| = \\frac{\\sin(\\pi/2)}{\\pi/2} = 0.637$, and $20\\log_{10}0.637$ = −3.9 dB. This is the **scalloping loss**. A Hann window reduces it to about −1.4 dB; −13 dB is the first side lobe of the rectangular window."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "N": [
+              256,
+              512,
+              1024
+            ],
+            "P": [
+              100,
+              200,
+              300,
+              512,
+              640
+            ]
+          },
+          "prompt": "A tone is measured with an $N$ = {{N||5}}-point DFT. The tone lies on a bin, and the peak is $|X[k]|$ = {{P}}.",
+          "ask": [
+            {
+              "prompt": "No window (rectangular) was used. Find the amplitude of the tone.",
+              "answer": "2*P/N",
+              "unit": "",
+              "explanation": "A cosine of amplitude $A$ gives $|X[k]| = A\\cdot N/2$. So $A = 2|X[k]|/N$ = 2 × {{P}} / {{N||5}} = {{2*P/N}}."
+            },
+            {
+              "prompt": "A Hann window was used. Find the amplitude of the tone.",
+              "answer": "4*P/N",
+              "unit": "",
+              "explanation": "The Hann window has coherent gain 0.5 (its average value), so $|X[k]| = 0.5\\cdot A N/2$. Then $A = 4|X[k]|/N$ = 4 × {{P}} / {{N||5}} = {{4*P/N}}. Forgetting the window gain gives half the true amplitude."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000,
+              10000,
+              44100,
+              48000
+            ],
+            "df": [
+              1,
+              2,
+              5,
+              10
+            ]
+          },
+          "derived": {
+            "m": "ceil(ln(fs/df)/ln(2))",
+            "N": "2^m"
+          },
+          "prompt": "A spectrum analyser samples at {{fs|Hz}} and must show bins no more than {{df|Hz}} apart. It uses a radix-2 FFT.",
+          "ask": [
+            {
+              "prompt": "What is the smallest usable FFT length $N$?",
+              "answer": "N",
+              "unit": "",
+              "explanation": "$N \\ge f_s/\\Delta f$ = {{fs}} / {{df}} = {{fs/df||5}}. The next power of 2 is $2^{{{m}}}$ = {{N||6}}."
+            },
+            {
+              "prompt": "What is the actual bin spacing with that $N$?",
+              "answer": "fs/N",
+              "unit": "Hz",
+              "explanation": "$N$ = {{N||6}} (the next power of 2 above $f_s/\\Delta f$ = {{fs/df||5}}). Bin spacing $f_s/N$ = {{fs}} / {{N||6}} = {{fs/N|Hz}}, a bit better than required."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Zero padding a 100-sample record to 1024 samples lets you separate two tones that are 0.3 bins (of the original 100-point DFT) apart.",
+          "answer": false,
+          "explanation": "Zero padding only samples the DTFT of the same 100 samples more densely. Two tones 0.3 bins apart produce one merged main lobe in that DTFT, and no amount of interpolation splits it. Only a longer record (more real samples) narrows the main lobe."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "d": [
+              0.25,
+              0.3,
+              0.4,
+              0.5
+            ],
+            "m": [
+              2,
+              3,
+              4,
+              6
+            ]
+          },
+          "prompt": "A tone lies $\\delta$ = {{d}} bins above bin $k_0$ (rectangular window). Give the level in bin $k_0 + {{m}}$ relative to the peak of a tone exactly on a bin, in dB (a negative number).",
+          "answer": "20*log10(sin(pi*d)/(pi*(m-d)))",
+          "unit": "dB",
+          "absTolerance": 0.3,
+          "explanation": "Bin $k_0 + {{m}}$ is $m - \\delta$ = {{m-d}} bins from the tone, so its level is $|\\mathrm{sinc}(m-\\delta)| = \\frac{|\\sin(\\pi(m-\\delta))|}{\\pi(m-\\delta)} = \\frac{\\sin(\\pi\\delta)}{\\pi(m-\\delta)}$ = {{sin(pi*d)}} / {{pi*(m-d)}} = {{sin(pi*d)/(pi*(m-d))}}.\nIn dB: $20\\log_{10}$({{sin(pi*d)/(pi*(m-d))}}) = {{20*log10(sin(pi*d)/(pi*(m-d)))|dB}}. Leakage falls off only slowly (about 6 dB per octave of distance)."
+        }
+      ]
+    },
+    {
+      "id": "dt-spectral-3",
+      "title": "Convolution, correlation and the DCT",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Circular convolution",
+          "body": "Multiplying DFTs, $Y[k] = X[k]H[k]$, gives a **circular** convolution: the output of length $N_1 + N_2 - 1$ is folded into $N$ samples, so the tail wraps around onto the start. Zero pad both sequences to $N \\ge N_1 + N_2 - 1$ and the result equals the ordinary (linear) convolution.",
+          "formula": "N \\ge N_1 + N_2 - 1"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "b": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "c": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "d": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "h0": [
+              1,
+              2,
+              3
+            ],
+            "h1": [
+              -1,
+              1,
+              2
+            ]
+          },
+          "require": "abs(d)",
+          "prompt": "$x[n] = [{{a}}, {{b}}, {{c}}, {{d}}]$ and $h[n] = [{{h0}}, {{h1}}, 0, 0]$. Their 4-point DFTs are multiplied and transformed back, giving the circular convolution $y_c[n]$.",
+          "ask": [
+            {
+              "prompt": "Find $y_c[0]$.",
+              "answer": "a*h0 + d*h1",
+              "unit": "",
+              "explanation": "Circular: $y_c[0] = x[0]h[0] + x[3]h[1]$, because $h[1]$ meets $x[n-1]$ with $n - 1 = -1 \\equiv 3$ (wrap-around).\n$y_c[0]$ = {{a}}·{{h0}} + ({{d}})·({{h1}}) = {{a*h0 + d*h1}}. The linear result would be just $x[0]h[0]$ = {{a*h0}}.",
+              "absTolerance": 0.01
+            },
+            {
+              "prompt": "Find $y_c[2]$.",
+              "answer": "c*h0 + b*h1",
+              "unit": "",
+              "explanation": "$y_c[2] = x[2]h[0] + x[1]h[1]$ = {{c}}·{{h0}} + ({{b}})·({{h1}}) = {{c*h0 + b*h1}}. No wrap-around is involved here, so it equals the linear convolution.",
+              "absTolerance": 0.01
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "N1": [
+              100,
+              200,
+              400,
+              900,
+              1000
+            ],
+            "N2": [
+              16,
+              31,
+              64,
+              101
+            ]
+          },
+          "derived": {
+            "m": "ceil(ln(N1+N2-1)/ln(2))"
+          },
+          "prompt": "A signal block of {{N1}} samples is filtered by an FIR filter with {{N2}} taps using the DFT.",
+          "ask": [
+            {
+              "prompt": "What is the minimum DFT length for the result to equal the linear convolution?",
+              "answer": "N1+N2-1",
+              "unit": "",
+              "explanation": "$N \\ge N_1 + N_2 - 1$ = {{N1}} + {{N2}} − 1 = {{N1+N2-1||5}}. Shorter, and the tail wraps around (time-domain aliasing)."
+            },
+            {
+              "prompt": "Which radix-2 FFT length would you use?",
+              "answer": "2^m",
+              "unit": "",
+              "explanation": "Minimum $N_1 + N_2 - 1$ = {{N1+N2-1||5}}; the next power of 2 is $2^{{{m}}}$ = {{2^m||5}}. The extra zeros do no harm."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "orderSteps",
+          "prompt": "Put the steps of fast (FFT) convolution in order.",
+          "items": [
+            "Zero pad $x[n]$ and $h[n]$ to $N \\ge N_1 + N_2 - 1$",
+            "FFT both padded sequences",
+            "Multiply the spectra bin by bin: $Y[k] = X[k]H[k]$",
+            "Inverse FFT to get y[n]"
+          ],
+          "explanation": "Pad first (otherwise the product gives a circular convolution), transform both, multiply point by point, and transform back. For a fixed filter, $H[k]$ is computed once and reused for every block."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "m": [
+              3,
+              4,
+              5,
+              6,
+              8,
+              9
+            ]
+          },
+          "derived": {
+            "L": "2^m",
+            "N": "2^(m+1)"
+          },
+          "prompt": "Two sequences of $L$ = {{L||5}} samples each are convolved. The FFT method pads both to $N = 2L$ and needs about $3\\cdot\\frac{N}{2}\\log_2 N + N$ complex multiplications.",
+          "ask": [
+            {
+              "prompt": "How many multiplications does the FFT method need?",
+              "answer": "3*N/2*(m+1) + N",
+              "unit": "",
+              "explanation": "$N$ = 2 × {{L||5}} = {{N||5}}, $\\log_2 N$ = {{m+1}}. $3 \\cdot \\frac{N}{2}\\log_2 N + N$ = 3 × {{N/2||5}} × {{m+1}} + {{N||5}} = {{3*N/2*(m+1) + N||6}}. Direct convolution needs $L^2$ = {{L^2||7}}."
+            },
+            {
+              "prompt": "How many does direct convolution need?",
+              "answer": "L^2",
+              "unit": "",
+              "explanation": "Every one of the {{L||5}} samples of $x$ multiplies every one of the {{L||5}} of $h$: $L^2$ = {{L^2||7}}. The FFT method needs {{3*N/2*(m+1) + N||6}}."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "m": [
+              3,
+              4,
+              6,
+              8,
+              9
+            ]
+          },
+          "derived": {
+            "L": "2^m"
+          },
+          "prompt": "Two sequences of $L$ = {{L||5}} samples each must be convolved. Which method needs fewer multiplications? (FFT method: pad to $N = 2L$, cost $3\\cdot\\frac{N}{2}\\log_2 N + N$.)",
+          "options": [
+            "The FFT method",
+            "Direct convolution"
+          ],
+          "answer": "if(L^2 - (3*L*(m+1) + 2*L), 0, 1)",
+          "shuffle": false,
+          "explanation": "Direct: $L^2$ = {{L^2||7}}. FFT: $N$ = {{2*L||5}}, $3 \\cdot {{L||5}} \\cdot {{m+1}} + {{2*L||5}}$ = {{3*L*(m+1) + 2*L||6}}. The FFT method wins from about $L$ = 32; for short filters direct convolution is cheaper."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              10000,
+              20000,
+              50000
+            ],
+            "l": {
+              "min": 200,
+              "max": 3000,
+              "step": 50
+            }
+          },
+          "prompt": "A sonar pulse and its echo are sampled at {{fs|Hz}}. The cross-correlation of the transmitted and received signals peaks at a lag of {{l}} samples.",
+          "ask": [
+            {
+              "prompt": "What is the round-trip delay?",
+              "answer": "l/fs",
+              "unit": "s",
+              "explanation": "$\\tau = l_{peak}T = l_{peak}/f_s$ = {{l}} / {{fs}} = {{l/fs|s}}."
+            },
+            {
+              "prompt": "How far away is the target in water ($v$ = 1500 m/s)?",
+              "answer": "1500*l/fs/2",
+              "unit": "m",
+              "explanation": "Delay $\\tau$ = {{l}} / {{fs}} = {{l/fs|s}}. The sound travels there and back: $d = v\\tau/2$ = 1500 × {{l/fs|s}} / 2 = {{1500*l/fs/2|m}}."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "The DFT of the (circular) autocorrelation of $x[n]$ equals $|X[k]|^2$.",
+          "answer": true,
+          "explanation": "Correlation is convolution with a time-reversed sequence, and time reversal of a real sequence conjugates its DFT: $r_{xx} \\leftrightarrow X^*[k]X[k] = |X[k]|^2$. That is the (discrete) energy spectral density: how the signal energy is distributed over the bins."
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "prompt": "Why does JPEG use the DCT rather than the DFT on 8×8 pixel blocks?",
+          "options": [
+            "Energy compaction: a few coefficients hold most of the energy",
+            "It is lossless, so it compresses the image by itself",
+            "Its complex coefficients carry more information",
+            "It makes quantisation of the image unnecessary"
+          ],
+          "answer": 0,
+          "explanation": "The DCT extends the block symmetrically, so there is no artificial jump at the edges and no leakage into high frequencies: **energy compaction**. Many coefficients are then near zero and quantise to zero. The DCT itself is invertible (lossless); the compression comes from quantising its real coefficients."
+        },
+        {
+          "id": "q9",
+          "type": "orderSteps",
+          "prompt": "Put the main JPEG compression steps in order.",
+          "items": [
+            "Level-shift the image and split it into 8×8 blocks",
+            "Take the 2-D DCT of each block",
+            "Quantise the coefficients (coarser at high frequencies)",
+            "Zigzag-scan and entropy-code the coefficients"
+          ],
+          "explanation": "Blocks → DCT (lossless, compacts the energy) → quantisation (the lossy step, most high-frequency coefficients become 0) → zigzag scan from low to high frequency so the zeros form long runs that code efficiently."
+        }
+      ]
+    },
+    {
+      "id": "dt-spectral-4",
+      "title": "Designing an FFT analyser",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000,
+              10000,
+              48000
+            ],
+            "sep": [
+              2,
+              5,
+              10,
+              20
+            ]
+          },
+          "derived": {
+            "m": "ceil(ln(2*fs/sep)/ln(2))",
+            "N": "2^m"
+          },
+          "prompt": "Design an FFT analyser: $f_s$ = {{fs|Hz}}, Hann window. Two equal tones {{sep|Hz}} apart must be resolved, which needs a separation of at least 2 bins (half the Hann main lobe).",
+          "ask": [
+            {
+              "prompt": "Find the smallest radix-2 FFT length $N$.",
+              "answer": "N",
+              "unit": "",
+              "explanation": "2 bins ≤ {{sep|Hz}} means $f_s/N \\le$ {{sep/2|Hz}}, so $N \\ge 2f_s/\\Delta$ = 2 × {{fs}} / {{sep}} = {{2*fs/sep||5}}. Next power of 2: $2^{{{m}}}$ = {{N||6}}."
+            },
+            {
+              "prompt": "How long is one record with the smallest radix-2 $N$?",
+              "answer": "N/fs",
+              "unit": "s",
+              "explanation": "$N \\ge 2f_s/\\Delta$ = {{2*fs/sep||5}}, so $N$ = {{N||6}}. Record length $T_0 = N/f_s$ = {{N||6}} / {{fs}} = {{N/fs|s}}. Fine resolution costs measurement time."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "N": [
+              512,
+              1024,
+              2048
+            ],
+            "A": [
+              0.5,
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "With a Hann window and $N$ = {{N||5}}, a tone of amplitude {{A|V}} lies exactly halfway between two bins.",
+          "ask": [
+            {
+              "prompt": "What value does the largest bin $|X[k]|$ show?",
+              "answer": "A*N/4*0.8489",
+              "unit": "V",
+              "explanation": "On a bin: $|X| = 0.5 \\cdot AN/2 = AN/4$ = {{A*N/4|V}} (0.5 = Hann coherent gain). Halfway between bins the Hann scalloping loss is 1.42 dB, a factor 0.849: {{A*N/4|V}} × 0.849 = {{A*N/4*0.8489|V}}."
+            },
+            {
+              "prompt": "What amplitude would you wrongly read if you used $A = 4|X[k]|/N$?",
+              "answer": "A*0.8489",
+              "unit": "V",
+              "explanation": "The peak bin shows $0.849 \\cdot AN/4$, so $4|X|/N$ = 0.849 × {{A|V}} = {{A*0.8489|V}}: 15 % low. Flat-top windows or interpolation between bins reduce this error."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "M": [
+              64,
+              128,
+              256
+            ],
+            "L": [
+              512,
+              1000,
+              1500,
+              3000
+            ]
+          },
+          "derived": {
+            "m": "ceil(ln(L+M-1)/ln(2))",
+            "N": "2^m"
+          },
+          "prompt": "An FIR filter with $M$ = {{M}} taps filters a long signal by overlap-add with blocks of $L$ = {{L}} samples. $H[k]$ is precomputed; per block you need one FFT, $N$ products and one inverse FFT.",
+          "ask": [
+            {
+              "prompt": "Which radix-2 FFT length $N$ is needed?",
+              "answer": "N",
+              "unit": "",
+              "explanation": "$N \\ge L + M - 1$ = {{L}} + {{M}} − 1 = {{L+M-1||5}}. Next power of 2: $2^{{{m}}}$ = {{N||5}}."
+            },
+            {
+              "prompt": "How many complex multiplications per output sample does this cost?",
+              "answer": "(N*m + N)/L",
+              "unit": "",
+              "explanation": "$N$ = {{N||5}} (next power of 2 ≥ $L + M - 1$). Per block: two FFTs of $\\frac{N}{2}\\log_2 N$ plus $N$ products = {{N||5}} × {{m}} + {{N||5}} = {{N*m+N||6}}. Per output sample: / {{L}} = {{(N*m+N)/L}}. Direct convolution needs $M$ = {{M}} per sample."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "D": [
+              0.2,
+              0.3,
+              0.5
+            ],
+            "fs": [
+              48000,
+              96000
+            ],
+            "l": {
+              "min": 3,
+              "max": 25,
+              "step": 1
+            }
+          },
+          "require": "D - 343*l/fs - 0.01",
+          "prompt": "Two microphones {{D|m}} apart pick up the same sound ($v$ = 343 m/s, $f_s$ = {{fs|Hz}}). The cross-correlation of the two signals peaks at a lag of {{l}} samples.",
+          "ask": [
+            {
+              "prompt": "What is the path difference?",
+              "answer": "343*l/fs",
+              "unit": "m",
+              "explanation": "$\\tau = l/f_s$ = {{l}} / {{fs}} = {{l/fs|s}}. Path difference $v\\tau$ = 343 × {{l/fs|s}} = {{343*l/fs|m}}."
+            },
+            {
+              "prompt": "From which angle (from broadside) does the sound arrive?",
+              "answer": "deg(asin(343*l/fs/D))",
+              "unit": "°",
+              "explanation": "Path difference $v\\tau$ = 343 × {{l}} / {{fs}} = {{343*l/fs|m}}. $\\sin\\theta = v\\tau/D$ = {{343*l/fs|m}} / {{D|m}} = {{343*l/fs/D}}, so $\\theta$ = {{deg(asin(343*l/fs/D))|°}}.",
+              "absTolerance": 0.5
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "tw": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "T": [
+              1e-05,
+              2e-05,
+              5e-05
+            ],
+            "N": [
+              1024,
+              2048,
+              4096
+            ]
+          },
+          "require": "N*T/tw - 4",
+          "prompt": "A rectangular pulse of width $\\tau$ = {{tw|s}} is sampled every $T$ = {{T|s}} and transformed with an $N$ = {{N||5}}-point DFT (zero padded).",
+          "ask": [
+            {
+              "prompt": "At which bin index $k$ (possibly fractional) lies the first null of the spectrum, $f = 1/\\tau$?",
+              "answer": "N*T/tw",
+              "unit": "",
+              "explanation": "Bin spacing $1/(NT)$ = 1 / ({{N||5}} × {{T|s}}) = {{1/(N*T)|Hz}}. The first null of the sinc spectrum is at $1/\\tau$ = {{1/tw|Hz}}, so $k = NT/\\tau$ = {{N*T/tw}}."
+            },
+            {
+              "prompt": "The pulse height is 1 V. What does $T\\cdot X[0]$ estimate, in V·s?",
+              "answer": "tw",
+              "unit": "V·s",
+              "explanation": "$X[0]$ counts the $\\tau/T$ = {{tw/T||4}} samples of 1 V. $T\\cdot X[0] = \\tau \\cdot 1$ V = {{tw|V·s}}, the area of the pulse, which is exactly $X(f = 0)$."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A weak tone is 50 dB below a strong tone 8 bins away (the strong tone is not on a bin). Which window lets you see the weak tone?",
+          "options": [
+            "Hann",
+            "Hamming",
+            "Rectangular"
+          ],
+          "answer": 0,
+          "explanation": "Leakage of the strong tone at 8 bins distance: rectangular about $20\\log_{10}\\frac{1}{8\\pi}$ ≈ −28 dB, which buries the weak tone. Hamming starts lower (−43 dB) but its side lobes hardly fall: still about −45 dB at 8 bins. Hann starts at −31 dB but falls 18 dB per octave, to about −63 dB at 8 bins, below the weak tone."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,723 @@
+{
+  "id": "rf-smith",
+  "title": "The Smith Chart",
+  "description": "Plot impedances as reflection coefficients, read VSWR, rotate along lines and switch to admittances.",
+  "reference": "Pozar §2.4",
+  "study": [
+    {
+      "title": "From impedance to a point on the chart",
+      "body": "The Smith chart is the complex Γ plane (|Γ| ≤ 1) with a grid of **normalized** impedances $z = Z/Z_0 = r + jx$ drawn on it. Each $z$ has exactly one point $\\Gamma = (z-1)/(z+1)$: the centre is a match (z = 1), the left end a short, the right end an open. The grey grid shows $r$ = 0.2, 0.5, 1, 2, 5 (numbers on the real axis) and $x$ = ±0.2 … ±5 (numbers around the rim).",
+      "formula": "\\begin{aligned}& \\Gamma = \\frac{z-1}{z+1},\\quad z = \\frac{1+\\Gamma}{1-\\Gamma}\\\\ & \\Gamma_r = \\frac{r^2+x^2-1}{(r+1)^2+x^2}\\\\ & \\Gamma_i = \\frac{2x}{(r+1)^2+x^2}\\end{aligned}",
+      "plot": {
+        "smith": true,
+        "points": [
+          {"x": -1, "y": 0, "label": "short"},
+          {"x": 1, "y": 0, "label": "open"},
+          {"x": 0, "y": 0, "label": "z = 1", "color": "green"},
+          {"x": 0.2, "y": 0.4, "label": "1 + j1", "color": "blue"},
+          {"x": -0.2, "y": -0.4, "label": "0.5 − j0.5", "color": "purple"}
+        ]
+      }
+    },
+    {
+      "title": "Circles of constant r, arcs of constant x",
+      "body": "All points with the same $r$ lie on a circle that touches the open end; $r$ = 0 is the rim. All points with the same $x$ lie on an arc that also starts at the open end and meets the rim at $\\pm jx$. The **upper half is inductive** (x > 0), the lower half capacitive, the real axis resistive. To plot $z$ = 0.5 + j1, follow the $r$ = 0.5 circle (blue) to where it crosses the $x$ = +1 arc (orange).",
+      "formula": "\\begin{aligned}& r: \\text{ centre } \\left(\\tfrac{r}{1+r}, 0\\right),\\ \\text{radius } \\tfrac{1}{1+r}\\\\ & x: \\text{ centre } \\left(1, \\tfrac{1}{x}\\right),\\ \\text{radius } \\tfrac{1}{|x|}\\end{aligned}",
+      "plot": {
+        "smith": true,
+        "curves": [
+          {"x": "1/3+2/3*cos(t)", "y": "2/3*sin(t)", "t": [0, "2*pi"], "color": "blue"},
+          {"x": "(t/(1-t))^2/((t/(1-t)+1)^2+1)", "y": "2/((t/(1-t)+1)^2+1)", "t": [0, 0.99], "color": "orange"}
+        ],
+        "points": [{"x": 0.0769, "y": 0.6154, "label": "0.5 + j1", "color": "red"}],
+        "labels": [
+          {"x": -0.62, "y": -0.2, "text": "r = 0.5", "color": "blue"},
+          {"x": 0.08, "y": 0.87, "text": "x = +1", "color": "orange"}
+        ]
+      }
+    },
+    {
+      "title": "Reading the VSWR",
+      "body": "Along a lossless line |Γ| stays constant, so all impedances seen along it lie on one circle around the centre: the **SWR circle**. Where it crosses the real axis right of the centre, $r$ equals the VSWR (a voltage maximum, $Z = Z_0\\cdot VSWR$); left of the centre $r = 1/VSWR$ (a voltage minimum). So the VSWR is read straight off the $r$ scale.",
+      "formula": "\\begin{aligned}& r_{max} = VSWR = \\frac{1+|\\Gamma|}{1-|\\Gamma|}\\\\ & r_{min} = \\frac{1}{VSWR}\\end{aligned}",
+      "plot": {
+        "smith": true,
+        "curves": [{"x": "0.4472*cos(t)", "y": "0.4472*sin(t)", "t": [0, "2*pi"], "color": "orange", "dash": true}],
+        "points": [
+          {"x": 0.2, "y": 0.4, "label": "z_L = 1 + j1", "color": "blue"},
+          {"x": 0.4472, "y": 0, "color": "red"},
+          {"x": -0.4472, "y": 0, "color": "red"}
+        ],
+        "labels": [
+          {"x": 0.47, "y": -0.1, "text": "r = 2.62", "color": "red"},
+          {"x": -0.68, "y": -0.1, "text": "r = 0.38", "color": "red"}
+        ]
+      }
+    },
+    {
+      "title": "Explore: moving toward the generator",
+      "body": "A line of length ℓ multiplies Γ by $e^{-j2\\beta\\ell}$: |Γ| stays and the angle drops by 2βℓ = 720° · ℓ/λ. The point turns **clockwise** on its SWR circle, one full turn per **λ/2**; toward the load it turns counter-clockwise. Printed charts carry a 'wavelengths toward generator' scale around the rim for this, starting at 0 at the short. Drag ℓ and watch $z_{in}$ (red) leave the load $z_L$ = 0.5 + j1 (blue).",
+      "formula": "\\Gamma_{in} = \\Gamma_L\\,e^{-j2\\beta\\ell},\\qquad 2\\beta\\ell = 720°\\cdot\\frac{\\ell}{\\lambda}",
+      "plot": {
+        "smith": true,
+        "sliders": [{"name": "l", "label": "$\\ell/\\lambda$", "min": 0, "max": 0.5, "step": 0.005, "value": 0.1}],
+        "let": {
+          "G": "0.62017",
+          "th": "1.44644",
+          "ph": "th-4*pi*l",
+          "q": "1-2*G*cos(ph)+G^2"
+        },
+        "curves": [
+          {"x": "G*cos(t)", "y": "G*sin(t)", "t": [0, "2*pi"], "color": "grey", "dash": true},
+          {"x": "G*cos(th-t)", "y": "G*sin(th-t)", "t": [0, "max(4*pi*l, 0.001)"], "color": "orange"}
+        ],
+        "points": [
+          {"x": "G*cos(th)", "y": "G*sin(th)", "label": "z_L", "color": "blue"},
+          {"x": "G*cos(ph)", "y": "G*sin(ph)", "label": "z_in", "color": "red"}
+        ],
+        "readouts": [
+          {"label": "rotation", "value": "720*l", "unit": "°"},
+          {"label": "$r_{in}$", "value": "(1-G^2)/q"},
+          {"label": "$x_{in}$", "value": "2*G*sin(ph)/q"}
+        ]
+      }
+    },
+    {
+      "title": "Admittances on the same chart",
+      "body": "$y = 1/z$ turns Γ into −Γ: the admittance point is the impedance point **mirrored through the centre** (the same as a λ/4 line). Two ways to work with it: plot the mirrored point and read the printed circles as $g$ and $b$, or keep the impedance point and use the mirrored grid, whose circles of constant $g$ touch the short end. Here $z$ = 0.5 + j0.5 (blue) lies on the dashed $g$ = 1 circle, and its mirror image reads 1 − j1 = $y$.",
+      "formula": "y = \\frac{1}{z} = g + jb,\\qquad \\Gamma_y = -\\Gamma_z",
+      "plot": {
+        "smith": true,
+        "curves": [{"x": "-0.5+0.5*cos(t)", "y": "0.5*sin(t)", "t": [0, "2*pi"], "color": "purple", "dash": true}],
+        "points": [
+          {"x": -0.2, "y": 0.4, "label": "z = 0.5 + j0.5", "color": "blue"},
+          {"x": 0.2, "y": -0.4, "label": "read as y = 1 − j1", "color": "red"}
+        ],
+        "labels": [{"x": -0.5, "y": -0.62, "text": "g = 1", "color": "purple"}]
+      }
+    },
+    {
+      "title": "Worked example",
+      "body": "$Z_0$ = 50 Ω, $Z_L$ = 25 + j50 Ω, line ℓ = 0.2 λ.\n- Normalize: $z_L$ = 0.5 + j1\n- $\\Gamma_L$ = (−0.5 + j1)/(1.5 + j1) = 0.077 + j0.615 = 0.62∠82.9°\n- SWR circle: VSWR = 1.62/0.38 = 4.27\n- Rotate clockwise by 0.2 × 720° = 144°: $\\Gamma_{in}$ = 0.62∠−61.1°\n- $z_{in}$ = (1 + Γ)/(1 − Γ) = 0.78 − j1.38, so $Z_{in}$ = 39.2 − j69.1 Ω\n- The circle crosses the right real axis (voltage maximum) after 82.9°/720° = 0.115 λ."
+    },
+    {
+      "title": "Explore: lossy lines spiral inward",
+      "body": "On a line with loss the reflected wave is attenuated on the way out **and** back: $\\Gamma_{in} = \\Gamma_L e^{-2\\alpha\\ell}e^{-j2\\beta\\ell}$, so the point spirals toward the centre. In dB the return loss at the input is the load's return loss plus **twice** the one-way cable loss. A long lossy cable makes even a broken (open-circuited) antenna look well matched, so measure close to the load. Drag the loss of this one-wavelength line (two turns).",
+      "formula": "RL_{in} = RL_L + 2A_{cable}\\ \\text{(dB)}",
+      "plot": {
+        "smith": true,
+        "sliders": [{"name": "A", "label": "one-way loss", "min": 0, "max": 6, "step": 0.25, "value": 1.5, "unit": "dB"}],
+        "let": {"G": "0.8", "th": "1.0", "Gin": "0.8*10^(-A/10)"},
+        "curves": [{"x": "G*10^(-A*t/(40*pi))*cos(th-t)", "y": "G*10^(-A*t/(40*pi))*sin(th-t)", "t": [0, "4*pi"]}],
+        "points": [
+          {"x": "G*cos(th)", "y": "G*sin(th)", "label": "load", "color": "blue"},
+          {"x": "Gin*cos(th)", "y": "Gin*sin(th)", "label": "input", "color": "red"}
+        ],
+        "readouts": [
+          {"label": "RL load", "value": "-20*log10(G)", "unit": "dB"},
+          {"label": "RL input", "value": "-20*log10(Gin)", "unit": "dB"},
+          {"label": "VSWR input", "value": "(1+Gin)/(1-Gin)"}
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "rf-smith-1",
+      "title": "Reading the chart",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "One point per impedance",
+          "body": "Normalize first: $z = Z/Z_0$. Then $\\Gamma = (z-1)/(z+1)$ gives the point. The centre is a perfect match, the left end a short, the right end an open, and the rim holds the pure reactances. Upper half inductive, lower half capacitive.",
+          "formula": "\\Gamma = \\frac{z - 1}{z + 1}",
+          "plot": {
+            "smith": true,
+            "points": [
+              {"x": -1, "y": 0, "label": "short"},
+              {"x": 1, "y": 0, "label": "open"},
+              {"x": 0, "y": 0, "label": "match", "color": "green"},
+              {"x": 0.2, "y": 0.4, "label": "1 + j1", "color": "blue"},
+              {"x": 0.2, "y": -0.4, "label": "1 − j1", "color": "purple"}
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"r": [0.2, 0.5, 1, 2, 3], "x": [-2, -1, -0.5, 0.5, 1, 2]},
+          "derived": {"d": "(r+1)^2+x^2", "gr": "(r^2+x^2-1)/((r+1)^2+x^2)", "gi": "2*x/((r+1)^2+x^2)"},
+          "prompt": "Where does $z$ = {{r}} + j({{x}}) sit on the Smith chart?",
+          "ask": [
+            {
+              "prompt": "Find Re Γ.",
+              "answer": "gr",
+              "unit": "",
+              "absTolerance": 0.01,
+              "explanation": "$\\Gamma_r = \\frac{r^2+x^2-1}{(r+1)^2+x^2}$ = ({{r^2}} + {{x^2}} − 1) / ({{(r+1)^2}} + {{x^2}}) = {{r^2+x^2-1}} / {{d}} = **{{gr}}**."
+            },
+            {
+              "prompt": "Find Im Γ.",
+              "answer": "gi",
+              "unit": "",
+              "absTolerance": 0.01,
+              "explanation": "$\\Gamma_i = \\frac{2x}{(r+1)^2+x^2}$ = 2 × ({{x}}) / ({{(r+1)^2}} + {{x^2}}) = **{{gi}}**. It has the sign of $x$: inductive loads sit in the upper half."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {"n": [0, 1, 2, 3, 4, 5], "s": [-1, 1], "k": [0, 1, 2, 3]},
+          "derived": {
+            "r": "if(1.5-n, 0.2, if(3.5-n, 0.5, if(4.5-n, 1, 2)))",
+            "xa": "if(0.5-n, 0.5, if(2.5-n, if(1.5-n, 2, 0.2), if(4.5-n, 2, 1)))",
+            "x": "s*xa",
+            "p0x": "(r^2+x^2-1)/((r+1)^2+x^2)",
+            "p0y": "2*x/((r+1)^2+x^2)",
+            "p3x": "(xa^2+r^2-1)/((xa+1)^2+r^2)",
+            "p3y": "2*s*r/((xa+1)^2+r^2)",
+            "c0": "mod(0-k, 4)",
+            "c1": "mod(1-k, 4)",
+            "c2": "mod(2-k, 4)",
+            "c3": "mod(3-k, 4)",
+            "ax": "if(0.5-c0, p0x, if(1.5-c0, p0x, if(2.5-c0, -p0x, p3x)))",
+            "ay": "if(0.5-c0, p0y, if(1.5-c0, -p0y, if(2.5-c0, -p0y, p3y)))",
+            "bx": "if(0.5-c1, p0x, if(1.5-c1, p0x, if(2.5-c1, -p0x, p3x)))",
+            "by": "if(0.5-c1, p0y, if(1.5-c1, -p0y, if(2.5-c1, -p0y, p3y)))",
+            "cx": "if(0.5-c2, p0x, if(1.5-c2, p0x, if(2.5-c2, -p0x, p3x)))",
+            "cy": "if(0.5-c2, p0y, if(1.5-c2, -p0y, if(2.5-c2, -p0y, p3y)))",
+            "dx": "if(0.5-c3, p0x, if(1.5-c3, p0x, if(2.5-c3, -p0x, p3x)))",
+            "dy": "if(0.5-c3, p0y, if(1.5-c3, -p0y, if(2.5-c3, -p0y, p3y)))"
+          },
+          "prompt": "Which point is $z$ = {{r}} + j({{x}})?",
+          "plot": {
+            "smith": true,
+            "points": [
+              {"x": "ax", "y": "ay", "label": "A"},
+              {"x": "bx", "y": "by", "label": "B"},
+              {"x": "cx", "y": "cy", "label": "C"},
+              {"x": "dx", "y": "dy", "label": "D"}
+            ]
+          },
+          "options": ["A", "B", "C", "D"],
+          "shuffle": false,
+          "answer": "k",
+          "explanation": "Find the $r$ = {{r}} circle (it crosses the real axis at the label {{r}}) and follow it to the $x$ = {{x}} arc (which meets the rim at j({{x}})): that crossing is $z$, at Γ = {{p0x}} + j({{p0y}}). The other points are traps: $z^*$ = {{r}} + j({{-x}}) (mirrored in the real axis), $1/z$ (mirrored through the centre) and the swapped {{xa}} + j({{s*r}})."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {"n": [0, 1, 2, 3, 4, 5], "s": [-1, 1]},
+          "derived": {
+            "r": "if(1.5-n, 0.2, if(3.5-n, 0.5, if(4.5-n, 1, 2)))",
+            "xa": "if(0.5-n, 0.5, if(2.5-n, if(1.5-n, 2, 0.2), if(4.5-n, 2, 1)))",
+            "x": "s*xa",
+            "m": "r^2+x^2"
+          },
+          "prompt": "Read the normalized impedance at the red dot.",
+          "plot": {
+            "smith": true,
+            "points": [{"x": "(r^2+x^2-1)/((r+1)^2+x^2)", "y": "2*x/((r+1)^2+x^2)", "color": "red"}]
+          },
+          "options": [
+            "$r$ = {{r}}, $x$ = {{x}}",
+            "$r$ = {{r}}, $x$ = {{-x}}",
+            "$r$ = {{xa}}, $x$ = {{s*r}}",
+            "$r$ = {{r/m}}, $x$ = {{-x/m}}"
+          ],
+          "answer": 0,
+          "explanation": "The dot sits on the $r$ = {{r}} circle (crossing the real axis at {{r}}) and on the $x$ = {{x}} arc (meeting the rim at j({{x}})). Upper half means $x$ > 0, lower half $x$ < 0, so $z$ = **{{r}} + j({{x}})**. The value {{r/m}} + j({{-x/m}}) is $1/z$, the admittance."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The SWR circle",
+          "body": "A lossless line keeps |Γ|, so every impedance along it lies on a circle around the centre through the load point. Where that circle crosses the real axis on the right, $r$ = VSWR; on the left, $r$ = 1/VSWR. You read the VSWR directly from the $r$ labels.",
+          "formula": "VSWR = r_{max} = \\frac{1+|\\Gamma|}{1-|\\Gamma|}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"S": [1.5, 2, 3, 5], "phi": [-150, -110, -60, 60, 110, 150]},
+          "derived": {"G": "(S-1)/(S+1)"},
+          "prompt": "The red dot is a load, the dashed circle its SWR circle. Read the VSWR from the chart (two extra grey circles, $r$ = 1.5 and $r$ = 3, are labelled below the axis).",
+          "plot": {
+            "smith": true,
+            "curves": [
+              {"x": "0.6+0.4*cos(t)", "y": "0.4*sin(t)", "t": [0, "2*pi"], "color": "grey"},
+              {"x": "0.75+0.25*cos(t)", "y": "0.25*sin(t)", "t": [0, "2*pi"], "color": "grey"},
+              {"x": "G*cos(t)", "y": "G*sin(t)", "t": [0, "2*pi"], "color": "orange", "dash": true}
+            ],
+            "points": [
+              {"x": "G*cos(rad(phi))", "y": "G*sin(rad(phi))", "color": "red"},
+              {"x": "G", "y": 0, "color": "orange"}
+            ],
+            "labels": [
+              {"x": 0.21, "y": -0.07, "text": "1.5", "color": "grey"},
+              {"x": 0.51, "y": -0.07, "text": "3", "color": "grey"}
+            ]
+          },
+          "answer": "S",
+          "unit": "",
+          "tolerance": 0.1,
+          "explanation": "Follow the circle to where it crosses the real axis right of the centre (orange dot): it lies on the $r$ = **{{S}}** circle, so VSWR = {{S}}. Check: |Γ| = ({{S}} − 1)/({{S}} + 1) = {{G}} is the circle's radius."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Every point on the outer circle of the Smith chart is a pure reactance (including the short and the open).",
+          "answer": true,
+          "explanation": "True. The rim is |Γ| = 1: all power is reflected, so the load absorbs nothing and $r$ = 0. Upper half: inductors, lower half: capacitors, left end: short, right end: open."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each place on the Smith chart to what it means.",
+          "pairs": [
+            ["Centre", "Matched, $z$ = 1"],
+            ["Left end of the real axis", "Short circuit"],
+            ["Right end of the real axis", "Open circuit"],
+            ["Upper half of the rim", "Pure inductance"],
+            ["Lower half of the rim", "Pure capacitance"]
+          ],
+          "explanation": "Γ = 0 at the centre (z = 1), Γ = −1 at the short, Γ = +1 at the open. The rim |Γ| = 1 holds lossless loads: $x$ > 0 (inductive) above the axis, $x$ < 0 (capacitive) below."
+        }
+      ]
+    },
+    {
+      "id": "rf-smith-2",
+      "title": "Moving along the line",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Rotate toward the generator",
+          "body": "Adding a length ℓ of lossless line between the load and you turns the point **clockwise** on its SWR circle by 2βℓ = 720° · ℓ/λ. Here the load $z_L$ = 2 + j1 (blue) is moved 0.125 λ toward the generator: a quarter turn, to $z_{in}$ = 1 − j1 (red).",
+          "formula": "\\Gamma_{in} = \\Gamma_L\\,e^{-j2\\beta\\ell}",
+          "plot": {
+            "smith": true,
+            "curves": [
+              {"x": "0.4472*cos(t)", "y": "0.4472*sin(t)", "t": [0, "2*pi"], "color": "grey", "dash": true},
+              {"x": "0.4472*cos(0.46365-t)", "y": "0.4472*sin(0.46365-t)", "t": [0, "pi/2"], "color": "orange"}
+            ],
+            "points": [
+              {"x": 0.4, "y": 0.2, "label": "z_L", "color": "blue"},
+              {"x": 0.2, "y": -0.4, "label": "z_in", "color": "red"}
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "The blue dot is a load $z_L$ = 2 + j1. Which chart shows (red) the impedance seen **0.125 λ toward the generator**?",
+          "optionPlots": [
+            {"smith": true, "points": [{"x": 0.4, "y": 0.2, "color": "blue"}, {"x": 0.2, "y": -0.4, "color": "red"}]},
+            {"smith": true, "points": [{"x": 0.4, "y": 0.2, "color": "blue"}, {"x": -0.2, "y": 0.4, "color": "red"}]},
+            {"smith": true, "points": [{"x": 0.4, "y": 0.2, "color": "blue"}, {"x": 0.4243, "y": -0.1414, "color": "red"}]},
+            {"smith": true, "points": [{"x": 0.4, "y": 0.2, "color": "blue"}, {"x": -0.4, "y": -0.2, "color": "red"}]}
+          ],
+          "answer": 0,
+          "explanation": "2βℓ = 720° × 0.125 = **90°**, clockwise (toward the generator). $\\Gamma_L$ = 0.447∠26.6° becomes 0.447∠−63.4°, which is $z_{in}$ = 1 − j1. Counter-clockwise would be toward the load; a 45° turn forgets that the wave goes there and back (the factor 2); a half turn is what λ/4 would do."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"r": [0.5, 1, 2], "x": [-1, -0.5, 0.5, 1], "lf": [0.05, 0.1, 0.15, 0.2, 0.3, 0.35]},
+          "derived": {
+            "gr": "(r^2+x^2-1)/((r+1)^2+x^2)",
+            "gi": "2*x/((r+1)^2+x^2)",
+            "G": "sqrt(gr^2+gi^2)",
+            "th": "atan2(gi, gr)",
+            "ph": "th-4*pi*lf",
+            "q": "1-2*G*cos(ph)+G^2"
+          },
+          "prompt": "A load $z_L$ = {{r}} + j({{x}}) sits at the end of a lossless line. Move {{lf}} λ toward the generator.",
+          "ask": [
+            {
+              "prompt": "Find $r_{in}$.",
+              "answer": "(1-G^2)/q",
+              "unit": "",
+              "explanation": "$\\Gamma_L$ = {{gr}} + j({{gi}}) = {{G}}∠{{deg(th)}}°. Rotate clockwise by 720° × {{lf}} = {{720*lf}}°: angle φ = {{deg(ph)}}°. Then $r_{in} = \\frac{1-|\\Gamma|^2}{1 - 2|\\Gamma|\\cos\\varphi + |\\Gamma|^2}$ = {{1-G^2}} / {{q}} = **{{(1-G^2)/q}}**."
+            },
+            {
+              "prompt": "Find $x_{in}$ (with sign).",
+              "answer": "2*G*sin(ph)/q",
+              "unit": "",
+              "absTolerance": 0.01,
+              "explanation": "$\\Gamma_L$ = {{G}}∠{{deg(th)}}°, rotated clockwise by {{720*lf}}° to φ = {{deg(ph)}}°. $x_{in} = \\frac{2|\\Gamma|\\sin\\varphi}{1 - 2|\\Gamma|\\cos\\varphi + |\\Gamma|^2}$ = 2 × {{G}} × ({{sin(ph)}}) / {{q}} = **{{2*G*sin(ph)/q}}**."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Landmarks on the way",
+          "body": "One full turn is λ/2, so the chart repeats every half wavelength. A quarter wavelength is half a turn: $z$ becomes $1/z$. Crossing the real axis on the right means a voltage maximum ($r$ = VSWR), on the left a voltage minimum ($r$ = 1/VSWR); they are λ/4 apart.",
+          "formula": "\\frac{\\ell}{\\lambda} = \\frac{\\text{rotation angle}}{720°}"
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {"r": [0.3, 0.5, 2, 3], "x": [-1.5, -0.8, 0.8, 1.5]},
+          "derived": {
+            "gr": "(r^2+x^2-1)/((r+1)^2+x^2)",
+            "gi": "2*x/((r+1)^2+x^2)",
+            "G": "sqrt(gr^2+gi^2)",
+            "th": "atan2(gi, gr)",
+            "lmin": "mod((th+pi)/(4*pi), 0.5)"
+          },
+          "prompt": "The load $z_L$ = {{r}} + j({{x}}) is blue. Drag the line length until the input impedance (red) is purely real with $r$ < 1: the first voltage **minimum**.",
+          "plot": {
+            "smith": true,
+            "sliders": [{"name": "l", "label": "$\\ell/\\lambda$", "min": 0, "max": 0.5, "step": 0.002, "value": 0}],
+            "let": {"ph": "th-4*pi*l", "q": "1-2*G*cos(ph)+G^2"},
+            "curves": [{"x": "G*cos(t)", "y": "G*sin(t)", "t": [0, "2*pi"], "color": "grey", "dash": true}],
+            "points": [
+              {"x": "gr", "y": "gi", "label": "z_L", "color": "blue"},
+              {"x": "G*cos(ph)", "y": "G*sin(ph)", "color": "red"}
+            ],
+            "readouts": [
+              {"label": "$r_{in}$", "value": "(1-G^2)/q"},
+              {"label": "$x_{in}$", "value": "2*G*sin(ph)/q"}
+            ]
+          },
+          "answer": {"l": "lmin"},
+          "tolerance": 0.001,
+          "absTolerance": 0.006,
+          "explanation": "$\\Gamma_L$ = {{G}}∠{{deg(th)}}°. The voltage minimum is where the SWR circle crosses the real axis on the left (angle ±180°). Turning clockwise from {{deg(th)}}° to −180° takes {{deg(th)+180}}°, so ℓ/λ = {{deg(th)+180}}/720 = **{{lmin}}**. There $r_{in}$ = 1/VSWR = {{(1-G)/(1+G)}}."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "Moving along the line from the generator toward the load turns the point counter-clockwise on the Smith chart.",
+          "answer": true,
+          "explanation": "True. Toward the generator is clockwise ($\\Gamma$ gets the factor $e^{-j2\\beta\\ell}$); going back toward the load undoes that rotation, so it is counter-clockwise. This is how you find a load from a measured voltage minimum."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {"r": [0.3, 0.5, 2, 3], "x": [-1.5, -0.8, -0.4, 0.4, 0.8, 1.5]},
+          "derived": {
+            "gr": "(r^2+x^2-1)/((r+1)^2+x^2)",
+            "gi": "2*x/((r+1)^2+x^2)",
+            "th": "atan2(gi, gr)",
+            "lmax": "mod(th/(4*pi), 0.5)"
+          },
+          "prompt": "A line ends in $z_L$ = {{r}} + j({{x}}). How far from the load (in wavelengths) is the first voltage **maximum**?",
+          "answer": "lmax",
+          "unit": "",
+          "tolerance": 0.01,
+          "absTolerance": 0.004,
+          "explanation": "$\\Gamma_L$ = {{gr}} + j({{gi}}), at angle θ = {{deg(th)}}°. The maximum is where the circle crosses the real axis on the right (angle 0°). Turning clockwise from θ to 0° (or to −360°) takes {{mod(deg(th), 360)}}°, so ℓ/λ = {{mod(deg(th),360)}}/720 = **{{lmax}}**. Inductive loads reach the maximum first, within λ/4."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "You measured the VSWR and the distance from the load to the first voltage minimum. Put the steps to find $Z_L$ with a Smith chart in order.",
+          "items": [
+            "Draw the SWR circle through $r$ = VSWR",
+            "Mark the voltage minimum: the circle's crossing left of the centre ($r$ = 1/VSWR)",
+            "Rotate from there by $\\ell_{min}/\\lambda$ toward the load (counter-clockwise)",
+            "Read the normalized $z_L$",
+            "Multiply by $Z_0$"
+          ],
+          "explanation": "The VSWR fixes the circle. The measured minimum is a known point on it (left real axis). The load lies $\\ell_{min}$ further toward the load, so rotate counter-clockwise by $720° \\cdot \\ell_{min}/\\lambda$, read $z_L$ and denormalize."
+        }
+      ]
+    },
+    {
+      "id": "rf-smith-3",
+      "title": "Chart practice",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {"r": [0.3, 0.5, 2, 3], "x": [-1.5, -1, -0.6, 0.6, 1, 1.5], "k": [0, 1, 2]},
+          "derived": {
+            "gr": "(r^2+x^2-1)/((r+1)^2+x^2)",
+            "gi": "2*x/((r+1)^2+x^2)",
+            "c0": "mod(0-k, 3)",
+            "c1": "mod(1-k, 3)",
+            "c2": "mod(2-k, 3)",
+            "ax": "if(0.5-c0, -gr, if(1.5-c0, gr, -gr))",
+            "ay": "if(0.5-c0, -gi, if(1.5-c0, -gi, gi))",
+            "bx": "if(0.5-c1, -gr, if(1.5-c1, gr, -gr))",
+            "by": "if(0.5-c1, -gi, if(1.5-c1, -gi, gi))",
+            "cx": "if(0.5-c2, -gr, if(1.5-c2, gr, -gr))",
+            "cy": "if(0.5-c2, -gi, if(1.5-c2, -gi, gi))"
+          },
+          "require": "min(abs(gr), abs(gi))-0.15",
+          "prompt": "The blue dot is a load $z_L$. If you plot $y_L = 1/z_L$ on the same chart and read its circles as $g$ and $b$, which point do you get?",
+          "plot": {
+            "smith": true,
+            "points": [
+              {"x": "gr", "y": "gi", "label": "z_L", "color": "blue"},
+              {"x": "ax", "y": "ay", "label": "A"},
+              {"x": "bx", "y": "by", "label": "B"},
+              {"x": "cx", "y": "cy", "label": "C"}
+            ]
+          },
+          "options": ["A", "B", "C"],
+          "shuffle": false,
+          "answer": "k",
+          "explanation": "$1/z$ changes Γ into −Γ: the admittance point is the load **mirrored through the centre** (the same place a λ/4 line would take it). Mirroring only in the real axis gives $z^*$, mirroring only in the imaginary axis gives $-\\Gamma^*$, which is $y^*$. Here $z_L$ = {{r}} + j({{x}}) and $y_L$ = {{r/(r^2+x^2)}} + j({{-x/(r^2+x^2)}})."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"r": [0.2, 0.5, 1, 2, 4], "x": [-2, -1, -0.5, 0.5, 1, 2]},
+          "derived": {"m": "r^2+x^2"},
+          "prompt": "Convert $z$ = {{r}} + j({{x}}) to a normalized admittance $y = g + jb$.",
+          "ask": [
+            {
+              "prompt": "Find $g$.",
+              "answer": "r/m",
+              "unit": "",
+              "explanation": "$y = \\frac{1}{r + jx} = \\frac{r - jx}{r^2 + x^2}$ with $r^2 + x^2$ = {{m}}: $g$ = {{r}} / {{m}} = **{{r/m}}**."
+            },
+            {
+              "prompt": "Find $b$ (with sign).",
+              "answer": "-x/m",
+              "unit": "",
+              "explanation": "$y = \\frac{r - jx}{r^2 + x^2}$ with $r^2 + x^2$ = {{m}}: $b$ = −({{x}}) / {{m}} = **{{-x/m}}**. An inductive impedance ($x$ > 0) gives a negative susceptance."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"R": [25, 40, 75, 100], "X": [-50, -25, 25, 50], "len": [0.01, 0.02, 0.03, 0.05], "f": [1000000000.0, 2000000000.0]},
+          "derived": {
+            "r": "R/50",
+            "x": "X/50",
+            "gr": "(r^2+x^2-1)/((r+1)^2+x^2)",
+            "gi": "2*x/((r+1)^2+x^2)",
+            "G": "sqrt(gr^2+gi^2)",
+            "th": "atan2(gi, gr)",
+            "lf": "len*f/(0.66*3e8)",
+            "ph": "th-4*pi*lf",
+            "q": "1-2*G*cos(ph)+G^2"
+          },
+          "prompt": "At {{f|Hz}} a load $Z_L$ = {{R}} + j({{X}}) Ω is connected through {{len*1000}} mm of 50 Ω coax with velocity factor 0.66.",
+          "ask": [
+            {
+              "prompt": "Find $R_{in}$.",
+              "answer": "50*(1-G^2)/q",
+              "unit": "Ω",
+              "explanation": "λ on the coax = 0.66 × 3 × $10^8$ / {{f|Hz}} = {{0.66*3e8/f|m}}, so ℓ = {{lf}} λ. $z_L$ = {{r}} + j({{x}}) → $\\Gamma_L$ = {{G}}∠{{deg(th)}}°. Rotate clockwise by {{720*lf}}° to φ = {{deg(ph)}}°: $r_{in}$ = {{1-G^2}}/{{q}} = {{(1-G^2)/q}}, so $R_{in}$ = **{{50*(1-G^2)/q|Ω}}**."
+            },
+            {
+              "prompt": "Find $X_{in}$ (with sign).",
+              "answer": "50*2*G*sin(ph)/q",
+              "unit": "Ω",
+              "absTolerance": 0.5,
+              "explanation": "ℓ = {{len|m}} / {{0.66*3e8/f|m}} = {{lf}} λ. $\\Gamma_L$ = {{G}}∠{{deg(th)}}°, rotated clockwise by {{720*lf}}° to φ = {{deg(ph)}}°: $x_{in}$ = 2 × {{G}} × ({{sin(ph)}}) / {{q}} = {{2*G*sin(ph)/q}}, so $X_{in}$ = **{{100*G*sin(ph)/q|Ω}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "slider",
+          "params": {"S": [1.5, 2, 2.5, 3, 4]},
+          "derived": {"G": "(S-1)/(S+1)", "xt": "2*G/sqrt(1-G^2)"},
+          "prompt": "The red dot is $z = 1 + jx$; it moves on the $r$ = 1 circle. Drag $x$ until the point lies on the dashed SWR circle for VSWR = {{S}}, on the **inductive** side.",
+          "plot": {
+            "smith": true,
+            "sliders": [{"name": "xs", "label": "$x$", "min": -3, "max": 3, "step": 0.01, "value": 0}],
+            "curves": [{"x": "G*cos(t)", "y": "G*sin(t)", "t": [0, "2*pi"], "color": "orange", "dash": true}],
+            "points": [{"x": "xs^2/(4+xs^2)", "y": "2*xs/(4+xs^2)", "color": "red"}],
+            "readouts": [
+              {"label": "VSWR", "value":"(1+abs(xs)/sqrt(4+xs^2))/(1-abs(xs)/sqrt(4+xs^2))", "reveal": true}
+            ]
+          },
+          "answer": {"xs": "xt"},
+          "tolerance": 0.03,
+          "explanation": "On the $r$ = 1 circle $|\\Gamma|^2 = x^2/(4 + x^2)$. Setting |Γ| = ({{S}} − 1)/({{S}} + 1) = {{G}} gives $x = 2|\\Gamma|/\\sqrt{1-|\\Gamma|^2}$ = **{{xt}}**. This point (1 + j{{xt}}) is exactly where a stub tuner aims: cancel the $x$ and you are matched."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {"RLL": [3, 6, 10], "A": [0.5, 1, 1.5, 2, 3]},
+          "derived": {"Gin": "10^(-(RLL+2*A)/20)"},
+          "prompt": "An antenna has a return loss of {{RLL}} dB at its terminals. You measure it at the far end of a matched cable with {{A}} dB of loss.",
+          "ask": [
+            {
+              "prompt": "What return loss does the analyzer show?",
+              "answer": "RLL+2*A",
+              "unit": "dB",
+              "explanation": "The reflected wave crosses the cable twice: RL = {{RLL}} + 2 × {{A}} = **{{RLL+2*A}} dB**. On the Smith chart the point spirals inward."
+            },
+            {
+              "prompt": "What VSWR does it show?",
+              "answer": "(1+Gin)/(1-Gin)",
+              "unit": "",
+              "explanation": "RL = {{RLL}} + 2 × {{A}} = {{RLL+2*A}} dB, so |Γ| = $10^{-RL/20}$ = {{Gin}} and VSWR = (1 + {{Gin}})/(1 − {{Gin}}) = **{{(1+Gin)/(1-Gin)}}**, better than the antenna's real {{(1+10^(-RLL/20))/(1-10^(-RLL/20))}}."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each change to its effect on the Smith chart.",
+          "pairs": [
+            ["Line toward the generator", "Clockwise on the SWR circle"],
+            ["λ/4 of extra line", "Half a turn: $z \\to 1/z$"],
+            ["λ/2 of extra line", "A full turn: nothing changes"],
+            ["Lossy line", "Spiral toward the centre"]
+          ],
+          "explanation": "2βℓ = 720° · ℓ/λ: λ/4 is 180° (the λ/4 inverter), λ/2 is 360°. Toward the generator turns clockwise. Loss shrinks |Γ| on the way out and back, so the path spirals inward."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {"x": [0.5, 1, 1.5, 2, 3]},
+          "prompt": "Start at the open circuit (right end) and move toward the generator along the rim until $z = -j${{x}}. How long (in wavelengths) is this open stub?",
+          "answer": "atan(1/x)/(2*pi)",
+          "unit": "",
+          "explanation": "An open stub gives $z = -j\\cot\\beta\\ell$. Setting $\\cot\\beta\\ell$ = {{x}}: βℓ = arctan(1/{{x}}) = {{deg(atan(1/x))}}°, so ℓ/λ = {{deg(atan(1/x))}}/360 = **{{atan(1/x)/(2*pi)}}**. On the chart: the open sits at 0°, the point −j{{x}} at −{{2*deg(atan(1/x))}}°, a clockwise turn of {{2*deg(atan(1/x))}}° = 720° · ℓ/λ."
+        }
+      ]
+    },
+    {
+      "id": "rf-smith-4",
+      "title": "Smith chart challenge",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {"S": [1.5, 2, 3, 4], "lm": [0.05, 0.1, 0.15, 0.2, 0.3, 0.35, 0.4, 0.45]},
+          "derived": {"G": "(S-1)/(S+1)", "th": "4*pi*lm", "q": "1-2*G*cos(th)+G^2"},
+          "prompt": "On a slotted line the VSWR is {{S}} and the first voltage **maximum** lies {{lm}} λ from the load.",
+          "ask": [
+            {
+              "prompt": "Find the normalized load resistance $r_L$.",
+              "answer": "(1-G^2)/q",
+              "unit": "",
+              "explanation": "The maximum is the crossing at $r$ = {{S}} (angle 0°). Rotating back toward the load (counter-clockwise) by 720° × {{lm}} = {{720*lm}}° gives θ = {{720*lm}}° and |Γ| = {{G}}. $r_L = (1-|\\Gamma|^2)/(1 - 2|\\Gamma|\\cos\\theta + |\\Gamma|^2)$ = {{1-G^2}} / {{q}} = **{{(1-G^2)/q}}**."
+            },
+            {
+              "prompt": "Find the normalized load reactance $x_L$ (with sign).",
+              "answer": "2*G*sin(th)/q",
+              "unit": "",
+              "absTolerance": 0.01,
+              "explanation": "|Γ| = ({{S}} − 1)/({{S}} + 1) = {{G}}, θ = 720° × {{lm}} = {{720*lm}}°. $x_L = 2|\\Gamma|\\sin\\theta/(1 - 2|\\Gamma|\\cos\\theta + |\\Gamma|^2)$ = 2 × {{G}} × ({{sin(th)}}) / {{q}} = **{{2*G*sin(th)/q}}**."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {"r": [0.3, 0.5, 2, 3], "x": [-1, -0.5, 0.5, 1], "A": [1, 2, 3]},
+          "derived": {
+            "G": "sqrt(((r^2+x^2-1)^2+4*x^2))/((r+1)^2+x^2)",
+            "Gin": "G*10^(-A/10)"
+          },
+          "prompt": "A load $z_L$ = {{r}} + j({{x}}) is fed through a matched cable with a one-way loss of {{A}} dB. What VSWR do you measure at the input of the cable?",
+          "answer": "(1+Gin)/(1-Gin)",
+          "unit": "",
+          "explanation": "$|\\Gamma_L|$ = |z − 1|/|z + 1| = {{G}} (load VSWR {{(1+G)/(1-G)}}). The round trip costs 2 × {{A}} = {{2*A}} dB, a factor $10^{-2A/20}$ = {{10^(-A/10)}}: $|\\Gamma_{in}|$ = {{Gin}}, so VSWR = **{{(1+Gin)/(1-Gin)}}**."
+        },
+        {
+          "id": "c3",
+          "type": "multipleChoice",
+          "prompt": "The blue dot is a load $z_L$ = 0.5 + j1. Which curve is the path of $z_{in}$ as the lossless line grows from 0 to **λ/4**? (The red ring marks the end.)",
+          "optionPlots": [
+            {"smith": true, "curves": [{"x": "0.62017*cos(1.44644-t)", "y": "0.62017*sin(1.44644-t)", "t": [0, "pi"]}], "points": [{"x": 0.0769, "y": 0.6154, "color": "blue"}, {"x": -0.0769, "y": -0.6154, "color": "red", "marker": "o"}]},
+            {"smith": true, "curves": [{"x": "0.62017*cos(1.44644+t)", "y": "0.62017*sin(1.44644+t)", "t": [0, "pi"]}], "points": [{"x": 0.0769, "y": 0.6154, "color": "blue"}, {"x": -0.0769, "y": -0.6154, "color": "red", "marker": "o"}]},
+            {"smith": true, "curves": [{"x": "0.62017*cos(1.44644-t)", "y": "0.62017*sin(1.44644-t)", "t": [0, "pi/2"]}], "points": [{"x": 0.0769, "y": 0.6154, "color": "blue"}, {"x": 0.6154, "y": -0.0769, "color": "red", "marker": "o"}]},
+            {"smith": true, "curves": [{"x": "0.62017*cos(1.44644-t)", "y": "0.62017*sin(1.44644-t)", "t": [0, "2*pi"]}], "points": [{"x": 0.0769, "y": 0.6154, "color": "blue"}, {"x": 0.0769, "y": 0.6154, "color": "red", "marker": "o"}]}
+          ],
+          "answer": 0,
+          "explanation": "λ/4 means 2βℓ = 180°: **half a turn clockwise** on the SWR circle, passing the voltage maximum on the right real axis and ending at $1/z_L$ = 0.4 − j0.8. Counter-clockwise is toward the load; a quarter turn is only λ/8, a full turn λ/2."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {"Z0": [50, 75], "r": [0.5, 2], "x": [-1, -0.5, 0.5, 1]},
+          "derived": {
+            "gr": "(r^2+x^2-1)/((r+1)^2+x^2)",
+            "gi": "2*x/((r+1)^2+x^2)",
+            "G": "sqrt(gr^2+gi^2)",
+            "th": "atan2(gi, gr)",
+            "S": "(1+G)/(1-G)",
+            "lmax": "mod(th/(4*pi), 0.5)",
+            "lmin": "mod((th+pi)/(4*pi), 0.5)"
+          },
+          "prompt": "A {{Z0}} Ω line ends in $z_L$ = {{r}} + j({{x}}). You want to cut the line where its input impedance is first purely resistive.",
+          "ask": [
+            {
+              "prompt": "How long is the line, in wavelengths?",
+              "answer": "min(lmax, lmin)",
+              "unit": "",
+              "explanation": "$\\Gamma_L$ = {{G}}∠{{deg(th)}}°. Clockwise, the real axis is reached at 0° (maximum, after {{lmax}} λ) and at ±180° (minimum, after {{lmin}} λ). The first one comes after **{{min(lmax,lmin)}} λ**: a voltage maximum if the load is inductive, a minimum if it is capacitive."
+            },
+            {
+              "prompt": "What resistance (in ohms) do you see there?",
+              "answer": "Z0*if(lmin-lmax, S, 1/S)",
+              "unit": "Ω",
+              "explanation": "VSWR = (1 + {{G}})/(1 − {{G}}) = {{S}}. The first real point is a maximum ($R = Z_0\\cdot VSWR$) for an inductive load and a minimum ($R = Z_0/VSWR$) for a capacitive one. Here $x$ = {{x}}, so $R$ = **{{Z0*if(lmin-lmax, S, 1/S)|Ω}}**."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "trueFalse",
+          "prompt": "On a lossy line, the VSWR measured near the generator is lower than the VSWR right at the load.",
+          "answer": true,
+          "explanation": "True. The reflected wave loses power on its way back, so |Γ| shrinks toward the generator: the point spirals inward on the Smith chart. The load is no better matched; the cable only hides the mismatch (and wastes the power)."
+        },
+        {
+          "id": "c6",
+          "type": "numeric",
+          "params": {"r": [0.5, 1, 2], "x": [-1, -0.5, 0.5, 1], "b": [-1, -0.5, 0.5, 1]},
+          "derived": {
+            "g": "r/(r^2+x^2)",
+            "bl": "-x/(r^2+x^2)",
+            "B": "-x/(r^2+x^2)+b",
+            "m": "(r/(r^2+x^2))^2+(-x/(r^2+x^2)+b)^2"
+          },
+          "require": "abs(B)-0.1",
+          "prompt": "A shunt element with normalized susceptance $b$ = {{b}} is connected directly across a load $z_L$ = {{r}} + j({{x}}).",
+          "ask": [
+            {
+              "prompt": "Find the new normalized resistance $r'$.",
+              "answer": "g/m",
+              "unit": "",
+              "explanation": "Shunt elements add as admittances. $y_L = 1/z_L$ = {{g}} + j({{bl}}); add j({{b}}): $y'$ = {{g}} + j({{B}}). Back to impedance: $r' = g/(g^2 + b'^2)$ = {{g}} / {{m}} = **{{g/m}}**. On the chart the point slid along the constant-$g$ circle."
+            },
+            {
+              "prompt": "Find the new normalized reactance $x'$ (with sign).",
+              "answer": "-B/m",
+              "unit": "",
+              "explanation": "$y_L$ = {{g}} + j({{bl}}); adding j({{b}}) gives $y'$ = {{g}} + j({{B}}). $x' = -b'/(g^2 + b'^2)$ = −({{B}}) / {{m}} = **{{-B/m}}**."
+            }
+          ]
+        },
+        {
+          "id": "c7",
+          "type": "multipleChoice",
+          "params": {"r": [0.5, 1, 2], "x": [-2, -1, -0.5, 0.5, 1, 2]},
+          "prompt": "The red dot is a load on a Smith chart normalized to $Z_0$ = 50 Ω. Which impedance is it?",
+          "plot": {
+            "smith": true,
+            "points": [{"x": "(r^2+x^2-1)/((r+1)^2+x^2)", "y": "2*x/((r+1)^2+x^2)", "color": "red"}]
+          },
+          "options": [
+            "$R$ = {{50*r}} Ω, $X$ = {{50*x}} Ω",
+            "$R$ = {{r}} Ω, $X$ = {{x}} Ω",
+            "$R$ = {{50*r}} Ω, $X$ = {{-50*x}} Ω",
+            "$R$ = {{50*r/(r^2+x^2)}} Ω, $X$ = {{-50*x/(r^2+x^2)}} Ω"
+          ],
+          "answer": 0,
+          "explanation": "The dot is $z$ = {{r}} + j({{x}}) (the $r$ = {{r}} circle meets the $x$ = {{x}} arc). The chart is normalized, so multiply by $Z_0$: $Z$ = **{{50*r}} + j({{50*x}}) Ω**. Forgetting to denormalize, taking the wrong half (sign of $x$) or reading the point as an admittance are the usual slips."
+        }
+      ]
+    }
+  ]
+}

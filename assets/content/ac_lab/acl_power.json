@@ -1,0 +1,2361 @@
+{
+  "id": "acl-power",
+  "title": "AC Power",
+  "description": "Average, reactive and apparent power of every element, power factor and power-factor correction in randomized circuits.",
+  "reference": "Hambley §5.5",
+  "study": [
+    {
+      "title": "Complex power",
+      "body": "For an element with peak phasors $\\mathbf{V}$ and $\\mathbf{I}$ (passive reference: current into the + terminal) the complex power is $\\mathbf{S} = \\tfrac12\\mathbf{V}\\mathbf{I}^*$. Its real part is the average power $P$ (W), its imaginary part the reactive power $Q$ (var) and its magnitude the apparent power $|\\mathbf{S}|$ (VA). With rms phasors drop the ½.",
+      "formula": "\\mathbf{S} = \\tfrac12\\mathbf{V}\\mathbf{I}^* = P + jQ,\\quad P = \\tfrac12V_mI_m\\cos\\theta,\\quad Q = \\tfrac12V_mI_m\\sin\\theta"
+    },
+    {
+      "title": "R, L and C",
+      "body": "Only resistors absorb average power: $P_R = \\tfrac12 I_m^2R$. Inductors absorb reactive power ($Q_L = \\tfrac12 I_m^2\\omega L > 0$), capacitors deliver it ($Q_C = -\\tfrac12 I_m^2/(\\omega C) < 0$). Complex power is conserved: the sources deliver exactly the sum of what the elements absorb, separately for $P$ and for $Q$.",
+      "formula": "\\sum \\mathbf{S}_{delivered} = \\sum \\mathbf{S}_{absorbed}"
+    },
+    {
+      "title": "Power factor",
+      "body": "$\\text{pf} = \\cos\\theta = P/|\\mathbf{S}|$ with $\\theta = \\theta_v - \\theta_i$ the angle of the load impedance. An inductive load ($Q > 0$, current lags the voltage) has a **lagging** power factor; a capacitive load ($Q < 0$, current leads) a **leading** one. The power triangle links them: $Q = P\\tan\\theta$.",
+      "formula": "\\text{pf} = \\cos\\theta = \\frac{P}{|\\mathbf{S}|},\\qquad |\\mathbf{S}|^2 = P^2 + Q^2"
+    },
+    {
+      "title": "Power-factor correction",
+      "body": "A capacitor in parallel with an inductive load leaves $P$ unchanged and supplies reactive power, so the source current drops. To go from $\\theta_{old}$ to $\\theta_{new}$ the capacitor must supply $\\Delta Q = P(\\tan\\theta_{old} - \\tan\\theta_{new})$; with peak voltage $V_m$ across it, $|Q_C| = \\tfrac12\\omega CV_m^2 = \\omega CV_{rms}^2$.",
+      "formula": "C = \\frac{P(\\tan\\theta_{old} - \\tan\\theta_{new})}{\\omega V_{rms}^2} = \\frac{2P(\\tan\\theta_{old} - \\tan\\theta_{new})}{\\omega V_m^2}"
+    },
+    {
+      "title": "Pitfalls",
+      "body": "- With peak phasors every power has a factor ½; with rms phasors it does not.\n- $Q$ is signed: a capacitor absorbs negative reactive power, and a source feeding a capacitive load *delivers* negative $Q$.\n- The power factor alone does not tell leading from lagging: always state which.\n- $P \\ne \\tfrac12 V_mI_m$ unless the load is purely resistive."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "acl-power-1",
+      "title": "Who absorbs what?",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Complex power in one line",
+          "body": "Solve the circuit with phasors, then for every element compute $\\mathbf{S} = \\tfrac12\\mathbf{V}\\mathbf{I}^*$ (peak phasors, passive reference). $P = \\text{Re}\\,\\mathbf{S}$ is what heats resistors; $Q = \\text{Im}\\,\\mathbf{S}$ sloshes back and forth between the source and the L's and C's.",
+          "formula": "P_R = \\tfrac12 I_m^2R,\\qquad Q_L = \\tfrac12 I_m^2X_L,\\qquad Q_C = -\\tfrac12 I_m^2X_C"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              5,
+              10,
+              12,
+              15,
+              20,
+              24
+            ],
+            "f": [
+              50,
+              60,
+              100,
+              200,
+              500,
+              1000
+            ],
+            "R": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0,
+              56.0,
+              68.0,
+              82.0,
+              100.0
+            ],
+            "L": [
+              0.001,
+              0.0015,
+              0.0022,
+              0.0033,
+              0.0047,
+              0.0068,
+              0.01,
+              0.015,
+              0.022,
+              0.033,
+              0.047,
+              0.068,
+              0.1
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XL": "w*L",
+            "Zm": "sqrt(R^2+XL^2)"
+          },
+          "require": "min(XL/R - 0.27, 3.7 - XL/R)",
+          "prompt": "The source is $v_s(t) = {{Vm}}\\cos(2\\pi\\cdot {{f}}\\,t)$ V (peak value).",
+          "ask": [
+            {
+              "prompt": "Find the average power absorbed by $R$.",
+              "answer": "P_R1",
+              "unit": "W",
+              "explanation": "$Z = R + j\\omega L$ = ({{R||3}} + j{{XL||3}}) Ω, $|Z|$ = {{Zm|Ω}}. $I_m = V_m/|Z|$ = {{I_R1|A}}, so $P_R = \\tfrac12 I_m^2R$ = ½ · ({{I_R1|A}})² · {{R|Ω}} = **{{P_R1|W}}**."
+            },
+            {
+              "prompt": "Find the reactive power absorbed by $L$.",
+              "answer": "Q_L1",
+              "unit": "var",
+              "explanation": "$X_L = \\omega L$ = {{XL|Ω}}, $|Z| = \\sqrt{R^2 + X_L^2}$ = {{Zm|Ω}}, $I_m = V_m/|Z|$ = {{I_L1|A}}. $Q_L = \\tfrac12 I_m^2X_L$ = **{{Q_L1|var}}** (positive: an inductor absorbs reactive power)."
+            },
+            {
+              "prompt": "Find the apparent power $|\\mathbf{S}|$ delivered by the source.",
+              "answer": "S_Vs",
+              "unit": "VA",
+              "explanation": "$I_m = V_m/|Z|$ = {{Vm|V}} / {{Zm|Ω}} = {{I_Vs|A}}, so $|\\mathbf{S}| = \\tfrac12V_mI_m$ = **{{S_Vs|VA}}**. Check: $\\sqrt{P^2 + Q^2}$ with $P$ = {{P_R1|W}} and $Q$ = {{Q_L1|var}}."
+            },
+            {
+              "prompt": "Find the average power delivered by the source.",
+              "answer": "P_Vs",
+              "unit": "W",
+              "explanation": "The inductor absorbs no average power, so the source delivers what $R$ absorbs: $I_m = V_m/|Z|$ = {{I_Vs|A}}, $P = \\tfrac12I_m^2R$ = **{{P_Vs|W}}**. (Not $\\tfrac12V_mI_m$ = {{S_Vs|VA}}: that is the apparent power.)"
+            }
+          ],
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vm",
+                "phase": "0",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R",
+                "name": "R1",
+                "val": "R"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "L",
+                "name": "L1",
+                "val": "L"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "tapCircuit",
+          "prompt": "The circuit is in sinusoidal steady state. Tap every element that absorbs **zero average power**.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_1",
+                "name": "R1"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "L",
+                "name": "L1"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "C",
+                "name": "C1"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_2",
+                "name": "R2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "R1",
+            "L1",
+            "C1",
+            "R2"
+          ],
+          "answer": [
+            "L1",
+            "C1"
+          ],
+          "explanation": "For an ideal inductor or capacitor the current is 90° out of phase with the voltage, so $P = \\tfrac12V_mI_m\\cos(\\pm 90°) = 0$. They only exchange reactive power. Both resistors carry current, so both absorb $P = \\tfrac12I_m^2R > 0$."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "A capacitor carries a sinusoidal current of amplitude $I_m$. Which statement about its power is correct?",
+          "options": [
+            "$P = 0$ and $Q = -\\tfrac12 I_m^2/(\\omega C) < 0$",
+            "$P = 0$ and $Q = +\\tfrac12 I_m^2/(\\omega C) > 0$",
+            "$P = \\tfrac12 I_m^2/(\\omega C)$ and $Q = 0$",
+            "$P = \\tfrac12 I_m^2\\,\\omega C$ and $Q = 0$"
+          ],
+          "answer": 0,
+          "explanation": "With $\\mathbf{V} = Z_C\\mathbf{I} = -jX_C\\mathbf{I}$: $\\mathbf{S} = \\tfrac12\\mathbf{V}\\mathbf{I}^* = -j\\tfrac12X_C I_m^2$. The real part (average power) is 0 and the reactive power is negative: a capacitor *supplies* reactive power."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Leading or lagging?",
+          "body": "The power factor is $\\cos\\theta$ with $\\theta = \\theta_v - \\theta_i$, the angle of the load impedance. Inductive load: current lags, $Q > 0$, **lagging** pf. Capacitive load: current leads, $Q < 0$, **leading** pf. A pf of 1 means a purely resistive load.",
+          "formula": "\\text{pf} = \\cos(\\theta_v - \\theta_i) = \\frac{R}{|Z|}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              5,
+              10,
+              12,
+              15,
+              20,
+              24
+            ],
+            "f": [
+              50,
+              60,
+              100,
+              200,
+              500,
+              1000
+            ],
+            "R": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0,
+              56.0,
+              68.0,
+              82.0,
+              100.0
+            ],
+            "C": [
+              1e-06,
+              1.5e-06,
+              2.2e-06,
+              3.3e-06,
+              4.7e-06,
+              6.8e-06,
+              1e-05,
+              1.5e-05,
+              2.2e-05,
+              3.3e-05,
+              4.7e-05,
+              6.8e-05,
+              0.0001
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XC": "1/(w*C)",
+            "Zm": "sqrt(R^2+XC^2)"
+          },
+          "require": "min(XC/R - 0.3, 3.3 - XC/R)",
+          "prompt": "The source is $v_s(t) = {{Vm}}\\cos(2\\pi\\cdot {{f}}\\,t)$ V (peak value).",
+          "ask": [
+            {
+              "prompt": "Find the power factor seen by the source.",
+              "answer": "pf_Vs",
+              "unit": "",
+              "tolerance": 0.01,
+              "explanation": "$Z = R - jX_C$ with $X_C = 1/(\\omega C)$ = {{XC|Ω}}, so $|Z|$ = {{Zm|Ω}} and pf $= R/|Z|$ = {{R||3}}/{{Zm||3}} = **{{pf_Vs||3}}** (leading: the load is capacitive)."
+            },
+            {
+              "prompt": "Find the reactive power absorbed by the capacitor (signed, in var).",
+              "answer": "Q_C1",
+              "unit": "var",
+              "explanation": "$I_m = V_m/|Z|$ = {{Vm|V}}/{{Zm|Ω}} = {{I_C1|A}}, $X_C$ = {{XC|Ω}}. $Q_C = -\\tfrac12I_m^2X_C$ = **{{Q_C1|var}}**."
+            },
+            {
+              "prompt": "Find the reactive power **delivered** by the source (signed, in var).",
+              "answer": "Q_Vs",
+              "unit": "var",
+              "explanation": "Reactive power is conserved: the source delivers what the elements absorb, $Q_s = Q_R + Q_C$ = 0 + ({{Q_C1|var}}) = **{{Q_Vs|var}}**. It is negative: the capacitor actually pushes reactive power back into the source."
+            }
+          ],
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vm",
+                "phase": "0",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R",
+                "name": "R1",
+                "val": "R"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "C",
+                "name": "C1",
+                "val": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "Vm": [
+              5,
+              10,
+              12,
+              15,
+              20,
+              24
+            ],
+            "f": [
+              50,
+              60,
+              100,
+              200,
+              500,
+              1000
+            ],
+            "R": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0,
+              56.0,
+              68.0,
+              82.0,
+              100.0
+            ],
+            "L": [
+              0.001,
+              0.0015,
+              0.0022,
+              0.0033,
+              0.0047,
+              0.0068,
+              0.01,
+              0.015,
+              0.022,
+              0.033,
+              0.047,
+              0.068,
+              0.1
+            ],
+            "C": [
+              1e-06,
+              1.5e-06,
+              2.2e-06,
+              3.3e-06,
+              4.7e-06,
+              6.8e-06,
+              1e-05,
+              1.5e-05,
+              2.2e-05,
+              3.3e-05,
+              4.7e-05,
+              6.8e-05,
+              0.0001
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XL": "w*L",
+            "XC": "1/(w*C)"
+          },
+          "require": "min(abs(XL-XC)/R - 0.2, 4 - abs(XL-XC)/R)",
+          "prompt": "The source is $v_s(t) = {{Vm}}\\cos(2\\pi\\cdot {{f}}\\,t)$ V (peak value). Is the power factor seen by the source leading or lagging?",
+          "options": [
+            "Lagging (current lags the voltage)",
+            "Leading (current leads the voltage)"
+          ],
+          "answer": "if(XL - XC, 0, 1)",
+          "explanation": "$X = \\omega L - \\frac{1}{\\omega C}$ = {{XL||3}} − {{XC||3}} = {{XL-XC||3}} Ω. $X > 0$ means an inductive load (lagging pf, $Q > 0$); $X < 0$ a capacitive load (leading pf, $Q < 0$). Here $Q$ = {{Q_Vs|var}} and pf = {{pf_Vs||3}}.",
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vm",
+                "phase": "0",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "name": "R1",
+                "val": "R"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "L",
+                "name": "L1",
+                "val": "L"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "C",
+                "name": "C1",
+                "val": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "In any circuit, the reactive power delivered by the sources equals the sum of the reactive powers absorbed by the inductors and capacitors (counting the capacitors’ negative values).",
+          "answer": true,
+          "explanation": "Complex power is conserved ($\\sum\\mathbf{S}_{delivered} = \\sum\\mathbf{S}_{absorbed}$), so both its real part (average power: resistors) and its imaginary part (reactive power: $Q_L > 0$, $Q_C < 0$) balance separately."
+        }
+      ]
+    },
+    {
+      "id": "acl-power-2",
+      "title": "Power in larger circuits",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              5,
+              10,
+              12,
+              15,
+              20,
+              24
+            ],
+            "f": [
+              50,
+              60,
+              100,
+              200,
+              500,
+              1000
+            ],
+            "R1": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0,
+              56.0,
+              68.0,
+              82.0,
+              100.0
+            ],
+            "R2": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0,
+              56.0,
+              68.0,
+              82.0,
+              100.0
+            ],
+            "L": [
+              0.001,
+              0.0015,
+              0.0022,
+              0.0033,
+              0.0047,
+              0.0068,
+              0.01,
+              0.015,
+              0.022,
+              0.033,
+              0.047,
+              0.068,
+              0.1
+            ],
+            "C": [
+              1e-06,
+              1.5e-06,
+              2.2e-06,
+              3.3e-06,
+              4.7e-06,
+              6.8e-06,
+              1e-05,
+              1.5e-05,
+              2.2e-05,
+              3.3e-05,
+              4.7e-05,
+              6.8e-05,
+              0.0001
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XL": "w*L",
+            "XC": "1/(w*C)"
+          },
+          "require": "min(abs(Q_Vs)/S_Vs - 0.2, P_R1/P_Vs - 0.1, P_R2/P_Vs - 0.1, abs(Q_C1)/S_Vs - 0.1, Q_L1/S_Vs - 0.1)",
+          "prompt": "The source is $v_s(t) = {{Vm}}\\cos(2\\pi\\cdot {{f}}\\,t)$ V (peak value).",
+          "ask": [
+            {
+              "prompt": "Find the average power absorbed by $R_1$.",
+              "answer": "P_R1",
+              "unit": "W",
+              "explanation": "Load seen by the source: $R_1 + Z_C\\parallel(R_2 + j\\omega L)$ with $Z_C = -j${{XC||3}} Ω and $j\\omega L = j${{XL||3}} Ω. The source current amplitude is {{I_R1|A}}, so $P_{R_1} = \\tfrac12I_m^2R_1$ = **{{P_R1|W}}**."
+            },
+            {
+              "prompt": "Find the average power absorbed by $R_2$.",
+              "answer": "P_R2",
+              "unit": "W",
+              "explanation": "The voltage across $C$ has amplitude {{V_C1|V}}; it drives $R_2 + j\\omega L$, $|Z_2|$ = {{sqrt(R2^2+XL^2)|Ω}}, so $I_{m2}$ = {{I_R2|A}} and $P_{R_2} = \\tfrac12I_{m2}^2R_2$ = **{{P_R2|W}}**."
+            },
+            {
+              "prompt": "Find the reactive power absorbed by $C$ (signed).",
+              "answer": "Q_C1",
+              "unit": "var",
+              "explanation": "$|V_C|$ = {{V_C1|V}}, $X_C = 1/(\\omega C)$ = {{XC|Ω}}: $Q_C = -\\tfrac12|V_C|^2/X_C$ = **{{Q_C1|var}}**."
+            },
+            {
+              "prompt": "Find the reactive power delivered by the source (signed).",
+              "answer": "Q_Vs",
+              "unit": "var",
+              "explanation": "Conservation of complex power: $Q_s = Q_L + Q_C$ = {{Q_L1|var}} + ({{Q_C1|var}}) = **{{Q_Vs|var}}** ($Q_L = \\tfrac12I_{m2}^2\\omega L$ with $I_{m2}$ = {{I_L1|A}})."
+            },
+            {
+              "prompt": "Find the power factor seen by the source.",
+              "answer": "pf_Vs",
+              "unit": "",
+              "tolerance": 0.01,
+              "explanation": "$P = P_{R_1} + P_{R_2}$ = {{P_Vs|W}}, $Q = Q_L + Q_C$ = {{Q_Vs|var}}, $|\\mathbf{S}| = \\sqrt{P^2 + Q^2}$ = {{S_Vs|VA}}. pf $= P/|\\mathbf{S}|$ = **{{pf_Vs||3}}** (lagging if $Q > 0$, leading if $Q < 0$)."
+            }
+          ],
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vm",
+                "phase": "0",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_1",
+                "name": "R1",
+                "val": "R1"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "C",
+                "name": "C1",
+                "val": "C"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "L",
+                "name": "L1",
+                "val": "L"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_2",
+                "name": "R2",
+                "val": "R2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "Vr": [
+              120,
+              230
+            ],
+            "f": [
+              50,
+              60
+            ],
+            "R": [
+              8.2,
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0
+            ],
+            "L": [
+              0.01,
+              0.015,
+              0.022,
+              0.033,
+              0.047,
+              0.068,
+              0.1
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XL": "w*L",
+            "Zm": "sqrt(R^2+XL^2)"
+          },
+          "require": "min(pf_Vs - 0.4, 0.95 - pf_Vs)",
+          "prompt": "Here the source phasor is an **rms** value: $\\mathbf{V}_s$ = {{Vr}}∠0° V rms at $f$ = {{f|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Find the rms current.",
+              "answer": "I_Vs",
+              "unit": "A",
+              "explanation": "$Z = R + j\\omega L$ = ({{R||3}} + j{{XL||3}}) Ω, $|Z|$ = {{Zm|Ω}}. $I_{rms} = V_{rms}/|Z|$ = **{{I_Vs|A}}**."
+            },
+            {
+              "prompt": "Find the average power absorbed by the load.",
+              "answer": "P_Vs",
+              "unit": "W",
+              "explanation": "With rms phasors there is no ½: $I_{rms}$ = {{I_Vs|A}}, $P = I_{rms}^2R$ = **{{P_Vs|W}}**."
+            },
+            {
+              "prompt": "Find the reactive power absorbed by the load.",
+              "answer": "Q_Vs",
+              "unit": "var",
+              "explanation": "$Q = I_{rms}^2X_L$ = ({{I_Vs|A}})² · {{XL|Ω}} = **{{Q_Vs|var}}** (rms phasors: no ½)."
+            },
+            {
+              "prompt": "Find the apparent power.",
+              "answer": "S_Vs",
+              "unit": "VA",
+              "explanation": "$|\\mathbf{S}| = V_{rms}I_{rms}$ = {{Vr|V}} · {{I_Vs|A}} = **{{S_Vs|VA}}**."
+            }
+          ],
+          "circuit": {
+            "ac": {
+              "f": "f",
+              "rms": true
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vr",
+                "phase": "0",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R",
+                "name": "R1",
+                "val": "R"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "L",
+                "name": "L1",
+                "val": "L"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "P": [
+              200,
+              500,
+              800,
+              1000,
+              1500,
+              2000,
+              2500,
+              4000,
+              5000
+            ],
+            "pf": [
+              0.6,
+              0.7,
+              0.75,
+              0.8,
+              0.85,
+              0.9
+            ]
+          },
+          "derived": {
+            "th": "acos(pf)",
+            "Q": "P*tan(th)",
+            "S": "P/pf"
+          },
+          "prompt": "A load absorbs $P$ = {{P|W}} at a power factor of {{pf}} **lagging**.",
+          "ask": [
+            {
+              "prompt": "Find its reactive power $Q$ (signed).",
+              "answer": "Q",
+              "unit": "var",
+              "explanation": "$\\theta = \\arccos({{pf}})$ = {{deg(th)|°}}, positive because the pf is lagging (inductive). $Q = P\\tan\\theta$ = {{P|W}} · {{tan(th)||3}} = **{{Q|var}}**."
+            },
+            {
+              "prompt": "Find its apparent power $|\\mathbf{S}|$.",
+              "answer": "S",
+              "unit": "VA",
+              "explanation": "$|\\mathbf{S}| = P/\\text{pf}$ = {{P|W}}/{{pf}} = **{{S|VA}}** (the hypotenuse of the power triangle)."
+            },
+            {
+              "prompt": "The load voltage is 230 V rms. Find the rms load current.",
+              "answer": "S/230",
+              "unit": "A",
+              "explanation": "$|\\mathbf{S}| = P/\\text{pf}$ = {{S|VA}} and $|\\mathbf{S}| = V_{rms}I_{rms}$, so $I_{rms}$ = {{S|VA}}/230 V = **{{S/230|A}}**."
+            }
+          ]
+        },
+        {
+          "id": "p4",
+          "type": "multipleChoice",
+          "params": {
+            "S": [
+              500,
+              1000,
+              2000,
+              5000,
+              10000
+            ],
+            "pf": [
+              0.5,
+              0.6,
+              0.8,
+              0.9,
+              0.95
+            ]
+          },
+          "prompt": "A load has apparent power $|\\mathbf{S}|$ = {{S|VA}} at a power factor of {{pf}} **leading**. What is its reactive power $Q$?",
+          "options": [
+            "{{-S*sqrt(1-pf^2)|var}}",
+            "{{S*sqrt(1-pf^2)|var}}",
+            "{{-S*pf|var}}",
+            "{{S*pf|var}}"
+          ],
+          "answer": 0,
+          "explanation": "$|Q| = |\\mathbf{S}|\\sin\\theta = |\\mathbf{S}|\\sqrt{1 - \\text{pf}^2}$ = {{S*sqrt(1-pf^2)|var}}. Leading means capacitive, so $Q$ is negative: **{{-S*sqrt(1-pf^2)|var}}**. ($|\\mathbf{S}|\\cdot\\text{pf}$ = {{S*pf|W}} is $P$, not $Q$.)"
+        },
+        {
+          "id": "p5",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              5,
+              10,
+              12,
+              15,
+              20,
+              24
+            ],
+            "f": [
+              50,
+              60,
+              100,
+              200,
+              500,
+              1000
+            ],
+            "R1": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0,
+              56.0,
+              68.0,
+              82.0,
+              100.0
+            ],
+            "R2": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0,
+              56.0,
+              68.0,
+              82.0,
+              100.0
+            ],
+            "L": [
+              0.001,
+              0.0015,
+              0.0022,
+              0.0033,
+              0.0047,
+              0.0068,
+              0.01,
+              0.015,
+              0.022,
+              0.033,
+              0.047,
+              0.068,
+              0.1
+            ],
+            "C": [
+              1e-06,
+              1.5e-06,
+              2.2e-06,
+              3.3e-06,
+              4.7e-06,
+              6.8e-06,
+              1e-05,
+              1.5e-05,
+              2.2e-05,
+              3.3e-05,
+              4.7e-05,
+              6.8e-05,
+              0.0001
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XL": "w*L",
+            "XC": "1/(w*C)"
+          },
+          "require": "min(abs(Q_Vs)/S_Vs - 0.15, P_R1/P_Vs - 0.15, P_R2/P_Vs - 0.15, XL/R1 - 0.3, XC/R2 - 0.3, 3 - XL/R1, 3 - XC/R2)",
+          "prompt": "The source is $v_s(t) = {{Vm}}\\cos(2\\pi\\cdot {{f}}\\,t)$ V (peak value). Load 1 is $R_1$ in series with $L$; load 2 is $R_2$ in series with $C$.",
+          "ask": [
+            {
+              "prompt": "Find the total average power delivered by the source.",
+              "answer": "P_Vs",
+              "unit": "W",
+              "explanation": "Each load sees the full source voltage. Load 1: $I_1 = V_m/|R_1 + j\\omega L|$ = {{I_R1|A}}, $P_1 = \\tfrac12I_1^2R_1$ = {{P_R1|W}}. Load 2: $I_2 = V_m/|R_2 - jX_C|$ = {{I_R2|A}}, $P_2$ = {{P_R2|W}}. $P = P_1 + P_2$ = **{{P_Vs|W}}**."
+            },
+            {
+              "prompt": "Find the total reactive power delivered by the source (signed).",
+              "answer": "Q_Vs",
+              "unit": "var",
+              "explanation": "$Q_1 = \\tfrac12I_1^2X_L$ = {{Q_L1|var}} ($X_L$ = {{XL|Ω}}), $Q_2 = -\\tfrac12I_2^2X_C$ = {{Q_C1|var}} ($X_C$ = {{XC|Ω}}). Complex powers add: $Q$ = **{{Q_Vs|var}}**."
+            },
+            {
+              "prompt": "Find the power factor seen by the source.",
+              "answer": "pf_Vs",
+              "unit": "",
+              "tolerance": 0.01,
+              "explanation": "$P$ = {{P_R1|W}} + {{P_R2|W}} = {{P_Vs|W}}, $Q$ = {{Q_L1|var}} + ({{Q_C1|var}}) = {{Q_Vs|var}}. $|\\mathbf{S}|$ = {{S_Vs|VA}}, pf $= P/|\\mathbf{S}|$ = **{{pf_Vs||3}}** (lagging if $Q > 0$, leading if $Q < 0$)."
+            },
+            {
+              "prompt": "Find the amplitude of the source current.",
+              "answer": "I_Vs",
+              "unit": "A",
+              "explanation": "Add the complex powers: $|\\mathbf{S}| = \\sqrt{P^2 + Q^2}$ = {{S_Vs|VA}} with $P$ = {{P_Vs|W}}, $Q$ = {{Q_Vs|var}}. Then $|\\mathbf{S}| = \\tfrac12V_mI_m$ gives $I_m = 2|\\mathbf{S}|/V_m$ = **{{I_Vs|A}}** — less than {{I_R1|A}} + {{I_R2|A}}, because the two load currents are not in phase."
+            }
+          ],
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vm",
+                "phase": "0",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_1",
+                "name": "R1",
+                "val": "R1"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "L",
+                "name": "L1",
+                "val": "L"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_2",
+                "name": "R2",
+                "val": "R2"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  4,
+                  4
+                ],
+                "label": "C",
+                "name": "C1",
+                "val": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    4
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  4
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "p6",
+          "type": "matchPairs",
+          "prompt": "Match each element or load with the signs of the power it absorbs.",
+          "pairs": [
+            [
+              "Resistor",
+              "$P > 0,\\ Q = 0$"
+            ],
+            [
+              "Inductor",
+              "$P = 0,\\ Q > 0$"
+            ],
+            [
+              "Capacitor",
+              "$P = 0,\\ Q < 0$"
+            ],
+            [
+              "Series RL load",
+              "$P > 0,\\ Q > 0$"
+            ],
+            [
+              "Series RC load",
+              "$P > 0,\\ Q < 0$"
+            ]
+          ],
+          "explanation": "$\\mathbf{S} = \\tfrac12|\\mathbf{I}|^2Z = \\tfrac12I_m^2(R + jX)$: $P$ comes from $R$ and the sign of $Q$ is the sign of $X$ ($X_L = \\omega L > 0$, $X_C = -1/(\\omega C) < 0$)."
+        },
+        {
+          "id": "p7",
+          "type": "numeric",
+          "params": {
+            "Im": [
+              0.01,
+              0.02,
+              0.05,
+              0.1
+            ],
+            "f": [
+              100,
+              200,
+              500,
+              1000,
+              2000
+            ],
+            "R": [
+              100.0,
+              120.0,
+              150.0,
+              180.0,
+              220.0,
+              270.0,
+              330.0,
+              390.0,
+              470.0,
+              560.0,
+              680.0,
+              820.0,
+              1000.0
+            ],
+            "C": [
+              1e-07,
+              1.5e-07,
+              2.2e-07,
+              3.3e-07,
+              4.7e-07,
+              6.8e-07,
+              1e-06,
+              1.5e-06,
+              2.2e-06,
+              3.3e-06,
+              4.7e-06,
+              6.8e-06,
+              1e-05
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XC": "1/(w*C)",
+            "Zp": "R*XC/sqrt(R^2+XC^2)"
+          },
+          "require": "min(XC/R - 0.3, 3.3 - XC/R)",
+          "prompt": "The source is $i_s(t) = {{Im}}\\cos(2\\pi\\cdot {{f}}\\,t)$ A (peak value).",
+          "ask": [
+            {
+              "prompt": "Find the amplitude of the voltage across the source.",
+              "answer": "V_R1",
+              "unit": "V",
+              "explanation": "$Z = R\\parallel Z_C$ with $X_C$ = {{XC|Ω}}: $|Z| = \\frac{RX_C}{\\sqrt{R^2 + X_C^2}}$ = {{Zp|Ω}}. $V_m = I_m|Z|$ = **{{V_R1|V}}**."
+            },
+            {
+              "prompt": "Find the average power delivered by the source.",
+              "answer": "P_Is",
+              "unit": "W",
+              "explanation": "Only $R$ absorbs average power, and it has the full voltage $V_m = I_m|Z|$ = {{V_R1|V}} across it: $P = \\frac{V_m^2}{2R}$ = **{{P_Is|W}}**."
+            },
+            {
+              "prompt": "Find the reactive power absorbed by $C$ (signed).",
+              "answer": "Q_C1",
+              "unit": "var",
+              "explanation": "$V_m$ = {{V_C1|V}}, $X_C = 1/(\\omega C)$ = {{XC|Ω}}: $Q_C = -\\frac{V_m^2}{2X_C}$ = **{{Q_C1|var}}**."
+            },
+            {
+              "prompt": "Find the power factor seen by the source.",
+              "answer": "pf_Is",
+              "unit": "",
+              "tolerance": 0.01,
+              "explanation": "$P$ = {{P_Is|W}}, $Q$ = {{Q_C1|var}}, $|\\mathbf{S}| = \\sqrt{P^2+Q^2}$ = {{S_Is|VA}}: pf = **{{pf_Is||3}}** leading. For a parallel RC: pf $= X_C/\\sqrt{R^2+X_C^2}$."
+            }
+          ],
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "isource",
+                "name": "Is",
+                "val": "Im",
+                "phase": "0",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "I_s"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    4.5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2.5,
+                  0
+                ],
+                "to": [
+                  2.5,
+                  2
+                ],
+                "label": "R",
+                "name": "R1",
+                "val": "R"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4.5,
+                  0
+                ],
+                "to": [
+                  4.5,
+                  2
+                ],
+                "label": "C",
+                "name": "C1",
+                "val": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    4.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2.5,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2.5,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "p8",
+          "type": "trueFalse",
+          "params": {
+            "Vm": [
+              5,
+              10,
+              12,
+              15,
+              20,
+              24
+            ],
+            "f": [
+              50,
+              60,
+              100,
+              200,
+              500,
+              1000
+            ],
+            "R": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0,
+              56.0,
+              68.0,
+              82.0,
+              100.0
+            ],
+            "L": [
+              0.001,
+              0.0015,
+              0.0022,
+              0.0033,
+              0.0047,
+              0.0068,
+              0.01,
+              0.015,
+              0.022,
+              0.033,
+              0.047,
+              0.068,
+              0.1
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XL": "w*L",
+            "Zm": "sqrt(R^2+XL^2)"
+          },
+          "require": "min(abs(XL/R - 1) - 0.2, XL/R - 0.25, 4 - XL/R)",
+          "prompt": "The source is $v_s(t) = {{Vm}}\\cos(2\\pi\\cdot {{f}}\\,t)$ V (peak value). True or false: the source delivers more reactive power (in var) than average power (in W).",
+          "answer": "XL - R",
+          "explanation": "Both powers come from the same current: $Q/P = \\frac{\\frac12I_m^2X_L}{\\frac12I_m^2R} = X_L/R$ = {{XL||3}}/{{R||3}} = {{XL/R||3}}. Here $P$ = {{P_Vs|W}} and $Q$ = {{Q_Vs|var}}.",
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vm",
+                "phase": "0",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R",
+                "name": "R1",
+                "val": "R"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "L",
+                "name": "L1",
+                "val": "L"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "acl-power-3",
+      "title": "Power-factor correction",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Correcting the power factor",
+          "body": "Put a capacitor **in parallel** with the load. The load voltage, and so the load's $P$ and $Q_{load}$, do not change; the capacitor adds $Q_C = -\\tfrac12\\omega CV_m^2$. Choose $C$ so that $Q_{load} + Q_C = P\\tan\\theta_{new}$.",
+          "formula": "\\tfrac12\\omega CV_m^2 = Q_{load} - P\\tan\\theta_{new}"
+        },
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              100,
+              150,
+              200,
+              300
+            ],
+            "f": [
+              50,
+              60
+            ],
+            "R": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0
+            ],
+            "L": [
+              0.022,
+              0.033,
+              0.047,
+              0.068,
+              0.1
+            ],
+            "pft": [
+              0.9,
+              0.92,
+              0.95,
+              0.98
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XL": "w*L",
+            "Zm": "sqrt(R^2+XL^2)"
+          },
+          "computed": {
+            "Qn": "P_Vs*tan(acos(pft))",
+            "Cpf": "2*(Q_Vs - Qn)/(w*Vm^2)"
+          },
+          "require": "min(pft - pf_Vs - 0.05, pf_Vs - 0.4)",
+          "prompt": "The source $v_s(t) = {{Vm}}\\cos(2\\pi\\cdot {{f}}\\,t)$ V (peak) feeds an inductive load.",
+          "ask": [
+            {
+              "prompt": "Find the power factor of the load.",
+              "answer": "pf_Vs",
+              "unit": "",
+              "tolerance": 0.01,
+              "explanation": "$Z = R + j\\omega L$ = ({{R||3}} + j{{XL||3}}) Ω, $|Z|$ = {{Zm|Ω}}: pf $= R/|Z|$ = **{{pf_Vs||3}}** lagging."
+            },
+            {
+              "prompt": "Find the capacitance that, connected in parallel with the load, raises the power factor to {{pft}} lagging.",
+              "answer": "Cpf",
+              "unit": "F",
+              "explanation": "Load: $I_m$ = {{I_Vs|A}}, $P = \\tfrac12I_m^2R$ = {{P_Vs|W}}, $Q = \\tfrac12I_m^2X_L$ = {{Q_Vs|var}}. Target: $Q_{new} = P\\tan(\\arccos {{pft}})$ = {{Qn|var}}. The capacitor supplies $\\Delta Q$ = {{Q_Vs-Qn|var}} $= \\tfrac12\\omega CV_m^2$, so $C = \\frac{2\\Delta Q}{\\omega V_m^2}$ = **{{Cpf|F}}**."
+            }
+          ],
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vm",
+                "phase": "0",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R",
+                "name": "R1",
+                "val": "R"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  4,
+                  4
+                ],
+                "label": "L",
+                "name": "L1",
+                "val": "L"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    4
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              100,
+              150,
+              200,
+              300
+            ],
+            "f": [
+              50,
+              60
+            ],
+            "R": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0
+            ],
+            "L": [
+              0.022,
+              0.033,
+              0.047,
+              0.068,
+              0.1
+            ],
+            "C": [
+              2.2e-05,
+              3.3e-05,
+              4.7e-05,
+              6.8e-05,
+              0.0001,
+              0.00015,
+              0.00022
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XL": "w*L",
+            "XC": "1/(w*C)"
+          },
+          "require": "min(pf_Vs - P_Vs/sqrt(P_Vs^2 + Q_L1^2) - 0.05, P_Vs/sqrt(P_Vs^2 + Q_L1^2) - 0.4)",
+          "prompt": "The source $v_s(t) = {{Vm}}\\cos(2\\pi\\cdot {{f}}\\,t)$ V (peak) feeds an R–L load with a correction capacitor $C$ in parallel.",
+          "ask": [
+            {
+              "prompt": "Find the power factor seen by the source.",
+              "answer": "pf_Vs",
+              "unit": "",
+              "tolerance": 0.01,
+              "explanation": "Load alone: $P$ = {{P_R1|W}}, $Q_L$ = {{Q_L1|var}} (pf {{P_R1/sqrt(P_R1^2+Q_L1^2)||3}}). Capacitor: $Q_C = -\\tfrac12\\omega CV_m^2$ = {{Q_C1|var}}. Total $Q$ = {{Q_Vs|var}}, so pf $= P/\\sqrt{P^2+Q^2}$ = **{{pf_Vs||3}}**."
+            },
+            {
+              "prompt": "Find the amplitude of the source current.",
+              "answer": "I_Vs",
+              "unit": "A",
+              "explanation": "$P$ = {{P_Vs|W}} (unchanged), $Q = Q_L + Q_C$ = {{Q_L1|var}} + ({{Q_C1|var}}) = {{Q_Vs|var}}, $|\\mathbf{S}|$ = {{S_Vs|VA}}. $I_m = 2|\\mathbf{S}|/V_m$ = **{{I_Vs|A}}**, down from {{I_R1|A}} without the capacitor."
+            },
+            {
+              "prompt": "Find the average power delivered by the source.",
+              "answer": "P_Vs",
+              "unit": "W",
+              "explanation": "The capacitor absorbs no average power and does not change the load voltage, so $P$ is still the resistor's: $I_{load} = V_m/|R + j\\omega L|$ = {{I_R1|A}}, $P = \\tfrac12I_{load}^2R$ = **{{P_Vs|W}}**."
+            }
+          ],
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vm",
+                "phase": "0",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R",
+                "name": "R1",
+                "val": "R"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  4,
+                  4
+                ],
+                "label": "L",
+                "name": "L1",
+                "val": "L"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    4
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2.5,
+                    0
+                  ],
+                  [
+                    2.5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2.5,
+                  1
+                ],
+                "to": [
+                  2.5,
+                  3
+                ],
+                "label": "C",
+                "name": "C1",
+                "val": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2.5,
+                    3
+                  ],
+                  [
+                    2.5,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2.5,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2.5,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "c3",
+          "type": "multipleChoice",
+          "params": {
+            "Vm": [
+              100,
+              150,
+              200,
+              300
+            ],
+            "f": [
+              50,
+              60
+            ],
+            "R": [
+              10.0,
+              12.0,
+              15.0,
+              18.0,
+              22.0,
+              27.0,
+              33.0,
+              39.0,
+              47.0
+            ],
+            "L": [
+              0.022,
+              0.033,
+              0.047,
+              0.068,
+              0.1
+            ],
+            "C": [
+              2.2e-05,
+              3.3e-05,
+              4.7e-05,
+              6.8e-05,
+              0.0001,
+              0.00015,
+              0.00022,
+              0.00033,
+              0.00047
+            ]
+          },
+          "derived": {
+            "w": "2*pi*f",
+            "XL": "w*L",
+            "XC": "1/(w*C)"
+          },
+          "require": "abs(Q_Vs)/S_Vs - 0.15",
+          "prompt": "$v_s(t) = {{Vm}}\\cos(2\\pi\\cdot {{f}}\\,t)$ V (peak). With the capacitor connected, is the power factor seen by the source leading or lagging?",
+          "options": [
+            "Lagging (still inductive)",
+            "Leading (over-corrected: capacitive)"
+          ],
+          "answer": "if(Q_Vs, 0, 1)",
+          "explanation": "The load absorbs $Q_L$ = {{Q_L1|var}}; the capacitor supplies $|Q_C| = \\tfrac12\\omega CV_m^2$ = {{-Q_C1|var}}. The net $Q$ = {{Q_Vs|var}}: positive means lagging, negative means the capacitor is too large and the pf is leading (pf = {{pf_Vs||3}}).",
+          "circuit": {
+            "ac": {
+              "f": "f"
+            },
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "Vs",
+                "val": "Vm",
+                "phase": "0",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R",
+                "name": "R1",
+                "val": "R"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  4,
+                  4
+                ],
+                "label": "L",
+                "name": "L1",
+                "val": "L"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    4
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2.5,
+                    0
+                  ],
+                  [
+                    2.5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2.5,
+                  1
+                ],
+                "to": [
+                  2.5,
+                  3
+                ],
+                "label": "C",
+                "name": "C1",
+                "val": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2.5,
+                    3
+                  ],
+                  [
+                    2.5,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2.5,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2.5,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "P": [
+              10000.0,
+              20000.0,
+              50000.0,
+              100000.0
+            ],
+            "Vr": [
+              230,
+              400
+            ],
+            "f": [
+              50,
+              60
+            ],
+            "pf1": [
+              0.65,
+              0.7,
+              0.75,
+              0.8
+            ],
+            "pf2": [
+              0.9,
+              0.95
+            ]
+          },
+          "derived": {
+            "t1": "tan(acos(pf1))",
+            "t2": "tan(acos(pf2))",
+            "dQ": "P*(t1-t2)",
+            "Cc": "dQ/(2*pi*f*Vr^2)"
+          },
+          "prompt": "An industrial load absorbs {{P|W}} at pf {{pf1}} lagging from a {{Vr}} V rms, {{f}} Hz supply. The pf must be raised to {{pf2}} lagging with a parallel capacitor.",
+          "ask": [
+            {
+              "prompt": "Find the reactive power the capacitor must supply (magnitude).",
+              "answer": "dQ",
+              "unit": "var",
+              "explanation": "$Q_{old} = P\\tan\\theta_{old}$ = {{P|W}} · {{t1||3}} = {{P*t1|var}}, $Q_{new} = P\\tan\\theta_{new}$ = {{P*t2|var}}. The capacitor supplies the difference: **{{dQ|var}}**."
+            },
+            {
+              "prompt": "Find the capacitance.",
+              "answer": "Cc",
+              "unit": "F",
+              "explanation": "$\\Delta Q = P(\\tan\\theta_{old} - \\tan\\theta_{new})$ = {{dQ|var}}. With rms voltage $|Q_C| = \\omega CV_{rms}^2$, so $C = \\frac{\\Delta Q}{\\omega V_{rms}^2}$ = {{dQ||3}} / ({{2*pi*f||4}} · {{Vr}}²) = **{{Cc|F}}**."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "pf1": [
+              0.6,
+              0.65,
+              0.7,
+              0.75,
+              0.8
+            ],
+            "pf2": [
+              0.9,
+              0.95,
+              1
+            ]
+          },
+          "prompt": "A load keeps the same average power and voltage while its power factor is corrected from {{pf1}} to {{pf2}}. Find the ratio $I_{new}/I_{old}$ of the line-current amplitudes.",
+          "answer": "pf1/pf2",
+          "unit": "",
+          "explanation": "$P = \\tfrac12V_mI_m\\,\\text{pf}$ with $P$ and $V_m$ fixed, so $I_m \\propto 1/\\text{pf}$: $I_{new}/I_{old} = \\text{pf}_{old}/\\text{pf}_{new}$ = {{pf1}}/{{pf2}} = **{{pf1/pf2||3}}**. The line losses $\\propto I^2$ drop to {{100*(pf1/pf2)^2|%}}."
+        },
+        {
+          "id": "c6",
+          "type": "multipleChoice",
+          "prompt": "Why do utilities want large inductive loads to correct their power factor?",
+          "options": [
+            "For the same average power, a higher pf means less line current, so smaller $I^2R$ losses and smaller cables and transformers",
+            "The capacitor increases the average power the load can absorb from the same supply",
+            "The capacitor makes the load consume less energy in its own resistance",
+            "A capacitor in parallel raises the load voltage, which halves the losses"
+          ],
+          "answer": 0,
+          "explanation": "The load's own $P$ (and energy use) is unchanged. What changes is the reactive power supplied through the lines: with less $Q$ the current amplitude $I_m = 2P/(V_m\\,\\text{pf})$ drops, so the utility's line losses and equipment ratings ($|\\mathbf{S}|$ in VA) go down."
+        },
+        {
+          "id": "c7",
+          "type": "trueFalse",
+          "prompt": "Placing the correction capacitor in **series** with the load (instead of in parallel) works just as well, since it supplies the same reactive power.",
+          "answer": false,
+          "explanation": "A series capacitor changes the current through, and the voltage across, the load, so the load no longer gets its rated voltage and its $P$ changes. A parallel capacitor sits across the same voltage and leaves the load untouched; only the line current changes."
+        }
+      ]
+    }
+  ]
+}

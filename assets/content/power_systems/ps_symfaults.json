@@ -1,0 +1,1692 @@
+{
+ "id": "ps-symfaults",
+ "title": "Symmetrical Faults",
+ "description": "Short-circuit currents of three-phase faults: DC offset, subtransient and transient reactances, Thévenin and Z-bus methods, fault levels and breaker ratings.",
+ "reference": "Glover ch. 7",
+ "study": [
+  {
+   "title": "Faults",
+   "body": "A **fault** is an unintended short circuit, usually an insulator flashover caused by lightning, wind, ice, trees or animals. On overhead lines single line-to-ground faults are by far the most common, while **balanced three-phase faults** are rare (a few per cent) but often give the largest currents. Being balanced, a three-phase fault is solved with the familiar per-phase circuit. Fault currents set the ratings of circuit breakers and the settings of protection relays."
+  },
+  {
+   "title": "Explore: the DC offset",
+   "body": "Closing a sinusoidal source onto an $R$–$L$ circuit (or a fault occurring) gives a steady AC current plus a decaying **DC offset**, with time constant $T = L/R = X/(\\omega R)$. In the worst case the offset equals the AC peak, and the first current peak nearly doubles. The rms of the asymmetrical current is $K(\\tau)$ times the symmetrical value, with $\\tau$ in cycles. Drag $X/R$: high-$X/R$ circuits (near generators) keep their offset for many cycles.",
+   "formula": "\\begin{aligned}I_{rms}(\\tau) &= K(\\tau)\\,I_{ac}\\\\ K(\\tau) &= \\sqrt{1 + 2e^{-4\\pi\\tau/(X/R)}}\\end{aligned}",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 6,
+     "label": "t (cycles)"
+    },
+    "y": {
+     "min": -1.2,
+     "max": 2.2,
+     "label": "i / (√2 I_ac)"
+    },
+    "sliders": [
+     {
+      "name": "XR",
+      "label": "$X/R$",
+      "min": 1,
+      "max": 40,
+      "step": 0.5,
+      "value": 10
+     }
+    ],
+    "curves": [
+     {
+      "f": "exp(-2*pi*x/XR) - cos(2*pi*x)",
+      "color": "primary"
+     },
+     {
+      "f": "exp(-2*pi*x/XR)",
+      "color": "orange",
+      "dash": true,
+      "label": "DC offset",
+      "labelAt": 0.12
+     }
+    ],
+    "hlines": [
+     {
+      "y": 0
+     }
+    ],
+    "readouts": [
+     {
+      "label": "DC time constant (cycles)",
+      "value": "XR/(2*pi)",
+      "unit": "",
+      "sig": 3
+     },
+     {
+      "label": "$K$ after 1 cycle",
+      "value": "sqrt(1 + 2*exp(-4*pi/XR))",
+      "sig": 3
+     }
+    ],
+    "height": 210
+   }
+  },
+  {
+   "title": "Synchronous machine reactances",
+   "body": "After a three-phase fault at the terminals of an unloaded generator, the rms AC current decays in stages as the rotor's damper and field circuits lose their flux:\n- **subtransient** $X''_d$ (about 0.1–0.3 pu): first few cycles, time constant $T''_d$ ≈ 0.03 s;\n- **transient** $X'_d$ (about 0.2–0.4 pu): up to a second or two, $T'_d$ ≈ 1 s;\n- **synchronous** $X_d$ (about 1–2 pu): steady state.\nBreaker and fault studies normally use $X''_d$.",
+   "formula": "I'' = \\frac{E}{X''_d},\\qquad I' = \\frac{E}{X'_d},\\qquad I = \\frac{E}{X_d}",
+   "plot": {
+    "x": {
+     "min": 0.001,
+     "max": 10,
+     "label": "t",
+     "unit": "s",
+     "log": true
+    },
+    "y": {
+     "min": 0,
+     "max": 7.5,
+     "label": "I_ac (pu)"
+    },
+    "curves": [
+     {
+      "f": "(1/0.15 - 1/0.25)*exp(-x/0.035) + (1/0.25 - 1/1.5)*exp(-x/1.0) + 1/1.5",
+      "color": "blue",
+      "label": "rms AC current",
+      "labelAt": 0.55
+     }
+    ],
+    "hlines": [
+     {
+      "y": 6.667,
+      "label": "E/X''_d"
+     },
+     {
+      "y": 4,
+      "label": "E/X'_d"
+     },
+     {
+      "y": 0.667,
+      "label": "E/X_d"
+     }
+    ],
+    "labels": [
+     {
+      "x": 0.0013,
+      "y": 7.1,
+      "text": "subtransient",
+      "color": "grey"
+     },
+     {
+      "x": 0.12,
+      "y": 4.4,
+      "text": "transient",
+      "color": "grey"
+     },
+     {
+      "x": 2.2,
+      "y": 0.3,
+      "text": "steady state",
+      "color": "grey"
+     }
+    ],
+    "height": 200
+   }
+  },
+  {
+   "title": "Three-phase fault calculation",
+   "body": "Replace the network seen from the fault point by its **Thévenin equivalent**: the prefault voltage $V_F$ (often taken as 1.0 pu, neglecting load currents) behind $Z_{th}$, built with the machines' subtransient reactances. The fault current in amperes uses the current base of the zone where the fault is. With prefault load, add the load currents by **superposition**: fault-only currents plus prefault currents.",
+   "formula": "\\begin{aligned}I''_F &= \\frac{V_F}{Z_{th}}\\\\ I''_{F}\\ \\text{in A} &= I''_{F,pu}\\,\\frac{S_{base}}{\\sqrt3\\,V_{base}}\\end{aligned}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "generator",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "transformer",
+      "at": [
+       2,
+       1
+      ]
+     },
+     {
+      "type": "inductor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "line"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        1,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        2
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "text",
+      "at": [
+       6.6,
+       0
+      ],
+      "label": "F"
+     },
+     {
+      "type": "node",
+      "at": [
+       6,
+       0
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        6,
+        0
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "text",
+      "at": [
+       6.9,
+       1
+      ],
+      "label": "3φ fault"
+     }
+    ]
+   }
+  },
+  {
+   "title": "The bus impedance matrix",
+   "body": "$\\mathbf Z_{bus} = \\mathbf Y_{bus}^{-1}$ (machines included as shunt reactances) gives the Thévenin impedance of **every** bus at once: $Z_{nn}$. For a bolted fault at bus $n$ with prefault voltage $V_F$ everywhere, the fault current and the voltage at every other bus $k$ during the fault follow directly; branch currents follow from those voltages.",
+   "formula": "\\begin{aligned}I''_F &= \\frac{V_F}{Z_{nn}}\\\\ E_k &= \\left(1 - \\frac{Z_{kn}}{Z_{nn}}\\right)V_F\\end{aligned}"
+  },
+  {
+   "title": "Short-circuit MVA",
+   "body": "The **fault level** of a bus is $S_{sc} = \\sqrt3\\,V_{nom}I''_F$. With $V_F$ = 1 pu it equals $S_{base}/|Z_{th,pu}|$, so a utility supply is often specified only by its fault level: its Thévenin impedance is $V^2/S_{sc}$. A strong bus (high $S_{sc}$) holds its voltage well but demands breakers with a high interrupting rating; series reactors are used to limit fault levels.",
+   "formula": "\\begin{aligned}S_{sc} &= \\sqrt3\\,V_{nom}I''_F = \\frac{S_{base}}{|Z_{th,pu}|}\\\\ Z_{th} &= \\frac{V^2}{S_{sc}}\\end{aligned}"
+  },
+  {
+   "title": "Circuit breakers",
+   "body": "A breaker must carry the first-cycle (momentary) current and then **interrupt** the fault at a current zero after its contacts part, typically 2–5 cycles after fault inception. Ratings are stated as rms **symmetrical** current at rated voltage; standards (ANSI/IEEE C37) build in an allowance for DC offset up to $X/R$ ≈ 15, so then the simple $E/X$ fault current can be compared with the rating. Near large generators $X/R$ is higher and the asymmetry factor $K(\\tau)$ at contact parting must be taken into account."
+  },
+  {
+   "title": "Worked example: fault at the end of a line",
+   "body": "100-MVA base: generator $X''$ = 0.20 pu, transformer 0.10 pu, 138-kV line 0.10 pu; bolted fault at the far end with $V_F$ = 1.0 pu.\n- $Z_{th}$ = j(0.20 + 0.10 + 0.10) = j0.40 pu, so $I''_F$ = 1/0.40 = 2.5 pu.\n- At the fault (138-kV zone, $I_{base}$ = 418 A): 2.5 × 418 = 1.05 kA.\n- In the generator (13.8-kV zone, $I_{base}$ = 4.18 kA): 2.5 × 4.18 = 10.5 kA.\n- Fault level at the line end: 100 MVA/0.40 = 250 MVA."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ps-symfaults-1",
+   "title": "Fault currents and machine reactances",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Three-phase faults",
+     "body": "A fault short-circuits phases to each other or to ground. A **bolted three-phase fault** is rare but severe, and it is **balanced**, so it is solved per phase with Thévenin's theorem. Its current sets breaker ratings.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "generator",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "transformer",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "line"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          1,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         6.6,
+         0
+        ],
+        "label": "F"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         6.9,
+         1
+        ],
+        "label": "3φ fault"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "trueFalse",
+     "prompt": "Because a three-phase fault is balanced, its currents can be found from a single per-phase circuit.",
+     "answer": true,
+     "explanation": "All three phases see the same impedances and are shorted together symmetrically, so the currents form a balanced set: solve phase a and shift by ±120°. Unbalanced faults (line-to-ground, line-to-line) need symmetrical components."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "The DC offset",
+     "body": "Fault current in an $R$–$L$ circuit = steady AC component + a decaying **DC offset** whose size depends on the point on the voltage wave at which the fault occurs. In the worst case (below, $X/R$ = 10) the first peak almost doubles. The offset decays with $T = L/R = X/(\\omega R)$.",
+     "formula": "I_{rms}(\\tau) = I_{ac}\\sqrt{1 + 2e^{-4\\pi\\tau/(X/R)}}",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 6,
+       "label": "t (cycles)"
+      },
+      "y": {
+       "min": -1.2,
+       "max": 2.2,
+       "label": "i / (√2 I_ac)"
+      },
+      "curves": [
+       {
+        "f": "exp(-2*pi*x/10) - cos(2*pi*x)",
+        "color": "primary"
+       },
+       {
+        "f": "exp(-2*pi*x/10)",
+        "color": "orange",
+        "dash": true,
+        "label": "DC offset",
+        "labelAt": 0.12
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0
+       }
+      ],
+      "height": 180
+     }
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "XR": [
+       5,
+       10,
+       15,
+       20,
+       30
+      ],
+      "f": [
+       50,
+       60
+      ]
+     },
+     "prompt": "A fault occurs in a {{f}}-Hz circuit with $X/R$ = {{XR}}. Find the time constant of the DC offset.",
+     "answer": "XR/(2*pi*f)",
+     "unit": "s",
+     "explanation": "$T$ = $L/R$ = $X/(\\omega R)$ = $(X/R)/(2\\pi f)$ = {{XR}}/(2π × {{f}}) = {{XR/(2*pi*f)|s}}, or {{XR/(2*pi)}} cycles."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Iac": [
+       10000.0,
+       20000.0,
+       31500.0,
+       40000.0
+      ],
+      "tau": [
+       0.5,
+       1.5,
+       2,
+       3
+      ],
+      "XR": [
+       5,
+       10,
+       15,
+       20,
+       30
+      ]
+     },
+     "prompt": "The symmetrical fault current is {{Iac|A}} (rms) and $X/R$ = {{XR}}. Find the rms asymmetrical current {{tau}} cycles after the fault, assuming the maximum DC offset.",
+     "answer": "Iac*sqrt(1 + 2*exp(-4*pi*tau/XR))",
+     "unit": "A",
+     "explanation": "$K = \\sqrt{1 + 2e^{-4\\pi\\tau/(X/R)}}$ = $\\sqrt{1 + 2e^{-4\\pi\\times{{tau}}/{{XR}}}}$ = {{sqrt(1 + 2*exp(-4*pi*tau/XR))||3}}. $I_{rms}$ = {{sqrt(1 + 2*exp(-4*pi*tau/XR))||3}} × {{Iac|A}} = {{Iac*sqrt(1 + 2*exp(-4*pi*tau/XR))|A}}."
+    },
+    {
+     "id": "q4",
+     "type": "slider",
+     "params": {
+      "N": [
+       2,
+       3,
+       4
+      ]
+     },
+     "prompt": "Drag $X/R$ until the DC offset (dashed) has decayed to 1/e ≈ 37 % of its initial value after {{N}} cycles.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 6,
+       "label": "t (cycles)"
+      },
+      "y": {
+       "min": -1.2,
+       "max": 2.2,
+       "label": "i / (√2 I_ac)"
+      },
+      "sliders": [
+       {
+        "name": "XR",
+        "label": "$X/R$",
+        "min": 1,
+        "max": 40,
+        "step": 0.1,
+        "value": 40
+       }
+      ],
+      "curves": [
+       {
+        "f": "exp(-2*pi*x/XR) - cos(2*pi*x)",
+        "color": "primary"
+       },
+       {
+        "f": "exp(-2*pi*x/XR)",
+        "color": "orange",
+        "dash": true,
+        "label": "DC offset",
+        "labelAt": 0.12
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0.368,
+        "label": "1/e",
+        "color": "grey"
+       }
+      ],
+      "vlines": [
+       {
+        "x": "N",
+        "label": "{{N}} cycles",
+        "color": "grey"
+       }
+      ]
+     },
+     "answer": {
+      "XR": "2*pi*N"
+     },
+     "tolerance": 0.05,
+     "explanation": "The offset falls to 1/e after one time constant, so $T$ = {{N}} cycles = {{N}}/$f$. Since $T = (X/R)/(2\\pi f)$: $X/R = 2\\pi$ × {{N}} = {{2*pi*N}}. Transmission circuits have $X/R$ around 10–20; near large generators it can exceed 40."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Subtransient, transient, synchronous",
+     "body": "At a generator's terminals the AC fault current itself decays: limited first by the **subtransient** reactance $X''_d$, after a few cycles by the **transient** reactance $X'_d$, and finally by the synchronous reactance $X_d$. The graph is for $X''_d$ = 0.15, $X'_d$ = 0.25, $X_d$ = 1.5 pu with $E$ = 1.0 pu (log time axis).",
+     "plot": {
+      "x": {
+       "min": 0.001,
+       "max": 10,
+       "label": "t",
+       "unit": "s",
+       "log": true
+      },
+      "y": {
+       "min": 0,
+       "max": 7.5,
+       "label": "I_ac (pu)"
+      },
+      "curves": [
+       {
+        "f": "(1/0.15 - 1/0.25)*exp(-x/0.035) + (1/0.25 - 1/1.5)*exp(-x/1.0) + 1/1.5",
+        "color": "blue",
+        "label": "rms AC current",
+        "labelAt": 0.55
+       }
+      ],
+      "hlines": [
+       {
+        "y": 6.667,
+        "label": "E/X''_d"
+       },
+       {
+        "y": 4,
+        "label": "E/X'_d"
+       },
+       {
+        "y": 0.667,
+        "label": "E/X_d"
+       }
+      ],
+      "labels": [
+       {
+        "x": 0.0013,
+        "y": 7.1,
+        "text": "subtransient",
+        "color": "grey"
+       },
+       {
+        "x": 0.12,
+        "y": 4.4,
+        "text": "transient",
+        "color": "grey"
+       },
+       {
+        "x": 2.2,
+        "y": 0.3,
+        "text": "steady state",
+        "color": "grey"
+       }
+      ],
+      "height": 200
+     }
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "S": [
+       100000000.0,
+       250000000.0,
+       500000000.0
+      ],
+      "V": [
+       13800.0,
+       20000.0,
+       22000.0
+      ],
+      "X": [
+       0.15,
+       0.18,
+       0.2,
+       0.25
+      ]
+     },
+     "prompt": "An unloaded {{S|VA}}, {{V|V}} generator with $X''_d$ = {{X}} pu at rated voltage suffers a bolted three-phase fault at its terminals. Find the subtransient fault current.",
+     "answer": "S/(sqrt(3)*V)/X",
+     "unit": "A",
+     "explanation": "Unloaded, $E = V$ = 1.0 pu, so $I'' = 1/X''_d$ = 1/{{X}} = {{1/X}} pu. $I_{base} = S/(\\sqrt3V)$ = {{S/(sqrt(3)*V)|A}}, so $I''$ = {{1/X}} × {{S/(sqrt(3)*V)|A}} = {{S/(sqrt(3)*V)/X|A}}."
+    },
+    {
+     "id": "q6",
+     "type": "trueFalse",
+     "prompt": "The steady-state three-phase short-circuit current of a generator can be smaller than its rated current.",
+     "answer": true,
+     "explanation": "With $E$ ≈ 1.0 pu and $X_d$ ≈ 1–2 pu, the sustained fault current $E/X_d$ is about 0.5–1 pu. That is why protection must act on the large subtransient and transient currents and why a sustained fault current alone is a poor fault indicator. (Field forcing by the exciter raises $E$ somewhat.)"
+    }
+   ]
+  },
+  {
+   "id": "ps-symfaults-2",
+   "title": "System faults and fault levels",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Thévenin at the fault",
+     "body": "Seen from the fault, the network is a Thévenin source: prefault voltage $V_F$ (usually 1.0 pu) behind $Z_{th}$, with generators represented by $X''_d$. Then $I''_F = V_F/Z_{th}$ in per unit; multiply by the current base **of the faulted zone** to get amperes.",
+     "formula": "I''_F = \\frac{V_F}{Z_{th}}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "generator",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "transformer",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "line"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          1,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         6.6,
+         0
+        ],
+        "label": "F"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         6.9,
+         1
+        ],
+        "label": "3φ fault"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "Xg": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "Xt": [
+       0.08,
+       0.1,
+       0.12
+      ],
+      "Xl": [
+       0.05,
+       0.1,
+       0.15,
+       0.2
+      ],
+      "VH": [
+       115000.0,
+       138000.0,
+       230000.0
+      ]
+     },
+     "prompt": "On a 100-MVA base, a generator ($X''$ = {{Xg}} pu) feeds a {{VH|V}} line ({{Xl}} pu) through a transformer ({{Xt}} pu). A bolted three-phase fault occurs at the far end of the line. Find the fault current in amperes ($V_F$ = 1.0 pu).",
+     "answer": "1/(Xg+Xt+Xl)*1e8/(sqrt(3)*VH)",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "generator",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "transformer",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "line"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          1,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         6.6,
+         0
+        ],
+        "label": "F"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         6.9,
+         1
+        ],
+        "label": "3φ fault"
+       }
+      ]
+     },
+     "explanation": "$Z_{th}$ = j({{Xg}} + {{Xt}} + {{Xl}}) = j{{Xg+Xt+Xl}} pu, $I''_F$ = 1/{{Xg+Xt+Xl}} = {{1/(Xg+Xt+Xl)}} pu. At the fault (line zone) $I_{base}$ = 100 MVA/(√3 × {{VH|V}}) = {{1e8/(sqrt(3)*VH)|A}}, so $I''_F$ = {{1/(Xg+Xt+Xl)*1e8/(sqrt(3)*VH)|A}}."
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "params": {
+      "Xg": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "Xt": [
+       0.08,
+       0.1,
+       0.12
+      ],
+      "Xl": [
+       0.05,
+       0.1,
+       0.15,
+       0.2
+      ],
+      "VH": [
+       115000.0,
+       138000.0,
+       230000.0
+      ]
+     },
+     "derived": {
+      "I": "1/(Xg+Xt+Xl)"
+     },
+     "prompt": "Same system: 13.8-kV generator, $X''$ = {{Xg}} pu, transformer {{Xt}} pu, {{VH|V}} line {{Xl}} pu, fault at the line end (100 MVA, $V_F$ = 1.0). What current flows in the **generator**?",
+     "circuit": {
+      "elements": [
+       {
+        "type": "generator",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "transformer",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "line"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          1,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         6.6,
+         0
+        ],
+        "label": "F"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         6.9,
+         1
+        ],
+        "label": "3φ fault"
+       }
+      ]
+     },
+     "options": [
+      "{{I*1e8/(sqrt(3)*13.8e3)|A}}",
+      "{{I*1e8/(sqrt(3)*VH)|A}}",
+      "{{I*1e8/13.8e3|A}}",
+      "{{I*1e8/(3*13.8e3)|A}}"
+     ],
+     "answer": 0,
+     "explanation": "The per-unit fault current, {{I}} pu, is the same in every zone; only the base changes. In the 13.8-kV zone $I_{base}$ = 100 MVA/(√3 × 13.8 kV) = {{1e8/(sqrt(3)*13.8e3)|A}}, so the generator carries {{I*1e8/(sqrt(3)*13.8e3)|A}}. The {{I*1e8/(sqrt(3)*VH)|A}} option is the line-side current."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Fault level",
+     "body": "The **short-circuit MVA** (fault level) of a bus is $\\sqrt3V_{nom}I''_F$. With $V_F$ = 1 pu it equals $S_{base}/|Z_{th}|$, so a fault level fully describes a source's Thévenin impedance, $V^2/S_{sc}$.",
+     "formula": "S_{sc} = \\sqrt3\\,V_{nom}I''_F = \\frac{S_{base}}{|Z_{th,pu}|}"
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Z": [
+       0.05,
+       0.08,
+       0.1,
+       0.2,
+       0.25
+      ]
+     },
+     "prompt": "The Thévenin impedance at a bus is j{{Z}} pu on a 100-MVA base. Find its fault level.",
+     "answer": "1e8/Z",
+     "unit": "VA",
+     "explanation": "$S_{sc} = S_{base}/|Z_{th}|$ = 100 MVA/{{Z}} = {{1e8/Z|VA}}: the bolted fault current is {{1/Z}} pu at 1.0 pu voltage."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "V": [
+       13800.0,
+       69000.0,
+       138000.0
+      ],
+      "Ssc": [
+       500000000.0,
+       1000000000.0,
+       2500000000.0,
+       5000000000.0
+      ]
+     },
+     "require": "if(V - 20e3, 1, 1000e6 - Ssc)",
+     "prompt": "A utility specifies its {{V|V}} supply point only by a fault level of {{Ssc|VA}}. Find the Thévenin reactance per phase in ohms.",
+     "answer": "V^2/Ssc",
+     "unit": "Ω",
+     "explanation": "$Z_{th} = V^2/S_{sc}$ = ({{V|V}})²/{{Ssc|VA}} = {{V^2/Ssc|Ω}} (line-to-line voltage and three-phase MVA, like $Z_{base}$). The fault current would be {{Ssc/(sqrt(3)*V)|A}}."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "Ssc": [
+       200000000.0,
+       300000000.0,
+       500000000.0
+      ],
+      "S": [
+       20000000.0,
+       50000000.0,
+       80000000.0
+      ],
+      "X": [
+       0.15,
+       0.2,
+       0.25
+      ]
+     },
+     "derived": {
+      "Zu": "1e8/Ssc",
+      "Zg": "X*1e8/S"
+     },
+     "prompt": "A 13.8-kV bus is fed by the utility (fault level {{Ssc|VA}}) and by a local {{S|VA}} generator with $X''$ = {{X}} pu. Find the three-phase fault current at the bus ($V_F$ = 1.0 pu, 100-MVA base).",
+     "answer": "(1/Zu + 1/Zg)*1e8/(sqrt(3)*13.8e3)",
+     "unit": "A",
+     "explanation": "Utility: $Z$ = 100/{{Ssc/1e6}} = {{Zu}} pu. Generator on 100 MVA: {{X}} × 100/{{S/1e6}} = {{Zg}} pu. The two sources are in parallel at the bus, so their currents add: 1/{{Zu}} + 1/{{Zg}} = {{1/Zu + 1/Zg}} pu × {{1e8/(sqrt(3)*13.8e3)|A}} = {{(1/Zu + 1/Zg)*1e8/(sqrt(3)*13.8e3)|A}}."
+    },
+    {
+     "id": "q6",
+     "type": "trueFalse",
+     "prompt": "Inserting a series reactor between a bus and its supply lowers the fault level at the bus.",
+     "answer": true,
+     "explanation": "The reactor adds to $Z_{th}$, so $S_{sc} = S_{base}/|Z_{th}|$ and the fault current fall. Current-limiting reactors let cheaper breakers be used, at the cost of extra voltage drop and reactive losses in normal operation."
+    }
+   ]
+  },
+  {
+   "id": "ps-symfaults-3",
+   "title": "Z-bus and breakers",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Faults with Z-bus",
+     "body": "Invert $\\mathbf Y_{bus}$ (with the machines' $X''$ as shunt branches to the reference) to get $\\mathbf Z_{bus}$. A fault at bus $n$ draws $I''_F = V_F/Z_{nn}$, and the other bus voltages drop to $E_k = (1 - Z_{kn}/Z_{nn})V_F$. One matrix covers faults at every bus.",
+     "formula": "\\begin{aligned}I''_F &= \\frac{V_F}{Z_{nn}}\\\\ E_k &= \\left(1 - \\frac{Z_{kn}}{Z_{nn}}\\right)V_F\\end{aligned}"
+    },
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X2": [
+       0.2,
+       0.25,
+       0.3,
+       0.4
+      ],
+      "X12": [
+       0.1,
+       0.15,
+       0.2
+      ]
+     },
+     "derived": {
+      "det": "(1/X1 + 1/X12)*(1/X2 + 1/X12) - 1/X12^2",
+      "Z11": "(1/X2 + 1/X12)/((1/X1 + 1/X12)*(1/X2 + 1/X12) - 1/X12^2)",
+      "Z22": "(1/X1 + 1/X12)/((1/X1 + 1/X12)*(1/X2 + 1/X12) - 1/X12^2)",
+      "Z12": "(1/X12)/((1/X1 + 1/X12)*(1/X2 + 1/X12) - 1/X12^2)"
+     },
+     "prompt": "Two generators, $X''$ = j{{X1}} pu at bus 1 and j{{X2}} pu at bus 2, are joined by a line of j{{X12}} pu. Prefault voltages are 1.0 pu, load currents neglected.",
+     "answer": "Z22",
+     "unit": "pu",
+     "ask": [
+      {
+       "prompt": "Find $Z_{22}$ (magnitude, pu).",
+       "answer": "Z22",
+       "unit": "pu",
+       "explanation": "$\\mathbf Y_{bus}$ (as susceptance magnitudes): $Y_{11}$ = 1/{{X1}} + 1/{{X12}}, $Y_{22}$ = 1/{{X2}} + 1/{{X12}}, $Y_{12}$ = −1/{{X12}}; det = {{det}}. $Z_{22} = Y_{11}/\\det$ = {{Z22||4}} pu. Check: it is $X_2 \\parallel (X_1 + X_{12})$ = {{X2*(X1+X12)/(X1+X2+X12)||4}}."
+      },
+      {
+       "prompt": "Find $Z_{12}$ (magnitude, pu).",
+       "answer": "Z12",
+       "unit": "pu",
+       "explanation": "With det $= Y_{11}Y_{22} - Y_{12}^2$ = {{det}}, the off-diagonal element is $Z_{12} = -Y_{12}/\\det$ = (1/{{X12}})/{{det}} = {{Z12||4}} pu."
+      }
+     ]
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X2": [
+       0.2,
+       0.25,
+       0.3,
+       0.4
+      ],
+      "X12": [
+       0.1,
+       0.15,
+       0.2
+      ]
+     },
+     "derived": {
+      "det": "(1/X1 + 1/X12)*(1/X2 + 1/X12) - 1/X12^2",
+      "Z11": "(1/X2 + 1/X12)/((1/X1 + 1/X12)*(1/X2 + 1/X12) - 1/X12^2)",
+      "Z22": "(1/X1 + 1/X12)/((1/X1 + 1/X12)*(1/X2 + 1/X12) - 1/X12^2)",
+      "Z12": "(1/X12)/((1/X1 + 1/X12)*(1/X2 + 1/X12) - 1/X12^2)"
+     },
+     "prompt": "Two generators, $X''$ = j{{X1}} pu at bus 1 and j{{X2}} pu at bus 2, are joined by a line of j{{X12}} pu. Prefault voltages are 1.0 pu, load currents neglected. A bolted three-phase fault occurs at bus 2.",
+     "answer": "1/Z22",
+     "unit": "pu",
+     "ask": [
+      {
+       "prompt": "Find the fault current in per unit.",
+       "answer": "1/Z22",
+       "unit": "pu",
+       "explanation": "$Z_{22} = X_2 \\parallel (X_1 + X_{12})$ = {{Z22||4}} pu, so $I''_F = 1/Z_{22}$ = {{1/Z22|pu}}."
+      },
+      {
+       "prompt": "Find the voltage at bus 1 during the fault, in per unit.",
+       "answer": "1 - Z12/Z22",
+       "unit": "pu",
+       "explanation": "$Z_{12}$ = {{Z12||4}}, $Z_{22}$ = {{Z22||4}}. $E_1 = 1 - Z_{12}/Z_{22}$ = {{1 - Z12/Z22|pu}}. Directly: generator 1 and the line form a divider, $X_{12}/(X_1 + X_{12})$ = {{X12/(X1+X12)||3}}."
+      },
+      {
+       "prompt": "Find the current in the line from bus 1 to bus 2 during the fault, in per unit.",
+       "answer": "(1 - Z12/Z22)/X12",
+       "unit": "pu",
+       "explanation": "Bus 2 is at 0 and bus 1 at $E_1 = 1 - Z_{12}/Z_{22}$ = {{1 - Z12/Z22}} pu, so $I_{12} = E_1/X_{12}$ = {{(1 - Z12/Z22)/X12|pu}}. The rest of the fault current, {{1/Z22 - (1 - Z12/Z22)/X12|pu}}, comes from generator 2."
+      }
+     ]
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "Zt": [
+       0.05,
+       0.08,
+       0.1,
+       0.15
+      ],
+      "V": [
+       69000.0,
+       138000.0,
+       230000.0
+      ]
+     },
+     "prompt": "Bus 4 of a 100-MVA study has $Z_{44}$ = j{{Zt}} pu and a nominal voltage of {{V|V}}. Find its fault level.",
+     "answer": "1e8/Zt",
+     "unit": "VA",
+     "explanation": "$S_{sc} = S_{base}/|Z_{44}|$ = 100 MVA/{{Zt}} = {{1e8/Zt|VA}}, i.e. a fault current of {{1/Zt}} pu = {{1e8/Zt/(sqrt(3)*V)|A}} at {{V|V}}."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "I": [
+       15000.0,
+       25000.0,
+       35000.0
+      ],
+      "XR": [
+       20,
+       25,
+       40
+      ],
+      "tau": [
+       2,
+       3,
+       5
+      ],
+      "f": [
+       50,
+       60
+      ]
+     },
+     "prompt": "Near a large generator, a fault gives {{I|A}} symmetrical with $X/R$ = {{XR}}. The breaker's contacts part {{tau}} cycles after the fault. Find the rms asymmetrical current at contact parting (maximum offset).",
+     "answer": "I*sqrt(1 + 2*exp(-4*pi*tau/XR))",
+     "unit": "A",
+     "explanation": "$K(\\tau) = \\sqrt{1 + 2e^{-4\\pi\\tau/(X/R)}}$ = $\\sqrt{1 + 2e^{-4\\pi\\times{{tau}}/{{XR}}}}$ = {{sqrt(1 + 2*exp(-4*pi*tau/XR))||3}}. $I$ = {{sqrt(1 + 2*exp(-4*pi*tau/XR))||3}} × {{I|A}} = {{I*sqrt(1 + 2*exp(-4*pi*tau/XR))|A}}. The frequency does not matter when time is counted in cycles."
+    },
+    {
+     "id": "p5",
+     "type": "multipleChoice",
+     "params": {
+      "Ssc": [
+       3000000000.0,
+       4000000000.0,
+       5000000000.0,
+       6500000000.0,
+       8000000000.0,
+       10000000000.0,
+       12000000000.0
+      ]
+     },
+     "derived": {
+      "If": "Ssc/(sqrt(3)*138e3)"
+     },
+     "prompt": "A 138-kV bus has a fault level of {{Ssc|VA}} and $X/R$ below 15. Which of these standard interrupting ratings is the smallest one that is adequate?",
+     "options": [
+      "20 kA",
+      "31.5 kA",
+      "40 kA",
+      "63 kA"
+     ],
+     "shuffle": false,
+     "answer": "if(If - 20e3, if(If - 31.5e3, if(If - 40e3, 3, 2), 1), 0)",
+     "explanation": "$I''_F = S_{sc}/(\\sqrt3V)$ = {{Ssc|VA}}/(1.732 × 138 kV) = {{If|A}}. With $X/R$ ≤ 15 the symmetrical $E/X$ current can be compared directly with the symmetrical interrupting rating: pick the smallest rating above {{If|A}}."
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "params": {
+      "Zt": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "Xr": [
+       0.05,
+       0.1,
+       0.2
+      ]
+     },
+     "prompt": "A bus has $Z_{th}$ = j{{Zt}} pu (100 MVA). A series reactor of j{{Xr}} pu is added between the bus and its supply. By what percentage does the fault level at the bus fall?",
+     "answer": "100*(1 - Zt/(Zt+Xr))",
+     "unit": "%",
+     "explanation": "$S_{sc} \\propto 1/|Z_{th}|$: before 100/{{Zt}} = {{1e8/Zt|VA}}, after 100/{{Zt+Xr}} = {{1e8/(Zt+Xr)|VA}}. Reduction: 1 − {{Zt}}/{{Zt+Xr}} = {{100*(1 - Zt/(Zt+Xr))|%}}."
+    },
+    {
+     "id": "p7",
+     "type": "trueFalse",
+     "prompt": "To find the fault currents for faults at each of 100 buses, $\\mathbf Z_{bus}$ must be recomputed for every fault location.",
+     "answer": false,
+     "explanation": "$\\mathbf Z_{bus}$ depends only on the network, not on the fault location. Its diagonal holds every bus's Thévenin impedance, so a single matrix gives $I''_F = V_F/Z_{nn}$ for all buses, and its columns give the voltages during each fault."
+    }
+   ]
+  },
+  {
+   "id": "ps-symfaults-4",
+   "title": "Faults with prefault load",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "Xg": [
+       0.15,
+       0.2
+      ],
+      "XL": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "Xm": [
+       0.2,
+       0.25,
+       0.3
+      ],
+      "P": [
+       0.5,
+       0.6,
+       0.8
+      ],
+      "pf": [
+       0.85,
+       0.9
+      ]
+     },
+     "derived": {
+      "Q": "P*tan(acos(pf))",
+      "Xa": "Xg + XL",
+      "Xth": "(Xg + XL)*Xm/(Xg + XL + Xm)",
+      "IF": "(Xg + XL + Xm)/((Xg + XL)*Xm)"
+     },
+     "prompt": "A generator ($X''_g$ = {{Xg}} pu) supplies a motor ($X''_m$ = {{Xm}} pu) through a link of {{XL}} pu. Before the fault the motor bus is at 1.0∠0° pu and the motor draws {{P}} pu at pf {{pf}} lagging. A bolted three-phase fault then occurs at the motor bus.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "E''_g",
+        "polarity": "-+"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "jX''_g"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "jX_L"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "jX''_m"
+       },
+       {
+        "type": "acsource",
+        "from": [
+         6,
+         3
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "E''_m",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          3
+         ],
+         [
+          0,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "switch",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "closed": false,
+        "label": "fault"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         3
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         4,
+         -0.8
+        ],
+        "label": "motor bus"
+       }
+      ]
+     },
+     "ask": [
+      {
+       "prompt": "Find the magnitude of the fault current in per unit.",
+       "answer": "IF",
+       "unit": "pu",
+       "explanation": "Thévenin at the motor bus: $X_{th} = (X''_g + X_L)\\parallel X''_m$ = {{Xa}} ∥ {{Xm}} = {{Xth||4}} pu. $I''_F = V_F/X_{th}$ = 1/{{Xth||4}} = {{IF|pu}}, purely inductive ($-j$); the prefault load current does not change it."
+      },
+      {
+       "prompt": "Find the magnitude of the generator current during the fault, in per unit.",
+       "answer": "sqrt(P^2 + (Q + 1/Xa)^2)",
+       "unit": "pu",
+       "explanation": "Prefault current $I_L = \\mathbf S^*/\\mathbf V^*$ = {{P}} − j{{Q}} pu. The fault-only part divides between the two sides: the generator side ($X_a = X''_g + X_L$ = {{Xa}}) carries $I''_F X''_m/(X_a + X''_m) = 1/X_a$ = −j{{1/Xa||4}} pu. Superposition: $I_g$ = {{P}} − j({{Q}} + {{1/Xa||4}}), so $|I_g|$ = {{sqrt(P^2 + (Q + 1/Xa)^2)|pu}}."
+      },
+      {
+       "prompt": "Find the magnitude of the motor's current during the fault (flowing into the fault), in per unit.",
+       "answer": "sqrt(P^2 + (1/Xm - Q)^2)",
+       "unit": "pu",
+       "explanation": "The motor side carries the rest of the fault-only current: $I''_F X_a/(X_a + X''_m) = 1/X''_m$ = −j{{1/Xm||4}} pu. The prefault current {{P}} − j{{Q}} flowed **into** the motor, so it subtracts: $I_m$ = −{{P}} − j({{1/Xm||4}} − {{Q}}), $|I_m|$ = {{sqrt(P^2 + (1/Xm - Q)^2)|pu}}. Check: $I_g + I_m$ = −j{{IF||4}} = $I''_F$."
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "Xg": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X12": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "X23": [
+       0.1,
+       0.2,
+       0.3
+      ]
+     },
+     "prompt": "A radial system: generator ($X''$ = j{{Xg}} pu) at bus 1, line 1–2 of j{{X12}} pu, line 2–3 of j{{X23}} pu. A bolted three-phase fault occurs at bus 3 ($V_F$ = 1.0 pu). Using $Z_{bus}$, find the voltage at bus 2 during the fault.",
+     "answer": "1 - (Xg + X12)/(Xg + X12 + X23)",
+     "unit": "pu",
+     "explanation": "For this radial network $Z_{33} = X''_g + X_{12} + X_{23}$ = {{Xg + X12 + X23}} and $Z_{23}$ = {{Xg + X12}} (the impedance common to the paths of buses 2 and 3 to the reference). $E_2 = 1 - Z_{23}/Z_{33}$ = {{1 - (Xg + X12)/(Xg + X12 + X23)|pu}}, the same as the divider $X_{23}/Z_{33}$."
+    },
+    {
+     "id": "c3",
+     "type": "orderSteps",
+     "prompt": "Put the steps of a three-phase fault study in order.",
+     "items": [
+      "Draw the per-unit reactance diagram with subtransient machine reactances",
+      "Find the Thévenin impedance at the fault bus (or $Z_{nn}$)",
+      "Compute $I''_F = V_F/Z_{th}$",
+      "Split the fault current into the branches and add prefault currents if required",
+      "Convert to kA with the current base of each zone"
+     ],
+     "explanation": "The network model comes first, then the Thévenin impedance at the fault, the total fault current, its distribution, and finally the conversion to amperes zone by zone."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "Ssc": [
+       600000000.0,
+       750000000.0,
+       1000000000.0
+      ],
+      "Imax": [
+       12000.0,
+       15000.0,
+       20000.0
+      ]
+     },
+     "require": "13.8e3/(sqrt(3)*Imax) - 13.8e3^2/Ssc - 0.03",
+     "prompt": "A 13.8-kV bus has a fault level of {{Ssc|VA}}. What series reactance (in ohms) must be inserted to limit the three-phase fault current to {{Imax|A}}?",
+     "answer": "13.8e3/(sqrt(3)*Imax) - 13.8e3^2/Ssc",
+     "unit": "Ω",
+     "explanation": "Needed total: $Z = V/(\\sqrt3 I)$ = 13.8 kV/(1.732 × {{Imax|A}}) = {{13.8e3/(sqrt(3)*Imax)|Ω}}. Existing: $V^2/S_{sc}$ = {{13.8e3^2/Ssc|Ω}}. Reactor: {{13.8e3/(sqrt(3)*Imax) - 13.8e3^2/Ssc|Ω}} (reactances add, as both are nearly purely inductive)."
+    },
+    {
+     "id": "c5",
+     "type": "multipleChoice",
+     "prompt": "Why must breakers close to large generators cope with more asymmetry than those deep in the distribution network?",
+     "options": [
+      "The X/R ratio is high there, so the DC offset decays slowly",
+      "Generators produce a DC voltage during faults",
+      "The fault current there is purely resistive",
+      "The subtransient reactance is larger than the transient reactance"
+     ],
+     "answer": 0,
+     "explanation": "Generators and large transformers have very high $X/R$ (40 or more), so the DC time constant $T = (X/R)/\\omega$ is long and much offset remains when the contacts part. In distribution networks lines and cables add resistance, $X/R$ is low and the offset dies out within a cycle or two."
+    },
+    {
+     "id": "c6",
+     "type": "numeric",
+     "params": {
+      "XR": [
+       10,
+       20,
+       40
+      ],
+      "tau": [
+       0.5,
+       1.5,
+       2
+      ],
+      "Isym": [
+       20000.0,
+       30000.0
+      ]
+     },
+     "prompt": "A fault with $X/R$ = {{XR}} has a symmetrical current of {{Isym|A}}. Find the rms asymmetrical current (maximum offset) {{tau}} cycles after fault inception.",
+     "answer": "Isym*sqrt(1 + 2*exp(-4*pi*tau/XR))",
+     "unit": "A",
+     "explanation": "$K = \\sqrt{1 + 2e^{-4\\pi\\tau/(X/R)}}$ = {{sqrt(1 + 2*exp(-4*pi*tau/XR))||3}}, so the asymmetrical current is {{Isym*sqrt(1 + 2*exp(-4*pi*tau/XR))|A}}. At τ = 0 the factor would be √3 = 1.73, the theoretical maximum."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,2633 @@
+{
+  "id": "ae-fets",
+  "title": "FET Circuits",
+  "description": "JFETs and MOSFETs in practice: square law, transconductance, followers, current sources, analog switches and power switching.",
+  "reference": "H&H ch. 3",
+  "study": [
+    {
+      "title": "The FET family",
+      "body": "A FET's drain current is set by the gate–source voltage $V_{GS}$; the gate draws essentially no dc current. **JFETs** and **depletion** MOSFETs conduct at $V_{GS}$ = 0 and need reverse gate voltage to turn off. **Enhancement** MOSFETs (almost all MOSFETs you buy) are off at $V_{GS}$ = 0 and conduct beyond the threshold $V_T$. A JFET gate is a pn junction: keep it reverse biased. For p-channel parts every polarity is reversed.",
+      "plot": {
+        "x": {
+          "min": -4,
+          "max": 4,
+          "label": "V_{GS}",
+          "unit": "V"
+        },
+        "y": {
+          "min": 0,
+          "max": 0.011,
+          "label": "I_D",
+          "unit": "A"
+        },
+        "curves": [
+          {
+            "f": "8e-3*(1+x/3)^2",
+            "from": -3,
+            "to": 0,
+            "label": "n-JFET",
+            "color": "blue",
+            "labelAt": 0.3
+          },
+          {
+            "f": "2e-3*(x+1.5)^2",
+            "from": -1.5,
+            "to": 0.5,
+            "label": "depletion",
+            "color": "purple",
+            "labelAt": 0.5
+          },
+          {
+            "f": "2e-3*(x-1.5)^2",
+            "from": 1.5,
+            "to": 3.5,
+            "label": "enhancement",
+            "labelAt": 0.8
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0,
+            "label": "V_{GS} = 0"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: ohmic and saturation regions",
+      "body": "At small $V_{DS}$ the channel is a resistor $R_{DS} \\approx 1/[2k(V_{GS}-V_T)]$ (the **linear** or ohmic region), so a FET is a voltage-controlled resistor. Beyond $V_{DS} = V_{GS} - V_T$ the channel pinches off and the current hardly depends on $V_{DS}$ (**saturation**, the current-source region). For a JFET use $V_T = V_P$ (pinch-off) and $k = I_{DSS}/V_P^2$. The graph: $k$ = 0.5 mA/V², $V_T$ = 2 V.",
+      "formula": "I_D = k(V_{GS}-V_T)^2",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 8,
+          "label": "V_{DS}",
+          "unit": "V"
+        },
+        "y": {
+          "min": 0,
+          "max": 0.005,
+          "label": "I_D",
+          "unit": "A"
+        },
+        "sliders": [
+          {
+            "name": "vgs",
+            "label": "$V_{GS}$",
+            "min": 2.5,
+            "max": 5,
+            "step": 0.1,
+            "value": 3.5,
+            "unit": "V"
+          }
+        ],
+        "let": {
+          "ov": "vgs - 2"
+        },
+        "curves": [
+          {
+            "f": "0.5e-3*x^2",
+            "to": 3.1,
+            "color": "grey",
+            "dash": true,
+            "label": "boundary",
+            "labelAt": 0.95
+          },
+          {
+            "f": "0.5e-3*(2*ov*min(x, ov) - min(x, ov)^2)",
+            "label": "I_D",
+            "labelAt": 0.8
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$I_D$ in saturation",
+            "value": "0.5e-3*ov^2",
+            "unit": "A"
+          },
+          {
+            "label": "$R_{DS}$ at small $V_{DS}$",
+            "value": "1/(1e-3*ov)",
+            "unit": "Ω"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: transconductance",
+      "body": "In saturation $g_m = \\Delta I_D/\\Delta V_{GS}$ grows only as $\\sqrt{I_D}$, while a BJT has $g_m = I_C/(25\\text{ mV})$. At 1 mA a small-signal FET has only about 0.5–3 mS, against 40 mS for a BJT; at very low currents it approaches $I_D/(40\\ldots60\\text{ mV})$ at best. So FETs are chosen for their zero gate current, not for their gain.",
+      "formula": "g_m = 2\\sqrt{kI_D} = \\frac{2I_D}{V_{GS}-V_T}",
+      "plot": {
+        "x": {
+          "min": 1e-05,
+          "max": 0.1,
+          "log": true,
+          "label": "I_D, I_C",
+          "unit": "A"
+        },
+        "y": {
+          "min": 0.0001,
+          "max": 10,
+          "log": true,
+          "label": "g_m",
+          "unit": "S"
+        },
+        "sliders": [
+          {
+            "name": "k",
+            "label": "FET $k$",
+            "min": 0.0001,
+            "max": 1,
+            "log": true,
+            "value": 0.001,
+            "unit": "A/V²"
+          }
+        ],
+        "curves": [
+          {
+            "f": "x/0.025",
+            "label": "BJT",
+            "color": "grey",
+            "labelAt": 0.75
+          },
+          {
+            "f": "min(2*sqrt(k*x), x/0.05)",
+            "label": "FET",
+            "labelAt": 0.85
+          }
+        ],
+        "readouts": [
+          {
+            "label": "FET $g_m$ at 1 mA",
+            "value": "min(2*sqrt(k*1e-3), 1e-3/0.05)",
+            "unit": "S"
+          },
+          {
+            "label": "BJT $g_m$ at 1 mA",
+            "value": "0.04",
+            "unit": "S"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Common-source amplifier and source follower",
+      "body": "Output at the drain: a **common-source** amplifier with gain $-g_mR_D$ (source bypassed), or $-g_mR_D/(1+g_mR_S)$ with an unbypassed $R_S$ (≈ $-R_D/R_S$ if $g_mR_S \\gg 1$). Output at the source: a **source follower** with gain somewhat below 1 and output resistance $1/g_m \\parallel R_S$. With $g_m$ = 2 mS that is about 500 Ω, versus 25 Ω for an emitter follower at 1 mA.",
+      "formula": "A_{CS} = -g_mR_D \\qquad A_{SF} = \\frac{g_mR_S}{1+g_mR_S}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "terminal",
+            "at": [
+              3,
+              0
+            ],
+            "label": "+V_{DD}"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "R_D"
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              2
+            ],
+            "label": "v_D"
+          },
+          {
+            "type": "nmos",
+            "at": [
+              3,
+              3
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              3
+            ],
+            "label": "v_{in}",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                3
+              ],
+              [
+                2,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              4
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                4
+              ],
+              [
+                5,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              4
+            ],
+            "label": "v_S"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              4
+            ],
+            "to": [
+              3,
+              6
+            ],
+            "label": "R_S"
+          },
+          {
+            "type": "ground",
+            "at": [
+              3,
+              6
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "JFET current sources and self-bias",
+      "body": "With gate tied to source a JFET passes about $I_{DSS}$ as long as $V_{DS}$ exceeds $|V_P|$: a two-terminal current source. A source resistor lowers the current, because $V_{GS} = -I_DR_S$ becomes negative; the same trick self-biases a JFET amplifier with one gate resistor to ground. $I_{DSS}$ varies by up to a factor 5 between parts of one type, and $V_P$ by several volts, so trim $R_S$ (or use an op-amp current source) when accuracy matters. ($J_1$ is an n-channel JFET.)",
+      "formula": "I_D = I_{DSS}\\left(1-\\frac{V_{GS}}{V_P}\\right)^2",
+      "circuit": {
+        "elements": [
+          {
+            "type": "terminal",
+            "at": [
+              3,
+              0
+            ],
+            "label": "+V"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "R_L",
+            "value": "load"
+          },
+          {
+            "type": "nmos",
+            "at": [
+              3,
+              3
+            ],
+            "label": "J_1"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              4
+            ],
+            "to": [
+              3,
+              6
+            ],
+            "label": "R_S"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                3
+              ],
+              [
+                1.5,
+                3
+              ],
+              [
+                1.5,
+                6
+              ],
+              [
+                3,
+                6
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              6
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              3,
+              6
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Analog switches",
+      "body": "A MOSFET in the ohmic region passes signals both ways. A single NMOS conducts badly when the signal approaches its gate drive, so CMOS switches put an NMOS and a PMOS in parallel with opposite gate signals (a **transmission gate**): $R_{ON}$ stays low (5–100 Ω) over the whole supply range. Limits: signals must stay within the rails, $R_{ON}$ and the load capacitance form a low-pass, and at turn-off the gate edge dumps a charge $Q_{inj}$ (a few pC) into the load. A multiplexer is a set of such switches plus a decoder.",
+      "formula": "\\Delta V = \\frac{Q_{inj}}{C_L}, \\qquad \\tau = R_{ON}C_L",
+      "circuit": {
+        "elements": [
+          {
+            "type": "nmos",
+            "at": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "pmos",
+            "at": [
+              5,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                3
+              ],
+              [
+                5,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3.5,
+              1
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3.5,
+              3
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3.5,
+                1
+              ],
+              [
+                3.5,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              3.5,
+              0
+            ],
+            "label": "v_{in}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3.5,
+                3
+              ],
+              [
+                3.5,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              3.5,
+              4
+            ],
+            "label": "v_{out}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                2
+              ],
+              [
+                0.5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0.5,
+              2
+            ],
+            "label": "φ",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                3.6,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              3.6,
+              2
+            ],
+            "label": "~φ",
+            "flip": true
+          }
+        ]
+      }
+    },
+    {
+      "title": "MOSFET as a power switch",
+      "body": "Low-side switch: load from $V_{DD}$ to the drain, source to ground. Use a **logic-level** MOSFET whose $R_{DS(on)}$ is specified at the gate voltage you have ($V_{GS(th)}$ is only where conduction begins); conduction loss is $I_D^2R_{DS(on)}$. The driver must deliver the gate charge $Q_g$: $t_{sw} \\approx Q_g/I_G$, and each edge costs switching loss. Inductive loads need a flyback diode, otherwise the drain flies up until the MOSFET avalanches (its built-in source–drain body diode does not help here).",
+      "formula": "P_{sw} \\approx \\tfrac{1}{2}V_{DD}I_D(t_r+t_f)f",
+      "circuit": {
+        "elements": [
+          {
+            "type": "terminal",
+            "at": [
+              1.5,
+              0
+            ],
+            "label": "+V_{DD}",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1.5,
+                0
+              ],
+              [
+                4.5,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              0
+            ]
+          },
+          {
+            "type": "inductor",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "L",
+            "value": "load",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2
+              ],
+              [
+                4.5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              2
+            ]
+          },
+          {
+            "type": "diode",
+            "from": [
+              4.5,
+              2
+            ],
+            "to": [
+              4.5,
+              0
+            ],
+            "label": "D_1"
+          },
+          {
+            "type": "nmos",
+            "at": [
+              3,
+              3
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "ground",
+            "at": [
+              3,
+              4
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              3
+            ],
+            "label": "logic",
+            "flip": true
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              3
+            ],
+            "to": [
+              1.5,
+              3
+            ],
+            "label": "R_G"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1.5,
+                3
+              ],
+              [
+                2,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              1.5,
+              3
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              1.5,
+              3
+            ],
+            "to": [
+              1.5,
+              5
+            ],
+            "label": "R_{GS}",
+            "flip": true
+          },
+          {
+            "type": "ground",
+            "at": [
+              1.5,
+              5
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ae-fets-1",
+      "title": "FET types and regions",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Voltage-controlled devices",
+          "body": "A FET is controlled by $V_{GS}$, not by an input current: the MOSFET gate is insulated by oxide, the JFET gate is a reverse-biased junction (pA–nA leakage). FETs come as n- or p-channel, and as **depletion** types (conducting at $V_{GS}$ = 0: all JFETs and depletion MOSFETs) or **enhancement** types (off at $V_{GS}$ = 0). The graph shows the transfer curves of three n-channel parts.",
+          "plot": {
+            "x": {
+              "min": -4,
+              "max": 4,
+              "label": "V_{GS}",
+              "unit": "V"
+            },
+            "y": {
+              "min": 0,
+              "max": 0.011,
+              "label": "I_D",
+              "unit": "A"
+            },
+            "curves": [
+              {
+                "f": "8e-3*(1+x/3)^2",
+                "from": -3,
+                "to": 0,
+                "label": "n-JFET",
+                "color": "blue",
+                "labelAt": 0.3
+              },
+              {
+                "f": "2e-3*(x+1.5)^2",
+                "from": -1.5,
+                "to": 0.5,
+                "label": "depletion",
+                "color": "purple",
+                "labelAt": 0.5
+              },
+              {
+                "f": "2e-3*(x-1.5)^2",
+                "from": 1.5,
+                "to": 3.5,
+                "label": "enhancement",
+                "labelAt": 0.8
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0,
+                "label": "V_{GS} = 0"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each device to its gate behaviour.",
+          "pairs": [
+            [
+              "n-channel JFET",
+              "On at 0 V; gate junction must stay reverse biased"
+            ],
+            [
+              "n-channel enhancement MOSFET",
+              "Off at 0 V; on for $V_{GS} > V_T > 0$"
+            ],
+            [
+              "p-channel enhancement MOSFET",
+              "Off at 0 V; on for $V_{GS} < V_T < 0$"
+            ],
+            [
+              "n-channel depletion MOSFET",
+              "On at 0 V; gate may swing either way"
+            ]
+          ],
+          "explanation": "Depletion devices (JFETs, depletion MOSFETs) have a channel at $V_{GS}$ = 0; enhancement MOSFETs need $|V_{GS}| > |V_T|$ to create one. The insulated gate of a depletion MOSFET may go positive or negative, while a JFET gate must stay reverse biased (forward bias above about 0.5 V makes the gate conduct). p-channel parts use the opposite polarities."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Which transfer curve belongs to a **p-channel enhancement** MOSFET? (Horizontal axis $V_{GS}$, vertical line at $V_{GS}$ = 0, vertical axis $|I_D|$.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -4,
+                "max": 4,
+                "label": "V_{GS}",
+                "unit": "V"
+              },
+              "y": {
+                "min": 0,
+                "max": 0.009,
+                "label": "|I_D|",
+                "unit": "A"
+              },
+              "curves": [
+                {
+                  "f": "2e-3*(x+1.5)^2",
+                  "from": -3.5,
+                  "to": -1.5
+                }
+              ],
+              "vlines": [
+                {
+                  "x": 0
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -4,
+                "max": 4,
+                "label": "V_{GS}",
+                "unit": "V"
+              },
+              "y": {
+                "min": 0,
+                "max": 0.009,
+                "label": "|I_D|",
+                "unit": "A"
+              },
+              "curves": [
+                {
+                  "f": "2e-3*(x-1.5)^2",
+                  "from": 1.5,
+                  "to": 3.5
+                }
+              ],
+              "vlines": [
+                {
+                  "x": 0
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -4,
+                "max": 4,
+                "label": "V_{GS}",
+                "unit": "V"
+              },
+              "y": {
+                "min": 0,
+                "max": 0.009,
+                "label": "|I_D|",
+                "unit": "A"
+              },
+              "curves": [
+                {
+                  "f": "8e-3*(1+x/3)^2",
+                  "from": -3,
+                  "to": 0
+                }
+              ],
+              "vlines": [
+                {
+                  "x": 0
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -4,
+                "max": 4,
+                "label": "V_{GS}",
+                "unit": "V"
+              },
+              "y": {
+                "min": 0,
+                "max": 0.009,
+                "label": "|I_D|",
+                "unit": "A"
+              },
+              "curves": [
+                {
+                  "f": "8e-3*(1-x/3)^2",
+                  "from": 0,
+                  "to": 3
+                }
+              ],
+              "vlines": [
+                {
+                  "x": 0
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "Enhancement means no current at $V_{GS}$ = 0; p-channel means the gate must go **negative** beyond $V_T$ (here about −1.5 V). The curve starting at +1.5 V is the n-channel enhancement MOSFET. The two curves that conduct at $V_{GS}$ = 0 are JFETs: the n-JFET turns off for negative, the p-JFET for positive gate voltages."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Explore: two regions",
+          "body": "Drag $V_{GS}$. Left of the dashed boundary is the ohmic region: near the origin the curve is almost a straight line, so the FET acts as a resistor whose value is set by $V_{GS}$ (it bends over as $V_{DS}$ approaches $V_{GS}-V_T$). Right of the boundary the current is flat: the FET is a current source with $I_D = k(V_{GS}-V_T)^2$. Here $k$ = 0.5 mA/V² and $V_T$ = 2 V.",
+          "formula": "\\text{saturation if } V_{DS} > V_{GS}-V_T",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 8,
+              "label": "V_{DS}",
+              "unit": "V"
+            },
+            "y": {
+              "min": 0,
+              "max": 0.005,
+              "label": "I_D",
+              "unit": "A"
+            },
+            "sliders": [
+              {
+                "name": "vgs",
+                "label": "$V_{GS}$",
+                "min": 2.5,
+                "max": 5,
+                "step": 0.1,
+                "value": 3.5,
+                "unit": "V"
+              }
+            ],
+            "let": {
+              "ov": "vgs - 2"
+            },
+            "curves": [
+              {
+                "f": "0.5e-3*x^2",
+                "to": 3.1,
+                "color": "grey",
+                "dash": true,
+                "label": "boundary",
+                "labelAt": 0.95
+              },
+              {
+                "f": "0.5e-3*(2*ov*min(x, ov) - min(x, ov)^2)",
+                "label": "I_D",
+                "labelAt": 0.8
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$I_D$ in saturation",
+                "value": "0.5e-3*ov^2",
+                "unit": "A"
+              },
+              {
+                "label": "$R_{DS}$ at small $V_{DS}$",
+                "value": "1/(1e-3*ov)",
+                "unit": "Ω"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "k": [
+              0.0005,
+              0.001,
+              0.002,
+              0.005
+            ],
+            "VT": [
+              1.5,
+              2,
+              2.5
+            ],
+            "VGS": [
+              3.5,
+              4,
+              4.5,
+              5
+            ]
+          },
+          "require": "VGS - VT - 0.9",
+          "prompt": "An n-channel MOSFET has $k$ = {{k*1000}} mA/V² and $V_T$ = {{VT|V}}. Find $I_D$ at $V_{GS}$ = {{VGS|V}} and $V_{DS}$ = 10 V.",
+          "answer": "k*(VGS - VT)^2",
+          "unit": "A",
+          "explanation": "$V_{DS}$ = 10 V is larger than $V_{GS}-V_T$ = {{VGS-VT|V}}, so the FET is in saturation:\n$I_D = k(V_{GS}-V_T)^2$ = {{k*1000}} mA/V² × ({{VGS-VT|V}})² = {{k*(VGS-VT)^2|A}}."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "params": {
+            "VT": [
+              1,
+              1.5,
+              2
+            ],
+            "VGS": [
+              3,
+              4,
+              5
+            ],
+            "VDS": [
+              0.5,
+              1,
+              2,
+              3,
+              4,
+              6
+            ]
+          },
+          "require": "abs(VDS - (VGS - VT)) - 0.4",
+          "prompt": "An n-channel MOSFET with $V_T$ = {{VT|V}} has $V_{GS}$ = {{VGS|V}} and $V_{DS}$ = {{VDS|V}}. It operates in saturation (the current-source region).",
+          "answer": "VDS - (VGS - VT)",
+          "explanation": "Saturation needs $V_{DS} > V_{GS}-V_T$ = {{VGS|V}} − {{VT|V}} = {{VGS-VT|V}}. Here $V_{DS}$ = {{VDS|V}}. If $V_{DS}$ is smaller, the channel is not pinched off and the FET behaves as a resistor (ohmic region), as in a switch that is fully on."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Transconductance",
+          "body": "The small-signal gain of a FET is its transconductance $g_m = \\Delta I_D/\\Delta V_{GS}$. Differentiating the square law gives the formulas below. Compare a BJT: $g_m = I_C/25$ mV. At 1 mA a BJT has 40 mS; a FET with $V_{GS}-V_T$ = 1 V has only $2 \\cdot 1\\text{ mA}/1\\text{ V}$ = 2 mS.",
+          "formula": "g_m = 2\\sqrt{kI_D} = \\frac{2I_D}{V_{GS}-V_T}"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "ID": [
+              0.0005,
+              0.001,
+              0.002,
+              0.005
+            ],
+            "Vov": [
+              0.5,
+              1,
+              1.5,
+              2
+            ]
+          },
+          "prompt": "A MOSFET runs at $I_D$ = {{ID|A}} with $V_{GS}-V_T$ = {{Vov|V}}.",
+          "ask": [
+            {
+              "prompt": "Find its transconductance $g_m$.",
+              "answer": "2*ID/Vov",
+              "unit": "S",
+              "explanation": "$g_m = \\frac{2I_D}{V_{GS}-V_T}$ = 2 × {{ID|A}} / {{Vov|V}} = {{2*ID/Vov|S}}."
+            },
+            {
+              "prompt": "How many times larger is the $g_m$ of a BJT at the same current?",
+              "answer": "Vov/0.05",
+              "unit": "",
+              "explanation": "BJT: $g_m = I_C/25\\text{ mV}$ = {{ID/0.025|S}}. FET: $2I_D/(V_{GS}-V_T)$ = {{2*ID/Vov|S}}.\nRatio: $\\frac{V_{GS}-V_T}{2 \\times 25\\text{ mV}}$ = {{Vov/0.05}}."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Doubling the drain current of a MOSFET in saturation doubles its transconductance.",
+          "answer": false,
+          "explanation": "$g_m = 2\\sqrt{kI_D}$, so doubling $I_D$ raises $g_m$ by only $\\sqrt{2}$ ≈ 1.41. (A BJT's $g_m = I_C/25$ mV does double.)"
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "When is a FET input stage clearly the better choice than a BJT?",
+          "options": [
+            "The source has 10 MΩ internal resistance",
+            "You need the most voltage gain per milliamp",
+            "You need the lowest possible offset voltage",
+            "A follower must have the lowest output resistance"
+          ],
+          "answer": 0,
+          "explanation": "A FET draws (almost) no gate current, so a 10 MΩ source sees no loading or bias-current error. For gain, low offset and low follower output resistance ($1/g_m$) a BJT wins, because its $g_m$ is much higher and its $V_{BE}$ is better matched."
+        }
+      ]
+    },
+    {
+      "id": "ae-fets-2",
+      "title": "Amplifiers, followers and current sources",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "k": [
+              0.001,
+              0.002,
+              0.004
+            ],
+            "ID": [
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "RD": [
+              2200,
+              4700,
+              10000
+            ],
+            "RS": [
+              470,
+              1000
+            ]
+          },
+          "derived": {
+            "gm": "2*sqrt(k*ID)"
+          },
+          "require": "12 - ID*RD",
+          "prompt": "The common-source amplifier is biased at $I_D$ = {{ID|A}}; the MOSFET has $k$ = {{k*1000}} mA/V². $C_S$ bypasses $R_S$ for signals.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  0
+                ],
+                "label": "+15 V"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "R_D",
+                "value": "{{RD|Ω}}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "nmos",
+                "at": [
+                  3,
+                  3
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  3
+                ],
+                "label": "v_{in}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  4
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  4
+                ],
+                "to": [
+                  3,
+                  6
+                ],
+                "label": "R_S",
+                "flip": true,
+                "value": "{{RS|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    4
+                  ],
+                  [
+                    4.5,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4.5,
+                  4
+                ],
+                "to": [
+                  4.5,
+                  6
+                ],
+                "label": "C_S"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    6
+                  ],
+                  [
+                    4.5,
+                    6
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  6
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  6
+                ]
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find $g_m$.",
+              "answer": "gm",
+              "unit": "S",
+              "explanation": "$g_m = 2\\sqrt{kI_D}$ = 2√({{k*1000}} mA/V² × {{ID|A}}) = {{gm|S}}."
+            },
+            {
+              "prompt": "Find the voltage gain $v_o/v_{in}$ (with sign).",
+              "answer": "-gm*RD",
+              "unit": "",
+              "explanation": "$g_m = 2\\sqrt{kI_D}$ = {{gm|S}}.\n$A_v = -g_mR_D$ = −{{gm|S}} × {{RD|Ω}} = {{-gm*RD}}. A BJT with $g_m = I_C/25$ mV would give {{-ID/0.025*RD}}."
+            },
+            {
+              "prompt": "$C_S$ is removed, so $R_S$ is no longer bypassed. Find the new gain (with sign).",
+              "answer": "-gm*RD/(1 + gm*RS)",
+              "unit": "",
+              "explanation": "$g_m$ = {{gm|S}}. The source resistor gives local feedback:\n$A_v = -\\frac{g_mR_D}{1+g_mR_S}$ = −{{gm*RD}}/(1 + {{gm*RS}}) = {{-gm*RD/(1+gm*RS)}}. Less gain, but less dependent on $g_m$."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "gm": [
+              0.001,
+              0.002,
+              0.005,
+              0.01
+            ],
+            "RS": [
+              1000,
+              2200,
+              4700
+            ]
+          },
+          "prompt": "A source follower is biased where $g_m$ = {{gm|S}}; $R_S$ = {{RS|Ω}}.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  2,
+                  0
+                ],
+                "label": "+V_{DD}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    2,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "nmos",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  2
+                ],
+                "label": "v_{in}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    3
+                  ],
+                  [
+                    3.5,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3.5,
+                  3
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  2,
+                  5
+                ],
+                "label": "R_S",
+                "flip": true,
+                "value": "{{RS|Ω}}"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  2,
+                  5
+                ]
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find the voltage gain.",
+              "answer": "gm*RS/(1 + gm*RS)",
+              "unit": "",
+              "explanation": "$A_v = \\frac{g_mR_S}{1+g_mR_S}$ = {{gm*RS}}/(1 + {{gm*RS}}) = {{gm*RS/(1+gm*RS)||4}}. A FET follower loses noticeably more than an emitter follower."
+            },
+            {
+              "prompt": "Find the output resistance.",
+              "answer": "par(1/gm, RS)",
+              "unit": "Ω",
+              "explanation": "Looking into the source you see $1/g_m$ = {{1/gm|Ω}}, in parallel with $R_S$:\n$R_{out} = \\frac{1}{g_m}\\parallel R_S$ = {{par(1/gm, RS)|Ω}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "IDSS": [
+              0.004,
+              0.008,
+              0.012
+            ],
+            "VP": [
+              -2,
+              -3,
+              -4
+            ],
+            "I": [
+              0.001,
+              0.002
+            ]
+          },
+          "require": "IDSS - 1.9*I",
+          "derived": {
+            "VGS": "VP*(1 - sqrt(I/IDSS))",
+            "RSt": "-VGS/I"
+          },
+          "prompt": "An n-JFET has $I_{DSS}$ = {{IDSS|A}} and $V_P$ = {{VP|V}}. Which $R_S$ makes this current sink carry {{I|A}}?",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  0
+                ],
+                "label": "+V"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "R_L",
+                "value": "load"
+              },
+              {
+                "type": "nmos",
+                "at": [
+                  3,
+                  3
+                ],
+                "label": "J_1"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  4
+                ],
+                "to": [
+                  3,
+                  6
+                ],
+                "label": "R_S"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    3
+                  ],
+                  [
+                    1.5,
+                    3
+                  ],
+                  [
+                    1.5,
+                    6
+                  ],
+                  [
+                    3,
+                    6
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  6
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  6
+                ]
+              }
+            ]
+          },
+          "answer": "RSt",
+          "unit": "Ω",
+          "explanation": "Solve the square law for $V_{GS}$: $V_{GS} = V_P\\left(1-\\sqrt{I_D/I_{DSS}}\\right)$ = {{VP|V}} × (1 − √{{I/IDSS||3}}) = {{VGS|V}}.\nThe gate is at the bottom of $R_S$, so $V_{GS} = -I_DR_S$: $R_S = -V_{GS}/I_D$ = {{-VGS|V}}/{{I|A}} = {{RSt|Ω}}."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "IDSS": [
+              0.006,
+              0.008,
+              0.01
+            ],
+            "VP": [
+              -2,
+              -3,
+              -4
+            ],
+            "I": [
+              0.001,
+              0.002,
+              0.003
+            ]
+          },
+          "require": "IDSS - 1.9*I",
+          "derived": {
+            "VGSt": "VP*(1 - sqrt(I/IDSS))",
+            "RSt": "-VGSt/I"
+          },
+          "prompt": "Self-bias of a JFET ($I_{DSS}$ = {{IDSS|A}}, $V_P$ = {{VP|V}}). Set $R_S$ so the bias line $I_D = -V_{GS}/R_S$ crosses the transfer curve at $I_D$ = {{I|A}} (green point).",
+          "plot": {
+            "x": {
+              "min": "VP",
+              "max": 0,
+              "label": "V_{GS}",
+              "unit": "V"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.1*IDSS",
+              "label": "I_D",
+              "unit": "A"
+            },
+            "sliders": [
+              {
+                "name": "RS",
+                "label": "$R_S$",
+                "min": 100,
+                "max": 10000,
+                "log": true,
+                "value": 10000,
+                "unit": "Ω"
+              }
+            ],
+            "curves": [
+              {
+                "f": "IDSS*(1 - x/VP)^2",
+                "label": "transfer curve",
+                "labelAt": 0.75
+              },
+              {
+                "f": "-x/RS",
+                "color": "orange",
+                "label": "bias line",
+                "labelAt": 0.15
+              }
+            ],
+            "points": [
+              {
+                "x": "VGSt",
+                "y": "I",
+                "color": "green"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$R_S$ needed",
+                "value": "RSt",
+                "unit": "Ω",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "RS": "RSt"
+          },
+          "tolerance": 0.05,
+          "explanation": "At $I_D$ = {{I|A}} the transfer curve gives $V_{GS} = V_P(1-\\sqrt{I_D/I_{DSS}})$ = {{VGSt|V}}. The bias line must pass through that point: $R_S = -V_{GS}/I_D$ = {{RSt|Ω}}. A larger $R_S$ makes the line flatter and the current smaller."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "k": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "VT": [
+              1,
+              1.5,
+              2
+            ],
+            "VGS": [
+              3,
+              4,
+              5
+            ],
+            "Rt": [
+              100,
+              200,
+              500
+            ]
+          },
+          "prompt": "A MOSFET with $k$ = {{k*1000}} mA/V² and $V_T$ = {{VT|V}} is used at small $V_{DS}$ as a voltage-controlled resistor.",
+          "ask": [
+            {
+              "prompt": "Find $R_{DS}$ at $V_{GS}$ = {{VGS|V}}.",
+              "answer": "1/(2*k*(VGS - VT))",
+              "unit": "Ω",
+              "explanation": "In the ohmic region near $V_{DS}$ = 0: $R_{DS} = \\frac{1}{2k(V_{GS}-V_T)}$ = 1/(2 × {{k*1000}} mA/V² × {{VGS-VT|V}}) = {{1/(2*k*(VGS-VT))|Ω}}."
+            },
+            {
+              "prompt": "Which $V_{GS}$ gives $R_{DS}$ = {{Rt|Ω}}?",
+              "answer": "VT + 1/(2*k*Rt)",
+              "unit": "V",
+              "explanation": "From $R_{DS} = \\frac{1}{2k(V_{GS}-V_T)}$: $V_{GS} = V_T + \\frac{1}{2kR_{DS}}$ = {{VT|V}} + {{1/(2*k*Rt)|V}} = {{VT + 1/(2*k*Rt)|V}}."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "gm0": [
+              0.002,
+              0.004,
+              0.006,
+              0.01
+            ],
+            "IDSS": [
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "require": "8 - 2*IDSS/gm0",
+          "prompt": "A JFET datasheet gives $g_m$ = {{gm0|S}} at $V_{GS}$ = 0 ($I_D = I_{DSS}$ = {{IDSS|A}}). You bias it halfway to pinch-off, $V_{GS} = V_P/2$.",
+          "ask": [
+            {
+              "prompt": "Estimate $g_m$ there.",
+              "answer": "gm0/2",
+              "unit": "S",
+              "explanation": "$g_m = 2k(V_{GS}-V_P)$ is proportional to the distance from pinch-off. Halfway there it is half the datasheet value: {{gm0/2|S}}."
+            },
+            {
+              "prompt": "Estimate $I_D$ there.",
+              "answer": "IDSS/4",
+              "unit": "A",
+              "explanation": "$I_D = I_{DSS}(1 - V_{GS}/V_P)^2 = I_{DSS}(1/2)^2$ = {{IDSS/4|A}}."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A JFET source follower and an emitter follower both run at 1 mA. The JFET has $g_m$ = 2 mS. Their output resistances (ignoring $R_S$, $R_E$ and the source resistance) are about:",
+          "options": [
+            "JFET 500 Ω, BJT 25 Ω",
+            "JFET 25 Ω, BJT 500 Ω",
+            "JFET 2 kΩ, BJT 25 Ω",
+            "both about 500 Ω"
+          ],
+          "answer": 0,
+          "explanation": "A follower's output resistance is $1/g_m$. JFET: 1/2 mS = 500 Ω. BJT: $g_m$ = 1 mA/25 mV = 40 mS, so 25 Ω. The BJT follower is about 20 times stiffer, unless the source resistance is so high that its $R_s/\\beta$ term dominates."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "A JFET current source (gate tied to source) keeps its current constant even when its drain–source voltage drops to 0.2 V.",
+          "answer": false,
+          "explanation": "With $V_{GS}$ = 0 it stays in saturation only while $V_{DS} > V_{GS}-V_P = |V_P|$ (typically 1–5 V). At 0.2 V it is in the ohmic region and acts as a resistor, so the current falls. Every current source needs some 'compliance' voltage."
+        }
+      ]
+    },
+    {
+      "id": "ae-fets-3",
+      "title": "Analog and power switches",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Q": [
+              2e-12,
+              5e-12,
+              1e-11,
+              2e-11
+            ],
+            "CH": [
+              1e-10,
+              1e-09,
+              1e-08
+            ],
+            "dV": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "prompt": "When an analog switch opens, it injects $Q_{inj}$ = {{Q|C}} into the hold capacitor $C_H$.",
+          "ask": [
+            {
+              "prompt": "With $C_H$ = {{CH|F}}, how big is the step (pedestal) in the held voltage?",
+              "answer": "Q/CH",
+              "unit": "V",
+              "explanation": "$\\Delta V = \\frac{Q_{inj}}{C_H}$ = {{Q|C}} / {{CH|F}} = {{Q/CH|V}}."
+            },
+            {
+              "prompt": "What is the smallest $C_H$ that keeps the step below {{dV|V}}?",
+              "answer": "Q/dV",
+              "unit": "F",
+              "explanation": "$C_H \\ge \\frac{Q_{inj}}{\\Delta V}$ = {{Q|C}} / {{dV|V}} = {{Q/dV|F}}. A bigger capacitor reduces the glitch but makes the switch slower to follow the signal ($\\tau = R_{ON}C_H$)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Ron": [
+              25,
+              50,
+              100,
+              200
+            ],
+            "CH": [
+              1e-09,
+              1e-08,
+              4.7e-08
+            ]
+          },
+          "prompt": "A switch with $R_{ON}$ = {{Ron|Ω}} charges a hold capacitor $C_H$ = {{CH|F}} from a stiff source.",
+          "ask": [
+            {
+              "prompt": "Find the time constant.",
+              "answer": "Ron*CH",
+              "unit": "s",
+              "explanation": "$\\tau = R_{ON}C_H$ = {{Ron|Ω}} × {{CH|F}} = {{Ron*CH|s}}."
+            },
+            {
+              "prompt": "How long must the switch stay closed to settle within 0.1 % of a full-scale step?",
+              "answer": "Ron*CH*ln(1000)",
+              "unit": "s",
+              "explanation": "The error decays as $e^{-t/\\tau}$; 0.1 % needs $t = \\tau\\ln(1000) \\approx 6.9\\tau$ = 6.9 × {{Ron*CH|s}} = {{Ron*CH*ln(1000)|s}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "Why does a CMOS analog switch use an NMOS and a PMOS in parallel?",
+          "options": [
+            "Each alone has a high $R_{ON}$ near one rail; together $R_{ON}$ stays low over the whole range",
+            "To double the current rating",
+            "To cancel the body diodes",
+            "So it can pass signals beyond the supply rails"
+          ],
+          "answer": 0,
+          "explanation": "The NMOS needs $V_{GS} = V_{DD} - v_{signal}$ well above $V_T$, so it fails near the positive rail; the PMOS fails near the negative rail. In parallel one of them always conducts well, so the transmission gate has a fairly flat $R_{ON}$. The signal must still stay between the rails, or the drain–body junctions conduct."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "I": [
+              2,
+              5,
+              10
+            ],
+            "Rds": [
+              0.005,
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "A MOSFET switch carries a dc current of {{I|A}}. Its $R_{DS(on)}$ = {{Rds|Ω}} at 25 °C.",
+          "ask": [
+            {
+              "prompt": "Find the conduction loss at 25 °C.",
+              "answer": "I^2*Rds",
+              "unit": "W",
+              "explanation": "$P = I^2R_{DS(on)}$ = ({{I|A}})² × {{Rds|Ω}} = {{I^2*Rds|W}}."
+            },
+            {
+              "prompt": "When hot, $R_{DS(on)}$ rises by about 50 %. Find the conduction loss then.",
+              "answer": "1.5*I^2*Rds",
+              "unit": "W",
+              "explanation": "$P = I^2 \\times 1.5R_{DS(on)}$ = ({{I|A}})² × {{1.5*Rds|Ω}} = {{1.5*I^2*Rds|W}}. Always use the hot value from the datasheet curve when sizing the heatsink."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Qg": [
+              1e-08,
+              2e-08,
+              5e-08,
+              1e-07
+            ],
+            "IG": [
+              0.01,
+              0.02,
+              0.1,
+              1
+            ]
+          },
+          "prompt": "A power MOSFET has a total gate charge $Q_g$ = {{Qg|C}}. The gate driver supplies {{IG|A}}. Estimate the switching time.",
+          "answer": "Qg/IG",
+          "unit": "s",
+          "explanation": "$t_{sw} \\approx \\frac{Q_g}{I_G}$ = {{Qg|C}} / {{IG|A}} = {{Qg/IG|s}}. A microcontroller pin (≈ 20 mA) is slow for large MOSFETs; a gate driver delivering amperes switches in tens of ns."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "V": [
+              12,
+              24,
+              48
+            ],
+            "I": [
+              2,
+              5,
+              10
+            ],
+            "tsw": [
+              5e-08,
+              1e-07,
+              2e-07
+            ],
+            "f": [
+              20000.0,
+              50000.0,
+              100000.0
+            ]
+          },
+          "prompt": "A MOSFET switches {{I|A}} at {{V|V}} with $t_r = t_f$ = {{tsw|s}} at $f$ = {{f|Hz}}. Estimate the switching loss.",
+          "answer": "0.5*V*I*2*tsw*f",
+          "unit": "W",
+          "explanation": "During each edge voltage and current overlap; the estimate is\n$P_{sw} \\approx \\tfrac{1}{2}V I(t_r+t_f)f$ = 0.5 × {{V|V}} × {{I|A}} × {{2*tsw|s}} × {{f|Hz}} = {{V*I*tsw*f|W}}.\nIt grows with frequency, so fast gate drive matters at high PWM rates."
+        },
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "Tap the component that protects $Q_1$ when it switches off the inductive load.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  1.5,
+                  0
+                ],
+                "label": "+V_{DD}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1.5,
+                    0
+                  ],
+                  [
+                    4.5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  0
+                ]
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "L",
+                "value": "load",
+                "flip": true,
+                "name": "L1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    4.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  4.5,
+                  2
+                ],
+                "to": [
+                  4.5,
+                  0
+                ],
+                "label": "D_1",
+                "name": "D1"
+              },
+              {
+                "type": "nmos",
+                "at": [
+                  3,
+                  3
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  4
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  3
+                ],
+                "label": "logic",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  1.5,
+                  3
+                ],
+                "label": "R_G",
+                "name": "RG"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1.5,
+                    3
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  1.5,
+                  3
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  1.5,
+                  3
+                ],
+                "to": [
+                  1.5,
+                  5
+                ],
+                "label": "R_{GS}",
+                "flip": true,
+                "name": "RGS"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  1.5,
+                  5
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "L1",
+            "D1",
+            "RG",
+            "RGS"
+          ],
+          "answer": [
+            "D1"
+          ],
+          "explanation": "When $Q_1$ turns off, the load inductance keeps its current flowing ($v = L\\,di/dt$). Without $D_1$ the drain would fly up until the MOSFET breaks down. $D_1$ gives the current a path back to $V_{DD}$, clamping the drain at $V_{DD}$ + 0.7 V. $R_G$ limits the gate current and damps ringing; $R_{GS}$ keeps the MOSFET off when the logic pin floats (e.g. during reset)."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each datasheet parameter to what it tells you.",
+          "pairs": [
+            [
+              "$R_{DS(on)}$ at $V_{GS}$ = 4.5 V",
+              "Conduction loss with logic drive"
+            ],
+            [
+              "$Q_g$",
+              "Driver current needed for fast switching"
+            ],
+            [
+              "$V_{GS(th)}$",
+              "Where the MOSFET just starts to conduct"
+            ],
+            [
+              "$V_{DSS}$",
+              "Maximum drain–source voltage"
+            ]
+          ],
+          "explanation": "$R_{DS(on)}$ is only meaningful at the stated $V_{GS}$; at $V_{GS(th)}$ the current is just a few hundred µA, so the threshold says nothing about being fully on. $Q_g$ divided by the gate current gives the switching time. Choose $V_{DSS}$ with margin above the supply plus any inductive spikes."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "A MOSFET with $V_{GS(th)}$ = 2 V is fully on when driven from a 3.3 V logic pin.",
+          "answer": false,
+          "explanation": "At threshold the MOSFET barely conducts. Check that $R_{DS(on)}$ is specified at $V_{GS}$ = 2.5 V or 3.3 V (a 'logic-level' or 'low-threshold' part). A standard MOSFET is specified at 10 V and may still have a large $R_{DS(on)}$ at 3.3 V."
+        }
+      ]
+    },
+    {
+      "id": "ae-fets-4",
+      "title": "Designing with FETs",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "k": [
+              0.002,
+              0.005,
+              0.01
+            ],
+            "VT": [
+              1,
+              1.5,
+              2
+            ],
+            "VG": [
+              6,
+              8,
+              10
+            ],
+            "ID": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "derived": {
+            "VGS": "VT + sqrt(ID/k)",
+            "RSd": "(VG - VGS)/ID",
+            "gm": "2*sqrt(k*ID)"
+          },
+          "prompt": "Design a MOSFET source follower: the gate sits at {{VG|V}} (set by a divider), $k$ = {{k*1000}} mA/V², $V_T$ = {{VT|V}}, and the bias current must be {{ID|A}}.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  2,
+                  0
+                ],
+                "label": "+V_{DD}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    2,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "nmos",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  2
+                ],
+                "label": "v_{in}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    3
+                  ],
+                  [
+                    3.5,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3.5,
+                  3
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  2,
+                  5
+                ],
+                "label": "R_S",
+                "flip": true
+              },
+              {
+                "type": "ground",
+                "at": [
+                  2,
+                  5
+                ]
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find $V_{GS}$ at that current.",
+              "answer": "VGS",
+              "unit": "V",
+              "explanation": "$V_{GS} = V_T + \\sqrt{I_D/k}$ = {{VT|V}} + √({{ID|A}} / {{k*1000}} mA/V²) = {{VGS|V}}."
+            },
+            {
+              "prompt": "Find $R_S$.",
+              "answer": "RSd",
+              "unit": "Ω",
+              "explanation": "$V_{GS} = V_T + \\sqrt{I_D/k}$ = {{VGS|V}}, so the source sits at $V_S = V_G - V_{GS}$ = {{VG-VGS|V}}.\n$R_S = V_S/I_D$ = {{VG-VGS|V}} / {{ID|A}} = {{RSd|Ω}}."
+            },
+            {
+              "prompt": "Find the output resistance at the source.",
+              "answer": "par(1/gm, RSd)",
+              "unit": "Ω",
+              "explanation": "$g_m = 2\\sqrt{kI_D}$ = {{gm|S}}, so $1/g_m$ = {{1/gm|Ω}}. With $R_S = (V_G - V_{GS})/I_D$ = {{RSd|Ω}} in parallel: $R_{out}$ = {{par(1/gm, RSd)|Ω}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "V": [
+              12,
+              24
+            ],
+            "I": [
+              5,
+              10,
+              20
+            ],
+            "Rds": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "D": [
+              0.3,
+              0.5,
+              0.8
+            ],
+            "tsw": [
+              5e-08,
+              1e-07,
+              2e-07
+            ],
+            "f": [
+              20000.0,
+              50000.0
+            ]
+          },
+          "derived": {
+            "Pc": "D*I^2*Rds",
+            "Ps": "V*I*tsw*f"
+          },
+          "prompt": "A PWM motor drive switches {{I|A}} from {{V|V}} (freewheeling diode across the motor). The MOSFET has $R_{DS(on)}$ = {{Rds|Ω}} (hot), $t_r = t_f$ = {{tsw|s}}, duty cycle $D$ = {{D}}, $f$ = {{f|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Find the conduction loss.",
+              "answer": "Pc",
+              "unit": "W",
+              "explanation": "The MOSFET conducts a fraction $D$ of the time: $P_{cond} = DI^2R_{DS(on)}$ = {{D}} × ({{I|A}})² × {{Rds|Ω}} = {{Pc|W}}."
+            },
+            {
+              "prompt": "Find the switching loss.",
+              "answer": "Ps",
+              "unit": "W",
+              "explanation": "$P_{sw} \\approx \\tfrac{1}{2}VI(t_r+t_f)f$ = 0.5 × {{V|V}} × {{I|A}} × {{2*tsw|s}} × {{f|Hz}} = {{Ps|W}}."
+            },
+            {
+              "prompt": "Find the total MOSFET loss.",
+              "answer": "Pc + Ps",
+              "unit": "W",
+              "explanation": "$P_{cond} = DI^2R_{DS(on)}$ = {{Pc|W}} and $P_{sw} \\approx \\tfrac12 VI(t_r+t_f)f$ = {{Ps|W}}. Total: {{Pc+Ps|W}}."
+            },
+            {
+              "prompt": "At what PWM frequency would the switching loss equal the conduction loss?",
+              "answer": "Pc/(V*I*tsw)",
+              "unit": "Hz",
+              "explanation": "$P_{sw}$ is proportional to $f$: $VI t_{sw} f = DI^2R_{DS(on)}$ gives\n$f = \\frac{DIR_{DS(on)}}{Vt_{sw}}$ = {{Pc|W}} / ({{V|V}} × {{I|A}} × {{tsw|s}}) = {{Pc/(V*I*tsw)|Hz}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vdr": [
+              5,
+              10,
+              12
+            ],
+            "Vpl": [
+              2.5,
+              3,
+              4
+            ],
+            "RG": [
+              10,
+              22,
+              47,
+              100
+            ],
+            "Qg": [
+              1e-08,
+              2e-08,
+              4e-08
+            ]
+          },
+          "derived": {
+            "IG": "(Vdr - Vpl)/RG"
+          },
+          "require": "Vdr - Vpl - 1.5",
+          "prompt": "A gate driver swings 0 to {{Vdr|V}} through $R_G$ = {{RG|Ω}}. During switching the gate sits at the plateau voltage {{Vpl|V}}; $Q_g$ = {{Qg|C}}.",
+          "ask": [
+            {
+              "prompt": "Find the gate current during the plateau (turn-on).",
+              "answer": "IG",
+              "unit": "A",
+              "explanation": "$I_G = \\frac{V_{drive} - V_{plateau}}{R_G}$ = ({{Vdr|V}} − {{Vpl|V}}) / {{RG|Ω}} = {{IG|A}}."
+            },
+            {
+              "prompt": "Estimate the turn-on time $t \\approx Q_g/I_G$.",
+              "answer": "Qg/IG",
+              "unit": "s",
+              "explanation": "$I_G = (V_{drive}-V_{plateau})/R_G$ = {{IG|A}}, so $t \\approx Q_g/I_G$ = {{Qg|C}} / {{IG|A}} = {{Qg/IG|s}}. At turn-off the driver pulls the gate to 0 V and the current is only $V_{plateau}/R_G$ = {{Vpl/RG|A}}, so turn-off takes about {{Qg*RG/Vpl|s}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Q": [
+              5e-12,
+              1e-11,
+              2e-11
+            ],
+            "dV": [
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "Ron": [
+              50,
+              100,
+              200
+            ]
+          },
+          "derived": {
+            "Cmin": "Q/dV"
+          },
+          "prompt": "A sample-and-hold uses a switch with $Q_{inj}$ = {{Q|C}} and $R_{ON}$ = {{Ron|Ω}}. The pedestal must stay below {{dV|V}}.",
+          "ask": [
+            {
+              "prompt": "Find the minimum hold capacitor.",
+              "answer": "Cmin",
+              "unit": "F",
+              "explanation": "$C_H \\ge Q_{inj}/\\Delta V$ = {{Q|C}} / {{dV|V}} = {{Cmin|F}}."
+            },
+            {
+              "prompt": "With that capacitor, how long must the switch stay closed to settle within 0.01 %?",
+              "answer": "Ron*Cmin*ln(10000)",
+              "unit": "s",
+              "explanation": "$C_H = Q_{inj}/\\Delta V$ = {{Cmin|F}}, so $\\tau = R_{ON}C_H$ = {{Ron*Cmin|s}}.\n0.01 % needs $t = \\tau\\ln(10^4) \\approx 9.2\\tau$ = {{Ron*Cmin*ln(10000)|s}}. A smaller pedestal costs acquisition time."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "VDD": [
+              12,
+              24
+            ],
+            "VZ": [
+              15,
+              24,
+              33
+            ],
+            "L": [
+              0.01,
+              0.05,
+              0.1
+            ],
+            "I": [
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "prompt": "A relay coil ($L$ = {{L|H}}, {{I|A}}) on {{VDD|V}} is clamped by $D_1$ in series with a {{VZ|V}} Zener $D_Z$, to release faster than with a plain diode.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  1.5,
+                  0
+                ],
+                "label": "+V_{DD}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1.5,
+                    0
+                  ],
+                  [
+                    4.5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  0
+                ]
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "L",
+                "value": "load",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    4.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ]
+              },
+              {
+                "type": "zener",
+                "from": [
+                  4.5,
+                  0
+                ],
+                "to": [
+                  4.5,
+                  1
+                ],
+                "label": "D_Z"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  4.5,
+                  2
+                ],
+                "to": [
+                  4.5,
+                  1
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "nmos",
+                "at": [
+                  3,
+                  3
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  4
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  3
+                ],
+                "label": "logic",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  1.5,
+                  3
+                ],
+                "label": "R_G"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1.5,
+                    3
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  1.5,
+                  3
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  1.5,
+                  3
+                ],
+                "to": [
+                  1.5,
+                  5
+                ],
+                "label": "R_{GS}",
+                "flip": true
+              },
+              {
+                "type": "ground",
+                "at": [
+                  1.5,
+                  5
+                ]
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find the peak drain voltage of $Q_1$ at turn-off.",
+              "answer": "VDD + VZ + 0.7",
+              "unit": "V",
+              "explanation": "The coil current flows through $D_1$ (0.7 V) and the Zener in breakdown ($V_Z$) back to $V_{DD}$:\n$V_D = V_{DD} + V_Z + 0.7$ = {{VDD|V}} + {{VZ|V}} + 0.7 V = {{VDD+VZ+0.7|V}}. Choose a MOSFET rated well above this."
+            },
+            {
+              "prompt": "How long does the coil current take to fall to zero?",
+              "answer": "L*I/(VZ + 0.7)",
+              "unit": "s",
+              "explanation": "The coil sees a constant reverse voltage $V_Z + 0.7$ V, so the current ramps down linearly:\n$t = \\frac{LI}{V_Z + 0.7}$ = {{L|H}} × {{I|A}} / {{VZ+0.7|V}} = {{L*I/(VZ+0.7)|s}}. With only a diode (0.7 V) it would decay far more slowly."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A p-channel MOSFET ($V_{GS(th)}$ = −2 V) is a high-side switch with its source on +12 V. How do you turn it **on**?",
+          "options": [
+            "Pull the gate about 10 V below the source",
+            "Drive the gate to +17 V",
+            "Connect the gate to +12 V",
+            "Leave the gate floating"
+          ],
+          "answer": 0,
+          "explanation": "A p-channel enhancement MOSFET needs $V_{GS}$ well below its negative threshold: gate ≈ +2 V, so $V_{GS}$ ≈ −10 V. Gate at the source voltage ($V_{GS}$ = 0) turns it off. +17 V would be an n-channel high-side drive. A floating gate leaves it in an undefined state, so add a gate–source resistor."
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the steps for choosing a low-side MOSFET switch in order.",
+          "items": [
+            "Find the supply voltage and load current",
+            "Choose $V_{DSS}$ and $I_D$ ratings with margin",
+            "Check $R_{DS(on)}$ at the available gate drive",
+            "Estimate conduction and switching losses",
+            "Check the junction temperature with the thermal resistance"
+          ],
+          "explanation": "Start from the load (voltage, current, inductive or not), pick ratings with margin, then confirm the part is fully on at your gate voltage. Losses follow from $I^2R_{DS(on)}$ and the switching estimate, and the thermal resistance turns that loss into a temperature rise."
+        }
+      ]
+    }
+  ]
+}

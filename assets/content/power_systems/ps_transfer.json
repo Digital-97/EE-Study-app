@@ -1,0 +1,1185 @@
+{
+ "id": "ps-transfer",
+ "title": "Power Transfer & Voltage Control",
+ "description": "How real power follows the angle and reactive power the voltage, the steady-state limit, voltage regulation and shunt and series compensation.",
+ "reference": "Glover ch. 5",
+ "study": [
+  {
+   "title": "Power across a reactance",
+   "body": "Two buses with voltages $V_1\\angle\\delta$ and $V_2\\angle0$ are joined by a lossless line or transformer of reactance $X$. The real power transferred depends on the **angle difference** $\\delta$. With line-to-line voltages it is the three-phase power; in per unit it is simply per-unit power. It peaks at $\\delta$ = 90°: the **steady-state stability limit**.",
+   "formula": "P = \\frac{V_1V_2}{X}\\sin\\delta,\\qquad P_{max} = \\frac{V_1V_2}{X}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_1∠δ",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "inductor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "jX"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        0
+       ],
+       [
+        5,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "acsource",
+      "from": [
+       5,
+       2
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "V_2∠0",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        5,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       3.3,
+       0
+      ],
+      "to": [
+       4.5,
+       0
+      ],
+      "label": "P + jQ"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Explore: the power–angle curve",
+   "body": "Here $V_1$ = 1.0 pu, $X$ = 0.5 pu and the receiving end takes 1.0 pu of power. Lowering $V_2$ lowers the whole curve; a series capacitor (compensation $k$) cuts the net reactance to $(1-k)X$ and raises it. A higher curve puts the operating point at a smaller $\\delta$, further from the 90° limit: more stability margin.",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 180,
+     "label": "δ (°)",
+     "ticks": [
+      0,
+      30,
+      60,
+      90,
+      120,
+      150,
+      180
+     ]
+    },
+    "y": {
+     "min": 0,
+     "max": 5,
+     "label": "P (pu)"
+    },
+    "sliders": [
+     {
+      "name": "k",
+      "label": "series compensation $k$",
+      "min": 0,
+      "max": 0.6,
+      "step": 0.05,
+      "value": 0
+     },
+     {
+      "name": "V2",
+      "label": "$V_2$",
+      "min": 0.9,
+      "max": 1.1,
+      "step": 0.01,
+      "value": 1,
+      "unit": "pu"
+     }
+    ],
+    "let": {
+     "Pm": "V2/(0.5*(1-k))",
+     "dop": "deg(asin(1/Pm))"
+    },
+    "curves": [
+     {
+      "f": "V2*sin(rad(x))/(0.5*(1-k))",
+      "label": "P(δ)",
+      "labelAt": 0.5
+     }
+    ],
+    "hlines": [
+     {
+      "y": 1,
+      "label": "load 1.0 pu",
+      "color": "orange"
+     }
+    ],
+    "points": [
+     {
+      "x": "dop",
+      "y": 1
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$P_{max}$",
+      "value": "Pm",
+      "unit": "pu"
+     },
+     {
+      "label": "$\\delta$ at 1.0 pu",
+      "value": "dop",
+      "unit": "°"
+     }
+    ],
+    "height": 210
+   }
+  },
+  {
+   "title": "Reactive power follows voltage magnitude",
+   "body": "The reactive power arriving at bus 2 depends mainly on the **difference in voltage magnitudes**: for small $\\delta$, $Q_R \\approx V_2(V_1 - V_2)/X$. Reactive power flows from the higher to the lower voltage, while real power flows from the leading to the lagging angle. This **P–δ and Q–V decoupling** is why voltage is controlled with reactive power and power flow with angles. The line itself absorbs $I^2X$.",
+   "formula": "\\begin{aligned}Q_R &= \\frac{V_1V_2\\cos\\delta - V_2^2}{X}\\\\ Q_S &= \\frac{V_1^2 - V_1V_2\\cos\\delta}{X}\\end{aligned}"
+  },
+  {
+   "title": "Voltage drop and regulation",
+   "body": "Along a short line with $R + jX$, delivering $P + jQ$ at voltage $V$ (per unit), the voltage drop is approximately $(RP + XQ)/V$. Since $X \\gg R$ on transmission lines, the reactive power dominates: supplying $Q$ locally is the most effective way to hold the voltage up. Voltage regulation compares the receiving-end voltage at no load and at full load, with the sending end fixed.",
+   "formula": "\\begin{aligned}\\Delta V &\\approx \\frac{RP + XQ}{V}\\\\ \\%\\text{VR} &= \\frac{V_{R,NL} - V_{R,FL}}{V_{R,FL}}\\times100\\end{aligned}"
+  },
+  {
+   "title": "Shunt compensation",
+   "body": "- **Shunt reactors** absorb reactive power at light load, cancelling line charging and limiting the Ferranti rise.\n- **Shunt capacitor banks** supply reactive power at heavy load. Their output $\\omega CV^2$ falls with the square of the voltage, just when it is needed most.\n- **SVCs** (thyristor-controlled reactors with capacitors) and **STATCOMs** (voltage-source converters) adjust their reactive power continuously and fast.\nAt a bus with short-circuit capacity $S_{sc}$, switching in $Q$ changes the voltage by about $Q/S_{sc}$.",
+   "formula": "\\frac{\\Delta V}{V} \\approx \\frac{Q_C}{S_{sc}}"
+  },
+  {
+   "title": "Series compensation",
+   "body": "A capacitor in series with a long line cancels part of its reactance: with degree of compensation $k = X_C/X_L$ (typically 25–75 %), the net reactance is $(1-k)X_L$, so the maximum power and the stability margin rise. The capacitor and the line inductance resonate below the system frequency, at $f_{er} = f_0\\sqrt{X_C/X}$ ($X$: total series reactance of the loop); this can excite torsional oscillations of turbine-generator shafts, called **subsynchronous resonance**.",
+   "formula": "P_{max} = \\frac{V_1V_2}{(1-k)X_L}"
+  },
+  {
+   "title": "Line loadability",
+   "body": "What limits the power a line can carry depends on its length:\n- short lines (up to about 80 km): the conductors' **thermal** rating;\n- medium lines (about 80–320 km): the **voltage drop** (typically $V_R \\geq 0.95V_S$);\n- long lines: the **steady-state stability** limit. A lossless long line behaves like $X' = Z_c\\sin\\beta\\ell$, so $P_{max} = \\text{SIL}/\\sin\\beta\\ell$ at rated voltages; in practice $\\delta$ is kept below about 35° for margin."
+  },
+  {
+   "title": "Worked example: a 345-kV tie",
+   "body": "$V_1 = V_2$ = 345 kV, $X$ = 100 Ω, $\\delta$ = 30°.\n- $P = V^2\\sin\\delta/X$ = 345² × 0.5/100 = 595 MW (three-phase, kV² /Ω = MW).\n- $P_{max} = V^2/X$ = 1190 MW at 90°.\n- $Q_S = V^2(1-\\cos\\delta)/X$ = +159 Mvar enters the line at the sending end; $Q_R$ = −159 Mvar, i.e. the line also draws 159 Mvar from the receiving end. Total reactive loss: 3I²X = 319 Mvar.\n- With 40 % series compensation, $X$ = 60 Ω and $P_{max}$ = 1984 MW; 595 MW then needs only $\\delta$ = 17.5°."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ps-transfer-1",
+   "title": "The power–angle curve",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Power across a reactance",
+     "body": "For two buses joined by a lossless reactance $X$, with $\\mathbf V_1 = V_1\\angle\\delta$ leading $\\mathbf V_2 = V_2\\angle0$, the real power transferred is below. With line-to-line voltages in kV and $X$ in Ω the result is three-phase power in MW.",
+     "formula": "P = \\frac{V_1V_2}{X}\\sin\\delta",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_1∠δ",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "jX"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "acsource",
+        "from": [
+         5,
+         2
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "V_2∠0",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         3.3,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "P + jQ"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "V1": [
+       340000.0,
+       345000.0,
+       350000.0,
+       355000.0
+      ],
+      "V2": [
+       330000.0,
+       335000.0,
+       340000.0,
+       345000.0
+      ],
+      "X": [
+       60,
+       80,
+       100,
+       120
+      ],
+      "d": {
+       "min": 10,
+       "max": 40,
+       "step": 5
+      }
+     },
+     "prompt": "A 345-kV tie line with $X$ = {{X}} Ω per phase connects buses at {{V1|V}} and {{V2|V}} (line-to-line), with bus 1 leading by {{d}}°. Find the three-phase power transferred.",
+     "answer": "V1*V2*sin(rad(d))/X",
+     "unit": "W",
+     "explanation": "$P = V_1V_2\\sin\\delta/X$ = {{V1/1e3}} kV × {{V2/1e3}} kV × sin {{d}}°/{{X}} Ω = {{V1*V2*sin(rad(d))/X|W}}. Using line-to-line voltages directly gives the three-phase total, because $3(V/\\sqrt3)^2 = V^2$."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "V1": [
+       1.0,
+       1.02,
+       1.05
+      ],
+      "V2": [
+       0.95,
+       0.98,
+       1.0
+      ],
+      "X": {
+       "min": 0.3,
+       "max": 0.8,
+       "step": 0.05
+      }
+     },
+     "prompt": "Two buses at {{V1}} pu and {{V2}} pu are joined by a lossless line of {{X}} pu. What is the maximum power it can transfer (steady-state stability limit), in per unit?",
+     "answer": "V1*V2/X",
+     "unit": "pu",
+     "explanation": "$P_{max} = V_1V_2/X$ = {{V1}} × {{V2}}/{{X}} = {{V1*V2/X|pu}}, reached at $\\delta$ = 90°. Beyond it, more angle gives less power and the two ends fall out of step."
+    },
+    {
+     "id": "q3",
+     "type": "slider",
+     "params": {
+      "V1": [
+       1.0,
+       1.05
+      ],
+      "V2": [
+       0.95,
+       1.0
+      ],
+      "X": [
+       0.4,
+       0.5,
+       0.6
+      ],
+      "Pt": [
+       0.8,
+       1.0,
+       1.2
+      ]
+     },
+     "derived": {
+      "Pm": "V1*V2/X"
+     },
+     "prompt": "The line ($V_1$ = {{V1}} pu, $V_2$ = {{V2}} pu, $X$ = {{X}} pu) must carry {{Pt}} pu. Drag $\\delta$ to the **stable** operating point.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 180,
+       "label": "δ (°)",
+       "ticks": [
+        0,
+        30,
+        60,
+        90,
+        120,
+        150,
+        180
+       ]
+      },
+      "y": {
+       "min": 0,
+       "max": "1.2*Pm",
+       "label": "P (pu)"
+      },
+      "sliders": [
+       {
+        "name": "dd",
+        "label": "$\\delta$",
+        "min": 0,
+        "max": 180,
+        "step": 0.5,
+        "value": 90,
+        "unit": "°"
+       }
+      ],
+      "curves": [
+       {
+        "f": "Pm*sin(rad(x))",
+        "label": "P(δ)",
+        "labelAt": 0.5
+       }
+      ],
+      "hlines": [
+       {
+        "y": "Pt",
+        "label": "{{Pt}} pu",
+        "color": "orange"
+       }
+      ],
+      "points": [
+       {
+        "x": "dd",
+        "y": "Pm*sin(rad(dd))"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$P$ at this $\\delta$",
+        "value": "Pm*sin(rad(dd))",
+        "unit": "pu"
+       }
+      ]
+     },
+     "answer": {
+      "dd": "deg(asin(Pt/Pm))"
+     },
+     "absTolerance": 1.5,
+     "tolerance": 0.001,
+     "explanation": "$\\sin\\delta = PX/(V_1V_2)$ = {{Pt}} × {{X}}/({{V1}} × {{V2}}) = {{Pt/Pm}}, so $\\delta$ = {{deg(asin(Pt/Pm))|°}}. The other crossing at {{180-deg(asin(Pt/Pm))|°}} is unstable: there a small increase in $\\delta$ **reduces** the power, so the angle keeps growing."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Reactive power and voltage magnitude",
+     "body": "The reactive power arriving at bus 2 is set mainly by the voltage **magnitudes**: for small $\\delta$ it is about $V_2(V_1 - V_2)/X$. Reactive power flows from the higher to the lower voltage; real power from the leading to the lagging angle.",
+     "formula": "Q_R = \\frac{V_1V_2\\cos\\delta - V_2^2}{X}"
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "V1": [
+       1.02,
+       1.04,
+       1.06
+      ],
+      "V2": [
+       0.95,
+       0.97,
+       0.99
+      ],
+      "X": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "d": [
+       5,
+       10,
+       15
+      ]
+     },
+     "require": "abs(V1*cos(rad(d)) - V2) - 0.01",
+     "prompt": "Bus 1 ({{V1}} pu, leading by {{d}}°) feeds bus 2 ({{V2}} pu) through $X$ = {{X}} pu. Find the reactive power delivered **into** bus 2, in per unit (negative if the line draws reactive power from bus 2).",
+     "answer": "(V1*V2*cos(rad(d)) - V2^2)/X",
+     "unit": "pu",
+     "absTolerance": 0.005,
+     "explanation": "$Q_R = (V_1V_2\\cos\\delta - V_2^2)/X$ = ({{V1}} × {{V2}} × cos {{d}}° − {{V2}}²)/{{X}} = ({{V1*V2*cos(rad(d))||5}} − {{V2^2||5}})/{{X}} = {{(V1*V2*cos(rad(d)) - V2^2)/X|pu}}. It is positive when $V_1\\cos\\delta > V_2$ (bus 2 receives reactive power) and negative otherwise: at larger angles the line's own $I^2X$ makes it draw reactive power from both ends."
+    },
+    {
+     "id": "q5",
+     "type": "trueFalse",
+     "prompt": "Real power always flows from the bus with the higher voltage magnitude to the bus with the lower one.",
+     "answer": false,
+     "explanation": "Real power flows from the bus whose voltage **leads** in angle: $P = V_1V_2\\sin\\delta/X$. A bus with a lower voltage magnitude can still send power if its angle leads. Voltage magnitude differences mainly drive **reactive** power."
+    },
+    {
+     "id": "q6",
+     "type": "matchPairs",
+     "prompt": "Match each quantity to what mainly sets it on a lossless line.",
+     "pairs": [
+      [
+       "Real power transferred",
+       "Angle difference δ"
+      ],
+      [
+       "Reactive power transferred",
+       "Difference in |V|"
+      ],
+      [
+       "Maximum power",
+       "$V_1V_2/X$ at δ = 90°"
+      ],
+      [
+       "Reactive power absorbed by the line",
+       "$I^2X$"
+      ]
+     ],
+     "explanation": "P–δ and Q–V are only loosely coupled on lines with $X \\gg R$. That is why generators control their real power with the turbine (angle) and the voltage with excitation (reactive power)."
+    }
+   ]
+  },
+  {
+   "id": "ps-transfer-2",
+   "title": "Voltage control and compensation",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "What makes the voltage drop",
+     "body": "Delivering $P + jQ$ through $R + jX$ at voltage $V$ (all per unit) drops the voltage by about $(RP + XQ)/V$. On transmission lines $X \\gg R$, so the reactive power dominates the drop.",
+     "formula": "\\Delta V \\approx \\frac{RP + XQ}{V}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "R": [
+       0.01,
+       0.02,
+       0.03
+      ],
+      "X": [
+       0.08,
+       0.1,
+       0.15
+      ],
+      "P": [
+       0.4,
+       0.6,
+       0.8,
+       1.0
+      ],
+      "pf": [
+       0.85,
+       0.9,
+       0.95
+      ]
+     },
+     "derived": {
+      "Q": "P*tan(acos(pf))"
+     },
+     "prompt": "A feeder with $R$ = {{R}} pu and $X$ = {{X}} pu delivers {{P}} pu at pf {{pf}} lagging to a load at 1.0 pu. Estimate the voltage drop in per cent.",
+     "answer": "100*(R*P + X*Q)",
+     "unit": "%",
+     "explanation": "$Q = P\\tan\\theta$ = {{Q}} pu. $\\Delta V \\approx (RP + XQ)/V$ = {{R}} × {{P}} + {{X}} × {{Q}} = {{R*P}} + {{X*Q}} = {{R*P + X*Q}} pu = {{100*(R*P + X*Q)|%}}. The reactive part contributes {{100*X*Q/(R*P + X*Q)|%}} of the drop."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Shunt compensation",
+     "body": "Shunt **capacitors** supply reactive power at heavy load and raise the voltage; shunt **reactors** absorb it at light load. At a bus whose short-circuit capacity is $S_{sc}$ (the Thévenin reactance is $V^2/S_{sc}$), switching $Q$ changes the voltage by about:",
+     "formula": "\\frac{\\Delta V}{V} \\approx \\frac{Q}{S_{sc}}"
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Qc": [
+       10000000.0,
+       20000000.0,
+       30000000.0,
+       50000000.0
+      ],
+      "Ssc": [
+       500000000.0,
+       1000000000.0,
+       2000000000.0,
+       3000000000.0
+      ]
+     },
+     "prompt": "A {{Qc|var}} capacitor bank is switched in at a 138-kV substation whose short-circuit capacity is {{Ssc|VA}}. By roughly what percentage does the bus voltage rise?",
+     "answer": "100*Qc/Ssc",
+     "unit": "%",
+     "explanation": "$\\Delta V/V \\approx Q_C/S_{sc}$ = {{Qc|var}}/{{Ssc|VA}} = {{100*Qc/Ssc|%}}. A strong bus (large $S_{sc}$, small Thévenin reactance) barely moves; a weak bus reacts much more to the same bank."
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "prompt": "At night, the receiving-end voltage of a long, lightly loaded EHV line rises above its limit. What is the usual remedy?",
+     "options": [
+      "Switch in shunt reactors",
+      "Switch in shunt capacitors",
+      "Insert series capacitors",
+      "Raise the sending-end generator excitation"
+     ],
+     "answer": 0,
+     "explanation": "The rise is the Ferranti effect: the line's charging (capacitive) reactive power exceeds what its inductance absorbs at light load. Shunt reactors absorb the surplus. Capacitors, series or shunt, and more excitation would all push the voltage even higher."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "Qr": [
+       20000000.0,
+       50000000.0,
+       100000000.0
+      ],
+      "V": [
+       0.9,
+       0.92,
+       0.95,
+       1.05
+      ]
+     },
+     "prompt": "A capacitor bank is rated {{Qr|var}} at 1.0 pu voltage. How much reactive power does it deliver when the bus voltage is {{V}} pu?",
+     "answer": "Qr*V^2",
+     "unit": "var",
+     "explanation": "$Q = \\omega CV^2$ scales with the **square** of the voltage: {{Qr|var}} × {{V}}² = {{Qr*V^2|var}}. That is the weakness of fixed capacitors: during a voltage dip, when reactive support is needed most, their output falls fastest. A STATCOM's current, by contrast, can be held up."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Series compensation",
+     "body": "A capacitor in series with a long line cancels part of its reactance. With degree of compensation $k = X_C/X_L$, the net reactance is $(1 - k)X_L$, so the power–angle curve rises:",
+     "formula": "P_{max} = \\frac{V_1V_2}{(1-k)X_L}"
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "V1": [
+       1.0,
+       1.02,
+       1.05
+      ],
+      "V2": [
+       0.98,
+       1.0
+      ],
+      "XL": [
+       0.4,
+       0.5,
+       0.6,
+       0.8
+      ],
+      "k": [
+       0.3,
+       0.4,
+       0.5,
+       0.6
+      ]
+     },
+     "prompt": "A line with $X_L$ = {{XL}} pu connects buses at {{V1}} pu and {{V2}} pu. A series capacitor compensates {{100*k}} % of its reactance. Find the new maximum power transfer in per unit.",
+     "answer": "V1*V2/((1-k)*XL)",
+     "unit": "pu",
+     "explanation": "Net reactance: $(1 - k)X_L$ = {{1-k}} × {{XL}} = {{(1-k)*XL}} pu. $P_{max} = V_1V_2/X_{net}$ = {{V1*V2}}/{{(1-k)*XL}} = {{V1*V2/((1-k)*XL)|pu}}, up from {{V1*V2/XL|pu}} without compensation."
+    },
+    {
+     "id": "q6",
+     "type": "matchPairs",
+     "prompt": "Match each device to what it does.",
+     "pairs": [
+      [
+       "Shunt reactor",
+       "Absorbs Q at light load"
+      ],
+      [
+       "Shunt capacitor bank",
+       "Supplies Q at heavy load"
+      ],
+      [
+       "Series capacitor",
+       "Cancels part of the line reactance"
+      ],
+      [
+       "STATCOM",
+       "Fast, continuously variable Q from a converter"
+      ]
+     ],
+     "explanation": "Shunt devices control the voltage by exchanging reactive power with the bus; series capacitors change the line's own reactance and so its power transfer capability."
+    }
+   ]
+  },
+  {
+   "id": "ps-transfer-3",
+   "title": "Transfer and voltage calculations",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "V": [
+       230000.0,
+       345000.0
+      ],
+      "X": [
+       50,
+       70,
+       90,
+       110
+      ],
+      "P": {
+       "min": 200000000.0,
+       "max": 600000000.0,
+       "step": 50000000.0
+      }
+     },
+     "require": "0.8 - P*X/V^2",
+     "prompt": "Both ends of a {{V|V}} line ($X$ = {{X}} Ω, lossless) are held at rated voltage. What power angle is needed to transfer {{P|W}}?",
+     "answer": "deg(asin(P*X/V^2))",
+     "unit": "°",
+     "absTolerance": 0.3,
+     "explanation": "$\\sin\\delta = PX/V^2$ = {{P/1e6}} × {{X}}/{{(V/1e3)^2}} = {{P*X/V^2}}, so $\\delta$ = {{deg(asin(P*X/V^2))|°}}. The limit $V^2/X$ = {{V^2/X|W}} would be reached at 90°."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "V": [
+       230000.0,
+       345000.0
+      ],
+      "X": [
+       60,
+       80,
+       100
+      ],
+      "d": [
+       20,
+       25,
+       30
+      ]
+     },
+     "derived": {
+      "Pm": "V^2/X"
+     },
+     "prompt": "The graph shows the power–angle curve of a lossless {{V|V}} line with both ends at rated voltage.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 180,
+       "label": "δ (°)",
+       "ticks": [
+        0,
+        30,
+        60,
+        90,
+        120,
+        150,
+        180
+       ]
+      },
+      "y": {
+       "min": 0,
+       "max": "1.15*Pm",
+       "label": "P",
+       "unit": "W"
+      },
+      "curves": [
+       {
+        "f": "Pm*sin(rad(x))",
+        "color": "blue"
+       }
+      ],
+      "height": 190
+     },
+     "answer": "V^2/Pm",
+     "unit": "Ω",
+     "tolerance": 0.06,
+     "ask": [
+      {
+       "prompt": "Read the maximum power and find the line reactance.",
+       "answer": "V^2/Pm",
+       "unit": "Ω",
+       "explanation": "The peak is about {{Pm|W}} at 90°. $X = V^2/P_{max}$ = ({{V|V}})²/{{Pm|W}} = {{V^2/Pm|Ω}}."
+      },
+      {
+       "prompt": "Read the power at δ = {{d}}°.",
+       "answer": "Pm*sin(rad(d))",
+       "unit": "W",
+       "explanation": "At {{d}}° the curve gives about {{Pm*sin(rad(d))|W}} = $P_{max}\\sin\\delta$ = {{Pm|W}} × sin {{d}}°."
+      }
+     ]
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "V1": [
+       1.0,
+       1.03,
+       1.05
+      ],
+      "V2": [
+       0.97,
+       1.0
+      ],
+      "X": [
+       0.1,
+       0.15,
+       0.2,
+       0.25
+      ],
+      "d": [
+       10,
+       15,
+       20,
+       25
+      ]
+     },
+     "derived": {
+      "Qs": "(V1^2 - V1*V2*cos(rad(d)))/X",
+      "Qr": "(V1*V2*cos(rad(d)) - V2^2)/X"
+     },
+     "prompt": "A lossless line of {{X}} pu joins bus 1 ({{V1}}∠{{d}}° pu) and bus 2 ({{V2}}∠0° pu).",
+     "ask": [
+      {
+       "prompt": "Find the reactive power the line draws from bus 1 (sending end), in pu.",
+       "answer": "Qs",
+       "unit": "pu",
+       "absTolerance": 0.005,
+       "explanation": "$Q_S = (V_1^2 - V_1V_2\\cos\\delta)/X$ = ({{V1^2||5}} − {{V1*V2*cos(rad(d))||5}})/{{X}} = {{Qs|pu}}."
+      },
+      {
+       "prompt": "Find the reactive power absorbed by the line itself ($I^2X$), in pu.",
+       "answer": "Qs - Qr",
+       "unit": "pu",
+       "explanation": "$Q_S$ = {{Qs}} pu enters at bus 1 and $Q_R = (V_1V_2\\cos\\delta - V_2^2)/X$ = {{Qr}} pu leaves at bus 2. The line absorbs the difference: {{Qs - Qr|pu}}. Check: $|\\mathbf V_1 - \\mathbf V_2|^2/X$ = $(V_1^2 + V_2^2 - 2V_1V_2\\cos\\delta)/X$ gives the same."
+      }
+     ]
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "A": [
+       0.93,
+       0.95,
+       0.97
+      ],
+      "Vfl": [
+       0.95,
+       0.97,
+       1.0
+      ]
+     },
+     "prompt": "A medium-length line has $|A|$ = {{A}}. With the sending end held at 1.0 pu, the full-load receiving-end voltage is {{Vfl}} pu. Find the voltage regulation.",
+     "answer": "100*(1/A - Vfl)/Vfl",
+     "unit": "%",
+     "explanation": "At no load $V_{R,NL} = V_S/|A|$ = 1/{{A}} = {{1/A||4}} pu. %VR = ({{1/A||4}} − {{Vfl}})/{{Vfl}} × 100 = {{100*(1/A - Vfl)/Vfl|%}}."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "dv": [
+       1,
+       1.5,
+       2,
+       3
+      ],
+      "Ssc": [
+       800000000.0,
+       1500000000.0,
+       2500000000.0
+      ]
+     },
+     "prompt": "The voltage of a substation bus with a short-circuit capacity of {{Ssc|VA}} must be raised by {{dv}} %. Roughly how large a shunt capacitor bank is needed?",
+     "answer": "dv/100*Ssc",
+     "unit": "var",
+     "explanation": "$\\Delta V/V \\approx Q_C/S_{sc}$, so $Q_C \\approx (\\Delta V/V)\\,S_{sc}$ = {{dv/100}} × {{Ssc|VA}} = {{dv/100*Ssc|var}}."
+    },
+    {
+     "id": "p6",
+     "type": "trueFalse",
+     "params": {
+      "k": [
+       0.3,
+       0.4,
+       0.5,
+       0.6
+      ],
+      "m": [
+       0,
+       1
+      ]
+     },
+     "derived": {
+      "f": "if(m-0.5, 1/(1-k), 1+k)"
+     },
+     "prompt": "A series capacitor that compensates {{100*k}} % of a line's reactance raises its maximum power transfer by a factor of {{f}}.",
+     "answer": "m - 0.5",
+     "explanation": "$P_{max} \\propto 1/X_{net}$ with $X_{net} = (1-k)X_L$, so the factor is $1/(1-k)$ = 1/{{1-k}} = {{1/(1-k)}}, not $1 + k$ = {{1+k}}."
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       50,
+       60
+      ],
+      "k": [
+       0.3,
+       0.4,
+       0.5,
+       0.6,
+       0.7
+      ]
+     },
+     "prompt": "A series capacitor cancels {{100*k}} % of the total series reactance of a generator–line loop in a {{f0}}-Hz system.",
+     "ask": [
+      {
+       "prompt": "At what frequency does the loop resonate electrically?",
+       "answer": "f0*sqrt(k)",
+       "unit": "Hz",
+       "explanation": "The loop's $L$ and the series $C$ resonate where $\\omega L = 1/\\omega C$: $f_{er} = f_0\\sqrt{X_C/X}$ = {{f0}} × √{{k}} = {{f0*sqrt(k)|Hz}}, below the system frequency."
+      },
+      {
+       "prompt": "At what frequency does the resulting current component act on the generator rotor?",
+       "answer": "f0*(1-sqrt(k))",
+       "unit": "Hz",
+       "explanation": "$f_{er} = f_0\\sqrt{X_C/X}$ = {{f0*sqrt(k)|Hz}}. The rotor turns at $f_0$, so it sees the difference: $f_0 - f_{er}$ = {{f0*(1-sqrt(k))|Hz}}. If a torsional mode of the turbine-generator shaft lies near this frequency, subsynchronous resonance can damage the shaft."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ps-transfer-4",
+   "title": "Compensation design",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "V": [
+       345000.0,
+       500000.0
+      ],
+      "X": [
+       120,
+       150,
+       180
+      ],
+      "P": [
+       800000000.0,
+       1000000000.0,
+       1200000000.0
+      ],
+      "dm": [
+       30,
+       35
+      ]
+     },
+     "derived": {
+      "kreq": "1 - V^2*sin(rad(dm))/(P*X)"
+     },
+     "require": "min(kreq - 0.1, 0.7 - kreq)",
+     "prompt": "A {{V|V}} line has $X$ = {{X}} Ω, with both ends held at rated voltage. It must carry {{P|W}} with $\\delta$ no larger than {{dm}}°. What degree of series compensation (in %) is needed?",
+     "answer": "100*kreq",
+     "unit": "%",
+     "explanation": "Needed net reactance: $X_{net} = V^2\\sin\\delta/P$ = {{(V/1e3)^2}} × sin {{dm}}°/{{P/1e6}} = {{V^2*sin(rad(dm))/P|Ω}}. The capacitor must cancel {{X}} − {{V^2*sin(rad(dm))/P}} = {{X - V^2*sin(rad(dm))/P|Ω}}, i.e. $k$ = {{100*kreq|%}} of $X$."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "X": [
+       0.2,
+       0.25,
+       0.3,
+       0.4
+      ],
+      "P": [
+       0.8,
+       1.0,
+       1.2,
+       1.5
+      ],
+      "pf": [
+       0.85,
+       0.9,
+       0.95
+      ]
+     },
+     "derived": {
+      "d": "asin(P*X)",
+      "QL": "P*tan(acos(pf))"
+     },
+     "require": "0.85 - P*X",
+     "prompt": "A lossless line ($X$ = {{X}} pu) supplies a load of {{P}} pu at pf {{pf}} lagging. Both bus voltages must be 1.0 pu. How much reactive power must a compensator at the load bus supply?",
+     "answer": "QL + (1 - cos(d))/X",
+     "unit": "pu",
+     "explanation": "With $V_1 = V_2$ = 1: $\\sin\\delta = PX$ = {{P*X}}, $\\delta$ = {{deg(d)|°}}. The line then delivers $Q_R = (\\cos\\delta - 1)/X$ = {{(cos(d)-1)/X}} pu: it **draws** reactive power from the load bus. The load needs $Q_L$ = {{QL}} pu, so the compensator supplies $Q_L - Q_R$ = {{QL}} + {{(1-cos(d))/X}} = {{QL + (1 - cos(d))/X|pu}}."
+    },
+    {
+     "id": "c3",
+     "type": "slider",
+     "params": {
+      "X": [
+       0.6,
+       0.8,
+       1.0
+      ],
+      "P": [
+       1.0,
+       1.2
+      ],
+      "dt": [
+       25,
+       30
+      ]
+     },
+     "derived": {
+      "kt": "1 - sin(rad(dt))/(P*X)"
+     },
+     "require": "min(kt - 0.1, 0.65 - kt)",
+     "prompt": "A line of {{X}} pu between two 1.0-pu buses must carry {{P}} pu at $\\delta$ = {{dt}}°. Drag the series compensation until the operating point lands on {{dt}}°.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 180,
+       "label": "δ (°)",
+       "ticks": [
+        0,
+        30,
+        60,
+        90,
+        120,
+        150,
+        180
+       ]
+      },
+      "y": {
+       "min": 0,
+       "max": 4,
+       "label": "P (pu)"
+      },
+      "sliders": [
+       {
+        "name": "kk",
+        "label": "$k$",
+        "min": 0,
+        "max": 0.7,
+        "step": 0.01,
+        "value": 0
+       }
+      ],
+      "curves": [
+       {
+        "f": "sin(rad(x))/((1-kk)*X)",
+        "label": "P(δ)",
+        "labelAt": 0.5
+       }
+      ],
+      "hlines": [
+       {
+        "y": "P",
+        "label": "{{P}} pu",
+        "color": "orange"
+       }
+      ],
+      "vlines": [
+       {
+        "x": "dt",
+        "label": "{{dt}}°",
+        "color": "orange"
+       }
+      ],
+      "points": [
+       {
+        "x": "deg(asin(min(1, P*(1-kk)*X)))",
+        "y": "P"
+       }
+      ]
+     },
+     "answer": {
+      "kk": "kt"
+     },
+     "tolerance": 0.05,
+     "absTolerance": 0.015,
+     "explanation": "Need $X_{net} = \\sin\\delta/P$ = sin {{dt}}°/{{P}} = {{sin(rad(dt))/P}} pu, so $k = 1 - X_{net}/X$ = 1 − {{sin(rad(dt))/P}}/{{X}} = {{kt}}, i.e. {{100*kt|%}} compensation."
+    },
+    {
+     "id": "c4",
+     "type": "matchPairs",
+     "prompt": "Match each line length to the limit that usually sets how much power it can carry.",
+     "pairs": [
+      [
+       "Short line (< 80 km)",
+       "Thermal rating"
+      ],
+      [
+       "Medium line (80–320 km)",
+       "Voltage drop"
+      ],
+      [
+       "Long line (> 320 km)",
+       "Steady-state stability"
+      ]
+     ],
+     "explanation": "Short lines have small reactance, so the conductor temperature limits them. As length grows, the voltage drop and then the angle across the line ($P = V^2\\sin\\delta/X$ with $X$ growing with length) become the binding limits."
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "V1": [
+       1.0,
+       1.05
+      ],
+      "X": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "P": [
+       0.6,
+       0.8,
+       1.0
+      ],
+      "pf": [
+       0.85,
+       0.9,
+       0.95
+      ]
+     },
+     "derived": {
+      "Q": "P*tan(acos(pf))",
+      "bq": "V1^2 - 2*X*P*tan(acos(pf))",
+      "V2": "sqrt((V1^2 - 2*X*P*tan(acos(pf)) + sqrt((V1^2 - 2*X*P*tan(acos(pf)))^2 - 4*X^2*(P^2 + (P*tan(acos(pf)))^2)))/2)"
+     },
+     "prompt": "A source at {{V1}} pu feeds a load of {{P}} pu at pf {{pf}} lagging through a lossless reactance of {{X}} pu. Find the load voltage exactly (the normal, high-voltage solution).",
+     "answer": "V2",
+     "unit": "pu",
+     "tolerance": 0.006,
+     "explanation": "With $\\mathbf V_2 = V_2\\angle0$ and $\\mathbf I = (P - jQ)/V_2$: $\\mathbf V_1 = V_2 + XQ/V_2 + jXP/V_2$. Squaring gives $V_2^4 + (2XQ - V_1^2)V_2^2$ + $X^2(P^2 + Q^2) = 0$, a quadratic in $V_2^2$. With $Q$ = {{Q}}: $V_2^2$ = ({{bq}} + √({{bq}}² − 4 × {{X^2*(P^2+Q^2)}}))/2 = {{V2^2}}, so $V_2$ = {{V2||4}} pu. The approximation $1 - XQ$ would give {{V1 - X*Q/V1||3}} pu."
+    },
+    {
+     "id": "c6",
+     "type": "trueFalse",
+     "prompt": "A generator connected to a stiff grid raises its field current while its turbine power stays constant. Mainly its reactive power output increases, not its real power.",
+     "answer": true,
+     "explanation": "Real power is fixed by the turbine; the rotor angle $\\delta$ adjusts so that $E V\\sin\\delta/X$ matches it. Higher excitation raises $E$, which (at fixed $V$) increases the reactive power delivered, roughly $V(E\\cos\\delta - V)/X$, and lowers $\\delta$ slightly."
+    }
+   ]
+  }
+ ]
+}

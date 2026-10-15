@@ -1,0 +1,3192 @@
+{
+  "id": "dt-convolution",
+  "title": "Discrete-Time Systems & Convolution",
+  "description": "Classify DT systems and compute their output with the convolution sum, then read causality, stability and the step response from h[n].",
+  "reference": "Phillips §9.5–9.6, §10.1–10.3",
+  "study": [
+    {
+      "title": "Discrete-time systems",
+      "body": "A DT system maps an input sequence to an output sequence, $y[n] = T\\{x[n]\\}$. Digital filters are built from three blocks: the **unit delay** D ($x[n] \\to x[n-1]$, one memory location), the **multiplier** (gain) and the **adder**. The diagram is the accumulator $y[n] = y[n-1] + x[n]$, which outputs the running sum of all inputs so far.",
+      "formula": "y[n] = \\sum_{k=-\\infty}^{n} x[k]",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1.7,
+                0
+              ]
+            ],
+            "label": "x[n]"
+          },
+          {
+            "type": "sum",
+            "at": [
+              2,
+              0
+            ],
+            "kind": "++"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2.3,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                5.5,
+                0
+              ]
+            ],
+            "label": "y[n]"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                4,
+                1.5
+              ],
+              [
+                3.5,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3,
+              1.5
+            ],
+            "label": "D",
+            "size": [
+              1,
+              1
+            ],
+            "value": "delay"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.5,
+                1.5
+              ],
+              [
+                2,
+                1.5
+              ],
+              [
+                2,
+                0.3
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "System properties",
+      "body": "- **Memoryless**: $y[n]$ uses only $x[n]$.\n- **Causal**: no future inputs.\n- **BIBO stable**: every bounded input gives a bounded output.\n- **Invertible**: $x$ can be recovered from $y$.\n- **Time-invariant**: delaying the input only delays the output.\n- **Linear**: superposition holds.\nExamples: $n\\,x[n]$ is time-varying and unstable, $x[2n]$ is time-varying and non-causal, $x[n] + 1$ is not linear (zero in gives 1 out), and the accumulator is not stable ($u[n]$ in gives a ramp out).",
+      "formula": "T\\{a_1x_1 + a_2x_2\\} = a_1y_1 + a_2y_2"
+    },
+    {
+      "title": "Impulse response and the convolution sum",
+      "body": "Any sequence is a sum of scaled, shifted impulses: $x[n] = \\sum_k x[k]\\,\\delta[n-k]$. If an LTI system answers $\\delta[n]$ with $h[n]$, it answers $x[k]\\delta[n-k]$ with $x[k]h[n-k]$, and superposition adds them up. So the **impulse response** $h[n]$ describes an LTI system completely, and the output is the convolution sum.",
+      "formula": "y[n] = \\sum_{k=-\\infty}^{\\infty} x[k]\\,h[n-k]"
+    },
+    {
+      "title": "Explore: flip and slide",
+      "body": "To get $y[n]$: flip $h[k]$ into $h[-k]$, slide it to $h[n-k]$, multiply sample by sample with $x[k]$ and add. If $x$ has $N_1$ samples starting at $n_1$ and $h$ has $N_2$ starting at $n_2$, then $y$ has $N_1 + N_2 - 1$ samples starting at $n_1 + n_2$. Drag $n$: coloured is $x[k] = \\{1, 2, 3\\}$, red is $h[n-k]$ for $h = \\{1, 1, 2\\}$.",
+      "formula": "N_y = N_1 + N_2 - 1",
+      "plot": {
+        "x": {
+          "min": -4.5,
+          "max": 8.5,
+          "label": "k"
+        },
+        "y": {
+          "min": 0,
+          "max": 3.5,
+          "label": "x[k], h[n − k]"
+        },
+        "sliders": [
+          {
+            "name": "n",
+            "label": "$n$",
+            "min": -2,
+            "max": 6,
+            "step": 1,
+            "value": 1
+          }
+        ],
+        "curves": [
+          {
+            "f": "(0)*(1-abs(x-(-4.1))/0.004)",
+            "from": -4.104,
+            "to": -4.096
+          },
+          {
+            "f": "(0)*(1-abs(x-(-3.1))/0.004)",
+            "from": -3.104,
+            "to": -3.096
+          },
+          {
+            "f": "(0)*(1-abs(x-(-2.1))/0.004)",
+            "from": -2.104,
+            "to": -2.096
+          },
+          {
+            "f": "(0)*(1-abs(x-(-1.1))/0.004)",
+            "from": -1.104,
+            "to": -1.096
+          },
+          {
+            "f": "(1)*(1-abs(x-(-0.1))/0.004)",
+            "from": -0.104,
+            "to": -0.096
+          },
+          {
+            "f": "(2)*(1-abs(x-(0.9))/0.004)",
+            "from": 0.896,
+            "to": 0.904
+          },
+          {
+            "f": "(3)*(1-abs(x-(1.9))/0.004)",
+            "from": 1.896,
+            "to": 1.904
+          },
+          {
+            "f": "(0)*(1-abs(x-(2.9))/0.004)",
+            "from": 2.896,
+            "to": 2.904
+          },
+          {
+            "f": "(0)*(1-abs(x-(3.9))/0.004)",
+            "from": 3.896,
+            "to": 3.904
+          },
+          {
+            "f": "(0)*(1-abs(x-(4.9))/0.004)",
+            "from": 4.896,
+            "to": 4.904
+          },
+          {
+            "f": "(0)*(1-abs(x-(5.9))/0.004)",
+            "from": 5.896,
+            "to": 5.904
+          },
+          {
+            "f": "(0)*(1-abs(x-(6.9))/0.004)",
+            "from": 6.896,
+            "to": 6.904
+          },
+          {
+            "f": "(0)*(1-abs(x-(7.9))/0.004)",
+            "from": 7.896,
+            "to": 7.904
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(-4))-(0))))+(1)*(1-min(1,abs((n-(-4))-(1))))+(2)*(1-min(1,abs((n-(-4))-(2))))))*(1-abs(x-(-3.9))/0.004)",
+            "from": -3.904,
+            "to": -3.896,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(-3))-(0))))+(1)*(1-min(1,abs((n-(-3))-(1))))+(2)*(1-min(1,abs((n-(-3))-(2))))))*(1-abs(x-(-2.9))/0.004)",
+            "from": -2.904,
+            "to": -2.896,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(-2))-(0))))+(1)*(1-min(1,abs((n-(-2))-(1))))+(2)*(1-min(1,abs((n-(-2))-(2))))))*(1-abs(x-(-1.9))/0.004)",
+            "from": -1.904,
+            "to": -1.896,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(-1))-(0))))+(1)*(1-min(1,abs((n-(-1))-(1))))+(2)*(1-min(1,abs((n-(-1))-(2))))))*(1-abs(x-(-0.9))/0.004)",
+            "from": -0.904,
+            "to": -0.896,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(0))-(0))))+(1)*(1-min(1,abs((n-(0))-(1))))+(2)*(1-min(1,abs((n-(0))-(2))))))*(1-abs(x-(0.1))/0.004)",
+            "from": 0.096,
+            "to": 0.104,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(1))-(0))))+(1)*(1-min(1,abs((n-(1))-(1))))+(2)*(1-min(1,abs((n-(1))-(2))))))*(1-abs(x-(1.1))/0.004)",
+            "from": 1.096,
+            "to": 1.104,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(2))-(0))))+(1)*(1-min(1,abs((n-(2))-(1))))+(2)*(1-min(1,abs((n-(2))-(2))))))*(1-abs(x-(2.1))/0.004)",
+            "from": 2.096,
+            "to": 2.104,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(3))-(0))))+(1)*(1-min(1,abs((n-(3))-(1))))+(2)*(1-min(1,abs((n-(3))-(2))))))*(1-abs(x-(3.1))/0.004)",
+            "from": 3.096,
+            "to": 3.104,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(4))-(0))))+(1)*(1-min(1,abs((n-(4))-(1))))+(2)*(1-min(1,abs((n-(4))-(2))))))*(1-abs(x-(4.1))/0.004)",
+            "from": 4.096,
+            "to": 4.104,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(5))-(0))))+(1)*(1-min(1,abs((n-(5))-(1))))+(2)*(1-min(1,abs((n-(5))-(2))))))*(1-abs(x-(5.1))/0.004)",
+            "from": 5.096,
+            "to": 5.104,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(6))-(0))))+(1)*(1-min(1,abs((n-(6))-(1))))+(2)*(1-min(1,abs((n-(6))-(2))))))*(1-abs(x-(6.1))/0.004)",
+            "from": 6.096,
+            "to": 6.104,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(7))-(0))))+(1)*(1-min(1,abs((n-(7))-(1))))+(2)*(1-min(1,abs((n-(7))-(2))))))*(1-abs(x-(7.1))/0.004)",
+            "from": 7.096,
+            "to": 7.104,
+            "color": "red"
+          },
+          {
+            "f": "(((1)*(1-min(1,abs((n-(8))-(0))))+(1)*(1-min(1,abs((n-(8))-(1))))+(2)*(1-min(1,abs((n-(8))-(2))))))*(1-abs(x-(8.1))/0.004)",
+            "from": 8.096,
+            "to": 8.104,
+            "color": "red"
+          }
+        ],
+        "points": [
+          {
+            "x": -4.1,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": -3.1,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": -2.1,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": -1.1,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": -0.1,
+            "y": "1",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.9,
+            "y": "2",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 1.9,
+            "y": "3",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 2.9,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 3.9,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 4.9,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 5.9,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 6.9,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 7.9,
+            "y": "0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": -3.9,
+            "y": "((1)*(1-min(1,abs((n-(-4))-(0))))+(1)*(1-min(1,abs((n-(-4))-(1))))+(2)*(1-min(1,abs((n-(-4))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": -2.9,
+            "y": "((1)*(1-min(1,abs((n-(-3))-(0))))+(1)*(1-min(1,abs((n-(-3))-(1))))+(2)*(1-min(1,abs((n-(-3))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": -1.9,
+            "y": "((1)*(1-min(1,abs((n-(-2))-(0))))+(1)*(1-min(1,abs((n-(-2))-(1))))+(2)*(1-min(1,abs((n-(-2))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": -0.9,
+            "y": "((1)*(1-min(1,abs((n-(-1))-(0))))+(1)*(1-min(1,abs((n-(-1))-(1))))+(2)*(1-min(1,abs((n-(-1))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 0.1,
+            "y": "((1)*(1-min(1,abs((n-(0))-(0))))+(1)*(1-min(1,abs((n-(0))-(1))))+(2)*(1-min(1,abs((n-(0))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 1.1,
+            "y": "((1)*(1-min(1,abs((n-(1))-(0))))+(1)*(1-min(1,abs((n-(1))-(1))))+(2)*(1-min(1,abs((n-(1))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 2.1,
+            "y": "((1)*(1-min(1,abs((n-(2))-(0))))+(1)*(1-min(1,abs((n-(2))-(1))))+(2)*(1-min(1,abs((n-(2))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 3.1,
+            "y": "((1)*(1-min(1,abs((n-(3))-(0))))+(1)*(1-min(1,abs((n-(3))-(1))))+(2)*(1-min(1,abs((n-(3))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 4.1,
+            "y": "((1)*(1-min(1,abs((n-(4))-(0))))+(1)*(1-min(1,abs((n-(4))-(1))))+(2)*(1-min(1,abs((n-(4))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 5.1,
+            "y": "((1)*(1-min(1,abs((n-(5))-(0))))+(1)*(1-min(1,abs((n-(5))-(1))))+(2)*(1-min(1,abs((n-(5))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 6.1,
+            "y": "((1)*(1-min(1,abs((n-(6))-(0))))+(1)*(1-min(1,abs((n-(6))-(1))))+(2)*(1-min(1,abs((n-(6))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 7.1,
+            "y": "((1)*(1-min(1,abs((n-(7))-(0))))+(1)*(1-min(1,abs((n-(7))-(1))))+(2)*(1-min(1,abs((n-(7))-(2)))))",
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": 8.1,
+            "y": "((1)*(1-min(1,abs((n-(8))-(0))))+(1)*(1-min(1,abs((n-(8))-(1))))+(2)*(1-min(1,abs((n-(8))-(2)))))",
+            "guides": false,
+            "color": "red"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$y[n]$",
+            "value": "((1)*(1-min(1,abs((n)-(0))))+(3)*(1-min(1,abs((n)-(1))))+(7)*(1-min(1,abs((n)-(2))))+(7)*(1-min(1,abs((n)-(3))))+(6)*(1-min(1,abs((n)-(4)))))"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Convolution properties",
+      "body": "Convolution is commutative ($x * h = h * x$), associative and distributive. So a **cascade** of $h_1$ and $h_2$ has impulse response $h_1 * h_2$ in either order, and a **parallel** connection $h_1 + h_2$. Convolving with a shifted impulse just shifts: $x[n] * \\delta[n - n_0] = x[n - n_0]$. Quick check: the output samples add up to (sum of $x$) × (sum of $h$).",
+      "formula": "(x * h_1) * h_2 = x * (h_1 * h_2)"
+    },
+    {
+      "title": "LTI properties from h[n]",
+      "body": "An LTI system is **causal** iff $h[n] = 0$ for $n < 0$, **BIBO stable** iff $h$ is absolutely summable, and memoryless iff $h[n] = K\\delta[n]$. An **FIR** system has finitely many nonzero $h[n]$ and is always stable. An **IIR** system such as $h[n] = a^n u[n]$ is stable only if $|a| < 1$: then $\\sum |h| = 1/(1 - |a|)$.",
+      "formula": "\\sum_{n=-\\infty}^{\\infty} |h[n]| < \\infty"
+    },
+    {
+      "title": "Explore: step response",
+      "body": "The step response is the running sum of the impulse response, and conversely $h[n] = s[n] - s[n-1]$. For $h[n] = a^n u[n]$ the geometric sum gives a closed form that settles at the DC gain $1/(1-a)$ when $|a| < 1$. Drag $a$: close to 1 the response is slow, a negative $a$ approaches the final value in an alternating way.",
+      "formula": "s[n] = \\sum_{k=0}^{n} a^k = \\frac{1 - a^{n+1}}{1 - a}",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 20.5,
+          "label": "n"
+        },
+        "y": {
+          "min": 0,
+          "max": 10.5,
+          "label": "s[n]"
+        },
+        "sliders": [
+          {
+            "name": "a",
+            "label": "$a$",
+            "min": -0.8,
+            "max": 0.9,
+            "step": 0.05,
+            "value": 0.7
+          }
+        ],
+        "hlines": [
+          {
+            "y": "1/(1-a)",
+            "label": "1/(1 − a)"
+          }
+        ],
+        "curves": [
+          {
+            "f": "((1-a^1)/(1-a))*(1-abs(x-(0))/0.004)",
+            "from": -0.004,
+            "to": 0.004
+          },
+          {
+            "f": "((1-a^2)/(1-a))*(1-abs(x-(1))/0.004)",
+            "from": 0.996,
+            "to": 1.004
+          },
+          {
+            "f": "((1-a^3)/(1-a))*(1-abs(x-(2))/0.004)",
+            "from": 1.996,
+            "to": 2.004
+          },
+          {
+            "f": "((1-a^4)/(1-a))*(1-abs(x-(3))/0.004)",
+            "from": 2.996,
+            "to": 3.004
+          },
+          {
+            "f": "((1-a^5)/(1-a))*(1-abs(x-(4))/0.004)",
+            "from": 3.996,
+            "to": 4.004
+          },
+          {
+            "f": "((1-a^6)/(1-a))*(1-abs(x-(5))/0.004)",
+            "from": 4.996,
+            "to": 5.004
+          },
+          {
+            "f": "((1-a^7)/(1-a))*(1-abs(x-(6))/0.004)",
+            "from": 5.996,
+            "to": 6.004
+          },
+          {
+            "f": "((1-a^8)/(1-a))*(1-abs(x-(7))/0.004)",
+            "from": 6.996,
+            "to": 7.004
+          },
+          {
+            "f": "((1-a^9)/(1-a))*(1-abs(x-(8))/0.004)",
+            "from": 7.996,
+            "to": 8.004
+          },
+          {
+            "f": "((1-a^10)/(1-a))*(1-abs(x-(9))/0.004)",
+            "from": 8.996,
+            "to": 9.004
+          },
+          {
+            "f": "((1-a^11)/(1-a))*(1-abs(x-(10))/0.004)",
+            "from": 9.996,
+            "to": 10.004
+          },
+          {
+            "f": "((1-a^12)/(1-a))*(1-abs(x-(11))/0.004)",
+            "from": 10.996,
+            "to": 11.004
+          },
+          {
+            "f": "((1-a^13)/(1-a))*(1-abs(x-(12))/0.004)",
+            "from": 11.996,
+            "to": 12.004
+          },
+          {
+            "f": "((1-a^14)/(1-a))*(1-abs(x-(13))/0.004)",
+            "from": 12.996,
+            "to": 13.004
+          },
+          {
+            "f": "((1-a^15)/(1-a))*(1-abs(x-(14))/0.004)",
+            "from": 13.996,
+            "to": 14.004
+          },
+          {
+            "f": "((1-a^16)/(1-a))*(1-abs(x-(15))/0.004)",
+            "from": 14.996,
+            "to": 15.004
+          },
+          {
+            "f": "((1-a^17)/(1-a))*(1-abs(x-(16))/0.004)",
+            "from": 15.996,
+            "to": 16.004
+          },
+          {
+            "f": "((1-a^18)/(1-a))*(1-abs(x-(17))/0.004)",
+            "from": 16.996,
+            "to": 17.004
+          },
+          {
+            "f": "((1-a^19)/(1-a))*(1-abs(x-(18))/0.004)",
+            "from": 17.996,
+            "to": 18.004
+          },
+          {
+            "f": "((1-a^20)/(1-a))*(1-abs(x-(19))/0.004)",
+            "from": 18.996,
+            "to": 19.004
+          },
+          {
+            "f": "((1-a^21)/(1-a))*(1-abs(x-(20))/0.004)",
+            "from": 19.996,
+            "to": 20.004
+          }
+        ],
+        "points": [
+          {
+            "x": 0.0,
+            "y": "(1-a^1)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 1.0,
+            "y": "(1-a^2)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 2.0,
+            "y": "(1-a^3)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 3.0,
+            "y": "(1-a^4)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 4.0,
+            "y": "(1-a^5)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 5.0,
+            "y": "(1-a^6)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 6.0,
+            "y": "(1-a^7)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 7.0,
+            "y": "(1-a^8)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 8.0,
+            "y": "(1-a^9)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 9.0,
+            "y": "(1-a^10)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 10.0,
+            "y": "(1-a^11)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 11.0,
+            "y": "(1-a^12)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 12.0,
+            "y": "(1-a^13)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 13.0,
+            "y": "(1-a^14)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 14.0,
+            "y": "(1-a^15)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 15.0,
+            "y": "(1-a^16)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 16.0,
+            "y": "(1-a^17)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 17.0,
+            "y": "(1-a^18)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 18.0,
+            "y": "(1-a^19)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 19.0,
+            "y": "(1-a^20)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 20.0,
+            "y": "(1-a^21)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "final value $1/(1-a)$",
+            "value": "1/(1-a)"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dt-convolution-1",
+      "title": "Systems and the convolution sum",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Building blocks",
+          "body": "Every digital filter is made of delays (D), multipliers and adders. The diagram computes $y[n] = b_0\\,x[n] + b_1\\,x[n-1]$: the delay remembers the previous input sample. Because it only uses inputs, this is a two-tap FIR filter; with $b_0 = b_1 = 0.5$ it averages the last two samples.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ],
+                "label": "x[n]"
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  0
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1.5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2,
+                  0
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "b_0"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.5,
+                    0
+                  ],
+                  [
+                    4.7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "sum",
+                "at": [
+                  5,
+                  0
+                ],
+                "kind": "++"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    5.3,
+                    0
+                  ],
+                  [
+                    6.5,
+                    0
+                  ]
+                ],
+                "label": "y[n]"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    1.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2,
+                  2
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "D"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.5,
+                    2
+                  ],
+                  [
+                    3.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  4,
+                  2
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "b_1"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.5,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    5,
+                    0.3
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "b0": [
+              0.5,
+              1,
+              2
+            ],
+            "b1": [
+              0.5,
+              -1,
+              -0.5,
+              2
+            ],
+            "x4": [
+              1,
+              2,
+              3,
+              -2
+            ],
+            "x3": [
+              1,
+              2,
+              4,
+              -1
+            ]
+          },
+          "prompt": "The filter has $b_0$ = {{b0}} and $b_1$ = {{b1}}. The input has $x[4]$ = {{x4}} and $x[3]$ = {{x3}}. Find $y[4]$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ],
+                "label": "x[n]"
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  0
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1.5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2,
+                  0
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "{{b0}}"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.5,
+                    0
+                  ],
+                  [
+                    4.7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "sum",
+                "at": [
+                  5,
+                  0
+                ],
+                "kind": "++"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    5.3,
+                    0
+                  ],
+                  [
+                    6.5,
+                    0
+                  ]
+                ],
+                "label": "y[n]"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    1.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2,
+                  2
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "D"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.5,
+                    2
+                  ],
+                  [
+                    3.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  4,
+                  2
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "{{b1}}"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.5,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    5,
+                    0.3
+                  ]
+                ]
+              }
+            ]
+          },
+          "answer": "b0*x4 + b1*x3",
+          "unit": "",
+          "absTolerance": 0.01,
+          "explanation": "$y[4] = b_0\\,x[4] + b_1\\,x[3]$ = {{b0}} × ({{x4}}) + ({{b1}}) × ({{x3}}) = {{b0*x4 + b1*x3}}. The delay output at time 4 is the input from time 3."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "System properties",
+          "body": "- **Memoryless**: $y[n]$ uses only $x[n]$.\n- **Causal**: no future inputs.\n- **BIBO stable**: every bounded input gives a bounded output.\n- **Invertible**: $x$ can be recovered from $y$.\n- **Time-invariant**: delaying the input only delays the output.\n- **Linear**: superposition holds.\nExamples: $n\\,x[n]$ is time-varying and unstable, $x[2n]$ is time-varying and non-causal, $x[n] + 1$ is not linear (zero in gives 1 out), and the accumulator is not stable ($u[n]$ in gives a ramp out)."
+        },
+        {
+          "id": "q2",
+          "type": "matchPairs",
+          "prompt": "Each system fails exactly one of these properties. Match it.",
+          "pairs": [
+            [
+              "$y[n] = x[n+1]$",
+              "not causal"
+            ],
+            [
+              "$y[n] = 2x[n] + 1$",
+              "not linear"
+            ],
+            [
+              "$y[n] = \\sum_{k \\leq n} x[k]$",
+              "not BIBO stable"
+            ],
+            [
+              "$y[n] = (-1)^n\\,x[n]$",
+              "not time-invariant"
+            ]
+          ],
+          "explanation": "$x[n+1]$ needs a future input. $2x[n] + 1$ gives 1 for a zero input, so superposition fails. The accumulator turns the bounded $u[n]$ into the unbounded ramp $(n+1)u[n]$. $(-1)^n x[n]$ multiplies by a gain that changes with $n$, so a delayed input does not give a delayed output."
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "$y[n] = x[2n]$ is causal.",
+          "answer": false,
+          "explanation": "$y[1] = x[2]$, $y[2] = x[4]$: for every $n > 0$ the output needs an input from the future. The system is also time-varying."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Which description fits $y[n] = x[n] + 1$?",
+          "options": [
+            "time-invariant, but not linear",
+            "linear and time-invariant",
+            "linear, but time-varying",
+            "neither linear nor time-invariant"
+          ],
+          "answer": 0,
+          "explanation": "A linear system must give $y = 0$ for $x = 0$; here it gives 1, so it is not linear (it is 'incrementally linear'). Delaying the input by $n_0$ gives $x[n-n_0] + 1 = y[n-n_0]$, so it is time-invariant."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The convolution sum",
+          "body": "Write the input as a sum of impulses, $x[n] = \\sum_k x[k]\\,\\delta[n-k]$. An LTI system answers each $\\delta[n-k]$ with $h[n-k]$, scaled by $x[k]$. Adding these responses gives the convolution sum. Try it with a two-sample input: $x[n] = A\\delta[n] + B\\delta[n-1]$ gives $y[n] = A\\,h[n] + B\\,h[n-1]$.",
+          "formula": "y[n] = \\sum_{k=-\\infty}^{\\infty} x[k]\\,h[n-k]"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "A": [
+              2,
+              3,
+              4
+            ],
+            "B": [
+              2,
+              3,
+              5
+            ],
+            "a": [
+              0.5,
+              0.8
+            ],
+            "n0": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "An LTI system has $h[n] = ({{a}})^n u[n]$. The input is $x[n] = {{A}}\\,\\delta[n] + {{B}}\\,\\delta[n-1]$. Find $y[{{n0}}]$.",
+          "answer": "A*a^n0 + B*a^(n0-1)",
+          "unit": "",
+          "explanation": "$y[n] = {{A}}\\,h[n] + {{B}}\\,h[n-1]$, so $y[{{n0}}] = {{A}} \\cdot {{a}}^{{{n0}}}$ $+ {{B}} \\cdot {{a}}^{{{n0-1}}}$ = {{A*a^n0}} + {{B*a^(n0-1)}} = {{A*a^n0 + B*a^(n0-1)}}."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "N1": [
+              3,
+              4,
+              5,
+              6,
+              8
+            ],
+            "N2": [
+              2,
+              3,
+              4,
+              6
+            ],
+            "n1": [
+              -2,
+              -1,
+              0,
+              1,
+              3
+            ],
+            "n2": [
+              0,
+              1,
+              2
+            ]
+          },
+          "prompt": "$x[n]$ is nonzero for ${{n1}} \\leq n \\leq {{n1+N1-1}}$ and $h[n]$ for ${{n2}} \\leq n \\leq {{n2+N2-1}}$.",
+          "unit": "",
+          "tolerance": 0.001,
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": "How many samples long is $y = x * h$?",
+              "answer": "N1 + N2 - 1",
+              "explanation": "Lengths: $N_1$ = {{N1}}, $N_2$ = {{N2}}. The output length is $N_1 + N_2 - 1$ = {{N1+N2-1}}: the flipped $h$ overlaps $x$ from first touch to last touch."
+            },
+            {
+              "prompt": "What is the first index $n$ where $y[n]$ can be nonzero?",
+              "answer": "n1 + n2",
+              "explanation": "The first overlap occurs when the first samples meet: $n = n_1 + n_2$ = {{n1}} + {{n2}} = {{n1+n2}}."
+            },
+            {
+              "prompt": "What is the last index $n$ where $y[n]$ can be nonzero?",
+              "answer": "n1 + n2 + N1 + N2 - 2",
+              "explanation": "The last overlap occurs when the last samples meet: $n$ = {{n1+N1-1}} + {{n2+N2-1}} = {{n1+n2+N1+N2-2}}. (Check: first index {{n1+n2}} plus length {{N1+N2-1}} minus 1.)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dt-convolution-2",
+      "title": "Computing convolutions",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "x0": [
+              1,
+              2,
+              3,
+              -1
+            ],
+            "x1": [
+              1,
+              2,
+              3,
+              -1
+            ],
+            "x2": [
+              1,
+              2,
+              3,
+              -1
+            ],
+            "h0": [
+              1,
+              2,
+              -1,
+              3
+            ],
+            "h1": [
+              1,
+              2,
+              -1,
+              3
+            ],
+            "n0": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "xa": "((x0)*(1-min(1,abs((n0)-(0))))+(x1)*(1-min(1,abs((n0)-(1))))+(x2)*(1-min(1,abs((n0)-(2)))))",
+            "xb": "((x0)*(1-min(1,abs((n0-1)-(0))))+(x1)*(1-min(1,abs((n0-1)-(1))))+(x2)*(1-min(1,abs((n0-1)-(2)))))"
+          },
+          "prompt": "$x[0], x[1], x[2]$ = {{x0}}, {{x1}}, {{x2}} and $h[0], h[1]$ = {{h0}}, {{h1}} (all other samples 0). Find $y[{{n0}}]$ of $y = x * h$.",
+          "answer": "xa*h0 + xb*h1",
+          "unit": "",
+          "tolerance": 0.001,
+          "absTolerance": 0.01,
+          "explanation": "With only $h[0]$ and $h[1]$ nonzero, $y[n] = x[n]\\,h[0] + x[n-1]\\,h[1]$. So $y[{{n0}}]$ $= x[{{n0}}]h[0] + x[{{n0-1}}]h[1]$ = ({{xa}})({{h0}}) + ({{xb}})({{h1}}) = {{xa*h0 + xb*h1}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a0": [
+              1,
+              2,
+              3,
+              -1
+            ],
+            "a1": [
+              1,
+              2,
+              4,
+              -2
+            ],
+            "a2": [
+              1,
+              3,
+              -1
+            ],
+            "a3": [
+              2,
+              1,
+              -1
+            ],
+            "b0": [
+              1,
+              2,
+              3
+            ],
+            "b1": [
+              1,
+              -1,
+              2
+            ],
+            "b2": [
+              1,
+              2,
+              -2
+            ]
+          },
+          "require": "abs((a0+a1+a2+a3)*(b0+b1+b2))",
+          "prompt": "$x[n]$ = {{a0}}, {{a1}}, {{a2}}, {{a3}} for $n = 0 \\ldots 3$ and $h[n]$ = {{b0}}, {{b1}}, {{b2}} for $n = 0 \\ldots 2$. What is the sum of all samples of $y = x * h$? (Use a shortcut.)",
+          "answer": "(a0+a1+a2+a3)*(b0+b1+b2)",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "Every product $x[k]h[m]$ appears exactly once in the output, so $\\sum y = (\\sum x)(\\sum h)$ = ({{a0+a1+a2+a3}}) × ({{b0+b1+b2}}) = {{(a0+a1+a2+a3)*(b0+b1+b2)}}. A handy check on a hand-computed convolution."
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "nx0": [
+              -1,
+              0,
+              1,
+              2
+            ],
+            "Lx": [
+              3,
+              4,
+              5
+            ],
+            "Lh": [
+              2,
+              3
+            ]
+          },
+          "prompt": "$x[k]$ (coloured) and the flipped, shifted $h[n-k]$ (red) are shown. Drag $n$ to the **last** index where $y[n] = (x * h)[n]$ is nonzero.",
+          "plot": {
+            "x": {
+              "min": -6.5,
+              "max": 12.5,
+              "label": "k"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.4,
+              "label": "x[k], h[n − k]"
+            },
+            "sliders": [
+              {
+                "name": "n",
+                "label": "$n$",
+                "min": -6,
+                "max": 12,
+                "step": 1,
+                "value": -6
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$y[n]$",
+                "value": "sum(k, -6, 12, step(k-nx0)*step(nx0+Lx-1-k)*step(n-k)*step(Lh-1-n+k))",
+                "reveal": true
+              }
+            ],
+            "curves": [
+              {
+                "f": "(step(-6-nx0)*step(nx0+Lx-1-(-6)))*(1-abs(x-(-6.1))/0.004)",
+                "from": -6.104,
+                "to": -6.096
+              },
+              {
+                "f": "(step(-5-nx0)*step(nx0+Lx-1-(-5)))*(1-abs(x-(-5.1))/0.004)",
+                "from": -5.104,
+                "to": -5.096
+              },
+              {
+                "f": "(step(-4-nx0)*step(nx0+Lx-1-(-4)))*(1-abs(x-(-4.1))/0.004)",
+                "from": -4.104,
+                "to": -4.096
+              },
+              {
+                "f": "(step(-3-nx0)*step(nx0+Lx-1-(-3)))*(1-abs(x-(-3.1))/0.004)",
+                "from": -3.104,
+                "to": -3.096
+              },
+              {
+                "f": "(step(-2-nx0)*step(nx0+Lx-1-(-2)))*(1-abs(x-(-2.1))/0.004)",
+                "from": -2.104,
+                "to": -2.096
+              },
+              {
+                "f": "(step(-1-nx0)*step(nx0+Lx-1-(-1)))*(1-abs(x-(-1.1))/0.004)",
+                "from": -1.104,
+                "to": -1.096
+              },
+              {
+                "f": "(step(0-nx0)*step(nx0+Lx-1-(0)))*(1-abs(x-(-0.1))/0.004)",
+                "from": -0.104,
+                "to": -0.096
+              },
+              {
+                "f": "(step(1-nx0)*step(nx0+Lx-1-(1)))*(1-abs(x-(0.9))/0.004)",
+                "from": 0.896,
+                "to": 0.904
+              },
+              {
+                "f": "(step(2-nx0)*step(nx0+Lx-1-(2)))*(1-abs(x-(1.9))/0.004)",
+                "from": 1.896,
+                "to": 1.904
+              },
+              {
+                "f": "(step(3-nx0)*step(nx0+Lx-1-(3)))*(1-abs(x-(2.9))/0.004)",
+                "from": 2.896,
+                "to": 2.904
+              },
+              {
+                "f": "(step(4-nx0)*step(nx0+Lx-1-(4)))*(1-abs(x-(3.9))/0.004)",
+                "from": 3.896,
+                "to": 3.904
+              },
+              {
+                "f": "(step(5-nx0)*step(nx0+Lx-1-(5)))*(1-abs(x-(4.9))/0.004)",
+                "from": 4.896,
+                "to": 4.904
+              },
+              {
+                "f": "(step(6-nx0)*step(nx0+Lx-1-(6)))*(1-abs(x-(5.9))/0.004)",
+                "from": 5.896,
+                "to": 5.904
+              },
+              {
+                "f": "(step(7-nx0)*step(nx0+Lx-1-(7)))*(1-abs(x-(6.9))/0.004)",
+                "from": 6.896,
+                "to": 6.904
+              },
+              {
+                "f": "(step(8-nx0)*step(nx0+Lx-1-(8)))*(1-abs(x-(7.9))/0.004)",
+                "from": 7.896,
+                "to": 7.904
+              },
+              {
+                "f": "(step(9-nx0)*step(nx0+Lx-1-(9)))*(1-abs(x-(8.9))/0.004)",
+                "from": 8.896,
+                "to": 8.904
+              },
+              {
+                "f": "(step(10-nx0)*step(nx0+Lx-1-(10)))*(1-abs(x-(9.9))/0.004)",
+                "from": 9.896,
+                "to": 9.904
+              },
+              {
+                "f": "(step(11-nx0)*step(nx0+Lx-1-(11)))*(1-abs(x-(10.9))/0.004)",
+                "from": 10.896,
+                "to": 10.904
+              },
+              {
+                "f": "(step(12-nx0)*step(nx0+Lx-1-(12)))*(1-abs(x-(11.9))/0.004)",
+                "from": 11.896,
+                "to": 11.904
+              },
+              {
+                "f": "(step(n-(-6))*step(Lh-1-n+(-6)))*(1-abs(x-(-5.9))/0.004)",
+                "from": -5.904,
+                "to": -5.896,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(-5))*step(Lh-1-n+(-5)))*(1-abs(x-(-4.9))/0.004)",
+                "from": -4.904,
+                "to": -4.896,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(-4))*step(Lh-1-n+(-4)))*(1-abs(x-(-3.9))/0.004)",
+                "from": -3.904,
+                "to": -3.896,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(-3))*step(Lh-1-n+(-3)))*(1-abs(x-(-2.9))/0.004)",
+                "from": -2.904,
+                "to": -2.896,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(-2))*step(Lh-1-n+(-2)))*(1-abs(x-(-1.9))/0.004)",
+                "from": -1.904,
+                "to": -1.896,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(-1))*step(Lh-1-n+(-1)))*(1-abs(x-(-0.9))/0.004)",
+                "from": -0.904,
+                "to": -0.896,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(0))*step(Lh-1-n+(0)))*(1-abs(x-(0.1))/0.004)",
+                "from": 0.096,
+                "to": 0.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(1))*step(Lh-1-n+(1)))*(1-abs(x-(1.1))/0.004)",
+                "from": 1.096,
+                "to": 1.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(2))*step(Lh-1-n+(2)))*(1-abs(x-(2.1))/0.004)",
+                "from": 2.096,
+                "to": 2.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(3))*step(Lh-1-n+(3)))*(1-abs(x-(3.1))/0.004)",
+                "from": 3.096,
+                "to": 3.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(4))*step(Lh-1-n+(4)))*(1-abs(x-(4.1))/0.004)",
+                "from": 4.096,
+                "to": 4.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(5))*step(Lh-1-n+(5)))*(1-abs(x-(5.1))/0.004)",
+                "from": 5.096,
+                "to": 5.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(6))*step(Lh-1-n+(6)))*(1-abs(x-(6.1))/0.004)",
+                "from": 6.096,
+                "to": 6.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(7))*step(Lh-1-n+(7)))*(1-abs(x-(7.1))/0.004)",
+                "from": 7.096,
+                "to": 7.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(8))*step(Lh-1-n+(8)))*(1-abs(x-(8.1))/0.004)",
+                "from": 8.096,
+                "to": 8.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(9))*step(Lh-1-n+(9)))*(1-abs(x-(9.1))/0.004)",
+                "from": 9.096,
+                "to": 9.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(10))*step(Lh-1-n+(10)))*(1-abs(x-(10.1))/0.004)",
+                "from": 10.096,
+                "to": 10.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(11))*step(Lh-1-n+(11)))*(1-abs(x-(11.1))/0.004)",
+                "from": 11.096,
+                "to": 11.104,
+                "color": "red"
+              },
+              {
+                "f": "(step(n-(12))*step(Lh-1-n+(12)))*(1-abs(x-(12.1))/0.004)",
+                "from": 12.096,
+                "to": 12.104,
+                "color": "red"
+              }
+            ],
+            "points": [
+              {
+                "x": -6.1,
+                "y": "step(-6-nx0)*step(nx0+Lx-1-(-6))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": -5.1,
+                "y": "step(-5-nx0)*step(nx0+Lx-1-(-5))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": -4.1,
+                "y": "step(-4-nx0)*step(nx0+Lx-1-(-4))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": -3.1,
+                "y": "step(-3-nx0)*step(nx0+Lx-1-(-3))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": -2.1,
+                "y": "step(-2-nx0)*step(nx0+Lx-1-(-2))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": -1.1,
+                "y": "step(-1-nx0)*step(nx0+Lx-1-(-1))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": -0.1,
+                "y": "step(0-nx0)*step(nx0+Lx-1-(0))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 0.9,
+                "y": "step(1-nx0)*step(nx0+Lx-1-(1))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 1.9,
+                "y": "step(2-nx0)*step(nx0+Lx-1-(2))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 2.9,
+                "y": "step(3-nx0)*step(nx0+Lx-1-(3))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 3.9,
+                "y": "step(4-nx0)*step(nx0+Lx-1-(4))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 4.9,
+                "y": "step(5-nx0)*step(nx0+Lx-1-(5))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 5.9,
+                "y": "step(6-nx0)*step(nx0+Lx-1-(6))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 6.9,
+                "y": "step(7-nx0)*step(nx0+Lx-1-(7))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 7.9,
+                "y": "step(8-nx0)*step(nx0+Lx-1-(8))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 8.9,
+                "y": "step(9-nx0)*step(nx0+Lx-1-(9))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 9.9,
+                "y": "step(10-nx0)*step(nx0+Lx-1-(10))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 10.9,
+                "y": "step(11-nx0)*step(nx0+Lx-1-(11))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 11.9,
+                "y": "step(12-nx0)*step(nx0+Lx-1-(12))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": -5.9,
+                "y": "step(n-(-6))*step(Lh-1-n+(-6))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": -4.9,
+                "y": "step(n-(-5))*step(Lh-1-n+(-5))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": -3.9,
+                "y": "step(n-(-4))*step(Lh-1-n+(-4))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": -2.9,
+                "y": "step(n-(-3))*step(Lh-1-n+(-3))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": -1.9,
+                "y": "step(n-(-2))*step(Lh-1-n+(-2))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": -0.9,
+                "y": "step(n-(-1))*step(Lh-1-n+(-1))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 0.1,
+                "y": "step(n-(0))*step(Lh-1-n+(0))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 1.1,
+                "y": "step(n-(1))*step(Lh-1-n+(1))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 2.1,
+                "y": "step(n-(2))*step(Lh-1-n+(2))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 3.1,
+                "y": "step(n-(3))*step(Lh-1-n+(3))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 4.1,
+                "y": "step(n-(4))*step(Lh-1-n+(4))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 5.1,
+                "y": "step(n-(5))*step(Lh-1-n+(5))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 6.1,
+                "y": "step(n-(6))*step(Lh-1-n+(6))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 7.1,
+                "y": "step(n-(7))*step(Lh-1-n+(7))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 8.1,
+                "y": "step(n-(8))*step(Lh-1-n+(8))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 9.1,
+                "y": "step(n-(9))*step(Lh-1-n+(9))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 10.1,
+                "y": "step(n-(10))*step(Lh-1-n+(10))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 11.1,
+                "y": "step(n-(11))*step(Lh-1-n+(11))",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": 12.1,
+                "y": "step(n-(12))*step(Lh-1-n+(12))",
+                "guides": false,
+                "color": "red"
+              }
+            ]
+          },
+          "answer": {
+            "n": "nx0 + Lx + Lh - 2"
+          },
+          "tolerance": 0.01,
+          "absTolerance": 0.5,
+          "explanation": "$x$ runs from $k$ = {{nx0}} to {{nx0+Lx-1}} and $h$ from 0 to {{Lh-1}}. The last overlap is when the first sample of the flipped $h$ (that is $h[{{Lh-1}}]$, at $k = n - {{Lh-1}}$) sits on the last sample of $x$: $n$ = {{nx0+Lx-1}} + {{Lh-1}} = {{nx0+Lx+Lh-2}}."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "L": [
+              3,
+              4
+            ]
+          },
+          "prompt": "$x[n] = h[n] = u[n-1] - u[n-{{L+1}}]$. Which graph shows $y = x * h$? (Grey numbers: $n$ of the first and last nonzero sample.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "n"
+              },
+              "y": {
+                "min": "-0.25*(L + 1.5)",
+                "max": "L + 1.5",
+                "label": "y[n]"
+              },
+              "curves": [
+                {
+                  "f": "(max(0, L - abs(0 - (L+1))))*(1-abs(x-(0))/0.004)",
+                  "from": -0.004,
+                  "to": 0.004
+                },
+                {
+                  "f": "(max(0, L - abs(1 - (L+1))))*(1-abs(x-(1))/0.004)",
+                  "from": 0.996,
+                  "to": 1.004
+                },
+                {
+                  "f": "(max(0, L - abs(2 - (L+1))))*(1-abs(x-(2))/0.004)",
+                  "from": 1.996,
+                  "to": 2.004
+                },
+                {
+                  "f": "(max(0, L - abs(3 - (L+1))))*(1-abs(x-(3))/0.004)",
+                  "from": 2.996,
+                  "to": 3.004
+                },
+                {
+                  "f": "(max(0, L - abs(4 - (L+1))))*(1-abs(x-(4))/0.004)",
+                  "from": 3.996,
+                  "to": 4.004
+                },
+                {
+                  "f": "(max(0, L - abs(5 - (L+1))))*(1-abs(x-(5))/0.004)",
+                  "from": 4.996,
+                  "to": 5.004
+                },
+                {
+                  "f": "(max(0, L - abs(6 - (L+1))))*(1-abs(x-(6))/0.004)",
+                  "from": 5.996,
+                  "to": 6.004
+                },
+                {
+                  "f": "(max(0, L - abs(7 - (L+1))))*(1-abs(x-(7))/0.004)",
+                  "from": 6.996,
+                  "to": 7.004
+                },
+                {
+                  "f": "(max(0, L - abs(8 - (L+1))))*(1-abs(x-(8))/0.004)",
+                  "from": 7.996,
+                  "to": 8.004
+                },
+                {
+                  "f": "(max(0, L - abs(9 - (L+1))))*(1-abs(x-(9))/0.004)",
+                  "from": 8.996,
+                  "to": 9.004
+                },
+                {
+                  "f": "(max(0, L - abs(10 - (L+1))))*(1-abs(x-(10))/0.004)",
+                  "from": 9.996,
+                  "to": 10.004
+                }
+              ],
+              "points": [
+                {
+                  "x": 0.0,
+                  "y": "max(0, L - abs(0 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 1.0,
+                  "y": "max(0, L - abs(1 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 2.0,
+                  "y": "max(0, L - abs(2 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 3.0,
+                  "y": "max(0, L - abs(3 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 4.0,
+                  "y": "max(0, L - abs(4 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 5.0,
+                  "y": "max(0, L - abs(5 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 6.0,
+                  "y": "max(0, L - abs(6 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 7.0,
+                  "y": "max(0, L - abs(7 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 8.0,
+                  "y": "max(0, L - abs(8 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 9.0,
+                  "y": "max(0, L - abs(9 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 10.0,
+                  "y": "max(0, L - abs(10 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                }
+              ],
+              "labels": [
+                {
+                  "x": "2 - 0.3",
+                  "y": "-0.13*(L + 1.5)",
+                  "text": "{{2}}",
+                  "color": "grey"
+                },
+                {
+                  "x": "2*L - 0.3",
+                  "y": "-0.13*(L + 1.5)",
+                  "text": "{{2*L}}",
+                  "color": "grey"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "n"
+              },
+              "y": {
+                "min": "-0.25*(L + 1.5)",
+                "max": "L + 1.5",
+                "label": "y[n]"
+              },
+              "curves": [
+                {
+                  "f": "(max(0, L - abs(0 - L)))*(1-abs(x-(0))/0.004)",
+                  "from": -0.004,
+                  "to": 0.004
+                },
+                {
+                  "f": "(max(0, L - abs(1 - L)))*(1-abs(x-(1))/0.004)",
+                  "from": 0.996,
+                  "to": 1.004
+                },
+                {
+                  "f": "(max(0, L - abs(2 - L)))*(1-abs(x-(2))/0.004)",
+                  "from": 1.996,
+                  "to": 2.004
+                },
+                {
+                  "f": "(max(0, L - abs(3 - L)))*(1-abs(x-(3))/0.004)",
+                  "from": 2.996,
+                  "to": 3.004
+                },
+                {
+                  "f": "(max(0, L - abs(4 - L)))*(1-abs(x-(4))/0.004)",
+                  "from": 3.996,
+                  "to": 4.004
+                },
+                {
+                  "f": "(max(0, L - abs(5 - L)))*(1-abs(x-(5))/0.004)",
+                  "from": 4.996,
+                  "to": 5.004
+                },
+                {
+                  "f": "(max(0, L - abs(6 - L)))*(1-abs(x-(6))/0.004)",
+                  "from": 5.996,
+                  "to": 6.004
+                },
+                {
+                  "f": "(max(0, L - abs(7 - L)))*(1-abs(x-(7))/0.004)",
+                  "from": 6.996,
+                  "to": 7.004
+                },
+                {
+                  "f": "(max(0, L - abs(8 - L)))*(1-abs(x-(8))/0.004)",
+                  "from": 7.996,
+                  "to": 8.004
+                },
+                {
+                  "f": "(max(0, L - abs(9 - L)))*(1-abs(x-(9))/0.004)",
+                  "from": 8.996,
+                  "to": 9.004
+                },
+                {
+                  "f": "(max(0, L - abs(10 - L)))*(1-abs(x-(10))/0.004)",
+                  "from": 9.996,
+                  "to": 10.004
+                }
+              ],
+              "points": [
+                {
+                  "x": 0.0,
+                  "y": "max(0, L - abs(0 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 1.0,
+                  "y": "max(0, L - abs(1 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 2.0,
+                  "y": "max(0, L - abs(2 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 3.0,
+                  "y": "max(0, L - abs(3 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 4.0,
+                  "y": "max(0, L - abs(4 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 5.0,
+                  "y": "max(0, L - abs(5 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 6.0,
+                  "y": "max(0, L - abs(6 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 7.0,
+                  "y": "max(0, L - abs(7 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 8.0,
+                  "y": "max(0, L - abs(8 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 9.0,
+                  "y": "max(0, L - abs(9 - L))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 10.0,
+                  "y": "max(0, L - abs(10 - L))",
+                  "guides": false,
+                  "color": "primary"
+                }
+              ],
+              "labels": [
+                {
+                  "x": "1 - 0.3",
+                  "y": "-0.13*(L + 1.5)",
+                  "text": "{{1}}",
+                  "color": "grey"
+                },
+                {
+                  "x": "2*L-1 - 0.3",
+                  "y": "-0.13*(L + 1.5)",
+                  "text": "{{2*L-1}}",
+                  "color": "grey"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "n"
+              },
+              "y": {
+                "min": "-0.25*(L + 1.5)",
+                "max": "L + 1.5",
+                "label": "y[n]"
+              },
+              "curves": [
+                {
+                  "f": "(L*step(0 - 2)*step(2*L - 0))*(1-abs(x-(0))/0.004)",
+                  "from": -0.004,
+                  "to": 0.004
+                },
+                {
+                  "f": "(L*step(1 - 2)*step(2*L - 1))*(1-abs(x-(1))/0.004)",
+                  "from": 0.996,
+                  "to": 1.004
+                },
+                {
+                  "f": "(L*step(2 - 2)*step(2*L - 2))*(1-abs(x-(2))/0.004)",
+                  "from": 1.996,
+                  "to": 2.004
+                },
+                {
+                  "f": "(L*step(3 - 2)*step(2*L - 3))*(1-abs(x-(3))/0.004)",
+                  "from": 2.996,
+                  "to": 3.004
+                },
+                {
+                  "f": "(L*step(4 - 2)*step(2*L - 4))*(1-abs(x-(4))/0.004)",
+                  "from": 3.996,
+                  "to": 4.004
+                },
+                {
+                  "f": "(L*step(5 - 2)*step(2*L - 5))*(1-abs(x-(5))/0.004)",
+                  "from": 4.996,
+                  "to": 5.004
+                },
+                {
+                  "f": "(L*step(6 - 2)*step(2*L - 6))*(1-abs(x-(6))/0.004)",
+                  "from": 5.996,
+                  "to": 6.004
+                },
+                {
+                  "f": "(L*step(7 - 2)*step(2*L - 7))*(1-abs(x-(7))/0.004)",
+                  "from": 6.996,
+                  "to": 7.004
+                },
+                {
+                  "f": "(L*step(8 - 2)*step(2*L - 8))*(1-abs(x-(8))/0.004)",
+                  "from": 7.996,
+                  "to": 8.004
+                },
+                {
+                  "f": "(L*step(9 - 2)*step(2*L - 9))*(1-abs(x-(9))/0.004)",
+                  "from": 8.996,
+                  "to": 9.004
+                },
+                {
+                  "f": "(L*step(10 - 2)*step(2*L - 10))*(1-abs(x-(10))/0.004)",
+                  "from": 9.996,
+                  "to": 10.004
+                }
+              ],
+              "points": [
+                {
+                  "x": 0.0,
+                  "y": "L*step(0 - 2)*step(2*L - 0)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 1.0,
+                  "y": "L*step(1 - 2)*step(2*L - 1)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 2.0,
+                  "y": "L*step(2 - 2)*step(2*L - 2)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 3.0,
+                  "y": "L*step(3 - 2)*step(2*L - 3)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 4.0,
+                  "y": "L*step(4 - 2)*step(2*L - 4)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 5.0,
+                  "y": "L*step(5 - 2)*step(2*L - 5)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 6.0,
+                  "y": "L*step(6 - 2)*step(2*L - 6)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 7.0,
+                  "y": "L*step(7 - 2)*step(2*L - 7)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 8.0,
+                  "y": "L*step(8 - 2)*step(2*L - 8)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 9.0,
+                  "y": "L*step(9 - 2)*step(2*L - 9)",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 10.0,
+                  "y": "L*step(10 - 2)*step(2*L - 10)",
+                  "guides": false,
+                  "color": "primary"
+                }
+              ],
+              "labels": [
+                {
+                  "x": "2 - 0.3",
+                  "y": "-0.13*(L + 1.5)",
+                  "text": "{{2}}",
+                  "color": "grey"
+                },
+                {
+                  "x": "2*L - 0.3",
+                  "y": "-0.13*(L + 1.5)",
+                  "text": "{{2*L}}",
+                  "color": "grey"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "n"
+              },
+              "y": {
+                "min": "-0.25*(L + 1.5)",
+                "max": "L + 1.5",
+                "label": "y[n]"
+              },
+              "curves": [
+                {
+                  "f": "(max(0, L + 1 - abs(0 - (L+1))))*(1-abs(x-(0))/0.004)",
+                  "from": -0.004,
+                  "to": 0.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(1 - (L+1))))*(1-abs(x-(1))/0.004)",
+                  "from": 0.996,
+                  "to": 1.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(2 - (L+1))))*(1-abs(x-(2))/0.004)",
+                  "from": 1.996,
+                  "to": 2.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(3 - (L+1))))*(1-abs(x-(3))/0.004)",
+                  "from": 2.996,
+                  "to": 3.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(4 - (L+1))))*(1-abs(x-(4))/0.004)",
+                  "from": 3.996,
+                  "to": 4.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(5 - (L+1))))*(1-abs(x-(5))/0.004)",
+                  "from": 4.996,
+                  "to": 5.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(6 - (L+1))))*(1-abs(x-(6))/0.004)",
+                  "from": 5.996,
+                  "to": 6.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(7 - (L+1))))*(1-abs(x-(7))/0.004)",
+                  "from": 6.996,
+                  "to": 7.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(8 - (L+1))))*(1-abs(x-(8))/0.004)",
+                  "from": 7.996,
+                  "to": 8.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(9 - (L+1))))*(1-abs(x-(9))/0.004)",
+                  "from": 8.996,
+                  "to": 9.004
+                },
+                {
+                  "f": "(max(0, L + 1 - abs(10 - (L+1))))*(1-abs(x-(10))/0.004)",
+                  "from": 9.996,
+                  "to": 10.004
+                }
+              ],
+              "points": [
+                {
+                  "x": 0.0,
+                  "y": "max(0, L + 1 - abs(0 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 1.0,
+                  "y": "max(0, L + 1 - abs(1 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 2.0,
+                  "y": "max(0, L + 1 - abs(2 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 3.0,
+                  "y": "max(0, L + 1 - abs(3 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 4.0,
+                  "y": "max(0, L + 1 - abs(4 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 5.0,
+                  "y": "max(0, L + 1 - abs(5 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 6.0,
+                  "y": "max(0, L + 1 - abs(6 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 7.0,
+                  "y": "max(0, L + 1 - abs(7 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 8.0,
+                  "y": "max(0, L + 1 - abs(8 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 9.0,
+                  "y": "max(0, L + 1 - abs(9 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                },
+                {
+                  "x": 10.0,
+                  "y": "max(0, L + 1 - abs(10 - (L+1)))",
+                  "guides": false,
+                  "color": "primary"
+                }
+              ],
+              "labels": [
+                {
+                  "x": "1 - 0.3",
+                  "y": "-0.13*(L + 1.5)",
+                  "text": "{{1}}",
+                  "color": "grey"
+                },
+                {
+                  "x": "2*L+1 - 0.3",
+                  "y": "-0.13*(L + 1.5)",
+                  "text": "{{2*L+1}}",
+                  "color": "grey"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "Each pulse has {{L}} samples, at $n = 1 \\ldots {{L}}$. The output has $N_1 + N_2 - 1$ = {{2*L-1}} samples and starts at $n_1 + n_2 = 1 + 1 = 2$, so it runs from $n = 2$ to {{2*L}}. The overlap grows by one sample per step up to {{L}} at $n$ = {{L+1}} and then shrinks: a triangle."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "c": [
+              2,
+              3,
+              4
+            ],
+            "n0": [
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          },
+          "prompt": "$x[n] = {{c}}\\,n^2\\,u[n]$ passes through $h[n] = \\delta[n] - \\delta[n-1]$. Find $y[{{n0}}]$.",
+          "answer": "c*(2*n0 - 1)",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "Convolving with $\\delta[n] - \\delta[n-1]$ gives $y[n] = x[n] - x[n-1]$ (the first difference). $y[{{n0}}]$ $= {{c}}({{n0}}^2 - {{n0-1}}^2)$ = {{c}} × {{2*n0-1}} = {{c*(2*n0-1)}}."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              1.5,
+              2,
+              3
+            ],
+            "bb": [
+              0.5,
+              2,
+              2.5
+            ]
+          },
+          "require": "abs(a - bb)",
+          "prompt": "Two systems in cascade: $h_1[n] = \\delta[n] + {{a}}\\,\\delta[n-1]$ and $h_2[n] = \\delta[n] - {{bb}}\\,\\delta[n-1]$.",
+          "unit": "",
+          "tolerance": 0.001,
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": "Find $h[1]$ of the overall impulse response.",
+              "answer": "a - bb",
+              "explanation": "$h = h_1 * h_2$ $= \\delta[n] + ({{a}} - {{bb}})\\,\\delta[n-1]$ $- {{a}} \\cdot {{bb}}\\,\\delta[n-2]$, like multiplying polynomials. So $h[1]$ = {{a-bb}}."
+            },
+            {
+              "prompt": "Find $h[2]$ of the overall impulse response.",
+              "answer": "-a*bb",
+              "explanation": "$h = h_1 * h_2$ $= \\delta[n] + ({{a}} - {{bb}})\\,\\delta[n-1]$ $- {{a}} \\cdot {{bb}}\\,\\delta[n-2]$, like multiplying polynomials. So $h[2]$ = {{-a*bb}}."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "h0": [
+              1,
+              2,
+              3
+            ],
+            "h1": [
+              -1,
+              1,
+              2,
+              4
+            ],
+            "h2": [
+              1,
+              -2,
+              3
+            ],
+            "n0": [
+              0,
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "An FIR filter has $h[0], h[1], h[2]$ = {{h0}}, {{h1}}, {{h2}}. Find its step response $s[{{n0}}]$.",
+          "answer": "h0 + h1*step(n0-1) + h2*step(n0-2)",
+          "unit": "",
+          "tolerance": 0.001,
+          "absTolerance": 0.01,
+          "explanation": "$s[n] = \\sum_{k \\leq n} h[k]$, the running sum of $h$: $s[0]$ = {{h0}}, $s[1]$ = {{h0+h1}}, and from $n = 2$ on $s[n]$ = {{h0+h1+h2}} (the DC gain). So $s[{{n0}}]$ = {{h0 + h1*step(n0-1) + h2*step(n0-2)}}."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "$x[n] * \\delta[n+2] = x[n-2]$.",
+          "answer": false,
+          "explanation": "Convolving with $\\delta[n - n_0]$ gives $x[n - n_0]$. Here $n_0 = -2$, so the result is $x[n+2]$: an **advance** by 2 samples, not a delay."
+        }
+      ]
+    },
+    {
+      "id": "dt-convolution-3",
+      "title": "Causality, stability and step response",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Which impulse response belongs to a system that is both **causal** and **BIBO stable**?",
+          "options": [
+            "$h[n] = 0.5^n\\,u[n]$",
+            "$h[n] = 2^n\\,u[n]$",
+            "$h[n] = \\delta[n+1]$",
+            "$h[n] = u[n]$",
+            "$h[n] = 0.5^n\\,u[-n]$"
+          ],
+          "answer": 0,
+          "explanation": "Causal needs $h[n] = 0$ for $n < 0$; stable needs $\\sum|h| < \\infty$. $0.5^n u[n]$ has both ($\\sum = 2$). $2^n u[n]$ and $u[n]$ are causal but not summable, $\\delta[n+1]$ is stable but non-causal, and $0.5^n u[-n] = 2^{|n|}$ for $n \\leq 0$ is neither."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "A": [
+              2,
+              3,
+              5
+            ],
+            "a": [
+              0.5,
+              0.8,
+              0.9,
+              -0.5,
+              -0.8
+            ]
+          },
+          "prompt": "Find $\\sum_n |h[n]|$ for $h[n] = {{A}}\\,({{a}})^n u[n]$.",
+          "answer": "A/(1 - abs(a))",
+          "unit": "",
+          "explanation": "$\\sum_{n=0}^{\\infty} {{A}}\\,|{{a}}|^n$ $= \\frac{{{A}}}{1 - |a|}$ $= \\frac{{{A}}}{1 - {{abs(a)}}}$ = {{A/(1-abs(a))}}. It is finite, so the system is stable. (For negative $a$, $A/(1-a)$ would be the sum of $h$, not of $|h|$.)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.6,
+              0.8,
+              0.9,
+              -0.5
+            ],
+            "n0": [
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "An LTI system with $h[n] = ({{a}})^n u[n]$ gets the input $u[n]$.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "Find $s[{{n0}}]$.",
+              "answer": "(1 - a^(n0+1))/(1 - a)",
+              "explanation": "$s[n] = \\sum_{k=0}^{n} a^k = \\frac{1 - a^{n+1}}{1 - a}$, so $s[{{n0}}]$ $= \\frac{1 - ({{a}})^{{{n0+1}}}}{1 - ({{a}})}$ = {{(1 - a^(n0+1))/(1 - a)}}."
+            },
+            {
+              "prompt": "Find the final value $s[\\infty]$.",
+              "answer": "1/(1 - a)",
+              "explanation": "With $|a| < 1$, $a^{n+1} \\to 0$, so $s[\\infty] = \\frac{1}{1 - a} = \\frac{1}{1 - ({{a}})}$ = {{1/(1-a)}}: the DC gain, equal to $\\sum h[n]$."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "params": {
+            "a": [
+              0.95,
+              -0.9,
+              1.05,
+              -1.1,
+              1
+            ]
+          },
+          "prompt": "The system with $h[n] = ({{a}})^n u[n]$ is BIBO stable.",
+          "answer": "1 - abs(a)",
+          "explanation": "$\\sum |h| = \\sum |a|^n$ converges only for $|a| < 1$. Here $|a|$ = {{abs(a)}}. Note that $a = 1$ (the accumulator) is already unstable: the step input gives a ramp."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each impulse response to its description.",
+          "pairs": [
+            [
+              "$\\delta[n] - \\delta[n-1]$",
+              "FIR first difference"
+            ],
+            [
+              "$0.9^n\\,u[n]$",
+              "IIR, stable"
+            ],
+            [
+              "$u[n]$",
+              "accumulator, unstable"
+            ],
+            [
+              "$3\\,\\delta[n]$",
+              "memoryless gain"
+            ],
+            [
+              "$\\delta[n+2]$",
+              "non-causal advance"
+            ]
+          ],
+          "explanation": "Finite length means FIR. $0.9^n u[n]$ is infinitely long but absolutely summable. $u[n]$ sums all past inputs and is not summable. Only $K\\delta[n]$ is memoryless. $\\delta[n+2]$ is nonzero at $n = -2 < 0$, so it uses a future input."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              4,
+              5
+            ],
+            "r": [
+              0.5,
+              0.8
+            ],
+            "n0": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "A causal LTI system has step response $s[n] = {{K}}\\left(1 - {{r}}^{\\,n+1}\\right)u[n]$. Find $h[{{n0}}]$.",
+          "answer": "K*(1-r)*r^n0",
+          "unit": "",
+          "explanation": "$h[n]$ $= s[n] - s[n-1]$ $= {{K}}({{r}}^{n} - {{r}}^{n+1})$ $= {{K}}(1 - {{r}})\\,{{r}}^n$. For $n$ = {{n0}}: {{K*(1-r)}} × {{r^n0}} = {{K*(1-r)*r^n0}}."
+        },
+        {
+          "id": "q7",
+          "type": "slider",
+          "params": {
+            "T": [
+              2,
+              2.5,
+              4,
+              5
+            ]
+          },
+          "prompt": "The plot shows the step response of $h[n] = a^n u[n]$. Set $a$ so that it settles at {{T}}.",
+          "plot": {
+            "x": {
+              "min": -0.5,
+              "max": 20.5,
+              "label": "n"
+            },
+            "y": {
+              "min": 0,
+              "max": 6,
+              "label": "s[n]"
+            },
+            "sliders": [
+              {
+                "name": "a",
+                "label": "$a$",
+                "min": -0.9,
+                "max": 0.9,
+                "step": 0.01,
+                "value": 0
+              }
+            ],
+            "hlines": [
+              {
+                "y": "T",
+                "label": "target {{T}}"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$1/(1-a)$",
+                "value": "1/(1-a)",
+                "reveal": true
+              }
+            ],
+            "curves": [
+              {
+                "f": "((1-a^1)/(1-a))*(1-abs(x-(0))/0.004)",
+                "from": -0.004,
+                "to": 0.004
+              },
+              {
+                "f": "((1-a^2)/(1-a))*(1-abs(x-(1))/0.004)",
+                "from": 0.996,
+                "to": 1.004
+              },
+              {
+                "f": "((1-a^3)/(1-a))*(1-abs(x-(2))/0.004)",
+                "from": 1.996,
+                "to": 2.004
+              },
+              {
+                "f": "((1-a^4)/(1-a))*(1-abs(x-(3))/0.004)",
+                "from": 2.996,
+                "to": 3.004
+              },
+              {
+                "f": "((1-a^5)/(1-a))*(1-abs(x-(4))/0.004)",
+                "from": 3.996,
+                "to": 4.004
+              },
+              {
+                "f": "((1-a^6)/(1-a))*(1-abs(x-(5))/0.004)",
+                "from": 4.996,
+                "to": 5.004
+              },
+              {
+                "f": "((1-a^7)/(1-a))*(1-abs(x-(6))/0.004)",
+                "from": 5.996,
+                "to": 6.004
+              },
+              {
+                "f": "((1-a^8)/(1-a))*(1-abs(x-(7))/0.004)",
+                "from": 6.996,
+                "to": 7.004
+              },
+              {
+                "f": "((1-a^9)/(1-a))*(1-abs(x-(8))/0.004)",
+                "from": 7.996,
+                "to": 8.004
+              },
+              {
+                "f": "((1-a^10)/(1-a))*(1-abs(x-(9))/0.004)",
+                "from": 8.996,
+                "to": 9.004
+              },
+              {
+                "f": "((1-a^11)/(1-a))*(1-abs(x-(10))/0.004)",
+                "from": 9.996,
+                "to": 10.004
+              },
+              {
+                "f": "((1-a^12)/(1-a))*(1-abs(x-(11))/0.004)",
+                "from": 10.996,
+                "to": 11.004
+              },
+              {
+                "f": "((1-a^13)/(1-a))*(1-abs(x-(12))/0.004)",
+                "from": 11.996,
+                "to": 12.004
+              },
+              {
+                "f": "((1-a^14)/(1-a))*(1-abs(x-(13))/0.004)",
+                "from": 12.996,
+                "to": 13.004
+              },
+              {
+                "f": "((1-a^15)/(1-a))*(1-abs(x-(14))/0.004)",
+                "from": 13.996,
+                "to": 14.004
+              },
+              {
+                "f": "((1-a^16)/(1-a))*(1-abs(x-(15))/0.004)",
+                "from": 14.996,
+                "to": 15.004
+              },
+              {
+                "f": "((1-a^17)/(1-a))*(1-abs(x-(16))/0.004)",
+                "from": 15.996,
+                "to": 16.004
+              },
+              {
+                "f": "((1-a^18)/(1-a))*(1-abs(x-(17))/0.004)",
+                "from": 16.996,
+                "to": 17.004
+              },
+              {
+                "f": "((1-a^19)/(1-a))*(1-abs(x-(18))/0.004)",
+                "from": 17.996,
+                "to": 18.004
+              },
+              {
+                "f": "((1-a^20)/(1-a))*(1-abs(x-(19))/0.004)",
+                "from": 18.996,
+                "to": 19.004
+              },
+              {
+                "f": "((1-a^21)/(1-a))*(1-abs(x-(20))/0.004)",
+                "from": 19.996,
+                "to": 20.004
+              }
+            ],
+            "points": [
+              {
+                "x": 0.0,
+                "y": "(1-a^1)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 1.0,
+                "y": "(1-a^2)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 2.0,
+                "y": "(1-a^3)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 3.0,
+                "y": "(1-a^4)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 4.0,
+                "y": "(1-a^5)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 5.0,
+                "y": "(1-a^6)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 6.0,
+                "y": "(1-a^7)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 7.0,
+                "y": "(1-a^8)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 8.0,
+                "y": "(1-a^9)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 9.0,
+                "y": "(1-a^10)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 10.0,
+                "y": "(1-a^11)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 11.0,
+                "y": "(1-a^12)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 12.0,
+                "y": "(1-a^13)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 13.0,
+                "y": "(1-a^14)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 14.0,
+                "y": "(1-a^15)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 15.0,
+                "y": "(1-a^16)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 16.0,
+                "y": "(1-a^17)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 17.0,
+                "y": "(1-a^18)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 18.0,
+                "y": "(1-a^19)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 19.0,
+                "y": "(1-a^20)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 20.0,
+                "y": "(1-a^21)/(1-a)",
+                "guides": false,
+                "color": "primary"
+              }
+            ]
+          },
+          "answer": {
+            "a": "1 - 1/T"
+          },
+          "tolerance": 0.02,
+          "explanation": "The final value is the DC gain $\\sum h = 1/(1-a)$. Setting $1/(1-a)$ = {{T}} gives $a = 1 - 1/{{T}}$ = {{1-1/T}}. The closer $a$ is to 1, the higher the gain and the slower the response."
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "prompt": "Which description fits $y[n] = n\\,x[n]$?",
+          "options": [
+            "linear, time-varying, not BIBO stable",
+            "linear, time-invariant, stable",
+            "nonlinear, time-varying, stable",
+            "linear, time-varying, stable"
+          ],
+          "answer": 0,
+          "explanation": "Scaling or adding inputs scales or adds outputs, so it is linear. The gain $n$ changes with time, so it is time-varying (it has no constant $h[n]$). The bounded input $u[n]$ gives $n\\,u[n]$, which grows without bound: not stable."
+        }
+      ]
+    },
+    {
+      "id": "dt-convolution-4",
+      "title": "Convolution workout",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "p0": [
+              1,
+              2,
+              3
+            ],
+            "p1": [
+              -1,
+              1,
+              2,
+              4
+            ],
+            "p2": [
+              1,
+              2,
+              -2
+            ],
+            "q0": [
+              1,
+              2,
+              -1
+            ],
+            "q1": [
+              1,
+              3,
+              -2
+            ],
+            "q2": [
+              2,
+              1,
+              -1
+            ]
+          },
+          "prompt": "$x[n]$ = {{p0}}, {{p1}}, {{p2}} and $h[n]$ = {{q0}}, {{q1}}, {{q2}}, both for $n = 0 \\ldots 2$.",
+          "unit": "",
+          "tolerance": 0.001,
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": "Find $y[1]$ of $y = x * h$.",
+              "answer": "p0*q1 + p1*q0",
+              "explanation": "$y[1] = x[0]h[1] + x[1]h[0]$ = ({{p0}})({{q1}}) + ({{p1}})({{q0}}) = {{p0*q1 + p1*q0}}. The indices of each product add up to $n = 1$."
+            },
+            {
+              "prompt": "Find $y[2]$ of $y = x * h$.",
+              "answer": "p0*q2 + p1*q1 + p2*q0",
+              "explanation": "$y[2]$ $= x[0]h[2] + x[1]h[1] + x[2]h[0]$ = ({{p0}})({{q2}}) + ({{p1}})({{q1}}) + ({{p2}})({{q0}}) = {{p0*q2 + p1*q1 + p2*q0}}. The indices of each product add up to $n = 2$."
+            },
+            {
+              "prompt": "Find $y[3]$ of $y = x * h$.",
+              "answer": "p1*q2 + p2*q1",
+              "explanation": "$y[3] = x[1]h[2] + x[2]h[1]$ = ({{p1}})({{q2}}) + ({{p2}})({{q1}}) = {{p1*q2 + p2*q1}}. The indices of each product add up to $n = 3$."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "A": [
+              2,
+              3,
+              5
+            ],
+            "n1": [
+              1,
+              2
+            ],
+            "a": [
+              0.5,
+              0.8
+            ],
+            "n0": [
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "An LTI system with $h[n] = ({{a}})^n u[n]$ gets the delayed step $x[n] = {{A}}\\,u[n-{{n1}}]$. Find $y[{{n0}}]$.",
+          "answer": "A*(1 - a^(n0-n1+1))/(1 - a)",
+          "unit": "",
+          "explanation": "Time invariance and linearity: $y[n] = {{A}}\\,s[n - {{n1}}]$ with $s[n] = \\frac{1 - a^{n+1}}{1 - a}$. So $y[{{n0}}]$ $= {{A}}\\,s[{{n0-n1}}]$ $= {{A}} \\cdot \\frac{1 - {{a}}^{{{n0-n1+1}}}}{1 - {{a}}}$ = {{A*(1 - a^(n0-n1+1))/(1 - a)}}."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9
+            ],
+            "b": [
+              -0.5,
+              0.25,
+              0.4
+            ],
+            "n0": [
+              2,
+              3
+            ]
+          },
+          "prompt": "Find $y[{{n0}}]$ for the convolution $({{a}})^n u[n] * ({{b}})^n u[n]$.",
+          "answer": "(a^(n0+1) - b^(n0+1))/(a - b)",
+          "unit": "",
+          "explanation": "$y[n]$ $= \\sum_{k=0}^{n} a^k b^{n-k}$ $= \\frac{a^{n+1} - b^{n+1}}{a - b}$ for $n \\geq 0$. With $n$ = {{n0}}: $\\frac{{{a^(n0+1)}} - ({{b^(n0+1)}})}{{{a}} - ({{b}})}$ = {{(a^(n0+1) - b^(n0+1))/(a - b)}}. (Check for $n = 1$: $a + b$.)",
+          "require": "abs(a + b)"
+        },
+        {
+          "id": "c4",
+          "type": "multipleChoice",
+          "prompt": "Classify $y[n] = \\sum_{k=n-2}^{n+1} x[k]$.",
+          "options": [
+            "FIR, stable, not causal",
+            "FIR, stable and causal",
+            "IIR, stable, not causal",
+            "FIR, not stable, causal"
+          ],
+          "answer": 0,
+          "explanation": "Substitute $m = n - k$: $y[n] = \\sum_{m=-1}^{2} x[n - m]$, so $h[n] = 1$ for $-1 \\leq n \\leq 2$. Four nonzero samples: FIR and therefore stable. $h[-1] \\neq 0$ (it uses $x[n+1]$), so it is not causal."
+        },
+        {
+          "id": "c5",
+          "type": "orderSteps",
+          "prompt": "Put the steps for computing $y[n]$ by flip-and-slide in order.",
+          "items": [
+            "Draw $x[k]$ and $h[k]$ against $k$",
+            "Flip $h$: $h[-k]$",
+            "Shift by $n$: $h[n-k]$",
+            "Multiply $x[k]\\,h[n-k]$ for every $k$",
+            "Add the products to get $y[n]$",
+            "Repeat for the next $n$"
+          ],
+          "explanation": "The convolution sum $y[n] = \\sum_k x[k]h[n-k]$ is evaluated for one $n$ at a time: flip, shift by $n$, multiply and add. Then slide one step further."
+        },
+        {
+          "id": "c6",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              3,
+              0.5
+            ],
+            "c": [
+              0.5,
+              2,
+              3
+            ]
+          },
+          "prompt": "$h_1[n] = \\delta[n]$ and $h_2[n] = {{a}}\\,\\delta[n-1]$ are in **parallel**; their sum is followed in **cascade** by $h_3[n] = \\delta[n] + {{c}}\\,\\delta[n-1]$.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "Find $h[1]$ of the complete system.",
+              "answer": "a + c",
+              "explanation": "Parallel: $h_1 + h_2 = \\delta[n] + {{a}}\\,\\delta[n-1]$. Cascade with $h_3$: $(\\delta[n] + {{a}}\\delta[n-1])$ $* (\\delta[n] + {{c}}\\delta[n-1])$ $= \\delta[n] + ({{a}} + {{c}})\\delta[n-1]$ $+ {{a*c}}\\,\\delta[n-2]$. So $h[1]$ = {{a+c}}."
+            },
+            {
+              "prompt": "Find $h[2]$ of the complete system.",
+              "answer": "a*c",
+              "explanation": "Parallel: $h_1 + h_2 = \\delta[n] + {{a}}\\,\\delta[n-1]$. Cascade with $h_3$: $(\\delta[n] + {{a}}\\delta[n-1])$ $* (\\delta[n] + {{c}}\\delta[n-1])$ $= \\delta[n] + ({{a}} + {{c}})\\delta[n-1]$ $+ {{a*c}}\\,\\delta[n-2]$. So $h[2]$ = {{a*c}}."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

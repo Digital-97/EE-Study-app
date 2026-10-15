@@ -1,0 +1,2775 @@
+{
+ "id": "cl-dependent",
+ "title": "Dependent Sources",
+ "description": "Circuits with VCVS, CCVS, VCCS and CCCS: node voltages, controlling quantities and Thévenin resistance.",
+ "reference": "Hambley §1.6, 2.4, 2.6",
+ "study": [
+  {
+   "title": "Four kinds of dependent sources",
+   "body": "A dependent (diamond) source is set by a voltage or current elsewhere in the circuit. The gain's unit follows from output/control: $\\mu$ and $\\beta$ are dimensionless, $r$ is in Ω, $g$ in S.",
+   "formula": "\\text{VCVS: } \\mu v_x \\quad \\text{CCVS: } r\\,i_x \\quad \\text{VCCS: } g\\,v_x \\quad \\text{CCCS: } \\beta\\,i_x"
+  },
+  {
+   "title": "Strategy",
+   "body": "Write node (or mesh) equations treating the dependent source like an independent one, with its value as an expression. Then add one equation that expresses the **controlling variable** in your unknowns, e.g. $i_x = (V_s - v_x)/R_1$. Solve the combined set.",
+   "formula": "i_x = \\frac{V_s - v_x}{R_1}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "vsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_s"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       0.2,
+       0
+      ],
+      "to": [
+       0.8,
+       0
+      ],
+      "label": "i_x"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "R_1"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       3,
+       2
+      ],
+      "label": "R_2"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "R_3"
+     },
+     {
+      "type": "cvsource",
+      "from": [
+       5,
+       2
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "H_1",
+      "value": "r·i_x"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        5,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       3,
+       0
+      ],
+      "label": "v_x"
+     },
+     {
+      "type": "node",
+      "at": [
+       3,
+       2
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Thévenin with dependent sources",
+   "body": "**Never zero a dependent source.** Either compute $v_{oc}$ and $i_{sc}$ and use $R_t = v_{oc}/i_{sc}$, or zero only the independent sources, apply a test source at a–b and use $R_t = v_{test}/i_{test}$. Shortcut: a VCCS $g\\,v_{ab}$ across its own terminals acts like a resistor $1/g$; a CCVS $r\\,i$ in series with its own current $i$ acts like a resistor $r$.",
+   "formula": "R_t = \\frac{v_{oc}}{i_{sc}} = \\frac{v_{test}}{i_{test}}"
+  },
+  {
+   "title": "Common mistakes",
+   "body": "- Zeroing the dependent source when finding $R_t$.\n- Getting the sign of the controlling variable wrong: read the arrow or polarity of $i_x$ or $v_x$ on the diagram.\n- Forgetting the gain units: $r$ = 2 kΩ means 2000 V per A, so 1 mA gives 2 V.\n- Expecting $R_t$ from series/parallel reduction alone: with feedback it can even come out negative."
+  }
+ ],
+ "lessons": [
+  {
+   "title": "Amplifier models",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "q1",
+     "type": "matchPairs",
+     "prompt": "Match each dependent source with its defining equation.",
+     "pairs": [
+      [
+       "VCVS",
+       "$v = \\mu v_x$"
+      ],
+      [
+       "CCVS",
+       "$v = r\\,i_x$"
+      ],
+      [
+       "VCCS",
+       "$i = g\\,v_x$"
+      ],
+      [
+       "CCCS",
+       "$i = \\beta\\,i_x$"
+      ]
+     ],
+     "explanation": "The first letters name the controlling quantity (voltage- or current-controlled), the last two the output (voltage or current source). $r$ has units Ω (transresistance), $g$ siemens (transconductance), $\\mu$ and $\\beta$ none."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 1,
+       "max": 5,
+       "step": 1
+      },
+      "R1": [
+       10000,
+       12000,
+       15000,
+       18000,
+       22000,
+       27000,
+       33000,
+       39000,
+       47000,
+       56000,
+       68000,
+       82000,
+       100000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "beta": [
+       20,
+       50,
+       100
+      ]
+     },
+     "require": "15 - v_v_out",
+     "prompt": "A CCCS copies the input current $i_x$, amplified by $\\beta$ = {{beta}}, into the load $R_3$.",
+     "ask": [
+      {
+       "prompt": "Find the controlling current $i_x$.",
+       "answer": "I_R1",
+       "unit": "A",
+       "explanation": "The input loop is $V_s$, $R_1$, $R_2$ in series (the CCCS output does not load it): $i_x = \\frac{V_s}{R_1+R_2}$ = **{{I_R1|A}}**."
+      },
+      {
+       "prompt": "Find $v_{out}$.",
+       "answer": "v_v_out",
+       "unit": "V",
+       "explanation": "$i_x = V_s/(R_1+R_2)$ = {{I_R1|A}}. The source pushes $\\beta i_x$ = {{beta*I_R1|A}} up into the top node, through $R_3$ to ground: $v_{out} = \\beta i_x R_3$ = **{{v_v_out|V}}**."
+      },
+      {
+       "prompt": "Find the power absorbed by $R_3$.",
+       "answer": "P_R3",
+       "unit": "W",
+       "explanation": "$v_{out} = \\beta\\frac{V_s}{R_1+R_2}R_3$ = {{v_v_out|V}}, so $P = v_{out}^2/R_3$ = **{{P_R3|W}}**. This power comes from the dependent source, not from $V_s$."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.2,
+         0
+        ],
+        "to": [
+         0.8,
+         0
+        ],
+        "label": "i_x"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "ccsource",
+        "val": "beta",
+        "from": [
+         5,
+         2
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "F_1",
+        "value": "{{beta}}·i_x",
+        "ctrl": "I(R1)"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         7,
+         0
+        ],
+        "to": [
+         7,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         7,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       0.2,
+       0.5,
+       1,
+       1.5,
+       2
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "gm": [
+       0.001,
+       0.002,
+       0.005,
+       0.01
+      ]
+     },
+     "require": "15 - abs(v_v_out)",
+     "prompt": "A VCCS (transconductance $g$ = {{gm*1000}} mS) pulls current $g\\,v_x$ down out of the output node.",
+     "ask": [
+      {
+       "prompt": "Find $v_{out}$.",
+       "answer": "v_v_out",
+       "unit": "V",
+       "explanation": "$v_x = V_s\\frac{R_2}{R_1+R_2}$ = {{v_v_x|V}}. All of $g v_x$ = {{gm*v_v_x|A}} must come up through $R_3$ from ground, so $v_{out} = -g v_x R_3$ = **{{v_v_out|V}}**."
+      },
+      {
+       "prompt": "Find the voltage gain $v_{out}/V_s$.",
+       "answer": "v_v_out/Vs",
+       "unit": "",
+       "explanation": "$\\frac{v_{out}}{V_s} = -g R_3\\frac{R_2}{R_1+R_2}$ = −{{gm*1000}} mS · {{R3|Ω}} · {{R2/(R1+R2)||3}} = **{{v_v_out/Vs||3}}** (inverting)."
+      },
+      {
+       "prompt": "Find the controlling voltage $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "The VCCS only senses $v_x$; it draws no current from that node. So $v_x$ is a plain divider: $V_s\\frac{R_2}{R_1+R_2}$ = **{{v_v_x|V}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "ccsource",
+        "val": "gm",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "G_1",
+        "value": "{{gm*1000}} mS·v_x",
+        "ctrl": "V(R2)"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "When finding $R_t$, you turn off **all** sources, including dependent ones.",
+     "answer": false,
+     "explanation": "Only **independent** sources are zeroed. A dependent source models a physical effect (like transistor gain) that is still there when the test source is applied, so it stays in the circuit."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       0.5,
+       1,
+       1.5,
+       2,
+       3
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "mu": [
+       2,
+       3,
+       5,
+       10
+      ],
+      "Ro": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "RL": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "15 - abs(v_v_out)",
+     "prompt": "The VCVS produces $\\mu v_1$ ($\\mu$ = {{mu}}), where $v_1$ is the voltage across $R_1$ with the polarity shown.",
+     "ask": [
+      {
+       "prompt": "Find $v_1$.",
+       "answer": "V_R1",
+       "unit": "V",
+       "explanation": "$R_1$ and $R_2$ form a divider (the VCVS draws no input current): $v_1 = V_s\\frac{R_1}{R_1+R_2}$ = **{{V_R1|V}}**."
+      },
+      {
+       "prompt": "Find $v_{out}$.",
+       "answer": "v_v_out",
+       "unit": "V",
+       "explanation": "$v_1$ = {{V_R1|V}}, so the source gives $\\mu v_1$ = {{mu*V_R1|V}}. $R_o$ and $R_L$ divide it: $v_{out} = \\mu v_1\\frac{R_L}{R_o+R_L}$ = **{{v_v_out|V}}**."
+      },
+      {
+       "prompt": "Find the power absorbed by $R_L$.",
+       "answer": "P_RL",
+       "unit": "W",
+       "explanation": "$v_{out} = \\mu v_1\\frac{R_L}{R_o+R_L}$ = {{v_v_out|V}} with $v_1$ = {{V_R1|V}}; $P = v_{out}^2/R_L$ = **{{P_RL|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1",
+        "polarity": "+-"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          2,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "cvsource",
+        "name": "E1",
+        "val": "mu",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "E_1",
+        "value": "{{mu}}·v_1",
+        "ctrl": "V(R1)"
+       },
+       {
+        "type": "resistor",
+        "name": "Ro",
+        "val": "Ro",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_o"
+       },
+       {
+        "type": "resistor",
+        "name": "RL",
+        "val": "RL",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_L"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "A current-controlled voltage source has $v = r\\,i_x$. What is the unit of $r$?",
+     "options": [
+      "Ω",
+      "S",
+      "none (dimensionless)",
+      "A/V"
+     ],
+     "answer": 0,
+     "explanation": "$r = v/i_x$ is volts per ampere, i.e. ohms (a transresistance). A VCCS gain $g = i/v_x$ is in siemens; $\\mu$ and $\\beta$ are dimensionless."
+    }
+   ],
+   "id": "cl-dependent-1"
+  },
+  {
+   "title": "Feedback and equivalents",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 2,
+       "max": 12,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R3": [
+       10000,
+       12000,
+       15000,
+       18000,
+       22000,
+       27000,
+       33000,
+       39000,
+       47000
+      ],
+      "mu": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "require": "min(0.4*(1/R1+1/R2)+(1-mu)/R3, 30 - mu*v_v_x)",
+     "prompt": "The VCVS output $\\mu v_x$ ($\\mu$ = {{mu}}) feeds back to node $v_x$ through $R_3$.",
+     "ask": [
+      {
+       "prompt": "Find $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "KCL at $v_x$: $\\frac{v_x - V_s}{R_1} + \\frac{v_x}{R_2} + \\frac{v_x - \\mu v_x}{R_3} = 0$, so $v_x = \\frac{V_s/R_1}{1/R_1 + 1/R_2 + (1-\\mu)/R_3}$ = **{{v_v_x|V}}**."
+      },
+      {
+       "prompt": "Find the current delivered by the dependent source (out of its + terminal).",
+       "answer": "I_E1",
+       "unit": "A",
+       "explanation": "From KCL, $v_x = \\frac{V_s/R_1}{1/R_1+1/R_2+(1-\\mu)/R_3}$ = {{v_v_x|V}}. The source sits at $\\mu v_x$ = {{mu*v_v_x|V}}, so it pushes $\\frac{\\mu v_x - v_x}{R_3}$ = **{{I_E1|A}}** through $R_3$ into the node."
+      },
+      {
+       "prompt": "Find the power delivered by the dependent source.",
+       "answer": "P_E1",
+       "unit": "W",
+       "explanation": "$v_x$ = {{v_v_x|V}} (KCL). $P = \\mu v_x \\cdot \\frac{(\\mu-1)v_x}{R_3}$ = {{mu*v_v_x|V}} · {{I_E1|A}} = **{{P_E1|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "cvsource",
+        "name": "E1",
+        "val": "mu",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "E_1",
+        "value": "{{mu}}·v_x",
+        "ctrl": "V(R2)"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 2,
+       "max": 12,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "rm": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "abs(P_H1) - 0.00002",
+     "prompt": "The CCVS produces $r\\,i_x$ with $r$ = {{rm|Ω}}.",
+     "ask": [
+      {
+       "prompt": "Find $i_x$.",
+       "answer": "I_R1",
+       "unit": "A",
+       "explanation": "KCL at $v_x$: $i_x = \\frac{v_x}{R_2} + \\frac{v_x - r i_x}{R_3}$, with $v_x = V_s - R_1i_x$. Substituting: $i_x = \\frac{V_s(1/R_2+1/R_3)}{1 + r/R_3 + R_1(1/R_2+1/R_3)}$ = **{{I_R1|A}}**."
+      },
+      {
+       "prompt": "Find $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "Solving KCL at $v_x$ together with $i_x = (V_s - v_x)/R_1$ gives $i_x$ = {{I_R1|A}}, so $v_x = V_s - R_1i_x$ = **{{v_v_x|V}}**."
+      },
+      {
+       "prompt": "Find the power delivered by the CCVS (negative if it absorbs power).",
+       "answer": "P_H1",
+       "unit": "W",
+       "explanation": "$i_x$ = {{I_R1|A}}, $v_x$ = {{v_v_x|V}}. The CCVS is at $r i_x$ = {{V_H1|V}} and delivers $\\frac{r i_x - v_x}{R_3}$ = {{I_H1|A}} out of its + terminal: $P$ = **{{P_H1|W}}**.",
+       "absTolerance": 1e-06
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.2,
+         0
+        ],
+        "to": [
+         0.8,
+         0
+        ],
+        "label": "i_x"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "cvsource",
+        "name": "H1",
+        "val": "rm",
+        "from": [
+         5,
+         2
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "H_1",
+        "value": "{{rm/1000}} kΩ·i_x",
+        "ctrl": "I(R1)"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p3",
+     "type": "multipleChoice",
+     "prompt": "You write node equations for a circuit with a CCCS $\\beta i_x$. What extra step is needed compared with a circuit of independent sources?",
+     "options": [
+      "Express $i_x$ in terms of the node voltages and substitute it",
+      "Replace the CCCS by an open circuit",
+      "Write a KVL equation around every loop",
+      "Nothing: treat $\\beta i_x$ as a known number"
+     ],
+     "answer": 0,
+     "explanation": "The source value depends on an unknown. Express the controlling variable through the node voltages (e.g. $i_x = (V_s - v_x)/R_1$), substitute, and you are back to as many equations as unknowns."
+    },
+    {
+     "id": "t1",
+     "type": "tapCircuit",
+     "prompt": "You find $R_t$ at a–b with a test source. Tap every source you **turn off** first.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2",
+        "polarity": "+-",
+        "value": "v_x"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "ccsource",
+        "name": "G",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "gv_x"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "Vs",
+      "G",
+      "Is"
+     ],
+     "answer": [
+      "Vs",
+      "Is"
+     ],
+     "explanation": "Turn off only the **independent** sources: $V_s$ becomes a short, $I_s$ an open. The dependent source $g\\,v_x$ must stay: when you apply the test source it reacts to the new $v_x$, and that reaction is part of $R_t$ (it can even make $R_t$ negative)."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 2,
+       "max": 12,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "beta": [
+       0.5,
+       1,
+       2,
+       3,
+       4
+      ]
+     },
+     "prompt": "The CCCS injects $\\beta i_x$ ($\\beta$ = {{beta}}) into terminal a.",
+     "ask": [
+      {
+       "prompt": "Find $V_t = v_{ab}$ (open circuit).",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "KCL at a: $i_x + \\beta i_x = v_a/R_2$ with $i_x = (V_s - v_a)/R_1$. So $v_a = \\frac{V_s(1+\\beta)/R_1}{(1+\\beta)/R_1 + 1/R_2}$ = **{{Voc|V}}**."
+      },
+      {
+       "prompt": "Find $I_n$ (short-circuit current a→b).",
+       "answer": "Isc",
+       "unit": "A",
+       "explanation": "With a shorted to b, $v_a$ = 0: $R_2$ carries nothing, $i_x = V_s/R_1$ = {{Vs/R1|A}} and the short carries $(1+\\beta)i_x$ = **{{Isc|A}}**."
+      },
+      {
+       "prompt": "Find $R_t$.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "$R_t = v_{oc}/i_{sc}$ = {{Voc|V}} / {{Isc|A}} = **{{Req|Ω}}**. That equals $R_2\\parallel\\frac{R_1}{1+\\beta}$: the CCCS makes $R_1$ look $(1+\\beta)$ times smaller. Plain reduction would give $R_1\\parallel R_2$ = {{par(R1,R2)|Ω}}."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.2,
+         0
+        ],
+        "to": [
+         0.8,
+         0
+        ],
+        "label": "i_x"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "ccsource",
+        "val": "beta",
+        "from": [
+         5,
+         2
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "F_1",
+        "value": "{{beta}}·i_x",
+        "ctrl": "I(R1)"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p5",
+     "type": "trueFalse",
+     "prompt": "A circuit containing only resistors and dependent sources (no independent sources) has $v_{oc} = 0$ at any pair of terminals.",
+     "answer": true,
+     "explanation": "Without an independent source nothing excites the circuit: all controlling variables are zero, so every dependent source is zero too. Such a network is equivalent to just $R_t$, which you find with a test source."
+    },
+    {
+     "id": "p6",
+     "type": "orderSteps",
+     "prompt": "Order the steps to find $R_t$ of a circuit with a dependent source using a test source.",
+     "items": [
+      "Zero the independent sources only",
+      "Connect a test source $v_{test}$ (or $i_{test}$) across a–b",
+      "Solve the circuit, including the dependent source, for the other test quantity",
+      "Compute $R_t = v_{test}/i_{test}$"
+     ],
+     "explanation": "Dependent sources remain active throughout. Using a 1 A test current source is convenient: then $R_t$ is numerically equal to $v_{test}$."
+    }
+   ],
+   "id": "cl-dependent-2"
+  },
+  {
+   "title": "Dependent-source challenge",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 2,
+       "max": 12,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "g": [
+       0.0001,
+       0.0002,
+       0.0005,
+       0.001
+      ]
+     },
+     "prompt": "The VCCS draws $g\\,v_{ab}$ ($g$ = {{g*1000}} mS) from terminal a to b: it is controlled by its own terminal voltage.",
+     "ask": [
+      {
+       "prompt": "Find $R_t$.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "A current $g v_{ab}$ flowing from a to b is exactly what a resistor $1/g$ = {{1/g|Ω}} would draw. So $R_t = (R_3 + R_1\\parallel R_2)\\parallel\\frac{1}{g}$ = {{(R3+par(R1,R2))|Ω}} ∥ {{1/g|Ω}} = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find $V_t$.",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "The left part alone has $V' = V_s\\frac{R_2}{R_1+R_2}$ = {{Vs*R2/(R1+R2)|V}} behind $R' = R_3 + R_1\\parallel R_2$ = {{(R3+par(R1,R2))|Ω}}. Loaded by $1/g$: $V_t = V'\\frac{1/g}{R' + 1/g}$ = **{{Voc|V}}**."
+      },
+      {
+       "prompt": "Find $I_n$.",
+       "answer": "Isc",
+       "unit": "A",
+       "explanation": "Shorting a–b sets $v_{ab}$ = 0, so the VCCS carries nothing: $I_n = \\frac{V'}{R'}$ = {{Vs*R2/(R1+R2)|V}} / {{(R3+par(R1,R2))|Ω}} = **{{Isc|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "ccsource",
+        "val": "g",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "G_1",
+        "value": "{{g*1000}} mS·v_{ab}",
+        "ctrl": "V(a,b)"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          5.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          5.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 2,
+       "max": 12,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "rm": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "The CCVS ($r$ = {{rm|Ω}}) is controlled by the current $i$ that flows through it toward terminal a.",
+     "ask": [
+      {
+       "prompt": "Find $R_t$.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "With + on the left, the CCVS drops $r\\,i$ in the direction of $i$, just like a resistor $r$. So $R_t = R_1\\parallel R_2 + R_3 + r$ = {{par(R1,R2)|Ω}} + {{R3|Ω}} + {{rm|Ω}} = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find $V_t$.",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "Open terminals: $i$ = 0, so $R_3$ and the CCVS have no voltage. $V_t = V_s\\frac{R_2}{R_1+R_2}$ = **{{Voc|V}}**."
+      },
+      {
+       "prompt": "Find $I_n$.",
+       "answer": "Isc",
+       "unit": "A",
+       "explanation": "$I_n = V_t/R_t$ = {{Voc|V}} / {{Req|Ω}} = **{{Isc|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "cvsource",
+        "name": "H1",
+        "val": "rm",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "H_1",
+        "value": "{{rm/1000}} kΩ·i",
+        "ctrl": "I(R3)"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "arrow",
+        "from": [
+         6.2,
+         0
+        ],
+        "to": [
+         6.8,
+         0
+        ],
+        "label": "i"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c3",
+     "type": "multipleChoice",
+     "prompt": "A VCCS with value $g\\,v_{ab}$ is connected across terminals a–b, with its current flowing from a to b. To the rest of the circuit it looks like…",
+     "options": [
+      "a resistor $1/g$",
+      "a resistor $g$",
+      "an open circuit",
+      "a short circuit"
+     ],
+     "answer": 0,
+     "explanation": "Its current is proportional to its own voltage: $i = g\\,v_{ab}$, which is Ohm's law with $R = 1/g$. A $g$ of 0.5 mS acts like 2 kΩ."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 2,
+       "max": 12,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "beta": [
+       0.2,
+       0.3,
+       0.4,
+       0.5,
+       0.6,
+       0.8
+      ]
+     },
+     "prompt": "The CCCS ($\\beta$ = {{beta}}) pulls $\\beta i_x$ out of node $v_x$.",
+     "ask": [
+      {
+       "prompt": "Find $i_x$.",
+       "answer": "I_R1",
+       "unit": "A",
+       "explanation": "KCL at $v_x$: $i_x = \\frac{v_x}{R_2} + \\beta i_x$, so $v_x = (1-\\beta)i_xR_2$. KVL: $V_s = i_xR_1 + v_x$, giving $i_x = \\frac{V_s}{R_1 + (1-\\beta)R_2}$ = **{{I_R1|A}}**."
+      },
+      {
+       "prompt": "Find $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "$i_x = \\frac{V_s}{R_1+(1-\\beta)R_2}$ = {{I_R1|A}}, and $R_2$ carries only $(1-\\beta)i_x$: $v_x = (1-\\beta)i_xR_2$ = **{{v_v_x|V}}**."
+      },
+      {
+       "prompt": "Find the input resistance $V_s/i_x$ seen by the source.",
+       "answer": "Vs/I_R1",
+       "unit": "Ω",
+       "explanation": "$R_{in} = R_1 + (1-\\beta)R_2$ = {{R1|Ω}} + {{(1-beta)*R2|Ω}} = **{{Vs/I_R1|Ω}}**: the CCCS makes $R_2$ look smaller."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.2,
+         0
+        ],
+        "to": [
+         0.8,
+         0
+        ],
+        "label": "i_x"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "ccsource",
+        "val": "beta",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         5,
+         2
+        ],
+        "label": "F_1",
+        "value": "{{beta}}·i_x",
+        "ctrl": "I(R1)"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c5",
+     "type": "trueFalse",
+     "prompt": "With dependent sources present, the Thévenin resistance can come out negative.",
+     "answer": true,
+     "explanation": "A dependent source can supply power, so $v_{test}/i_{test}$ may be negative (e.g. a CCVS of $-r\\,i$ in series with $R < r$). A passive resistor network alone can never give a negative $R_t$."
+    },
+    {
+     "id": "c6",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 2,
+       "max": 12,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "beta": [
+       0.5,
+       1,
+       2,
+       3
+      ],
+      "RL": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "The CCCS injects $\\beta i_x$ ($\\beta$ = {{beta}}) into terminal a. A load $R_L$ = {{RL|Ω}} is connected across a–b (not drawn).",
+     "ask": [
+      {
+       "prompt": "Find the load current.",
+       "answer": "Voc/(Req+RL)",
+       "unit": "A",
+       "explanation": "Thévenin first: $V_t$ = {{Voc|V}} (KCL at a, open), $I_n = (1+\\beta)V_s/R_1$ = {{Isc|A}}, $R_t = V_t/I_n$ = {{Req|Ω}}. Then $i_L = \\frac{V_t}{R_t+R_L}$ = **{{Voc/(Req+RL)|A}}**."
+      },
+      {
+       "prompt": "Find the maximum power any load could draw from a–b.",
+       "answer": "Voc^2/(4*Req)",
+       "unit": "W",
+       "explanation": "$V_t$ = {{Voc|V}}, $R_t = R_2\\parallel\\frac{R_1}{1+\\beta}$ = {{Req|Ω}}. $P_{max} = \\frac{V_t^2}{4R_t}$ = **{{Voc^2/(4*Req)|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.2,
+         0
+        ],
+        "to": [
+         0.8,
+         0
+        ],
+        "label": "i_x"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "ccsource",
+        "val": "beta",
+        "from": [
+         5,
+         2
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "F_1",
+        "value": "{{beta}}·i_x",
+        "ctrl": "I(R1)"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-dependent-3"
+  }
+ ]
+}

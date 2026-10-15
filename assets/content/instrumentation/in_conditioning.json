@@ -1,0 +1,2792 @@
+{
+  "id": "in-conditioning",
+  "title": "Signal Conditioning",
+  "description": "Bridges turn resistance changes into voltages; instrumentation amplifiers boost them while rejecting common-mode noise; filters remove what is left.",
+  "reference": "Hambley §9.2, §14.8; H&H §7.09–7.10",
+  "study": [
+    {
+      "title": "Wheatstone bridge",
+      "body": "Two voltage dividers fed by the same excitation $V_{ex}$; the output is the **difference** $v_{ab}$ of their midpoints. The bridge is **balanced** ($v_{ab} = 0$) when the ratios match: $R_1R_x = R_2R_3$.\nWith one active sensor (quarter bridge, all arms nominally $R$) a small change $\\Delta R$ gives $v_{ab} \\approx -\\frac{V_{ex}}{4}\\frac{\\Delta R}{R}$; two active arms double it, four (full bridge) give $V_{ex}\\,\\Delta R/R$.",
+      "formula": "v_{ab} = V_{ex}\\left(\\frac{R_2}{R_1+R_2} - \\frac{R_x}{R_3+R_x}\\right)",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_{ex}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "R_1",
+            "flip": true
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              2,
+              4
+            ],
+            "label": "R_2",
+            "flip": true
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              2
+            ],
+            "label": "R_3"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              2
+            ],
+            "to": [
+              6,
+              4
+            ],
+            "label": "R_x"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                6,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6,
+                2
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              3,
+              2
+            ],
+            "label": "a"
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              2
+            ],
+            "label": "b",
+            "flip": true
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              4
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              0,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Differential and common-mode signals",
+      "body": "Two input voltages $v_1$ and $v_2$ split into a **differential** part (usually the signal) and a **common-mode** part (often a large, unwanted offset or noise, e.g. $V_{ex}/2$ at a bridge output).\nA real differential amplifier responds a little to the common mode: $v_o = A_d v_d + A_{cm}v_{cm}$. The common-mode rejection ratio $\\text{CMRR} = 20\\log_{10}|A_d/A_{cm}|$ (dB) measures how well it ignores it.",
+      "formula": "v_d = v_1 - v_2,\\qquad v_{cm} = \\frac{v_1+v_2}{2}"
+    },
+    {
+      "title": "Instrumentation amplifier",
+      "body": "Three op amps: two non-inverting input buffers and a unity-gain difference amplifier. Both inputs go straight into op-amp + inputs, so the **input resistance is very high** for both. The single resistor $R_G$ sets the gain. A pure common-mode input makes no current flow in $R_G$, so the first stage passes $v_{cm}$ with gain 1 while amplifying $v_d$: excellent CMRR without needing matched sensor resistances.\n(Hambley writes the gain as $1 + R_2/R_1$ with $R_G = 2R_1$.)",
+      "formula": "v_o = \\left(1 + \\frac{2R_2}{R_G}\\right)(v_1 - v_2)",
+      "circuit": {
+        "elements": [
+          {
+            "type": "opamp",
+            "at": [
+              2,
+              1
+            ],
+            "flip": true
+          },
+          {
+            "type": "opamp",
+            "at": [
+              2,
+              5
+            ]
+          },
+          {
+            "type": "opamp",
+            "at": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              0.5
+            ],
+            "label": "v_2",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0.5
+              ],
+              [
+                1,
+                0.5
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              5.5
+            ],
+            "label": "v_1",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                5.5
+              ],
+              [
+                1,
+                5.5
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              1
+            ],
+            "to": [
+              3,
+              2.5
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              2.5
+            ],
+            "to": [
+              3,
+              3.5
+            ],
+            "label": "R_G"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              3.5
+            ],
+            "to": [
+              3,
+              5
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                1.5
+              ],
+              [
+                1,
+                2.5
+              ],
+              [
+                3,
+                2.5
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                4.5
+              ],
+              [
+                1,
+                3.5
+              ],
+              [
+                3,
+                3.5
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              1
+            ],
+            "to": [
+              5,
+              1
+            ],
+            "label": "R"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              5,
+              1
+            ],
+            "to": [
+              7,
+              1
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                1
+              ],
+              [
+                5,
+                2.5
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                7,
+                1
+              ],
+              [
+                7,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              5
+            ],
+            "to": [
+              5,
+              5
+            ],
+            "label": "R",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                5
+              ],
+              [
+                5,
+                3.5
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              5,
+              5
+            ],
+            "to": [
+              7,
+              5
+            ],
+            "label": "R",
+            "flip": true
+          },
+          {
+            "type": "ground",
+            "at": [
+              7,
+              5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                7,
+                3
+              ],
+              [
+                8,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              8,
+              3
+            ],
+            "label": "v_o"
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              1
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              5
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              2.5
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              3.5
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              1
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              5
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              7,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Difference amplifier",
+      "body": "One op amp and four resistors. With $R_4/R_3 = R_2/R_1$ the output depends only on $v_1 - v_2$. Drawbacks: the input resistance is only about $R_1$ to $R_3 + R_4$, the sensor's own resistance adds to $R_1$/$R_3$, and any resistor mismatch $\\delta$ lets common mode through: CMRR $\\approx (1 + R_2/R_1)/\\delta$.",
+      "formula": "v_o = \\frac{R_2}{R_1}(v_1 - v_2)"
+    },
+    {
+      "title": "Filtering noise",
+      "body": "After amplification, a low-pass filter removes noise above the band of interest and acts as the **anti-alias** filter before the ADC. A first-order RC low-pass ($f_c = 1/2\\pi RC$) passes signals well below $f_c$ and falls by 20 dB/decade above it (−3 dB at $f_c$). Higher-order active filters (e.g. Butterworth) fall faster: $20n$ dB/decade. Drag $f_c$ and the order $n$ (Butterworth). The readout is the attenuation at 10 kHz, the folding frequency of a 20 kS/s ADC: for the same cutoff, each extra order adds 20 dB per decade.",
+      "formula": "|H(f)| = \\frac{1}{\\sqrt{1 + (f/f_c)^{2n}}}",
+      "plot": {
+        "x": {
+          "min": 1,
+          "max": 100000,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": -80,
+          "max": 5,
+          "label": "|H| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "fc",
+            "label": "$f_c$",
+            "min": 10,
+            "max": 10000,
+            "log": true,
+            "value": 100,
+            "unit": "Hz"
+          },
+          {
+            "name": "n",
+            "label": "order $n$",
+            "min": 1,
+            "max": 4,
+            "step": 1,
+            "value": 1
+          }
+        ],
+        "curves": [
+          {
+            "f": "-10*log10(1 + (x/fc)^(2*n))"
+          }
+        ],
+        "hlines": [
+          {
+            "y": -3,
+            "label": "−3 dB"
+          }
+        ],
+        "vlines": [
+          {
+            "x": "fc",
+            "label": "f_c"
+          },
+          {
+            "x": 10000,
+            "label": "f_s/2"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "attenuation at 10 kHz",
+            "value": "10*log10(1 + (10000/fc)^(2*n))",
+            "unit": "dB"
+          }
+        ],
+        "height": 170
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "in-conditioning-1",
+      "title": "Bridges and differential amplifiers",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The Wheatstone bridge",
+          "body": "A sensor's resistance change is turned into a voltage with a **bridge**: two dividers across the excitation $V_{ex}$. The output $v_{ab}$ is the difference of the two midpoint voltages, so it is zero when the bridge is **balanced** and changes when the sensor $R_x$ changes.",
+          "formula": "\\text{balance: } \\frac{R_2}{R_1} = \\frac{R_x}{R_3}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{ex}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_1",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "R_2",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "R_3"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  2
+                ],
+                "to": [
+                  6,
+                  4
+                ],
+                "label": "R_x"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    6,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  2
+                ],
+                "label": "a"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "b",
+                "flip": true
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  4
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R1": [
+              1000,
+              2000,
+              4700,
+              10000
+            ],
+            "R2": [
+              1500,
+              2200,
+              3300,
+              6800
+            ],
+            "R3": [
+              1000,
+              2700,
+              5600
+            ]
+          },
+          "prompt": "In the bridge, $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}} and $R_3$ = {{R3|Ω}}. For which value of $R_x$ is the bridge balanced ($v_{ab} = 0$)?",
+          "answer": "R2*R3/R1",
+          "unit": "Ω",
+          "explanation": "Balanced when both dividers give the same fraction: $\\frac{R_2}{R_1+R_2} = \\frac{R_x}{R_3+R_x}$, i.e. $\\frac{R_x}{R_3} = \\frac{R_2}{R_1}$. So $R_x = R_3\\frac{R_2}{R_1}$ = {{R3|Ω}} × {{R2|Ω}} / {{R1|Ω}} = **{{R2*R3/R1|Ω}}**.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{ex}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_1",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "R_2",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "R_3"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  2
+                ],
+                "to": [
+                  6,
+                  4
+                ],
+                "label": "R_x"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    6,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  2
+                ],
+                "label": "a"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "b",
+                "flip": true
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  4
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vex": [
+              5,
+              10
+            ],
+            "R1": [
+              1000,
+              2200
+            ],
+            "R2": [
+              1000,
+              2200
+            ],
+            "R3": [
+              1000,
+              1500
+            ],
+            "Rx": [
+              1100,
+              1200,
+              1800,
+              2000
+            ]
+          },
+          "prompt": "Find the bridge output $v_{ab} = v_a - v_b$.",
+          "answer": "Voc",
+          "unit": "V",
+          "absTolerance": 0.002,
+          "explanation": "$v_a = V_{ex}\\frac{R_2}{R_1+R_2}$ = {{v_a|V}}, $v_b = V_{ex}\\frac{R_x}{R_3+R_x}$ = {{v_b|V}}. $v_{ab} = v_a - v_b$ = **{{Voc|V}}**.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{ex}",
+                "name": "Vex",
+                "val": "Vex"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_1",
+                "flip": true,
+                "name": "R1",
+                "val": "R1"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "R_2",
+                "flip": true,
+                "name": "R2",
+                "val": "R2"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "R_3",
+                "name": "R3",
+                "val": "R3"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  2
+                ],
+                "to": [
+                  6,
+                  4
+                ],
+                "label": "R_x",
+                "name": "Rx",
+                "val": "Rx"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    6,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  2
+                ],
+                "label": "a"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "b",
+                "flip": true
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  4
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Differential and common mode",
+          "body": "A bridge output is taken between two nodes that both sit near $V_{ex}/2$. The amplifier must respond to the small **difference** $v_d$ and ignore the large **common-mode** voltage $v_{cm}$, the average of the two inputs.",
+          "formula": "v_d = v_1 - v_2,\\qquad v_{cm} = \\frac{v_1 + v_2}{2}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "vc": [
+              2.5,
+              5,
+              6
+            ],
+            "vd": [
+              0.004,
+              0.012,
+              0.025,
+              0.05
+            ]
+          },
+          "derived": {
+            "v1": "vc + vd/2",
+            "v2": "vc - vd/2"
+          },
+          "prompt": "The two amplifier inputs are at $v_1$ = {{v1|V|5}} and $v_2$ = {{v2|V|5}}.",
+          "ask": [
+            {
+              "prompt": "Find the differential voltage $v_d = v_1 - v_2$.",
+              "answer": "v1 - v2",
+              "unit": "V",
+              "explanation": "$v_d = v_1 - v_2$ = {{v1|V|5}} − {{v2|V|5}} = **{{vd|V}}**."
+            },
+            {
+              "prompt": "Find the common-mode voltage $v_{cm}$.",
+              "answer": "(v1 + v2)/2",
+              "unit": "V",
+              "explanation": "$v_{cm} = \\frac{v_1+v_2}{2}$ = ({{v1|V|5}} + {{v2|V|5}}) / 2 = **{{vc|V}}**, hundreds of times larger than $v_d$ = {{vd|V}}."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Common-mode rejection",
+          "body": "A real differential amplifier gives $v_o = A_d v_d + A_{cm} v_{cm}$. A good one has a tiny common-mode gain $A_{cm}$. The **CMRR** compares the two gains, usually in decibels: 80 dB means the differential gain is 10 000 times the common-mode gain.",
+          "formula": "\\text{CMRR}_{dB} = 20\\log_{10}\\left|\\frac{A_d}{A_{cm}}\\right|"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Ad": [
+              100,
+              500,
+              1000
+            ],
+            "Acm": [
+              0.005,
+              0.01,
+              0.05,
+              0.2
+            ]
+          },
+          "prompt": "An amplifier has differential gain {{Ad}} and common-mode gain {{Acm}}. Find its CMRR in dB.",
+          "answer": "20*log10(Ad/Acm)",
+          "unit": "dB",
+          "explanation": "CMRR = $20\\log_{10}(A_d/A_{cm})$ = 20 $\\log_{10}$({{Ad}} / {{Acm}}) = 20 $\\log_{10}$({{Ad/Acm||4}}) = **{{20*log10(Ad/Acm)|dB}}**."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "The instrumentation amplifier",
+          "body": "The standard solution is the three-op-amp **instrumentation amplifier**: two input buffers (very high input resistance on both inputs) and a difference stage. One gain resistor $R_G$ sets the gain.",
+          "formula": "v_o = \\left(1 + \\frac{2R_2}{R_G}\\right)(v_1 - v_2)",
+          "circuit": {
+            "elements": [
+              {
+                "type": "opamp",
+                "at": [
+                  2,
+                  1
+                ],
+                "flip": true
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  2,
+                  5
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  6,
+                  3
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0.5
+                ],
+                "label": "v_2",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0.5
+                  ],
+                  [
+                    1,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  5.5
+                ],
+                "label": "v_1",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    5.5
+                  ],
+                  [
+                    1,
+                    5.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  1
+                ],
+                "to": [
+                  3,
+                  2.5
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  2.5
+                ],
+                "to": [
+                  3,
+                  3.5
+                ],
+                "label": "R_G"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  3.5
+                ],
+                "to": [
+                  3,
+                  5
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    1.5
+                  ],
+                  [
+                    1,
+                    2.5
+                  ],
+                  [
+                    3,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    4.5
+                  ],
+                  [
+                    1,
+                    3.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  1
+                ],
+                "to": [
+                  5,
+                  1
+                ],
+                "label": "R"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  1
+                ],
+                "to": [
+                  7,
+                  1
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    1
+                  ],
+                  [
+                    5,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    1
+                  ],
+                  [
+                    7,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  5
+                ],
+                "to": [
+                  5,
+                  5
+                ],
+                "label": "R",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    5
+                  ],
+                  [
+                    5,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  5
+                ],
+                "to": [
+                  7,
+                  5
+                ],
+                "label": "R",
+                "flip": true
+              },
+              {
+                "type": "ground",
+                "at": [
+                  7,
+                  5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    3
+                  ],
+                  [
+                    8,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  8,
+                  3
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  7,
+                  3
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "R2": [
+              10000,
+              20000,
+              25000,
+              50000
+            ],
+            "RG": [
+              100,
+              220,
+              470,
+              1000,
+              2200
+            ]
+          },
+          "prompt": "An instrumentation amplifier has $R_2$ = {{R2|Ω}} and $R_G$ = {{RG|Ω}}. Find its differential gain.",
+          "answer": "1 + 2*R2/RG",
+          "unit": "",
+          "explanation": "$G = 1 + \\frac{2R_2}{R_G}$ = 1 + 2 × {{R2|Ω}} / {{RG|Ω}} = **{{1+2*R2/RG||4}}**. Changing one resistor changes the gain, and no resistor matching is needed for that."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "In an instrumentation amplifier, a purely common-mode input ($v_1 = v_2$) passes through the first stage (the two input op amps) with a gain of 1, whatever the value of $R_G$.",
+          "answer": true,
+          "explanation": "With $v_1 = v_2$, both − inputs sit at the same voltage (virtual shorts), so no current flows through $R_G$ and hence none through the $R_2$ resistors. Both buffer outputs simply equal $v_{cm}$. The differential signal, in contrast, is amplified by $1 + 2R_2/R_G$."
+        }
+      ]
+    },
+    {
+      "id": "in-conditioning-2",
+      "title": "Conditioning calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vex": [
+              2.5,
+              5,
+              10
+            ],
+            "G": [
+              2.0,
+              2.1
+            ],
+            "u": {
+              "min": 200,
+              "max": 2000,
+              "step": 100
+            }
+          },
+          "prompt": "A quarter bridge (one active strain gauge, all four arms nominally equal) is excited with {{Vex|V}}. The gauge has gauge factor {{G}} and is strained by {{u}} µε. Estimate the magnitude of the bridge output.",
+          "answer": "Vex*G*u*1e-6/4",
+          "unit": "V",
+          "explanation": "$\\frac{\\Delta R}{R} = G\\varepsilon$ = {{G}} × {{u}} × $10^{-6}$ = {{G*u||3}} ppm. Quarter bridge: $|v_{ab}| \\approx \\frac{V_{ex}}{4}\\frac{\\Delta R}{R}$ = {{Vex|V}} / 4 × {{G*u*1e-6||3}} = **{{Vex*G*u*1e-6/4|V}}**. Millivolts at most: it must be amplified."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vex": [
+              2.5,
+              5
+            ],
+            "R0": [
+              100,
+              1000
+            ],
+            "T": {
+              "min": 10,
+              "max": 150,
+              "step": 5
+            }
+          },
+          "prompt": "A platinum RTD $R_{RTD} = R_0(1 + 0.00385\\,T)$ is the sensing arm of a bridge whose other three arms equal $R_0$, so it balances at 0 °C. Find $|v_{ab}|$ at $T$ = {{T}} °C.",
+          "answer": "abs(Voc)",
+          "unit": "V",
+          "explanation": "$R_{RTD}$ = {{R0*(1+0.00385*T)|Ω|4}}. $v_a = V_{ex}/2$ = {{Vex/2|V}}, $v_b = V_{ex}\\frac{R_{RTD}}{R_0 + R_{RTD}}$ = {{v_b|V|4}}. $|v_{ab}|$ = **{{abs(Voc)|V}}**. The small-change estimate $\\frac{V_{ex}}{4}\\alpha T$ = {{Vex/4*0.00385*T|V}} is noticeably high for large changes: a bridge is not perfectly linear.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{ex}",
+                "name": "Vex",
+                "val": "Vex"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_1",
+                "flip": true,
+                "name": "R1",
+                "val": "R0"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "R_2",
+                "flip": true,
+                "name": "R2",
+                "val": "R0"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "R_3",
+                "name": "R3",
+                "val": "R0"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  2
+                ],
+                "to": [
+                  6,
+                  4
+                ],
+                "label": "R_{RTD}",
+                "name": "Rx",
+                "val": "R0*(1+0.00385*T)"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    6,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  2
+                ],
+                "label": "a"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "b",
+                "flip": true
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  4
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "R2": [
+              10000,
+              20000,
+              25000,
+              50000
+            ],
+            "G": [
+              10,
+              20,
+              50,
+              100,
+              200,
+              500
+            ]
+          },
+          "prompt": "An instrumentation amplifier has $R_2$ = {{R2|Ω}}. Which gain resistor $R_G$ gives a gain of {{G}}?",
+          "answer": "2*R2/(G-1)",
+          "unit": "Ω",
+          "explanation": "$G = 1 + \\frac{2R_2}{R_G}$, so $R_G = \\frac{2R_2}{G - 1}$ = 2 × {{R2|Ω}} / {{G-1}} = **{{2*R2/(G-1)|Ω}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Ad": [
+              10,
+              100,
+              1000
+            ],
+            "C": [
+              60,
+              80,
+              100
+            ],
+            "vc": [
+              1,
+              2.5,
+              5,
+              10
+            ]
+          },
+          "prompt": "An amplifier with differential gain {{Ad}} and CMRR = {{C}} dB has a common-mode input of {{vc|V}}. What output voltage does the common-mode input alone produce?",
+          "answer": "Ad*vc/10^(C/20)",
+          "unit": "V",
+          "explanation": "CMRR = 10^({{C}}/20) = {{10^(C/20)||3}}, so $A_{cm} = A_d/\\text{CMRR}$ = {{Ad/10^(C/20)||3}}. Output: $A_{cm}v_{cm}$ = {{Ad/10^(C/20)||3}} × {{vc|V}} = **{{Ad*vc/10^(C/20)|V}}**. Referred to the input that is {{vc/10^(C/20)|V}}, to compare with the wanted $v_d$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "R1": [
+              1000,
+              4700,
+              10000
+            ],
+            "R2": [
+              10000,
+              47000,
+              100000
+            ],
+            "v1": [
+              0.5,
+              0.8,
+              1.2
+            ],
+            "v2": [
+              0.4,
+              0.7,
+              1.0
+            ]
+          },
+          "require": "min(abs(v1 - v2) - 0.05, 12 - abs(R2/R1*(v1 - v2)))",
+          "prompt": "Difference amplifier with an ideal op amp ($R_3 = R_1$, $R_4 = R_2$). Find $v_o$.",
+          "answer": "V_U1",
+          "unit": "V",
+          "explanation": "With $R_4/R_3 = R_2/R_1$: $v_o = \\frac{R_2}{R_1}(v_1 - v_2)$ = {{R2/R1||3}} × ({{v1|V}} − {{v2|V}}) = **{{V_U1|V}}**.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3.5
+                ],
+                "to": [
+                  0,
+                  1.5
+                ],
+                "label": "v_2",
+                "name": "V2",
+                "val": "v2"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1",
+                "name": "R1",
+                "val": "R1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    4,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    1.5
+                  ],
+                  [
+                    3,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0.5
+                ],
+                "to": [
+                  6,
+                  0.5
+                ],
+                "label": "R_2",
+                "name": "R2",
+                "val": "R2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    0.5
+                  ],
+                  [
+                    6,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  5,
+                  2
+                ],
+                "name": "U1"
+              },
+              {
+                "type": "vsource",
+                "from": [
+                  2,
+                  5.5
+                ],
+                "to": [
+                  2,
+                  3.5
+                ],
+                "label": "v_1",
+                "name": "V1",
+                "val": "v1"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  3.5
+                ],
+                "to": [
+                  4,
+                  3.5
+                ],
+                "label": "R_3",
+                "name": "R3",
+                "val": "R1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    3.5
+                  ],
+                  [
+                    4,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  3.5
+                ],
+                "to": [
+                  4,
+                  5.5
+                ],
+                "label": "R_4",
+                "name": "R4",
+                "val": "R2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3.5
+                  ],
+                  [
+                    0,
+                    5.5
+                  ],
+                  [
+                    4,
+                    5.5
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  1.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  5.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    7,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  7,
+                  2
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  5.5
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "R": [
+              1000,
+              4700,
+              10000,
+              47000
+            ],
+            "Cc": [
+              1e-07,
+              2.2e-07,
+              1e-06
+            ],
+            "fn": [
+              50,
+              1000,
+              10000
+            ]
+          },
+          "require": "fn - 3/(2*pi*R*Cc)",
+          "prompt": "A first-order RC low-pass filter with $R$ = {{R|Ω}} and $C$ = {{Cc|F}} follows the amplifier.",
+          "ask": [
+            {
+              "prompt": "Find its cutoff frequency.",
+              "answer": "1/(2*pi*R*Cc)",
+              "unit": "Hz",
+              "explanation": "$f_c = \\frac{1}{2\\pi RC}$ = 1 / (2π × {{R|Ω}} × {{Cc|F}}) = **{{1/(2*pi*R*Cc)|Hz}}**."
+            },
+            {
+              "prompt": "By how many dB does it attenuate interference at {{fn|Hz}}? (Give a positive number.)",
+              "answer": "10*log10(1 + (fn*2*pi*R*Cc)^2)",
+              "unit": "dB",
+              "explanation": "$f_c$ = {{1/(2*pi*R*Cc)|Hz}}, so $f/f_c$ = {{fn*2*pi*R*Cc||3}}. Attenuation $= 10\\log_{10}\\left(1 + (f/f_c)^2\\right)$ = **{{10*log10(1+(fn*2*pi*R*Cc)^2)|dB}}** (about 20 dB per decade above $f_c$)."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "fc": [
+              20,
+              50,
+              200,
+              500,
+              2000
+            ]
+          },
+          "prompt": "The magnitude response of a low-pass anti-alias filter is shown. Read its cutoff (−3 dB) frequency.",
+          "plot": {
+            "x": {
+              "min": 1,
+              "max": 100000,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": -50,
+              "max": 5,
+              "label": "|H| (dB)"
+            },
+            "curves": [
+              {
+                "f": "-10*log10(1 + (x/fc)^4)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": -3,
+                "label": "−3 dB"
+              }
+            ],
+            "height": 190
+          },
+          "answer": "fc",
+          "unit": "Hz",
+          "tolerance": 0.2,
+          "explanation": "Follow the −3 dB line to where it meets the curve and read down: $f_c \\approx$ **{{fc|Hz}}**. Above $f_c$ this (second-order) filter falls by 40 dB per decade."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "A single-op-amp difference amplifier built with 10 kΩ input resistors presents a very high input resistance, so a 5 kΩ sensor connected to it is hardly loaded.",
+          "answer": false,
+          "explanation": "Its input resistance is only of the order of the input resistors (10–20 kΩ), so a 5 kΩ source loses a large fraction of the signal and, worse, unbalances the resistor ratios and ruins the CMRR. That is exactly why instrumentation amplifiers put buffers in front."
+        }
+      ]
+    },
+    {
+      "id": "in-conditioning-3",
+      "title": "Designing the conditioner",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vex": [
+              5,
+              10
+            ],
+            "G": [
+              2.0,
+              2.1
+            ],
+            "u": [
+              500,
+              800,
+              1000,
+              1500
+            ],
+            "VFS": [
+              2.5,
+              5
+            ]
+          },
+          "prompt": "A load cell is a **full** bridge with four active gauges (gauge factor {{G}}), excited with {{Vex|V}}. At rated load the strain is {{u}} µε.",
+          "ask": [
+            {
+              "prompt": "Find the bridge output at rated load.",
+              "answer": "Vex*G*u*1e-6",
+              "unit": "V",
+              "explanation": "Full bridge: four times the quarter-bridge output, $v_o = V_{ex}G\\varepsilon$ = {{Vex|V}} × {{G}} × {{u}} × $10^{-6}$ = **{{Vex*G*u*1e-6|V}}**."
+            },
+            {
+              "prompt": "What amplifier gain makes the rated-load output equal to {{VFS|V}}?",
+              "answer": "VFS/(Vex*G*u*1e-6)",
+              "unit": "",
+              "explanation": "Bridge output at rated load: $V_{ex}G\\varepsilon$ = {{Vex*G*u*1e-6|V}}. Gain = {{VFS|V}} / {{Vex*G*u*1e-6|V}} = **{{VFS/(Vex*G*u*1e-6)||4}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vex": [
+              5,
+              10
+            ],
+            "u": [
+              300,
+              600,
+              900,
+              1200
+            ],
+            "R2": [
+              24700,
+              49400
+            ],
+            "RG": [
+              100,
+              200,
+              499,
+              1000
+            ]
+          },
+          "prompt": "A quarter bridge (gauge factor 2, excitation {{Vex|V}}) feeds an instrumentation amplifier with $R_2$ = {{R2|Ω}} and $R_G$ = {{RG|Ω}}. Estimate the magnitude of the amplifier output for a strain of {{u}} µε.",
+          "answer": "(1 + 2*R2/RG)*Vex*2*u*1e-6/4",
+          "unit": "V",
+          "explanation": "Bridge: $\\frac{V_{ex}}{4}G\\varepsilon$ = {{Vex|V}}/4 × 2 × {{u}} × $10^{-6}$ = {{Vex*2*u*1e-6/4|V}}. Gain: $1 + 2R_2/R_G$ = {{1+2*R2/RG||4}}. Output ≈ **{{(1+2*R2/RG)*Vex*2*u*1e-6/4|V}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vex": [
+              5,
+              10
+            ],
+            "e": [
+              1e-06,
+              2e-06,
+              5e-06,
+              1e-05
+            ]
+          },
+          "prompt": "The outputs of a bridge excited by {{Vex|V}} both sit near $V_{ex}/2$. The common-mode error referred to the amplifier input ($v_{cm}/\\text{CMRR}$) must stay below {{e|V}}. What minimum CMRR (in dB) does the amplifier need?",
+          "answer": "20*log10(Vex/2/e)",
+          "unit": "dB",
+          "explanation": "$v_{cm} = V_{ex}/2$ = {{Vex/2|V}}. Need CMRR $\\ge$ $v_{cm}/e$ = {{Vex/2|V}} / {{e|V}} = {{Vex/2/e||3}}, i.e. 20 $\\log_{10}$({{Vex/2/e||3}}) = **{{20*log10(Vex/2/e)|dB}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "K": [
+              1,
+              10,
+              100
+            ],
+            "d": [
+              0.001,
+              0.002,
+              0.01
+            ]
+          },
+          "derived": {
+            "a1": "K*(1+d)*(1+K)/(1+K*(1+d))",
+            "Acm": "a1 - K",
+            "Ad": "(a1 + K)/2"
+          },
+          "prompt": "A difference amplifier has $R_2/R_1$ = {{K}} and $R_3 = R_1$, but $R_4$ is {{d*100}} % larger than $R_2$ (resistor mismatch). Estimate its CMRR in dB.",
+          "answer": "20*log10(abs(Ad/Acm))",
+          "unit": "dB",
+          "explanation": "With $v_1 = v_2 = v_{cm}$ the output is $v_{cm}\\left[\\frac{R_4}{R_3+R_4}\\left(1 + \\frac{R_2}{R_1}\\right) - \\frac{R_2}{R_1}\\right]$, so $A_{cm}$ = {{Acm||3}} while $A_d \\approx$ {{Ad||4}}. CMRR = 20 $\\log_{10}$({{Ad/Acm||3}}) = **{{20*log10(abs(Ad/Acm))|dB}}**. Shortcut: CMRR ≈ $(1 + R_2/R_1)/\\delta$ = {{(1+K)/d||3}}. A 1 % resistor can ruin the rejection."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "S": [
+              41,
+              52
+            ],
+            "Tmax": [
+              200,
+              400,
+              500,
+              800
+            ],
+            "VFS": [
+              2.5,
+              5,
+              10
+            ],
+            "R2": [
+              25000,
+              49400
+            ]
+          },
+          "prompt": "A thermocouple ($S$ = {{S}} µV/°C, reference at 0 °C) must measure up to {{Tmax}} °C. An instrumentation amplifier with $R_2$ = {{R2|Ω}} should map {{Tmax}} °C to {{VFS|V}}.",
+          "ask": [
+            {
+              "prompt": "What gain is needed?",
+              "answer": "VFS/(S*1e-6*Tmax)",
+              "unit": "",
+              "explanation": "Maximum thermocouple voltage: {{S}} µV/°C × {{Tmax}} °C = {{S*1e-6*Tmax|V}}. Gain = {{VFS|V}} / {{S*1e-6*Tmax|V}} = **{{VFS/(S*1e-6*Tmax)||4}}**."
+            },
+            {
+              "prompt": "Which gain resistor $R_G$ gives this gain?",
+              "answer": "2*R2/(VFS/(S*1e-6*Tmax) - 1)",
+              "unit": "Ω",
+              "explanation": "Gain $G$ = {{VFS|V}} / {{S*1e-6*Tmax|V}} = {{VFS/(S*1e-6*Tmax)||4}}. $R_G = \\frac{2R_2}{G - 1}$ = 2 × {{R2|Ω}} / {{VFS/(S*1e-6*Tmax)-1||4}} = **{{2*R2/(VFS/(S*1e-6*Tmax)-1)|Ω}}**."
+            }
+          ]
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "fs": [
+              10000,
+              20000,
+              40000
+            ],
+            "n": [
+              1,
+              2,
+              4
+            ],
+            "A": [
+              20,
+              40
+            ]
+          },
+          "derived": {
+            "fct": "(fs/2)/(10^(A/10) - 1)^(1/(2*n))"
+          },
+          "prompt": "An ADC samples at {{fs|Hz}}. In front of it sits an order-{{n}} Butterworth anti-alias filter. Set the **highest** cutoff $f_c$ that still attenuates components at $f_s/2$ by at least {{A}} dB (orange point).",
+          "hint": "$|H|_{dB} = -10\\log_{10}\\left(1 + (f/f_c)^{2n}\\right)$. Solve for $f_c$ at $f = f_s/2$.",
+          "plot": {
+            "x": {
+              "min": 1,
+              "max": 100000,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": -80,
+              "max": 5,
+              "label": "|H| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "fc",
+                "label": "$f_c$",
+                "min": 10,
+                "max": 20000,
+                "log": true,
+                "value": "fs/2",
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "-10*log10(1 + (x/fc)^(2*n))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": -3,
+                "label": "−3 dB"
+              }
+            ],
+            "points": [
+              {
+                "x": "fs/2",
+                "y": "-A",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "attenuation at $f_s/2$",
+                "value": "10*log10(1 + (fs/2/fc)^(2*n))",
+                "unit": "dB",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "fc": "fct"
+          },
+          "tolerance": 0.08,
+          "explanation": "At $f_s/2$ = {{fs/2|Hz}} we need $(f/f_c)^{ {{2*n}} } = 10^{ {{A/10}} } - 1$, so $f_c = \\frac{ {{fs/2}} }{ ({{10^(A/10)-1}})^{1/{{2*n}}} }$ = **{{fct|Hz}}**. A higher order lets the cutoff sit much closer to the signal band: with a first-order filter the cutoff would have to be {{(fs/2)/sqrt(10^(A/10)-1)|Hz}}, a fourth-order one allows {{(fs/2)/(10^(A/10)-1)^(1/8)|Hz}}."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the signal path of a strain-gauge weighing system in order",
+          "items": [
+            "Force strains the load cell",
+            "Bridge turns ΔR into a millivolt differential signal",
+            "Instrumentation amplifier boosts it and rejects the common mode",
+            "Low-pass filter removes noise above the signal band",
+            "ADC converts the voltage to numbers"
+          ],
+          "explanation": "Measurand $\\to$ sensor (strain gauges change resistance) $\\to$ bridge with excitation (resistance to voltage) $\\to$ instrumentation amplifier (gain, CMRR, high input resistance) $\\to$ anti-alias low-pass filter $\\to$ ADC. Filtering must come **before** sampling, because aliased noise cannot be removed afterwards."
+        },
+        {
+          "id": "q7",
+          "type": "tapCircuit",
+          "prompt": "Tap the **single** resistor you would change to set the gain of this instrumentation amplifier without affecting its common-mode rejection.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "opamp",
+                "at": [
+                  2,
+                  1
+                ],
+                "flip": true
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  2,
+                  5
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  6,
+                  3
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0.5
+                ],
+                "label": "v_2",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0.5
+                  ],
+                  [
+                    1,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  5.5
+                ],
+                "label": "v_1",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    5.5
+                  ],
+                  [
+                    1,
+                    5.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  1
+                ],
+                "to": [
+                  3,
+                  2.5
+                ],
+                "label": "R_2",
+                "name": "R2a"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  2.5
+                ],
+                "to": [
+                  3,
+                  3.5
+                ],
+                "label": "R_G",
+                "name": "RG"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  3.5
+                ],
+                "to": [
+                  3,
+                  5
+                ],
+                "label": "R_2",
+                "name": "R2b"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    1.5
+                  ],
+                  [
+                    1,
+                    2.5
+                  ],
+                  [
+                    3,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    4.5
+                  ],
+                  [
+                    1,
+                    3.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  1
+                ],
+                "to": [
+                  5,
+                  1
+                ],
+                "label": "R",
+                "name": "R3a"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  1
+                ],
+                "to": [
+                  7,
+                  1
+                ],
+                "label": "R",
+                "name": "R4a"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    1
+                  ],
+                  [
+                    5,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    1
+                  ],
+                  [
+                    7,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  5
+                ],
+                "to": [
+                  5,
+                  5
+                ],
+                "label": "R",
+                "flip": true,
+                "name": "R3b"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    5
+                  ],
+                  [
+                    5,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  5
+                ],
+                "to": [
+                  7,
+                  5
+                ],
+                "label": "R",
+                "flip": true,
+                "name": "R4b"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  7,
+                  5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    3
+                  ],
+                  [
+                    8,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  8,
+                  3
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  7,
+                  3
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "R2a",
+            "RG",
+            "R2b",
+            "R3a",
+            "R4a",
+            "R3b",
+            "R4b"
+          ],
+          "answer": [
+            "RG"
+          ],
+          "explanation": "$R_G$ sets the gain $1 + 2R_2/R_G$. A common-mode input drives no current through $R_G$, so changing it does not affect common-mode behaviour. Changing one $R_2$ would unbalance the first stage, and changing one $R$ of the difference stage would directly spoil the CMRR."
+        }
+      ]
+    }
+  ]
+}

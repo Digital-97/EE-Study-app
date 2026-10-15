@@ -1,0 +1,941 @@
+{
+  "id": "pe-losses",
+  "title": "Switching Losses & Thermal",
+  "description": "Where the power goes in a real converter: conduction, switching, reverse-recovery, capacitive and gate-drive losses, and how they set the junction temperature.",
+  "reference": "Erickson ch. 4",
+  "study": [
+    {
+      "title": "Conduction losses",
+      "body": "A conducting MOSFET behaves like a resistor $R_{DS(on)}$, so its loss depends on the **rms** current. A diode behaves like a voltage drop $V_F$ (plus a small resistance), so its loss depends mainly on the **average** current. In a buck converter with small ripple, $Q_1$ carries $I$ for $DT_s$ and $D_1$ for $D'T_s$. With ripple, the MOSFET's mean-square current is $D(I^2 + \\Delta i_L^2/3)$.",
+      "formula": "\\begin{aligned}& P_Q = I_{Q,rms}^2\\,R_{DS(on)}\\\\ & P_D = V_F\\,\\langle i_D\\rangle\\end{aligned}"
+    },
+    {
+      "title": "Hard switching with an inductive load",
+      "body": "In a converter the inductor forces a constant current $I$. At turn-on, the transistor current must first rise to $I$ (the diode keeps conducting, so $v_{DS}$ stays at $V$), then the voltage falls. At turn-off the voltage rises first, then the current falls. During each transition the device carries full voltage and full current at once: the orange pulses of $p = v_{DS}\\,i_Q$ are the switching energy.",
+      "formula": "\\begin{aligned}& E_{on} \\approx \\tfrac12 VI\\,t_{on}\\\\ & E_{off} \\approx \\tfrac12 VI\\,t_{off}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 7,
+          "label": "time (not to scale)"
+        },
+        "y": {
+          "min": -0.05,
+          "max": 1.25,
+          "label": "normalised"
+        },
+        "curves": [
+          {
+            "f": "0.85*(clamp((x - 1)/0.4, 0, 1) - clamp((x - 5.4)/0.4, 0, 1))",
+            "color": "red",
+            "label": "i_Q",
+            "labelAt": 0.5
+          },
+          {
+            "f": "1 - clamp((x - 1.4)/0.4, 0, 1) + clamp((x - 5)/0.4, 0, 1)",
+            "color": "blue",
+            "label": "v_DS",
+            "labelAt": 0.08
+          },
+          {
+            "f": "(1 - clamp((x - 1.4)/0.4, 0, 1) + clamp((x - 5)/0.4, 0, 1))*0.85*(clamp((x - 1)/0.4, 0, 1) - clamp((x - 5.4)/0.4, 0, 1))",
+            "color": "orange",
+            "label": "p = vi",
+            "labelAt": 0.79
+          }
+        ],
+        "height": 170
+      }
+    },
+    {
+      "title": "Switching loss",
+      "body": "Each period contains one turn-on and one turn-off, so the switching loss is the energy per period times $f_s$. It is proportional to the switching frequency, the blocked voltage and the switched current. Fast transitions (small $t_{on}$, $t_{off}$) need strong gate drive but cause more ringing and EMI.",
+      "formula": "P_{sw} = \\tfrac12 VI\\,(t_{on} + t_{off})\\,f_s"
+    },
+    {
+      "title": "Reverse recovery and capacitances",
+      "body": "- **Reverse recovery**: a conducting pn diode holds stored charge. When the transistor turns on, this recovered charge $Q_{rr}$ flows backwards through the diode and through the transistor while it still blocks $V$: about $Q_{rr}V$ extra energy per period. Schottky and SiC diodes have almost none.\n- **Output capacitance**: the energy $\\frac12C_{oss}V^2$ stored in the MOSFET's drain capacitance is dumped into its channel at every hard turn-on.",
+      "formula": "\\begin{aligned}& P_{rr} \\approx Q_{rr}V f_s\\\\ & P_{C} \\approx \\tfrac12 C_{oss}V^2 f_s\\end{aligned}"
+    },
+    {
+      "title": "Gate-drive loss",
+      "body": "To turn the MOSFET on, the driver delivers the total gate charge $Q_g$ at voltage $V_{GS}$; at turn-off that charge is dumped to the source. The energy $Q_gV_{GS}$ per period is lost in the driver and gate resistors, not in the channel, and is drawn from the driver supply as an average current $Q_gf_s$.",
+      "formula": "P_g = Q_g V_{GS} f_s"
+    },
+    {
+      "title": "Explore: efficiency versus switching frequency",
+      "body": "A 48 V → 12 V, 5 A buck: conduction losses are 2 W whatever $f_s$, while each period costs $E_{sw} = \\frac12VI(t_{on} + t_{off})$. At the frequency $f_s = P_{cond}/E_{sw}$ the two are equal; above it, switching loss dominates. Higher $f_s$ means smaller $L$ and $C$, so the designer trades efficiency against size. Drag the total transition time.",
+      "formula": "P_{loss} = P_{cond} + E_{sw}f_s",
+      "plot": {
+        "x": {
+          "min": 10000.0,
+          "max": 10000000.0,
+          "log": true,
+          "label": "f_s",
+          "unit": "Hz"
+        },
+        "y": {
+          "min": 50,
+          "max": 100,
+          "label": "η (%)"
+        },
+        "sliders": [
+          {
+            "name": "ts",
+            "label": "$t_{on} + t_{off}$",
+            "min": 1e-08,
+            "max": 2e-07,
+            "log": true,
+            "value": 6e-08,
+            "unit": "s"
+          }
+        ],
+        "let": {
+          "Po": "60",
+          "Pc": "2",
+          "Esw": "0.5*48*5*ts"
+        },
+        "curves": [
+          {
+            "f": "100*Po/(Po + Pc + Esw*x)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$E_{sw}$",
+            "value": "Esw",
+            "unit": "J"
+          },
+          {
+            "label": "$P_{sw} = P_{cond}$ at",
+            "value": "Pc/Esw",
+            "unit": "Hz"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Thermal design",
+      "body": "The losses heat the junction: $T_J = T_A + P(\\theta_{JC} + \\theta_{CS} + \\theta_{SA})$, with thermal resistances in °C/W adding like series resistors. Keep $T_J$ below its maximum (typically 150–175 °C) with margin. For MOSFETs there is a feedback effect: $R_{DS(on)}$ rises with temperature (often 1.5–2× at 125 °C), so a hot device dissipates more.",
+      "formula": "T_J = T_A + P\\left(\\theta_{JC} + \\theta_{CS} + \\theta_{SA}\\right)"
+    },
+    {
+      "title": "Worked example: loss budget",
+      "body": "Buck, 48 V → 12 V, 5 A, $f_s$ = 100 kHz ($D$ = 0.25). $R_{DS(on)}$ = 20 mΩ, $t_{on} + t_{off}$ = 60 ns, diode $V_F$ = 0.5 V and $Q_{rr}$ = 50 nC, $Q_g$ = 20 nC at 10 V.\n- MOSFET conduction: 0.25 × 5² × 0.02 = 0.125 W\n- Diode conduction: 0.5 × 5 × 0.75 = 1.875 W\n- Switching: ½ × 48 × 5 × 60 ns × 100 kHz = 0.72 W\n- Recovery: 50 nC × 48 V × 100 kHz = 0.24 W; gate: 0.02 W\nTotal 2.98 W, so $\\eta$ = 60/62.98 = 95.3 %. The diode is the biggest loss: a synchronous rectifier would help most."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pe-losses-1",
+      "title": "Conduction losses",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Resistors and voltage drops",
+          "body": "An on MOSFET is a resistor: loss = rms current squared times $R_{DS(on)}$. A conducting diode is roughly a fixed voltage $V_F$: loss = $V_F$ times the average current. So for MOSFETs the waveform shape matters, for diodes mainly the average.",
+          "formula": "\\begin{aligned}& P_Q = I_{Q,rms}^2\\,R_{DS(on)}\\\\ & P_D = V_F\\,\\langle i_D\\rangle\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Ron": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "D": [
+              0.25,
+              0.4,
+              0.5
+            ],
+            "I": [
+              5,
+              10,
+              15
+            ],
+            "r": [
+              0.3,
+              0.6,
+              1.0
+            ]
+          },
+          "derived": {
+            "pp": "r*I"
+          },
+          "prompt": "In a buck converter $Q_1$ ($R_{DS(on)}$ = {{Ron|Ω}}) runs at $D$ = {{D}}. The inductor current is {{I|A}} DC with {{pp|A}} peak-to-peak ripple. Find the MOSFET's conduction loss.",
+          "answer": "D*(I^2 + (pp/2)^2/3)*Ron",
+          "unit": "W",
+          "tolerance": 0.01,
+          "explanation": "While on, $Q_1$ carries the inductor current. Its mean-square value over the on-time is $I^2 + \\Delta i_L^2/3$ with $\\Delta i_L$ = {{pp/2|A}}: {{I^2+(pp/2)^2/3||4}} A². Over a whole period: $I_{rms}^2 = D(I^2 + \\Delta i_L^2/3)$ = {{D*(I^2+(pp/2)^2/3)||4}} A². $P = I_{rms}^2R_{DS(on)}$ = **{{D*(I^2+(pp/2)^2/3)*Ron|W}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "I": [
+              2,
+              5,
+              10,
+              20
+            ],
+            "D": [
+              0.1,
+              0.25,
+              0.4
+            ],
+            "VF": [
+              0.45,
+              0.6,
+              0.8
+            ]
+          },
+          "prompt": "A buck converter delivers {{I|A}} at $D$ = {{D}}. Its freewheeling diode drops {{VF|V}}. What is the diode's conduction loss?",
+          "answer": "VF*I*(1-D)",
+          "unit": "W",
+          "explanation": "$\\langle i_D\\rangle = D'I$ = {{1-D||2}} × {{I|A}} = {{(1-D)*I|A}}. $P_D = V_F\\langle i_D\\rangle$ = {{VF}} V × {{(1-D)*I|A}} = **{{VF*I*(1-D)|W}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Pin": [
+              50,
+              100,
+              200
+            ],
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.3,
+              0.5,
+              0.6
+            ],
+            "Ron": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "A boost converter takes {{Pin|W}} from {{Vg|V}} at $D$ = {{D}}. Its MOSFET has $R_{DS(on)}$ = {{Ron|Ω}}. Ignoring ripple, what is the MOSFET's conduction loss?",
+          "answer": "D*(Pin/Vg)^2*Ron",
+          "unit": "W",
+          "explanation": "$I_L = I_{in} = P_{in}/V_g$ = {{Pin/Vg|A}}. The MOSFET carries it for $DT_s$: $I_{rms}^2 = DI_L^2$, so $P = DI_L^2R_{DS(on)}$ = {{D}} × ({{Pin/Vg|A}})² × {{Ron|Ω}} = **{{D*(Pin/Vg)^2*Ron|W}}**."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "A buck converter steps 48 V down to 1 V at 20 A with a diode as freewheeling switch. Which device has the largest conduction loss?",
+          "options": [
+            "The diode",
+            "The MOSFET",
+            "Both about the same",
+            "Neither: conduction losses vanish at low voltage"
+          ],
+          "answer": 0,
+          "explanation": "$D$ ≈ 1/48, so the diode conducts about 98 % of the time: roughly $0.5\\,\\text{V} \\times 20\\,\\text{A} \\times 0.98$ ≈ 10 W, on a 20 W output! The MOSFET conducts only 2 % of the time. This is exactly where synchronous rectification pays off."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "In a buck converter delivering 10 A, replacing a diode with $V_F$ = 0.5 V by a MOSFET with $R_{DS(on)}$ = 10 mΩ cuts the freewheeling conduction loss by a factor of 5.",
+          "answer": true,
+          "explanation": "Diode: $V_FI = 0.5 \\times 10$ = 5 W while conducting. MOSFET: $I^2R = 10^2 \\times 0.01$ = 1 W while conducting. Both conduct for the same $D'T_s$, so the ratio is 5. (Dead time, during which the body diode still conducts briefly, eats a little of the gain.)"
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "P25": [
+              0.5,
+              1,
+              2,
+              3
+            ],
+            "k": [
+              1.4,
+              1.6,
+              1.8
+            ]
+          },
+          "prompt": "A MOSFET dissipates {{P25|W}} of conduction loss with its datasheet $R_{DS(on)}$ at 25 °C. At its operating temperature, $R_{DS(on)}$ is {{k}} times higher. What is the conduction loss at operating temperature (same current)?",
+          "answer": "k*P25",
+          "unit": "W",
+          "explanation": "$P = I_{rms}^2R_{DS(on)}$ scales with $R_{DS(on)}$: {{k}} × {{P25|W}} = **{{k*P25|W}}**. Always use the hot $R_{DS(on)}$ from the datasheet curve in a loss budget."
+        }
+      ]
+    },
+    {
+      "id": "pe-losses-2",
+      "title": "Switching losses",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Voltage and current overlap",
+          "body": "With an inductive load the transistor current and voltage change one after the other, so during each transition the device sees the full $V$ and full $I$ for part of the time. With linear ramps, each transition costs about $\\frac12VIt$, where $t$ is the transition time.",
+          "formula": "P_{sw} = \\tfrac12 VI\\,(t_{on} + t_{off})\\,f_s",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 7,
+              "label": "time (not to scale)"
+            },
+            "y": {
+              "min": -0.05,
+              "max": 1.25,
+              "label": "normalised"
+            },
+            "curves": [
+              {
+                "f": "0.85*(clamp((x - 1)/0.4, 0, 1) - clamp((x - 5.4)/0.4, 0, 1))",
+                "color": "red",
+                "label": "i_Q",
+                "labelAt": 0.5
+              },
+              {
+                "f": "1 - clamp((x - 1.4)/0.4, 0, 1) + clamp((x - 5)/0.4, 0, 1)",
+                "color": "blue",
+                "label": "v_DS",
+                "labelAt": 0.08
+              },
+              {
+                "f": "(1 - clamp((x - 1.4)/0.4, 0, 1) + clamp((x - 5)/0.4, 0, 1))*0.85*(clamp((x - 1)/0.4, 0, 1) - clamp((x - 5.4)/0.4, 0, 1))",
+                "color": "orange",
+                "label": "p = vi",
+                "labelAt": 0.79
+              }
+            ],
+            "height": 170
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "V": [
+              48,
+              100,
+              400
+            ],
+            "I": [
+              2,
+              5,
+              10
+            ],
+            "fs": [
+              50000.0,
+              100000.0,
+              200000.0
+            ],
+            "ton": [
+              2e-08,
+              4e-08,
+              6e-08
+            ],
+            "toff": [
+              3e-08,
+              5e-08,
+              8e-08
+            ]
+          },
+          "prompt": "A MOSFET switches {{I|A}} against {{V|V}} at {{fs|Hz}}. Its turn-on and turn-off transitions take {{ton|s}} and {{toff|s}}. Estimate the switching loss.",
+          "answer": "0.5*V*I*(ton+toff)*fs",
+          "unit": "W",
+          "explanation": "$P_{sw} = \\frac12VI(t_{on} + t_{off})f_s$ = ½ × {{V}} V × {{I|A}} × {{ton+toff|s}} × {{fs|Hz}} = **{{0.5*V*I*(ton+toff)*fs|W}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "V": [
+              48,
+              100,
+              400
+            ],
+            "Qrr": [
+              2e-08,
+              5e-08,
+              1e-07,
+              2e-07
+            ],
+            "fs": [
+              50000.0,
+              100000.0,
+              200000.0
+            ]
+          },
+          "prompt": "The freewheeling diode of a {{V|V}} converter has a reverse-recovery charge of {{Qrr|C}}. Estimate the extra transistor loss it causes at {{fs|Hz}}.",
+          "answer": "Qrr*V*fs",
+          "unit": "W",
+          "explanation": "At every turn-on $Q_{rr}$ flows through the transistor while it still blocks $V$: $P_{rr} \\approx Q_{rr}Vf_s$ = {{Qrr|C}} × {{V}} V × {{fs|Hz}} = **{{Qrr*V*fs|W}}**. A Schottky or SiC diode would almost eliminate this."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Capacitive and gate losses",
+          "body": "Two more losses scale with $f_s$. The MOSFET's output capacitance charges to $V$ while it is off and is shorted through the channel at each hard turn-on, losing $\\frac12C_{oss}V^2$. The gate driver delivers $Q_g$ at $V_{GS}$ every period and dissipates $Q_gV_{GS}$.",
+          "formula": "\\begin{aligned}& P_C \\approx \\tfrac12 C_{oss}V^2 f_s\\\\ & P_g = Q_gV_{GS}f_s\\end{aligned}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Coss": [
+              1e-10,
+              2e-10,
+              5e-10,
+              1e-09
+            ],
+            "V": [
+              48,
+              100,
+              400
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ]
+          },
+          "prompt": "A MOSFET with $C_{oss}$ = {{Coss|F}} (treat as constant) is hard-switched at {{fs|Hz}} from {{V|V}}. How much power is lost by discharging $C_{oss}$?",
+          "answer": "0.5*Coss*V^2*fs",
+          "unit": "W",
+          "explanation": "$P_C = \\frac12C_{oss}V^2f_s$ = ½ × {{Coss|F}} × {{V}}² × {{fs|Hz}} = **{{0.5*Coss*V^2*fs|W}}**. Note the $V^2$: this loss matters most in high-voltage converters, where soft-switching (ZVS) topologies avoid it.",
+          "require": "5 - 0.5*Coss*V^2*fs"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Qg": [
+              1e-08,
+              2e-08,
+              5e-08,
+              1e-07
+            ],
+            "Vgs": [
+              10,
+              12,
+              15
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ]
+          },
+          "prompt": "A MOSFET has a total gate charge of {{Qg|C}} and is driven with {{Vgs|V}} at {{fs|Hz}}.",
+          "ask": [
+            {
+              "prompt": "How much power does the gate drive dissipate?",
+              "answer": "Qg*Vgs*fs",
+              "unit": "W",
+              "explanation": "$P_g = Q_gV_{GS}f_s$ = {{Qg|C}} × {{Vgs}} V × {{fs|Hz}} = **{{Qg*Vgs*fs|W}}**, independent of the gate resistance (which only decides where the heat goes)."
+            },
+            {
+              "prompt": "What average current does the driver draw from its supply?",
+              "answer": "Qg*fs",
+              "unit": "A",
+              "explanation": "Charge per period times frequency: $Q_gf_s$ = {{Qg|C}} × {{fs|Hz}} = **{{Qg*fs|A}}**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each loss to its formula",
+          "pairs": [
+            [
+              "Conduction (MOSFET)",
+              "$I_{rms}^2R_{DS(on)}$"
+            ],
+            [
+              "Hard-switching overlap",
+              "$\\frac12VI(t_{on} + t_{off})f_s$"
+            ],
+            [
+              "Diode reverse recovery",
+              "$Q_{rr}Vf_s$"
+            ],
+            [
+              "Gate drive",
+              "$Q_gV_{GS}f_s$"
+            ]
+          ],
+          "explanation": "Only the conduction loss is independent of the switching frequency. All the others are an energy per period multiplied by $f_s$, which is why fast converters need fast, low-charge devices."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Doubling the switching frequency of a converter doubles all of its semiconductor losses.",
+          "answer": false,
+          "explanation": "Switching, recovery, capacitive and gate losses double, but conduction losses depend only on the currents and on-resistances and do not change. (The inductor ripple halves, which even lowers the rms currents slightly.)"
+        }
+      ]
+    },
+    {
+      "id": "pe-losses-3",
+      "title": "Loss budget and efficiency",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              24,
+              48
+            ],
+            "V": [
+              5,
+              12
+            ],
+            "I": [
+              3,
+              5,
+              10
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "Ron": [
+              0.01,
+              0.03
+            ],
+            "ts": [
+              4e-08,
+              8e-08
+            ],
+            "VF": [
+              0.5,
+              0.7
+            ]
+          },
+          "derived": {
+            "D": "V/Vg",
+            "Pc": "D*I^2*Ron + (1-D)*VF*I",
+            "Ps": "0.5*Vg*I*ts*fs"
+          },
+          "prompt": "A buck converter: {{Vg|V}} → {{V|V}} at {{I|A}}, $f_s$ = {{fs|Hz}}. $R_{DS(on)}$ = {{Ron|Ω}}, $t_{on} + t_{off}$ = {{ts|s}}, diode $V_F$ = {{VF|V}}. Ignore ripple, recovery and gate losses.",
+          "ask": [
+            {
+              "prompt": "Find the total semiconductor loss.",
+              "answer": "Pc + Ps",
+              "unit": "W",
+              "explanation": "$D$ = {{D||3}}. MOSFET: $DI^2R$ = {{D*I^2*Ron|W}}. Diode: $D'V_FI$ = {{(1-D)*VF*I|W}}. Switching: $\\frac12V_gIt f_s$ = {{Ps|W}}. Total: **{{Pc+Ps|W}}**."
+            },
+            {
+              "prompt": "Find the efficiency in %.",
+              "answer": "100*V*I/(V*I + Pc + Ps)",
+              "unit": "%",
+              "tolerance": 0.005,
+              "explanation": "Losses: {{D*I^2*Ron|W}} + {{(1-D)*VF*I|W}} + {{Ps|W}} = {{Pc+Ps|W}} ($D$ = {{D||3}}). $\\eta = \\frac{P_{out}}{P_{out} + P_{loss}}$ = {{V*I|W}} / {{V*I+Pc+Ps|W}} = **{{100*V*I/(V*I+Pc+Ps)|%}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Pc": [
+              0.5,
+              1,
+              2,
+              5
+            ],
+            "Esw": [
+              2e-06,
+              5e-06,
+              1e-05,
+              2e-05
+            ]
+          },
+          "prompt": "A converter has {{Pc|W}} of conduction loss, and each switching period costs {{Esw|J}} of switching energy. At what switching frequency are switching and conduction losses equal?",
+          "answer": "Pc/Esw",
+          "unit": "Hz",
+          "explanation": "$E_{sw}f_s = P_{cond}$ → $f_s = P_{cond}/E_{sw}$ = {{Pc|W}} / {{Esw|J}} = **{{Pc/Esw|Hz}}**. Above this frequency switching loss dominates."
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "Po": [
+              50,
+              100,
+              200
+            ],
+            "Pc": [
+              1,
+              2,
+              3
+            ],
+            "Esw": [
+              2e-06,
+              5e-06,
+              1e-05
+            ],
+            "eta": [
+              94,
+              95,
+              96,
+              97
+            ]
+          },
+          "require": "min((Po/(eta/100) - Po - Pc)/Esw - 5e4, 2e6 - (Po/(eta/100) - Po - Pc)/Esw)",
+          "prompt": "A converter delivers {{Po|W}} with {{Pc|W}} of conduction loss and {{Esw|J}} switching energy per period. Find the **highest** switching frequency that still gives an efficiency of {{eta}} %.",
+          "plot": {
+            "x": {
+              "min": 10000.0,
+              "max": 10000000.0,
+              "log": true,
+              "label": "f_s",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": 80,
+              "max": 100,
+              "label": "η (%)"
+            },
+            "sliders": [
+              {
+                "name": "f",
+                "label": "$f_s$",
+                "min": 10000.0,
+                "max": 10000000.0,
+                "log": true,
+                "value": 10000.0,
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "100*Po/(Po + Pc + Esw*x)"
+              }
+            ],
+            "points": [
+              {
+                "x": "f",
+                "y": "100*Po/(Po + Pc + Esw*f)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "eta",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "η",
+                "value": "100*Po/(Po + Pc + Esw*f)",
+                "unit": "%"
+              }
+            ]
+          },
+          "answer": {
+            "f": "(Po/(eta/100) - Po - Pc)/Esw"
+          },
+          "tolerance": 0.05,
+          "explanation": "$\\eta = \\frac{P_o}{P_o + P_c + E_{sw}f_s}$ → $f_s = \\frac{P_o/\\eta - P_o - P_c}{E_{sw}}$ = ({{Po/(eta/100)|W}} − {{Po|W}} − {{Pc|W}}) / {{Esw|J}} = **{{(Po/(eta/100)-Po-Pc)/Esw|Hz}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "V": [
+              48,
+              100,
+              400
+            ],
+            "I": [
+              2,
+              5,
+              10
+            ],
+            "ts": [
+              2e-08,
+              5e-08,
+              1e-07
+            ],
+            "Pb": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "A {{V|V}}, {{I|A}} hard-switched stage has $t_{on} + t_{off}$ = {{ts|s}}. You can afford {{Pb|W}} of switching loss. What is the maximum switching frequency?",
+          "answer": "Pb/(0.5*V*I*ts)",
+          "unit": "Hz",
+          "explanation": "$E_{sw} = \\frac12VI(t_{on} + t_{off})$ = {{0.5*V*I*ts|J}}. $f_{s,max} = P_{budget}/E_{sw}$ = {{Pb|W}} / {{0.5*V*I*ts|J}} = **{{Pb/(0.5*V*I*ts)|Hz}}**.",
+          "require": "min(Pb/(0.5*V*I*ts) - 2e4, 1e6 - Pb/(0.5*V*I*ts))"
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A designer replaces the freewheeling diode of a 3.3 V buck converter by a synchronous MOSFET. Which loss does this mainly reduce?",
+          "options": [
+            "The diode's $V_F\\cdot I$ conduction loss",
+            "The gate-drive loss",
+            "The main MOSFET's turn-on overlap loss",
+            "The inductor's copper loss"
+          ],
+          "answer": 0,
+          "explanation": "At low output voltage the diode conducts most of the period and $V_F I$ is a large fraction of the output power. A MOSFET with milliohms of $R_{DS(on)}$ drops far less. Gate-drive loss actually increases slightly (a second gate to drive)."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "V": [
+              48,
+              100
+            ],
+            "I": [
+              5,
+              10
+            ],
+            "fs": [
+              100000.0,
+              300000.0
+            ],
+            "Ra": [
+              0.005
+            ],
+            "ta": [
+              1e-07
+            ],
+            "Rb": [
+              0.02
+            ],
+            "tb": [
+              2.5e-08
+            ]
+          },
+          "prompt": "Two MOSFETs are candidates for a {{V|V}}, {{I|A}} switch at {{fs|Hz}} and $D$ = 0.5. A: $R_{DS(on)}$ = {{Ra|Ω}}, $t_{on} + t_{off}$ = {{ta|s}}. B: $R_{DS(on)}$ = {{Rb|Ω}}, $t_{on} + t_{off}$ = {{tb|s}}.",
+          "ask": [
+            {
+              "prompt": "What is MOSFET A's total loss (conduction + switching)?",
+              "answer": "0.5*I^2*Ra + 0.5*V*I*ta*fs",
+              "unit": "W",
+              "explanation": "Conduction: $DI^2R$ = 0.5 × {{I}}² × {{Ra|Ω}} = {{0.5*I^2*Ra|W}}. Switching: $\\frac12VIt f_s$ = {{0.5*V*I*ta*fs|W}}. Total **{{0.5*I^2*Ra+0.5*V*I*ta*fs|W}}**."
+            },
+            {
+              "prompt": "What is MOSFET B's total loss?",
+              "answer": "0.5*I^2*Rb + 0.5*V*I*tb*fs",
+              "unit": "W",
+              "explanation": "Conduction: 0.5 × {{I}}² × {{Rb|Ω}} = {{0.5*I^2*Rb|W}}. Switching: {{0.5*V*I*tb*fs|W}}. Total **{{0.5*I^2*Rb+0.5*V*I*tb*fs|W}}** (A: {{0.5*I^2*Ra+0.5*V*I*ta*fs|W}}). The low-$R_{DS(on)}$ part is not automatically better: big dies switch slowly."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "For a fixed converter design there is a switching frequency above which the switching losses exceed the conduction losses.",
+          "answer": true,
+          "explanation": "Conduction loss is constant in $f_s$ while switching loss grows linearly: they cross at $f_s = P_{cond}/E_{sw}$. Pushing far beyond that point needs soft-switching techniques or faster (e.g. GaN, SiC) devices."
+        }
+      ]
+    },
+    {
+      "id": "pe-losses-4",
+      "title": "Thermal design",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "P": [
+              3,
+              5,
+              8,
+              12
+            ],
+            "tjc": [
+              0.5,
+              1,
+              1.5
+            ],
+            "tcs": [
+              0.2,
+              0.5
+            ],
+            "tsa": [
+              2,
+              4,
+              6
+            ],
+            "TA": [
+              25,
+              40,
+              50
+            ]
+          },
+          "require": "150 - TA - P*(tjc + tcs + tsa)",
+          "prompt": "A MOSFET dissipates {{P|W}}. $\\theta_{JC}$ = {{tjc}} °C/W, $\\theta_{CS}$ = {{tcs}} °C/W, heat sink $\\theta_{SA}$ = {{tsa}} °C/W, ambient {{TA}} °C. Find the junction temperature in °C.",
+          "answer": "TA + P*(tjc + tcs + tsa)",
+          "unit": "°C",
+          "explanation": "$T_J = T_A + P(\\theta_{JC} + \\theta_{CS} + \\theta_{SA})$ = {{TA}} + {{P}} × ({{tjc}} + {{tcs}} + {{tsa}}) = **{{TA+P*(tjc+tcs+tsa)||3}} °C**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "P1": [
+              4,
+              6,
+              8
+            ],
+            "P2": [
+              1,
+              2,
+              3
+            ],
+            "tjc": [
+              0.5,
+              1,
+              1.5
+            ],
+            "Tj": [
+              125,
+              150
+            ],
+            "TA": [
+              40,
+              50
+            ]
+          },
+          "require": "(Tj - TA - P1*(tjc + 0.5))/(P1 + P2) - 0.5",
+          "prompt": "A converter's two semiconductors share one heat sink and dissipate {{P1|W}} and {{P2|W}}. Each has $\\theta_{JC}$ = {{tjc}} °C/W and $\\theta_{CS}$ = 0.5 °C/W. With $T_{J,max}$ = {{Tj}} °C and {{TA}} °C ambient, what is the largest allowed $\\theta_{SA}$ (in °C/W)?",
+          "answer": "(Tj - TA - P1*(tjc + 0.5))/(P1 + P2)",
+          "unit": "",
+          "explanation": "The heat sink carries the total {{P1+P2|W}}: $T_S = T_A + (P_1 + P_2)\\theta_{SA}$. The hotter device (the one dissipating {{P1|W}}) sets the limit: $T_J = T_S + P_1(\\theta_{JC} + \\theta_{CS}) \\le$ {{Tj}} °C. So $\\theta_{SA} \\le \\frac{T_{J,max} - T_A - P_1(\\theta_{JC} + \\theta_{CS})}{P_1 + P_2}$ = ({{Tj}} − {{TA}} − {{P1*(tjc+0.5)||3}}) / {{P1+P2}} = **{{(Tj-TA-P1*(tjc+0.5))/(P1+P2)||3}} °C/W**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Irms": [
+              10,
+              15,
+              20
+            ],
+            "R25": [
+              0.005,
+              0.01
+            ],
+            "th": [
+              20,
+              30,
+              40
+            ],
+            "a": [
+              0.006,
+              0.008
+            ],
+            "TA": [
+              25,
+              40
+            ]
+          },
+          "require": "min(0.7 - Irms^2*R25*th*a, 160 - (TA + Irms^2*R25*th*(1 - 25*a))/(1 - Irms^2*R25*th*a))",
+          "prompt": "A MOSFET carries {{Irms|A}} rms. Its $R_{DS(on)}$ is {{R25|Ω}} at 25 °C and rises by {{a*100}} % per °C: $R(T_J) = R_{25}[1 + {{a}}(T_J - 25)]$. Its total $\\theta_{JA}$ = {{th}} °C/W, ambient {{TA}} °C, and it has no other losses. Find the steady-state junction temperature in °C.",
+          "answer": "(TA + Irms^2*R25*th*(1 - 25*a))/(1 - Irms^2*R25*th*a)",
+          "unit": "°C",
+          "explanation": "$T_J = T_A + I^2R_{25}[1 + a(T_J - 25)]\\theta_{JA}$. With $k = I^2R_{25}\\theta_{JA}$ = {{Irms^2*R25*th||3}} °C: $T_J(1 - ka) = T_A + k(1 - 25a)$, so $T_J$ = ({{TA}} + {{Irms^2*R25*th*(1-25*a)||3}}) / {{1-Irms^2*R25*th*a||3}} = **{{(TA+Irms^2*R25*th*(1-25*a))/(1-Irms^2*R25*th*a)||3}} °C**. Ignoring the temperature rise of $R_{DS(on)}$ would give only {{TA+Irms^2*R25*th||3}} °C."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Rhot": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "Tj": [
+              125,
+              150
+            ],
+            "th": [
+              10,
+              20,
+              40
+            ],
+            "TA": [
+              25,
+              50
+            ]
+          },
+          "prompt": "A MOSFET has $R_{DS(on)}$ = {{Rhot|Ω}} at its maximum junction temperature of {{Tj}} °C and $\\theta_{JA}$ = {{th}} °C/W. At {{TA}} °C ambient, what is the largest rms current it can carry (conduction loss only)?",
+          "answer": "sqrt((Tj - TA)/(th*Rhot))",
+          "unit": "A",
+          "explanation": "Allowed power: $P = \\frac{T_{J,max} - T_A}{\\theta_{JA}}$ = ({{Tj}} − {{TA}}) / {{th}} = {{(Tj-TA)/th|W}}. $I_{rms,max} = \\sqrt{P/R_{DS(on),hot}}$ = √({{(Tj-TA)/th||3}} / {{Rhot}}) = **{{sqrt((Tj-TA)/(th*Rhot))|A}}**. The datasheet's headline current rating assumes a perfect heat sink and is far higher."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Pc": [
+              0.5,
+              1,
+              1.5
+            ],
+            "Esw": [
+              2e-06,
+              5e-06,
+              1e-05
+            ],
+            "th": [
+              15,
+              20,
+              30
+            ],
+            "TA": [
+              25,
+              40
+            ],
+            "Tj": [
+              110,
+              125
+            ]
+          },
+          "require": "min((Tj - TA)/th - Pc - 0.3, 1.2e6 - ((Tj - TA)/th - Pc)/Esw)",
+          "prompt": "A MOSFET in a converter has {{Pc|W}} of conduction loss and {{Esw|J}} of switching energy per period. With $\\theta_{JA}$ = {{th}} °C/W, {{TA}} °C ambient and $T_J$ limited to {{Tj}} °C, what is the highest switching frequency?",
+          "answer": "((Tj - TA)/th - Pc)/Esw",
+          "unit": "Hz",
+          "explanation": "Total allowed loss: $(T_J - T_A)/\\theta_{JA}$ = {{(Tj-TA)/th|W}}. Left for switching: {{(Tj-TA)/th-Pc|W}}. $f_{s,max}$ = {{(Tj-TA)/th-Pc|W}} / {{Esw|J}} = **{{((Tj-TA)/th-Pc)/Esw|Hz}}**."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Two identical MOSFETs are placed in parallel to share one switch position. Compared with a single device, what happens to the losses?",
+          "options": [
+            "Conduction loss halves, while switching-related losses (capacitance, gate charge) roughly double",
+            "All losses halve",
+            "Conduction loss doubles and switching loss halves",
+            "Nothing changes"
+          ],
+          "answer": 0,
+          "explanation": "Each device carries $I/2$: total conduction loss $2 \\cdot (I/2)^2R = I^2R/2$. But the combined $C_{oss}$ and $Q_g$ double, so capacitive and gate losses double, and the transitions may slow down. Paralleling pays off only where conduction loss dominates."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "The on-resistance of a MOSFET decreases as it heats up, which is why parallel MOSFETs share current well.",
+          "answer": false,
+          "explanation": "It is the other way round: $R_{DS(on)}$ **increases** with temperature. A device that takes more than its share heats up, its resistance rises and it hands current back to the others. This positive temperature coefficient makes paralleling MOSFETs (for conduction) inherently stable."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1242 @@
+{
+  "id": "it-awgn",
+  "title": "The Gaussian Channel",
+  "description": "The capacity of band-limited channels with Gaussian noise, the trade between bandwidth and power, and the Shannon limit on Eb/N0.",
+  "reference": "C&T §9.1, §9.3",
+  "study": [
+    {
+      "title": "The Gaussian channel",
+      "body": "Many links are well described by $Y = X + Z$: the received sample is the sent one plus Gaussian noise of power $N$, with the transmit power limited to $P$. Its capacity per sample has a closed form, reached with Gaussian-distributed inputs. Unlike the discrete channels before, the 'alphabet' is continuous; the power limit is what keeps the capacity finite.",
+      "formula": "C = \\tfrac12\\log_2\\!\\Big(1 + \\frac{P}{N}\\Big)\\ \\text{bits per sample}"
+    },
+    {
+      "title": "Band-limited channels: Shannon–Hartley",
+      "body": "A channel of bandwidth $B$ carries $2B$ independent samples per second, and white noise of density $N_0$ gives a noise power $N = N_0B$. Together this gives the Shannon–Hartley capacity in bit/s. $S/N$ is a power **ratio**: 20 dB means 100. Example: $B$ = 1 MHz at 20 dB gives $C$ = $10^6$ × $\\log_2 101$ = 6.66 Mbit/s.",
+      "formula": "C = B\\log_2\\!\\Big(1 + \\frac{P}{N_0B}\\Big)\\ \\text{bit/s}"
+    },
+    {
+      "title": "Explore: bandwidth versus power",
+      "body": "With fixed received power, extra bandwidth also lets in extra noise. Here $P/N_0$ = $10^6$ Hz (60 dB-Hz). At small $B$ the S/N is high and capacity grows almost in proportion to $B$; at large $B$ the S/N drops below 0 dB and capacity saturates at $1.44\\,P/N_0$ = 1.44 Mbit/s. Drag $B$ over four decades.",
+      "formula": "C_\\infty = \\lim_{B\\to\\infty} C = \\frac{P}{N_0}\\log_2 e \\approx 1.44\\,\\frac{P}{N_0}",
+      "plot": {
+        "x": {
+          "min": 10000,
+          "max": 100000000,
+          "label": "bandwidth B",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": 0,
+          "max": 1600000,
+          "label": "C",
+          "unit": "bit/s"
+        },
+        "sliders": [
+          {
+            "name": "B",
+            "label": "$B$",
+            "min": 10000,
+            "max": 100000000,
+            "log": true,
+            "value": 1000000,
+            "unit": "Hz"
+          }
+        ],
+        "curves": [
+          {
+            "f": "x*log2(1 + 1000000/x)",
+            "label": "C(B)",
+            "labelAt": 0.25
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1442695,
+            "color": "orange"
+          }
+        ],
+        "points": [
+          {
+            "x": "B",
+            "y": "B*log2(1 + 1000000/B)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$S/N$",
+            "value": "10*log10(1000000/B)",
+            "unit": "dB"
+          },
+          {
+            "label": "$C$",
+            "value": "B*log2(1 + 1000000/B)",
+            "unit": "bit/s"
+          },
+          {
+            "label": "$\\eta = C/B$",
+            "value": "log2(1 + 1000000/B)",
+            "unit": "bit/s/Hz"
+          }
+        ],
+        "labels": [
+          {
+            "x": 12000,
+            "y": 1520000,
+            "text": "1.44 P/N_0",
+            "color": "orange"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Spectral efficiency and Eb/N0",
+      "body": "The **spectral efficiency** $\\eta = R/B$ measures how well a system uses bandwidth. The fair way to compare power use is the energy per bit over the noise density, $E_b/N_0$: the received power is $P = E_bR$, so $S/N = (E_b/N_0)\\,\\eta$. Setting $R = C$ in Shannon–Hartley gives the least $E_b/N_0$ that any system with spectral efficiency $\\eta$ can use.",
+      "formula": "\\frac{E_b}{N_0} \\ge \\frac{2^\\eta - 1}{\\eta}"
+    },
+    {
+      "title": "Explore: the Shannon limit",
+      "body": "Plot spectral efficiency against $E_b/N_0$: every real system sits to the right of the Shannon curve. Above $\\eta$ = 1 systems are **bandwidth-limited** (bandwidth is the scarce resource, use dense constellations); below it they are **power-limited** (spend bandwidth, e.g. low-rate codes). As $\\eta \\to 0$ the bound falls to $\\ln 2$ = 0.693 = **−1.59 dB**: below that no system works at any rate. Uncoded BPSK/QPSK need 9.6 dB for BER $10^{-5}$; turbo and LDPC codes come within about 1 dB of the limit. Drag $\\eta$.",
+      "formula": "\\eta \\to 0:\\quad \\frac{E_b}{N_0} \\to \\ln 2 = -1.59\\ \\text{dB}",
+      "plot": {
+        "x": {
+          "min": -2,
+          "max": 16,
+          "label": "E_b/N_0 (dB)"
+        },
+        "y": {
+          "min": 0.1,
+          "max": 10,
+          "label": "η (bit/s/Hz)",
+          "log": true
+        },
+        "height": 240,
+        "sliders": [
+          {
+            "name": "e",
+            "label": "$\\eta$",
+            "min": 0.1,
+            "max": 8,
+            "step": 0.1,
+            "value": 2,
+            "unit": "bit/s/Hz"
+          }
+        ],
+        "curves": [
+          {
+            "x": "10*log10((2^t - 1)/t)",
+            "y": "t",
+            "t": [
+              0.1,
+              9
+            ],
+            "label": "Shannon limit",
+            "labelAt": 0.3
+          }
+        ],
+        "vlines": [
+          {
+            "x": -1.59,
+            "label": "−1.59 dB",
+            "color": "red"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1,
+            "color": "grey",
+            "label": "η = 1"
+          }
+        ],
+        "points": [
+          {
+            "x": 9.59,
+            "y": 1,
+            "label": "BPSK",
+            "guides": false,
+            "color": "blue"
+          },
+          {
+            "x": 9.59,
+            "y": 2,
+            "label": "QPSK",
+            "guides": false,
+            "color": "blue"
+          },
+          {
+            "x": 13.43,
+            "y": 4,
+            "label": "16-QAM",
+            "guides": false,
+            "color": "blue"
+          },
+          {
+            "x": 0.7,
+            "y": 1,
+            "label": "turbo + QPSK",
+            "guides": false,
+            "color": "purple"
+          },
+          {
+            "x": "10*log10((2^(e) - 1)/(e))",
+            "y": "e",
+            "guides": true
+          }
+        ],
+        "labels": [
+          {
+            "x": 5,
+            "y": 0.2,
+            "text": "achievable",
+            "color": "grey"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "minimum $E_b/N_0$",
+            "value": "10*log10((2^(e) - 1)/(e))",
+            "unit": "dB"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: BER curves and coding gain",
+      "body": "Uncoded BPSK on the AWGN channel has $P_b = Q(\\sqrt{2E_b/N_0})$; QPSK has the same curve per bit. Plotted on a log scale against $E_b/N_0$ in dB, a good code shifts the curve to the left. The **coding gain** is that horizontal shift at a chosen BER: the transmit power saved for the same error rate. Drag $E_b/N_0$.",
+      "formula": "P_b = Q\\Big(\\sqrt{2E_b/N_0}\\Big)",
+      "plot": {
+        "x": {
+          "min": -2,
+          "max": 11,
+          "label": "E_b/N_0 (dB)"
+        },
+        "y": {
+          "min": 1e-07,
+          "max": 0.5,
+          "label": "bit error rate",
+          "log": true
+        },
+        "height": 230,
+        "sliders": [
+          {
+            "name": "g",
+            "label": "$E_b/N_0$",
+            "min": -2,
+            "max": 11,
+            "step": 0.1,
+            "value": 6,
+            "unit": "dB"
+          }
+        ],
+        "curves": [
+          {
+            "f": "Q(sqrt(2*10^(x/10)))",
+            "label": "uncoded BPSK",
+            "labelAt": 0.2
+          }
+        ],
+        "vlines": [
+          {
+            "x": -1.59,
+            "label": "Shannon limit",
+            "color": "red"
+          }
+        ],
+        "points": [
+          {
+            "x": "g",
+            "y": "Q(sqrt(2*10^(g/10)))"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "BER",
+            "value": "Q(sqrt(2*10^(g/10)))"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Worked example: a satellite transponder",
+      "body": "$B$ = 36 MHz and $S/N$ = 10 dB (a ratio of 10).\n- Capacity: $C$ = 36 MHz × $\\log_2 11$ = 124.5 Mbit/s.\n- Spectral efficiency at capacity: $\\eta$ = 3.46 bit/s/Hz: bandwidth-limited.\n- $E_b/N_0 = (S/N)/\\eta$ = 10 / 3.46 = 2.89 = 4.6 dB, exactly the Shannon bound for $\\eta$ = 3.46.\nDoubling the power (13 dB) would add about 34 Mbit/s; doubling the bandwidth at the same power would raise $C$ to 2 × 36 MHz × $\\log_2 6$ = 186 Mbit/s."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "it-awgn-1",
+      "title": "Capacity of the Gaussian channel",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Signal plus Gaussian noise",
+          "body": "The additive white Gaussian noise (AWGN) channel adds independent Gaussian noise of power $N$ to every transmitted sample, whose power is limited to $P$. Its capacity per sample depends only on the ratio $P/N$.",
+          "formula": "C = \\tfrac12\\log_2\\!\\Big(1 + \\frac{P}{N}\\Big)"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "snr": [
+              0,
+              3,
+              10,
+              20,
+              30
+            ]
+          },
+          "prompt": "Samples sent over an AWGN channel arrive with a signal-to-noise ratio of {{snr}} dB. What is the capacity per sample?",
+          "answer": "0.5*log2(1 + 10^(snr/10))",
+          "unit": "bits",
+          "explanation": "$P/N = 10^{ {{snr}}/10}$ = {{10^(snr/10)||3}}. $C = \\tfrac12\\log_2(1 + {{10^(snr/10)||3}})$ = **{{0.5*log2(1 + 10^(snr/10))||3}} bits per sample**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Bandwidth: 2B samples per second",
+          "body": "A signal of bandwidth $B$ is described by $2B$ samples per second, and white noise of density $N_0$ (W/Hz) contributes $N = N_0B$ in that band. Multiplying the per-sample capacity by $2B$ gives the Shannon–Hartley formula.",
+          "formula": "C = B\\log_2\\!\\Big(1 + \\frac{P}{N_0B}\\Big)"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Pp": [
+              0.1,
+              1,
+              10
+            ],
+            "B": [
+              100000,
+              1000000,
+              10000000
+            ]
+          },
+          "derived": {
+            "P": "Pp*1e-12"
+          },
+          "prompt": "A receiver gets {{Pp}} pW of signal power in a bandwidth of {{B|Hz}}. The noise density is $N_0 = 4.0\\times 10^{-21}$ W/Hz (thermal noise at room temperature). What is the channel capacity?",
+          "answer": "B*log2(1 + P/(4e-21*B))",
+          "unit": "bit/s",
+          "explanation": "$N = N_0B = 4.0\\times 10^{-21}$ W/Hz × {{B|Hz}} = {{4e-21*B*1e15||3}} fW, so $S/N$ = {{P/(4e-21*B)||3}} ({{10*log10(P/(4e-21*B))||3}} dB). $C = B\\log_2(1 + S/N)$ = **{{B*log2(1 + P/(4e-21*B))|bit/s}}**."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "B": [
+              3000,
+              200000,
+              1000000,
+              20000000
+            ],
+            "snr": [
+              15,
+              20,
+              25,
+              30,
+              40
+            ]
+          },
+          "prompt": "A channel has a bandwidth of {{B|Hz}} and an S/N of {{snr}} dB. What is its Shannon capacity?",
+          "options": [
+            "{{B*log2(1 + 10^(snr/10))|bit/s}}",
+            "{{B*log2(1 + snr)|bit/s}}",
+            "{{B*log10(1 + 10^(snr/10))|bit/s}}",
+            "{{2*B*log2(1 + 10^(snr/10))|bit/s}}"
+          ],
+          "answer": 0,
+          "explanation": "Convert first: $S/N = 10^{ {{snr}}/10}$ = {{10^(snr/10)||3}}. $C$ = {{B|Hz}} × $\\log_2$({{1 + 10^(snr/10)||4}}) = **{{B*log2(1 + 10^(snr/10))|bit/s}}**. Using {{snr}} as if it were a ratio, $\\log_{10}$ instead of $\\log_2$, or $2B$ (which belongs with the per-sample form $\\tfrac12\\log_2$) give the wrong values."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "Doubling the bandwidth of a link at the same received power doubles its capacity.",
+          "answer": false,
+          "explanation": "False. The noise power $N_0B$ doubles too, so the S/N halves: $C = 2B\\log_2(1 + \\tfrac{S/N}{2})$. At high S/N that is somewhat less than double; at low S/N it hardly helps at all, because capacity then approaches the limit $1.44\\,P/N_0$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "B": [
+              10000,
+              1000000,
+              6000000
+            ],
+            "eta": [
+              0.5,
+              1.5,
+              3,
+              5,
+              7
+            ]
+          },
+          "prompt": "A {{B|Hz}} channel must carry {{eta*B|bit/s}}. What S/N (in dB) is needed at least?",
+          "answer": "10*log10(2^eta - 1)",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.1,
+          "explanation": "$C/B$ = {{eta}} bit/s/Hz, so $1 + S/N = 2^{ {{eta}} }$ and $S/N$ = {{2^eta - 1||4}} = **{{10*log10(2^eta - 1)||3}} dB**."
+        }
+      ]
+    },
+    {
+      "id": "it-awgn-2",
+      "title": "Bandwidth or power?",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "More bandwidth, more noise",
+          "body": "At fixed received power $P$, widening the band raises the sample rate but lowers the S/N. Capacity keeps growing with $B$ but saturates: it never exceeds $1.44\\,P/N_0$. Drag $B$ ($P/N_0$ = $10^6$ Hz here).",
+          "formula": "C_\\infty = \\frac{P}{N_0}\\log_2 e = 1.44\\,\\frac{P}{N_0}",
+          "plot": {
+            "x": {
+              "min": 10000,
+              "max": 100000000,
+              "label": "bandwidth B",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": 0,
+              "max": 1600000,
+              "label": "C",
+              "unit": "bit/s"
+            },
+            "sliders": [
+              {
+                "name": "B",
+                "label": "$B$",
+                "min": 10000,
+                "max": 100000000,
+                "log": true,
+                "value": 1000000,
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "x*log2(1 + 1000000/x)",
+                "label": "C(B)",
+                "labelAt": 0.25
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1442695,
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "B",
+                "y": "B*log2(1 + 1000000/B)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$S/N$",
+                "value": "10*log10(1000000/B)",
+                "unit": "dB"
+              },
+              {
+                "label": "$C$",
+                "value": "B*log2(1 + 1000000/B)",
+                "unit": "bit/s"
+              },
+              {
+                "label": "$\\eta = C/B$",
+                "value": "log2(1 + 1000000/B)",
+                "unit": "bit/s/Hz"
+              }
+            ],
+            "labels": [
+              {
+                "x": 12000,
+                "y": 1520000,
+                "text": "1.44 P/N_0",
+                "color": "orange"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "pn": [
+              30,
+              40,
+              47,
+              50,
+              60
+            ]
+          },
+          "prompt": "A deep-space link has $P/N_0$ = {{pn}} dB-Hz (i.e. $P/N_0 = 10^{ {{pn}}/10}$ Hz). What is its capacity with unlimited bandwidth?",
+          "answer": "10^(pn/10)/ln(2)",
+          "unit": "bit/s",
+          "explanation": "$P/N_0$ = {{10^(pn/10)|Hz}}. $C_\\infty = (P/N_0)\\log_2 e$ = {{10^(pn/10)|Hz}} × 1.443 = **{{10^(pn/10)/ln(2)|bit/s}}**. No amount of bandwidth gives more; only more power (or less noise) does."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "snr": [
+              -10,
+              0,
+              10,
+              20,
+              30
+            ]
+          },
+          "prompt": "A link runs at an S/N of {{snr}} dB. Its bandwidth is doubled while the received power stays the same. By what factor does the capacity grow?",
+          "answer": "2*log2(1 + 10^(snr/10)/2)/log2(1 + 10^(snr/10))",
+          "unit": "",
+          "explanation": "$S/N$ = {{10^(snr/10)||3}} becomes {{10^(snr/10)/2||3}}. Ratio = $\\frac{2\\log_2(1 + {{10^(snr/10)/2||3}})}{\\log_2(1 + {{10^(snr/10)||3}})}$ = **{{2*log2(1 + 10^(snr/10)/2)/log2(1 + 10^(snr/10))||3}}**. At high S/N bandwidth is what limits you (factor close to 2); at low S/N it hardly matters (factor close to 1)."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Two regimes",
+          "body": "**Power-limited** (low S/N, $\\eta$ < 1 bit/s/Hz): $C \\approx 1.44\\,P/N_0$ grows in proportion to power and hardly depends on $B$; think deep-space probes. **Bandwidth-limited** (high S/N, $\\eta$ > 1): $C \\approx B\\log_2(S/N)$ grows in proportion to $B$, and every extra 3 dB of power adds only about 1 bit/s per Hz; think cable modems and Wi-Fi.",
+          "formula": "\\text{high } S/N:\\ \\Delta C \\approx B\\ \\text{per } {+3\\,\\text{dB}}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "B": [
+              1000000,
+              20000000
+            ],
+            "snr": [
+              10,
+              20,
+              30,
+              40
+            ]
+          },
+          "prompt": "A {{B|Hz}} link runs at an S/N of {{snr}} dB. How much capacity does doubling the transmit power add?",
+          "answer": "B*log2((1 + 2*10^(snr/10))/(1 + 10^(snr/10)))",
+          "unit": "bit/s",
+          "explanation": "$\\Delta C = B\\log_2\\frac{1 + 2S/N}{1 + S/N}$ = {{B|Hz}} × $\\log_2$({{(1 + 2*10^(snr/10))/(1 + 10^(snr/10))||4}}) = **{{B*log2((1 + 2*10^(snr/10))/(1 + 10^(snr/10)))|bit/s}}**. At high S/N this approaches $B$ × 1 bit/s/Hz = {{B|bit/s}}; doubling the bandwidth instead would add far more."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "snr": [
+              -10,
+              -5,
+              -3,
+              5,
+              10,
+              20,
+              30
+            ]
+          },
+          "prompt": "A link works close to capacity at an S/N of {{snr}} dB. In which regime is it?",
+          "options": [
+            "Power-limited: $\\eta$ below 1 bit/s/Hz",
+            "Bandwidth-limited: $\\eta$ above 1 bit/s/Hz"
+          ],
+          "answer": "if(snr, 1, 0)",
+          "shuffle": false,
+          "explanation": "At capacity $\\eta = \\log_2(1 + S/N)$ = $\\log_2(1 + {{10^(snr/10)||3}})$ = {{log2(1 + 10^(snr/10))||3}} bit/s/Hz. The boundary $\\eta$ = 1 lies at $S/N$ = 1 (0 dB): above it bandwidth is the scarce resource, below it power is."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "f": [
+              0.5,
+              0.75,
+              0.9
+            ]
+          },
+          "derived": {
+            "xs": "if(abs(f - 0.5) - 0.01, if(abs(f - 0.75) - 0.01, 4.34475, 1.36314), 0.39795)"
+          },
+          "prompt": "With $P/N_0$ = $10^6$ Hz, drag the bandwidth until the capacity reaches {{100*f}} % of its infinite-bandwidth limit.",
+          "plot": {
+            "x": {
+              "min": 10000,
+              "max": 100000000,
+              "label": "bandwidth B",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": 0,
+              "max": 1600000,
+              "label": "C",
+              "unit": "bit/s"
+            },
+            "sliders": [
+              {
+                "name": "B",
+                "label": "$B$",
+                "min": 10000,
+                "max": 100000000,
+                "log": true,
+                "value": 30000,
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "x*log2(1 + 1000000/x)",
+                "label": "C(B)",
+                "labelAt": 0.2
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1442695,
+                "color": "grey"
+              },
+              {
+                "y": "f*1442695",
+                "label": "target",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "B",
+                "y": "B*log2(1 + 1000000/B)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$C/C_\\infty$",
+                "value": "100*B*log2(1 + 1000000/B)/1442695",
+                "unit": "%",
+                "reveal": true
+              }
+            ],
+            "labels": [
+              {
+                "x": 12000,
+                "y": 1520000,
+                "text": "1.44 P/N_0",
+                "color": "grey"
+              }
+            ]
+          },
+          "answer": {
+            "B": "xs*1000000"
+          },
+          "tolerance": 0.07,
+          "explanation": "$C/C_\\infty = x\\ln(1 + 1/x)$ with $x = BN_0/P$. It reaches {{100*f}} % at $x$ ≈ {{xs||3}}, i.e. $B$ ≈ **{{xs*1000000|Hz}}** (S/N = {{-10*log10(xs)||2}} dB). Going further buys little: the last {{100 - 100*f}} % would need an infinite bandwidth."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "With unlimited bandwidth, even a weak signal could carry an unlimited bit rate.",
+          "answer": false,
+          "explanation": "False. As $B \\to \\infty$ the S/N goes to zero and $C$ approaches $1.44\\,P/N_0$, a finite limit set by the received power. That is why deep-space links need big antennas and very low-noise receivers, not just wide bands."
+        }
+      ]
+    },
+    {
+      "id": "it-awgn-3",
+      "title": "Eb/N0 and the Shannon limit",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The Shannon limit in the efficiency plane",
+          "body": "With $S/N = (E_b/N_0)\\eta$ and $R = C$, Shannon–Hartley gives the least $E_b/N_0$ for each spectral efficiency $\\eta$. Real systems lie to the right of this curve. Drag $\\eta$ and read the minimum $E_b/N_0$.",
+          "formula": "\\frac{E_b}{N_0} \\ge \\frac{2^\\eta - 1}{\\eta}",
+          "plot": {
+            "x": {
+              "min": -2,
+              "max": 16,
+              "label": "E_b/N_0 (dB)"
+            },
+            "y": {
+              "min": 0.1,
+              "max": 10,
+              "label": "η (bit/s/Hz)",
+              "log": true
+            },
+            "height": 240,
+            "sliders": [
+              {
+                "name": "e",
+                "label": "$\\eta$",
+                "min": 0.1,
+                "max": 8,
+                "step": 0.1,
+                "value": 2,
+                "unit": "bit/s/Hz"
+              }
+            ],
+            "curves": [
+              {
+                "x": "10*log10((2^t - 1)/t)",
+                "y": "t",
+                "t": [
+                  0.1,
+                  9
+                ],
+                "label": "Shannon limit",
+                "labelAt": 0.3
+              }
+            ],
+            "vlines": [
+              {
+                "x": -1.59,
+                "label": "−1.59 dB",
+                "color": "red"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1,
+                "color": "grey",
+                "label": "η = 1"
+              }
+            ],
+            "points": [
+              {
+                "x": 9.59,
+                "y": 1,
+                "label": "BPSK",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": 9.59,
+                "y": 2,
+                "label": "QPSK",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": 13.43,
+                "y": 4,
+                "label": "16-QAM",
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": 0.7,
+                "y": 1,
+                "label": "turbo + QPSK",
+                "guides": false,
+                "color": "purple"
+              },
+              {
+                "x": "10*log10((2^(e) - 1)/(e))",
+                "y": "e",
+                "guides": true
+              }
+            ],
+            "labels": [
+              {
+                "x": 5,
+                "y": 0.2,
+                "text": "achievable",
+                "color": "grey"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "minimum $E_b/N_0$",
+                "value": "10*log10((2^(e) - 1)/(e))",
+                "unit": "dB"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "eta": [
+              0.25,
+              0.5,
+              1,
+              2,
+              3,
+              4,
+              6,
+              8
+            ]
+          },
+          "prompt": "What is the minimum $E_b/N_0$ (in dB) for reliable transmission at a spectral efficiency of {{eta}} bit/s/Hz?",
+          "answer": "10*log10((2^eta - 1)/eta)",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.05,
+          "explanation": "$\\frac{E_b}{N_0} \\ge \\frac{2^\\eta - 1}{\\eta}$ = ({{2^eta||4}} − 1) / {{eta}} = {{(2^eta - 1)/eta||3}} = **{{10*log10((2^eta - 1)/eta)||3}} dB**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "eta": [
+              0.5,
+              2,
+              4,
+              6
+            ],
+            "snr": [
+              5,
+              10,
+              15,
+              20,
+              25
+            ]
+          },
+          "prompt": "A modem delivers {{eta}} bit/s/Hz at an S/N of {{snr}} dB. What is its $E_b/N_0$ in dB?",
+          "answer": "snr - 10*log10(eta)",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.05,
+          "explanation": "$E_b/N_0 = (S/N)/\\eta$, in dB: {{snr}} − $10\\log_{10}$ {{eta}} = {{snr}} − {{10*log10(eta)||3}} = **{{snr - 10*log10(eta)||3}} dB**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "As the spectral efficiency goes to zero, the bound $(2^\\eta - 1)/\\eta$ tends to $\\ln 2$. What is that ultimate Shannon limit in dB?",
+          "answer": "10*log10(ln(2))",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.02,
+          "explanation": "$10\\log_{10}(\\ln 2) = 10\\log_{10}(0.693)$ = **−1.59 dB**. No system, however much bandwidth it uses, works reliably below this $E_b/N_0$."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "params": {
+            "eta": [
+              1,
+              2,
+              4,
+              6
+            ],
+            "x": [
+              1,
+              3,
+              5,
+              8,
+              12
+            ]
+          },
+          "require": "abs(10*log10((2^(eta) - 1)/(eta)) - x) - 0.3",
+          "prompt": "A modem claims {{eta}} bit/s/Hz at $E_b/N_0$ = {{x}} dB with a very low error rate. According to Shannon, this claim is impossible.",
+          "answer": "10*log10((2^(eta) - 1)/(eta)) - x",
+          "explanation": "The bound for $\\eta$ = {{eta}} is $10\\log_{10}\\frac{2^{ {{eta}} } - 1}{ {{eta}} }$ = {{10*log10((2^(eta) - 1)/(eta))||3}} dB. A claim **below** the bound is impossible; here the claim is {{x}} dB."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "x": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ]
+          },
+          "derived": {
+            "es": "if(abs(x - 2) - 0.5, if(abs(x - 4) - 0.5, if(abs(x - 6) - 0.5, if(abs(x - 8) - 0.5, 5.9091, 5.034), 4.1218), 3.1598), 2.1291)"
+          },
+          "prompt": "At $E_b/N_0$ = {{x}} dB, drag the spectral efficiency $\\eta$ to the highest value that Shannon allows.",
+          "plot": {
+            "x": {
+              "min": -2,
+              "max": 16,
+              "label": "E_b/N_0 (dB)"
+            },
+            "y": {
+              "min": 0,
+              "max": 8,
+              "label": "η (bit/s/Hz)"
+            },
+            "sliders": [
+              {
+                "name": "e",
+                "label": "$\\eta$",
+                "min": 0.1,
+                "max": 8,
+                "step": 0.02,
+                "value": 0.5,
+                "unit": "bit/s/Hz"
+              }
+            ],
+            "curves": [
+              {
+                "x": "10*log10((2^t - 1)/t)",
+                "y": "t",
+                "t": [
+                  0.1,
+                  8
+                ],
+                "label": "Shannon limit",
+                "labelAt": 0.4
+              }
+            ],
+            "vlines": [
+              {
+                "x": "x",
+                "label": "{{x}} dB",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "x",
+                "y": "e"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "bound at this $\\eta$",
+                "value": "10*log10((2^(e) - 1)/(e))",
+                "unit": "dB",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "e": "es"
+          },
+          "tolerance": 0.025,
+          "explanation": "The bound $(2^\\eta - 1)/\\eta = 10^{ {{x}}/10}$ = {{10^(x/10)||3}} is met at $\\eta$ ≈ **{{es||3}} bit/s/Hz**. Any more bits per hertz would need more $E_b/N_0$."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "pn": [
+              70,
+              75,
+              80
+            ],
+            "Rb": [
+              1000000,
+              2000000
+            ],
+            "eta": [
+              1,
+              2,
+              4
+            ]
+          },
+          "derived": {
+            "eb": "pn - 10*log10(Rb)"
+          },
+          "require": "eb - 10*log10((2^(eta) - 1)/(eta)) - 0.5",
+          "prompt": "A link has $P/N_0$ = {{pn}} dB-Hz and sends {{Rb|bit/s}} in a bandwidth of {{Rb/eta|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is its $E_b/N_0$ in dB?",
+              "answer": "eb",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.05,
+              "explanation": "$E_b/N_0 = (P/N_0)/R_b$, in dB: {{pn}} − $10\\log_{10}R_b$ = {{pn}} − {{10*log10(Rb)||4}} = **{{eb||3}} dB**."
+            },
+            {
+              "prompt": "How many dB above the Shannon limit for its spectral efficiency does it operate?",
+              "answer": "eb - 10*log10((2^(eta) - 1)/(eta))",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.05,
+              "explanation": "$\\eta$ = {{eta}} bit/s/Hz, so the limit is {{10*log10((2^(eta) - 1)/(eta))||3}} dB. $E_b/N_0$ = {{pn}} − {{10*log10(Rb)||4}} = {{eb||3}} dB. Margin = **{{eb - 10*log10((2^(eta) - 1)/(eta))||3}} dB**: room for a practical modem and code."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each spectral efficiency to the minimum $E_b/N_0$ that Shannon allows.",
+          "pairs": [
+            [
+              "$\\eta \\to 0$",
+              "−1.59 dB"
+            ],
+            [
+              "$\\eta$ = 1 bit/s/Hz",
+              "0 dB"
+            ],
+            [
+              "$\\eta$ = 2 bit/s/Hz",
+              "1.76 dB"
+            ],
+            [
+              "$\\eta$ = 4 bit/s/Hz",
+              "5.74 dB"
+            ],
+            [
+              "$\\eta$ = 8 bit/s/Hz",
+              "15.0 dB"
+            ]
+          ],
+          "explanation": "$(2^\\eta - 1)/\\eta$: 1 → 0 dB, 3/2 → 1.76 dB, 15/4 → 5.74 dB, 255/8 → 15.0 dB, and $\\ln 2$ → −1.59 dB in the limit. Each extra bit/s/Hz costs more and more energy per bit."
+        }
+      ]
+    },
+    {
+      "id": "it-awgn-4",
+      "title": "Real systems versus the limit",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Bit error rate curves",
+          "body": "Uncoded BPSK has a bit error rate $Q(\\sqrt{2E_b/N_0})$. On a log scale it falls ever more steeply; BER $10^{-5}$ needs 9.6 dB, about 11 dB from the ultimate limit. Codes move the curve to the left. Drag $E_b/N_0$.",
+          "formula": "P_b = Q\\Big(\\sqrt{2E_b/N_0}\\Big)",
+          "plot": {
+            "x": {
+              "min": -2,
+              "max": 11,
+              "label": "E_b/N_0 (dB)"
+            },
+            "y": {
+              "min": 1e-07,
+              "max": 0.5,
+              "label": "bit error rate",
+              "log": true
+            },
+            "height": 230,
+            "sliders": [
+              {
+                "name": "g",
+                "label": "$E_b/N_0$",
+                "min": -2,
+                "max": 11,
+                "step": 0.1,
+                "value": 6,
+                "unit": "dB"
+              }
+            ],
+            "curves": [
+              {
+                "f": "Q(sqrt(2*10^(x/10)))",
+                "label": "uncoded BPSK",
+                "labelAt": 0.2
+              }
+            ],
+            "vlines": [
+              {
+                "x": -1.59,
+                "label": "Shannon limit",
+                "color": "red"
+              }
+            ],
+            "points": [
+              {
+                "x": "g",
+                "y": "Q(sqrt(2*10^(g/10)))"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "BER",
+                "value": "Q(sqrt(2*10^(g/10)))"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "x": [
+              2,
+              4,
+              6,
+              8,
+              9,
+              10
+            ]
+          },
+          "prompt": "What is the bit error rate of uncoded BPSK at $E_b/N_0$ = {{x}} dB?",
+          "answer": "Q(sqrt(2*10^(x/10)))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "$E_b/N_0$ = $10^{ {{x}}/10}$ = {{10^(x/10)||3}}, so $P_b = Q(\\sqrt{2 \\times {{10^(x/10)||3}}}) = Q({{sqrt(2*10^(x/10))||3}})$ = **{{Q(sqrt(2*10^(x/10)))||3}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "prompt": "Assume ideal Nyquist pulses, so $M$-ary modulation reaches $\\eta = \\log_2 M$ bit/s/Hz.",
+          "ask": [
+            {
+              "prompt": "Uncoded BPSK needs 9.59 dB for BER $10^{-5}$. How far (in dB) is that from the Shannon limit at its spectral efficiency?",
+              "answer": "9.59",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.05,
+              "explanation": "BPSK: $\\eta$ = 1, where the limit is $(2^1 - 1)/1$ = 1 = 0 dB. Gap = 9.59 − 0 = **9.59 dB**: a good code can save most of that."
+            },
+            {
+              "prompt": "Uncoded 16-QAM needs 13.4 dB for BER $10^{-5}$. How far (in dB) is that from the Shannon limit at its spectral efficiency?",
+              "answer": "13.4 - 10*log10(15/4)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.05,
+              "explanation": "16-QAM: $\\eta$ = 4, limit $10\\log_{10}(15/4)$ = 5.74 dB. Gap = 13.4 − 5.74 = **7.66 dB**."
+            },
+            {
+              "prompt": "Uncoded 64-QAM needs 17.8 dB for BER $10^{-5}$. How far (in dB) is that from the Shannon limit at its spectral efficiency?",
+              "answer": "17.8 - 10*log10(63/6)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.05,
+              "explanation": "64-QAM: $\\eta$ = 6, limit $10\\log_{10}(63/6)$ = 10.21 dB. Gap = 17.8 − 10.21 = **7.59 dB**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "x": [
+              2.5,
+              4,
+              5.5,
+              7
+            ]
+          },
+          "prompt": "Uncoded BPSK needs 9.6 dB for BER $10^{-5}$. With a channel code the same BER is reached at {{x}} dB (both $E_b/N_0$ per information bit).",
+          "ask": [
+            {
+              "prompt": "What is the coding gain?",
+              "answer": "9.6 - x",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.05,
+              "explanation": "Coding gain = horizontal shift at the target BER = 9.6 − {{x}} = **{{9.6 - x||3}} dB**."
+            },
+            {
+              "prompt": "By what factor can the transmit power be reduced (same bit rate)?",
+              "answer": "10^((9.6 - x)/10)",
+              "unit": "",
+              "explanation": "Gain {{9.6 - x||3}} dB → factor $10^{ {{9.6 - x||3}}/10}$ = **{{10^((9.6 - x)/10)||3}}**. That can mean a smaller antenna, a longer range or a longer battery life."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.25,
+              0.5,
+              0.75
+            ]
+          },
+          "prompt": "BPSK with a rate-{{r}} code has a spectral efficiency of $\\eta$ = {{r}} bit/s/Hz (ideal pulses). What is the Shannon limit on $E_b/N_0$ for that efficiency?",
+          "answer": "10*log10((2^(r) - 1)/(r))",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.05,
+          "explanation": "$\\frac{2^{ {{r}} } - 1}{ {{r}} }$ = {{(2^r - 1)/r||3}} = **{{10*log10((2^(r) - 1)/(r))||3}} dB**. Lower-rate codes buy a lower limit with bandwidth: below $\\eta$ = 1 every system is power-limited."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "k": [
+              3,
+              4,
+              5,
+              6
+            ]
+          },
+          "prompt": "From the graph of uncoded BPSK, read the $E_b/N_0$ needed for a bit error rate of $10^{-{{k}}}$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 12,
+              "label": "E_b/N_0 (dB)",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+              ]
+            },
+            "y": {
+              "min": 1e-07,
+              "max": 0.5,
+              "label": "BER",
+              "log": true
+            },
+            "height": 230,
+            "curves": [
+              {
+                "f": "Q(sqrt(2*10^(x/10)))",
+                "label": "uncoded BPSK",
+                "labelAt": 0.3
+              }
+            ],
+            "hlines": [
+              {
+                "y": "10^(-k)",
+                "label": "target",
+                "color": "orange"
+              }
+            ]
+          },
+          "answer": "if(abs(k - 3) - 0.5, if(abs(k - 4) - 0.5, if(abs(k - 5) - 0.5, 10.53, 9.59), 8.40), 6.79)",
+          "unit": "dB",
+          "tolerance": 0,
+          "absTolerance": 0.35,
+          "explanation": "The curve crosses $10^{-{{k}}}$ at about **{{if(abs(k - 3) - 0.5, if(abs(k - 4) - 0.5, if(abs(k - 5) - 0.5, 10.53, 9.59), 8.40), 6.79)}} dB** ($Q(\\sqrt{2E_b/N_0}) = 10^{-{{k}}}$). Each decade of BER costs about 1.6 dB around $10^{-3}$ but under 1 dB near $10^{-6}$: the curve keeps getting steeper."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "pn": [
+              40,
+              45,
+              50,
+              55
+            ],
+            "x": [
+              1,
+              2.5,
+              4,
+              9.6
+            ]
+          },
+          "prompt": "A deep-space probe arrives with $P/N_0$ = {{pn}} dB-Hz. Its code needs $E_b/N_0$ = {{x}} dB. What is the highest bit rate it can support?",
+          "answer": "10^((pn - x)/10)",
+          "unit": "bit/s",
+          "explanation": "$E_b/N_0 = (P/N_0)/R_b$ → $R_b = (P/N_0)/(E_b/N_0)$, in dB: {{pn}} − {{x}} = {{pn - x}} dB-bit/s → $R_b = 10^{ {{(pn - x)/10}} }$ = **{{10^((pn - x)/10)|bit/s}}**. Each dB saved by better coding raises the rate by 26 %."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "A new code that reaches BER $10^{-5}$ at $E_b/N_0$ = −2 dB would be a breakthrough worth publishing.",
+          "answer": false,
+          "explanation": "False: it cannot exist. Below $\\ln 2$ = −1.59 dB no system communicates reliably at any spectral efficiency, however long its codewords. A measurement like that points to a calibration error."
+        }
+      ]
+    }
+  ]
+}

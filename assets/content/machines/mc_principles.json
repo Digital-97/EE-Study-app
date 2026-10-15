@@ -1,0 +1,1144 @@
+{
+ "id": "mc-principles",
+ "title": "Machine Basics",
+ "description": "Motor types, power and efficiency, speed regulation, torque–speed curves and the idealized linear machine.",
+ "reference": "Hambley §16.1–16.2",
+ "study": [
+  {
+   "title": "Motors and generators",
+   "body": "A rotating machine has a fixed **stator** and a spinning **rotor** on a shaft. As a **motor** it converts electrical to mechanical power; as a **generator** it does the reverse, and the same machine can usually do both. The **field winding** (or a permanent magnet) sets up the magnetic field; its current does not depend on the load. The **armature winding** carries the current that grows with the mechanical load.\n- AC: induction (most common), synchronous (constant speed).\n- DC: shunt, separately excited, series, permanent magnet."
+  },
+  {
+   "title": "Power, losses and efficiency",
+   "body": "Output power is torque times angular speed; speeds in rpm must be converted to rad/s. Losses:\n- copper ($i^2R$) losses in the windings,\n- core losses in the iron (hysteresis and eddy currents),\n- mechanical losses: friction and windage.\nWell-loaded motors reach 85–95 % efficiency; lightly loaded motors are much worse. For a three-phase input, $P_{in} = \\sqrt3V_LI_L\\cos\\theta$.",
+   "formula": "P_{out} = T_{out}\\,\\omega_m,\\quad \\omega_m = \\frac{2\\pi n_m}{60},\\quad \\eta = \\frac{P_{out}}{P_{in}}"
+  },
+  {
+   "title": "Speed regulation",
+   "body": "How much a motor slows down from no load to full load, as a percentage of the **full-load** speed. Synchronous motors: 0 %. Induction and shunt DC motors: a few percent. Series DC motors: very large.\n**Example:** 1500 rpm at no load, 1440 rpm at full load gives (60/1440) × 100 % = 4.17 %.",
+   "formula": "\\text{SR} = \\frac{n_{no\\text{-}load} - n_{full\\text{-}load}}{n_{full\\text{-}load}}\\times 100\\%"
+  },
+  {
+   "title": "Torque–speed curves and the operating point",
+   "body": "The system settles where the **motor torque equals the load torque**. Below that speed the motor torque is larger, so the system accelerates; above it, it decelerates. If the load needs more torque at standstill than the motor gives, the system never starts. Typical loads: hoists need constant torque, fans and pumps roughly $T \\propto n^2$.",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 1900,
+     "label": "n_m (rpm)"
+    },
+    "y": {
+     "min": 0,
+     "max": 115,
+     "label": "T (N·m)"
+    },
+    "curves": [
+     {
+      "f": "2*100*((1800-x)/1800)*0.2/(((1800-x)/1800)^2 + 0.2^2)",
+      "label": "motor",
+      "color": "blue",
+      "labelAt": 0.45
+     },
+     {
+      "f": "5 + 60*(x/1800)^2",
+      "label": "pump",
+      "color": "red",
+      "labelAt": 0.5
+     }
+    ],
+    "points": [
+     {
+      "x": 1686,
+      "y": 57.6
+     }
+    ],
+    "height": 190
+   }
+  },
+  {
+   "title": "The idealized linear machine",
+   "body": "A conducting bar of length $l$ slides on rails in a field $B$, connected through $R_A$ to a source $V_T$. Moving induces $e_A$; current produces a force. As a **motor** the bar speeds up until $e_A$ almost equals $V_T$ (no-load speed $u = V_T/B\\ell$). Pushed **faster** than that, $e_A > V_T$, the current reverses and the machine works as a **generator**.",
+   "formula": "e_A = B\\ell u,\\qquad f = B\\ell i_A,\\qquad V_T = R_Ai_A + e_A",
+   "circuit": {
+    "elements": [
+     {
+      "type": "battery",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_T",
+      "value": ""
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "R_A",
+      "value": ""
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        0
+       ],
+       [
+        4,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "vsource",
+      "from": [
+       4,
+       2
+      ],
+      "to": [
+       4,
+       0
+      ],
+      "label": "e_A",
+      "value": "= Blu"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       3.1,
+       0
+      ],
+      "to": [
+       3.9,
+       0
+      ],
+      "label": "i_A"
+     }
+    ]
+   }
+  }
+ ],
+ "lessons": [
+  {
+   "id": "mc-principles-1",
+   "title": "How motors are rated",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Stator, rotor, field and armature",
+     "body": "Every rotating machine has a stationary **stator** and a rotating **rotor**. Two kinds of winding do different jobs:\n- the **field winding** sets up the magnetic field; its current is independent of the load,\n- the **armature winding** carries a current that rises with the mechanical load (and delivers the output in a generator).\nSome machines use permanent magnets instead of a field winding."
+    },
+    {
+     "id": "q1",
+     "type": "multipleChoice",
+     "prompt": "A motor's mechanical load is increased. Which winding's current rises to supply the extra power?",
+     "options": [
+      "The armature winding",
+      "The field winding",
+      "Neither: only the speed changes"
+     ],
+     "answer": 0,
+     "explanation": "The armature carries the load-dependent current; more torque needs more armature current. The field current is set by the field circuit and (except in series motors) stays the same."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Power, torque and speed",
+     "body": "Mechanical power is torque times angular speed in rad/s. Nameplates give speed in rpm ($n_m$), so convert first. Efficiency compares output to input.",
+     "formula": "P_{out} = T\\,\\omega_m,\\qquad \\omega_m = n_m\\frac{2\\pi}{60},\\qquad \\eta = \\frac{P_{out}}{P_{in}}"
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "prompt": "A motor delivers a torque of {{T}} N·m at {{n}} rpm. Find its output power.",
+     "answer": "T*2*pi*n/60",
+     "unit": "W",
+     "explanation": "$\\omega_m = n_m\\cdot 2\\pi/60$ = {{n}} × 2π/60 = {{2*pi*n/60|rad/s}}. $P = T\\omega_m$ = {{T}} N·m × {{2*pi*n/60}} rad/s = {{T*2*pi*n/60|W}}.",
+     "params": {
+      "T": {
+       "min": 5,
+       "max": 60,
+       "step": 5
+      },
+      "n": [
+       960,
+       1450,
+       1750,
+       2900,
+       3500
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "prompt": "A DC motor takes {{I|A}} from a {{V|V}} supply and delivers {{Po|W}} at the shaft. Find its efficiency in %.",
+     "answer": "100*Po/(V*I)",
+     "unit": "%",
+     "explanation": "$P_{in} = VI$ = {{V|V}} × {{I|A}} = {{V*I|W}}. $\\eta = P_{out}/P_{in}$ = {{Po|W}} / {{V*I|W}} = {{100*Po/(V*I)|%}}.",
+     "params": {
+      "V": [
+       12,
+       24,
+       48,
+       120,
+       240
+      ],
+      "I": {
+       "min": 4,
+       "max": 40,
+       "step": 2
+      },
+      "eta": [
+       0.72,
+       0.78,
+       0.82,
+       0.86,
+       0.9
+      ]
+     },
+     "derived": {
+      "Po": "eta*V*I"
+     }
+    },
+    {
+     "id": "q4",
+     "type": "matchPairs",
+     "prompt": "Match each loss to its cause.",
+     "pairs": [
+      [
+       "Copper loss",
+       "$i^2R$ in the windings"
+      ],
+      [
+       "Hysteresis loss",
+       "Repeated magnetization of the iron"
+      ],
+      [
+       "Eddy-current loss",
+       "Currents induced in the core iron"
+      ],
+      [
+       "Windage loss",
+       "Moving the air around the rotor"
+      ]
+     ],
+     "explanation": "Copper loss comes from winding resistance. Hysteresis and eddy currents are the two core (iron) losses, which is why cores carrying alternating flux are laminated. Friction and windage are the mechanical losses."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "prompt": "A motor runs at {{nnl||4}} rpm at no load and {{nfl||4}} rpm at full load. Find its speed regulation in %.",
+     "answer": "100*(nnl-nfl)/nfl",
+     "unit": "%",
+     "explanation": "SR = ({{nnl||4}} − {{nfl||4}}) / {{nfl||4}} × 100 % = {{nnl-nfl}}/{{nfl||4}} × 100 % = {{100*(nnl-nfl)/nfl|%}}. Divide by the **full-load** speed.",
+     "params": {
+      "nnl": [
+       1000,
+       1200,
+       1500,
+       1800,
+       3000
+      ],
+      "d": [
+       0.02,
+       0.03,
+       0.04,
+       0.05,
+       0.06
+      ]
+     },
+     "derived": {
+      "nfl": "round(nnl*(1-d))"
+     },
+     "hint": "Speed regulation is the drop in speed from no load to full load, as a percentage of the full-load speed."
+    },
+    {
+     "id": "i4",
+     "type": "info",
+     "title": "Where does the system settle?",
+     "body": "Plot the motor torque and the load torque against speed. Where the motor gives more torque than the load needs, the surplus accelerates the system. It settles at the crossing (marked), where the two torques are equal.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 1900,
+       "label": "n_m (rpm)"
+      },
+      "y": {
+       "min": 0,
+       "max": 115,
+       "label": "T (N·m)"
+      },
+      "curves": [
+       {
+        "f": "2*100*((1800-x)/1800)*0.2/(((1800-x)/1800)^2 + 0.2^2)",
+        "label": "motor",
+        "color": "blue",
+        "labelAt": 0.45
+       },
+       {
+        "f": "5 + 60*(x/1800)^2",
+        "label": "pump",
+        "color": "red",
+        "labelAt": 0.5
+       }
+      ],
+      "points": [
+       {
+        "x": 1686,
+        "y": 57.6
+       }
+      ],
+      "height": 190
+     }
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "The graph shows a motor (blue) and a hoist load (red). The motor is switched on with the hoist at rest. What happens?",
+     "options": [
+      "It does not start: the hoist needs more torque than the motor gives at standstill",
+      "It accelerates until the two curves cross",
+      "It starts slowly and runs at the speed where the motor torque is largest"
+     ],
+     "answer": 0,
+     "explanation": "At $n_m = 0$ the motor gives about 29 N·m but the hoist needs 45 N·m, so there is no net torque to accelerate. The motor stalls and draws a large current; protection must disconnect it. If something brought it above about 660 rpm (the left crossing), it would accelerate to the right crossing near 1740 rpm, but it cannot get there by itself.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 1900,
+       "label": "n_m (rpm)"
+      },
+      "y": {
+       "min": 0,
+       "max": 115,
+       "label": "T (N·m)"
+      },
+      "curves": [
+       {
+        "f": "2*100*((1800-x)/1800)*0.15/(((1800-x)/1800)^2 + 0.15^2)",
+        "label": "motor",
+        "color": "blue",
+        "labelAt": 0.7
+       },
+       {
+        "f": "45",
+        "label": "hoist",
+        "color": "red",
+        "labelAt": 0.03
+       }
+      ],
+      "height": 190
+     }
+    },
+    {
+     "id": "q7",
+     "type": "trueFalse",
+     "prompt": "A motor's power rating is the largest output power it can ever deliver.",
+     "answer": false,
+     "explanation": "The rating is the output power it can deliver **continuously** without overheating. Most motors can deliver several times their rating for a short time; the limit is the temperature rise caused by the losses."
+    }
+   ]
+  },
+  {
+   "id": "mc-principles-2",
+   "title": "Ratings in numbers",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "prompt": "A motor is rated {{P|W}} at {{n}} rpm. Find its rated output torque.",
+     "answer": "P/(2*pi*n/60)",
+     "unit": "N·m",
+     "explanation": "$\\omega_m$ = {{n}} × 2π/60 = {{2*pi*n/60|rad/s}}. $T = P/\\omega_m$ = {{P|W}} / {{2*pi*n/60}} rad/s = {{P/(2*pi*n/60)}} N·m.",
+     "params": {
+      "P": [
+       750,
+       1500,
+       2200,
+       4000,
+       7500,
+       11000,
+       15000
+      ],
+      "n": [
+       720,
+       960,
+       1440,
+       1460,
+       2880,
+       2940
+      ]
+     }
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "prompt": "A three-phase induction motor draws {{I|A}} from a {{VL|V}} (line-to-line) supply at power factor {{pf}}. Its shaft output is {{Po|W}}. Find the efficiency in %.",
+     "answer": "100*Po/(sqrt(3)*VL*I*pf)",
+     "unit": "%",
+     "explanation": "$P_{in} = \\sqrt3V_LI_L\\cos\\theta$ = 1.732 × {{VL|V}} × {{I|A}} × {{pf}} = {{sqrt(3)*VL*I*pf|W}}. $\\eta$ = {{Po|W}} / {{sqrt(3)*VL*I*pf|W}} = {{100*Po/(sqrt(3)*VL*I*pf)|%}}.",
+     "params": {
+      "VL": [
+       400,
+       480
+      ],
+      "I": {
+       "min": 10,
+       "max": 60,
+       "step": 2
+      },
+      "pf": [
+       0.8,
+       0.84,
+       0.86,
+       0.88
+      ],
+      "eta": [
+       0.84,
+       0.87,
+       0.9,
+       0.92
+      ]
+     },
+     "derived": {
+      "Po": "eta*sqrt(3)*VL*I*pf"
+     }
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "prompt": "A motor delivers {{Po|W}} with an efficiency of {{100*eta|%}}. Find the total power lost inside it.",
+     "answer": "Po*(1/eta - 1)",
+     "unit": "W",
+     "explanation": "$P_{in} = P_{out}/\\eta$ = {{Po|W}} / {{eta}} = {{Po/eta|W}}. Losses = $P_{in} - P_{out}$ = {{Po*(1/eta-1)|W}}.",
+     "params": {
+      "Po": [
+       1500,
+       3000,
+       5500,
+       7500,
+       15000,
+       22000
+      ],
+      "eta": [
+       0.8,
+       0.85,
+       0.88,
+       0.9,
+       0.93
+      ]
+     }
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "prompt": "The graph shows a DC motor's torque (blue) and a fan's load torque (red).",
+     "answer": "r*n0",
+     "unit": "",
+     "explanation": "",
+     "params": {
+      "n0": [
+       1500,
+       1800,
+       2000,
+       2400,
+       3000
+      ],
+      "T0": [
+       40,
+       50,
+       60,
+       80
+      ],
+      "r": [
+       0.6,
+       0.65,
+       0.7,
+       0.75,
+       0.8
+      ]
+     },
+     "derived": {
+      "k": "T0*(1-r)/(r*n0)^2"
+     },
+     "tolerance": 0.05,
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": "1.05*n0",
+       "label": "n_m (rpm)"
+      },
+      "y": {
+       "min": 0,
+       "max": "1.1*T0",
+       "label": "T (N·m)"
+      },
+      "curves": [
+       {
+        "f": "T0*(1 - x/n0)",
+        "label": "motor",
+        "color": "blue",
+        "labelAt": 0.2
+       },
+       {
+        "f": "k*x^2",
+        "label": "fan",
+        "color": "red",
+        "labelAt": 0.45
+       }
+      ],
+      "height": 200
+     },
+     "ask": [
+      {
+       "prompt": "Read the steady-state speed (in rpm) from the graph.",
+       "answer": "r*n0",
+       "unit": "",
+       "explanation": "The system settles where the curves cross: about {{r*n0||3}} rpm. There the motor torque {{T0*(1-r)}} N·m equals the fan torque. Below this speed the motor torque is larger and the fan accelerates; above it, it decelerates."
+      },
+      {
+       "prompt": "Read the steady-state torque (in N·m) from the graph.",
+       "answer": "T0*(1-r)",
+       "unit": "N·m",
+       "explanation": "The curves cross at about {{r*n0||3}} rpm and {{T0*(1-r)}} N·m. In steady state the motor torque equals the load torque, so the system no longer accelerates."
+      }
+     ]
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "prompt": "A motor's speed regulation is {{SR|%}} and it runs at {{nfl||4}} rpm at full load. Find its no-load speed (in rpm).",
+     "answer": "nfl*(1+SR/100)",
+     "unit": "",
+     "explanation": "$n_{nl} = n_{fl}(1 + \\text{SR}/100)$ = {{nfl||4}} × {{1+SR/100||4}} = {{nfl*(1+SR/100)||4}} rpm.",
+     "params": {
+      "nfl": [
+       1140,
+       1440,
+       1460,
+       1720,
+       2850
+      ],
+      "SR": [
+       1.5,
+       2,
+       2.5,
+       3,
+       4,
+       5
+      ]
+     },
+     "tolerance": 0.005
+    },
+    {
+     "id": "p6",
+     "type": "multipleChoice",
+     "prompt": "Which graph shows the torque–speed characteristic of a **fan or centrifugal pump**?",
+     "answer": 1,
+     "explanation": "The torque a fan needs grows with the square of speed, so its curve is a parabola starting near zero torque at standstill. Constant torque is typical of a hoist or conveyor, $T \\propto 1/n$ is a constant-power load such as a winder, and a straight rising line is a viscous-friction load.",
+     "optionPlots": [
+      {
+       "x": {
+        "min": 0,
+        "max": 1,
+        "label": "n / n_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 1.1,
+        "label": "T / T_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "curves": [
+        {
+         "f": "1",
+         "color": "red"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1,
+        "label": "n / n_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 1.1,
+        "label": "T / T_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "curves": [
+        {
+         "f": "x^2",
+         "color": "red"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1,
+        "label": "n / n_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 1.1,
+        "label": "T / T_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "curves": [
+        {
+         "f": "min(1.05, 0.25/max(x, 0.01))",
+         "color": "red"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1,
+        "label": "n / n_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 1.1,
+        "label": "T / T_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "curves": [
+        {
+         "f": "x",
+         "color": "red"
+        }
+       ],
+       "height": 140
+      }
+     ]
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "prompt": "A motor's copper losses are {{Pfl|W}} at full load. Assume the winding current is proportional to the load. Find the copper losses at {{100*x|%}} load.",
+     "answer": "Pfl*x^2",
+     "unit": "W",
+     "explanation": "Copper loss is $I^2R$, and $I \\propto$ load, so it scales with the **square** of the load: {{Pfl|W}} × {{x}}² = {{Pfl*x^2|W}}. (Core and friction losses stay roughly constant, which is why efficiency drops at light load.)",
+     "params": {
+      "Pfl": [
+       200,
+       300,
+       450,
+       600,
+       800,
+       1200
+      ],
+      "x": [
+       0.25,
+       0.4,
+       0.5,
+       0.6,
+       0.75
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "mc-principles-3",
+   "title": "The linear machine",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "A bar on rails",
+     "body": "A bar of length $\\ell$ slides on two rails in a magnetic field $B$, fed through resistance $R_A$ from a source $V_T$. Its motion induces $e_A = B\\ell u$, and the current exerts a force $f = B\\ell i_A$ on it. KVL around the loop gives the equivalent circuit below.",
+     "formula": "V_T = R_Ai_A + e_A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "battery",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_T",
+        "value": ""
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_A",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "vsource",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "e_A",
+        "value": "= Blu"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         3.1,
+         0
+        ],
+        "to": [
+         3.9,
+         0
+        ],
+        "label": "i_A"
+       }
+      ]
+     }
+    },
+    {
+     "id": "c1",
+     "type": "numeric",
+     "prompt": "A linear machine has $B$ = {{B}} T, $\\ell$ = {{l}} m, $V_T$ = {{VT|V}} and $R_A$ = {{RA|Ω}}. The bar is at rest when the source is connected.",
+     "answer": "VT/RA",
+     "unit": "A",
+     "explanation": "",
+     "params": {
+      "B": [
+       0.5,
+       0.8,
+       1.0,
+       1.2
+      ],
+      "l": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ],
+      "VT": [
+       1,
+       1.5,
+       2,
+       3
+      ],
+      "RA": [
+       0.02,
+       0.04,
+       0.05,
+       0.1
+      ]
+     },
+     "circuit": {
+      "elements": [
+       {
+        "type": "battery",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_T",
+        "value": "{{VT|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_A",
+        "value": "{{RA|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "vsource",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "e_A",
+        "value": "= Blu"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         3.1,
+         0
+        ],
+        "to": [
+         3.9,
+         0
+        ],
+        "label": "i_A"
+       }
+      ]
+     },
+     "ask": [
+      {
+       "prompt": "Find the starting current $i_A(0^+)$.",
+       "answer": "VT/RA",
+       "unit": "A",
+       "explanation": "At rest $u = 0$, so $e_A = 0$ and $i_A = V_T/R_A$ = {{VT|V}} / {{RA|Ω}} = {{VT/RA|A}}."
+      },
+      {
+       "prompt": "Find the starting force on the bar.",
+       "answer": "B*l*VT/RA",
+       "unit": "N",
+       "explanation": "$i_A(0^+) = V_T/R_A$ = {{VT/RA|A}}. $f = B\\ell i_A$ = {{B}} × {{l}} × {{VT/RA}} = {{B*l*VT/RA|N}}."
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "prompt": "A linear machine ($B$ = {{B}} T, $\\ell$ = {{l}} m, $V_T$ = {{VT|V}}) runs with no load force. Find its steady speed.",
+     "answer": "VT/(B*l)",
+     "unit": "m/s",
+     "explanation": "With no load the bar accelerates until the current, and with it the force, drops to zero: $e_A = V_T$. So $u = V_T/(B\\ell)$ = {{VT}} / ({{B}} × {{l}}) = {{VT/(B*l)}} m/s.",
+     "params": {
+      "B": [
+       0.5,
+       0.8,
+       1.0,
+       1.2
+      ],
+      "l": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ],
+      "VT": [
+       1,
+       1.5,
+       2,
+       3
+      ],
+      "RA": [
+       0.02,
+       0.04,
+       0.05,
+       0.1
+      ]
+     }
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "prompt": "A linear machine with $B$ = {{B}} T, $\\ell$ = {{l}} m, $V_T$ = {{VT|V}} and $R_A$ = {{RA|Ω}} pushes against a load force of {{f|N}}. Find the steady speed of the bar.",
+     "answer": "(VT - RA*f/(B*l))/(B*l)",
+     "unit": "m/s",
+     "explanation": "In steady state $B\\ell i_A = f_{load}$: $i_A$ = {{f}} / ({{B}} × {{l}}) = {{f/(B*l)|A}}. Then $e_A = V_T - R_Ai_A$ = {{VT}} − {{RA}} × {{f/(B*l)}} = {{VT - RA*f/(B*l)|V}}, and $u = e_A/(B\\ell)$ = {{(VT - RA*f/(B*l))/(B*l)}} m/s.",
+     "params": {
+      "B": [
+       0.5,
+       0.8,
+       1.0,
+       1.2
+      ],
+      "l": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ],
+      "VT": [
+       1,
+       1.5,
+       2,
+       3
+      ],
+      "RA": [
+       0.02,
+       0.04,
+       0.05,
+       0.1
+      ],
+      "fr": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ]
+     },
+     "derived": {
+      "f": "fr*B*l*VT/RA"
+     }
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "prompt": "A linear machine with $V_T$ = {{VT|V}} and $R_A$ = {{RA|Ω}} is motoring in steady state with $i_A$ = {{iA|A}}. Find its efficiency in %.",
+     "answer": "100*(VT-RA*iA)/VT",
+     "unit": "%",
+     "explanation": "$P_{in} = V_Ti_A$ and the mechanical output is $fu = e_Ai_A$ (the rest is lost in $R_A$). So $\\eta = e_A/V_T$ with $e_A = V_T - R_Ai_A$ = {{VT-RA*iA|V}}: $\\eta$ = {{VT-RA*iA}} / {{VT}} = {{100*(VT-RA*iA)/VT|%}}.",
+     "params": {
+      "B": [
+       0.5,
+       0.8,
+       1.0,
+       1.2
+      ],
+      "l": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ],
+      "VT": [
+       1,
+       1.5,
+       2,
+       3
+      ],
+      "RA": [
+       0.02,
+       0.04,
+       0.05,
+       0.1
+      ],
+      "fr": [
+       0.15,
+       0.25,
+       0.35,
+       0.5
+      ]
+     },
+     "derived": {
+      "iA": "fr*VT/RA"
+     }
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "prompt": "Now an external force of {{f|N}} **pulls** the bar (same $B$ = {{B}} T, $\\ell$ = {{l}} m, $V_T$ = {{VT|V}}, $R_A$ = {{RA|Ω}}), so the machine charges the battery. Find the steady speed.",
+     "answer": "(VT + RA*f/(B*l))/(B*l)",
+     "unit": "m/s",
+     "explanation": "Steady state: the magnetic force balances the pull, $i_A = f/(B\\ell)$ = {{f/(B*l)|A}}, now flowing **into** the battery. KVL: $e_A = V_T + R_Ai_A$ = {{VT + RA*f/(B*l)|V}}. Speed $u = e_A/(B\\ell)$ = {{(VT + RA*f/(B*l))/(B*l)}} m/s, faster than the no-load speed {{VT/(B*l)}} m/s.",
+     "params": {
+      "B": [
+       0.5,
+       0.8,
+       1.0,
+       1.2
+      ],
+      "l": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ],
+      "VT": [
+       1,
+       1.5,
+       2,
+       3
+      ],
+      "RA": [
+       0.02,
+       0.04,
+       0.05,
+       0.1
+      ],
+      "fr": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ]
+     },
+     "derived": {
+      "f": "fr*B*l*VT/RA"
+     }
+    },
+    {
+     "id": "c6",
+     "type": "multipleChoice",
+     "prompt": "A linear machine with $V_T$ = {{VT|V}}, $B$ = {{B}} T and $\\ell$ = {{l}} m moves at $u$ = {{u}} m/s. How does it operate?",
+     "options": [
+      "As a motor (power flows from the source to the bar)",
+      "As a generator (power flows into the source)"
+     ],
+     "answer": "step(B*l*u - VT)",
+     "explanation": "$e_A = B\\ell u$ = {{B}} × {{l}} × {{u}} = {{B*l*u|V}}, compared with $V_T$ = {{VT|V}}. If $e_A < V_T$ the current flows into the + end of $e_A$ and the machine motors; if $e_A > V_T$ the current reverses and it generates.",
+     "params": {
+      "VT": [
+       1,
+       2,
+       3
+      ],
+      "B": [
+       0.5,
+       1.0
+      ],
+      "l": [
+       0.2,
+       0.4
+      ],
+      "k": [
+       0.6,
+       0.8,
+       1.25,
+       1.5
+      ]
+     },
+     "derived": {
+      "u": "k*VT/(B*l)"
+     },
+     "shuffle": false
+    },
+    {
+     "id": "c7",
+     "type": "trueFalse",
+     "prompt": "In the linear machine, the power converted to mechanical form equals $e_Ai_A$, the power delivered to the induced voltage.",
+     "answer": true,
+     "explanation": "Multiply the force by the speed: $fu = (B\\ell i_A)u = (B\\ell u)i_A = e_Ai_A$. This is true for every machine: the electrical power absorbed by the induced EMF is the developed mechanical power."
+    }
+   ]
+  }
+ ]
+}

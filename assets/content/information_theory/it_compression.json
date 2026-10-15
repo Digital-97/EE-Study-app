@@ -1,0 +1,1008 @@
+{
+  "id": "it-compression",
+  "title": "Compression in Practice",
+  "description": "Run-length, arithmetic and Lempel–Ziv coding for lossless data, and the rate–distortion limit for lossy coding.",
+  "reference": "C&T §10.3, ch. 13",
+  "study": [
+    {
+      "title": "Lossless and lossy compression",
+      "body": "**Lossless** compression (ZIP, PNG, FLAC) reconstructs the data exactly; it removes only redundancy, so it can never go below the entropy. **Lossy** compression (JPEG, MP3, video codecs) also throws away detail the user will not miss and trades bit rate against distortion. No lossless method can shrink every file: there are $2^n$ files of $n$ bits but fewer than $2^n$ shorter ones.",
+      "formula": "\\text{compression ratio} = \\frac{\\text{original size}}{\\text{compressed size}}"
+    },
+    {
+      "title": "Run-length coding",
+      "body": "Long runs of the same symbol are replaced by their lengths. A binary scan line only needs the colour of the first pixel and then the alternating run lengths: 0000000111000000 becomes 0; 7, 3, 6. Fax machines code these run lengths again with a Huffman code. On data without long runs, run-length coding makes the file **larger**."
+    },
+    {
+      "title": "Explore: arithmetic coding",
+      "body": "Arithmetic coding maps a whole message to one subinterval of $[0, 1)$. Each symbol splits the current interval in proportion to the symbol probabilities and keeps the part of the symbol that occurred, so the final width equals the probability of the message. About $\\log_2(1/\\text{width})$ bits (at most $\\lceil\\log_2(1/P)\\rceil + 1$) single out a number inside it. Long messages need about $nH$ bits without forming blocks, and the model may adapt as it goes. Drag $P(A)$ and watch the message AAB.",
+      "formula": "\\text{bits} \\le \\Big\\lceil \\log_2\\frac{1}{P(\\text{message})}\\Big\\rceil + 1",
+      "plot": {
+        "x": {
+          "min": -0.3,
+          "max": 1,
+          "label": "position in [0, 1)",
+          "ticks": [
+            0,
+            0.2,
+            0.4,
+            0.6,
+            0.8,
+            1
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 4,
+          "label": "",
+          "ticks": []
+        },
+        "grid": false,
+        "height": 190,
+        "sliders": [
+          {
+            "name": "q",
+            "label": "$P(A)$",
+            "min": 0.5,
+            "max": 0.9,
+            "step": 0.05,
+            "value": 0.8
+          }
+        ],
+        "curves": [
+          {
+            "f": "3.5",
+            "from": 0,
+            "to": 1,
+            "color": "grey"
+          },
+          {
+            "f": "2.5",
+            "from": 0,
+            "to": "q",
+            "color": "blue"
+          },
+          {
+            "f": "1.5",
+            "from": 0,
+            "to": "q^2",
+            "color": "blue"
+          },
+          {
+            "f": "0.5",
+            "from": "q^3",
+            "to": "q^2",
+            "color": "red"
+          }
+        ],
+        "points": [
+          {
+            "x": "q",
+            "y": 2.5,
+            "guides": false,
+            "color": "blue"
+          },
+          {
+            "x": "q^2",
+            "y": 1.5,
+            "guides": false,
+            "color": "blue"
+          },
+          {
+            "x": "q^3",
+            "y": 0.5,
+            "guides": false,
+            "color": "red"
+          },
+          {
+            "x": "q^2",
+            "y": 0.5,
+            "guides": false,
+            "color": "red"
+          }
+        ],
+        "labels": [
+          {
+            "x": -0.28,
+            "y": 3.5,
+            "text": "start"
+          },
+          {
+            "x": -0.28,
+            "y": 2.5,
+            "text": "A"
+          },
+          {
+            "x": -0.28,
+            "y": 1.5,
+            "text": "AA"
+          },
+          {
+            "x": -0.28,
+            "y": 0.5,
+            "text": "AAB"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "width = $P(\\text{AAB})$",
+            "value": "q^2*(1-q)"
+          },
+          {
+            "label": "$\\log_2(1/\\text{width})$ (bits)",
+            "value": "-log2(q^2*(1-q))"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Lempel–Ziv: dictionary methods",
+      "body": "Lempel–Ziv coders need no probability model. **LZ78** cuts the input into phrases, each one the longest phrase seen before plus one new symbol, and sends (index of that earlier phrase, new symbol). **LZ77** sends (offset, length, next symbol), pointing back into a sliding window of recent data. For long inputs both approach the entropy rate of any stationary ergodic source: they are **universal**. LZ77 plus Huffman (DEFLATE) is inside ZIP, gzip and PNG; GIF uses LZW, a variant of LZ78."
+    },
+    {
+      "title": "Worked example: LZ78 parsing",
+      "body": "Parse ABBABAABBBAB. Start with an empty dictionary (index 0 = empty phrase).\n- A is new: phrase 1 = A, sent as (0, A).\n- B is new: phrase 2 = B, sent as (0, B).\n- B is known, BA is new: phrase 3 = BA, sent as (2, A).\n- BA is known, BAA is new: phrase 4, sent as (3, A).\n- B known, BB new: phrase 5, sent as (2, B).\n- BA known, BAB new: phrase 6, sent as (3, B).\nResult: A | B | BA | BAA | BB | BAB. Phrases keep getting longer on repetitive data, which is where the compression comes from."
+    },
+    {
+      "title": "Explore: rate–distortion for a Gaussian source",
+      "body": "The **rate–distortion function** $R(D)$ is the fewest bits per sample that can describe a source with an average distortion of at most $D$. For a Gaussian source with variance $\\sigma^2$ and mean-squared error it has a closed form: every extra bit per sample divides the distortion by 4, i.e. gains **6.02 dB** of SNR and halves the rms error. At $D \\ge \\sigma^2$ no bits are needed at all: just output the mean. Drag $R$.",
+      "formula": "\\begin{aligned} R(D) &= \\tfrac12\\log_2\\frac{\\sigma^2}{D}\\quad (D \\le \\sigma^2)\\\\ D(R) &= \\sigma^2\\,2^{-2R}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 4,
+          "label": "R (bits/sample)"
+        },
+        "y": {
+          "min": 0.001,
+          "max": 1,
+          "label": "D / σ²",
+          "log": true
+        },
+        "sliders": [
+          {
+            "name": "r",
+            "label": "$R$",
+            "min": 0,
+            "max": 4,
+            "step": 0.1,
+            "value": 1,
+            "unit": "bits"
+          }
+        ],
+        "curves": [
+          {
+            "f": "2^(-2*x)",
+            "label": "D(R)/σ²",
+            "labelAt": 0.55
+          }
+        ],
+        "points": [
+          {
+            "x": "r",
+            "y": "2^(-2*r)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$D/\\sigma^2$",
+            "value": "2^(-2*r)"
+          },
+          {
+            "label": "SNR",
+            "value": "6.0206*r",
+            "unit": "dB"
+          },
+          {
+            "label": "rms error / $\\sigma$",
+            "value": "2^(-r)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Sharing bits between sources",
+      "body": "To describe two independent Gaussian sources with $R$ bits in total and the least total squared error, give both the **same distortion** (as long as each still gets a non-negative rate): the source with the larger variance gets more bits. This is the simplest case of reverse water-filling, and the same idea underlies bit allocation in transform coders such as JPEG and MP3.",
+      "formula": "\\begin{aligned} R_1 - R_2 &= \\log_2\\frac{\\sigma_1}{\\sigma_2}\\\\ R_1 + R_2 &= R\\end{aligned}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "it-compression-1",
+      "title": "Runs and dictionaries",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Lossless or lossy?",
+          "body": "**Lossless** compression returns exactly the original data; it removes redundancy and is limited by the entropy. **Lossy** compression also removes detail you will not notice, trading bit rate against distortion. Text and program files need lossless compression; photos, audio and video are normally coded lossy."
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "A good enough lossless compressor can make every possible file shorter.",
+          "answer": false,
+          "explanation": "False. There are $2^n$ different files of $n$ bits but only $2^n - 1$ files that are shorter (all lengths 0 … $n-1$ together). A lossless (one-to-one) code cannot map them all to shorter files, so some files must stay as long or grow. Compressors win on typical data with redundancy, not on random data."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.01,
+              0.02,
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "A binary file has independent bits with $P(1)$ = {{p}}. What is the best compression ratio a lossless compressor can achieve on long files?",
+          "answer": "1/((-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))",
+          "unit": "",
+          "explanation": "The entropy is $H({{p}})$ = {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} bit per stored bit, so the best ratio is 1 / {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} = **{{1/((-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))}}**. Ideal arithmetic or block coding gets close to it."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Run-length coding",
+          "body": "Replace each run of identical symbols by its length. For a black-and-white scan line, send the colour of the first pixel and then the run lengths, which alternate between white and black. With $k$-bit counts, a line with $r$ runs costs $1 + rk$ bits."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "N": [
+              864,
+              1728,
+              2432,
+              3456
+            ],
+            "r": [
+              6,
+              10,
+              16,
+              24
+            ]
+          },
+          "derived": {
+            "k": "ceil(log2(N + 1))"
+          },
+          "prompt": "A fax scan line of {{N||6}} pixels contains {{r}} runs. It is sent as 1 colour bit plus one fixed-length count per run, long enough for a run of the full line length.",
+          "ask": [
+            {
+              "prompt": "How many bits does the coded line take?",
+              "answer": "1 + r*k",
+              "unit": "bits",
+              "explanation": "A count up to {{N||6}} needs $k = \\lceil\\log_2({{N||6}} + 1)\\rceil$ = {{k}} bits. Total = 1 + {{r}} × {{k}} = **{{1 + r*k}} bits**."
+            },
+            {
+              "prompt": "What is the compression ratio compared with 1 bit per pixel?",
+              "answer": "N/(1 + r*k)",
+              "unit": "",
+              "explanation": "Counts need {{k}} bits, so the line takes 1 + {{r}} × {{k}} = {{1 + r*k}} bits instead of {{N||6}}. Ratio = {{N||6}} / {{1 + r*k}} = **{{N/(1 + r*k)||3}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "x": {
+              "min": 0,
+              "max": 65535,
+              "step": 1
+            }
+          },
+          "prompt": "The 16-pixel line **{{x|bin|16}}** is run-length coded with 1 colour bit plus a 4-bit count per run (a count of 0 … 15 meaning a run of 1 … 16 pixels). How many bits does it take?",
+          "answer": "1 + 4*(1 + popcount(mod(xor(x, floor(x/2)), 32768)))",
+          "unit": "bits",
+          "explanation": "Count the places where the colour changes: {{popcount(mod(xor(x, floor(x/2)), 32768))}}, so there are {{1 + popcount(mod(xor(x, floor(x/2)), 32768))}} runs. Total = 1 + 4 × {{1 + popcount(mod(xor(x, floor(x/2)), 32768))}} = **{{1 + 4*(1 + popcount(mod(xor(x, floor(x/2)), 32768)))}} bits**, against 16 bits uncoded. On busy data like this, run-length coding often makes things worse."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Lempel–Ziv (LZ78)",
+          "body": "LZ78 builds a dictionary while it reads. It cuts the input into phrases, each the **longest phrase already in the dictionary plus one new symbol**, and sends each phrase as (index of that earlier phrase, new symbol). The decoder rebuilds the same dictionary, so no table has to be sent and no probabilities are needed."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "How does LZ78 split the input ABBABAABBBAB into phrases?",
+          "options": [
+            "A | B | BA | BAA | BB | BAB",
+            "A | B | BA | BA | ABB | BAB",
+            "AB | BA | BAA | BB | BAB",
+            "A | BB | AB | AAB | BBA | B"
+          ],
+          "answer": 0,
+          "explanation": "Each phrase is the shortest piece not yet in the dictionary: A (new), B (new), then B is known so BA, then BA is known so BAA, then BB, then BAB. The split A | B | BA | BA | ABB | BAB repeats BA, which LZ78 never does; the other two do not start with the single new symbols A and B."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "N": [
+              200000,
+              500000
+            ],
+            "c": [
+              3000,
+              5000,
+              8000,
+              15000
+            ]
+          },
+          "derived": {},
+          "require": "N - 10*c",
+          "prompt": "A file of {{N||6}} bits is parsed by LZ78 into {{c}} phrases. Each phrase is sent as an index of $\\lceil\\log_2 c\\rceil$ bits plus 1 new bit. What compression ratio results?",
+          "answer": "N/(c*(ceil(log2(c)) + 1))",
+          "unit": "",
+          "explanation": "Index: $\\lceil\\log_2 {{c}}\\rceil$ = {{ceil(log2(c))}} bits, so each phrase costs {{ceil(log2(c)) + 1}} bits and the output is {{c}} × {{ceil(log2(c)) + 1}} = {{c*(ceil(log2(c)) + 1)}} bits. Ratio = {{N||6}} / {{c*(ceil(log2(c)) + 1)}} = **{{N/(c*(ceil(log2(c)) + 1))||3}}**. The more repetitive the data, the fewer (and longer) the phrases."
+        }
+      ]
+    },
+    {
+      "id": "it-compression-2",
+      "title": "Arithmetic coding",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "A message as an interval",
+          "body": "Start with the interval $[0, 1)$. For each symbol, split the current interval in proportion to the symbol probabilities and keep the piece of the symbol that occurred (here A takes the lower part). The final width is the product of the probabilities, $P(\\text{message})$. Drag $P(A)$.",
+          "formula": "\\text{width} = \\prod_i p(x_i) = P(\\text{message})",
+          "plot": {
+            "x": {
+              "min": -0.3,
+              "max": 1,
+              "label": "position in [0, 1)",
+              "ticks": [
+                0,
+                0.2,
+                0.4,
+                0.6,
+                0.8,
+                1
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 4,
+              "label": "",
+              "ticks": []
+            },
+            "grid": false,
+            "height": 190,
+            "sliders": [
+              {
+                "name": "q",
+                "label": "$P(A)$",
+                "min": 0.5,
+                "max": 0.9,
+                "step": 0.05,
+                "value": 0.8
+              }
+            ],
+            "curves": [
+              {
+                "f": "3.5",
+                "from": 0,
+                "to": 1,
+                "color": "grey"
+              },
+              {
+                "f": "2.5",
+                "from": 0,
+                "to": "q",
+                "color": "blue"
+              },
+              {
+                "f": "1.5",
+                "from": 0,
+                "to": "q^2",
+                "color": "blue"
+              },
+              {
+                "f": "0.5",
+                "from": "q^3",
+                "to": "q^2",
+                "color": "red"
+              }
+            ],
+            "points": [
+              {
+                "x": "q",
+                "y": 2.5,
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "q^2",
+                "y": 1.5,
+                "guides": false,
+                "color": "blue"
+              },
+              {
+                "x": "q^3",
+                "y": 0.5,
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": "q^2",
+                "y": 0.5,
+                "guides": false,
+                "color": "red"
+              }
+            ],
+            "labels": [
+              {
+                "x": -0.28,
+                "y": 3.5,
+                "text": "start"
+              },
+              {
+                "x": -0.28,
+                "y": 2.5,
+                "text": "A"
+              },
+              {
+                "x": -0.28,
+                "y": 1.5,
+                "text": "AA"
+              },
+              {
+                "x": -0.28,
+                "y": 0.5,
+                "text": "AAB"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "width = $P(\\text{AAB})$",
+                "value": "q^2*(1-q)"
+              },
+              {
+                "label": "$\\log_2(1/\\text{width})$ (bits)",
+                "value": "-log2(q^2*(1-q))"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.7,
+              0.8,
+              0.9
+            ],
+            "nA": [
+              5,
+              8,
+              10
+            ],
+            "nB": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "A binary source sends A with probability {{p}} and B with probability {{1-p}}. A message of {{nA + nB}} symbols contains A {{nA}} times and B {{nB}} times (in some order). What is the width of its final interval?",
+          "answer": "p^nA*(1-p)^nB",
+          "unit": "",
+          "tolerance": 0.01,
+          "explanation": "Each A multiplies the width by {{p}}, each B by {{1-p}}; the order does not matter: width = {{p}}^{{nA}} × {{1-p}}^{{nB}} = **{{p^nA*(1-p)^nB||3}}**."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "p": [
+              0.6,
+              0.7,
+              0.75,
+              0.8,
+              0.9
+            ]
+          },
+          "prompt": "With $P(A)$ = {{p}} (A takes the lower part of every interval), which interval represents a message that starts with **AB**?",
+          "options": [
+            "[{{p^2}}, {{p}})",
+            "[0, {{p^2}})",
+            "[{{p}}, 1)",
+            "[{{p*(1-p)}}, {{p}})"
+          ],
+          "answer": 0,
+          "explanation": "After A: $[0, {{p}})$. B takes the upper part, a fraction {{1-p}} of the width {{p}}: from {{p}} × {{p}} = {{p^2}} to {{p}}. So AB → **[{{p^2}}, {{p}})**, with width {{p}} × {{1-p}} = {{p*(1-p)}} = $P(A)P(B)$."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "How many bits?",
+          "body": "To identify the final interval the encoder sends a binary fraction that lies inside it. About $\\log_2(1/\\text{width})$ bits are enough, and never more than $\\lceil\\log_2(1/P)\\rceil + 1$. For a long message of independent symbols that is about $nH$ bits: arithmetic coding gets within a few bits of the entropy for the **whole message**, not within 1 bit per symbol.",
+          "formula": "\\text{bits} \\le \\Big\\lceil\\log_2\\frac{1}{P(\\text{message})}\\Big\\rceil + 1"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "n": [
+              8000,
+              80000,
+              500000
+            ],
+            "p": [
+              0.01,
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "A sensor log of {{n}} independent readings has $P(\\text{alarm})$ = {{p}} per reading (else 'normal'). About how many **bytes** does arithmetic coding need for the log?",
+          "answer": "n*((-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))/8",
+          "unit": "",
+          "explanation": "$H({{p}})$ = {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} bit per reading, so about {{n}} × {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} = {{n*((-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))||3}} bits = **{{n*((-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))/8||3}} bytes**, against {{n/8}} bytes at 1 bit per reading. A Huffman code of single readings could not go below 1 bit per reading."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "Arithmetic coding needs a probability model of the source, while Lempel–Ziv coding does not.",
+          "answer": true,
+          "explanation": "True. The arithmetic coder splits intervals according to the symbol probabilities, so it needs a model (fixed or adaptive, learned on the fly). Lempel–Ziv learns repeated phrases directly from the data, without any probabilities."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.7,
+              0.8,
+              0.9
+            ],
+            "nA": [
+              6,
+              9,
+              12
+            ],
+            "nB": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "With $P(A)$ = {{p}}, how many bits does the bound $\\lceil\\log_2(1/P)\\rceil + 1$ allow for a message in which A occurs {{nA}} times and B {{nB}} times?",
+          "answer": "ceil(-log2(p^nA*(1-p)^nB)) + 1",
+          "unit": "bits",
+          "explanation": "$P$ = {{p}}^{{nA}} × {{1-p}}^{{nB}} = {{p^nA*(1-p)^nB||3}}, so $\\log_2(1/P)$ = {{-log2(p^nA*(1-p)^nB)||3}} and the code needs at most ⌈{{-log2(p^nA*(1-p)^nB)||3}}⌉ + 1 = **{{ceil(-log2(p^nA*(1-p)^nB)) + 1}} bits** for {{nA + nB}} symbols."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each compression method to its key idea.",
+          "pairs": [
+            [
+              "Huffman coding",
+              "A whole number of bits per symbol"
+            ],
+            [
+              "Arithmetic coding",
+              "One interval for the whole message"
+            ],
+            [
+              "LZ78",
+              "A growing dictionary of phrases"
+            ],
+            [
+              "Run-length coding",
+              "Counts of repeated symbols"
+            ]
+          ],
+          "explanation": "Huffman assigns each symbol an integer-length codeword; arithmetic coding narrows a single interval; LZ78 refers back to earlier phrases; run-length coding replaces runs by their lengths."
+        }
+      ]
+    },
+    {
+      "id": "it-compression-3",
+      "title": "Rate and distortion",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Bits versus distortion",
+          "body": "For lossy coding of a Gaussian source with variance $\\sigma^2$, the least mean-squared error achievable with $R$ bits per sample is $D(R) = \\sigma^2 2^{-2R}$. Each extra bit per sample divides $D$ by 4: 6.02 dB more SNR, half the rms error. Drag $R$.",
+          "formula": "D(R) = \\sigma^2\\,2^{-2R},\\qquad \\text{SNR} = 6.02R\\ \\text{dB}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 4,
+              "label": "R (bits/sample)"
+            },
+            "y": {
+              "min": 0.001,
+              "max": 1,
+              "label": "D / σ²",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "r",
+                "label": "$R$",
+                "min": 0,
+                "max": 4,
+                "step": 0.1,
+                "value": 1,
+                "unit": "bits"
+              }
+            ],
+            "curves": [
+              {
+                "f": "2^(-2*x)",
+                "label": "D(R)/σ²",
+                "labelAt": 0.55
+              }
+            ],
+            "points": [
+              {
+                "x": "r",
+                "y": "2^(-2*r)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$D/\\sigma^2$",
+                "value": "2^(-2*r)"
+              },
+              {
+                "label": "SNR",
+                "value": "6.0206*r",
+                "unit": "dB"
+              },
+              {
+                "label": "rms error / $\\sigma$",
+                "value": "2^(-r)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0.5,
+              1,
+              2,
+              5
+            ],
+            "R": [
+              2,
+              3,
+              4,
+              6
+            ]
+          },
+          "prompt": "A Gaussian signal with an rms value of {{s|V}} is described with {{R}} bits per sample by an ideal (rate–distortion optimal) coder. What rms error remains?",
+          "answer": "s*2^(-R)",
+          "unit": "V",
+          "explanation": "$D = \\sigma^2 2^{-2R}$, so the rms error is $\\sqrt D = \\sigma\\,2^{-R}$ = {{s|V}} × $2^{-{{R}}}$ = **{{s*2^(-R)|V}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "S": [
+              12,
+              20,
+              30,
+              40,
+              50
+            ]
+          },
+          "prompt": "An ideal coder for a Gaussian source must reach an SNR of {{S}} dB. How many bits per sample does it need at least?",
+          "answer": "S/(20*log10(2))",
+          "unit": "bits",
+          "explanation": "$\\text{SNR} = 10\\log_{10}(\\sigma^2/D) = 20R\\log_{10}2$ = 6.02$R$ dB, so $R$ = {{S}} / 6.02 = **{{S/(20*log10(2))||3}} bits/sample**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              1000,
+              8000,
+              44100
+            ],
+            "S": [
+              24,
+              36,
+              48
+            ]
+          },
+          "prompt": "A Gaussian sensor signal is sampled at {{fs|Hz}} and must be stored with an SNR of at least {{S}} dB.",
+          "ask": [
+            {
+              "prompt": "What is the minimum bit rate (rate–distortion bound)?",
+              "answer": "fs*S/(20*log10(2))",
+              "unit": "bit/s",
+              "explanation": "$R = \\text{SNR}/6.02$ = {{S}} / 6.02 = {{S/(20*log10(2))||3}} bits/sample; × {{fs|Hz}} = **{{fs*S/(20*log10(2))|bit/s}}**."
+            },
+            {
+              "prompt": "By what factor is that smaller than 16-bit PCM at the same sample rate?",
+              "answer": "16/(S/(20*log10(2)))",
+              "unit": "",
+              "explanation": "The bound needs {{S/(20*log10(2))||3}} bits/sample, PCM uses 16: factor 16 / {{S/(20*log10(2))||3}} = **{{16/(S/(20*log10(2)))||3}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "slider",
+          "params": {
+            "t": [
+              1,
+              2,
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "Drag the rate $R$ until the distortion of an ideal coder for a Gaussian source has dropped to {{t}} % of the source variance.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 4,
+              "label": "R (bits/sample)"
+            },
+            "y": {
+              "min": 0.003,
+              "max": 1.2,
+              "label": "D / σ²",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "r",
+                "label": "$R$",
+                "min": 0,
+                "max": 4,
+                "step": 0.05,
+                "value": 0,
+                "unit": "bits"
+              }
+            ],
+            "curves": [
+              {
+                "f": "2^(-2*x)",
+                "label": "D(R)/σ²",
+                "labelAt": 0.3
+              }
+            ],
+            "hlines": [
+              {
+                "y": "t/100",
+                "label": "target",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "r",
+                "y": "2^(-2*r)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$D/\\sigma^2$",
+                "value": "100*2^(-2*r)",
+                "unit": "%",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "r": "0.5*log2(100/t)"
+          },
+          "tolerance": 0.03,
+          "explanation": "$2^{-2R} = {{t/100}}$ → $R = \\tfrac12\\log_2(100/{{t}})$ = **{{0.5*log2(100/t)||3}} bits/sample**. Each half bit more lowers the distortion by a factor 2."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "An ideal coder for a Gaussian source gets one extra bit per sample. By how much does its SNR improve?",
+          "options": [
+            "6.02 dB",
+            "3.01 dB",
+            "1 dB",
+            "10 dB"
+          ],
+          "answer": 0,
+          "explanation": "$D \\propto 2^{-2R}$: one bit divides $D$ by 4, and $10\\log_{10}4$ = **6.02 dB**. 3.01 dB would be a factor 2 in distortion (half a bit). The same rule of thumb holds for uniform quantisers (ADCs)."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "To reproduce a Gaussian source with a mean-squared error equal to its variance $\\sigma^2$, you need at least 1 bit per sample.",
+          "answer": false,
+          "explanation": "False. $R(\\sigma^2) = \\tfrac12\\log_2 1$ = 0: send nothing and let the decoder output the mean (0). The error is then the signal itself, whose mean square is $\\sigma^2$. Any distortion below $\\sigma^2$ costs bits."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "R": [
+              0.5,
+              1,
+              1.5,
+              2.5,
+              3,
+              5
+            ]
+          },
+          "prompt": "A Gaussian source is coded at {{R}} bits per sample by an ideal coder. What is the SNR?",
+          "answer": "R*20*log10(2)",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.1,
+          "explanation": "$\\text{SNR} = 10\\log_{10}(\\sigma^2/D) = 10\\log_{10}2^{2R}$ = 6.02 × {{R}} = **{{R*20*log10(2)||3}} dB**."
+        }
+      ]
+    },
+    {
+      "id": "it-compression-4",
+      "title": "Choosing a compressor",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "s1": [
+              2,
+              4,
+              8
+            ],
+            "s2": [
+              0.5,
+              1
+            ],
+            "R": [
+              4,
+              6,
+              8
+            ]
+          },
+          "derived": {
+            "R1": "R/2 + 0.5*log2(s1/s2)"
+          },
+          "require": "R - R1 - 0.4",
+          "prompt": "Two independent Gaussian signals with rms values {{s1|V}} and {{s2|V}} share a budget of {{R}} bits per sample pair. The bits are split to minimise the total squared error (equal distortion for both).",
+          "ask": [
+            {
+              "prompt": "How many bits per sample go to the first signal?",
+              "answer": "R1",
+              "unit": "bits",
+              "explanation": "Equal distortion: $\\sigma_1^2 2^{-2R_1} = \\sigma_2^2 2^{-2R_2}$ → $R_1 - R_2 = \\log_2(\\sigma_1/\\sigma_2)$ = {{log2(s1/s2)}}. With $R_1 + R_2$ = {{R}}: $R_1$ = {{R}}/2 + {{log2(s1/s2)}}/2 = **{{R1}} bits** (and $R_2$ = {{R - R1}})."
+            },
+            {
+              "prompt": "What rms error does each signal then have?",
+              "answer": "s1*2^(-R1)",
+              "unit": "V",
+              "explanation": "$R_1$ = {{R1}} bits: $\\sqrt{D} = \\sigma_1 2^{-R_1}$ = {{s1|V}} × $2^{-{{R1}}}$ = **{{s1*2^(-R1)|V}}**, the same as {{s2|V}} × $2^{-{{R-R1}}}$ for the second signal."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "matchPairs",
+          "prompt": "Match each kind of data to a suitable compression method.",
+          "pairs": [
+            [
+              "Black-and-white fax pages",
+              "Run lengths + Huffman code"
+            ],
+            [
+              "Program files and text",
+              "Lempel–Ziv (ZIP)"
+            ],
+            [
+              "Photographs",
+              "Lossy transform coding (JPEG)"
+            ],
+            [
+              "A very skewed binary sensor stream",
+              "Arithmetic coding"
+            ]
+          ],
+          "explanation": "Fax pages are long runs of white; programs and text must be exact and are full of repeated strings; photos tolerate small errors; and a skewed binary stream needs a coder that can spend far less than 1 bit per symbol."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "T": [
+              24,
+              32
+            ],
+            "Lm": [
+              4,
+              6,
+              9,
+              15
+            ]
+          },
+          "prompt": "An LZ77 coder sends (offset, length, next byte) tokens of {{T}} bits each. On a log file the average match length is {{Lm}} bytes, so one token covers {{Lm}} + 1 bytes. What compression ratio results?",
+          "answer": "8*(Lm + 1)/T",
+          "unit": "",
+          "explanation": "One token replaces {{Lm + 1}} bytes = {{8*(Lm + 1)}} bits by {{T}} bits: ratio = {{8*(Lm + 1)}} / {{T}} = **{{8*(Lm + 1)/T||3}}**. Short matches do not pay: with $L$ = 1 the token is longer than the 2 bytes it codes."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.005,
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "A binary sensor stream with $P(1)$ = {{p}} is compressed. How many times smaller is the output of an ideal arithmetic coder than that of a Huffman code applied to single bits?",
+          "answer": "1/((-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))",
+          "unit": "",
+          "explanation": "Huffman on single bits: 1 bit per symbol (two symbols cannot do better). Arithmetic coding: about $H({{p}})$ = {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} bit per symbol. Factor = 1 / {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} = **{{1/((-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))||3}}**."
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Put the steps of arithmetic encoding in order.",
+          "items": [
+            "Start with the interval [0, 1)",
+            "Split the current interval in proportion to the symbol probabilities",
+            "Keep the subinterval of the symbol that occurred",
+            "Repeat for every symbol of the message",
+            "Send the bits of a binary fraction inside the final interval"
+          ],
+          "explanation": "The interval shrinks by the probability of every symbol; at the end about $\\log_2(1/P)$ bits pick out a point inside it. The decoder repeats the same splits to recover the symbols."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "prompt": "How many phrases does LZ78 produce for the input AAABBABAAABBB?",
+          "answer": "7",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "A | AA | B | BA | BAA | AB | BB: **7 phrases**, sent as (0,A) (1,A) (0,B) (3,A) (4,A) (1,B) (3,B). Each new phrase extends a known one by a single symbol."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Lossy coding of a Gaussian source at a distortion of 1/16 of its variance needs at least 2 bits per sample.",
+          "answer": true,
+          "explanation": "True. $R(D) = \\tfrac12\\log_2(\\sigma^2/D) = \\tfrac12\\log_2 16$ = **2 bits/sample** (SNR 12 dB). A real quantiser needs somewhat more."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "S": [
+              12,
+              18,
+              24,
+              30
+            ]
+          },
+          "prompt": "Speech is band-limited to 4 kHz, sampled at 8 kHz and modelled as Gaussian. What is the least bit rate for an SNR of {{S}} dB?",
+          "answer": "8000*S/(20*log10(2))",
+          "unit": "bit/s",
+          "explanation": "$R = {{S}}/6.02$ = {{S/(20*log10(2))||3}} bits/sample × 8000 samples/s = **{{8000*S/(20*log10(2))|bit/s}}**. Real speech coders go much lower by exploiting the structure of speech (it is far from a memoryless Gaussian source) and the ear's tolerance."
+        }
+      ]
+    }
+  ]
+}

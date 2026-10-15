@@ -1,0 +1,2124 @@
+{
+ "id": "fr-resonance",
+ "title": "Resonance",
+ "description": "Series and parallel RLC resonance, quality factor, bandwidth and second-order filters.",
+ "reference": "Hambley §6.6–6.8; H&H §1.22; Frenzel §2-2",
+ "study": [
+  {
+   "title": "Series resonance",
+   "body": "The source sees $Z_s = R + j2\\pi fL - j\\frac{1}{2\\pi fC}$. At the resonant frequency $f_0$ the inductive and capacitive reactances are equal and cancel, so $Z_s = R$: purely resistive and **minimum**. The current is then maximum, $I = V_s/R$. Below $f_0$ the circuit is capacitive, above it inductive.",
+   "formula": "f_0 = \\frac{1}{2\\pi\\sqrt{LC}}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       3
+      ],
+      "to": [
+       0,
+       1
+      ],
+      "label": "V_s",
+      "flip": true
+     },
+     {
+      "type": "inductor",
+      "from": [
+       0,
+       1
+      ],
+      "to": [
+       2,
+       1
+      ],
+      "label": "L"
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       2,
+       1
+      ],
+      "to": [
+       4,
+       1
+      ],
+      "label": "C"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4,
+       1
+      ],
+      "to": [
+       4,
+       3
+      ],
+      "label": "R",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        1
+       ],
+       [
+        6,
+        1
+       ]
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        3
+       ],
+       [
+        6,
+        3
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       4,
+       1
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       4,
+       3
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       1
+      ],
+      "label": "+"
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       3
+      ],
+      "label": "−"
+     },
+     {
+      "type": "text",
+      "at": [
+       6.7,
+       2
+      ],
+      "label": "V_R"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Quality factor",
+   "body": "$Q_s$ is the inductor's reactance at resonance divided by $R$. At resonance $|V_L| = |V_C| = Q_s|V_s|$: they can be much larger than the source voltage, but are 180° apart and cancel.\n**Example:** $L$ = 10 mH, $C$ = 25.3 nF give $f_0$ = 10 kHz; with $R$ = 20 Ω, $Q_s = 2\\pi\\cdot10^4\\cdot0.01/20$ = 31.4.",
+   "formula": "Q_s = \\frac{2\\pi f_0 L}{R} = \\frac{1}{2\\pi f_0 C R}"
+  },
+  {
+   "title": "Series RLC as a bandpass filter",
+   "body": "Taking the output across $R$ gives $|H| = 1$ at $f_0$ and smaller values on both sides. The half-power frequencies $f_L$ and $f_H$ (where $|H| = 0.707$) define the bandwidth $B = f_H - f_L = f_0/Q_s$. For $Q_s \\gg 1$: $f_H \\approx f_0 + B/2$, $f_L \\approx f_0 - B/2$. Higher $Q$ means a narrower, more selective filter. Drag $Q_s$ (grey: $Q_s$ = 2): the half-power frequencies close in as $Q_s$ grows. They always satisfy $f_Lf_H = f_0^2$, so they look symmetric on the log axis, but for low $Q_s$ the readouts show $f_H - f_0 > f_0 - f_L$ in hertz.",
+   "formula": "\\frac{V_R}{V_s} = \\frac{1}{1 + jQ_s\\left(\\frac{f}{f_0} - \\frac{f_0}{f}\\right)}",
+   "plot": {
+    "x": {
+     "min": 0.25,
+     "max": 4,
+     "label": "f / f_0",
+     "log": true,
+     "ticks": [
+      0.25,
+      0.5,
+      1,
+      2,
+      4
+     ]
+    },
+    "y": {
+     "min": 0,
+     "max": 1.1,
+     "label": "|V_R / V_s|"
+    },
+    "sliders": [
+     {
+      "name": "Q",
+      "label": "$Q_s$",
+      "min": 0.5,
+      "max": 50,
+      "log": true,
+      "value": 3
+     }
+    ],
+    "let": {
+     "a": "sqrt(1 + 1/(4*Q^2))",
+     "fH": "a + 1/(2*Q)",
+     "fL": "a - 1/(2*Q)"
+    },
+    "curves": [
+     {
+      "f": "1/sqrt(1+4*(x-1/x)^2)",
+      "color": "grey",
+      "dash": true,
+      "label": "Q = 2",
+      "labelAt": 0.85
+     },
+     {
+      "f": "1/sqrt(1+Q^2*(x-1/x)^2)",
+      "label": "|H|",
+      "labelAt": 0.56
+     }
+    ],
+    "hlines": [
+     {
+      "y": 0.707,
+      "label": "0.707"
+     }
+    ],
+    "vlines": [
+     {
+      "x": "fL",
+      "label": "f_L"
+     },
+     {
+      "x": "fH",
+      "label": "f_H"
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$B/f_0 = 1/Q_s$",
+      "value": "1/Q"
+     },
+     {
+      "label": "$f_L/f_0$",
+      "value": "fL"
+     },
+     {
+      "label": "$f_H/f_0$",
+      "value": "fH"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Parallel resonance",
+   "body": "With $R$, $L$ and $C$ in parallel, the resonant frequency is the same $f_0 = 1/(2\\pi\\sqrt{LC})$, but now $Z_p$ is **maximum** ($Z_p = R$). Driven by a current $I$, the voltage peaks at $IR$, a bandpass response with $B = f_0/Q_p$. At resonance $|I_L| = |I_C| = Q_p|I|$. Note that $Q_p$ is the reciprocal form of $Q_s$.",
+   "formula": "Q_p = \\frac{R}{2\\pi f_0 L} = 2\\pi f_0 C R",
+   "circuit": {
+    "elements": [
+     {
+      "type": "isource",
+      "from": [
+       0,
+       3
+      ],
+      "to": [
+       0,
+       1
+      ],
+      "label": "I",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        1
+       ],
+       [
+        6,
+        1
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       1
+      ],
+      "to": [
+       2,
+       3
+      ],
+      "label": "R"
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       4,
+       1
+      ],
+      "to": [
+       4,
+       3
+      ],
+      "label": "C"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       6,
+       1
+      ],
+      "to": [
+       6,
+       3
+      ],
+      "label": "L"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        3
+       ],
+       [
+        6,
+        3
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       1
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       4,
+       1
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       3
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       4,
+       3
+      ]
+     },
+     {
+      "type": "text",
+      "at": [
+       7.6,
+       2
+      ],
+      "label": " "
+     }
+    ]
+   }
+  },
+  {
+   "title": "Ideal and second-order filters",
+   "body": "Ideal filters pass one band unchanged and block the rest completely: **lowpass**, **highpass**, **bandpass** and **band-reject (notch)**. Real circuits only approximate them. Second-order (RLC) lowpass and highpass filters roll off at **40 dB/decade** instead of 20. $Q_s \\approx 0.707$ gives the maximally flat (Butterworth) response; larger $Q_s$ gives a peak near $f_0$. Output across the series LC pair gives a notch at $f_0$."
+  },
+  {
+   "title": "Pitfalls",
+   "body": "Do not mix up the quality factors: $Q_s = 2\\pi f_0L/R$ (series, small $R$ is good) but $Q_p = R/(2\\pi f_0L)$ (parallel, large $R$ is good). $f_0$ is in Hz; $\\omega_0 = 1/\\sqrt{LC}$ is in rad/s. $B = f_0/Q$ is in Hz. A useful shortcut for the series circuit: $B = R/(2\\pi L)$."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "fr-resonance-1",
+   "title": "Series and parallel resonance",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Series resonance",
+     "body": "In a series RLC circuit $Z_s = R + j2\\pi fL - j/(2\\pi fC)$. At the **resonant frequency** $f_0$ the two reactances are equal and cancel, so the impedance is purely resistive: $Z_s = R$.",
+     "formula": "2\\pi f_0 L = \\frac{1}{2\\pi f_0 C} \\;\\Rightarrow\\; f_0 = \\frac{1}{2\\pi\\sqrt{LC}}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_s",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "L"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         4,
+         1
+        ],
+        "label": "C"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         1
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "label": "R",
+        "flip": false
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "L": [
+       0.0001,
+       0.001,
+       0.01,
+       0.047
+      ],
+      "C": [
+       4.7e-10,
+       1e-09,
+       1e-08,
+       1e-07
+      ]
+     },
+     "prompt": "Find the resonant frequency of a series RLC circuit with $L$ = {{L|H}} and $C$ = {{C|F}}.",
+     "answer": "1/(2*pi*sqrt(L*C))",
+     "unit": "Hz",
+     "explanation": "$f_0 = \\frac{1}{2\\pi\\sqrt{LC}}$: $\\sqrt{LC}$ = √({{L|H}} × {{C|F}}) = {{sqrt(L*C)|s}}, so $f_0$ = 1/(2π × {{sqrt(L*C)|s}}) = {{1/(2*pi*sqrt(L*C))|Hz}}."
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "At the resonant frequency, the impedance of a **series** RLC circuit is …",
+     "options": [
+      "purely resistive and at its minimum ($Z_s = R$)",
+      "purely resistive and at its maximum",
+      "zero",
+      "purely inductive"
+     ],
+     "answer": 0,
+     "explanation": "The reactances $j2\\pi f_0L$ and $-j/(2\\pi f_0C)$ cancel, leaving $Z_s = R$. At any other frequency a net reactance adds to $R$, so $|Z_s|$ is larger. (It is the **parallel** circuit whose impedance is maximum at resonance.)"
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Quality factor and bandwidth",
+     "body": "$Q_s$ compares the inductor's reactance at resonance with $R$. Taking the output across $R$ makes a **bandpass filter**: $|H| = 1$ at $f_0$, and the half-power bandwidth is $B = f_H - f_L = f_0/Q_s$. High $Q$ → narrow band.",
+     "formula": "Q_s = \\frac{2\\pi f_0 L}{R},\\qquad B = \\frac{f_0}{Q_s}"
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       1000,
+       10000,
+       100000
+      ],
+      "X": [
+       100,
+       200,
+       500,
+       1000
+      ],
+      "R": [
+       5,
+       10,
+       20,
+       50
+      ]
+     },
+     "derived": {
+      "L": "X/(2*pi*f0)"
+     },
+     "prompt": "A series RLC circuit resonates at $f_0$ = {{f0|Hz}}. It has $L$ = {{L|H}} and $R$ = {{R|Ω}}. Find $Q_s$.",
+     "answer": "2*pi*f0*L/R",
+     "unit": "",
+     "explanation": "$Q_s = \\frac{2\\pi f_0 L}{R}$. The inductor's reactance at resonance is 2π × {{f0|Hz}} × {{L|H}} = {{2*pi*f0*L|Ω}}, so $Q_s$ = {{2*pi*f0*L|Ω}}/{{R|Ω}} = {{2*pi*f0*L/R}}."
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "At resonance, the voltage across the capacitor of a series RLC circuit can be much larger than the source voltage.",
+     "answer": true,
+     "explanation": "At resonance $I = V_s/R$, so $|V_C| = |V_L| = \\frac{V_s}{R}\\cdot 2\\pi f_0 L = Q_s V_s$. With $Q_s$ = 50 a 1 V source gives 50 V across $C$ and $L$; KVL still holds because $V_L$ and $V_C$ are 180° apart and cancel."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Parallel resonance",
+     "body": "With $R$, $L$ and $C$ in parallel, resonance occurs at the same $f_0$, but the impedance is now **maximum** ($Z_p = R$). Driven by a current source, the voltage peaks at $f_0$ with bandwidth $B = f_0/Q_p$. Note that $Q_p$ is the reciprocal form of $Q_s$.",
+     "formula": "Q_p = \\frac{R}{2\\pi f_0 L} = 2\\pi f_0 C R",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "I",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          1
+         ],
+         [
+          6,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "R"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         1
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "label": "C"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         6,
+         1
+        ],
+        "to": [
+         6,
+         3
+        ],
+        "label": "L"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          6,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         3
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         7.6,
+         2
+        ],
+        "label": " "
+       }
+      ]
+     }
+    },
+    {
+     "id": "q5",
+     "type": "multipleChoice",
+     "prompt": "In a parallel RLC circuit, $R$ is increased while $L$ and $C$ stay the same. What happens?",
+     "options": [
+      "$Q_p$ increases and the bandwidth decreases",
+      "$Q_p$ decreases and the bandwidth increases",
+      "$f_0$ increases",
+      "Nothing changes"
+     ],
+     "answer": 0,
+     "explanation": "$Q_p = R/(2\\pi f_0 L)$ grows with $R$, and $B = f_0/Q_p$ shrinks, so the peak gets sharper. $f_0 = 1/(2\\pi\\sqrt{LC})$ does not depend on $R$. (In a series circuit the opposite holds: larger $R$ lowers $Q_s$.)"
+    },
+    {
+     "id": "q6",
+     "type": "matchPairs",
+     "prompt": "Match each quantity to its formula.",
+     "pairs": [
+      [
+       "$f_0$",
+       "$\\frac{1}{2\\pi\\sqrt{LC}}$"
+      ],
+      [
+       "$Q_s$",
+       "$\\frac{2\\pi f_0 L}{R}$"
+      ],
+      [
+       "$Q_p$",
+       "$\\frac{R}{2\\pi f_0 L}$"
+      ],
+      [
+       "$B$",
+       "$\\frac{f_0}{Q}$"
+      ]
+     ],
+     "explanation": "Both circuits share $f_0 = 1/(2\\pi\\sqrt{LC})$ and $B = f_0/Q$. The quality factors are reciprocal in form: series $Q_s = 2\\pi f_0L/R$, parallel $Q_p = R/(2\\pi f_0L)$."
+    }
+   ]
+  },
+  {
+   "id": "fr-resonance-2",
+   "title": "Resonance calculations",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       100000,
+       455000,
+       1000000
+      ],
+      "L": [
+       0.0001,
+       0.00022,
+       0.001
+      ]
+     },
+     "prompt": "A radio tuning circuit uses $L$ = {{L|H}}. What capacitance makes it resonate at {{f0|Hz}}?",
+     "answer": "1/((2*pi*f0)^2*L)",
+     "unit": "F",
+     "explanation": "From $f_0 = \\frac{1}{2\\pi\\sqrt{LC}}$: $C = \\frac{1}{(2\\pi f_0)^2 L}$ = 1/(({{2*pi*f0}})² × {{L|H}}) = {{1/((2*pi*f0)^2*L)|F}}."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "R": [
+       10,
+       22,
+       47,
+       100
+      ],
+      "L": [
+       0.001,
+       0.01,
+       0.1
+      ],
+      "C": [
+       1e-08,
+       1e-07,
+       1e-06
+      ]
+     },
+     "derived": {
+      "f0": "1/(2*pi*sqrt(L*C))",
+      "Q": "2*pi*f0*L/R"
+     },
+     "require": "min(Q-1, 100-Q)",
+     "prompt": "Find the quality factor $Q_s$ of this series RLC circuit.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_s",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         4,
+         1
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         1
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "label": "R",
+        "flip": false,
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       }
+      ]
+     },
+     "answer": "Q",
+     "unit": "",
+     "explanation": "First $f_0 = \\frac{1}{2\\pi\\sqrt{LC}}$ = {{f0|Hz}}. Then $Q_s = \\frac{2\\pi f_0 L}{R}$ = (2π × {{f0|Hz}} × {{L|H}})/{{R|Ω}} = {{2*pi*f0*L|Ω}}/{{R|Ω}} = {{Q}}."
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "R": [
+       10,
+       22,
+       47,
+       100
+      ],
+      "L": [
+       0.001,
+       0.01,
+       0.1
+      ],
+      "C": [
+       1e-08,
+       1e-07,
+       1e-06
+      ]
+     },
+     "derived": {
+      "f0": "1/(2*pi*sqrt(L*C))",
+      "Q": "2*pi*f0*L/R"
+     },
+     "require": "Q-2",
+     "prompt": "This series RLC circuit is used as a bandpass filter with the output across $R$. Find its bandwidth $B$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_s",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         4,
+         1
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         1
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "label": "R",
+        "flip": true,
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          1
+         ],
+         [
+          6,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          6,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         6.7,
+         2
+        ],
+        "label": "V_R"
+       }
+      ]
+     },
+     "answer": "R/(2*pi*L)",
+     "unit": "Hz",
+     "explanation": "$f_0 = 1/(2\\pi\\sqrt{LC})$ = {{f0|Hz}}, $Q_s = 2\\pi f_0L/R$ = {{Q}}, so $B = f_0/Q_s$ = {{f0|Hz}}/{{Q}} = {{R/(2*pi*L)|Hz}}. Shortcut: $B = \\frac{f_0}{Q_s} = \\frac{R}{2\\pi L}$ = {{R|Ω}}/(2π × {{L|H}})."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       10000,
+       100000,
+       455000,
+       1000000
+      ],
+      "Q": [
+       4,
+       5,
+       8,
+       10
+      ]
+     },
+     "prompt": "A series resonant bandpass filter has $f_0$ = {{f0|Hz}} and $Q_s$ = {{Q}}. Using the approximation for $Q \\gg 1$, find the upper half-power frequency $f_H$.",
+     "answer": "f0+f0/(2*Q)",
+     "unit": "Hz",
+     "explanation": "$B = f_0/Q_s$ = {{f0|Hz}}/{{Q}} = {{f0/Q|Hz}}. Then $f_H \\approx f_0 + B/2$ = {{f0|Hz}} + {{f0/(2*Q)|Hz}} = {{f0+f0/(2*Q)|Hz}} (and $f_L \\approx$ {{f0-f0/(2*Q)|Hz}})."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       0.5,
+       1,
+       2
+      ],
+      "R": [
+       10,
+       22,
+       47
+      ],
+      "L": [
+       0.001,
+       0.01
+      ],
+      "C": [
+       1e-08,
+       1e-07
+      ]
+     },
+     "derived": {
+      "f0": "1/(2*pi*sqrt(L*C))",
+      "Q": "2*pi*f0*L/R"
+     },
+     "require": "Q-1",
+     "prompt": "The source of this series RLC circuit has amplitude {{Vs|V}} and is tuned to the resonant frequency. Find the amplitude of the voltage across the capacitor.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_s",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         4,
+         1
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         1
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "label": "R",
+        "flip": false,
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       }
+      ]
+     },
+     "answer": "Vs*Q",
+     "unit": "V",
+     "explanation": "$f_0$ = {{f0|Hz}}. At resonance $I = V_s/R$ = {{Vs/R|A}} and $|Z_C| = 1/(2\\pi f_0 C)$ = {{1/(2*pi*f0*C)|Ω}}, so $|V_C|$ = {{Vs/R|A}} × {{1/(2*pi*f0*C)|Ω}} = {{Vs*Q|V}}. That is $Q_s V_s$ with $Q_s$ = {{Q}}."
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       4700,
+       10000,
+       47000
+      ],
+      "L": [
+       0.0001,
+       0.001,
+       0.01
+      ],
+      "C": [
+       1e-09,
+       1e-08,
+       1e-07
+      ]
+     },
+     "derived": {
+      "f0": "1/(2*pi*sqrt(L*C))",
+      "Q": "R/(2*pi*f0*L)"
+     },
+     "require": "min(Q-1, 200-Q)",
+     "prompt": "Find the quality factor $Q_p$ of this parallel RLC circuit.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "I",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          1
+         ],
+         [
+          6,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         1
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         6,
+         1
+        ],
+        "to": [
+         6,
+         3
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          6,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         3
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         7.6,
+         2
+        ],
+        "label": " "
+       }
+      ]
+     },
+     "answer": "Q",
+     "unit": "",
+     "explanation": "$f_0 = 1/(2\\pi\\sqrt{LC})$ = {{f0|Hz}}. For the parallel circuit $Q_p = \\frac{R}{2\\pi f_0 L}$ = {{R|Ω}}/{{2*pi*f0*L|Ω}} = {{Q}} (equivalently $2\\pi f_0 C R$)."
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "params": {
+      "I": [
+       0.0005,
+       0.001,
+       0.002
+      ],
+      "R": [
+       1000,
+       4700,
+       10000
+      ],
+      "L": [
+       0.0001,
+       0.001
+      ],
+      "C": [
+       1e-08,
+       1e-07
+      ]
+     },
+     "derived": {
+      "f0": "1/(2*pi*sqrt(L*C))",
+      "Q": "R/(2*pi*f0*L)"
+     },
+     "require": "Q-1",
+     "prompt": "The current source has amplitude {{I|A}} at the resonant frequency. Find the amplitude of the current through the capacitor.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "I",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          1
+         ],
+         [
+          6,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         1
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         6,
+         1
+        ],
+        "to": [
+         6,
+         3
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          6,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         3
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         7.6,
+         2
+        ],
+        "label": " "
+       }
+      ]
+     },
+     "answer": "I*R*2*pi*f0*C",
+     "unit": "A",
+     "explanation": "At resonance L and C cancel, so all of $I$ flows in $R$: $V = IR$ = {{I*R|V}}. With $f_0$ = {{f0|Hz}}, $|Z_C|$ = {{1/(2*pi*f0*C)|Ω}}, so $|I_C|$ = {{I*R|V}}/{{1/(2*pi*f0*C)|Ω}} = {{I*R*2*pi*f0*C|A}} — that is $Q_p I$ with $Q_p$ = {{Q}}."
+    },
+    {
+     "id": "p8",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       100000,
+       1000000,
+       10000000
+      ],
+      "B": [
+       5000,
+       10000,
+       50000,
+       100000
+      ],
+      "R": [
+       1000,
+       10000
+      ]
+     },
+     "require": "f0/B-2",
+     "prompt": "Design a parallel resonant circuit with $R$ = {{R|Ω}}, $f_0$ = {{f0|Hz}} and bandwidth $B$ = {{B|Hz}}. What inductance $L$ is needed?",
+     "answer": "R*B/(2*pi*f0^2)",
+     "unit": "H",
+     "explanation": "$Q_p = f_0/B$ = {{f0/B}}. From $Q_p = \\frac{R}{2\\pi f_0 L}$: $L = \\frac{R}{2\\pi f_0 Q_p}$ = {{R|Ω}}/(2π × {{f0|Hz}} × {{f0/B}}) = {{R*B/(2*pi*f0^2)|H}}."
+    }
+   ]
+  },
+  {
+   "id": "fr-resonance-3",
+   "title": "Bandpass and second-order filters",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       10000,
+       100000,
+       1000000
+      ],
+      "Q": [
+       5,
+       10,
+       20,
+       50
+      ],
+      "m": [
+       0.9,
+       0.95,
+       1.05,
+       1.1,
+       1.2
+      ]
+     },
+     "derived": {
+      "f": "m*f0",
+      "d": "m-1/m"
+     },
+     "prompt": "A series resonant bandpass filter (output across $R$) has $f_0$ = {{f0|Hz}} and $Q_s$ = {{Q}}. Find $|V_R/V_s|$ at $f$ = {{f|Hz}}.",
+     "answer": "1/sqrt(1+Q^2*d^2)",
+     "unit": "",
+     "explanation": "$|H| = 1/\\sqrt{1 + Q_s^2\\left(\\frac{f}{f_0} - \\frac{f_0}{f}\\right)^2}$. Here $f/f_0$ = {{m}}, so $f/f_0 - f_0/f$ = {{m}} − {{1/m}} = {{d}}. Then $|H|$ = 1/√(1 + ({{Q}} × {{d}})²) = {{1/sqrt(1+Q^2*d^2)}}."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       10000,
+       100000,
+       1000000
+      ],
+      "Q": [
+       2,
+       5,
+       10,
+       20
+      ],
+      "m": [
+       0.5,
+       0.8,
+       1.25,
+       2
+      ]
+     },
+     "derived": {
+      "f": "m*f0",
+      "d": "m-1/m"
+     },
+     "prompt": "A series resonant bandpass filter has $f_0$ = {{f0|Hz}} and $Q_s$ = {{Q}}. Find $|H|_{dB}$ at $f$ = {{f|Hz}}.",
+     "answer": "-10*log10(1+Q^2*d^2)",
+     "unit": "dB",
+     "absTolerance": 0.1,
+     "explanation": "$f/f_0 - f_0/f$ = {{m}} − {{1/m}} = {{d}}. $|H|_{dB} = -10\\log_{10}[1 + Q_s^2(f/f_0 - f_0/f)^2]$ = −10 log10(1 + {{Q^2*d^2}}) = {{-10*log10(1+Q^2*d^2)|dB}}."
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       10000,
+       100000,
+       1000000
+      ],
+      "B": [
+       500,
+       1000,
+       5000
+      ],
+      "L": [
+       0.0001,
+       0.001,
+       0.01
+      ]
+     },
+     "require": "f0/B-2",
+     "prompt": "A series RLC bandpass filter must have $f_0$ = {{f0|Hz}} and $B$ = {{B|Hz}} using $L$ = {{L|H}}. What resistance $R$ is required?",
+     "answer": "2*pi*L*B",
+     "unit": "Ω",
+     "explanation": "$Q_s = f_0/B$ = {{f0/B}}. From $Q_s = 2\\pi f_0 L/R$: $R = \\frac{2\\pi f_0 L}{Q_s}$ = {{2*pi*f0*L|Ω}}/{{f0/B}} = {{2*pi*L*B|Ω}} (equivalently $R = 2\\pi L B$)."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "C1": [
+       1e-10,
+       3.65e-10,
+       5e-10
+      ],
+      "k": [
+       1.5,
+       2,
+       3
+      ]
+     },
+     "prompt": "A series resonant tuning circuit with a fixed inductor resonates at $f_1$ when the variable capacitor is set to {{C1|F}}. What capacitance makes it resonate at {{k}}·$f_1$?",
+     "answer": "C1/k^2",
+     "unit": "F",
+     "explanation": "$f_0 \\propto 1/\\sqrt{C}$, so $C \\propto 1/f_0^2$. Multiplying the frequency by {{k}} divides $C$ by {{k}}² = {{k^2}}: {{C1|F}}/{{k^2}} = {{C1/k^2|F}}."
+    },
+    {
+     "id": "c5",
+     "type": "multipleChoice",
+     "prompt": "In this circuit the output is taken across the series combination of $L$ and $C$. What kind of filter is it?",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "R"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         2.5
+        ],
+        "label": "L"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         2.5
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "C"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          4,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         4
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2.5
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "options": [
+      "Band-reject (notch): output ≈ 0 at $f_0$",
+      "Bandpass: output maximum at $f_0$",
+      "Lowpass",
+      "Highpass"
+     ],
+     "answer": 0,
+     "explanation": "The series LC branch has impedance $j(2\\pi fL - 1/2\\pi fC)$, which is **zero** at $f_0$, so $V_{out} = 0$ there. Far below $f_0$ the capacitor is open and far above the inductor is open, so $V_{out} \\approx V_{in}$. Passing everything except a band around $f_0$ is a notch filter."
+    },
+    {
+     "id": "c6",
+     "type": "numeric",
+     "params": {
+      "m": [
+       10,
+       20,
+       50,
+       100
+      ]
+     },
+     "prompt": "A second-order lowpass filter with $Q_s \\approx 1$ has its resonant frequency at $f_0$. Using its high-frequency asymptote, estimate $|H|_{dB}$ at $f$ = {{m}}·$f_0$.",
+     "answer": "-40*log10(m)",
+     "unit": "dB",
+     "absTolerance": 0.1,
+     "explanation": "Well above $f_0$ a second-order filter falls at 40 dB/decade. {{m}}·$f_0$ is log10({{m}}) = {{log10(m)}} decades above $f_0$: −40 × {{log10(m)}} = {{-40*log10(m)|dB}}. A first-order filter would only reach {{-20*log10(m)|dB}}."
+    },
+    {
+     "id": "c7",
+     "type": "trueFalse",
+     "prompt": "For a second-order lowpass filter, $Q_s \\approx 0.707$ gives a maximally flat passband, while $Q_s = 5$ gives a large peak in the response near $f_0$.",
+     "answer": true,
+     "explanation": "$Q_s = 1/\\sqrt 2 \\approx 0.707$ is the largest value without a rise before the roll-off (the Butterworth response). For larger $Q_s$, resonance boosts the response near $f_0$ — at $f_0$ the magnitude equals $Q_s$, so $Q_s = 5$ gives about +14 dB."
+    },
+    {
+     "id": "c8",
+     "type": "matchPairs",
+     "prompt": "Match each ideal filter to what it does.",
+     "pairs": [
+      [
+       "Lowpass",
+       "Passes only $f < f_H$"
+      ],
+      [
+       "Highpass",
+       "Passes only $f > f_L$"
+      ],
+      [
+       "Bandpass",
+       "Passes only $f_L < f < f_H$"
+      ],
+      [
+       "Band-reject",
+       "Blocks only $f_L < f < f_H$"
+      ]
+     ],
+     "explanation": "Ideal filters pass the wanted band with $|H| = 1$ and no phase change, and block everything else completely. Real RC and RLC circuits only approximate these shapes; higher-order circuits come closer."
+    }
+   ]
+  },
+  {
+   "id": "fr-resonance-4",
+   "title": "Reading resonance curves",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "g1",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       1000,
+       2000,
+       5000,
+       10000
+      ],
+      "Q": [
+       2,
+       4,
+       5
+      ],
+      "sh": [
+       0.8,
+       1.2,
+       1.6
+      ]
+     },
+     "derived": {
+      "B": "f0/Q",
+      "fL": "f0*(sqrt(1+1/(4*Q^2))-1/(2*Q))",
+      "fH": "fL+B"
+     },
+     "prompt": "The graph shows $|H| = |V_R/V_s|$ of a series RLC bandpass filter (linear frequency axis).",
+     "plot": {
+      "x": {
+       "min": "f0-sh*B",
+       "max": "f0+(2.4-sh)*B",
+       "label": "f",
+       "unit": "Hz"
+      },
+      "y": {
+       "min": 0,
+       "max": 1.1,
+       "label": "|V_R / V_s|"
+      },
+      "curves": [
+       {
+        "f": "1/sqrt(1+Q^2*(x/f0-f0/x)^2)"
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0.707,
+        "label": "0.707"
+       }
+      ]
+     },
+     "ask": [
+      {
+       "prompt": "Read the resonant frequency $f_0$.",
+       "answer": "f0",
+       "unit": "Hz",
+       "tolerance": 0.05,
+       "explanation": "At resonance the reactances of L and C cancel, the impedance is just $R$ and $|H| = 1$: the peak of the curve, at $f_0$ = {{f0|Hz}}."
+      },
+      {
+       "prompt": "Read the bandwidth $B$.",
+       "answer": "B",
+       "unit": "Hz",
+       "tolerance": 0.15,
+       "explanation": "The half-power frequencies are where $|H| = 1/\\sqrt2 \\approx 0.707$: $f_L$ ≈ {{fL|Hz}} and $f_H$ ≈ {{fH|Hz}}. So $B = f_H - f_L$ = {{B|Hz}}, and $Q_s = f_0/B$ = {{Q}}."
+      }
+     ]
+    },
+    {
+     "id": "g2",
+     "type": "multipleChoice",
+     "params": {
+      "which": [
+       0,
+       1
+      ]
+     },
+     "derived": {
+      "Qa": "2+6*which",
+      "Qb": "8-6*which"
+     },
+     "prompt": "Both curves show $|H|$ of a series RLC bandpass filter with the same $f_0$. Which one has the higher quality factor $Q_s$?",
+     "plot": {
+      "x": {
+       "min": 0.2,
+       "max": 5,
+       "label": "f / f_0",
+       "log": true
+      },
+      "y": {
+       "min": 0,
+       "max": 1.1,
+       "label": "|H|"
+      },
+      "curves": [
+       {
+        "f": "1/sqrt(1+Qa^2*(x-1/x)^2)"
+       },
+       {
+        "f": "1/sqrt(1+Qb^2*(x-1/x)^2)",
+        "color": "orange",
+        "dash": true
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0.707
+       }
+      ]
+     },
+     "options": [
+      "The solid curve",
+      "The dashed curve",
+      "Neither: they have the same $f_0$, so they have the same $Q_s$"
+     ],
+     "answer": "1-which",
+     "explanation": "$B = f_0/Q_s$: the narrower curve (smaller distance between its 0.707 points) has the higher $Q_s$ and is the more selective filter. Here the curves have $Q_s$ = 8 and $Q_s$ = 2. In a series RLC circuit a smaller $R$ gives a higher $Q_s = 2\\pi f_0L/R$; the resonant frequency depends only on $L$ and $C$."
+    },
+    {
+     "id": "g3",
+     "type": "multipleChoice",
+     "prompt": "Which graph shows the impedance magnitude $|Z|$ of a **series** RLC circuit as the frequency varies? (Log–log axes, $f_0$ in the middle.)",
+     "optionPlots": [
+      {
+       "x": {
+        "min": 0.05,
+        "max": 20,
+        "label": "",
+        "log": true
+       },
+       "y": {
+        "min": 0.01,
+        "max": 100,
+        "label": "",
+        "log": true
+       },
+       "curves": [
+        {
+         "f": "sqrt(1+25*(x-1/x)^2)"
+        }
+       ]
+      },
+      {
+       "x": {
+        "min": 0.05,
+        "max": 20,
+        "label": "",
+        "log": true
+       },
+       "y": {
+        "min": 0.01,
+        "max": 100,
+        "label": "",
+        "log": true
+       },
+       "curves": [
+        {
+         "f": "1/sqrt(1+25*(x-1/x)^2)"
+        }
+       ]
+      },
+      {
+       "x": {
+        "min": 0.05,
+        "max": 20,
+        "label": "",
+        "log": true
+       },
+       "y": {
+        "min": 0.01,
+        "max": 100,
+        "label": "",
+        "log": true
+       },
+       "curves": [
+        {
+         "f": "5*x"
+        }
+       ]
+      },
+      {
+       "x": {
+        "min": 0.05,
+        "max": 20,
+        "label": "",
+        "log": true
+       },
+       "y": {
+        "min": 0.01,
+        "max": 100,
+        "label": "",
+        "log": true
+       },
+       "curves": [
+        {
+         "f": "5/x"
+        }
+       ]
+      }
+     ],
+     "answer": 0,
+     "explanation": "Below $f_0$ the capacitor dominates and $|Z| \\approx 1/(2\\pi fC)$ falls with frequency; above $f_0$ the inductor dominates and $|Z| \\approx 2\\pi fL$ rises. At $f_0$ the reactances cancel, leaving the **minimum** $|Z| = R$. A peak at $f_0$ belongs to a **parallel** RLC circuit; the straight lines are a lone inductor or capacitor."
+    },
+    {
+     "id": "g4",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       1000,
+       2000,
+       5000,
+       10000,
+       20000,
+       50000
+      ],
+      "L": [
+       0.001,
+       0.01,
+       0.1
+      ],
+      "Q": [
+       3,
+       5,
+       10
+      ]
+     },
+     "derived": {
+      "lo": "10^(floor(log10(f0))-1)"
+     },
+     "prompt": "The graph shows $|V_R/V_s|$ of a series RLC bandpass filter with $L$ = {{L|H}}. Find $C$.",
+     "plot": {
+      "x": {
+       "min": "lo",
+       "max": "lo*1000",
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": 0,
+       "max": 1.1,
+       "label": "|V_R / V_s|"
+      },
+      "curves": [
+       {
+        "f": "1/sqrt(1+Q^2*(x/f0-f0/x)^2)"
+       }
+      ]
+     },
+     "answer": "1/((2*pi*f0)^2*L)",
+     "unit": "F",
+     "tolerance": 0.1,
+     "explanation": "Read the resonant frequency at the peak: $f_0$ = {{f0|Hz}}. From $f_0 = 1/(2\\pi\\sqrt{LC})$: $C = 1/((2\\pi f_0)^2L)$ = {{1/((2*pi*f0)^2*L)|F}}."
+    },
+    {
+     "id": "g5",
+     "type": "numeric",
+     "params": {
+      "f0": [
+       2000,
+       5000,
+       10000
+      ],
+      "Q": [
+       2,
+       4
+      ],
+      "L": [
+       0.01,
+       0.05,
+       0.1
+      ],
+      "sh": [
+       0.8,
+       1.2,
+       1.6
+      ]
+     },
+     "derived": {
+      "B": "f0/Q",
+      "fL": "f0*(sqrt(1+1/(4*Q^2))-1/(2*Q))",
+      "fH": "fL+B"
+     },
+     "prompt": "The graph shows $|V_R/V_s|$ of a series RLC bandpass filter with $L$ = {{L|H}}. Find the resistance $R$.",
+     "hint": "For a series RLC circuit, $B = f_0/Q_s = R/(2\\pi L)$.",
+     "plot": {
+      "x": {
+       "min": "f0-sh*B",
+       "max": "f0+(2.4-sh)*B",
+       "label": "f",
+       "unit": "Hz"
+      },
+      "y": {
+       "min": 0,
+       "max": 1.1,
+       "label": "|V_R / V_s|"
+      },
+      "curves": [
+       {
+        "f": "1/sqrt(1+Q^2*(x/f0-f0/x)^2)"
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0.707,
+        "label": "0.707"
+       }
+      ]
+     },
+     "answer": "2*pi*L*B",
+     "unit": "Ω",
+     "tolerance": 0.15,
+     "explanation": "Read the half-power frequencies (where the curve crosses 0.707): $f_L$ ≈ {{fL|Hz}} and $f_H$ ≈ {{fH|Hz}}, so $B$ = {{B|Hz}}. With $Q_s = 2\\pi f_0L/R$ and $B = f_0/Q_s$ we get $B = R/(2\\pi L)$, so $R = 2\\pi LB$ = {{2*pi*L*B|Ω}}."
+    },
+    {
+     "id": "s1",
+     "type": "slider",
+     "params": {
+      "f0": [
+       1000,
+       2000,
+       5000,
+       10000
+      ],
+      "L": [
+       0.001,
+       0.005,
+       0.01
+      ],
+      "q": [
+       2,
+       4,
+       5,
+       10,
+       20
+      ]
+     },
+     "derived": {
+      "C": "1/((2*pi*f0)^2*L)",
+      "B": "f0/q",
+      "Rt": "2*pi*L*B"
+     },
+     "prompt": "A series RLC bandpass filter (output across $R$) has $L$ = {{L|H}} and $C$ = {{C|F}}, so $f_0$ = {{f0|Hz}}. Set $R$ for a bandwidth of {{B|Hz}}.",
+     "plot": {
+      "x": {
+       "min": "0.4*f0",
+       "max": "2.5*f0",
+       "label": "f",
+       "unit": "Hz",
+       "log": true,
+       "ticks": [
+        "0.5*f0",
+        "f0",
+        "2*f0"
+       ]
+      },
+      "y": {
+       "min": 0,
+       "max": 1.1,
+       "label": "|V_R / V_s|"
+      },
+      "sliders": [
+       {
+        "name": "R",
+        "label": "$R$",
+        "min": "2*pi*L*f0/100",
+        "max": "4*pi*L*f0",
+        "log": true,
+        "value": "2*pi*L*f0",
+        "unit": "Ω"
+       }
+      ],
+      "let": {
+       "Q": "2*pi*f0*L/R",
+       "a": "sqrt(1 + 1/(4*Q^2))"
+      },
+      "curves": [
+       {
+        "f": "1/sqrt(1 + Q^2*(x/f0 - f0/x)^2)",
+        "label": "|H|",
+        "labelAt": 0.8
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0.707,
+        "label": "0.707"
+       }
+      ],
+      "vlines": [
+       {
+        "x": "f0*(sqrt(1 + 1/(4*q^2)) - 1/(2*q))",
+        "color": "orange",
+        "reveal": true
+       },
+       {
+        "x": "f0*(sqrt(1 + 1/(4*q^2)) + 1/(2*q))",
+        "color": "orange",
+        "reveal": true
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$B = f_H - f_L$",
+        "value": "f0/Q",
+        "unit": "Hz",
+        "reveal": true
+       },
+       {
+        "label": "$Q_s$",
+        "value": "Q",
+        "reveal": true
+       }
+      ]
+     },
+     "answer": {
+      "R": "Rt"
+     },
+     "tolerance": 0.05,
+     "hint": "$B = f_0/Q_s$ with $Q_s = 2\\pi f_0L/R$.",
+     "explanation": "$B = \\frac{f_0}{Q_s}$ and $Q_s = \\frac{2\\pi f_0L}{R}$, so $B = \\frac{R}{2\\pi L}$ and\n$R = 2\\pi LB$ = 2π × {{L|H}} × {{B|Hz}} = **{{Rt|Ω}}** (then $Q_s$ = {{q}}).\nA smaller $R$ gives a higher $Q_s$ and a narrower peak; $C$ only sets where the peak is."
+    }
+   ]
+  }
+ ]
+}

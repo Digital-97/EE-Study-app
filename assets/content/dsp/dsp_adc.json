@@ -1,0 +1,1134 @@
+{
+  "id": "dsp-adc",
+  "title": "Quantization & Oversampling",
+  "description": "Model A/D and D/A converters as DSP blocks: quantization noise, SQNR, oversampling, noise shaping and anti-aliasing requirements.",
+  "reference": "O&S ch. 4",
+  "study": [
+    {
+      "title": "A/D and D/A as DSP blocks",
+      "body": "A DSP system sees the analog world through two converters. The **A/D** path is an anti-aliasing low-pass filter, a sampler (C/D) and a **quantizer**; the **D/A** path holds each sample for one period $T$ and smooths the resulting staircase. We treat the sampler as ideal and lump every imperfection of the A/D into one additive error: the quantization noise. Notation as in O&S: $\\Omega$ is analog frequency in rad/s, $\\omega = \\Omega T$ discrete-time frequency in rad/sample. Careful: the Discrete-Time Signals & Systems subject (Phillips) used the letters the other way round, $\\Omega$ for discrete time and $\\omega$ for analog frequency.",
+      "formula": "x[n] = x_c(nT), \\qquad \\omega = \\Omega T = 2\\pi\\frac{f}{f_s}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            "label": "x_c(t)"
+          },
+          {
+            "type": "block",
+            "at": [
+              1.8,
+              0
+            ],
+            "size": [
+              1.6,
+              1
+            ],
+            "label": "LPF",
+            "value": "anti-alias"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.6,
+                0
+              ],
+              [
+                3.2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4,
+              0
+            ],
+            "size": [
+              1.6,
+              1
+            ],
+            "label": "C/D",
+            "value": "sampler"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.8,
+                0
+              ],
+              [
+                5.4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              6.2,
+              0
+            ],
+            "size": [
+              1.6,
+              1
+            ],
+            "label": "Q",
+            "value": "quantizer"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                7,
+                0
+              ],
+              [
+                8,
+                0
+              ]
+            ],
+            "label": "x[n]"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                2.4
+              ],
+              [
+                1,
+                2.4
+              ]
+            ],
+            "label": "x[n]"
+          },
+          {
+            "type": "block",
+            "at": [
+              1.8,
+              2.4
+            ],
+            "size": [
+              1.6,
+              1
+            ],
+            "label": "H(z)",
+            "value": "DSP"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.6,
+                2.4
+              ],
+              [
+                3.2,
+                2.4
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4,
+              2.4
+            ],
+            "size": [
+              1.6,
+              1
+            ],
+            "label": "D/A",
+            "value": "hold"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.8,
+                2.4
+              ],
+              [
+                5.4,
+                2.4
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              6.2,
+              2.4
+            ],
+            "size": [
+              1.6,
+              1
+            ],
+            "label": "LPF",
+            "value": "smoothing"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                7,
+                2.4
+              ],
+              [
+                8,
+                2.4
+              ]
+            ],
+            "label": "y_r(t)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: the uniform quantizer",
+      "body": "A $B$-bit quantizer has $2^B$ levels spread over the full-scale range $-X_m \\ldots X_m$, so the step is $\\Delta = 2X_m/2^B$. A **rounding** quantizer picks the nearest level, so the error stays within $\\pm\\Delta/2$ as long as the input is in range; above $X_m - \\Delta/2$ it clips and the error grows. Drag $B$: every extra bit halves $\\Delta$. (O&S counts $B + 1$ bits, a sign bit plus $B$; here $B$ is the total.)",
+      "formula": "\\Delta = \\frac{2X_m}{2^B}, \\qquad |e[n]| \\le \\frac{\\Delta}{2}",
+      "plot": {
+        "x": {
+          "min": -1,
+          "max": 1,
+          "label": "x / X_m"
+        },
+        "y": {
+          "min": -1.15,
+          "max": 1.15,
+          "label": "output / X_m"
+        },
+        "sliders": [
+          {
+            "name": "Bq",
+            "label": "bits $B$",
+            "min": 2,
+            "max": 5,
+            "step": 1,
+            "value": 3
+          }
+        ],
+        "let": {
+          "D": "2/2^Bq"
+        },
+        "curves": [
+          {
+            "f": "clamp(D*round(x/D), -1, 1-D)",
+            "label": "Q(x)",
+            "labelAt": 0.3
+          },
+          {
+            "f": "clamp(D*round(x/D), -1, 1-D) - x",
+            "color": "orange",
+            "label": "error",
+            "labelAt": 0.7
+          }
+        ],
+        "readouts": [
+          {
+            "label": "levels $2^B$",
+            "value": "2^Bq"
+          },
+          {
+            "label": "step $\\Delta / X_m$",
+            "value": "D"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The additive noise model",
+      "body": "For a busy signal that crosses many levels, the error $e[n] = Q(x[n]) - x[n]$ behaves like random noise: **uniformly distributed** between $-\\Delta/2$ and $\\Delta/2$, **white** (uncorrelated from sample to sample) and **uncorrelated with the signal**. The quantizer then acts as an adder, $\\hat{x}[n] = x[n] + e[n]$. A uniform density of width $\\Delta$ has zero mean and variance $\\Delta^2/12$. The model fails for constant or very small inputs, where the error simply follows the signal.",
+      "formula": "\\sigma_e^2 = \\frac{\\Delta^2}{12} = \\frac{X_m^2}{3 \\cdot 2^{2B}}"
+    },
+    {
+      "title": "Signal-to-quantization-noise ratio",
+      "body": "$\\mathrm{SQNR} = 10\\log_{10}(\\sigma_x^2/\\sigma_e^2)$. Substituting $\\sigma_e^2$ gives the rule below: **6.02 dB per bit**, minus the headroom between the range $X_m$ and the signal's rms value $\\sigma_x$. A full-scale sine ($\\sigma_x = X_m/\\sqrt{2}$) gets $6.02B + 1.76$ dB. Example: 12 bits, $\\pm$2.5 V range, a sine of 1 V amplitude: $6.02 \\cdot 12 + 1.76 - 20\\log_{10}(2.5/1)$ = 74.0 − 8.0 = 66.0 dB. A Gaussian signal needs $X_m \\approx 4\\sigma_x$ to avoid clipping and gets $6.02B - 7.3$ dB.",
+      "formula": "\\mathrm{SQNR} = 6.02B + 4.77 - 20\\log_{10}\\frac{X_m}{\\sigma_x}\\ \\text{dB}"
+    },
+    {
+      "title": "D/A conversion and the zero-order hold",
+      "body": "A D/A converter holds each sample for one period $T$, so its output is a staircase: the samples convolved with a rectangular pulse. That pulse has a sinc-shaped frequency response with nulls at multiples of $f_s$. It weakens the spectral images, but it also **droops** inside the signal band, by 3.92 dB at $f_s/2$. The analog smoothing filter removes what is left of the images; the droop is equalised with an $x/\\sin x$ boost, digitally or in the analog filter.",
+      "formula": "\\left|\\frac{H_0(j\\Omega)}{T}\\right| = \\left|\\frac{\\sin(\\Omega T/2)}{\\Omega T/2}\\right| = \\left|\\mathrm{sinc}\\frac{f}{f_s}\\right|",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "f / f_s"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "|H_0| / T"
+        },
+        "curves": [
+          {
+            "f": "abs(sinc(x))",
+            "label": "zero-order hold",
+            "labelAt": 0.4
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0.5,
+            "label": "f_s/2"
+          },
+          {
+            "x": 1,
+            "label": "f_s"
+          },
+          {
+            "x": 2,
+            "label": "2f_s"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Oversampling",
+      "body": "White quantization noise spreads its power $\\sigma_e^2$ evenly over $0 \\ldots f_s/2$. If the signal only occupies $0 \\ldots f_B$ and we sample at $f_s = 2Mf_B$, a digital low-pass filter (followed by decimation) keeps only $1/M$ of the noise. Each doubling of the **oversampling ratio** $M$ gains 3 dB, half a bit, so one extra bit costs a factor 4 in sampling rate. A bonus: the analog anti-aliasing filter gets a wide transition band.",
+      "formula": "\\begin{aligned} \\mathrm{SQNR} &= 6.02B + 1.76 + 10\\log_{10}M \\\\ M &= f_s/(2f_B) \\end{aligned}"
+    },
+    {
+      "title": "Explore: noise shaping",
+      "body": "A **sigma-delta** (ΣΔ) modulator puts the quantizer in a feedback loop with an integrator. The signal passes unchanged, but the quantization error leaves through the high-pass $1 - z^{-1}$: its spectrum is pushed **out of the signal band**, where the decimation filter removes it. With first-order shaping the in-band noise falls as $1/M^3$, 9 dB per doubling of $M$ (1.5 bits); an order-$L$ loop gives $(2L+1) \\cdot 3$ dB per doubling. Drag $M$ and compare the noise left in the band $0 \\ldots \\pi/M$ (relative to $\\sigma_e^2$).",
+      "formula": "\\begin{aligned} \\sigma_{\\text{band}}^2 &\\approx \\sigma_e^2\\,\\pi^2/(3M^3) \\\\ \\Delta\\mathrm{SQNR} &\\approx 30\\log_{10}M - 5.17\\ \\text{dB} \\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "ω/π"
+        },
+        "y": {
+          "min": 0,
+          "max": 4.3,
+          "label": "noise PSD / σ_e²"
+        },
+        "sliders": [
+          {
+            "name": "Mo",
+            "label": "oversampling ratio $M$",
+            "min": 2,
+            "max": 64,
+            "step": 1,
+            "value": 4
+          }
+        ],
+        "curves": [
+          {
+            "f": "1",
+            "color": "grey",
+            "dash": true,
+            "label": "plain quantizer",
+            "labelAt": 0.75
+          },
+          {
+            "f": "4*sin(pi*x/2)^2",
+            "label": "first-order ΣΔ",
+            "labelAt": 0.55
+          }
+        ],
+        "vlines": [
+          {
+            "x": "1/Mo",
+            "label": "π/M"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "in-band noise, oversampling only",
+            "value": "-10*log10(Mo)",
+            "unit": "dB"
+          },
+          {
+            "label": "in-band noise, first-order ΣΔ",
+            "value": "10*log10(2/pi*(pi/Mo - sin(pi/Mo)))",
+            "unit": "dB"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Anti-aliasing filter requirements",
+      "body": "Everything that would alias **into the signal band** must be attenuated below the noise floor, roughly by the SQNR, before the sampler. A tone at $f$ aliases to $|f - kf_s|$, which lands in $0 \\ldots f_B$ only if $f > f_s - f_B$. When a digital filter removes $f_B \\ldots f_s/2$ afterwards, the analog filter may use all of $f_B \\ldots f_s - f_B$ as transition band. An order-$N$ Butterworth with its −3 dB point at $f_B$ gives about $20N\\log_{10}(f/f_B)$ dB well above $f_B$. Example, $f_B$ = 20 kHz and 96 dB: at $f_s$ = 48 kHz (alias edge 28 kHz) this takes $N$ = 33; at 64× oversampling ($f_s$ = 2.56 MHz) $N$ = 3 is enough.",
+      "formula": "20N\\log_{10}\\frac{f_s - f_B}{f_B} \\;\\ge\\; A_{\\text{required}}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dsp-adc-1",
+      "title": "Quantizers and their noise",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Converters as DSP blocks",
+          "body": "Every DSP system that touches the real world has an **A/D** converter at its input and a **D/A** converter at its output. Here we treat them as signal-processing blocks: the A/D samples and **quantizes**, the D/A **holds** and smooths. Notation follows O&S: $\\omega$ is the discrete-time frequency in rad/sample, $\\Omega$ the analog frequency in rad/s, and $\\omega = \\Omega T$. That swaps the letters of the Discrete-Time Signals & Systems subject, which used $\\Omega$ for discrete time.",
+          "formula": "\\omega = \\Omega T = 2\\pi\\frac{f}{f_s}"
+        },
+        {
+          "id": "q1",
+          "type": "orderSteps",
+          "prompt": "Put the blocks of a DSP system in signal order, from analog input to analog output.",
+          "items": [
+            "Anti-aliasing low-pass filter",
+            "Sampler (C/D)",
+            "Quantizer and encoder",
+            "Digital filter $H(z)$",
+            "D/A converter with zero-order hold",
+            "Smoothing (reconstruction) low-pass filter"
+          ],
+          "explanation": "The anti-aliasing filter must act **before** sampling: once a component has aliased, no digital filter can tell it apart from a genuine in-band signal. Sampler and quantizer together form the A/D. After processing, the D/A holds each sample (a staircase) and the analog smoothing filter removes the spectral images around multiples of $f_s$."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The uniform quantizer",
+          "body": "A $B$-bit converter has $2^B$ output levels across its full-scale range $-X_m \\ldots X_m$, so the step is $\\Delta = 2X_m/2^B$. Rounding to the nearest level gives an error of at most $\\Delta/2$ while the input stays in range. Drag $B$ to see the staircase and its error.",
+          "formula": "\\Delta = \\frac{2X_m}{2^B}",
+          "plot": {
+            "x": {
+              "min": -1,
+              "max": 1,
+              "label": "x / X_m"
+            },
+            "y": {
+              "min": -1.15,
+              "max": 1.15,
+              "label": "output / X_m"
+            },
+            "sliders": [
+              {
+                "name": "Bq",
+                "label": "bits $B$",
+                "min": 2,
+                "max": 5,
+                "step": 1,
+                "value": 3
+              }
+            ],
+            "let": {
+              "D": "2/2^Bq"
+            },
+            "curves": [
+              {
+                "f": "clamp(D*round(x/D), -1, 1-D)",
+                "label": "Q(x)",
+                "labelAt": 0.3
+              },
+              {
+                "f": "clamp(D*round(x/D), -1, 1-D) - x",
+                "color": "orange",
+                "label": "error",
+                "labelAt": 0.7
+              }
+            ],
+            "readouts": [
+              {
+                "label": "levels $2^B$",
+                "value": "2^Bq"
+              },
+              {
+                "label": "step $\\Delta / X_m$",
+                "value": "D"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "B": [
+              8,
+              10,
+              12,
+              14,
+              16
+            ],
+            "Xm": [
+              1,
+              2.5,
+              5,
+              10
+            ]
+          },
+          "prompt": "A {{B}}-bit A/D converter has a full-scale range of $\\pm${{Xm|V}}.",
+          "ask": [
+            {
+              "prompt": "Find the quantization step $\\Delta$.",
+              "answer": "2*Xm/2^B",
+              "unit": "V",
+              "explanation": "$\\Delta = \\frac{2X_m}{2^B}$ = 2 × {{Xm|V}} / $2^{ {{B}} }$ = {{2*Xm|V}} / {{2^B||6}} = {{2*Xm/2^B|V}}."
+            },
+            {
+              "prompt": "What is the largest rounding error, assuming no clipping?",
+              "answer": "Xm/2^B",
+              "unit": "V",
+              "explanation": "Rounding picks the nearest level, so the error is at most half a step: $\\Delta/2 = X_m/2^B$ = {{Xm|V}} / {{2^B||6}} = {{Xm/2^B|V}}."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Quantization noise",
+          "body": "For a busy signal the error $e[n]$ looks like noise: uniformly distributed over one step, white, and uncorrelated with the signal. The quantizer then acts as an adder, $\\hat{x}[n] = x[n] + e[n]$, and the noise power is the variance of a uniform distribution of width $\\Delta$.",
+          "formula": "\\sigma_e^2 = \\frac{\\Delta^2}{12}, \\qquad \\sigma_e = \\frac{\\Delta}{\\sqrt{12}}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "B": [
+              8,
+              10,
+              12,
+              14,
+              16
+            ],
+            "Xm": [
+              1,
+              2.5,
+              5,
+              10
+            ]
+          },
+          "prompt": "Find the rms quantization noise $\\sigma_e$ of a {{B}}-bit converter with a range of $\\pm${{Xm|V}} (white-noise model).",
+          "answer": "2*Xm/2^B/sqrt(12)",
+          "unit": "V",
+          "explanation": "$\\Delta$ = 2 × {{Xm|V}} / $2^{ {{B}} }$ = {{2*Xm/2^B|V}}, so $\\sigma_e = \\Delta/\\sqrt{12}$ = {{2*Xm/2^B|V}} / 3.46 = {{2*Xm/2^B/sqrt(12)|V}}."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "The white-noise model describes the quantization error well for a constant (DC) input that sits between two levels.",
+          "answer": false,
+          "explanation": "For a constant input every sample has the same error: the 'noise' is a constant offset, fully correlated with the signal and not white at all. The model needs a signal that moves across many levels, so that the error looks random from sample to sample. Adding a small random **dither** before the quantizer restores that behaviour."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "One bit is added to an A/D converter with the same full-scale range. What happens to the quantization noise power $\\sigma_e^2$?",
+          "options": [
+            "It drops by a factor 4 (−6.02 dB)",
+            "It drops by a factor 2 (−3.01 dB)",
+            "It does not change; only the range matters",
+            "It drops by a factor 16 (−12 dB)"
+          ],
+          "answer": 0,
+          "explanation": "One more bit doubles the number of levels, so $\\Delta$ halves. The noise power goes with $\\Delta^2$: a factor 4, or $10\\log_{10}4$ = 6.02 dB. That is where '6 dB per bit' comes from."
+        }
+      ]
+    },
+    {
+      "id": "dsp-adc-2",
+      "title": "SQNR, oversampling and noise shaping",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Signal-to-quantization-noise ratio",
+          "body": "Compare the signal power with $\\sigma_e^2 = \\Delta^2/12$. For a sine that just fills the range ($\\sigma_x^2 = X_m^2/2$) the ratio depends only on the number of bits: $\\sigma_x^2/\\sigma_e^2 = 1.5 \\cdot 2^{2B}$. Each bit halves $\\Delta$ and adds 6.02 dB.",
+          "formula": "\\mathrm{SQNR}_{\\text{full-scale sine}} = 6.02B + 1.76\\ \\text{dB}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "B": [
+              8,
+              10,
+              12,
+              14,
+              16,
+              18,
+              20,
+              24
+            ]
+          },
+          "prompt": "Find the SQNR of an ideal {{B}}-bit converter for a full-scale sine.",
+          "answer": "6.02*B + 1.76",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "explanation": "$\\sigma_x^2 = X_m^2/2$ and $\\sigma_e^2 = \\Delta^2/12$ with $\\Delta = 2X_m/2^B$, so $\\mathrm{SQNR} = 10\\log_{10}(1.5 \\cdot 2^{2B})$ = 6.02 × {{B}} + 1.76 = {{6.02*B+1.76|dB}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "S": [
+              55,
+              65,
+              75,
+              85,
+              95,
+              105
+            ]
+          },
+          "derived": {
+            "B0": "(S - 1.76)/6.02"
+          },
+          "require": "min(B0 - floor(B0), ceil(B0) - B0) - 0.1",
+          "prompt": "A full-scale sine must be digitized with an SQNR of at least {{S}} dB. How many bits does the converter need?",
+          "answer": "ceil(B0)",
+          "unit": "bits",
+          "tolerance": 0.001,
+          "explanation": "$6.02B + 1.76 \\ge$ {{S}} gives $B \\ge$ ({{S}} − 1.76) / 6.02 = {{B0||3}}, so $B$ = {{ceil(B0)}} bits (giving {{6.02*ceil(B0)+1.76|dB}})."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Oversampling",
+          "body": "The white noise power $\\sigma_e^2$ is spread evenly from 0 to $f_s/2$. Sample $M$ times faster than needed ($f_s = 2Mf_B$) and the signal band $0 \\ldots f_B$ holds only $1/M$ of it. A digital low-pass filter removes the rest before the rate is reduced again.",
+          "formula": "\\Delta\\mathrm{SQNR} = 10\\log_{10}M\\ \\text{dB}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "M": [
+              4,
+              8,
+              16,
+              32,
+              64,
+              256
+            ]
+          },
+          "prompt": "A converter oversamples by $M$ = {{M}} (no noise shaping); a digital filter removes the noise outside the signal band.",
+          "ask": [
+            {
+              "prompt": "By how many dB does this improve the SQNR?",
+              "answer": "10*log10(M)",
+              "unit": "dB",
+              "explanation": "Only $1/M$ of the white noise falls in the signal band: $10\\log_{10}M$ = 10 log₁₀ {{M}} = {{10*log10(M)|dB}}."
+            },
+            {
+              "prompt": "How many bits of extra resolution is that worth?",
+              "answer": "log2(M)/2",
+              "unit": "bits",
+              "explanation": "$10\\log_{10}M$ = {{10*log10(M)|dB}}, and one bit is worth 6.02 dB: {{10*log10(M)|dB}} / 6.02 = $\\tfrac{1}{2}\\log_2 M$ = {{log2(M)/2}} bits. A factor 4 in rate buys one bit."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Noise shaping",
+          "body": "A sigma-delta modulator feeds the quantization error back so that it leaves through the high-pass filter $1 - z^{-1}$. Its spectrum becomes $4\\sigma_e^2\\sin^2(\\omega/2)$: tiny near DC, large near $\\omega = \\pi$. The decimation filter cuts away the high-frequency part. Drag $M$: the noise left in the band shrinks much faster than with plain oversampling.",
+          "formula": "\\Delta\\mathrm{SQNR} \\approx 30\\log_{10}M - 5.17\\ \\text{dB}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": 0,
+              "max": 4.3,
+              "label": "noise PSD / σ_e²"
+            },
+            "sliders": [
+              {
+                "name": "Mo",
+                "label": "oversampling ratio $M$",
+                "min": 2,
+                "max": 64,
+                "step": 1,
+                "value": 4
+              }
+            ],
+            "curves": [
+              {
+                "f": "1",
+                "color": "grey",
+                "dash": true,
+                "label": "plain quantizer",
+                "labelAt": 0.75
+              },
+              {
+                "f": "4*sin(pi*x/2)^2",
+                "label": "first-order ΣΔ",
+                "labelAt": 0.55
+              }
+            ],
+            "vlines": [
+              {
+                "x": "1/Mo",
+                "label": "π/M"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "in-band noise, oversampling only",
+                "value": "-10*log10(Mo)",
+                "unit": "dB"
+              },
+              {
+                "label": "in-band noise, first-order ΣΔ",
+                "value": "10*log10(2/pi*(pi/Mo - sin(pi/Mo)))",
+                "unit": "dB"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "M": [
+              16,
+              32,
+              64,
+              128,
+              256
+            ]
+          },
+          "prompt": "A first-order ΣΔ modulator runs at an oversampling ratio $M$ = {{M}}. By how many dB do noise shaping and decimation improve the SQNR, compared with a Nyquist-rate converter that uses the same quantizer?",
+          "answer": "30*log10(M) - 5.17",
+          "unit": "dB",
+          "explanation": "The in-band noise is about $\\sigma_e^2\\pi^2/(3M^3)$, so the gain is $10\\log_{10}(3M^3/\\pi^2) = 30\\log_{10}M - 5.17$ = 30 × {{log10(M)||4}} − 5.17 = {{30*log10(M)-5.17|dB}}. Plain oversampling would give only {{10*log10(M)|dB}}."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each change to the SQNR improvement it gives.",
+          "pairs": [
+            [
+              "Doubling $M$, plain oversampling",
+              "+3 dB"
+            ],
+            [
+              "Doubling $M$, first-order noise shaping",
+              "+9 dB"
+            ],
+            [
+              "Doubling $M$, second-order noise shaping",
+              "+15 dB"
+            ],
+            [
+              "One extra quantizer bit",
+              "+6 dB"
+            ]
+          ],
+          "explanation": "Plain oversampling: in-band noise $\\propto 1/M$, so $10\\log_{10}2$ = 3 dB per doubling. An order-$L$ shaping loop makes it $\\propto 1/M^{2L+1}$: 9 dB for $L$ = 1 and 15 dB for $L$ = 2. An extra bit halves $\\Delta$ and quarters the noise power: 6 dB."
+        }
+      ]
+    },
+    {
+      "id": "dsp-adc-3",
+      "title": "Converter calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "B": [
+              12,
+              14,
+              16,
+              24
+            ],
+            "L": [
+              6,
+              10,
+              20,
+              30,
+              40
+            ]
+          },
+          "prompt": "A {{B}}-bit converter digitizes a sine whose peak is {{L}} dB below full scale (−{{L}} dBFS). What is the SQNR?",
+          "answer": "6.02*B + 1.76 - L",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "explanation": "A full-scale sine would give 6.02 × {{B}} + 1.76 = {{6.02*B+1.76|dB}}. The noise floor stays put while the signal power drops by {{L}} dB: SQNR = {{6.02*B+1.76|dB}} − {{L}} = {{6.02*B+1.76-L|dB}}. Headroom costs resolution, dB for dB."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "S": [
+              62,
+              68,
+              74,
+              81,
+              86,
+              92
+            ]
+          },
+          "prompt": "Tested with a full-scale sine, a converter shows a signal-to-noise-and-distortion ratio (SINAD) of {{S}} dB. What is its effective number of bits (ENOB)?",
+          "answer": "(S - 1.76)/6.02",
+          "unit": "bits",
+          "explanation": "Invert the full-scale-sine rule: ENOB = (SINAD − 1.76) / 6.02 = ({{S}} − 1.76) / 6.02 = {{(S-1.76)/6.02}} bits. Noise and distortion of the real converter count as extra quantization noise."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "k": [
+              2,
+              3,
+              4
+            ],
+            "fB": [
+              4000,
+              20000,
+              1000000
+            ]
+          },
+          "prompt": "Plain oversampling (no noise shaping) must add {{k}} bits of resolution to a converter for a signal band of 0 to {{fB|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What oversampling ratio $M$ is needed?",
+              "answer": "4^k",
+              "unit": "",
+              "explanation": "Each doubling of $M$ adds 3 dB = ½ bit, so $\\tfrac{1}{2}\\log_2 M$ = {{k}} gives $M = 4^{ {{k}} }$ = {{4^k}}."
+            },
+            {
+              "prompt": "What sampling rate is needed?",
+              "answer": "2*fB*4^k",
+              "unit": "Hz",
+              "explanation": "$M = 4^{ {{k}} }$ = {{4^k}}, and $f_s = 2Mf_B$ = 2 × {{4^k}} × {{fB|Hz}} = {{2*fB*4^k|Hz}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.1,
+              0.2,
+              0.25,
+              0.3,
+              0.4,
+              0.45
+            ],
+            "fs": [
+              8000,
+              44100,
+              48000
+            ]
+          },
+          "derived": {
+            "f": "r*fs"
+          },
+          "prompt": "A D/A converter with a zero-order hold runs at {{fs|Hz}}. How much does the hold change the level of a {{f|Hz|4}} tone? Give the gain in dB (negative for a loss).",
+          "answer": "20*log10(sinc(r))",
+          "unit": "dB",
+          "tolerance": 0.03,
+          "absTolerance": 0.05,
+          "explanation": "$|H_0|/T = \\left|\\frac{\\sin(\\pi f/f_s)}{\\pi f/f_s}\\right|$ with $f/f_s$ = {{r}}: sin({{pi*r||3}} rad) / {{pi*r||3}} = {{sinc(r)||4}}, i.e. 20 log₁₀ {{sinc(r)||4}} = {{20*log10(sinc(r))|dB}}. The droop grows towards $f_s/2$, where it reaches −3.92 dB."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows the quantization-noise spectrum at the output of a first-order sigma-delta modulator? (Horizontal axis: $\\omega$ from 0 to $\\pi$.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 4.3,
+                "label": "PSD / σ_e²"
+              },
+              "curves": [
+                {
+                  "f": "1"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 4.3,
+                "label": "PSD / σ_e²"
+              },
+              "curves": [
+                {
+                  "f": "4*sin(pi*x/2)^2"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 4.3,
+                "label": "PSD / σ_e²"
+              },
+              "curves": [
+                {
+                  "f": "4*cos(pi*x/2)^2"
+                }
+              ]
+            }
+          ],
+          "answer": 1,
+          "explanation": "The error leaves through $1 - z^{-1}$, so its spectrum is $\\sigma_e^2|1 - e^{-j\\omega}|^2 = 4\\sigma_e^2\\sin^2(\\omega/2)$: zero at DC and $4\\sigma_e^2$ at $\\omega = \\pi$. The flat line is a plain quantizer; the curve that peaks at DC would push the noise **into** a low-pass signal band."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              48000,
+              96000,
+              192000,
+              384000
+            ],
+            "A": [
+              60,
+              80,
+              96
+            ]
+          },
+          "derived": {
+            "ratio": "(fs - 20000)/20000",
+            "N0": "A/(20*log10(ratio))"
+          },
+          "require": "min(N0 - floor(N0), ceil(N0) - N0) - 0.08",
+          "prompt": "An audio A/D converter (signal band 0 to 20 kHz) samples at {{fs|Hz}}; a digital filter removes everything above 20 kHz afterwards. The anti-aliasing filter is an order-$N$ Butterworth with its −3 dB point at 20 kHz, giving about $20N\\log_{10}(f/20\\,\\text{kHz})$ dB at $f$. Find the smallest $N$ that gives {{A}} dB at the first frequency that would alias into the signal band.",
+          "answer": "ceil(N0)",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "Frequencies above $f_s - f_B$ = {{fs-20000|Hz}} fold into 0 to 20 kHz. There the filter gives $20N\\log_{10}$({{fs-20000|Hz}} / 20 kHz) = {{20*log10(ratio)|dB}} × $N$, which must reach {{A}} dB: $N \\ge$ {{N0||3}}, so $N$ = {{ceil(N0)}}."
+        },
+        {
+          "id": "q7",
+          "type": "slider",
+          "params": {
+            "X": [
+              30,
+              40,
+              50,
+              60
+            ]
+          },
+          "derived": {
+            "Mt": "10^((X + 5.17)/30)"
+          },
+          "prompt": "A first-order ΣΔ modulator must improve the SQNR by {{X}} dB over a Nyquist-rate converter with the same quantizer. Set the oversampling ratio $M$ (the dashed line is the band edge $\\pi/M$).",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": 0,
+              "max": 4.3,
+              "label": "noise PSD / σ_e²"
+            },
+            "sliders": [
+              {
+                "name": "Mo",
+                "label": "$M$",
+                "min": 2,
+                "max": 256,
+                "log": true,
+                "value": 4
+              }
+            ],
+            "curves": [
+              {
+                "f": "1",
+                "color": "grey",
+                "dash": true,
+                "label": "plain quantizer",
+                "labelAt": 0.75
+              },
+              {
+                "f": "4*sin(pi*x/2)^2",
+                "label": "first-order ΣΔ",
+                "labelAt": 0.55
+              }
+            ],
+            "vlines": [
+              {
+                "x": "1/Mo",
+                "label": "π/M"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "SQNR gain $30\\log_{10}M - 5.17$",
+                "value": "30*log10(Mo) - 5.17",
+                "unit": "dB",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "Mo": "Mt"
+          },
+          "tolerance": 0.06,
+          "explanation": "$30\\log_{10}M - 5.17$ = {{X}} gives $M = 10^{({{X}} + 5.17)/30}$ = {{Mt||3}}; in practice you would round up to a power of 2. Plain oversampling would need $M = 10^{ {{X/10}} }$ for the same gain."
+        }
+      ]
+    },
+    {
+      "id": "dsp-adc-4",
+      "title": "Designing a converter",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "B": [
+              1,
+              2,
+              4
+            ],
+            "fs": [
+              2560000,
+              5120000,
+              10240000
+            ]
+          },
+          "derived": {
+            "M": "fs/40000",
+            "S": "6.02*B + 1.76 + 30*log10(fs/40000) - 5.17"
+          },
+          "prompt": "A first-order ΣΔ audio converter (signal band 0 to 20 kHz) uses a {{B}}-bit internal quantizer and samples at {{fs|Hz}}. Use the linear noise model and a full-scale sine.",
+          "ask": [
+            {
+              "prompt": "Estimate the SQNR after the decimation filter.",
+              "answer": "S",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "explanation": "$M = f_s/(2f_B)$ = {{fs|Hz}} / 40 kHz = {{M}}. The quantizer alone: 6.02 × {{B}} + 1.76 = {{6.02*B+1.76|dB}}. Noise shaping adds $30\\log_{10}M - 5.17$ = {{30*log10(M)-5.17|dB}}. Total ≈ {{S|dB}}."
+            },
+            {
+              "prompt": "How many effective bits is that?",
+              "answer": "(S - 1.76)/6.02",
+              "unit": "bits",
+              "explanation": "$M$ = {{M}}, SQNR ≈ {{6.02*B+1.76|dB}} + {{30*log10(M)-5.17|dB}} = {{S|dB}}. ENOB = (SQNR − 1.76) / 6.02 = {{(S-1.76)/6.02}} bits, from a {{B}}-bit quantizer."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "M": [
+              8,
+              16,
+              32,
+              64
+            ]
+          },
+          "prompt": "A first-order ΣΔ modulator runs at oversampling ratio $M$ = {{M}}. What oversampling ratio would plain oversampling (no noise shaping) need for the same SQNR gain?",
+          "answer": "3*M^3/pi^2",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "Equal gains: $10\\log_{10}M' = 30\\log_{10}M - 5.17 = 10\\log_{10}(3M^3/\\pi^2)$, so $M' = 3M^3/\\pi^2$ = 3 × {{M^3||5}} / 9.87 = {{3*M^3/pi^2||3}}. Noise shaping is what lets audio converters get away with 1-bit to 5-bit quantizers."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "N": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "fs": [
+              2560000,
+              3072000,
+              6144000
+            ]
+          },
+          "derived": {
+            "ratio": "(fs - 20000)/20000"
+          },
+          "prompt": "An oversampled A/D converter for a 0 to 20 kHz band samples at {{fs|Hz}}. Its anti-aliasing filter is an order-{{N}} Butterworth with the −3 dB point at 20 kHz (about $20N\\log_{10}(f/f_B)$ dB well above $f_B$). How much does it attenuate the lowest frequency that aliases into the signal band?",
+          "answer": "20*N*log10(ratio)",
+          "unit": "dB",
+          "explanation": "The lowest frequency that folds into 0 to 20 kHz is $f_s - f_B$ = {{fs-20000|Hz}}. Attenuation ≈ 20 × {{N}} × log₁₀({{ratio||4}}) = {{20*N*log10(ratio)|dB}}: a simple analog filter is enough when the sampling rate is high."
+        },
+        {
+          "id": "c4",
+          "type": "trueFalse",
+          "prompt": "In an oversampling converter followed by a digital decimation filter, the analog anti-aliasing filter only has to reach its full attenuation at $f_s - f_B$, not already at $f_s/2$.",
+          "answer": true,
+          "explanation": "Components between $f_s/2$ and $f_s - f_B$ do alias, but they land between $f_B$ and $f_s/2$: outside the signal band, where the digital filter removes them. Only what folds into $0 \\ldots f_B$ does harm, and that starts at $f_s - f_B$."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "S": [
+              70,
+              75,
+              90,
+              100
+            ],
+            "M": [
+              4,
+              16,
+              64,
+              256
+            ]
+          },
+          "derived": {
+            "B0": "(S - 1.76 - 10*log10(M))/6.02"
+          },
+          "require": "min(B0 - floor(B0), ceil(B0) - B0) - 0.1",
+          "prompt": "After decimation, a converter must reach {{S}} dB SQNR for a full-scale sine using plain oversampling with $M$ = {{M}}. How many bits does its quantizer need?",
+          "answer": "ceil(B0)",
+          "unit": "bits",
+          "tolerance": 0.001,
+          "explanation": "$6.02B + 1.76 + 10\\log_{10}M \\ge$ {{S}}, with $10\\log_{10}$ {{M}} = {{10*log10(M)||3}} dB: $B \\ge$ ({{S}} − 1.76 − {{10*log10(M)||3}}) / 6.02 = {{B0||3}}, so $B$ = {{ceil(B0)}} bits."
+        },
+        {
+          "id": "c6",
+          "type": "multipleChoice",
+          "prompt": "An audio converter uses a first-order ΣΔ loop at $M$ = 64. Which change improves the in-band SQNR the most?",
+          "options": [
+            "Doubling the oversampling ratio to $M$ = 128",
+            "Adding one bit to the internal quantizer",
+            "Dropping the loop and oversampling plainly at $M$ = 128"
+          ],
+          "answer": 0,
+          "explanation": "With first-order shaping the in-band noise falls as $1/M^3$: doubling $M$ gains $30\\log_{10}2$ = 9 dB, more than the 6.02 dB of an extra bit. Dropping the noise shaping would be a disaster: plain 128× oversampling gains only $10\\log_{10}128$ = 21 dB, against $30\\log_{10}64 - 5.17$ = 49 dB with the loop."
+        }
+      ]
+    }
+  ]
+}

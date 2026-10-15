@@ -1,0 +1,1907 @@
+{
+ "id": "emc-filtering",
+ "title": "Balancing, Filtering & Decoupling",
+ "description": "Reject common-mode noise by balance, design filters for the impedances they sit between, and decouple analog and digital supplies and the mains.",
+ "reference": "Ott ch. 4, 11, §13.3",
+ "study": [
+  {
+   "title": "Balanced circuits and CMRR",
+   "body": "A circuit is **balanced** when both signal conductors, and everything connected to them, have the same impedance to ground. Noise then couples equally into both wires: it is **common mode** and cancels in a differential load. Any imbalance converts part of $V_{cm}$ into a differential voltage $V_{dm}$; with a source imbalance $\\Delta R_s$ and a balanced load $R_L$ per side (signal source not drawn), $\\mathrm{CMRR} \\approx 20\\log(R_L/\\Delta R_s)$. Balancing and shielding are independent, so their dB values add.",
+   "formula": "\\mathrm{CMRR} = 20\\log\\frac{V_{cm}}{V_{dm}} \\approx 20\\log\\frac{R_L}{\\Delta R_s}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       4
+      ],
+      "to": [
+       0,
+       2
+      ],
+      "label": "V_{cm}"
+     },
+     {
+      "type": "ground",
+      "at": [
+       0,
+       4
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        1,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       1,
+       2
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        1,
+        2
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "R_s+ΔR_s"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       2
+      ],
+      "to": [
+       3,
+       2
+      ],
+      "label": "R_s",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       6,
+       0
+      ],
+      "to": [
+       6,
+       4
+      ],
+      "label": "R_L"
+     },
+     {
+      "type": "ground",
+      "at": [
+       6,
+       4
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        2
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4,
+       2
+      ],
+      "to": [
+       4,
+       4
+      ],
+      "label": "R_L"
+     },
+     {
+      "type": "ground",
+      "at": [
+       4,
+       4
+      ]
+     },
+     {
+      "type": "text",
+      "at": [
+       4.6,
+       1.2
+      ],
+      "label": "V_{dm}"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Differential and instrumentation amplifiers",
+   "body": "A unity-gain difference amplifier made of four resistors with tolerance $p$ has a worst-case CMRR of about $20\\log(1/2p)$: 54 dB with 0.1 % resistors. Its common-mode input resistance is only about $R_1 + R_2$ per input, so an unbalanced source $R_s$ limits the CMRR to about $20\\log\\frac{R_1+R_2}{R_s}$, ≈ $20\\log(R_2/R_s)$ for a high-gain stage ($R_2 \\gg R_1$). An **instrumentation amplifier** puts all the gain in two high-impedance buffers **before** the unity-gain difference stage, so the CMRR improves by the gain. Ground a long input cable's shield at the source end: grounded at the amplifier, the cable capacitance shunts the high common-mode input impedance (a trade-off, since emissions favour grounding both ends).",
+   "formula": "\\mathrm{CMRR}_{\\text{in-amp}} \\approx 20\\log\\frac{A_{dm}}{2p}"
+  },
+  {
+   "title": "Filters need an impedance mismatch",
+   "body": "A **series** element only attenuates if its impedance is large compared with $Z_S + Z_L$; a **shunt** element only if it is small compared with $Z_S \\parallel Z_L$. Low source and high load impedance (typical for common-mode noise: PCB ground → cable antenna) needs an L-filter: series ferrite or inductor facing the low side, capacitor to chassis facing the high side. With a series $Z$ and a shunt $C$ in each line, common mode sees $Z/2$ and $2C$, the differential signal $2Z$ and $C/2$; so the series part is made a **common-mode choke**. Parasitics turn every low-pass filter into a high-pass above some frequency: layout matters.",
+   "formula": "\\begin{aligned}|Z_{series}| &\\gg Z_S + Z_L\\\\ |Z_{shunt}| &\\ll Z_S \\parallel Z_L\\end{aligned}"
+  },
+  {
+   "title": "Explore: damping an LC supply filter",
+   "body": "An RC decoupling filter costs supply voltage; an LC filter attenuates more (40 dB/decade above $f_r$) with hardly any DC drop, but it **resonates** and can amplify noise near $f_r$. The peak is set by the damping $\\zeta = \\frac{R}{2}\\sqrt{C/L}$, with $R$ the total series resistance; keep $\\zeta \\geq 0.5$ (peak ≈ 1.2 dB). Here $L$ = 10 µH and $C$ = 10 µF ($f_r$ ≈ 15.9 kHz): drag $R$ (grey: an RC filter with the same corner). From a noise point of view a dissipative (RC) filter is preferred: it turns noise into heat instead of moving it into an inductor's field.",
+   "formula": "f_r = \\frac{1}{2\\pi\\sqrt{LC}}, \\qquad \\zeta = \\frac{R}{2}\\sqrt{\\frac{C}{L}}",
+   "plot": {
+    "x": {
+     "min": 1000,
+     "max": 300000,
+     "label": "f",
+     "unit": "Hz",
+     "log": true
+    },
+    "y": {
+     "min": -50,
+     "max": 25,
+     "label": "|H| (dB)"
+    },
+    "sliders": [
+     {
+      "name": "R",
+      "label": "$R$",
+      "min": 0.05,
+      "max": 3,
+      "step": 0.01,
+      "value": 0.1,
+      "unit": "Ω"
+     }
+    ],
+    "let": {
+     "fr": "1/(2*pi*sqrt(10e-6*10e-6))",
+     "z": "R/2",
+     "pk": "if(0.7071 - z, 20*log10(1/(2*z*sqrt(1 - z^2))), 0)"
+    },
+    "curves": [
+     {
+      "f": "-10*log10((1 - (x/fr)^2)^2 + (2*z*x/fr)^2)",
+      "label": "LC filter",
+      "labelAt": 0.75
+     },
+     {
+      "f": "-10*log10(1 + (x/fr)^2)",
+      "color": "grey",
+      "dash": true
+     }
+    ],
+    "hlines": [
+     {
+      "y": 0
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$\\zeta$",
+      "value": "z"
+     },
+     {
+      "label": "peak",
+      "value": "pk",
+      "unit": "dB"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Decoupling digital ICs",
+   "body": "Switching CMOS outputs charge their loads: $I = nC_LV_{CC}/t_r$, a roughly triangular pulse $2t_r$ wide. A local capacitor supplies this charge while the rail may drop at most $\\Delta V$. But a decoupling capacitor is a series **LC network**: its ESL (0.5–2 nH for SMD) plus pads, traces and vias (a PCB trace roughly 0.4–0.6 nH per mm, a through via about 0.8 nH) and the IC package. Above $f_r$ the network is inductive and its capacitance value no longer matters: only less inductance helps.",
+   "formula": "I = \\frac{nC_LV_{CC}}{t_r}, \\qquad C \\geq \\frac{\\Delta I\\,\\Delta t}{\\Delta V}"
+  },
+  {
+   "title": "Explore: many capacitors and antiresonance",
+   "body": "$n$ identical capacitors, spread out so their loops do not couple, give $nC$ and $L/n$: lower impedance at all high frequencies. Mixing values adds a dip but also a **parallel resonance** (antiresonance) between the dips, where the large capacitor is already inductive and the small one still capacitive. Drag $C_2$ (each branch 2 nH, 20 mΩ). Design for a **target impedance** $Z_t = k\\,\\Delta V/\\Delta I$ up to the knee $1/(\\pi t_r)$, which needs $n \\geq 2L/(Z_t t_r)$. Ott takes $k$ = 2, since only about half of the transient current lies below the knee ($k$ = 1 is the strict choice). Bulk capacitors (5–100 µF, more than the sum of the local ones) cover the low frequencies.",
+   "formula": "Z_t = k\\,\\frac{\\Delta V}{\\Delta I}, \\qquad n \\geq \\frac{2L}{Z_t\\,t_r}",
+   "plot": {
+    "x": {
+     "min": 1000000.0,
+     "max": 1000000000.0,
+     "label": "f",
+     "unit": "Hz",
+     "log": true
+    },
+    "y": {
+     "min": 0.01,
+     "max": 100,
+     "label": "|Z|",
+     "unit": "Ω",
+     "log": true
+    },
+    "sliders": [
+     {
+      "name": "C2",
+      "label": "$C_2$",
+      "min": 1e-09,
+      "max": 1e-07,
+      "log": true,
+      "value": 1e-09,
+      "unit": "F"
+     }
+    ],
+    "curves": [
+     {
+      "f": "sqrt(0.02^2 + (2*pi*x*2e-9 - 1/(2*pi*x*1e-7))^2)",
+      "color": "grey",
+      "dash": true,
+      "label": "100 nF alone",
+      "labelAt": 0.93
+     },
+     {
+      "f": "sqrt((0.02^2 - (2*pi*x*2e-9 - 1/(2*pi*x*1e-7))*(2*pi*x*2e-9 - 1/(2*pi*x*C2)))^2 + (0.02*((2*pi*x*2e-9 - 1/(2*pi*x*1e-7))+(2*pi*x*2e-9 - 1/(2*pi*x*C2))))^2)/sqrt((2*0.02)^2 + ((2*pi*x*2e-9 - 1/(2*pi*x*1e-7))+(2*pi*x*2e-9 - 1/(2*pi*x*C2)))^2)",
+      "label": "100 nF ∥ C_2",
+      "labelAt": 0.15
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$f_{r1}$ (100 nF)",
+      "value": "1/(2*pi*sqrt(2e-9*1e-7))",
+      "unit": "Hz"
+     },
+     {
+      "label": "$f_{r2}$",
+      "value": "1/(2*pi*sqrt(2e-9*C2))",
+      "unit": "Hz"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Power-line filters",
+   "body": "A mains filter has a **common-mode** section, a choke $L_{CM}$ (typically 2–10 mH) with **Y capacitors** from each line to the chassis, and a **differential-mode** section, the **X capacitor** across the lines with the choke's leakage inductance. The Y capacitors leak current to protective earth, $I = 2\\pi fC_YV$, which safety standards limit (0.5 mA to a few mA), so they stay at a few nF. Conducted emissions are measured with a **LISN**, which gives each line a defined 50 Ω. Mount the filter where the cord enters, with its case bonded directly to the chassis.",
+   "formula": "I_{leak} = 2\\pi f C_Y V",
+   "circuit": {
+    "elements": [
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       0
+      ],
+      "label": "L",
+      "flip": true
+     },
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       4
+      ],
+      "label": "N",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        4
+       ],
+       [
+        1,
+        4
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       1,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       1,
+       4
+      ]
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       1,
+       4
+      ],
+      "label": "C_X"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "L_{CM}"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       1,
+       4
+      ],
+      "to": [
+       3,
+       4
+      ],
+      "label": "L_{CM}",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        4
+       ],
+       [
+        6,
+        4
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       4,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       4,
+       4
+      ]
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       4,
+       0
+      ],
+      "to": [
+       4,
+       2
+      ],
+      "label": "C_Y"
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       4,
+       4
+      ],
+      "to": [
+       4,
+       2
+      ],
+      "label": "C_Y",
+      "flip": true
+     },
+     {
+      "type": "node",
+      "at": [
+       4,
+       2
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        2
+       ],
+       [
+        5,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "ground",
+      "at": [
+       5,
+       2
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       0
+      ],
+      "label": "to PSU"
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       4
+      ],
+      "label": "to PSU"
+     }
+    ]
+   }
+  }
+ ],
+ "lessons": [
+  {
+   "id": "emc-filtering-1",
+   "title": "Balance and filters",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Balanced circuits",
+     "body": "In a **balanced** circuit both conductors, and the source and load connected to them, have the same impedance to ground. Noise picked up by the pair is then the same on both wires (**common mode**), and a differential load ignores it. A circuit with a grounded return conductor is unbalanced (single-ended).",
+     "formula": "V_{dm} = V_1 - V_2, \\qquad V_{cm} = \\frac{V_1 + V_2}{2}"
+    },
+    {
+     "id": "q1",
+     "type": "trueFalse",
+     "prompt": "A source has 100 Ω in series with each output terminal and drives a load with 10 kΩ from each input to ground. One of the two source voltages is zero. This circuit is balanced.",
+     "answer": true,
+     "explanation": "Balance is about the **impedances** to ground, not the signal voltages. Both conductors see 100 Ω + 10 kΩ, so noise couples equally into both. One (or even both) of the source voltages may be zero and the circuit is still balanced."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Common-mode rejection ratio",
+     "body": "No circuit is perfectly balanced, so a common-mode voltage $V_{cm}$ produces a small differential voltage $V_{dm}$ across the load. The CMRR says how much smaller it is. 40–80 dB is a realistic value for a well-designed circuit; more requires trimming and special cables.",
+     "formula": "\\mathrm{CMRR} = 20\\log\\frac{V_{cm}}{V_{dm}}\\ \\text{dB}"
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Vcm": [
+       0.5,
+       1,
+       2,
+       5
+      ],
+      "Vdm": [
+       0.0001,
+       0.0002,
+       0.0005,
+       0.001,
+       0.002
+      ]
+     },
+     "prompt": "A ground-potential difference puts {{Vcm|V}} of common-mode voltage on a balanced pair. The load sees {{Vdm|V}} of differential noise. What is the CMRR?",
+     "answer": "20*log10(Vcm/Vdm)",
+     "unit": "dB",
+     "explanation": "$\\mathrm{CMRR} = 20\\log(V_{cm}/V_{dm})$ = 20 log({{Vcm|V}} / {{Vdm|V}}) = 20 log({{Vcm/Vdm||3}}) = {{20*log10(Vcm/Vdm)|dB}}."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Source unbalance",
+     "body": "Often the load is balanced but the source is not. The common-mode voltage drives current through both legs; the difference $\\Delta R_s$ between the source resistances turns it into a differential voltage. For $R_L \\gg R_s$ the CMRR depends only on the ratio below. A single-ended source (one side grounded) has $\\Delta R_s = R_s$. Improve it by reducing the imbalance or by raising the common-mode load resistance.",
+     "formula": "\\mathrm{CMRR} \\approx 20\\log\\frac{R_L}{\\Delta R_s}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         2
+        ],
+        "label": "V_{cm}"
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          1,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         1,
+         2
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          1,
+          2
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_s+ΔR_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         2
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_s",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         4
+        ],
+        "label": "R_L"
+       },
+       {
+        "type": "ground",
+        "at": [
+         6,
+         4
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         4
+        ],
+        "label": "R_L"
+       },
+       {
+        "type": "ground",
+        "at": [
+         4,
+         4
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         4.6,
+         1.2
+        ],
+        "label": "V_{dm}"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "RL": [
+       10000,
+       47000,
+       100000,
+       1000000
+      ],
+      "dRs": [
+       10,
+       50,
+       100,
+       600
+      ]
+     },
+     "require": "RL/dRs - 99",
+     "prompt": "A single-ended sensor with {{dRs|Ω}} output resistance feeds a balanced input with {{RL|Ω}} from each input to ground. Estimate the CMRR.",
+     "answer": "20*log10(RL/dRs)",
+     "unit": "dB",
+     "explanation": "One side of the source is grounded, so the whole source resistance is the imbalance: $\\Delta R_s$ = {{dRs|Ω}}. $\\mathrm{CMRR} \\approx 20\\log(R_L/\\Delta R_s)$ = 20 log({{RL|Ω}} / {{dRs|Ω}}) = {{20*log10(RL/dRs)|dB}}."
+    },
+    {
+     "id": "i4",
+     "type": "info",
+     "title": "Filters work by mismatch",
+     "body": "A filter attenuates by putting an impedance mismatch in the noise path. A **series** element only helps if its impedance is large compared with $Z_S + Z_L$; a **shunt** element only if it is small compared with $Z_S \\parallel Z_L$. So: low source and load impedance → series element; both high → shunt capacitor; one low and one high → no single element works, use an L-filter with the series part facing the low impedance.",
+     "formula": "\\begin{aligned}|Z_{series}| &\\gg Z_S + Z_L\\\\ |Z_{shunt}| &\\ll Z_S \\parallel Z_L\\end{aligned}"
+    },
+    {
+     "id": "q4",
+     "type": "multipleChoice",
+     "prompt": "Common-mode noise comes from the PCB ground (low impedance) and drives a cable that acts as an antenna (high impedance). Which filter at the I/O connector works best?",
+     "options": [
+      "Ferrite on the board side, capacitor to chassis on the cable side",
+      "Capacitor to chassis on the board side, ferrite on the cable side",
+      "Only a capacitor to chassis",
+      "Only a ferrite"
+     ],
+     "answer": 0,
+     "explanation": "Source low, load high: no single element works, since a ferrite would have to beat the high cable impedance and a capacitor the low ground impedance. In an L-filter the ferrite faces the low-impedance side and raises the source impedance, so the capacitor on the high-impedance cable side can shunt the noise to chassis. Reversed, the capacitor fights the low ground impedance and the ferrite only adds to an already high load."
+    },
+    {
+     "id": "q5",
+     "type": "matchPairs",
+     "prompt": "Each line of a two-wire cable gets a series impedance $Z$ and a shunt capacitor $C$ to chassis. Match what each mode sees.",
+     "pairs": [
+      [
+       "Common-mode series impedance",
+       "$Z/2$"
+      ],
+      [
+       "Common-mode shunt capacitance",
+       "$2C$"
+      ],
+      [
+       "Differential-mode series impedance",
+       "$2Z$"
+      ],
+      [
+       "Differential-mode shunt capacitance",
+       "$C/2$"
+      ]
+     ],
+     "explanation": "Common mode drives both lines together, so the two branches are in **parallel**: $Z/2$ and $2C$. A differential signal goes out on one line and back on the other, so the elements are in **series**: $2Z$ and $C/2$. The capacitors favour common-mode filtering, but plain series impedance would hit the signal harder than the noise. That is why the series part is built as a common-mode choke, which has almost no differential impedance."
+    },
+    {
+     "id": "q6",
+     "type": "trueFalse",
+     "prompt": "A π-filter (ferrite bead between two capacitors) that gives 40 dB at 10 MHz will give at least 40 dB at 1 GHz too.",
+     "answer": false,
+     "explanation": "Parasitics take over at high frequency: the capacitance across the ferrite bypasses it, and the inductance of the capacitor leads, pads and vias makes the shunt elements inductive. Above some frequency the low-pass becomes a high-pass filter. With a poor layout this happens at tens of MHz; a good layout pushes it to hundreds of MHz."
+    }
+   ]
+  },
+  {
+   "id": "emc-filtering-2",
+   "title": "Balance and filter calculations",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "Vcm": [
+       0.2,
+       0.5,
+       1,
+       2
+      ],
+      "CM": [
+       40,
+       50,
+       60,
+       70,
+       80
+      ]
+     },
+     "prompt": "A balanced input with a CMRR of {{CM}} dB sees {{Vcm|V}} of common-mode noise. How large is the differential noise at the load?",
+     "answer": "Vcm*10^(-CM/20)",
+     "unit": "V",
+     "explanation": "$V_{dm} = V_{cm}/10^{\\mathrm{CMRR}/20}$ = {{Vcm|V}} / $10^{ {{CM/20}} }$ = {{Vcm*10^(-CM/20)|V}}."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Rs": [
+       50,
+       100,
+       200,
+       600
+      ],
+      "RL": [
+       10000,
+       22000,
+       47000,
+       100000
+      ],
+      "pp": [
+       0.1,
+       0.5,
+       1,
+       2
+      ]
+     },
+     "derived": {
+      "p": "pp/100"
+     },
+     "prompt": "A source with {{Rs|Ω}} in each leg feeds a balanced load made of two {{RL|Ω}} resistors with {{pp}} % tolerance. What is the worst-case CMRR?",
+     "answer": "20*log10(RL/(2*p*Rs))",
+     "unit": "dB",
+     "tolerance": 0.03,
+     "explanation": "Worst case one load resistor is $p$ high and the other $p$ low, so $\\Delta R_L/R_L = 2p$ = {{2*p}}. $\\mathrm{CMRR} \\approx 20\\log\\left(\\frac{1}{2p}\\cdot\\frac{R_L}{R_s}\\right)$ = 20 log({{1/(2*p)||3}} × {{RL/Rs||3}}) = {{20*log10(RL/(2*p*Rs))|dB}}. A low source and a high load resistance help as much as tight tolerances."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Vp": [
+       0.05,
+       0.1,
+       0.3,
+       0.5
+      ],
+      "SE": [
+       20,
+       30,
+       40
+      ],
+      "CM": [
+       40,
+       50,
+       60
+      ]
+     },
+     "prompt": "An unshielded balanced pair picks up {{Vp|V}} of common-mode noise from an electric field. A shield with {{SE}} dB shielding effectiveness is added, and the circuit has {{CM}} dB of balance (CMRR). What differential noise reaches the load?",
+     "answer": "Vp*10^(-(SE+CM)/20)",
+     "unit": "V",
+     "explanation": "The shield reduces the common-mode pickup, and the balance then converts only a fraction of what remains into differential noise, so the dB values add: {{SE}} + {{CM}} = {{SE+CM}} dB. $V_{dm}$ = {{Vp|V}} × $10^{-{{(SE+CM)/20}}}$ = {{Vp*10^(-(SE+CM)/20)|V}}."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "pp": [
+       0.01,
+       0.1,
+       1
+      ],
+      "G": [
+       10,
+       100,
+       1000
+      ]
+     },
+     "derived": {
+      "p": "pp/100"
+     },
+     "prompt": "The common-mode rejection is limited by resistors with {{pp}} % tolerance (worst case).",
+     "unit": "dB",
+     "ask": [
+      {
+       "prompt": "Find the CMRR of a unity-gain difference amplifier built with these resistors.",
+       "answer": "20*log10(1/(2*p))",
+       "explanation": "Resistor mismatch converts common mode into a differential error: $\\mathrm{CMRR} \\approx 20\\log\\frac{1}{2p}$ = 20 log({{1/(2*p)||3}}) = {{20*log10(1/(2*p))|dB}}."
+      },
+      {
+       "prompt": "Find the CMRR of an instrumentation amplifier with gain {{G}}, all of it in the input buffers.",
+       "answer": "20*log10(G/(2*p))",
+       "explanation": "The buffers amplify the differential signal by $A_{dm}$ = {{G}} but pass common mode with gain 1. Only then does the unity-gain difference stage convert part of the common mode: $\\mathrm{CMRR} \\approx 20\\log\\frac{A_{dm}}{2p}$ = 20 log {{G}} + 20 log({{1/(2*p)||3}}) = {{20*log10(G)|dB}} + {{20*log10(1/(2*p))|dB}} = {{20*log10(G/(2*p))|dB}}: the gain in the buffers adds directly to the CMRR."
+      }
+     ]
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "f": [
+       50,
+       1000,
+       10000
+      ],
+      "Cpm": [
+       5e-11,
+       1e-10
+      ],
+      "len": [
+       10,
+       30,
+       100
+      ],
+      "Rs": [
+       50,
+       150,
+       600
+      ]
+     },
+     "derived": {
+      "C": "Cpm*len",
+      "X": "1/(2*pi*f*C)"
+     },
+     "require": "X/Rs - 10",
+     "prompt": "A single-ended source with {{Rs|Ω}} output resistance drives a high-impedance differential amplifier through {{len}} m of shielded cable ({{Cpm|F}} per metre). The shield is grounded at the amplifier, so the cable capacitance shunts the common-mode input. Estimate the best possible CMRR at {{f|Hz}}.",
+     "answer": "20*log10(X/Rs)",
+     "unit": "dB",
+     "explanation": "The common-mode load can be no higher than the cable reactance. $C$ = {{len}} m × {{Cpm|F}}/m = {{C|F}}, $X_C = 1/(2\\pi fC)$ = {{X|Ω}}. With $\\Delta R_s = R_s$: $\\mathrm{CMRR} \\approx 20\\log(X_C/\\Delta R_s)$ = 20 log({{X|Ω}} / {{Rs|Ω}}) = {{20*log10(X/Rs)|dB}}. Grounding the shield at the **source** end puts this capacitance across the low source resistance instead."
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "Rs": [
+       50,
+       150,
+       1000
+      ],
+      "RL": [
+       1000,
+       10000
+      ],
+      "C": [
+       1e-10,
+       1e-09,
+       1e-08
+      ],
+      "f": [
+       1000000.0,
+       10000000.0,
+       30000000.0
+      ]
+     },
+     "derived": {
+      "Rp": "par(Rs, RL)",
+      "k": "2*pi*f*C*Rp"
+     },
+     "require": "k - 0.5",
+     "prompt": "A {{C|F}} capacitor is placed across the line between a {{Rs|Ω}} source and a {{RL|Ω}} load (both resistive). What insertion loss does it give at {{f|Hz}}?",
+     "answer": "10*log10(1 + k^2)",
+     "unit": "dB",
+     "explanation": "The capacitor works against the Thévenin resistance seen from the load, $R_S \\parallel R_L$ = {{Rp|Ω}}. It divides the load voltage by $|1 + j\\omega C(R_S\\parallel R_L)|$: $\\omega C R_p$ = {{k||3}}, so IL = $20\\log\\sqrt{1 + (\\omega CR_p)^2}$ = {{10*log10(1+k^2)|dB}}. A shunt capacitor needs a high-impedance environment."
+    },
+    {
+     "id": "q7",
+     "type": "numeric",
+     "params": {
+      "Zf": [
+       100,
+       200,
+       400
+      ],
+      "Rs": [
+       5,
+       10,
+       25,
+       50
+      ],
+      "RL": [
+       10,
+       50,
+       100,
+       1000
+      ]
+     },
+     "prompt": "A ferrite bead that is essentially resistive, {{Zf|Ω}} at the noise frequency, is placed in series between a {{Rs|Ω}} source and a {{RL|Ω}} load. What insertion loss does it give?",
+     "answer": "20*log10((Rs+RL+Zf)/(Rs+RL))",
+     "unit": "dB",
+     "explanation": "Without the bead the load gets $V\\frac{R_L}{R_S+R_L}$, with it $V\\frac{R_L}{R_S+R_L+Z_f}$. IL = $20\\log\\frac{R_S + R_L + Z_f}{R_S + R_L}$ = 20 log({{Rs+RL+Zf|Ω}} / {{Rs+RL|Ω}}) = {{20*log10((Rs+RL+Zf)/(Rs+RL))|dB}}. A series element only works when $Z_f \\gg R_S + R_L$: ferrites belong in low-impedance circuits."
+    },
+    {
+     "id": "q8",
+     "type": "numeric",
+     "params": {
+      "L": [
+       4.7e-06,
+       1e-05,
+       2.2e-05,
+       4.7e-05
+      ],
+      "C": [
+       1e-05,
+       2.2e-05,
+       4.7e-05,
+       0.0001
+      ],
+      "R": [
+       0.05,
+       0.1,
+       0.2
+      ]
+     },
+     "derived": {
+      "z": "R/2*sqrt(C/L)"
+     },
+     "require": "0.3 - z",
+     "prompt": "An LC filter feeds a sensitive analog stage: $L$ = {{L|H}} with {{R|Ω}} winding resistance and $C$ = {{C|F}}.",
+     "ask": [
+      {
+       "prompt": "Find the resonant frequency of the filter.",
+       "answer": "1/(2*pi*sqrt(L*C))",
+       "unit": "Hz",
+       "explanation": "$f_r = \\frac{1}{2\\pi\\sqrt{LC}}$ = 1 / (2π √({{L|H}} × {{C|F}})) = {{1/(2*pi*sqrt(L*C))|Hz}}. Keep this well below the frequencies at which the circuit has gain or the noise is."
+      },
+      {
+       "prompt": "Find the damping ratio $\\zeta$.",
+       "answer": "R/2*sqrt(C/L)",
+       "unit": "",
+       "explanation": "$\\zeta = \\frac{R}{2}\\sqrt{C/L}$ = {{R/2}} × √({{C|F}} / {{L|H}}) = {{z||3}}. Well below 0.5: the filter peaks by about {{20*log10(1/(2*z*sqrt(1 - z^2)))|dB}} at resonance."
+      },
+      {
+       "prompt": "What total series resistance would give $\\zeta$ = 0.5?",
+       "answer": "sqrt(L/C)",
+       "unit": "Ω",
+       "explanation": "$\\zeta = \\frac{R}{2}\\sqrt{C/L}$ = 0.5 gives $R = \\sqrt{L/C}$ = √({{L|H}} / {{C|F}}) = {{sqrt(L/C)|Ω}}, so add about {{sqrt(L/C) - R|Ω}} in series (or a damping resistor elsewhere)."
+      }
+     ]
+    },
+    {
+     "id": "q9",
+     "type": "slider",
+     "params": {
+      "Pk": [
+       1,
+       3,
+       6,
+       10
+      ]
+     },
+     "derived": {
+      "M": "10^(Pk/20)",
+      "zt": "sqrt((1 - sqrt(1 - 1/M^2))/2)",
+      "Rt": "2*zt"
+     },
+     "prompt": "The LC supply filter ($L$ = 10 µH, $C$ = 10 µF) peaks at resonance. Set the series resistance $R$ so the resonance peak is {{Pk}} dB.",
+     "plot": {
+      "x": {
+       "min": 1000,
+       "max": 300000,
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": -30,
+       "max": 25,
+       "label": "|H| (dB)"
+      },
+      "sliders": [
+       {
+        "name": "R",
+        "label": "$R$",
+        "min": 0.05,
+        "max": 3,
+        "step": 0.01,
+        "value": 0.1,
+        "unit": "Ω"
+       }
+      ],
+      "let": {
+       "fr": "1/(2*pi*sqrt(10e-6*10e-6))",
+       "z": "R/2",
+       "pk": "if(0.7071 - z, 20*log10(1/(2*z*sqrt(1 - z^2))), 0)"
+      },
+      "curves": [
+       {
+        "f": "-10*log10((1 - (x/fr)^2)^2 + (2*z*x/fr)^2)"
+       },
+       {
+        "f": "Pk",
+        "color": "orange",
+        "dash": true,
+        "label": "target",
+        "labelAt": 0.9
+       }
+      ],
+      "readouts": [
+       {
+        "label": "peak",
+        "value": "pk",
+        "unit": "dB"
+       },
+       {
+        "label": "$\\zeta$",
+        "value": "z",
+        "reveal": true
+       }
+      ]
+     },
+     "answer": {
+      "R": "Rt"
+     },
+     "tolerance": 0.06,
+     "explanation": "The peak gain is $\\frac{1}{2\\zeta\\sqrt{1-\\zeta^2}}$ = {{M||3}} ({{Pk}} dB) for $\\zeta$ = {{zt||3}}. Here $\\sqrt{C/L}$ = 1 Ω⁻¹, so $\\zeta = R/2$ and $R$ = {{Rt|Ω}}. More resistance damps the peak further but costs DC voltage drop."
+    }
+   ]
+  },
+  {
+   "id": "emc-filtering-3",
+   "title": "Decoupling and mains filters",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Supplying the switching current",
+     "body": "Each low-to-high output transition charges the load capacitance (a CMOS input is typically 7–12 pF). The current pulse is roughly triangular, $2t_r$ wide. The decoupling capacitor next to the IC must supply it while the rail drops less than $\\Delta V$.",
+     "formula": "I = \\frac{nC_LV_{CC}}{t_r}, \\qquad C \\geq \\frac{\\Delta I\\,\\Delta t}{\\Delta V}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "n": [
+       4,
+       8,
+       16,
+       32
+      ],
+      "CL": [
+       7e-12,
+       1e-11,
+       1.2e-11
+      ],
+      "Vcc": [
+       1.8,
+       3.3,
+       5
+      ],
+      "tr": [
+       5e-10,
+       1e-09,
+       2e-09
+      ]
+     },
+     "prompt": "An IC switches {{n}} outputs at the same moment, each driving {{CL|F}} of load capacitance, from a {{Vcc|V}} supply with a rise time of {{tr|s}}. Estimate the transient supply current.",
+     "answer": "n*CL*Vcc/tr",
+     "unit": "A",
+     "explanation": "$I = \\frac{nC_LV_{CC}}{t_r}$ = {{n}} × {{CL|F}} × {{Vcc|V}} / {{tr|s}} = {{n*CL*Vcc/tr|A}}."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "dI": [
+       0.1,
+       0.25,
+       0.5,
+       1,
+       2
+      ],
+      "dt": [
+       1e-09,
+       2e-09,
+       5e-09
+      ],
+      "Vcc": [
+       1.8,
+       3.3,
+       5
+      ],
+      "pct": [
+       2,
+       3,
+       5
+      ]
+     },
+     "derived": {
+      "dV": "Vcc*pct/100"
+     },
+     "prompt": "A current step of {{dI|A}} lasting {{dt|s}} may not pull the {{Vcc|V}} rail down by more than {{pct}} %. What is the minimum decoupling capacitance?",
+     "answer": "dI*dt/dV",
+     "unit": "F",
+     "explanation": "$\\Delta V$ = {{pct}} % × {{Vcc|V}} = {{dV|V}}. $C \\geq \\frac{\\Delta I\\,\\Delta t}{\\Delta V}$ = {{dI|A}} × {{dt|s}} / {{dV|V}} = {{dI*dt/dV|F}}."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "C": [
+       1e-09,
+       1e-08,
+       1e-07,
+       1e-06
+      ],
+      "ESL": [
+       5e-10,
+       1e-09
+      ],
+      "lt": [
+       2,
+       5,
+       10
+      ],
+      "nv": [
+       2,
+       4
+      ]
+     },
+     "derived": {
+      "Lt": "ESL + lt*0.6e-9 + nv*0.8e-9"
+     },
+     "prompt": "A {{C|F}} capacitor (ESL {{ESL|H}}) connects to the IC through {{lt}} mm of trace in total (≈ 0.6 nH/mm) and {{nv}} vias (≈ 0.8 nH each). Find the resonant frequency of this decoupling network.",
+     "answer": "1/(2*pi*sqrt(Lt*C))",
+     "unit": "Hz",
+     "explanation": "Total series inductance: $L$ = {{ESL|H}} + {{lt}} × 0.6 nH + {{nv}} × 0.8 nH = {{Lt|H}}. $f_r = \\frac{1}{2\\pi\\sqrt{LC}}$ = 1 / (2π √({{Lt|H}} × {{C|F}})) = {{1/(2*pi*sqrt(Lt*C))|Hz}}. Note how the mounting, not the capacitor, dominates the inductance."
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "At 1 GHz, replacing a 100 nF decoupling capacitor by a 1 nF one in the same package, on the same pads, lowers the decoupling impedance considerably.",
+     "answer": false,
+     "explanation": "With about 1.5 nH of mounted inductance the 100 nF network resonates near 13 MHz and the 1 nF one near 130 MHz. At 1 GHz both are far above resonance and look like the same inductance: $2\\pi fL$ ≈ 9.4 Ω, while $1/(2\\pi fC)$ is only 0.16 Ω for 1 nF. Only less inductance helps there (smaller package, more vias, more capacitors in parallel); the smaller value only worsens the low-frequency decoupling."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "Vcc": [
+       1.8,
+       3.3,
+       5
+      ],
+      "dVp": [
+       3,
+       5
+      ],
+      "dI": [
+       1,
+       2,
+       5,
+       10
+      ],
+      "L": [
+       1e-09,
+       1.5e-09,
+       2e-09
+      ],
+      "tr": [
+       5e-10,
+       1e-09,
+       2e-09
+      ]
+     },
+     "derived": {
+      "dV": "Vcc*dVp/100",
+      "Zt": "2*dV/dI",
+      "nn": "2*L/(Zt*tr)"
+     },
+     "require": "min(abs(nn - round(nn)) - 0.05, 300 - nn, nn - 2)",
+     "prompt": "An IC on a {{Vcc|V}} rail draws transient current steps of {{dI|A}}; the rail may vary by {{dVp}} %. Each mounted decoupling capacitor has {{L|H}} of total inductance, and the edges take {{tr|s}}. Use Ott's target impedance $Z_t = k\\,\\Delta V/\\Delta I$ with $k$ = 2.",
+     "ask": [
+      {
+       "prompt": "Find the target impedance of the power distribution network.",
+       "answer": "Zt",
+       "unit": "Ω",
+       "explanation": "$\\Delta V$ = {{dVp}} % × {{Vcc|V}} = {{dV|V}}. $Z_t = 2\\frac{\\Delta V}{\\Delta I}$ = 2 × {{dV|V}} / {{dI|A}} = {{Zt|Ω}}. The factor 2 allows for only about half of the transient current lying below $1/(\\pi t_r)$."
+      },
+      {
+       "prompt": "How many capacitors are needed so their combined inductance stays below the target impedance up to $1/(\\pi t_r)$? Round up.",
+       "answer": "ceil(nn)",
+       "unit": "",
+       "tolerance": 0.001,
+       "explanation": "$Z_t = 2\\Delta V/\\Delta I$ = {{Zt|Ω}}. At $f = 1/(\\pi t_r)$ = {{1/(pi*tr)|Hz}}, $n$ capacitors in parallel have $2\\pi fL/n = \\frac{2L}{nt_r}$. Requiring this ≤ $Z_t$: $n \\geq \\frac{2L}{Z_t t_r}$ = 2 × {{L|H}} / ({{Zt|Ω}} × {{tr|s}}) = {{nn||3}}, so {{ceil(nn)}} capacitors."
+      }
+     ]
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "The graph shows the impedance of a 100 nF and a 1 nF capacitor in parallel, each with 2 nH of mounting inductance. What causes the peak between the two dips?",
+     "plot": {
+      "x": {
+       "min": 1000000.0,
+       "max": 1000000000.0,
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": 0.01,
+       "max": 100,
+       "label": "|Z|",
+       "unit": "Ω",
+       "log": true
+      },
+      "curves": [
+       {
+        "f": "sqrt((0.02^2 - (2*pi*x*2e-9 - 1/(2*pi*x*1e-7))*(2*pi*x*2e-9 - 1/(2*pi*x*1e-9)))^2 + (0.02*((2*pi*x*2e-9 - 1/(2*pi*x*1e-7))+(2*pi*x*2e-9 - 1/(2*pi*x*1e-9))))^2)/sqrt((2*0.02)^2 + ((2*pi*x*2e-9 - 1/(2*pi*x*1e-7))+(2*pi*x*2e-9 - 1/(2*pi*x*1e-9)))^2)",
+        "label": "100 nF ∥ 1 nF",
+        "labelAt": 0.15
+       }
+      ]
+     },
+     "options": [
+      "A parallel resonance: the 100 nF branch is already inductive while the 1 nF branch is still capacitive",
+      "The series resonance of the 1 nF capacitor with its inductance",
+      "The series resonance of the 100 nF capacitor with its inductance",
+      "The ESR of the 100 nF capacitor"
+     ],
+     "answer": 0,
+     "explanation": "The dips are the series resonances: 100 nF with 2 nH at 11 MHz, 1 nF with 2 nH at 113 MHz. In between, the 100 nF branch behaves as an inductor and the 1 nF branch as a capacitor; together they form a parallel LC circuit with a high impedance peak (antiresonance), here near 80 MHz. Equal-value capacitors avoid this."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Mains filters",
+     "body": "A power-line filter has a **common-mode** section, the choke $L_{CM}$ plus **Y capacitors** from each line to chassis, and a **differential-mode** section, the **X capacitor** across the lines with the choke's leakage inductance. The Y capacitors leak mains current into the protective earth; safety rules cap that current (0.5 mA to a few mA), so they are only a few nF. Emission tests use a **LISN** to give each line a defined 50 Ω and keep mains noise out of the measurement.",
+     "formula": "I_{leak} = 2\\pi f C_Y V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "L",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         4
+        ],
+        "label": "N",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          1,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         1,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         1,
+         4
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         1,
+         4
+        ],
+        "label": "C_X"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "L_{CM}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         4
+        ],
+        "to": [
+         3,
+         4
+        ],
+        "label": "L_{CM}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          4
+         ],
+         [
+          6,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         4
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C_Y"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         4
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C_Y",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         5,
+         2
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "to PSU"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         4
+        ],
+        "label": "to PSU"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q7",
+     "type": "numeric",
+     "params": {
+      "reg": [
+       0,
+       1
+      ],
+      "CY": [
+       1e-09,
+       2.2e-09,
+       4.7e-09,
+       1e-08
+      ],
+      "Ilim": [
+       0.0005,
+       0.00075,
+       0.0035
+      ]
+     },
+     "derived": {
+      "V": "if(reg, 120, 230)",
+      "f": "if(reg, 60, 50)"
+     },
+     "prompt": "A filter on a {{V}} V, {{f}} Hz mains supply has Y capacitors from line and from neutral to the protective earth.",
+     "ask": [
+      {
+       "prompt": "How much leakage current flows through a {{CY|F}} Y capacitor connected to the line conductor?",
+       "answer": "2*pi*f*CY*V",
+       "unit": "A",
+       "explanation": "$I = 2\\pi fC_YV$ = 2π × {{f}} Hz × {{CY|F}} × {{V}} V = {{2*pi*f*CY*V|A}}. (The capacitor on the neutral has almost no voltage across it.)"
+      },
+      {
+       "prompt": "The filter may use at most half of a {{Ilim|A}} leakage limit. What is the largest allowed Y capacitor?",
+       "answer": "Ilim/2/(2*pi*f*V)",
+       "unit": "F",
+       "explanation": "Half the limit is {{Ilim/2|A}}. $C_Y \\leq \\frac{I}{2\\pi fV}$ = {{Ilim/2|A}} / (2π × {{f}} Hz × {{V}} V) = {{Ilim/2/(2*pi*f*V)|F}}."
+      }
+     ]
+    },
+    {
+     "id": "q8",
+     "type": "matchPairs",
+     "prompt": "Match each part of a mains filter to its role.",
+     "pairs": [
+      [
+       "Common-mode choke",
+       "Common-mode series element"
+      ],
+      [
+       "Y capacitors (line to chassis)",
+       "Common-mode shunt element"
+      ],
+      [
+       "Choke leakage inductance",
+       "Differential-mode series element"
+      ],
+      [
+       "X capacitor (line to line)",
+       "Differential-mode shunt element"
+      ]
+     ],
+     "explanation": "The common-mode choke's windings cancel each other's flux for the mains current, so it only impedes common-mode noise; the Y capacitors shunt that noise to chassis. Imperfect coupling leaves a small leakage inductance in series with each line, which together with the X capacitor forms the differential-mode filter."
+    }
+   ]
+  },
+  {
+   "id": "emc-filtering-4",
+   "title": "Decoupling and filter design",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "n": [
+       10,
+       20,
+       40
+      ],
+      "CL": [
+       7e-12,
+       1e-11
+      ],
+      "Vcc": [
+       3.3,
+       5
+      ],
+      "tr": [
+       1e-09,
+       2e-09
+      ],
+      "dV": [
+       0.05,
+       0.1
+      ]
+     },
+     "prompt": "A clock buffer switches {{n}} loads of {{CL|F}} at once from {{Vcc|V}} with {{tr|s}} edges. Its rail may dip at most {{dV|V}}. Treating the current pulse as a triangle of height $I$ and width $2t_r$, find the minimum decoupling capacitance.",
+     "answer": "n*CL*Vcc/dV",
+     "unit": "F",
+     "explanation": "Peak current $I = nC_LV_{CC}/t_r$ = {{n*CL*Vcc/tr|A}}. The triangle's charge is $\\frac{1}{2}I \\cdot 2t_r = It_r$ = {{n*CL*Vcc|C}}, exactly the charge $nC_LV_{CC}$ that the loads take. $C \\geq Q/\\Delta V$ = {{n*CL*Vcc|C}} / {{dV|V}} = {{n*CL*Vcc/dV|F}}, independent of the rise time."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "Vcc": [
+       3.3,
+       5
+      ],
+      "pct": [
+       3,
+       5
+      ],
+      "dI": [
+       1,
+       2.5,
+       5
+      ],
+      "tr": [
+       1e-09,
+       2e-09,
+       3e-09
+      ],
+      "L": [
+       1e-09,
+       2e-09
+      ],
+      "fl": [
+       1000000.0,
+       2000000.0
+      ]
+     },
+     "derived": {
+      "Zt": "2*Vcc*pct/100/dI",
+      "nn": "2*L/(Zt*tr)",
+      "N": "ceil(2*L/(Zt*tr))",
+      "Ct": "1/(2*pi*fl*Zt)"
+     },
+     "require": "min(abs(nn - round(nn)) - 0.05, 200 - nn, nn - 2)",
+     "prompt": "A processor on a {{Vcc|V}} rail draws {{dI|A}} transients with {{tr|s}} edges; the rail may vary {{pct}} %. Each decoupling capacitor has {{L|H}} of mounted inductance, and decoupling must work down to {{fl|Hz}} (below that the regulator takes over). Use Ott's target impedance $Z_t = 2\\Delta V/\\Delta I$.",
+     "ask": [
+      {
+       "prompt": "How many equal capacitors are needed? Round up.",
+       "answer": "N",
+       "unit": "",
+       "tolerance": 0.001,
+       "explanation": "$Z_t = 2\\Delta V/\\Delta I$ = 2 × {{Vcc*pct/100|V}} / {{dI|A}} = {{Zt|Ω}}. $n \\geq \\frac{2L}{Z_tt_r}$ = 2 × {{L|H}} / ({{Zt|Ω}} × {{tr|s}}) = {{nn||3}} → {{N}} capacitors."
+      },
+      {
+       "prompt": "What total capacitance is needed?",
+       "answer": "Ct",
+       "unit": "F",
+       "explanation": "$Z_t = 2\\Delta V/\\Delta I$ = {{Zt|Ω}}. At the lowest frequency the capacitance itself must stay below $Z_t$: $\\frac{1}{2\\pi f C} \\leq Z_t$ → $C \\geq \\frac{1}{2\\pi f Z_t}$ = 1 / (2π × {{fl|Hz}} × {{Zt|Ω}}) = {{Ct|F}}."
+      },
+      {
+       "prompt": "What minimum value should each (equal) capacitor have?",
+       "answer": "Ct/N",
+       "unit": "F",
+       "explanation": "$Z_t$ = {{Zt|Ω}}. Number: $n \\geq 2L/(Z_tt_r)$ = {{nn||3}} → {{N}}. Total: $C \\geq 1/(2\\pi f Z_t)$ = {{Ct|F}}. Each capacitor: {{Ct|F}} / {{N}} = {{Ct/N|F}}; pick the next standard value in the smallest practical package."
+      }
+     ]
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "n": [
+       8,
+       16,
+       32
+      ],
+      "C": [
+       1e-08,
+       1e-07
+      ],
+      "L": [
+       1.5e-09,
+       2e-09,
+       3e-09
+      ],
+      "f": [
+       100000000.0,
+       200000000.0,
+       500000000.0
+      ]
+     },
+     "derived": {
+      "X": "2*pi*f*L - 1/(2*pi*f*C)"
+     },
+     "prompt": "{{n}} equal decoupling capacitors of {{C|F}}, each with {{L|H}} of mounted inductance, are spread around a large IC. Estimate the magnitude of their combined impedance at {{f|Hz}} (neglect ESR and mutual coupling).",
+     "answer": "abs(X)/n",
+     "unit": "Ω",
+     "explanation": "One branch: $X = 2\\pi fL - \\frac{1}{2\\pi fC}$ = {{2*pi*f*L|Ω}} − {{1/(2*pi*f*C)|Ω}} = {{X|Ω}} (inductive). $n$ equal branches in parallel divide it by $n$: |Z| = {{abs(X)|Ω}} / {{n}} = {{abs(X)/n|Ω}}."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "reg": [
+       0,
+       1
+      ],
+      "Ilim": [
+       0.0005,
+       0.00075,
+       0.0035
+      ],
+      "fc": [
+       20000.0,
+       50000.0,
+       100000.0
+      ]
+     },
+     "derived": {
+      "V": "if(reg, 120, 230)",
+      "f": "if(reg, 60, 50)",
+      "CY": "Ilim/2/(2*pi*f*V)",
+      "Lc": "1/((2*pi*fc)^2*2*CY)"
+     },
+     "prompt": "Design the common-mode section of a mains filter for {{V}} V, {{f}} Hz. The leakage limit is {{Ilim|A}}, of which the filter may use half. The common-mode corner frequency must be {{fc|Hz}}.",
+     "ask": [
+      {
+       "prompt": "Find the largest Y capacitor value.",
+       "answer": "CY",
+       "unit": "F",
+       "explanation": "$C_Y = \\frac{I/2}{2\\pi fV}$ = {{Ilim/2|A}} / (2π × {{f}} × {{V}}) = {{CY|F}}."
+      },
+      {
+       "prompt": "Find the common-mode choke inductance.",
+       "answer": "Lc",
+       "unit": "H",
+       "explanation": "$C_Y = \\frac{I/2}{2\\pi fV}$ = {{CY|F}}. Common mode sees both Y capacitors in parallel: $2C_Y$ = {{2*CY|F}}. From $f_c = \\frac{1}{2\\pi\\sqrt{L\\cdot 2C_Y}}$: $L = \\frac{1}{(2\\pi f_c)^2\\,2C_Y}$ = {{Lc|H}}."
+      }
+     ]
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "R1": [
+       4700,
+       10000
+      ],
+      "G": [
+       20,
+       50,
+       100
+      ],
+      "Rs": [
+       25,
+       50,
+       100
+      ],
+      "Vcm": [
+       0.1,
+       0.5,
+       1
+      ]
+     },
+     "derived": {
+      "R2": "G*R1",
+      "Rc": "R1 + R2",
+      "CM": "20*log10(Rc/Rs)"
+     },
+     "prompt": "A difference amplifier ($R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}}, gain $R_2/R_1$ = {{G}}) is driven by a single-ended source with {{Rs|Ω}} output resistance. A ground-potential difference of {{Vcm|V}} appears as common-mode voltage.",
+     "ask": [
+      {
+       "prompt": "Estimate the CMRR set by the source unbalance.",
+       "answer": "CM",
+       "unit": "dB",
+       "tolerance": 0.03,
+       "explanation": "The common-mode input resistance is $R_1 + R_2$ = {{Rc|Ω}} per input, and the imbalance is $R_s$: $\\mathrm{CMRR} \\approx 20\\log\\frac{R_1 + R_2}{R_s}$ = 20 log({{Rc|Ω}} / {{Rs|Ω}}) = {{CM|dB}}. Since $R_2 \\gg R_1$, Ott's $20\\log(R_2/R_s)$ = {{20*log10(R2/Rs)|dB}} is almost the same."
+      },
+      {
+       "prompt": "Estimate the resulting noise voltage at the amplifier output.",
+       "answer": "G*Vcm*Rs/Rc",
+       "unit": "V",
+       "tolerance": 0.06,
+       "explanation": "$\\mathrm{CMRR} \\approx 20\\log\\frac{R_1 + R_2}{R_s}$ = {{CM|dB}}, so the differential input error is $V_{cm}R_s/(R_1 + R_2)$ = {{Vcm*Rs/Rc|V}}. The amplifier multiplies it by its gain: {{G}} × {{Vcm*Rs/Rc|V}} = {{G*Vcm*Rs/Rc|V}}. A buffered (instrumentation) input with megohms of common-mode resistance would cut this by orders of magnitude."
+      }
+     ]
+    },
+    {
+     "id": "c6",
+     "type": "multipleChoice",
+     "prompt": "An op-amp stage drives 100 m of shielded cable (about 10 nF) and oscillates. Which change is the standard fix?",
+     "options": [
+      "Isolate the cable with a small series resistor at the output, with a small capacitor from the output to the inverting input",
+      "Put a larger capacitor across the far end of the cable",
+      "Increase the feedback resistor so the loop gain rises",
+      "Ground the cable shield at both ends"
+     ],
+     "answer": 0,
+     "explanation": "The op amp's output resistance $R_o$ and the load capacitance form a pole at $1/(2\\pi R_oC_L)$ inside the feedback loop; its extra phase lag can make the feedback positive where the loop gain is still above 1. A series resistor (≈ $R_o$) isolates the load, and a 10–100 pF feedback capacitor adds a compensating phase lead. More capacitance makes it worse."
+    },
+    {
+     "id": "c7",
+     "type": "numeric",
+     "params": {
+      "fn": [
+       100000.0,
+       250000.0,
+       500000.0
+      ],
+      "A": [
+       30,
+       40,
+       50
+      ],
+      "C": [
+       1e-05,
+       2.2e-05,
+       4.7e-05
+      ]
+     },
+     "derived": {
+      "fr": "fn/10^(A/40)",
+      "L": "1/((2*pi*fr)^2*C)"
+     },
+     "prompt": "Switching ripple at {{fn|Hz}} must be attenuated by {{A}} dB with an LC filter that uses $C$ = {{C|F}}. Well above resonance the filter rolls off at 40 dB/decade.",
+     "ask": [
+      {
+       "prompt": "What resonant frequency should the filter have?",
+       "answer": "fr",
+       "unit": "Hz",
+       "explanation": "Above $f_r$, $|H| \\approx (f_r/f)^2$, i.e. $40\\log(f/f_r)$ dB. So $f_r = f/10^{A/40}$ = {{fn|Hz}} / {{10^(A/40)||3}} = {{fr|Hz}}."
+      },
+      {
+       "prompt": "What inductance is needed?",
+       "answer": "L",
+       "unit": "H",
+       "explanation": "$f_r = f/10^{A/40}$ = {{fr|Hz}}. $L = \\frac{1}{(2\\pi f_r)^2C}$ = 1 / ((2π × {{fr|Hz}})² × {{C|F}}) = {{L|H}}. Then check the damping ($\\zeta \\geq 0.5$) so the filter does not amplify noise near {{fr|Hz}}."
+      }
+     ]
+    },
+    {
+     "id": "c8",
+     "type": "trueFalse",
+     "prompt": "An amplifier for a 1 kHz sensor signal picks up the same noise whether its bandwidth is 10 kHz or 10 MHz, because the noise sources around it are the same.",
+     "answer": false,
+     "explanation": "Bandwidth is an open window: everything inside it gets in, both external interference (radio, switching noise) and the circuit's own wideband noise. Use no more bandwidth than the signal needs; the same goes for logic: slower edges generate and pick up less high-frequency noise."
+    }
+   ]
+  }
+ ]
+}

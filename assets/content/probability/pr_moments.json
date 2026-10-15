@@ -1,0 +1,907 @@
+{
+  "id": "pr-moments",
+  "title": "Expectation & Variance",
+  "description": "Means, variances and functions of random variables: DC and noise power, Markov and Chebyshev bounds, and transformations such as the power of a Gaussian voltage.",
+  "reference": "Leon-Garcia ch. 3–4",
+  "study": [
+    {
+      "title": "Expected value",
+      "body": "The **expected value** (mean) of $X$ is the probability-weighted average of its values: the balance point of the PMF or PDF. For a noise voltage it is the DC level a slow voltmeter shows. Means of common RVs: Bernoulli $p$, binomial $np$, geometric $1/p$, Poisson $\\alpha$, uniform $(a+b)/2$, exponential $1/\\lambda$, Gaussian $\\mu$.",
+      "formula": "\\begin{aligned} E[X] &= \\sum_k x_k\\,p_X(x_k) \\\\ E[X] &= \\int_{-\\infty}^{\\infty} x\\,f_X(x)\\,dx \\end{aligned}"
+    },
+    {
+      "title": "Variance and standard deviation",
+      "body": "The **variance** $\\sigma^2 = E[(X-\\mu)^2]$ measures the spread around the mean; it is usually easier to compute as 'mean of the square minus square of the mean'. The **standard deviation** $\\sigma$ has the units of $X$: for a noise voltage it is the AC rms value. Variances: Bernoulli $p(1-p)$, binomial $np(1-p)$, geometric $(1-p)/p^2$, Poisson $\\alpha$, uniform $(b-a)^2/12$, exponential $1/\\lambda^2$, Gaussian $\\sigma^2$.",
+      "formula": "\\sigma_X^2 = E[X^2] - \\left(E[X]\\right)^2"
+    },
+    {
+      "title": "Functions of a random variable",
+      "body": "The mean of $Y = g(X)$ follows directly from the distribution of $X$; there is no need to find the PDF of $Y$ first. For a linear function, $E[aX+b] = aE[X] + b$ and $\\mathrm{Var}(aX+b) = a^2\\,\\mathrm{Var}(X)$: an offset shifts the mean but not the spread, and a gain $a$ scales $\\sigma$ by $|a|$. In general $E[g(X)] \\ne g(E[X])$; for example $E[X^2] \\ge (E[X])^2$.",
+      "formula": "E[g(X)] = \\int_{-\\infty}^{\\infty} g(x)\\,f_X(x)\\,dx"
+    },
+    {
+      "title": "DC, AC and total power",
+      "body": "A random voltage $V$ across a resistor $R$ dissipates on average $E[V^2]/R$. Because $E[V^2] = \\mu^2 + \\sigma^2$, the power splits into a **DC part** $\\mu^2/R$ and an **AC (noise) part** $\\sigma^2/R$. A DC meter reads $\\mu$, an AC-coupled true-rms meter reads $\\sigma$, and a DC-coupled true-rms meter reads $\\sqrt{\\mu^2 + \\sigma^2}$. Drag $\\mu$ and $\\sigma$.",
+      "formula": "E[V^2] = \\mu^2 + \\sigma^2",
+      "plot": {
+        "x": {
+          "min": -4,
+          "max": 4,
+          "label": "v",
+          "unit": "V"
+        },
+        "y": {
+          "min": 0,
+          "max": 0.85,
+          "label": "f_V(v)"
+        },
+        "sliders": [
+          {
+            "name": "mu",
+            "label": "$\\mu$",
+            "min": -2,
+            "max": 2,
+            "step": 0.1,
+            "value": 1,
+            "unit": "V"
+          },
+          {
+            "name": "sig",
+            "label": "$\\sigma$",
+            "min": 0.5,
+            "max": 2,
+            "step": 0.1,
+            "value": 0.5,
+            "unit": "V"
+          }
+        ],
+        "curves": [
+          {
+            "f": "exp(-((x - mu)/(sig))^2/2)/(sqrt(2*pi)*(sig))"
+          }
+        ],
+        "vlines": [
+          {
+            "x": "mu",
+            "label": "μ"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "DC meter: $\\mu$",
+            "value": "mu",
+            "unit": "V"
+          },
+          {
+            "label": "AC rms: $\\sigma$",
+            "value": "sig",
+            "unit": "V"
+          },
+          {
+            "label": "total rms $\\sqrt{\\mu^2+\\sigma^2}$",
+            "value": "sqrt(mu^2 + sig^2)",
+            "unit": "V"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Markov and Chebyshev bounds",
+      "body": "With only the mean and the variance known, tail probabilities can still be **bounded**. Markov (for $X \\ge 0$): $P(X \\ge a) \\le E[X]/a$. Chebyshev (any $X$): $P(|X-\\mu| \\ge k\\sigma) \\le 1/k^2$. They hold for every distribution, which also makes them loose: for a Gaussian the true value $2Q(k)$ is far smaller, as the graph shows.",
+      "formula": "P(|X-\\mu| \\ge k\\sigma) \\le \\frac{1}{k^2}",
+      "plot": {
+        "x": {
+          "min": 1,
+          "max": 5,
+          "label": "k"
+        },
+        "y": {
+          "min": 1e-06,
+          "max": 1,
+          "label": "P(|X − μ| ≥ kσ)",
+          "log": true
+        },
+        "curves": [
+          {
+            "f": "1/x^2",
+            "label": "Chebyshev bound",
+            "labelAt": 0.55
+          },
+          {
+            "f": "2*Q(x)",
+            "color": "orange",
+            "label": "Gaussian 2Q(k)",
+            "labelAt": 0.4
+          }
+        ],
+        "height": 170
+      }
+    },
+    {
+      "title": "Transformations: the power of a Gaussian voltage",
+      "body": "For $Y = g(X)$, find the CDF first, $F_Y(y) = P(g(X) \\le y)$, then differentiate. A linear map keeps a Gaussian Gaussian: $aX + b \\sim \\mathcal{N}(a\\mu + b,\\ a^2\\sigma^2)$. The instantaneous power $Y = X^2$ of a zero-mean Gaussian voltage is not Gaussian: $P(Y > y) = P(|X| > \\sqrt{y}) = 2Q(\\sqrt{y}/\\sigma)$. Its mean is $\\sigma^2$ and its variance $2\\sigma^4$: its standard deviation is $\\sqrt2$ times its mean, so the instantaneous power fluctuates strongly.",
+      "formula": "f_Y(y) = \\frac{e^{-y/2\\sigma^2}}{\\sigma\\sqrt{2\\pi y}},\\quad y > 0",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "y / σ²"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.5,
+          "label": "σ² f_Y(y)"
+        },
+        "curves": [
+          {
+            "f": "exp(-x/2)/sqrt(2*pi*x)",
+            "from": 0.01,
+            "label": "PDF of X²",
+            "labelAt": 0.3
+          }
+        ],
+        "vlines": [
+          {
+            "x": 1,
+            "label": "mean"
+          }
+        ],
+        "height": 160
+      }
+    },
+    {
+      "title": "Worked example: quantization noise",
+      "body": "An ideal $N$-bit ADC with full-scale range $V_{FS}$ has a step $\\Delta = V_{FS}/2^N$. Its rounding error is uniform on $(-\\Delta/2, \\Delta/2)$: mean 0, variance $\\Delta^2/12$. For 10 bits over 3.3 V, Δ = 3.22 mV and the rms quantization noise is $\\Delta/\\sqrt{12}$ = 0.93 mV. A full-scale sine (rms $V_{FS}/2\\sqrt2$ = 1.167 V) then has SQNR = 20 log(1.167 V / 0.93 mV) ≈ 62 dB, the familiar $6.02N + 1.76$ dB.",
+      "formula": "\\sigma_q = \\frac{\\Delta}{\\sqrt{12}}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pr-moments-1",
+      "title": "Mean and variance",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Expected value",
+          "body": "The **mean** $E[X]$ is the probability-weighted average of the values of $X$: the balance point of its PMF. It need not be a possible value; the mean number of bit errors per frame can be 0.3.",
+          "formula": "E[X] = \\sum_k x_k\\,P(X = x_k)"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.1,
+              0.15,
+              0.2,
+              0.25
+            ],
+            "p2": [
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "derived": {
+            "p0": "1 - p1 - p2"
+          },
+          "prompt": "The number of bit errors $K$ in a frame is 0, 1 or 2, with $P(K = 1)$ = {{p1}}, $P(K = 2)$ = {{p2}} and $P(K = 0)$ = {{p0}}. What is the mean number of errors per frame?",
+          "answer": "p1 + 2*p2",
+          "unit": "",
+          "explanation": "$E[K] = 0 \\cdot P(0) + 1 \\cdot P(1) + 2 \\cdot P(2)$ = 0 × {{p0}} + 1 × {{p1}} + 2 × {{p2}} = **{{p1+2*p2}}** errors per frame."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Variance and standard deviation",
+          "body": "The **variance** $\\sigma^2 = E[(X-\\mu)^2]$ measures the spread around the mean. Compute it as 'mean of the square minus square of the mean'. The **standard deviation** $\\sigma$ has the same units as $X$; for a noise voltage it is the AC rms value.",
+          "formula": "\\sigma^2 = E[X^2] - \\mu^2"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.1,
+              0.2,
+              0.3
+            ],
+            "p2": [
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "derived": {
+            "m": "p1 + 2*p2",
+            "m2": "p1 + 4*p2"
+          },
+          "prompt": "Another frame format: $K$ is 0, 1 or 2 with $P(K = 1)$ = {{p1}}, $P(K = 2)$ = {{p2}} and $P(K = 0)$ = {{1-p1-p2}}.",
+          "ask": [
+            {
+              "prompt": "What is the variance of $K$?",
+              "answer": "m2 - m^2",
+              "unit": "",
+              "explanation": "$E[K]$ = {{p1}} + 2 × {{p2}} = {{m}}; $E[K^2]$ = 1² × {{p1}} + 2² × {{p2}} = {{m2}}. $\\sigma^2 = E[K^2] - (E[K])^2$ = {{m2}} − {{m}}² = **{{m2-m^2}}**."
+            },
+            {
+              "prompt": "What is the standard deviation of $K$?",
+              "answer": "sqrt(m2 - m^2)",
+              "unit": "",
+              "explanation": "$E[K]$ = {{m}}, $E[K^2]$ = {{p1}} + 4 × {{p2}} = {{m2}}, so $\\sigma^2$ = {{m2}} − {{m}}² = {{m2-m^2}} and $\\sigma$ = **{{sqrt(m2-m^2)}}**."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Means and variances to know",
+          "body": "- Bernoulli: $p$ and $p(1-p)$\n- Binomial: $np$ and $np(1-p)$\n- Geometric (trials to first success): $1/p$ and $(1-p)/p^2$\n- Poisson: $\\alpha$ and $\\alpha$\n- Uniform on $(a, b)$: $(a+b)/2$ and $(b-a)^2/12$\n- Exponential: $1/\\lambda$ and $1/\\lambda^2$\n- Gaussian: $\\mu$ and $\\sigma^2$"
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each random variable to its variance",
+          "pairs": [
+            [
+              "Bernoulli($p$)",
+              "$p(1-p)$"
+            ],
+            [
+              "Binomial($n$, $p$)",
+              "$np(1-p)$"
+            ],
+            [
+              "Poisson($\\alpha$)",
+              "$\\alpha$"
+            ],
+            [
+              "Uniform on $(a, b)$",
+              "$(b-a)^2/12$"
+            ],
+            [
+              "Exponential($\\lambda$)",
+              "$1/\\lambda^2$"
+            ]
+          ],
+          "explanation": "A binomial count is a sum of $n$ independent Bernoulli trials, so its variance is $n$ times $p(1-p)$. A Poisson count has variance equal to its mean. A uniform RV of width $w$ has variance $w^2/12$, and an exponential RV has $\\sigma = $ mean $= 1/\\lambda$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "N": [
+              8,
+              10,
+              12
+            ],
+            "V": [
+              3.3,
+              5
+            ]
+          },
+          "derived": {
+            "D": "V/2^N"
+          },
+          "prompt": "An ideal {{N}}-bit ADC has a full-scale range of {{V|V}}. Its rounding error is uniform between −Δ/2 and +Δ/2, with Δ = 1 LSB. What is the rms value (standard deviation) of the quantization error?",
+          "answer": "D/sqrt(12)",
+          "unit": "V",
+          "explanation": "$\\Delta = V_{FS}/2^{{{N}}}$ = {{D|V}}. A uniform RV of width Δ has variance $\\Delta^2/12$, so $\\sigma = \\Delta/\\sqrt{12}$ = **{{D/sqrt(12)|V}}**."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "lam": [
+              2,
+              4,
+              5
+            ],
+            "T": [
+              2,
+              5,
+              10
+            ]
+          },
+          "derived": {
+            "a": "lam*T"
+          },
+          "prompt": "Packets arrive as a Poisson stream at {{lam}} per ms. What is the standard deviation of the number of packets counted in {{T}} ms?",
+          "options": [
+            "{{sqrt(a)}}",
+            "{{a}}",
+            "{{sqrt(lam)}}"
+          ],
+          "answer": 0,
+          "explanation": "The count is Poisson with $\\alpha = \\lambda T$ = {{a}}. For a Poisson RV the variance equals the mean, so $\\sigma = \\sqrt{\\alpha}$ = **{{sqrt(a)}}**. {{a}} is the variance (and the mean). The relative spread $\\sigma/\\alpha = 1/\\sqrt{\\alpha}$ shrinks for longer counting windows."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "For every random variable, $E[X^2] \\ge (E[X])^2$.",
+          "answer": true,
+          "explanation": "$E[X^2] - (E[X])^2 = \\sigma^2 \\ge 0$, with equality only for a constant. For a voltage: the total power is at least the DC power."
+        }
+      ]
+    },
+    {
+      "id": "pr-moments-2",
+      "title": "Functions of a random variable",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Linear functions",
+          "body": "If $Y = aX + b$, then $E[Y] = aE[X] + b$ and $\\mathrm{Var}(Y) = a^2\\,\\mathrm{Var}(X)$, so $\\sigma_Y = |a|\\,\\sigma_X$. The offset $b$ moves the mean but not the spread.",
+          "formula": "\\begin{aligned} E[aX+b] &= aE[X]+b \\\\ \\sigma_{aX+b} &= |a|\\,\\sigma_X \\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "b": [
+              0.4,
+              0.5,
+              0.75
+            ],
+            "mT": [
+              20,
+              25,
+              40
+            ],
+            "sT": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "A temperature sensor outputs $V = aT + b$ with $a$ = {{a*1000}} mV/°C and $b$ = {{b|V}}. The temperature $T$ has mean {{mT}} °C and standard deviation {{sT}} °C.",
+          "ask": [
+            {
+              "prompt": "What is the mean output voltage?",
+              "answer": "a*mT + b",
+              "unit": "V",
+              "explanation": "$E[V] = aE[T] + b$ = {{a*1000}} mV/°C × {{mT}} °C + {{b|V}} = **{{a*mT+b|V}}**."
+            },
+            {
+              "prompt": "What is the standard deviation of the output voltage?",
+              "answer": "a*sT",
+              "unit": "V",
+              "explanation": "$\\sigma_V = |a|\\,\\sigma_T$ = {{a*1000}} mV/°C × {{sT}} °C = **{{a*sT|V}}**. The offset $b$ does not change the spread."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "G": [
+              2,
+              5,
+              10
+            ],
+            "s": [
+              0.001,
+              0.002,
+              0.003
+            ],
+            "Vr": [
+              1.25,
+              1.65,
+              2.5
+            ]
+          },
+          "prompt": "An inverting amplifier outputs $V_o = -G\\,V_i + V_{ref}$ with $G$ = {{G}} and $V_{ref}$ = {{Vr|V}}. The input $V_i$ has a standard deviation of {{s|V}}. What is the standard deviation of $V_o$?",
+          "options": [
+            "{{G*s|V}}",
+            "{{G^2*s|V}}",
+            "{{G*s+Vr|V}}",
+            "{{sqrt(G)*s|V}}"
+          ],
+          "answer": 0,
+          "explanation": "$\\sigma_{aX+b} = |a|\\,\\sigma_X$: the sign of the gain and the offset $V_{ref}$ do not matter, so $\\sigma_o$ = {{G}} × {{s|V}} = **{{G*s|V}}**. It is the **variance** that grows by $G^2$ = {{G^2}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Power of a random voltage",
+          "body": "A voltage $V$ across $R$ dissipates on average $E[V^2]/R$. With mean $\\mu$ and standard deviation $\\sigma$, $E[V^2] = \\mu^2 + \\sigma^2$: DC power plus AC (noise) power. The total rms value is therefore $\\sqrt{\\mu^2 + \\sigma^2}$.",
+          "formula": "P = \\frac{E[V^2]}{R} = \\frac{\\mu^2 + \\sigma^2}{R}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "mu": [
+              0.5,
+              1,
+              2
+            ],
+            "sig": [
+              0.2,
+              0.3,
+              0.5
+            ],
+            "R": [
+              50,
+              100,
+              1000
+            ]
+          },
+          "require": "sig/mu - 0.24",
+          "prompt": "A voltage with mean {{mu|V}} and standard deviation {{sig|V}} is applied across a {{R|Ω}} resistor.",
+          "ask": [
+            {
+              "prompt": "What is the average power dissipated?",
+              "answer": "(mu^2 + sig^2)/R",
+              "unit": "W",
+              "explanation": "$P = E[V^2]/R = (\\mu^2 + \\sigma^2)/R$ = ({{mu^2}} + {{sig^2}}) V² / {{R|Ω}} = **{{(mu^2+sig^2)/R|W}}**."
+            },
+            {
+              "prompt": "What is the total rms value of the voltage?",
+              "answer": "sqrt(mu^2 + sig^2)",
+              "unit": "V",
+              "explanation": "$V_{rms} = \\sqrt{E[V^2]} = \\sqrt{\\mu^2 + \\sigma^2}$ = √({{mu^2}} + {{sig^2}}) V = **{{sqrt(mu^2+sig^2)|V}}**, not $\\mu + \\sigma$."
+            },
+            {
+              "prompt": "How much of the average power is due to the fluctuations (the AC part)?",
+              "answer": "sig^2/R",
+              "unit": "W",
+              "explanation": "The AC power is $\\sigma^2/R$ = {{sig^2}} V² / {{R|Ω}} = **{{sig^2/R|W}}**; the DC part $\\mu^2/R$ = {{mu^2/R|W}} makes up the rest."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The power of Gaussian noise",
+          "body": "Let $X$ be a zero-mean Gaussian noise voltage with standard deviation $\\sigma$. Its square $Y = X^2$ (the instantaneous power in 1 Ω) is **not** Gaussian: it is never negative and has a long tail. Find its probabilities through $X$: $Y > y$ exactly when $|X| > \\sqrt{y}$. Its mean is $\\sigma^2$ and, because $E[X^4] = 3\\sigma^4$, its variance is $2\\sigma^4$.",
+          "formula": "P(X^2 > y) = 2Q\\!\\left(\\frac{\\sqrt{y}}{\\sigma}\\right)"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "k": [
+              2,
+              4,
+              6.25,
+              9
+            ]
+          },
+          "prompt": "Zero-mean Gaussian noise drives a resistor. What is the probability that the instantaneous power exceeds {{k}} times its average value? (probability, 0–1)",
+          "answer": "2*Q(sqrt(k))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "The average power is proportional to $\\sigma^2$. $X^2 > k\\sigma^2$ ⟺ $|X| > \\sqrt{k}\\,\\sigma$ = {{sqrt(k)}} σ, so $P = 2Q(\\sqrt{k})$ = 2Q({{sqrt(k)}}) = **{{2*Q(sqrt(k))}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "sig": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "R": [
+              50,
+              1000
+            ]
+          },
+          "prompt": "A zero-mean Gaussian noise voltage with $\\sigma$ = {{sig|V}} is applied across {{R|Ω}}. What is the standard deviation of the instantaneous power $V^2/R$?",
+          "answer": "sqrt(2)*sig^2/R",
+          "unit": "W",
+          "explanation": "$\\mathrm{Var}(X^2) = E[X^4] - (E[X^2])^2 = 3\\sigma^4 - \\sigma^4 = 2\\sigma^4$, so the standard deviation of $X^2$ is $\\sqrt2\\,\\sigma^2$. Divide by $R$: √2 × ({{sig|V}})² / {{R|Ω}} = **{{sqrt(2)*sig^2/R|W}}**, more than the mean power {{sig^2/R|W}} itself."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "$E[g(X)] = g(E[X])$ for every function $g$.",
+          "answer": false,
+          "explanation": "Only for linear $g$. For example $E[X^2] = \\mu^2 + \\sigma^2 \\ne \\mu^2$. For a zero-mean noise voltage, $g(E[V]) = 0^2 = 0$, yet the average power $\\sigma^2/R$ is positive."
+        }
+      ]
+    },
+    {
+      "id": "pr-moments-3",
+      "title": "Bounds and moments",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Markov and Chebyshev",
+          "body": "When only the mean and the variance are known, tail probabilities can still be **bounded**:\n- Markov, for $X \\ge 0$: $P(X \\ge a) \\le E[X]/a$\n- Chebyshev, for any $X$: $P(|X - \\mu| \\ge t) \\le \\sigma^2/t^2$\nBoth hold for every distribution, so they are usually far from tight.",
+          "formula": "P(|X-\\mu| \\ge k\\sigma) \\le \\frac{1}{k^2}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "D": [
+              2,
+              5,
+              10
+            ],
+            "d": [
+              20,
+              50,
+              100
+            ]
+          },
+          "prompt": "Packet delays through a network have a mean of {{D}} ms and are never negative; nothing else is known. What upper bound does Markov's inequality give for the probability that a delay is {{d}} ms or more? (probability, 0–1)",
+          "answer": "D/d",
+          "unit": "",
+          "explanation": "Markov: $P(X \\ge a) \\le E[X]/a$ = {{D}}/{{d}} = **{{D/d}}**. It uses only the mean, so it is a guarantee for any distribution, not an estimate."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "R0": [
+              1000,
+              10000
+            ],
+            "s": [
+              5,
+              10,
+              20
+            ],
+            "t": [
+              20,
+              30,
+              50
+            ]
+          },
+          "derived": {
+            "sig": "s*R0/1000",
+            "tt": "t*R0/1000"
+          },
+          "require": "t/s - 1.4",
+          "prompt": "Resistors have a mean of {{R0|Ω}} and a standard deviation of {{sig|Ω}}; their distribution is unknown. What fraction is guaranteed by Chebyshev's inequality to lie within ±{{tt|Ω}} of the mean? (probability, 0–1)",
+          "answer": "1 - sig^2/tt^2",
+          "unit": "",
+          "tolerance": 0.01,
+          "explanation": "Chebyshev: $P(|X-\\mu| \\ge t) \\le \\sigma^2/t^2$ = ({{sig|Ω}} / {{tt|Ω}})² = {{sig^2/tt^2}}. So at least 1 − {{sig^2/tt^2}} = **{{1-sig^2/tt^2}}** of the resistors lie within the band, whatever the distribution."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "k": [
+              1.5,
+              2,
+              2.5,
+              3
+            ]
+          },
+          "prompt": "For a Gaussian random variable, what is the exact probability $P(|X - \\mu| \\ge {{k}}\\sigma)$? (probability, 0–1)",
+          "answer": "2*Q(k)",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "$P = 2Q({{k}})$ = **{{2*Q(k)}}**. Chebyshev only guarantees ≤ $1/k^2$ = {{1/k^2}}, about {{1/(k^2*2*Q(k))}} times more."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "PER": [
+              0.05,
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "prompt": "Each transmission of a packet fails independently with probability {{PER}} and is repeated until it succeeds. What is the expected number of transmissions per packet?",
+          "answer": "1/(1 - PER)",
+          "unit": "",
+          "explanation": "The number of transmissions is geometric with success probability $q = 1 -$ {{PER}} = {{1-PER}}, so $E[K] = 1/q$ = **{{1/(1-PER)}}**. The useful throughput drops by the same factor."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "n": [
+              1000,
+              10000,
+              100000
+            ],
+            "p": [
+              0.0001,
+              0.0005,
+              0.001
+            ]
+          },
+          "require": "n*p - 0.99",
+          "prompt": "A link sends {{n}} bits with a bit-error probability of {{p}} (independent errors).",
+          "ask": [
+            {
+              "prompt": "What is the mean number of bit errors?",
+              "answer": "n*p",
+              "unit": "",
+              "explanation": "The error count is binomial: $E[K] = np$ = {{n}} × {{p}} = **{{n*p}}**."
+            },
+            {
+              "prompt": "What is the standard deviation of the number of bit errors?",
+              "answer": "sqrt(n*p*(1 - p))",
+              "unit": "",
+              "explanation": "Binomial: $\\sigma^2 = np(1-p)$ = {{n*p*(1-p)}}, so $\\sigma$ = **{{sqrt(n*p*(1-p))}}**. Since $p \\ll 1$ this is almost $\\sqrt{np}$, the Poisson value."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "A voltage $X$ is uniformly distributed between −{{a|V}} and +{{b|V}}. An ideal half-wave rectifier outputs $Y = \\max(X, 0)$. What is the mean output voltage $E[Y]$?",
+          "answer": "b^2/(2*(a + b))",
+          "unit": "V",
+          "explanation": "$E[Y] = \\int g(x)\\,f_X(x)\\,dx$ with $f_X = 1/(a+b)$. Only $x > 0$ contributes: $E[Y] = \\int_0^{b}\\frac{x}{a+b}\\,dx = \\frac{b^2}{2(a+b)}$ = {{b^2}}/(2 × {{a+b}}) = **{{b^2/(2*(a+b))|V}}**. This is not $\\max(E[X], 0)$ = {{max((b-a)/2, 0)|V}}."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Markov's inequality also applies to random variables that can be negative, such as a noise voltage.",
+          "answer": false,
+          "explanation": "Markov needs $X \\ge 0$. A zero-mean noise voltage has $E[X] = 0$, and '$P(X \\ge a) \\le 0$' would be absurd. Apply it to a non-negative quantity instead, e.g. $(X-\\mu)^2$: $P((X-\\mu)^2 \\ge t^2) \\le \\sigma^2/t^2$, which is exactly Chebyshev's inequality."
+        }
+      ]
+    },
+    {
+      "id": "pr-moments-4",
+      "title": "Noise power, rectifiers and quantizers",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "sig": [
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "R": [
+              50,
+              100
+            ],
+            "c": [
+              3,
+              5,
+              8
+            ]
+          },
+          "derived": {
+            "P0": "c*sig^2/R"
+          },
+          "prompt": "A zero-mean Gaussian noise voltage with $\\sigma$ = {{sig|V}} is applied across {{R|Ω}}.",
+          "ask": [
+            {
+              "prompt": "What is the average power dissipated?",
+              "answer": "sig^2/R",
+              "unit": "W",
+              "explanation": "$P = E[V^2]/R = \\sigma^2/R$ = ({{sig|V}})² / {{R|Ω}} = **{{sig^2/R|W}}**."
+            },
+            {
+              "prompt": "What is the probability that the instantaneous power exceeds {{P0|W}}? (probability, 0–1)",
+              "answer": "2*Q(sqrt(P0*R)/sig)",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "$V^2/R > P_0$ ⟺ $|V| > \\sqrt{P_0R}$ = {{sqrt(P0*R)|V}} = {{sqrt(P0*R)/sig}} σ. So $P = 2Q({{sqrt(P0*R)/sig}})$ = **{{2*Q(sqrt(P0*R)/sig)}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "sig": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "Gaussian noise with zero mean and $\\sigma$ = {{sig|V}} is fed to a rectifier and the output is averaged.",
+          "ask": [
+            {
+              "prompt": "For a half-wave rectifier, $Y = \\max(X, 0)$, what is the mean output $E[Y]$?",
+              "answer": "sig/sqrt(2*pi)",
+              "unit": "V",
+              "explanation": "$E[Y] = \\int_0^\\infty x\\,\\frac{e^{-x^2/2\\sigma^2}}{\\sqrt{2\\pi}\\,\\sigma}\\,dx = \\frac{\\sigma}{\\sqrt{2\\pi}}$ = 0.399 × {{sig|V}} = **{{sig/sqrt(2*pi)|V}}**."
+            },
+            {
+              "prompt": "For a full-wave rectifier, $Y = |X|$, what is the mean output $E[Y]$?",
+              "answer": "sig*sqrt(2/pi)",
+              "unit": "V",
+              "explanation": "Both halves contribute: $E|X| = 2\\cdot\\frac{\\sigma}{\\sqrt{2\\pi}} = \\sigma\\sqrt{2/\\pi}$ = 0.798 × {{sig|V}} = **{{sig*sqrt(2/pi)|V}}**."
+            },
+            {
+              "prompt": "An average-responding AC meter displays 1.111 × (full-wave average), which is correct for sine waves. What does it display for this noise?",
+              "answer": "pi/(2*sqrt(2))*sig*sqrt(2/pi)",
+              "unit": "V",
+              "explanation": "The full-wave average is $\\sigma\\sqrt{2/\\pi}$ = {{sig*sqrt(2/pi)|V}}; times $\\pi/(2\\sqrt2)$ = 1.111 gives **{{pi/(2*sqrt(2))*sig*sqrt(2/pi)|V}}** = 0.886 σ. The true rms is σ = {{sig|V}}, so the meter reads noise about 11 % (1 dB) low."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2
+            ],
+            "c": [
+              0.04,
+              0.09,
+              0.25,
+              0.36
+            ]
+          },
+          "derived": {
+            "y": "c*A^2"
+          },
+          "prompt": "A squarer outputs $Y = X^2$ (in V²), where $X$ is uniform between −{{A|V}} and +{{A|V}}. What is $P(Y \\le {{y}})$? (probability, 0–1)",
+          "answer": "sqrt(y)/A",
+          "unit": "",
+          "explanation": "$Y \\le y$ ⟺ $|X| \\le \\sqrt{y}$ = {{sqrt(y)|V}}. That interval has width $2\\sqrt{y}$ out of $2A$: $F_Y(y) = \\sqrt{y}/A$ = **{{sqrt(y)/A}}**. Differentiating gives $f_Y(y) = \\frac{1}{2A\\sqrt{y}}$: small values of $Y$ are much more likely than large ones."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vp": [
+              1,
+              2,
+              5,
+              10
+            ]
+          },
+          "prompt": "A sawtooth rises linearly from 0 to {{Vp|V}} and then resets. Sampled at a random instant, its value is uniform between 0 and {{Vp|V}}.",
+          "ask": [
+            {
+              "prompt": "What is its total rms value?",
+              "answer": "Vp/sqrt(3)",
+              "unit": "V",
+              "explanation": "$E[X^2] = \\frac{1}{V_p}\\int_0^{V_p}x^2\\,dx = V_p^2/3$, so the rms value is $V_p/\\sqrt3$ = **{{Vp/sqrt(3)|V}}**."
+            },
+            {
+              "prompt": "What is its AC rms value (the standard deviation)?",
+              "answer": "Vp/sqrt(12)",
+              "unit": "V",
+              "explanation": "A uniform RV of width $V_p$ has $\\sigma^2 = V_p^2/12$, so $\\sigma = V_p/\\sqrt{12}$ = **{{Vp/sqrt(12)|V}}**. Check: $(V_p/2)^2 + V_p^2/12 = V_p^2/3$, DC plus AC power."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "N": [
+              8,
+              10,
+              12,
+              14
+            ],
+            "V": [
+              2,
+              3.3,
+              5
+            ],
+            "Vs": [
+              0.1,
+              0.3,
+              0.5
+            ]
+          },
+          "require": "V - 2.83*Vs",
+          "prompt": "An ideal {{N}}-bit ADC has a full-scale range of {{V|V}}. A signal with an rms value of {{Vs|V}} is digitized. What is the signal-to-quantization-noise ratio in dB?",
+          "answer": "20*log10(Vs/(V/2^N/sqrt(12)))",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.2,
+          "explanation": "Δ = $V_{FS}/2^{{{N}}}$ = {{V/2^N|V}}; the noise rms is $\\Delta/\\sqrt{12}$ = {{V/2^N/sqrt(12)|V}}. SQNR = 20 log({{Vs|V}} / {{V/2^N/sqrt(12)|V}}) = **{{20*log10(Vs/(V/2^N/sqrt(12)))||3}} dB**. A full-scale sine would reach $6.02N + 1.76$ = {{6.02*N+1.76||3}} dB; a smaller signal gives up the difference."
+        },
+        {
+          "id": "q6",
+          "type": "slider",
+          "params": {
+            "sig": [
+              0.2,
+              0.3,
+              0.5
+            ],
+            "R": [
+              50,
+              100
+            ],
+            "c": [
+              3,
+              5,
+              10
+            ]
+          },
+          "derived": {
+            "Pt": "c*sig^2/R",
+            "mt": "sig*sqrt(c - 1)"
+          },
+          "prompt": "A voltage across {{R|Ω}} is Gaussian noise with $\\sigma$ = {{sig|V}} plus a DC offset $\\mu$. Set $\\mu$ (move the PDF) so that the average power dissipated is {{Pt|W}}.",
+          "plot": {
+            "x": {
+              "min": -1.5,
+              "max": 3,
+              "label": "v",
+              "unit": "V"
+            },
+            "y": {
+              "min": 0,
+              "max": "0.46/sig",
+              "label": "f_V(v)"
+            },
+            "sliders": [
+              {
+                "name": "mu",
+                "label": "$\\mu$",
+                "min": 0,
+                "max": 2.5,
+                "step": 0.01,
+                "value": 0,
+                "unit": "V"
+              }
+            ],
+            "curves": [
+              {
+                "f": "exp(-((x - mu)/(sig))^2/2)/(sqrt(2*pi)*(sig))"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "mu",
+                "label": "μ"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "average power",
+                "value": "(mu^2 + sig^2)/R",
+                "unit": "W",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "mu": "mt"
+          },
+          "tolerance": 0.03,
+          "explanation": "$P = (\\mu^2 + \\sigma^2)/R$ ⇒ $\\mu = \\sqrt{PR - \\sigma^2}$ = √({{Pt*R}} − {{sig^2}}) V = **{{mt|V}}**. The noise alone already supplies {{sig^2/R|W}}."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "If a random voltage is amplified by a factor 2, its variance doubles.",
+          "answer": false,
+          "explanation": "$\\mathrm{Var}(2X) = 2^2\\,\\mathrm{Var}(X) = 4\\,\\mathrm{Var}(X)$: the standard deviation doubles, the variance (a power-like quantity) quadruples."
+        }
+      ]
+    }
+  ]
+}

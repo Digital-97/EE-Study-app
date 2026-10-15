@@ -1,0 +1,1832 @@
+{
+  "id": "pe-acdc",
+  "title": "Rectifiers, PFC & Inverters",
+  "description": "Power factor and harmonics of rectifiers, the boost PFC rectifier, and single- and three-phase PWM inverters for AC loads and motor drives.",
+  "reference": "Erickson ch. 6, 20–21",
+  "study": [
+    {
+      "title": "Power factor with distorted currents",
+      "body": "Power factor is real power over apparent power, $PF = P/(V_{rms}I_{rms})$. With a sinusoidal voltage only the fundamental current carries real power, so $PF$ splits into a **displacement factor** $\\cos\\varphi_1$ and a **distortion factor** $I_{1,rms}/I_{rms} = 1/\\sqrt{1 + THD^2}$, where the total harmonic distortion is $THD = \\sqrt{\\sum_{n\\ge2}I_n^2}/I_1$. Harmonic currents raise $I_{rms}$, losses and the required wiring, without delivering power.",
+      "formula": "\\begin{aligned}& PF = \\frac{I_{1,rms}}{I_{rms}}\\cos\\varphi_1\\\\ & \\phantom{PF} = \\frac{\\cos\\varphi_1}{\\sqrt{1 + THD^2}}\\end{aligned}"
+    },
+    {
+      "title": "The capacitor-input rectifier",
+      "body": "A diode bridge feeding a large capacitor only conducts near the voltage peaks, when the line exceeds the capacitor voltage. The current flows in short, tall pulses, rich in odd harmonics (3rd, 5th, 7th, …): $THD$ is often above 100 % and $PF$ only 0.5–0.7, even though the pulses are centred on the voltage peaks. Standards such as IEC 61000-3-2 limit these harmonics for most equipment above 75 W.",
+      "formula": "PF \\approx 0.5\\ \\text{to}\\ 0.7,\\quad THD > 100\\,\\%",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 2,
+          "label": "t / T_line"
+        },
+        "y": {
+          "min": -1.3,
+          "max": 1.3,
+          "label": "normalised"
+        },
+        "curves": [
+          {
+            "f": "sin(2*pi*x)",
+            "color": "grey",
+            "dash": true,
+            "label": "v_g",
+            "labelAt": 0.13
+          },
+          {
+            "f": "sign(sin(2*pi*x))*max(0, abs(sin(2*pi*x)) - 0.85)*6",
+            "label": "i_g",
+            "labelAt": 0.33
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "height": 160
+      }
+    },
+    {
+      "title": "The ideal rectifier and boost PFC",
+      "body": "An ideal rectifier behaves like a resistor $R_e$ on the line: $i_g = v_g/R_e$, so $PF$ = 1. A **boost PFC** converter after the diode bridge achieves this: its controller shapes the inductor (= line) current to follow the rectified voltage, and adjusts $R_e$ to deliver the required power. The duty cycle varies over each half-cycle as $d = 1 - |v_g|/V$, so the output $V$ must exceed the line peak.",
+      "formula": "\\begin{aligned}& R_e = \\frac{V_{g,rms}^2}{P}\\\\ & d(t) = 1 - \\frac{|v_g(t)|}{V}\\end{aligned}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "acsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "v_g"
+          },
+          {
+            "type": "diode",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ]
+          },
+          {
+            "type": "diode",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "diode",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "diode",
+            "from": [
+              2,
+              4
+            ],
+            "to": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "inductor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "label": "L"
+          },
+          {
+            "type": "switch",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              4
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "diode",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              6,
+              0
+            ],
+            "label": "D_5"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              4
+            ],
+            "label": "C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6,
+                0
+              ],
+              [
+                7,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              7,
+              0
+            ],
+            "to": [
+              7,
+              4
+            ],
+            "label": "load"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                7,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              4
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              4
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Twice-line ripple and hold-up",
+      "body": "With a resistor-like input, the input power $p(t) = P(1 - \\cos 2\\omega t)$ pulsates at twice the line frequency, while the load draws a constant $P$. The output capacitor buffers the difference, so $V$ has a ripple at 100 Hz (50 Hz mains). The same capacitor also provides **hold-up**: it keeps the downstream converter running for a time $t_h$ after the mains drops out, while $V$ sags to the minimum the next stage accepts.",
+      "formula": "\\begin{aligned}& \\Delta V_{pp} \\approx \\frac{P}{2\\pi f_{line}CV}\\\\ & C \\ge \\frac{2Pt_h}{V^2 - V_{min}^2}\\end{aligned}"
+    },
+    {
+      "title": "The H-bridge inverter",
+      "body": "Two half-bridge legs make an inverter: $Q_1$/$Q_4$ on gives $v_{ab} = +V_{dc}$, $Q_2$/$Q_3$ gives $-V_{dc}$, and both upper (or both lower) switches give 0. Switches in one leg must never conduct together (**shoot-through**), so a short dead time separates them. A square-wave drive gives a fundamental of amplitude $\\frac{4}{\\pi}V_{dc}$ but large low-order harmonics; PWM moves the harmonics up to the switching frequency where the load inductance filters them.",
+      "formula": "\\hat v_{1,square} = \\frac{4}{\\pi}V_{dc}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_{dc}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "switch",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "switch",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              2,
+              4
+            ],
+            "label": "Q_2"
+          },
+          {
+            "type": "switch",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              2
+            ],
+            "label": "Q_3",
+            "flip": true
+          },
+          {
+            "type": "switch",
+            "from": [
+              6,
+              2
+            ],
+            "to": [
+              6,
+              4
+            ],
+            "label": "Q_4",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                6,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              4
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ],
+            "label": "a"
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              2
+            ],
+            "label": "b"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "R"
+          },
+          {
+            "type": "inductor",
+            "from": [
+              4,
+              2
+            ],
+            "to": [
+              6,
+              2
+            ],
+            "label": "L"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: sinusoidal PWM",
+      "body": "Each leg compares a sinusoidal reference with a triangular carrier at $f_s$; the **modulation index** $m_a$ is the ratio of their amplitudes. The local average of $v_{ab}$ follows $m_aV_{dc}\\sin\\omega t$, linearly up to $m_a$ = 1. The frequency ratio $m_f = f_s/f_1$ (here 9) sets where the harmonics are. Drag $m_a$ (bipolar PWM shown).",
+      "formula": "\\begin{aligned}& \\hat v_{ab,1} = m_aV_{dc}\\quad(m_a \\le 1)\\\\ & \\hat v_{1} = \\tfrac12 m_aV_{dc}\\quad\\text{(half bridge)}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "t / T_1"
+        },
+        "y": {
+          "min": -1.3,
+          "max": 1.3,
+          "label": "v_ab / V_dc"
+        },
+        "sliders": [
+          {
+            "name": "m",
+            "label": "$m_a$",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "value": 0.8
+          }
+        ],
+        "curves": [
+          {
+            "f": "2*step(m*sin(2*pi*x) - (4*abs(mod(x*9, 1) - 0.5) - 1)) - 1",
+            "color": "grey"
+          },
+          {
+            "f": "m*sin(2*pi*x)",
+            "color": "orange",
+            "label": "fundamental",
+            "labelAt": 0.3
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$V_{1,rms}$ at $V_{dc}$ = 400 V",
+            "value": "m*400/sqrt(2)",
+            "unit": "V"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Three-phase inverters and motor drives",
+      "body": "Three legs, with references 120° apart, drive a three-phase load. Each leg's average is $\\frac{V_{dc}}{2}(1 + m_a\\sin\\cdot)$, so the line-to-line fundamental has rms value $\\frac{\\sqrt3}{2\\sqrt2}m_aV_{dc} \\approx 0.612\\,m_aV_{dc}$. Adding a third harmonic to the references (it cancels between lines) stretches the linear range to $m_a$ = 1.155. Six-step (square-wave) operation gives $\\frac{\\sqrt6}{\\pi}V_{dc} \\approx 0.78\\,V_{dc}$. An induction-motor drive keeps $V/f$ constant below rated speed so that the flux stays constant.",
+      "formula": "\\begin{aligned}& V_{LL,rms} = 0.612\\,m_aV_{dc}\\\\ & V/f = \\text{constant}\\end{aligned}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_{dc}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                6,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "switch",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "switch",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              2,
+              4
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ],
+            "label": "a"
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              4
+            ]
+          },
+          {
+            "type": "switch",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ]
+          },
+          {
+            "type": "switch",
+            "from": [
+              4,
+              2
+            ],
+            "to": [
+              4,
+              4
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              2
+            ],
+            "label": "b"
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              4
+            ]
+          },
+          {
+            "type": "switch",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "switch",
+            "from": [
+              6,
+              2
+            ],
+            "to": [
+              6,
+              4
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              2
+            ],
+            "label": "c"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Worked example: boost PFC",
+      "body": "230 V, 50 Hz mains, $P$ = 500 W, $V$ = 400 V, $C$ = 330 µF.\n- $R_e = V_{rms}^2/P$ = 230²/500 = 105.8 Ω; $I_{rms}$ = 2.17 A, peak 3.07 A.\n- Line peak 325 V, so $d$ at the peak = 1 − 325/400 = 0.19; near the zero crossings $d \\to 1$.\n- 100 Hz ripple: $P/(2\\pi \\cdot 50 \\cdot CV)$ = 500/(2π × 50 × 330 µF × 400 V) = 12.1 V peak-to-peak."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pe-acdc-1",
+      "title": "Power factor and harmonics",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Two reasons for a low power factor",
+          "body": "$PF = P/(V_{rms}I_{rms})$. A phase shift between the fundamental current and the voltage lowers it (displacement factor $\\cos\\varphi_1$), and so do harmonics, which add rms current but no power (distortion factor $I_1/I_{rms}$).",
+          "formula": "PF = \\frac{I_{1,rms}}{I_{rms}}\\cos\\varphi_1"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "P": [
+              100,
+              200,
+              300,
+              500
+            ],
+            "V": [
+              120,
+              230
+            ],
+            "I": [
+              1,
+              1.5,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "require": "min(0.95 - P/(V*I), P/(V*I) - 0.4)",
+          "prompt": "A single-phase load draws {{P|W}} from {{V}} V rms mains with an rms current of {{I|A}}. What is its power factor?",
+          "answer": "P/(V*I)",
+          "unit": "",
+          "explanation": "$PF = \\frac{P}{V_{rms}I_{rms}}$ = {{P|W}} / ({{V}} V × {{I|A}}) = **{{P/(V*I)||3}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "I1": [
+              1,
+              2,
+              4
+            ],
+            "f3": [
+              0.5,
+              0.7,
+              0.85
+            ],
+            "f5": [
+              0.3,
+              0.45,
+              0.6
+            ],
+            "f7": [
+              0.15,
+              0.25,
+              0.35
+            ]
+          },
+          "derived": {
+            "I3": "f3*I1",
+            "I5": "f5*I1",
+            "I7": "f7*I1"
+          },
+          "require": "f3 - f5",
+          "prompt": "A rectifier's input current contains (rms values) a fundamental of {{I1|A}}, a 3rd harmonic of {{I3|A}}, a 5th of {{I5|A}} and a 7th of {{I7|A}}; higher harmonics are negligible. Find the $THD$ in %.",
+          "answer": "100*sqrt(I3^2 + I5^2 + I7^2)/I1",
+          "unit": "%",
+          "explanation": "$THD = \\frac{\\sqrt{I_3^2 + I_5^2 + I_7^2}}{I_1}$ = √({{I3}}² + {{I5}}² + {{I7}}²) / {{I1}} = {{sqrt(I3^2+I5^2+I7^2)||3}} / {{I1}} = **{{100*sqrt(I3^2+I5^2+I7^2)/I1|%}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "thd": [
+              10,
+              30,
+              48,
+              80,
+              120
+            ],
+            "phi": [
+              0,
+              10,
+              20,
+              30
+            ]
+          },
+          "prompt": "A load's current has a $THD$ of {{thd}} % and its fundamental lags the voltage by {{phi}}°. What is the power factor?",
+          "answer": "cos(rad(phi))/sqrt(1 + (thd/100)^2)",
+          "unit": "",
+          "explanation": "Distortion factor: $1/\\sqrt{1 + THD^2}$ = 1/√(1 + {{thd/100}}²) = {{1/sqrt(1+(thd/100)^2)||3}}. Displacement factor: cos {{phi}}° = {{cos(rad(phi))||3}}. $PF$ = **{{cos(rad(phi))/sqrt(1+(thd/100)^2)||3}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Why diode rectifiers are bad loads",
+          "body": "A diode bridge with a large reservoir capacitor only conducts for a short time around each voltage peak. The current pulses are in phase with the voltage (displacement factor ≈ 1) but very distorted, so the power factor is poor.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 2,
+              "label": "t / T_line"
+            },
+            "y": {
+              "min": -1.3,
+              "max": 1.3,
+              "label": "normalised"
+            },
+            "curves": [
+              {
+                "f": "sin(2*pi*x)",
+                "color": "grey",
+                "dash": true,
+                "label": "v_g",
+                "labelAt": 0.13
+              },
+              {
+                "f": "sign(sin(2*pi*x))*max(0, abs(sin(2*pi*x)) - 0.85)*6",
+                "label": "i_g",
+                "labelAt": 0.33
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "height": 150
+          }
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Which of these loads typically has the **lowest** power factor?",
+          "options": [
+            "A diode bridge feeding a large capacitor (no PFC)",
+            "A resistive heater",
+            "An induction motor at full load",
+            "A power supply with an active boost PFC stage"
+          ],
+          "answer": 0,
+          "explanation": "The heater has $PF$ = 1, a loaded induction motor about 0.8–0.9 (displacement only) and a boost-PFC supply above 0.95. The capacitor-input rectifier's narrow current pulses give $PF$ ≈ 0.5–0.7."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "I": [
+              2,
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "A large DC-side inductor makes a rectifier draw a square-wave line current of ±{{I|A}}, in phase with the voltage.",
+          "ask": [
+            {
+              "prompt": "What is the rms value of its fundamental?",
+              "answer": "2*sqrt(2)/pi*I",
+              "unit": "A",
+              "explanation": "The fundamental of a square wave of height $I$ has peak $\\frac{4}{\\pi}I$, so rms $\\frac{2\\sqrt2}{\\pi}I$ = 0.900 × {{I|A}} = **{{2*sqrt(2)/pi*I|A}}**. The total rms is $I$ itself, so $PF$ = 0.90."
+            },
+            {
+              "prompt": "What is its $THD$ (in %)?",
+              "answer": "100*sqrt(1/(2*sqrt(2)/pi)^2 - 1)",
+              "unit": "%",
+              "explanation": "$I_{rms} = I$ and $I_1 = 0.900\\,I$: $THD = \\sqrt{(I_{rms}/I_1)^2 - 1}$ = √(1/0.810 − 1) = **{{100*sqrt(1/(2*sqrt(2)/pi)^2-1)|%}}**, independent of $I$."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "A diode rectifier whose current pulses are centred on the voltage peaks has a power factor of 1, because its current is in phase with the voltage.",
+          "answer": false,
+          "explanation": "Being in phase only makes the **displacement** factor ≈ 1. The pulses contain large harmonics, which add rms current but carry no power, so the distortion factor (and thus $PF$) is well below 1."
+        }
+      ]
+    },
+    {
+      "id": "pe-acdc-2",
+      "title": "Boost PFC rectifier",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Emulating a resistor",
+          "body": "A boost converter after the diode bridge draws its inductor current straight from the rectified line. The controller makes that current proportional to the rectified voltage, $i_g = v_g/R_e$, so the line sees a resistor: $PF$ = 1. A slow outer loop adjusts $R_e$ to keep $V$ at its setpoint.",
+          "formula": "R_e = \\frac{V_{g,rms}^2}{P}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "v_g"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  2,
+                  4
+                ],
+                "to": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "L"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  4
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  6,
+                  0
+                ],
+                "label": "D_5"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  4
+                ],
+                "label": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    0
+                  ],
+                  [
+                    7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  7,
+                  0
+                ],
+                "to": [
+                  7,
+                  4
+                ],
+                "label": "load"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    7,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  4
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  4
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "P": [
+              300,
+              500,
+              1000,
+              1500
+            ],
+            "V": [
+              120,
+              230
+            ]
+          },
+          "prompt": "A boost PFC stage draws {{P|W}} from {{V}} V rms mains with $PF$ = 1.",
+          "ask": [
+            {
+              "prompt": "What emulated resistance $R_e$ does the line see?",
+              "answer": "V^2/P",
+              "unit": "Ω",
+              "explanation": "$R_e = \\frac{V_{rms}^2}{P}$ = {{V}}² / {{P|W}} = **{{V^2/P|Ω}}**."
+            },
+            {
+              "prompt": "What is the peak line current?",
+              "answer": "sqrt(2)*P/V",
+              "unit": "A",
+              "explanation": "$I_{rms} = P/V_{rms}$ = {{P/V|A}}, and the current is sinusoidal, so $I_{pk} = \\sqrt2 I_{rms}$ = **{{sqrt(2)*P/V|A}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "V": [
+              120,
+              230
+            ],
+            "Vo": [
+              380,
+              400
+            ]
+          },
+          "prompt": "A boost PFC converter on {{V}} V rms mains makes $V$ = {{Vo|V}}.",
+          "ask": [
+            {
+              "prompt": "What is its duty cycle at the peak of the line voltage?",
+              "answer": "1 - sqrt(2)*V/Vo",
+              "unit": "",
+              "explanation": "$d = 1 - \\frac{|v_g|}{V}$ with $|v_g| = \\sqrt2 \\cdot$ {{V}} = {{sqrt(2)*V|V}}: $d$ = 1 − {{sqrt(2)*V||4}}/{{Vo}} = **{{1-sqrt(2)*V/Vo||3}}**."
+            },
+            {
+              "prompt": "What is its duty cycle 30° after a zero crossing?",
+              "answer": "1 - sqrt(2)*V*0.5/Vo",
+              "unit": "",
+              "explanation": "$|v_g| = \\sqrt2V_{rms}\\sin 30°$ = {{sqrt(2)*V*0.5|V}}: $d$ = 1 − {{sqrt(2)*V*0.5||4}}/{{Vo}} = **{{1-sqrt(2)*V*0.5/Vo||3}}**. Near the zero crossings $d$ approaches 1."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "Vpk": [
+              311,
+              325,
+              340
+            ],
+            "dmin": [
+              0.1,
+              0.15,
+              0.2,
+              0.25
+            ]
+          },
+          "require": "min(Vpk/(1-dmin) - 340, 470 - Vpk/(1-dmin))",
+          "prompt": "A boost PFC runs from a line with a {{Vpk|V}} peak. The graph shows its duty cycle over one half line cycle. Set the output voltage $V$ so that the smallest duty cycle is {{dmin}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.5,
+              "label": "t / T_line"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.05,
+              "label": "d"
+            },
+            "sliders": [
+              {
+                "name": "V",
+                "label": "$V$",
+                "min": 300,
+                "max": 500,
+                "step": 1,
+                "value": 480,
+                "unit": "V"
+              }
+            ],
+            "curves": [
+              {
+                "f": "1 - Vpk*abs(sin(2*pi*x))/V"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "dmin",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$d_{min}$",
+                "value": "1 - Vpk/V",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "V": "Vpk/(1-dmin)"
+          },
+          "tolerance": 0.01,
+          "explanation": "The smallest duty cycle occurs at the line peak: $d_{min} = 1 - V_{pk}/V$ → $V = \\frac{V_{pk}}{1 - d_{min}}$ = {{Vpk}} / {{1-dmin||2}} = **{{Vpk/(1-dmin)|V}}**. A higher $V$ gives more control margin but more switch voltage and switching loss."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Energy buffering",
+          "body": "The line delivers $p(t) = P(1 - \\cos 2\\omega t)$, the load wants a constant $P$. The output capacitor absorbs the difference, so $V$ ripples at twice the line frequency. The PFC voltage loop must be slow (≈10–20 Hz) so it does not try to remove this ripple and distort the input current.",
+          "formula": "\\Delta V_{pp} \\approx \\frac{P}{2\\pi f_{line}CV}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "P": [
+              300,
+              500,
+              1000
+            ],
+            "f": [
+              50,
+              60
+            ],
+            "Vo": [
+              380,
+              400
+            ],
+            "C": [
+              0.00022,
+              0.00033,
+              0.00047,
+              0.00068
+            ]
+          },
+          "prompt": "A {{P|W}} PFC stage on {{f}} Hz mains has $V$ = {{Vo|V}} and $C$ = {{C|F}}. Estimate the peak-to-peak output ripple.",
+          "answer": "P/(2*pi*f*C*Vo)",
+          "unit": "V",
+          "explanation": "$\\Delta V_{pp} \\approx \\frac{P}{2\\pi f_{line}CV}$ = {{P}} / (2π × {{f}} × {{C|F}} × {{Vo}}) = **{{P/(2*pi*f*C*Vo)|V}}**, at {{2*f}} Hz."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "P": [
+              200,
+              500,
+              1000
+            ],
+            "th": [
+              0.01,
+              0.016,
+              0.02
+            ],
+            "Vo": [
+              390,
+              400
+            ],
+            "Vmin": [
+              250,
+              300,
+              330
+            ]
+          },
+          "prompt": "A {{P|W}} supply must keep running for {{th|s}} after a mains dropout. Its PFC bus is at {{Vo|V}} and the DC–DC stage works down to {{Vmin|V}}. What is the minimum bus capacitance?",
+          "answer": "2*P*th/(Vo^2 - Vmin^2)",
+          "unit": "F",
+          "explanation": "Energy available: $\\frac12C(V^2 - V_{min}^2) \\ge Pt_h$ → $C \\ge \\frac{2Pt_h}{V^2 - V_{min}^2}$ = 2 × {{P}} × {{th|s}} / ({{Vo}}² − {{Vmin}}²) = **{{2*P*th/(Vo^2-Vmin^2)|F}}**."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Why is the boost the usual topology for single-phase PFC?",
+          "options": [
+            "Its inductor sits in series with the input, so the line current is continuous and directly controllable",
+            "It needs no switch",
+            "It steps the voltage down, which suits the low line voltage",
+            "It provides galvanic isolation"
+          ],
+          "answer": 0,
+          "explanation": "In a boost the input current equals the inductor current, which the controller can shape cycle by cycle into a smooth half-sine. A buck's input current is pulsed and it cannot operate when $v_g < V$. Isolation, if needed, comes from the following DC–DC stage."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "The output voltage of a boost PFC stage must be higher than the peak of the line voltage.",
+          "answer": true,
+          "explanation": "A boost can only step up: $V = |v_g|/(1-d) \\ge |v_g|$. If $V$ were below the line peak, the diodes would conduct uncontrolled near the peaks. Typically $V \\approx$ 380–400 V for universal (85–265 V) mains."
+        }
+      ]
+    },
+    {
+      "id": "pe-acdc-3",
+      "title": "Inverters and PWM",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "From DC to AC",
+          "body": "An H-bridge connects the load to $+V_{dc}$, $-V_{dc}$ or 0. Driven with a 50 % square wave it produces a fundamental of peak $\\frac{4}{\\pi}V_{dc}$, plus 3rd, 5th, 7th… harmonics that are hard to filter. PWM fixes that by switching much faster than the output frequency.",
+          "formula": "\\hat v_{1,square} = \\frac{4}{\\pi}V_{dc}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{dc}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "switch",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "Q_2"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "Q_3",
+                "flip": true
+              },
+              {
+                "type": "switch",
+                "from": [
+                  6,
+                  2
+                ],
+                "to": [
+                  6,
+                  4
+                ],
+                "label": "Q_4",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    6,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  4
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ],
+                "label": "a"
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  2
+                ],
+                "label": "b"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "L"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vdc": [
+              24,
+              48,
+              200,
+              400
+            ]
+          },
+          "prompt": "An H-bridge inverter on a {{Vdc|V}} DC bus is driven with a square wave (no PWM). What is the rms value of the fundamental output voltage?",
+          "answer": "4/pi*Vdc/sqrt(2)",
+          "unit": "V",
+          "explanation": "Peak: $\\frac{4}{\\pi}V_{dc}$ = {{4/pi*Vdc|V}}. rms: divide by √2: **{{4/pi*Vdc/sqrt(2)|V}}** (= 0.90 $V_{dc}$)."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Sinusoidal PWM",
+          "body": "Comparing a sine reference with a fast triangular carrier makes each leg's local duty cycle follow the sine. The average of $v_{ab}$ is then $m_aV_{dc}\\sin\\omega t$: its amplitude is set by the modulation index $m_a$, its frequency by the reference. Drag $m_a$.",
+          "formula": "\\hat v_{ab,1} = m_aV_{dc}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "t / T_1"
+            },
+            "y": {
+              "min": -1.3,
+              "max": 1.3,
+              "label": "v_ab / V_dc"
+            },
+            "sliders": [
+              {
+                "name": "m",
+                "label": "$m_a$",
+                "min": 0,
+                "max": 1,
+                "step": 0.01,
+                "value": 0.8
+              }
+            ],
+            "curves": [
+              {
+                "f": "2*step(m*sin(2*pi*x) - (4*abs(mod(x*9, 1) - 0.5) - 1)) - 1",
+                "color": "grey"
+              },
+              {
+                "f": "m*sin(2*pi*x)",
+                "color": "orange",
+                "label": "fundamental",
+                "labelAt": 0.3
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$V_{1,rms}$ at $V_{dc}$ = 400 V",
+                "value": "m*400/sqrt(2)",
+                "unit": "V"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vdc": [
+              48,
+              200,
+              350,
+              400
+            ],
+            "m": [
+              0.5,
+              0.7,
+              0.8,
+              0.9,
+              1.0
+            ]
+          },
+          "prompt": "A full-bridge inverter with sinusoidal PWM runs from {{Vdc|V}} at $m_a$ = {{m}}. What is the rms value of the fundamental output voltage?",
+          "answer": "m*Vdc/sqrt(2)",
+          "unit": "V",
+          "explanation": "$\\hat v_1 = m_aV_{dc}$ = {{m}} × {{Vdc|V}} = {{m*Vdc|V}} peak, so rms = **{{m*Vdc/sqrt(2)|V}}**."
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "Vdc": [
+              350,
+              400
+            ],
+            "Vt": [
+              120,
+              150,
+              200,
+              230
+            ]
+          },
+          "require": "min(0.98 - sqrt(2)*Vt/Vdc, sqrt(2)*Vt/Vdc - 0.3)",
+          "prompt": "A full-bridge PWM inverter runs from {{Vdc|V}}. Set the modulation index for an output fundamental of {{Vt|V}} rms.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "t / T_1"
+            },
+            "y": {
+              "min": -1.3,
+              "max": 1.3,
+              "label": "v_ab / V_dc"
+            },
+            "sliders": [
+              {
+                "name": "m",
+                "label": "$m_a$",
+                "min": 0,
+                "max": 1,
+                "step": 0.01,
+                "value": 1
+              }
+            ],
+            "curves": [
+              {
+                "f": "2*step(m*sin(2*pi*x) - (4*abs(mod(x*9, 1) - 0.5) - 1)) - 1",
+                "color": "grey"
+              },
+              {
+                "f": "m*sin(2*pi*x)",
+                "color": "orange",
+                "label": "fundamental",
+                "labelAt": 0.3
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$V_{1,rms}$",
+                "value": "m*Vdc/sqrt(2)",
+                "unit": "V",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "m": "sqrt(2)*Vt/Vdc"
+          },
+          "tolerance": 0.03,
+          "explanation": "$V_{1,rms} = \\frac{m_aV_{dc}}{\\sqrt2}$ → $m_a = \\frac{\\sqrt2V_{1,rms}}{V_{dc}}$ = 1.414 × {{Vt}} / {{Vdc}} = **{{sqrt(2)*Vt/Vdc||3}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vdc": [
+              48,
+              200,
+              400
+            ],
+            "m": [
+              0.6,
+              0.8,
+              0.9
+            ]
+          },
+          "prompt": "A **half-bridge** inverter (one leg, load to the midpoint of a split {{Vdc|V}} bus) uses sinusoidal PWM with $m_a$ = {{m}}. What is the peak of the fundamental output voltage?",
+          "answer": "0.5*m*Vdc",
+          "unit": "V",
+          "explanation": "The leg output swings between $\\pm V_{dc}/2$ around the midpoint, so $\\hat v_1 = \\frac12m_aV_{dc}$ = 0.5 × {{m}} × {{Vdc}} = **{{0.5*m*Vdc|V}}**, half of what a full bridge gives from the same bus."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "f1": [
+              50,
+              60
+            ],
+            "fs": [
+              3000.0,
+              6000.0,
+              12000.0,
+              20000.0
+            ]
+          },
+          "prompt": "An inverter makes {{f1}} Hz using a {{fs|Hz}} triangular carrier.",
+          "ask": [
+            {
+              "prompt": "What is the frequency modulation ratio $m_f$?",
+              "answer": "fs/f1",
+              "unit": "",
+              "explanation": "$m_f = f_s/f_1$ = {{fs|Hz}} / {{f1}} Hz = **{{fs/f1||4}}**. With bipolar PWM the main harmonics cluster around $m_f f_1 = f_s$ and its multiples."
+            },
+            {
+              "prompt": "With unipolar PWM, the first harmonic cluster sits around twice the carrier frequency. At what frequency is that?",
+              "answer": "2*fs",
+              "unit": "Hz",
+              "explanation": "In unipolar PWM the two legs switch at different instants, so the output pulses occur at twice the carrier rate: harmonics cluster around $2f_s$ = **{{2*fs|Hz}}**, easier to filter."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each H-bridge switch state to the result (Q_1, Q_2: left leg top/bottom; Q_3, Q_4: right leg top/bottom)",
+          "pairs": [
+            [
+              "Q_1 and Q_4 on",
+              "v_ab = +V_dc"
+            ],
+            [
+              "Q_2 and Q_3 on",
+              "v_ab = −V_dc"
+            ],
+            [
+              "Q_1 and Q_3 on",
+              "v_ab = 0"
+            ],
+            [
+              "Q_1 and Q_2 on",
+              "Shoot-through: short circuit"
+            ]
+          ],
+          "explanation": "Node a is at $V_{dc}$ when $Q_1$ is on and at 0 when $Q_2$ is on; node b likewise with $Q_3$/$Q_4$. Turning on both switches of one leg shorts the DC bus, which is why drivers insert a dead time between them."
+        }
+      ]
+    },
+    {
+      "id": "pe-acdc-4",
+      "title": "Three-phase inverters and drives",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vdc": [
+              400,
+              560,
+              650,
+              700
+            ],
+            "m": [
+              0.6,
+              0.8,
+              0.9,
+              1.0
+            ]
+          },
+          "prompt": "A three-phase inverter with sinusoidal PWM runs from {{Vdc|V}} at $m_a$ = {{m}}.",
+          "ask": [
+            {
+              "prompt": "What is the rms line-to-line output voltage (fundamental)?",
+              "answer": "sqrt(3)/(2*sqrt(2))*m*Vdc",
+              "unit": "V",
+              "explanation": "Phase (leg-to-midpoint) peak: $\\frac{m_aV_{dc}}{2}$ = {{m*Vdc/2|V}}. Line-to-line peak: ×√3 = {{sqrt(3)*m*Vdc/2|V}}. rms: ÷√2 → **{{sqrt(3)/(2*sqrt(2))*m*Vdc|V}}** (= 0.612 $m_aV_{dc}$)."
+            },
+            {
+              "prompt": "What is the rms line-to-neutral voltage (fundamental) of a balanced star load?",
+              "answer": "m*Vdc/(2*sqrt(2))",
+              "unit": "V",
+              "explanation": "Line-to-neutral peak $= \\frac{m_aV_{dc}}{2}$ = {{m*Vdc/2|V}}, rms **{{m*Vdc/(2*sqrt(2))|V}}** (line-to-line ÷ √3)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "VLL": [
+              230,
+              400,
+              460,
+              480
+            ]
+          },
+          "prompt": "A drive must supply a {{VLL}} V (line-to-line rms) motor with linear sinusoidal PWM.",
+          "ask": [
+            {
+              "prompt": "What minimum DC bus voltage is needed at $m_a$ = 1?",
+              "answer": "VLL/(sqrt(3)/(2*sqrt(2)))",
+              "unit": "V",
+              "explanation": "$V_{LL,rms} = 0.612\\,m_aV_{dc}$ → $V_{dc} = \\frac{V_{LL}}{0.612}$ = {{VLL}} / 0.612 = **{{VLL/(sqrt(3)/(2*sqrt(2)))|V}}**."
+            },
+            {
+              "prompt": "With third-harmonic injection ($m_a$ up to 1.155), what minimum bus voltage is needed?",
+              "answer": "VLL/(2/sqrt(3)*sqrt(3)/(2*sqrt(2)))",
+              "unit": "V",
+              "explanation": "$V_{LL,rms,max}$ = 0.612 × 1.155 $V_{dc}$ = 0.707 $V_{dc}$, so $V_{dc}$ = {{VLL}} / 0.707 = **{{VLL/(2/sqrt(3)*sqrt(3)/(2*sqrt(2)))|V}}**, about 13 % less."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vr": [
+              230,
+              400
+            ],
+            "p": [
+              2,
+              4,
+              6
+            ],
+            "f": [
+              10,
+              20,
+              25,
+              30,
+              40
+            ]
+          },
+          "prompt": "An induction motor is rated {{Vr}} V at 50 Hz and has {{p}} poles. A V/f drive runs it at {{f}} Hz.",
+          "ask": [
+            {
+              "prompt": "What voltage should the drive apply (constant V/f)?",
+              "answer": "Vr*f/50",
+              "unit": "V",
+              "explanation": "$V = V_{rated}\\frac{f}{f_{rated}}$ = {{Vr}} V × {{f}}/50 = **{{Vr*f/50|V}}**. This keeps the air-gap flux, and so the available torque, constant."
+            },
+            {
+              "prompt": "What is the synchronous speed in rpm?",
+              "answer": "120*f/p",
+              "unit": "rpm",
+              "explanation": "$n_s = \\frac{120f}{p}$ = 120 × {{f}} / {{p}} = **{{120*f/p}} rpm**. The rotor runs slightly slower (slip)."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "VLL": [
+              380,
+              400,
+              415,
+              480
+            ]
+          },
+          "prompt": "A drive's DC bus comes from a three-phase diode bridge on {{VLL}} V (line-to-line rms) mains, giving $V_{dc} \\approx 1.35\\,V_{LL}$. With linear SPWM ($m_a \\le 1$), what is the highest line-to-line rms voltage the inverter can deliver?",
+          "answer": "1.35*VLL*sqrt(3)/(2*sqrt(2))",
+          "unit": "V",
+          "explanation": "$V_{dc}$ ≈ 1.35 × {{VLL}} = {{1.35*VLL|V}}. Maximum: $0.612\\,V_{dc}$ = **{{1.35*VLL*sqrt(3)/(2*sqrt(2))|V}}**, only about 83 % of the mains voltage. That is why drives use third-harmonic injection, space-vector PWM or overmodulation to reach rated voltage."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "Vdc": [
+              300,
+              540,
+              650
+            ]
+          },
+          "prompt": "A three-phase inverter on a {{Vdc|V}} bus is run in six-step (square-wave) mode. What is the rms value of the fundamental line-to-line voltage?",
+          "options": [
+            "{{sqrt(6)/pi*Vdc|V}}",
+            "{{sqrt(3)/(2*sqrt(2))*Vdc|V}}",
+            "{{Vdc/sqrt(2)|V}}",
+            "{{Vdc|V}}"
+          ],
+          "answer": 0,
+          "explanation": "Each leg is a ±$V_{dc}/2$ square wave with fundamental peak $\\frac{4}{\\pi}\\frac{V_{dc}}{2}$; line-to-line multiplies by √3, and rms divides by √2: $\\frac{\\sqrt6}{\\pi}V_{dc}$ = **{{sqrt(6)/pi*Vdc|V}}**. That beats linear SPWM ({{sqrt(3)/(2*sqrt(2))*Vdc|V}} at $m_a$ = 1) and third-harmonic PWM ({{Vdc/sqrt(2)|V}}), at the price of low-order harmonics."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "In a three-phase inverter, adding the same third harmonic to all three leg references changes the phase-leg voltages but not the line-to-line voltages.",
+          "answer": true,
+          "explanation": "The third harmonic is identical (in phase) in all three legs, because 3 × 120° = 360°. Line-to-line voltages are differences of leg voltages, so it cancels. It lowers the peak of each leg's reference, which allows $m_a$ up to 1.155 without overmodulating."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "e1": [
+              0.96,
+              0.97,
+              0.98
+            ],
+            "e2": [
+              0.94,
+              0.96
+            ],
+            "e3": [
+              0.95,
+              0.97,
+              0.98
+            ],
+            "Po": [
+              500,
+              1000,
+              3000
+            ]
+          },
+          "prompt": "A mains-powered chain: a boost PFC ({{e1*100}} %), a DC–DC stage ({{e2*100}} %) and an inverter ({{e3*100}} %) in cascade deliver {{Po|W}}. How much power is drawn from the grid?",
+          "answer": "Po/(e1*e2*e3)",
+          "unit": "W",
+          "explanation": "Efficiencies multiply: $\\eta$ = {{e1}} × {{e2}} × {{e3}} = {{e1*e2*e3||3}}. $P_{in} = P_{out}/\\eta$ = {{Po|W}} / {{e1*e2*e3||3}} = **{{Po/(e1*e2*e3)|W}}**, of which {{Po/(e1*e2*e3)-Po|W}} becomes heat."
+        }
+      ]
+    }
+  ]
+}

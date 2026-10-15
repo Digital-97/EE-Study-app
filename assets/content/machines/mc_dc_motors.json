@@ -1,0 +1,1599 @@
+{
+ "id": "mc-dc-motors",
+ "title": "DC Motor Characteristics",
+ "description": "Torque–speed lines of shunt and series motors, speed control, and DC generators.",
+ "reference": "Hambley §16.5–16.7",
+ "study": [
+  {
+   "title": "Shunt motor: torque–speed line",
+   "body": "With constant $V_T$ and flux (shunt, separately excited or permanent-magnet motor), combining $V_T = R_AI_A + E_A$, $E_A = K\\phi\\omega_m$ and $T = K\\phi I_A$ gives a **straight line**. It falls from the stall torque $K\\phi V_T/R_A$ at standstill to zero at the no-load speed $V_T/K\\phi$. Because $R_A$ is small, the speed drops only a little with load (good speed regulation).",
+   "formula": "T_{dev} = \\frac{K\\phi}{R_A}\\left(V_T - K\\phi\\,\\omega_m\\right)",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 1300,
+     "label": "n_m (rpm)"
+    },
+    "y": {
+     "min": 0,
+     "max": 130,
+     "label": "T_{dev} (N·m)"
+    },
+    "curves": [
+     {
+      "f": "120*(1 - x/1200)",
+      "color": "blue"
+     }
+    ],
+    "points": [
+     {
+      "x": 1200,
+      "y": 0,
+      "label": "no-load speed",
+      "guides": false
+     },
+     {
+      "x": 0,
+      "y": 120,
+      "label": "stall torque",
+      "guides": false
+     }
+    ],
+    "height": 180
+   }
+  },
+  {
+   "title": "Series motor",
+   "body": "The field winding carries the armature current, so $\\phi = K_FI_A$ (below saturation). Then $T = KK_FI_A^2$: torque grows with the **square** of current, giving very high starting torque (traction, starter motors). Speed falls steeply with load and rises dangerously at light load, so a series motor must **never run unloaded**. A series motor also works on AC (**universal motor**), because torque does not depend on the sign of $I_A$.",
+   "formula": "E_A = KK_F\\,\\omega_mI_A,\\quad T_{dev} = KK_FI_A^2,\\quad V_T = (R_A + R_F)I_A + E_A",
+   "circuit": {
+    "elements": [
+     {
+      "type": "vsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_T",
+      "value": ""
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       2,
+       0
+      ],
+      "label": "R_F"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       4,
+       0
+      ],
+      "label": "L_F"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "R_A"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "motor",
+      "from": [
+       6,
+       2
+      ],
+      "to": [
+       6,
+       0
+      ],
+      "label": "E_A",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        6,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       3.6,
+       2
+      ],
+      "to": [
+       2.4,
+       2
+      ],
+      "label": "I_A"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Speed control of shunt motors",
+   "body": "From $\\omega_m = V_T/K\\phi - R_AT/(K\\phi)^2$:\n- **Armature voltage** $V_T$ down: the line shifts down in parallel. Efficient; used with electronic converters.\n- **Field weakening** ($R_{adj}$ up, $\\phi$ down): no-load speed up, line steeper. Raises speed above rated.\n- **Armature resistance** added: same no-load speed, much steeper line. Simple but wastes $I_A^2R$.",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 1.4,
+     "label": "n / n_{nl}",
+     "ticks": [
+      0,
+      0.5,
+      1
+     ]
+    },
+    "y": {
+     "min": 0,
+     "max": 3,
+     "label": "T / T_{rated}"
+    },
+    "curves": [
+     {
+      "f": "10*(1 - x)",
+      "label": "original",
+      "color": "grey",
+      "labelAt": 0.55
+     },
+     {
+      "f": "10*(0.7 - x)",
+      "label": "lower V_T",
+      "color": "blue",
+      "labelAt": 0.33
+     },
+     {
+      "f": "8*(1 - 0.8*x)",
+      "label": "weaker field",
+      "color": "green",
+      "labelAt": 0.86
+     },
+     {
+      "f": "(10/3)*(1 - x)",
+      "label": "added R",
+      "color": "red",
+      "labelAt": 0.12
+     }
+    ],
+    "height": 200
+   }
+  },
+  {
+   "title": "Explore: speed control",
+   "body": "Speed against torque for a separately excited motor ($R_A$ = 0.5 Ω, load 30 N·m). Grey: 240 V, $K\\phi$ = 2. Lower $V_T$: the line moves down in parallel. Weaken the field ($K\\phi$ down): the no-load speed rises and the line gets steeper. Add armature resistance: same no-load speed, steeper line, and the readout shows the power burnt in it.",
+   "formula": "\\omega_m = \\frac{V_T}{K\\phi} - \\frac{(R_A + R_{ext})\\,T}{(K\\phi)^2}",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 100,
+     "label": "T (N·m)"
+    },
+    "y": {
+     "min": 0,
+     "max": 2500,
+     "label": "n (rpm)"
+    },
+    "sliders": [
+     {
+      "name": "VT",
+      "label": "$V_T$",
+      "min": 120,
+      "max": 240,
+      "step": 10,
+      "value": 240,
+      "unit": "V"
+     },
+     {
+      "name": "Kp",
+      "label": "$K\\phi$",
+      "min": 1,
+      "max": 2,
+      "step": 0.05,
+      "value": 2
+     },
+     {
+      "name": "Rx",
+      "label": "$R_{ext}$",
+      "min": 0,
+      "max": 3,
+      "step": 0.25,
+      "value": 0,
+      "unit": "Ω"
+     }
+    ],
+    "let": {
+     "Ia": "30/Kp",
+     "nop": "(VT/Kp - (0.5+Rx)*30/Kp^2)/(2*pi/60)"
+    },
+    "curves": [
+     {
+      "f": "(240/2 - 0.5*x/4)/(2*pi/60)",
+      "color": "grey"
+     },
+     {
+      "f": "(VT/Kp - (0.5+Rx)*x/Kp^2)/(2*pi/60)",
+      "color": "blue"
+     }
+    ],
+    "vlines": [
+     {
+      "x": 30,
+      "label": "load"
+     }
+    ],
+    "points": [
+     {
+      "x": 30,
+      "y": "nop"
+     }
+    ],
+    "readouts": [
+     {
+      "label": "speed (rpm)",
+      "value": "nop",
+      "sig": 4
+     },
+     {
+      "label": "$I_A$",
+      "value": "Ia",
+      "unit": "A"
+     },
+     {
+      "label": "loss in $R_{ext}$",
+      "value": "Ia^2*Rx",
+      "unit": "W"
+     }
+    ]
+   }
+  },
+  {
+   "title": "DC generators",
+   "body": "Driven by a prime mover, the machine generates $E_A = K\\phi\\omega_m$ and supplies a load through $R_A$. In a **separately excited** generator the field has its own source; in a **shunt** generator the field is fed from the armature (self-excited, building up from residual magnetism). The terminal voltage drops as load current rises; **voltage regulation** measures this.",
+   "formula": "V_L = E_A - R_AI_A,\\qquad \\text{VR} = \\frac{V_{nl} - V_{fl}}{V_{fl}}\\times 100\\%",
+   "circuit": {
+    "elements": [
+     {
+      "type": "generator",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "E_A",
+      "polarity": "-+"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       2,
+       0
+      ],
+      "label": "R_A",
+      "value": ""
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        2,
+        0
+       ],
+       [
+        4,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4,
+       0
+      ],
+      "to": [
+       4,
+       2
+      ],
+      "label": "R_L",
+      "value": "",
+      "polarity": "+-"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       2.4,
+       0
+      ],
+      "to": [
+       3.6,
+       0
+      ],
+      "label": "I_L"
+     },
+     {
+      "type": "text",
+      "at": [
+       5.2,
+       1
+      ],
+      "label": "V_L"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Generator power flow",
+   "body": "Mechanical input $T_{in}\\omega_m$ minus rotational losses gives the developed power $E_AI_A$; the armature loses $I_A^2R_A$; the rest $V_LI_L$ goes to the load. Add the field power if the efficiency should include the excitation.",
+   "formula": "\\eta = \\frac{V_LI_L}{V_LI_L + I_A^2R_A + P_{rot} + P_{field}}"
+  }
+ ],
+ "lessons": [
+  {
+   "id": "mc-dc-motors-1",
+   "title": "Shunt and series characteristics",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "A straight torque–speed line",
+     "body": "For a shunt (or permanent-magnet) motor with constant $V_T$ and flux, torque falls linearly with speed. Two points fix the line: the **no-load speed** $\\omega_{nl} = V_T/K\\phi$ (where $I_A = 0$) and the **stall torque** $T_{stall} = K\\phi V_T/R_A$ (where $\\omega_m = 0$).",
+     "formula": "T_{dev} = \\frac{K\\phi}{R_A}\\left(V_T - K\\phi\\,\\omega_m\\right)",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 1300,
+       "label": "n_m (rpm)"
+      },
+      "y": {
+       "min": 0,
+       "max": 130,
+       "label": "T_{dev} (N·m)"
+      },
+      "curves": [
+       {
+        "f": "120*(1 - x/1200)",
+        "color": "blue"
+       }
+      ],
+      "points": [
+       {
+        "x": 1200,
+        "y": 0,
+        "label": "no-load speed",
+        "guides": false
+       },
+       {
+        "x": 0,
+        "y": 120,
+        "label": "stall torque",
+        "guides": false
+       }
+      ],
+      "height": 180
+     }
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "prompt": "A shunt motor has $K\\phi$ = {{Kp}} V·s/rad and runs from $V_T$ = {{VT|V}}. Find its no-load speed in rpm (neglect rotational losses).",
+     "answer": "VT/Kp*60/(2*pi)",
+     "unit": "",
+     "explanation": "No load means $I_A = 0$, so $E_A = V_T$: $\\omega_{nl} = V_T/K\\phi$ = {{VT}} / {{Kp}} = {{VT/Kp|rad/s}}, i.e. × 60/2π = {{VT/Kp*60/(2*pi)||4}} rpm.",
+     "params": {
+      "Kp": [
+       1.2,
+       1.5,
+       1.8,
+       2.0,
+       2.4
+      ],
+      "VT": [
+       180,
+       220,
+       240
+      ]
+     },
+     "tolerance": 0.01
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "prompt": "A shunt motor has $K\\phi$ = {{Kp}} N·m/A, $V_T$ = {{VT|V}}, $R_A$ = {{RA|Ω}}. Find the stall torque (if the supply could deliver the current).",
+     "answer": "Kp*VT/RA",
+     "unit": "N·m",
+     "explanation": "At standstill $E_A = 0$, so $I_A = V_T/R_A$ = {{VT/RA|A}} and $T_{stall} = K\\phi V_T/R_A$ = {{Kp}} × {{VT/RA}} = {{Kp*VT/RA}} N·m. This is far above rated torque; in practice the current must be limited.",
+     "params": {
+      "Kp": [
+       1.2,
+       1.5,
+       1.8,
+       2.0,
+       2.4
+      ],
+      "VT": [
+       180,
+       220,
+       240
+      ],
+      "RA": [
+       0.2,
+       0.3,
+       0.5,
+       0.8
+      ]
+     }
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Series motors",
+     "body": "In a series motor the field winding is in series with the armature, so the flux grows with the load current: $\\phi = K_FI_A$. Then $T = KK_FI_A^2$. Doubling the current gives **four times** the torque, which suits cranes, traction and engine starters.",
+     "formula": "T_{dev} = KK_F\\,I_A^2",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_T",
+        "value": ""
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_F"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "L_F"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "R_A"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "motor",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "E_A",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         3.6,
+         2
+        ],
+        "to": [
+         2.4,
+         2
+        ],
+        "label": "I_A"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "prompt": "Which torque–speed graph belongs to a **series** DC motor?",
+     "answer": 1,
+     "explanation": "A series motor has a very high torque at low speed, and its speed rises steeply as the torque demand falls, giving the hyperbola-like curve. The straight, steep line is a shunt motor (nearly constant speed), and the curve with a peak near its top speed is an induction motor.",
+     "optionPlots": [
+      {
+       "x": {
+        "min": 0,
+        "max": 1.4,
+        "label": "n / n_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 3,
+        "label": "T / T_{rated}",
+        "ticks": [
+         0,
+         1,
+         2,
+         3
+        ]
+       },
+       "curves": [
+        {
+         "f": "(1.25 - x)/0.25",
+         "color": "blue"
+        }
+       ],
+       "height": 150
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1.4,
+        "label": "n / n_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 3,
+        "label": "T / T_{rated}",
+        "ticks": [
+         0,
+         1,
+         2,
+         3
+        ]
+       },
+       "curves": [
+        {
+         "f": "((1.15)/(0.15 + x))^2",
+         "color": "blue"
+        }
+       ],
+       "height": 150
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1.4,
+        "label": "n / n_{rated}",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 3,
+        "label": "T / T_{rated}",
+        "ticks": [
+         0,
+         1,
+         2,
+         3
+        ]
+       },
+       "curves": [
+        {
+         "f": "2*2.5*((1.25-x)/1.25)*0.25/(((1.25-x)/1.25)^2 + 0.0625)/(2*2.5*0.2*0.25/(0.04+0.0625))",
+         "color": "blue"
+        }
+       ],
+       "height": 150
+      }
+     ]
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "A series DC motor should never be operated without a mechanical load.",
+     "answer": true,
+     "explanation": "With little load, $I_A$ is small, so the flux $\\phi = K_FI_A$ is small. To produce a back EMF close to $V_T$ with a weak field, the motor must spin very fast, and it can accelerate to destructive speeds. Series motors are therefore coupled to their loads directly, not by belts that could slip off."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Three ways to change speed",
+     "body": "Solved for speed, the line reads $\\omega_m = V_T/K\\phi - R_AT/(K\\phi)^2$. So:\n- lower **armature voltage**: parallel shift to lower speed,\n- **weaker field** ($R_{adj}$ up): higher no-load speed,\n- **resistance** in series with the armature: same no-load speed, steeper drop.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 1.4,
+       "label": "n / n_{nl}",
+       "ticks": [
+        0,
+        0.5,
+        1
+       ]
+      },
+      "y": {
+       "min": 0,
+       "max": 3,
+       "label": "T / T_{rated}"
+      },
+      "curves": [
+       {
+        "f": "10*(1 - x)",
+        "label": "original",
+        "color": "grey",
+        "labelAt": 0.55
+       },
+       {
+        "f": "10*(0.7 - x)",
+        "label": "lower V_T",
+        "color": "blue",
+        "labelAt": 0.33
+       },
+       {
+        "f": "8*(1 - 0.8*x)",
+        "label": "weaker field",
+        "color": "green",
+        "labelAt": 0.86
+       },
+       {
+        "f": "(10/3)*(1 - x)",
+        "label": "added R",
+        "color": "red",
+        "labelAt": 0.12
+       }
+      ],
+      "height": 200
+     }
+    },
+    {
+     "id": "q5",
+     "type": "matchPairs",
+     "prompt": "Match each change (shunt motor) to its effect on the torque–speed line.",
+     "pairs": [
+      [
+       "Lower $V_T$ on the armature",
+       "Parallel shift to lower speed"
+      ],
+      [
+       "More field resistance $R_{adj}$",
+       "Higher no-load speed"
+      ],
+      [
+       "Resistance in series with $R_A$",
+       "Same no-load speed, steeper line"
+      ],
+      [
+       "Swap the armature leads",
+       "Reverses rotation"
+      ]
+     ],
+     "explanation": "No-load speed is $V_T/K\\phi$ and the slope is $R_A/(K\\phi)^2$. $V_T$ only moves the intercept; extra $R$ only changes the slope; weaker $\\phi$ raises the intercept and steepens the slope. Reversing $I_A$ (with the same field) reverses the torque."
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "The field rheostat $R_{adj}$ of a shunt motor is **increased** while the load torque stays the same. What happens to the speed?",
+     "options": [
+      "It increases",
+      "It decreases",
+      "It stays the same"
+     ],
+     "answer": 0,
+     "explanation": "More $R_{adj}$ means less $I_F$, so less flux. To produce nearly the same back EMF ($\\approx V_T$) with less flux, $E_A = K\\phi\\omega_m$ requires a higher speed. (The armature current rises too, since $T = K\\phi I_A$.) This is field weakening.",
+     "shuffle": false
+    }
+   ]
+  },
+  {
+   "id": "mc-dc-motors-2",
+   "title": "Controlling speed",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "prompt": "The graph is the measured torque–speed line of a {{VT|V}} permanent-magnet DC motor.",
+     "answer": "VT/(2*pi*nnl/60)",
+     "unit": "",
+     "explanation": "",
+     "params": {
+      "VT": [
+       12,
+       24,
+       48
+      ],
+      "nnl": [
+       2000,
+       2400,
+       3000,
+       3600
+      ],
+      "Ts": [
+       2,
+       3,
+       4,
+       5
+      ],
+      "f": [
+       0.2,
+       0.25,
+       0.4,
+       0.5
+      ]
+     },
+     "derived": {
+      "T1": "f*Ts"
+     },
+     "tolerance": 0.05,
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": "1.1*nnl",
+       "label": "n_m (rpm)"
+      },
+      "y": {
+       "min": 0,
+       "max": "1.15*Ts",
+       "label": "T (N·m)"
+      },
+      "curves": [
+       {
+        "f": "Ts*(1 - x/nnl)",
+        "color": "blue"
+       }
+      ],
+      "height": 190
+     },
+     "ask": [
+      {
+       "prompt": "Using the no-load speed from the graph, find $K\\phi$ (in V·s/rad).",
+       "answer": "VT/(2*pi*nnl/60)",
+       "unit": "",
+       "explanation": "The line meets the speed axis (zero torque, $I_A = 0$) at {{nnl||4}} rpm = {{2*pi*nnl/60|rad/s}}. There $E_A = V_T$, so $K\\phi = V_T/\\omega_{nl}$ = {{VT}} / {{2*pi*nnl/60}} = {{VT/(2*pi*nnl/60)}} V·s/rad."
+      },
+      {
+       "prompt": "Read the speed (in rpm) at which it delivers {{T1}} N·m.",
+       "answer": "nnl*(1-f)",
+       "unit": "",
+       "explanation": "The line runs from {{Ts}} N·m at standstill to zero torque at {{nnl||4}} rpm. At {{T1}} N·m: $n = n_{nl}(1 - T/T_{stall})$ = {{nnl||4}} × (1 − {{f}}) = {{nnl*(1-f)||4}} rpm."
+      },
+      {
+       "prompt": "Using the stall torque and the no-load speed from the graph, find the armature resistance $R_A$.",
+       "answer": "VT^2/(2*pi*nnl/60)/Ts",
+       "unit": "Ω",
+       "explanation": "$K\\phi = V_T/\\omega_{nl}$ = {{VT}} / {{2*pi*nnl/60}} = {{VT/(2*pi*nnl/60)}}. Stall torque {{Ts}} N·m = $K\\phi V_T/R_A$, so $R_A = K\\phi V_T/T_{stall}$ = {{VT/(2*pi*nnl/60)}} × {{VT}} / {{Ts}} = {{VT^2/(2*pi*nnl/60)/Ts|Ω}}."
+      }
+     ]
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "prompt": "A separately excited motor has $R_A$ = {{RA|Ω}} and $K\\phi$ = {{Kp}} V·s/rad. What armature voltage $V_T$ makes it run at {{n}} rpm with a load torque of {{T}} N·m?",
+     "answer": "RA*T/Kp + Kp*2*pi*n/60",
+     "unit": "V",
+     "explanation": "$I_A = T/K\\phi$ = {{T/Kp|A}}; $\\omega_m$ = {{2*pi*n/60|rad/s}}, so $E_A = K\\phi\\omega_m$ = {{Kp*2*pi*n/60|V}}. $V_T = R_AI_A + E_A$ = {{RA*T/Kp|V}} + {{Kp*2*pi*n/60|V}} = {{RA*T/Kp + Kp*2*pi*n/60|V}}.",
+     "params": {
+      "RA": [
+       0.1,
+       0.2,
+       0.3,
+       0.4
+      ],
+      "Kp": [
+       1.2,
+       1.5,
+       2.0
+      ],
+      "T": {
+       "min": 20,
+       "max": 80,
+       "step": 10
+      },
+      "n": [
+       400,
+       600,
+       800,
+       1000
+      ]
+     }
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "prompt": "A shunt motor ($V_T$ = {{VT|V}}, $R_A$ = {{RA|Ω}}) has $K\\phi$ = {{Kp1}} V·s/rad at $I_F$ = {{IF1|A}}. The field current is reduced to {{IF2|A}} (assume $K\\phi \\propto I_F$) while the load torque stays {{T}} N·m. Find the new speed in rpm.",
+     "answer": "(VT - RA*T/Kp2)/Kp2*60/(2*pi)",
+     "unit": "",
+     "explanation": "$K\\phi_2$ = {{Kp1}} × {{IF2}}/{{IF1}} = {{Kp2||4}}. $I_A = T/K\\phi_2$ = {{T/Kp2|A}}. $E_A = V_T - R_AI_A$ = {{VT - RA*T/Kp2|V}}. $\\omega_m = E_A/K\\phi_2$ = {{(VT - RA*T/Kp2)/Kp2|rad/s}} = {{(VT - RA*T/Kp2)/Kp2*60/(2*pi)||4}} rpm (before: {{(VT - RA*T/Kp1)/Kp1*60/(2*pi)||4}} rpm).",
+     "params": {
+      "VT": [
+       240
+      ],
+      "RA": [
+       0.1,
+       0.2
+      ],
+      "Kp1": [
+       2.0,
+       2.4
+      ],
+      "IF1": [
+       2
+      ],
+      "IF2": [
+       1.6,
+       1.7,
+       1.8
+      ],
+      "T": {
+       "min": 40,
+       "max": 120,
+       "step": 20
+      }
+     },
+     "derived": {
+      "Kp2": "Kp1*IF2/IF1"
+     },
+     "tolerance": 0.01
+    },
+    {
+     "id": "s1",
+     "type": "slider",
+     "params": {
+      "VT": [
+       220,
+       240
+      ],
+      "RA": [
+       0.2,
+       0.4,
+       0.5
+      ],
+      "TL": [
+       30,
+       40,
+       60
+      ],
+      "n": [
+       1200,
+       1400,
+       1600,
+       1800
+      ]
+     },
+     "derived": {
+      "w": "n*(2*pi/60)",
+      "Kt": "(VT + sqrt(VT^2 - 4*w*RA*TL))/(2*w)"
+     },
+     "prompt": "A shunt motor runs from $V_T$ = {{VT|V}} with $R_A$ = {{RA|Ω}} and drives a load of {{TL}} N·m. Use field weakening: set $K\\phi$ so that it runs at {{n||4}} rpm (the line must pass through the orange point).",
+     "hint": "$\\omega_m = \\frac{V_T}{K\\phi} - \\frac{R_AT}{(K\\phi)^2}$. Multiply by $(K\\phi)^2$ to get a quadratic.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": "2*TL",
+       "label": "T (N·m)"
+      },
+      "y": {
+       "min": 0,
+       "max": 2500,
+       "label": "n (rpm)"
+      },
+      "sliders": [
+       {
+        "name": "Kp",
+        "label": "$K\\phi$ (V·s/rad)",
+        "min": 0.8,
+        "max": 2.5,
+        "step": 0.005,
+        "value": 2.4
+       }
+      ],
+      "curves": [
+       {
+        "f": "(VT/Kp - RA*x/Kp^2)/(2*pi/60)",
+        "color": "blue"
+       }
+      ],
+      "points": [
+       {
+        "x": "TL",
+        "y": "n",
+        "color": "orange"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$I_A = T/K\\phi$",
+        "value": "TL/Kp",
+        "unit": "A"
+       },
+       {
+        "label": "speed at {{TL}} N·m (rpm)",
+        "value": "(VT/Kp - RA*TL/Kp^2)/(2*pi/60)",
+        "sig": 4,
+        "reveal": true
+       }
+      ]
+     },
+     "answer": {
+      "Kp": "Kt"
+     },
+     "tolerance": 0.03,
+     "explanation": "$\\omega_m$ = {{n||4}} rpm = {{w}} rad/s. From $\\omega_m(K\\phi)^2 - V_TK\\phi + R_AT = 0$: $K\\phi = \\frac{V_T + \\sqrt{V_T^2 - 4\\omega_mR_AT}}{2\\omega_m}$ = {{Kt||3}} V·s/rad. Then $I_A$ = {{TL/Kt|A}} and $E_A = K\\phi\\,\\omega_m$ = {{Kt*w|V}}. A weaker field means a higher speed but also a higher armature current for the same torque. (The other root, {{(VT - sqrt(VT^2 - 4*w*RA*TL))/(2*w)||2}}, needs an absurd current.)"
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "prompt": "A separately excited motor ($V_T$ = {{VT|V}}, $R_A$ = {{RA|Ω}}, $K\\phi$ = {{Kp}} V·s/rad) drives a constant load torque of {{T}} N·m. What resistance must be added in series with the armature to slow it to {{n}} rpm?",
+     "answer": "(VT - Kp*2*pi*n/60)/(T/Kp) - RA",
+     "unit": "Ω",
+     "explanation": "$I_A = T/K\\phi$ = {{T/Kp|A}} (unchanged, since torque is unchanged). $E_A = K\\phi\\omega_m$ = {{Kp}} × {{2*pi*n/60}} = {{Kp*2*pi*n/60|V}}. Total resistance $= (V_T - E_A)/I_A$ = {{(VT - Kp*2*pi*n/60)/(T/Kp)|Ω}}, so $R_{ext}$ = that − {{RA}} = {{(VT - Kp*2*pi*n/60)/(T/Kp) - RA|Ω}}.",
+     "params": {
+      "VT": [
+       240
+      ],
+      "RA": [
+       0.1,
+       0.2
+      ],
+      "Kp": [
+       2.0,
+       2.2
+      ],
+      "T": {
+       "min": 50,
+       "max": 150,
+       "step": 25
+      },
+      "n": [
+       500,
+       600,
+       700,
+       800
+      ]
+     }
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "prompt": "A series motor has $KK_F$ = {{Ks}} N·m/A², total resistance $R_A + R_F$ = {{R|Ω}} and runs from {{VT|V}}. It drives a load torque of {{T}} N·m. Find its speed in rpm (neglect saturation and rotational losses).",
+     "answer": "(VT - R*sqrt(T/Ks))/(Ks*sqrt(T/Ks))*60/(2*pi)",
+     "unit": "",
+     "explanation": "$T = KK_FI_A^2$, so $I_A = \\sqrt{T/KK_F}$ = {{sqrt(T/Ks)|A}}. $E_A = V_T - (R_A+R_F)I_A$ = {{VT - R*sqrt(T/Ks)|V}}. $\\omega_m = E_A/(KK_FI_A)$ = {{(VT - R*sqrt(T/Ks))/(Ks*sqrt(T/Ks))|rad/s}} = {{(VT - R*sqrt(T/Ks))/(Ks*sqrt(T/Ks))*60/(2*pi)||4}} rpm.",
+     "params": {
+      "Ks": [
+       0.02,
+       0.03,
+       0.04,
+       0.05
+      ],
+      "R": [
+       0.2,
+       0.3,
+       0.5
+      ],
+      "VT": [
+       120,
+       240
+      ],
+      "T": {
+       "min": 20,
+       "max": 100,
+       "step": 10
+      }
+     },
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_T",
+        "value": "{{VT|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_F"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "L_F"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "R_A"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "motor",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "E_A",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         3.6,
+         2
+        ],
+        "to": [
+         2.4,
+         2
+        ],
+        "label": "I_A"
+       }
+      ]
+     },
+     "tolerance": 0.01
+    },
+    {
+     "id": "p6",
+     "type": "multipleChoice",
+     "prompt": "A series motor develops {{T1}} N·m at {{I1|A}}. Neglecting saturation, what torque does it develop at {{I2|A}}?",
+     "options": [
+      "{{T1*(I2/I1)^2}} N·m",
+      "{{T1*I2/I1}} N·m",
+      "{{T1*sqrt(I2/I1)}} N·m",
+      "{{T1*(I1/I2)^2}} N·m"
+     ],
+     "answer": 0,
+     "explanation": "Torque is proportional to $I_A^2$: $T_2 = T_1(I_2/I_1)^2$ = {{T1}} × ({{I2}}/{{I1}})² = {{T1*(I2/I1)^2}} N·m. (A shunt motor would give only {{T1*I2/I1}} N·m, proportional to $I_A$.)",
+     "params": {
+      "T1": {
+       "min": 20,
+       "max": 80,
+       "step": 10
+      },
+      "I1": [
+       20,
+       30,
+       40
+      ],
+      "I2": [
+       10,
+       25,
+       50,
+       60
+      ]
+     },
+     "require": "abs(I1-I2)"
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "prompt": "A DC generator's terminal voltage is {{Vnl|V}} at no load and {{Vfl|V}} at full load. Find its voltage regulation in %.",
+     "answer": "100*(Vnl - Vfl)/Vfl",
+     "unit": "%",
+     "explanation": "VR = ($V_{nl} - V_{fl}$)/$V_{fl}$ × 100 % = ({{Vnl}} − {{Vfl}})/{{Vfl}} × 100 % = {{100*(Vnl - Vfl)/Vfl|%}}.",
+     "params": {
+      "Vfl": [
+       115,
+       120,
+       220,
+       230,
+       240
+      ],
+      "d": [
+       4,
+       6,
+       8,
+       10,
+       12
+      ]
+     },
+     "derived": {
+      "Vnl": "Vfl + d"
+     }
+    }
+   ]
+  },
+  {
+   "id": "mc-dc-motors-3",
+   "title": "Generators and series motors",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "prompt": "A separately excited DC generator with $K\\phi$ = {{Kp}} V·s/rad is driven at {{n||4}} rpm. $R_A$ = {{RA|Ω}} and it supplies a load resistor $R_L$ = {{RL|Ω}}.",
+     "answer": "1",
+     "unit": "",
+     "explanation": "",
+     "params": {
+      "Kp": [
+       1.0,
+       1.2,
+       1.5
+      ],
+      "n": [
+       1000,
+       1200,
+       1500,
+       1800
+      ],
+      "RA": [
+       0.1,
+       0.2,
+       0.3
+      ],
+      "RL": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "derived": {
+      "EA": "Kp*2*pi*n/60",
+      "IL": "Kp*2*pi*n/60/(RA+RL)",
+      "VL": "Kp*2*pi*n/60*RL/(RA+RL)"
+     },
+     "circuit": {
+      "elements": [
+       {
+        "type": "generator",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "E_A",
+        "polarity": "-+"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_A",
+        "value": "{{RA|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_L",
+        "value": "{{RL|Ω}}",
+        "polarity": "+-"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         2.4,
+         0
+        ],
+        "to": [
+         3.6,
+         0
+        ],
+        "label": "I_L"
+       },
+       {
+        "type": "text",
+        "at": [
+         5.2,
+         1
+        ],
+        "label": "V_L"
+       }
+      ]
+     },
+     "ask": [
+      {
+       "prompt": "Find the terminal voltage $V_L$.",
+       "answer": "VL",
+       "unit": "V",
+       "explanation": "$E_A = K\\phi\\omega_m$ = {{Kp}} × {{2*pi*n/60}} = {{EA|V}}. $I_L = E_A/(R_A + R_L)$ = {{IL|A}}. $V_L = R_LI_L$ = {{VL|V}}."
+      },
+      {
+       "prompt": "Find the voltage regulation in % (field and speed constant).",
+       "answer": "100*(EA - VL)/VL",
+       "unit": "%",
+       "explanation": "At no load $V_{nl} = E_A$ = {{EA|V}}. At this load $V_L$ = {{VL|V}}. VR = ({{EA}} − {{VL}})/{{VL}} × 100 % = {{100*(EA-VL)/VL|%}} (which equals $R_A/R_L$ here)."
+      },
+      {
+       "prompt": "Find the developed (converted) torque the prime mover must overcome, not counting rotational losses.",
+       "answer": "Kp*IL",
+       "unit": "N·m",
+       "explanation": "$I_A = I_L = E_A/(R_A + R_L)$ = {{IL|A}}. The armature current produces a counter-torque $T_{dev} = K\\phi I_A$ = {{Kp}} × {{IL}} = {{Kp*IL}} N·m that the prime mover must supply."
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "prompt": "A separately excited generator delivers {{IL|A}} at {{VL|V}}. $R_A$ = {{RA|Ω}}, rotational losses are {{Prot|W}} and the field takes {{PF|W}} from its own supply. Find the efficiency in % (include the field power in the input).",
+     "answer": "100*VL*IL/(VL*IL + RA*IL^2 + Prot + PF)",
+     "unit": "%",
+     "explanation": "Output $V_LI_L$ = {{VL*IL|W}}. Armature loss $I_A^2R_A$ = {{RA*IL^2|W}}. Input = output + armature loss + rotational + field = {{VL*IL + RA*IL^2 + Prot + PF|W}}. $\\eta$ = {{VL*IL}}/{{VL*IL + RA*IL^2 + Prot + PF}} = {{100*VL*IL/(VL*IL + RA*IL^2 + Prot + PF)|%}}.",
+     "params": {
+      "VL": [
+       120,
+       240
+      ],
+      "IL": {
+       "min": 20,
+       "max": 80,
+       "step": 10
+      },
+      "RA": [
+       0.1,
+       0.2,
+       0.3
+      ],
+      "Prot": [
+       300,
+       450,
+       600,
+       800
+      ],
+      "PF": [
+       100,
+       150,
+       200,
+       300
+      ]
+     }
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "prompt": "A {{VT|V}} series motor with $R_A + R_F$ = {{R|Ω}} runs at {{n1||4}} rpm taking {{I1|A}}. The load torque changes to {{m}} times its value. Find the new speed in rpm (neglect saturation and rotational losses).",
+     "answer": "n1*(VT - R*I1*sqrt(m))*I1/((VT - R*I1)*I1*sqrt(m))",
+     "unit": "",
+     "explanation": "$T \\propto I_A^2$, so $I_2 = I_1\\sqrt{m}$ = {{I1*sqrt(m)|A}}. Since $E_A = KK_F\\omega_mI_A$, speed is $\\omega_m \\propto E_A/I_A$. $E_1 = V_T - RI_1$ = {{VT - R*I1|V}}, $E_2 = V_T - RI_2$ = {{VT - R*I1*sqrt(m)|V}}. $n_2 = n_1\\dfrac{E_2/I_2}{E_1/I_1}$ = {{n1*(VT - R*I1*sqrt(m))*I1/((VT - R*I1)*I1*sqrt(m))||4}} rpm.",
+     "params": {
+      "VT": [
+       240
+      ],
+      "R": [
+       0.3,
+       0.4,
+       0.5
+      ],
+      "I1": {
+       "min": 30,
+       "max": 60,
+       "step": 10
+      },
+      "n1": [
+       800,
+       1000,
+       1200
+      ],
+      "m": [
+       0.25,
+       0.5,
+       2
+      ]
+     },
+     "tolerance": 0.01
+    },
+    {
+     "id": "c4",
+     "type": "multipleChoice",
+     "prompt": "Which speed-control method for a shunt motor wastes the most energy at reduced speed?",
+     "options": [
+      "Resistance in series with the armature",
+      "Reducing the armature voltage with a converter",
+      "Weakening the field with $R_{adj}$"
+     ],
+     "answer": 0,
+     "explanation": "Series armature resistance carries the full armature current and burns $I_A^2R_{ext}$; at half speed roughly half the input is wasted. A converter adjusts $V_T$ almost without loss, and the field rheostat carries only the small field current.",
+     "shuffle": false
+    },
+    {
+     "id": "c5",
+     "type": "trueFalse",
+     "prompt": "A shunt motor's field is supplied from the same $V_T$ as the armature, and the magnetization is linear. Halving $V_T$ roughly halves the no-load speed.",
+     "answer": false,
+     "explanation": "Halving $V_T$ also halves $I_F$ and therefore $K\\phi$. No-load speed $V_T/K\\phi$ stays (roughly) the same, while the stall torque $K\\phi V_T/R_A$ drops to a quarter. That is why armature-voltage control uses a separately excited field kept at full strength."
+    },
+    {
+     "id": "c6",
+     "type": "multipleChoice",
+     "prompt": "The dashed line is a shunt motor's original torque–speed line. Which solid line shows the effect of **adding resistance in series with the armature**?",
+     "answer": 1,
+     "explanation": "No-load speed $V_T/K\\phi$ does not depend on $R$, so the line keeps its zero-torque point. The slope $R/(K\\phi)^2$ increases, so the speed drops much more for the same torque. The parallel shift is a lower $V_T$; the line reaching a higher no-load speed is field weakening.",
+     "optionPlots": [
+      {
+       "x": {
+        "min": 0,
+        "max": 1.4,
+        "label": "n",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 3,
+        "label": "T"
+       },
+       "curves": [
+        {
+         "f": "10*(1 - x)",
+         "color": "grey",
+         "dash": true
+        },
+        {
+         "f": "10*(0.7 - x)",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1.4,
+        "label": "n",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 3,
+        "label": "T"
+       },
+       "curves": [
+        {
+         "f": "10*(1 - x)",
+         "color": "grey",
+         "dash": true
+        },
+        {
+         "f": "(10/3)*(1 - x)",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1.4,
+        "label": "n",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 3,
+        "label": "T"
+       },
+       "curves": [
+        {
+         "f": "10*(1 - x)",
+         "color": "grey",
+         "dash": true
+        },
+        {
+         "f": "8*(1 - 0.8*x)",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

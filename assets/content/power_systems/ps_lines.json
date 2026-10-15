@@ -1,0 +1,1589 @@
+{
+ "id": "ps-lines",
+ "title": "Transmission Line Models",
+ "description": "Series R and L, shunt C, the short, medium and long line models, ABCD parameters, surge impedance loading and the Ferranti effect.",
+ "reference": "Glover ch. 4–5",
+ "study": [
+  {
+   "title": "Line parameters",
+   "body": "A line has, per unit length: series **resistance** $r$ (rising with temperature, and slightly with frequency through skin effect), series **inductance** $L$ from the magnetic flux around the conductors, shunt **capacitance** $C$ between the conductors and to ground, and a tiny shunt conductance (insulator leakage, corona) that is usually neglected. They are spread along the whole line. On overhead high-voltage lines $\\omega L$ is typically 5–15 times $r$, and more on EHV lines with bundled conductors.",
+   "formula": "\\begin{aligned}z &= r + j\\omega L\\\\ y &= g + j\\omega C \\approx j\\omega C\\end{aligned}"
+  },
+  {
+   "title": "Geometry: GMD and GMR",
+   "body": "For a transposed three-phase line, $L$ and $C$ per phase depend on the logarithm of the phase spacing, the **geometric mean distance** $D_{eq}$, over the conductor size: its **geometric mean radius** $D_s$ ($0.7788r$ for a solid round conductor, from tables for stranded ones) for $L$, and its outer radius $r$ for $C$. Wider spacing raises $L$ and lowers $C$. A **bundle** of 2–4 subconductors per phase acts like one much fatter conductor: lower $L$, higher $C$ and less corona.",
+   "formula": "\\begin{aligned}L &= 2\\times10^{-7}\\ln\\frac{D_{eq}}{D_s}\\ \\text{H/m}\\\\ C &= \\frac{2\\pi\\varepsilon_0}{\\ln(D_{eq}/r)}\\ \\text{F/m}\\\\ D_{eq} &= \\sqrt[3]{D_{ab}D_{bc}D_{ca}}\\end{aligned}"
+  },
+  {
+   "title": "Short line (up to about 80 km)",
+   "body": "The charging current is negligible, so the line is just its total series impedance $Z = z\\ell$. All quantities are per phase: line-to-neutral voltages and line currents.",
+   "formula": "\\mathbf V_S = \\mathbf V_R + Z\\mathbf I_R,\\qquad \\mathbf I_S = \\mathbf I_R",
+   "circuit": {
+    "elements": [
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       0
+      ],
+      "label": "V_S",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "R"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "jX"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       0
+      ],
+      "label": "V_R"
+     },
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       2
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       2
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       0.15,
+       0
+      ],
+      "to": [
+       0.85,
+       0
+      ],
+      "label": "I_S"
+     },
+     {
+      "type": "arrow",
+      "from": [
+       5.15,
+       0
+      ],
+      "to": [
+       5.85,
+       0
+      ],
+      "label": "I_R"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Medium line: nominal π (about 80–250 km)",
+   "body": "Half of the total shunt admittance $Y = y\\ell$ is placed at each end of the series impedance $Z = z\\ell$. Writing the result as $\\mathbf V_S = A\\mathbf V_R + B\\mathbf I_R$, $\\mathbf I_S = C\\mathbf V_R + D\\mathbf I_R$:",
+   "formula": "\\begin{aligned}A = D &= 1 + \\frac{YZ}{2}\\\\ B &= Z\\\\ C &= Y\\left(1 + \\frac{YZ}{4}\\right)\\end{aligned}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       0
+      ],
+      "label": "V_S",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       1,
+       2
+      ],
+      "label": "Y/2"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "R"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "jX"
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       5,
+       0
+      ],
+      "to": [
+       5,
+       2
+      ],
+      "label": "Y/2"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       0
+      ],
+      "label": "V_R"
+     },
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       2
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       2
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       1,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       5,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       1,
+       2
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       5,
+       2
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Long line: distributed parameters",
+   "body": "Above about 250 km lumping gets inaccurate; the line equations are solved exactly with the **propagation constant** $\\gamma = \\sqrt{zy} = \\alpha + j\\beta$ and the **characteristic (surge) impedance** $Z_c = \\sqrt{z/y}$. For a **lossless** line ($r = g = 0$): $Z_c = \\sqrt{L/C}$ is real (about 250–400 Ω), $\\gamma = j\\beta$ with $\\beta = \\omega\\sqrt{LC}$, and cosh, sinh become cos and j sin. Waves travel at $1/\\sqrt{LC}$, close to the speed of light: β ≈ 0.072°/km at 60 Hz.",
+   "formula": "\\begin{aligned}A = D &= \\cosh\\gamma\\ell\\\\ B &= Z_c\\sinh\\gamma\\ell\\\\ C &= \\frac{\\sinh\\gamma\\ell}{Z_c}\\end{aligned}"
+  },
+  {
+   "title": "ABCD parameters and regulation",
+   "body": "Every line model (like any linear, reciprocal two-port) can be written in ABCD form, with $AD - BC = 1$. At no load ($\\mathbf I_R = 0$) the receiving-end voltage is $V_S/|A|$; since $|A| < 1$ for medium and long lines, it is **higher** than $V_S$ itself (the Ferranti effect). Voltage regulation compares the no-load and full-load receiving-end voltages at fixed $V_S$:",
+   "formula": "\\%\\text{VR} = \\frac{|V_{R,NL}| - |V_{R,FL}|}{|V_{R,FL}|}\\times100"
+  },
+  {
+   "title": "Surge impedance loading",
+   "body": "A lossless line terminated in its own $Z_c$ carries the **surge impedance load**: the reactive power generated by the shunt capacitance exactly equals that absorbed by the series inductance, so $|V|$ is the same all along the line. Typical SIL: about 50 MW at 138 kV, 400 MW at 345 kV, 900 MW at 500 kV and 2200 MW at 765 kV. Below SIL a line generates net reactive power; above SIL it absorbs it.",
+   "formula": "\\text{SIL} = \\frac{V_{rated,LL}^2}{Z_c}"
+  },
+  {
+   "title": "Explore: the Ferranti effect",
+   "body": "Voltage profile of a lossless 60-Hz line with the receiving end held at 1.0 pu and a unity-pf load. At light load the charging current flowing through the series inductance makes the voltage **rise** towards the receiving end, so the sending end needs less than 1.0 pu; equivalently, with $V_S$ fixed the receiving end rises to $V_S/\\cos\\beta\\ell$ at no load. At $P_R$ = SIL the profile is flat; above SIL it sags. Try a long line at no load.",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 600,
+     "label": "distance from sending end (km)"
+    },
+    "y": {
+     "min": 0.6,
+     "max": 1.4,
+     "label": "|V| (pu)"
+    },
+    "sliders": [
+     {
+      "name": "k",
+      "label": "$P_R/\\text{SIL}$",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05,
+      "value": 0
+     },
+     {
+      "name": "len",
+      "label": "length",
+      "min": 100,
+      "max": 600,
+      "step": 50,
+      "value": 400,
+      "unit": "km"
+     }
+    ],
+    "let": {
+     "bl": "0.00126*len"
+    },
+    "curves": [
+     {
+      "f": "sqrt(cos(0.00126*(len-x))^2 + k^2*sin(0.00126*(len-x))^2)",
+      "to": "len",
+      "label": "|V(x)|",
+      "labelAt": 0.3
+     }
+    ],
+    "hlines": [
+     {
+      "y": 1,
+      "label": "V_R = 1.0 pu"
+     }
+    ],
+    "points": [
+     {
+      "x": 0,
+      "y": "sqrt(cos(bl)^2 + k^2*sin(bl)^2)",
+      "label": "V_S",
+      "guides": false
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$\\beta\\ell$",
+      "value": "deg(bl)",
+      "unit": "°"
+     },
+     {
+      "label": "$V_S$ needed",
+      "value": "sqrt(cos(bl)^2 + k^2*sin(bl)^2)",
+      "unit": "pu"
+     },
+     {
+      "label": "$V_R$ if $V_S$ = 1.0 pu",
+      "value": "1/sqrt(cos(bl)^2 + k^2*sin(bl)^2)",
+      "unit": "pu"
+     }
+    ],
+    "height": 220
+   }
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ps-lines-1",
+   "title": "Line parameters and the short line",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Four distributed parameters",
+     "body": "Per unit length a line has series resistance $r$ and inductance $L$, and shunt capacitance $C$ and conductance $g$ (usually neglected). $L$ and $C$ come from the geometry: the **geometric mean distance** between the phases, $D_{eq} = \\sqrt[3]{D_{ab}D_{bc}D_{ca}}$, and the conductor's **geometric mean radius** $D_s$ (for $L$) or outer radius $r$ (for $C$).",
+     "formula": "L = 2\\times10^{-7}\\ln\\frac{D_{eq}}{D_s}\\ \\text{H/m}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "D": [
+       4,
+       5,
+       6,
+       7,
+       8,
+       10
+      ]
+     },
+     "prompt": "A transposed three-phase line has its conductors in a flat row, {{D}} m apart: $D_{ab} = D_{bc}$ = {{D}} m and $D_{ca}$ = {{2*D}} m. Find the geometric mean distance $D_{eq}$ (in m).",
+     "answer": "D*2^(1/3)",
+     "unit": "",
+     "explanation": "$D_{eq} = \\sqrt[3]{D_{ab}D_{bc}D_{ca}}$ = ∛({{D}} × {{D}} × {{2*D}}) = {{D*2^(1/3)}} m, 26 % more than the adjacent spacing."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Deq": {
+       "min": 5,
+       "max": 12,
+       "step": 0.5
+      },
+      "Ds": [
+       0.0088,
+       0.0114,
+       0.0124
+      ],
+      "len": [
+       40,
+       60,
+       100,
+       150
+      ]
+     },
+     "derived": {
+      "L": "2e-7*ln(Deq/Ds)*1000"
+     },
+     "prompt": "A 60-Hz line has $D_{eq}$ = {{Deq}} m and conductors with a geometric mean radius $D_s$ = {{Ds*1000}} mm.",
+     "ask": [
+      {
+       "prompt": "Find the inductance per phase of a 1-km length.",
+       "answer": "L",
+       "unit": "H",
+       "explanation": "$L = 2\\times10^{-7}\\ln(D_{eq}/D_s)$ = 2×10⁻⁷ × ln({{Deq}}/{{Ds}}) = 2×10⁻⁷ × {{ln(Deq/Ds)}} = {{L/1000|H}} per metre, or {{L|H}} per km."
+      },
+      {
+       "prompt": "Find the series reactance per phase of the whole {{len}}-km line.",
+       "answer": "2*pi*60*L*len",
+       "unit": "Ω",
+       "explanation": "$L$ = 2×10⁻⁷ × ln({{Deq}}/{{Ds}}) × 1000 = {{L|H}}/km. $X = \\omega L\\ell$ = 377 × {{L}} × {{len}} = {{2*pi*60*L*len|Ω}} ({{2*pi*60*L|Ω}}/km)."
+      }
+     ]
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "prompt": "Each phase conductor of a line is replaced by a bundle of two subconductors with the same total cross-section. What happens to the line parameters?",
+     "options": [
+      "$L$ decreases and $C$ increases",
+      "$L$ and $C$ both increase",
+      "Only the resistance changes",
+      "$L$ increases and $C$ decreases"
+     ],
+     "answer": 0,
+     "explanation": "The bundle has a much larger equivalent GMR and radius, so $\\ln(D_{eq}/D_s)$ and $\\ln(D_{eq}/r)$ both shrink: $L$ falls and $C$ rises. Consequently $Z_c = \\sqrt{L/C}$ falls and the surge impedance loading rises; the lower surface field also reduces corona."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "The short-line model",
+     "body": "Up to about 80 km the charging current is small and the shunt capacitance is neglected: the line is just its total series impedance $Z = (r + j\\omega L)\\ell$. Per phase, with line-to-neutral voltages:",
+     "formula": "\\mathbf V_S = \\mathbf V_R + Z\\mathbf I_R,\\qquad \\mathbf I_S = \\mathbf I_R",
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "V_S",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "jX"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "V_R"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         2
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.15,
+         0
+        ],
+        "to": [
+         0.85,
+         0
+        ],
+        "label": "I_S"
+       },
+       {
+        "type": "arrow",
+        "from": [
+         5.15,
+         0
+        ],
+        "to": [
+         5.85,
+         0
+        ],
+        "label": "I_R"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "V": [
+       132000.0,
+       138000.0
+      ],
+      "len": [
+       20,
+       30,
+       40,
+       50
+      ],
+      "r": [
+       0.07,
+       0.09
+      ],
+      "x": [
+       0.45,
+       0.5
+      ],
+      "P": {
+       "min": 30000000.0,
+       "max": 60000000.0,
+       "step": 10000000.0
+      },
+      "pf": [
+       0.85,
+       0.9,
+       0.95
+      ]
+     },
+     "derived": {
+      "R": "r*len",
+      "X": "x*len",
+      "I": "P/(sqrt(3)*V*pf)",
+      "s": "sqrt(1-pf^2)",
+      "Vsr": "V/sqrt(3) + r*len*P/(sqrt(3)*V) + x*len*P/(sqrt(3)*V*pf)*sqrt(1-pf^2)",
+      "Vsi": "x*len*P/(sqrt(3)*V) - r*len*P/(sqrt(3)*V*pf)*sqrt(1-pf^2)"
+     },
+     "prompt": "A {{len}}-km, 60-Hz line has $z$ = {{r}} + j{{x}} Ω/km per phase. It delivers {{P|W}} at pf {{pf}} lagging to a load at {{V|V}} (line-to-line). Use the short-line model to find the sending-end line-to-line voltage.",
+     "answer": "sqrt(3)*sqrt(Vsr^2+Vsi^2)",
+     "unit": "V",
+     "tolerance": 0.005,
+     "explanation": "$Z$ = {{R}} + j{{X}} Ω. $\\mathbf V_R$ = {{V/sqrt(3)|V}}∠0°, $I_R$ = {{P|W}}/(1.732 × {{V|V}} × {{pf}}) = {{I|A}} at −{{deg(acos(pf))|°}}. $\\mathbf V_S = \\mathbf V_R + Z\\mathbf I_R$ = {{Vsr|V}} + j{{Vsi|V}}, $|\\mathbf V_S|$ = {{sqrt(Vsr^2+Vsi^2)|V}}, so $V_{S,LL}$ = {{sqrt(3)*sqrt(Vsr^2+Vsi^2)|V}}."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "V": [
+       132000.0,
+       138000.0
+      ],
+      "len": [
+       20,
+       30,
+       40,
+       50
+      ],
+      "r": [
+       0.07,
+       0.09
+      ],
+      "x": [
+       0.45,
+       0.5
+      ],
+      "P": {
+       "min": 30000000.0,
+       "max": 60000000.0,
+       "step": 10000000.0
+      },
+      "pf": [
+       0.85,
+       0.9,
+       0.95
+      ]
+     },
+     "derived": {
+      "I": "P/(sqrt(3)*V*pf)",
+      "Vsr": "V/sqrt(3) + r*len*P/(sqrt(3)*V) + x*len*P/(sqrt(3)*V*pf)*sqrt(1-pf^2)",
+      "Vsi": "x*len*P/(sqrt(3)*V) - r*len*P/(sqrt(3)*V*pf)*sqrt(1-pf^2)",
+      "Vs": "sqrt(Vsr^2+Vsi^2)"
+     },
+     "prompt": "The same kind of line: {{len}} km, $z$ = {{r}} + j{{x}} Ω/km, delivering {{P|W}} at pf {{pf}} lagging and {{V|V}}. The sending-end voltage works out at {{sqrt(3)*Vs|V|5}}. Find the voltage regulation in per cent.",
+     "answer": "100*(sqrt(3)*Vs - V)/V",
+     "unit": "%",
+     "tolerance": 0.02,
+     "absTolerance": 0.02,
+     "explanation": "In the short-line model $A = 1$, so removing the load leaves $V_{R,NL} = V_S$ = {{sqrt(3)*Vs|V|5}}. %VR = ({{sqrt(3)*Vs|V|5}} − {{V|V}})/{{V|V}} × 100 = {{100*(sqrt(3)*Vs - V)/V|%}}."
+    },
+    {
+     "id": "q6",
+     "type": "trueFalse",
+     "prompt": "In the short-line model, the sending-end and receiving-end currents are equal.",
+     "answer": true,
+     "explanation": "With the shunt capacitance neglected there is only a series path: $\\mathbf I_S = \\mathbf I_R$, i.e. $C = 0$ and $D = 1$ in ABCD form. In the medium and long models part of the sending-end current is charging current."
+    }
+   ]
+  },
+  {
+   "id": "ps-lines-2",
+   "title": "Medium and long lines",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "The nominal π",
+     "body": "Between about 80 and 250 km the charging current matters. Place half of the total shunt admittance $Y = j\\omega C\\ell$ at each end of the series impedance $Z$:",
+     "formula": "\\begin{aligned}A = D &= 1 + \\frac{YZ}{2}\\\\ B &= Z\\\\ C &= Y\\left(1 + \\frac{YZ}{4}\\right)\\end{aligned}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "V_S",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         1,
+         2
+        ],
+        "label": "Y/2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "jX"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         5,
+         2
+        ],
+        "label": "Y/2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "V_R"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         1,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         1,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "k": [
+       0,
+       1,
+       2
+      ],
+      "len": [
+       100,
+       150,
+       200,
+       250
+      ]
+     },
+     "derived": {
+      "x": "if(k-1.5, 0.33, if(k-0.5, 0.37, 0.49))",
+      "b": "if(k-1.5, 5.0e-6, if(k-0.5, 4.45e-6, 3.35e-6))",
+      "V": "if(k-1.5, 500e3, if(k-0.5, 345e3, 138e3))"
+     },
+     "prompt": "A {{len}}-km, {{V|V}} line has $x$ = {{x}} Ω/km and $b$ = {{b*1e6}} µS/km per phase. Neglect resistance and use the nominal π. Find $A$.",
+     "answer": "1 - x*len*b*len/2",
+     "unit": "",
+     "tolerance": 0.001,
+     "explanation": "$Z = jX$ with $X$ = {{x}} × {{len}} = {{x*len|Ω}}; $Y = jB$ with $B$ = {{b*1e6}} µS × {{len}} = {{b*len|S}}. $YZ/2 = (jB)(jX)/2 = -XB/2$ = −{{x*len*b*len/2}}, so $A$ = 1 − {{x*len*b*len/2}} = {{1 - x*len*b*len/2||4}}, real and just below 1."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "k": [
+       0,
+       1,
+       2
+      ],
+      "len": [
+       100,
+       150,
+       200,
+       250
+      ]
+     },
+     "derived": {
+      "x": "if(k-1.5, 0.33, if(k-0.5, 0.37, 0.49))",
+      "b": "if(k-1.5, 5.0e-6, if(k-0.5, 4.45e-6, 3.35e-6))",
+      "V": "if(k-1.5, 500e3, if(k-0.5, 345e3, 138e3))"
+     },
+     "prompt": "The {{len}}-km, {{V|V}} line ($x$ = {{x}} Ω/km, $b$ = {{b*1e6}} µS/km, nominal π, resistance neglected) is energized at rated voltage from the sending end, with the receiving end open. Find the receiving-end line-to-line voltage.",
+     "answer": "V/(1 - x*len*b*len/2)",
+     "unit": "V",
+     "tolerance": 0.004,
+     "explanation": "$A = 1 - XB/2$ = 1 − ({{x*len}} Ω × {{b*len|S}})/2 = {{1 - x*len*b*len/2||4}}. With $\\mathbf I_R = 0$: $V_R = V_S/A$ = {{V|V}}/{{1 - x*len*b*len/2||4}} = {{V/(1 - x*len*b*len/2)|V|4}}, a rise of {{100*(1/(1 - x*len*b*len/2) - 1)|%}}: the Ferranti effect."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "The long line",
+     "body": "Above about 250 km lumping loses accuracy. The exact solution of the line's differential equations uses the propagation constant $\\gamma$ and the characteristic impedance $Z_c$:",
+     "formula": "\\begin{aligned}\\gamma &= \\sqrt{zy},\\quad Z_c = \\sqrt{z/y}\\\\ A = D &= \\cosh\\gamma\\ell\\\\ B &= Z_c\\sinh\\gamma\\ell\\\\ C &= \\sinh(\\gamma\\ell)/Z_c\\end{aligned}"
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "The lossless line",
+     "body": "With $r = g = 0$, $Z_c = \\sqrt{L/C}$ is a pure resistance and $\\gamma = j\\beta$ with $\\beta = \\omega\\sqrt{LC}$. Since $\\cosh(j\\beta\\ell) = \\cos\\beta\\ell$ and $\\sinh(j\\beta\\ell) = j\\sin\\beta\\ell$:",
+     "formula": "\\begin{aligned}A = D &= \\cos\\beta\\ell\\\\ B &= jZ_c\\sin\\beta\\ell\\\\ C &= j\\sin(\\beta\\ell)/Z_c\\end{aligned}"
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "k": [
+       0,
+       1,
+       2
+      ]
+     },
+     "derived": {
+      "L": "if(k-1.5, 0.88e-3, if(k-0.5, 0.98e-3, 1.30e-3))",
+      "C": "if(k-1.5, 13.2e-9, if(k-0.5, 11.8e-9, 8.85e-9))"
+     },
+     "prompt": "A lossless line has $L$ = {{L|H}}/km and $C$ = {{C|F}}/km per phase. Find its characteristic impedance $Z_c$.",
+     "answer": "sqrt(L/C)",
+     "unit": "Ω",
+     "explanation": "$Z_c = \\sqrt{L/C}$ = √({{L|H}}/{{C|F}}) = {{sqrt(L/C)|Ω}}. The per-km lengths cancel. Bundled EHV lines have lower $Z_c$ (about 250–300 Ω) than single-conductor lines (350–400 Ω)."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "k": [
+       0,
+       1,
+       2
+      ],
+      "len": [
+       300,
+       400,
+       500,
+       600
+      ],
+      "f": [
+       50,
+       60
+      ]
+     },
+     "derived": {
+      "L": "if(k-1.5, 0.88e-3, if(k-0.5, 0.98e-3, 1.30e-3))",
+      "C": "if(k-1.5, 13.2e-9, if(k-0.5, 11.8e-9, 8.85e-9))"
+     },
+     "prompt": "A {{len}}-km lossless line has $L$ = {{L|H}}/km and $C$ = {{C|F}}/km and operates at {{f}} Hz. Find its electrical length $\\beta\\ell$ in degrees.",
+     "answer": "deg(2*pi*f*sqrt(L*C)*len)",
+     "unit": "°",
+     "absTolerance": 0.3,
+     "explanation": "$\\beta = \\omega\\sqrt{LC}$ = 2π × {{f}} × √({{L|H}} × {{C|F}}) = {{2*pi*f*sqrt(L*C)||3}} rad/km. $\\beta\\ell$ = {{2*pi*f*sqrt(L*C)*len||3}} rad = {{deg(2*pi*f*sqrt(L*C)*len)|°}}. The wave speed $1/\\sqrt{LC}$ ≈ {{1/sqrt(L*C)||3}} km/s, close to the speed of light."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "len": [
+       300,
+       400,
+       500,
+       600
+      ],
+      "V": [
+       345000.0,
+       500000.0,
+       765000.0
+      ]
+     },
+     "derived": {
+      "bl": "0.00126*len"
+     },
+     "prompt": "A {{len}}-km lossless 60-Hz line ($\\beta$ = 0.00126 rad/km) is energized at {{V|V}} from one end, with the far end open. Find the voltage at the open end.",
+     "answer": "V/cos(bl)",
+     "unit": "V",
+     "explanation": "$\\beta\\ell$ = 0.00126 × {{len}} = {{bl}} rad = {{deg(bl)|°}}. At no load $V_R = V_S/A = V_S/\\cos\\beta\\ell$ = {{V|V}}/{{cos(bl)}} = {{V/cos(bl)|V}}, {{100*(1/cos(bl)-1)|%}} above the sending end."
+    },
+    {
+     "id": "q6",
+     "type": "matchPairs",
+     "prompt": "Match each line model to what it includes.",
+     "pairs": [
+      [
+       "Short line (< 80 km)",
+       "Series impedance only"
+      ],
+      [
+       "Medium line (80–250 km)",
+       "Nominal π: Y/2 at each end"
+      ],
+      [
+       "Long line (> 250 km)",
+       "Distributed: cosh and sinh"
+      ],
+      [
+       "Lossless line",
+       "Real $Z_c$ and $\\gamma = j\\beta$"
+      ]
+     ],
+     "explanation": "The longer the line, the more charging current and distributed effects matter. The lossless approximation keeps the distributed model but drops r and g, which turns the hyperbolic functions into trigonometric ones."
+    }
+   ]
+  },
+  {
+   "id": "ps-lines-3",
+   "title": "ABCD, SIL and the Ferranti effect",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "k": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "m": [
+       0.95,
+       1.0,
+       1.05
+      ]
+     },
+     "derived": {
+      "V": "if(k-2.5, 765e3, if(k-1.5, 500e3, if(k-0.5, 345e3, 230e3)))",
+      "Zc": "m*if(k-2.5, 255, if(k-1.5, 275, if(k-0.5, 300, 375)))"
+     },
+     "prompt": "A {{V|V}} lossless line with $Z_c$ = {{Zc}} Ω is terminated in its characteristic impedance at rated voltage. Find the line current.",
+     "answer": "V/(sqrt(3)*Zc)",
+     "unit": "A",
+     "explanation": "Per phase the load is $Z_c$, so $I = V_{LN}/Z_c$ = ({{V|V}}/1.732)/{{Zc}} Ω = {{V/(sqrt(3)*Zc)|A}}. The three-phase power is then the SIL, $V^2/Z_c$ = {{V^2/Zc|W}}."
+    },
+    {
+     "id": "p2",
+     "type": "multipleChoice",
+     "params": {
+      "k": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "m": [
+       0.95,
+       1.0,
+       1.05
+      ]
+     },
+     "derived": {
+      "V": "if(k-2.5, 765e3, if(k-1.5, 500e3, if(k-0.5, 345e3, 230e3)))",
+      "Zc": "m*if(k-2.5, 255, if(k-1.5, 275, if(k-0.5, 300, 375)))"
+     },
+     "prompt": "What is the surge impedance loading of a {{V|V}} line with $Z_c$ = {{Zc}} Ω?",
+     "options": [
+      "{{V^2/Zc|W}}",
+      "{{3*V^2/Zc|W}}",
+      "{{V^2/(3*Zc)|W}}",
+      "{{V^2/(sqrt(3)*Zc)|W}}"
+     ],
+     "answer": 0,
+     "explanation": "SIL $= 3V_{LN}^2/Z_c = V_{LL}^2/Z_c$ = ({{V|V}})²/{{Zc}} Ω = {{V^2/Zc|W}}. $3V^2/Z_c$ uses the line-to-line voltage in the per-phase formula; $V^2/(3Z_c)$ is one phase only."
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "k": [
+       1,
+       2
+      ],
+      "r": [
+       0.03,
+       0.04,
+       0.05
+      ],
+      "len": [
+       300,
+       400,
+       500
+      ]
+     },
+     "derived": {
+      "x": "if(k-1.5, 0.33, 0.37)",
+      "b": "if(k-1.5, 5.0e-6, 4.45e-6)",
+      "V": "if(k-1.5, 500e3, 345e3)",
+      "g": "sqrt(b*sqrt(r^2+x^2))",
+      "an": "(pi - atan(r/x))/2",
+      "al": "sqrt(b*sqrt(r^2+x^2))*cos((pi - atan(r/x))/2)*len",
+      "be": "sqrt(b*sqrt(r^2+x^2))*sin((pi - atan(r/x))/2)*len",
+      "Ar": "cosh(al)*cos(be)",
+      "Ai": "sinh(al)*sin(be)"
+     },
+     "prompt": "A {{len}}-km, 60-Hz, {{V|V}} line has $z$ = {{r}} + j{{x}} Ω/km and $y$ = j{{b*1e6}} µS/km per phase. Use the exact long-line model.",
+     "ask": [
+      {
+       "prompt": "Find $|A|$.",
+       "answer": "sqrt(Ar^2+Ai^2)",
+       "unit": "",
+       "tolerance": 0.005,
+       "explanation": "$zy$ has magnitude $b|z|$ = {{b*sqrt(r^2+x^2)||3}} km⁻² and angle {{deg(2*an)|°}}, so $\\gamma\\ell = \\sqrt{zy}\\,\\ell$ = {{g*len||4}}∠{{deg(an)|°}} = {{al||3}} + j{{be||4}}. $A$ = $\\cosh(\\alpha\\ell + j\\beta\\ell)$ = $\\cosh\\alpha\\ell\\cos\\beta\\ell + j\\sinh\\alpha\\ell\\sin\\beta\\ell$ = {{Ar||4}} + j{{Ai||3}}, $|A|$ = {{sqrt(Ar^2+Ai^2)||4}}."
+      },
+      {
+       "prompt": "The sending end is held at rated voltage. Find the receiving-end line-to-line voltage at no load.",
+       "answer": "V/sqrt(Ar^2+Ai^2)",
+       "unit": "V",
+       "tolerance": 0.005,
+       "explanation": "$\\gamma\\ell$ = {{al||3}} + j{{be||4}} (from $\\sqrt{zy}\\,\\ell$), so $A = \\cosh\\gamma\\ell$ = {{Ar||4}} + j{{Ai||3}} and $|A|$ = {{sqrt(Ar^2+Ai^2)||4}}. At no load $V_R = V_S/|A|$ = {{V|V}}/{{sqrt(Ar^2+Ai^2)||4}} = {{V/sqrt(Ar^2+Ai^2)|V|4}}."
+      }
+     ]
+    },
+    {
+     "id": "p4",
+     "type": "slider",
+     "params": {
+      "len": [
+       300,
+       400,
+       500
+      ],
+      "Vt": [
+       0.92,
+       0.95,
+       1.05,
+       1.08
+      ]
+     },
+     "derived": {
+      "bl": "0.00126*len"
+     },
+     "require": "Vt - cos(0.00126*len) - 0.02",
+     "prompt": "A {{len}}-km lossless 60-Hz line ($\\beta\\ell$ = {{deg(bl)|°}}) feeds a unity-pf load whose voltage is held at 1.0 pu. Set the load so that the sending end needs {{Vt}} pu.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": "len",
+       "label": "distance from sending end (km)"
+      },
+      "y": {
+       "min": 0.8,
+       "max": 1.2,
+       "label": "|V| (pu)"
+      },
+      "sliders": [
+       {
+        "name": "kk",
+        "label": "$P_R/\\text{SIL}$",
+        "min": 0,
+        "max": 1.6,
+        "step": 0.01,
+        "value": 1
+       }
+      ],
+      "curves": [
+       {
+        "f": "sqrt(cos(0.00126*(len-x))^2 + kk^2*sin(0.00126*(len-x))^2)",
+        "label": "|V|",
+        "labelAt": 0.5
+       }
+      ],
+      "hlines": [
+       {
+        "y": "Vt",
+        "label": "target V_S",
+        "color": "orange"
+       }
+      ],
+      "points": [
+       {
+        "x": 0,
+        "y": "sqrt(cos(bl)^2 + kk^2*sin(bl)^2)",
+        "guides": false
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$V_S$",
+        "value": "sqrt(cos(bl)^2 + kk^2*sin(bl)^2)",
+        "unit": "pu"
+       }
+      ]
+     },
+     "answer": {
+      "kk": "sqrt((Vt^2 - cos(bl)^2)/sin(bl)^2)"
+     },
+     "tolerance": 0.04,
+     "absTolerance": 0.02,
+     "explanation": "With $\\mathbf V_R$ = 1∠0° and $\\mathbf I_R = (P_R/\\text{SIL})\\,\\mathbf V_R/Z_c$, the sending end is $\\mathbf V_S = \\cos\\beta\\ell + j(P_R/\\text{SIL})\\sin\\beta\\ell$. Setting $|\\mathbf V_S|$ = {{Vt}}: $P_R/\\text{SIL}$ = $\\sqrt{({{Vt}}^2 - \\cos^2\\beta\\ell)/\\sin^2\\beta\\ell}$ = {{sqrt((Vt^2 - cos(bl)^2)/sin(bl)^2)}}. Below SIL the voltage rises towards the load; above SIL it falls."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "k": [
+       2
+      ],
+      "len": [
+       200,
+       250
+      ],
+      "P": [
+       100000000.0,
+       150000000.0,
+       200000000.0
+      ],
+      "pf": [
+       0.95,
+       0.98
+      ]
+     },
+     "derived": {
+      "x": "if(k-1.5, 0.33, 0.37)",
+      "b": "if(k-1.5, 5.0e-6, 4.45e-6)",
+      "V": "if(k-1.5, 500e3, 345e3)",
+      "A": "1 - x*len*b*len/2",
+      "I": "P/(sqrt(3)*V*pf)",
+      "Vsr": "(1 - x*len*b*len/2)*V/sqrt(3) + x*len*P/(sqrt(3)*V*pf)*sqrt(1-pf^2)",
+      "Vsi": "x*len*P/(sqrt(3)*V)"
+     },
+     "prompt": "A {{len}}-km, {{V|V}} line ($x$ = {{x}} Ω/km, $b$ = {{b*1e6}} µS/km, resistance neglected, nominal π) delivers {{P|W}} at pf {{pf}} lagging and rated voltage. Find the sending-end line-to-line voltage.",
+     "answer": "sqrt(3)*sqrt(Vsr^2+Vsi^2)",
+     "unit": "V",
+     "tolerance": 0.005,
+     "explanation": "$A = 1 - XB/2$ = {{A||4}}, $B = jX$ = j{{x*len|Ω}}. $\\mathbf V_R$ = {{V/sqrt(3)|V}}∠0°, $I_R$ = {{I|A}} at −{{deg(acos(pf))|°}}. $\\mathbf V_S = A\\mathbf V_R + jX\\mathbf I_R$ = {{Vsr|V}} + j{{Vsi|V}}, so $|\\mathbf V_S|$ = {{sqrt(Vsr^2+Vsi^2)|V}} and $V_{S,LL}$ = {{sqrt(3)*sqrt(Vsr^2+Vsi^2)|V}}."
+    },
+    {
+     "id": "p6",
+     "type": "trueFalse",
+     "prompt": "A lossless line loaded exactly at its surge impedance loading neither absorbs nor generates net reactive power.",
+     "answer": true,
+     "explanation": "At SIL, $I = V/Z_c$ everywhere, so per unit length the reactive power absorbed by the inductance, $I^2\\omega L$, equals that generated by the capacitance, $V^2\\omega C$ (because $V^2/I^2 = L/C$). The voltage profile is flat."
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "params": {
+      "k": [
+       1,
+       2
+      ],
+      "len": [
+       200,
+       300,
+       400
+      ]
+     },
+     "derived": {
+      "V": "if(k-1.5, 500e3, 345e3)",
+      "Zc": "if(k-1.5, 275, 300)",
+      "bl": "0.00126*len"
+     },
+     "prompt": "A {{len}}-km lossless 60-Hz line ({{V|V}}, $Z_c$ = {{Zc}} Ω, $\\beta$ = 0.00126 rad/km) is energized at rated voltage with the far end open. How much reactive power must the source at the sending end **absorb**?",
+     "answer": "V^2*tan(bl)/Zc",
+     "unit": "var",
+     "explanation": "At no load $\\mathbf I_S = C\\mathbf V_R$ with $\\mathbf V_R = \\mathbf V_S/\\cos\\beta\\ell$, so $\\mathbf I_S = j\\mathbf V_S\\tan\\beta\\ell/Z_c$: it **leads** the voltage, i.e. the line pushes reactive power into the source. Three-phase: $Q = V_{LL}^2\\tan\\beta\\ell/Z_c$ = ({{V|V}})² × tan {{deg(bl)|°}}/{{Zc}} = {{V^2*tan(bl)/Zc|var}}, roughly {{V^2*tan(bl)/Zc/len|var}} per km."
+    }
+   ]
+  },
+  {
+   "id": "ps-lines-4",
+   "title": "Long-line problems",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "L": [
+       0.00085,
+       0.00088,
+       0.00092
+      ],
+      "len": [
+       300,
+       400,
+       500
+      ]
+     },
+     "derived": {
+      "C": "1/((2.94e5)^2*L)",
+      "Zc": "sqrt(L/(1/((2.94e5)^2*L)))",
+      "bl": "2*pi*60*len/2.94e5"
+     },
+     "prompt": "A {{len}}-km, 500-kV, 60-Hz line has $L$ = {{L|H}}/km and $C$ = {{C|F}}/km per phase; treat it as lossless.",
+     "ask": [
+      {
+       "prompt": "Find $Z_c$.",
+       "answer": "Zc",
+       "unit": "Ω",
+       "explanation": "$Z_c = \\sqrt{L/C}$ = √({{L|H}}/{{C|F}}) = {{Zc|Ω}}."
+      },
+      {
+       "prompt": "Find $\\beta\\ell$ in degrees.",
+       "answer": "deg(bl)",
+       "unit": "°",
+       "absTolerance": 0.3,
+       "explanation": "$\\beta = \\omega\\sqrt{LC}$ = 377 × √({{L|H}} × {{C|F}}) = {{2*pi*60/2.94e5||3}} rad/km, so $\\beta\\ell$ = {{bl||3}} rad = {{deg(bl)|°}}."
+      },
+      {
+       "prompt": "The sending end is held at 500 kV. Find the receiving-end voltage at no load.",
+       "answer": "500e3/cos(bl)",
+       "unit": "V",
+       "explanation": "$\\beta = \\omega\\sqrt{LC}$ = {{2*pi*60/2.94e5||3}} rad/km and $\\beta\\ell$ = {{deg(bl)|°}}. $V_R = V_S/\\cos\\beta\\ell$ = 500 kV/{{cos(bl)}} = {{500e3/cos(bl)|V}}."
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "len": [
+       300,
+       400,
+       500,
+       600
+      ],
+      "Zc": [
+       260,
+       280,
+       300
+      ]
+     },
+     "derived": {
+      "bl": "0.00126*len"
+     },
+     "prompt": "For a {{len}}-km lossless 60-Hz line with $Z_c$ = {{Zc}} Ω and $\\beta$ = 0.00126 rad/km, the exact equivalent π has series reactance $X' = Z_c\\sin\\beta\\ell$. Find $X'$.",
+     "answer": "Zc*sin(bl)",
+     "unit": "Ω",
+     "explanation": "$\\beta\\ell$ = {{bl}} rad = {{deg(bl)|°}}. $X' = Z_c\\sin\\beta\\ell$ = {{Zc}} × {{sin(bl)}} = {{Zc*sin(bl)|Ω}}. The nominal π would use $\\omega L\\ell = Z_c\\beta\\ell$ = {{Zc*bl|Ω}}: {{100*(bl/sin(bl)-1)|%}} too much. The correction factor $\\sin\\beta\\ell/\\beta\\ell$ matters for long lines."
+    },
+    {
+     "id": "c3",
+     "type": "multipleChoice",
+     "prompt": "Which graph shows $|V|$ along a 500-km lossless line at **no load**, with the sending end held at 1.0 pu?",
+     "optionPlots": [
+      {
+       "x": {
+        "min": 0,
+        "max": 500,
+        "label": "km from sending end",
+        "ticks": [
+         0,
+         250,
+         500
+        ]
+       },
+       "y": {
+        "min": 0.7,
+        "max": 1.3,
+        "label": "|V| (pu)",
+        "ticks": [
+         0.8,
+         1,
+         1.2
+        ]
+       },
+       "curves": [
+        {
+         "f": "cos(0.00126*(500-x))/cos(0.00126*500)",
+         "color": "blue"
+        }
+       ],
+       "hlines": [
+        {
+         "y": 1
+        }
+       ],
+       "height": 130
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 500,
+        "label": "km from sending end",
+        "ticks": [
+         0,
+         250,
+         500
+        ]
+       },
+       "y": {
+        "min": 0.7,
+        "max": 1.3,
+        "label": "|V| (pu)",
+        "ticks": [
+         0.8,
+         1,
+         1.2
+        ]
+       },
+       "curves": [
+        {
+         "f": "1 + 0*x",
+         "color": "blue"
+        }
+       ],
+       "hlines": [
+        {
+         "y": 1
+        }
+       ],
+       "height": 130
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 500,
+        "label": "km from sending end",
+        "ticks": [
+         0,
+         250,
+         500
+        ]
+       },
+       "y": {
+        "min": 0.7,
+        "max": 1.3,
+        "label": "|V| (pu)",
+        "ticks": [
+         0.8,
+         1,
+         1.2
+        ]
+       },
+       "curves": [
+        {
+         "f": "sqrt(cos(0.00126*(500-x))^2 + 1.8*sin(0.00126*(500-x))^2)/sqrt(cos(0.00126*500)^2 + 1.8*sin(0.00126*500)^2)",
+         "color": "blue"
+        }
+       ],
+       "hlines": [
+        {
+         "y": 1
+        }
+       ],
+       "height": 130
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 500,
+        "label": "km from sending end",
+        "ticks": [
+         0,
+         250,
+         500
+        ]
+       },
+       "y": {
+        "min": 0.7,
+        "max": 1.3,
+        "label": "|V| (pu)",
+        "ticks": [
+         0.8,
+         1,
+         1.2
+        ]
+       },
+       "curves": [
+        {
+         "f": "1 + 0.8*(x/500)*(1 - x/500)",
+         "color": "blue"
+        }
+       ],
+       "hlines": [
+        {
+         "y": 1
+        }
+       ],
+       "height": 130
+      }
+     ],
+     "answer": 0,
+     "explanation": "At no load $V(x) = V_R\\cos\\beta x$ with $x$ measured from the open end, so the voltage rises monotonically towards the open end, reaching $V_S/\\cos\\beta\\ell$ = 1/cos 36° ≈ 1.24 pu. A flat profile means loading at SIL; a falling profile means loading above SIL."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "len": [
+       300,
+       400
+      ],
+      "P": [
+       500000000.0,
+       650000000.0,
+       800000000.0
+      ],
+      "pf": [
+       0.9,
+       0.95,
+       0.97
+      ]
+     },
+     "derived": {
+      "Zm": "sqrt(sqrt(0.03^2+0.33^2)/5.0e-6)",
+      "Za": "-atan(0.03/0.33)/2",
+      "al": "sqrt(5.0e-6*sqrt(0.03^2+0.33^2))*len*cos(pi/2 - atan(0.03/0.33)/2)",
+      "be": "sqrt(5.0e-6*sqrt(0.03^2+0.33^2))*len*sin(pi/2 - atan(0.03/0.33)/2)",
+      "Ar": "cosh(al)*cos(be)",
+      "Ai": "sinh(al)*sin(be)",
+      "Sr": "sinh(al)*cos(be)",
+      "Si": "cosh(al)*sin(be)",
+      "Br": "Zm*(cos(Za)*Sr - sin(Za)*Si)",
+      "Bi": "Zm*(cos(Za)*Si + sin(Za)*Sr)",
+      "Vr": "500e3/sqrt(3)",
+      "Ir": "P/(sqrt(3)*500e3)",
+      "Ii": "-P/(sqrt(3)*500e3*pf)*sqrt(1-pf^2)",
+      "Vsr": "Ar*500e3/sqrt(3) + Br*P/(sqrt(3)*500e3) - Bi*(-P/(sqrt(3)*500e3*pf)*sqrt(1-pf^2))",
+      "Vsi": "Ai*500e3/sqrt(3) + Br*(-P/(sqrt(3)*500e3*pf)*sqrt(1-pf^2)) + Bi*P/(sqrt(3)*500e3)"
+     },
+     "prompt": "A {{len}}-km, 500-kV, 60-Hz line has $z$ = 0.03 + j0.33 Ω/km and $y$ = j5.0 µS/km. It delivers {{P|W}} at pf {{pf}} lagging and 500 kV. Using the exact long-line model, find the sending-end line-to-line voltage.",
+     "answer": "sqrt(3)*sqrt(Vsr^2+Vsi^2)",
+     "unit": "V",
+     "tolerance": 0.005,
+     "explanation": "$Z_c = \\sqrt{z/y}$ = {{Zm||4}}∠{{deg(Za)|°}} Ω and $\\gamma\\ell = \\sqrt{zy}\\,\\ell$ = {{al||3}} + j{{be||4}}. Then $A = \\cosh\\gamma\\ell$ = {{Ar||4}} + j{{Ai||3}} and $B = Z_c\\sinh\\gamma\\ell$ = {{Br||4}} + j{{Bi||4}} Ω. With $\\mathbf V_R$ = {{Vr|V}}∠0° and $\\mathbf I_R$ = {{Ir|A}} + j({{Ii|A}}): $\\mathbf V_S = A\\mathbf V_R + B\\mathbf I_R$ = {{Vsr|V}} + j{{Vsi|V}}, so $V_{S,LL}$ = √3 × {{sqrt(Vsr^2+Vsi^2)|V}} = {{sqrt(3)*sqrt(Vsr^2+Vsi^2)|V}}."
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "len": [
+       300,
+       400,
+       500,
+       600
+      ],
+      "Zc": [
+       260,
+       280,
+       300
+      ],
+      "V": [
+       345000.0,
+       500000.0
+      ]
+     },
+     "derived": {
+      "bl": "0.00126*len"
+     },
+     "prompt": "A {{len}}-km lossless 60-Hz line ({{V|V}}, $Z_c$ = {{Zc}} Ω, $\\beta$ = 0.00126 rad/km) has both ends held at rated voltage. Find the steady-state limit: the maximum power it can transfer.",
+     "answer": "V^2/(Zc*sin(bl))",
+     "unit": "W",
+     "explanation": "With the exact π, $X' = Z_c\\sin\\beta\\ell$ = {{Zc*sin(bl)|Ω}}, and $P_{max} = V_SV_R/X'$ = ({{V|V}})²/{{Zc*sin(bl)|Ω}} = {{V^2/(Zc*sin(bl))|W}}. That is SIL/sin βℓ = {{V^2/Zc|W}}/{{sin(bl)}}. The longer the line, the closer this theoretical limit comes to SIL; practical loading, with a stability margin, is lower still."
+    },
+    {
+     "id": "c6",
+     "type": "trueFalse",
+     "prompt": "At no load, the voltage halfway along a long lossless line is higher than the voltage at its open receiving end.",
+     "answer": false,
+     "explanation": "With $\\mathbf I_R = 0$, $V(x) = V_R\\cos\\beta x$ where $x$ is the distance from the open end. Since $\\cos\\beta x < 1$, every point is **lower** than the open end: the voltage rises all the way along the line and peaks at the receiving end."
+    }
+   ]
+  }
+ ]
+}

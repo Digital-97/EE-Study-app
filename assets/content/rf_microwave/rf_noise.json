@@ -1,0 +1,486 @@
+{
+  "id": "rf-noise",
+  "title": "Noise & Linearity in RF Chains",
+  "description": "Noise temperature and cascaded noise figure, sensitivity, compression, third-order intercept and spurious-free dynamic range of receiver chains.",
+  "reference": "Pozar §10.1–10.3",
+  "study": [
+    {
+      "title": "Noise temperature",
+      "body": "EMC introduced the noise figure. For low-noise RF work it is often clearer to describe a stage by its **equivalent noise temperature** $T_e$: the temperature a matched source resistor would need to produce the stage's own noise at its input. The reference is $T_0$ = 290 K. A 0.5 dB LNA has $T_e$ = 35 K, 1 dB is 75 K, 3 dB is 289 K: small differences in dB are big differences in kelvin.",
+      "formula": "\\begin{aligned}& T_e = (F - 1)\\,T_0,\\quad F = 1 + \\frac{T_e}{T_0}\\\\ & NF = 10\\log F,\\quad T_0 = 290\\ \\text{K}\\end{aligned}"
+    },
+    {
+      "title": "Cascades: Friis",
+      "body": "Refer every stage's noise to the input by dividing by the gain in front of it. Use **linear** gains and noise factors, never dB. Example: an LNA with NF 1 dB (75 K) and 15 dB gain (×31.6) in front of a receiver with NF 8 dB (1540 K): $T_e$ = 75 + 1540/31.6 = 124 K, i.e. NF = 1.54 dB. Without the LNA the system would have 8 dB.",
+      "formula": "\\begin{aligned}& T_e = T_{e1} + \\frac{T_{e2}}{G_1} + \\frac{T_{e3}}{G_1G_2} + \\dots\\\\ & F = F_1 + \\frac{F_2 - 1}{G_1} + \\frac{F_3 - 1}{G_1G_2} + \\dots\\end{aligned}"
+    },
+    {
+      "title": "Lossy lines, filters and attenuators",
+      "body": "A matched passive component with loss $L$ (a gain of $1/L$) at physical temperature $T$ adds noise with $T_e = (L - 1)T$. At $T = T_0$ its noise factor equals its loss: a 2 dB cable has NF = 2 dB. Since it also reduces the gain in front of everything behind it, loss before the LNA adds directly to the system noise figure. That is why LNAs sit at the antenna, and why radio astronomers cool their front ends.",
+      "formula": "\\begin{aligned}& T_e = (L - 1)\\,T\\\\ & F = 1 + (L - 1)\\frac{T}{T_0} = L\\ \\text{ at } T = T_0\\end{aligned}"
+    },
+    {
+      "title": "System temperature and sensitivity",
+      "body": "The antenna itself delivers noise $kT_AB$ (sky, ground, other sources). Adding the receiver's $T_e$ gives the system temperature, and the noise floor $kT_{sys}B$. With $T_A = T_0$ this is the familiar −174 dBm/Hz + 10 log B + NF. Example: a satellite receiver with $T_A$ = 50 K and $T_e$ = 35 K has $T_{sys}$ = 85 K, so in 1 MHz the noise is −174 + 10 log(85/290) + 60 = −119.3 dBm. The minimum detectable signal adds the SNR the demodulator needs.",
+      "formula": "\\begin{aligned}& T_{sys} = T_A + T_e,\\quad N = kT_{sys}B\\\\ & S_{min} = -174 + 10\\log B\\\\ & \\qquad\\quad + NF + SNR_{min}\\end{aligned}"
+    },
+    {
+      "title": "Gain compression",
+      "body": "Every amplifier saturates: at high input levels the gain drops. The **1 dB compression point** is the input power $P_{1dB}$ (or the corresponding output power) where the output is 1 dB below the extrapolated linear line. Output and input values differ by the gain minus that 1 dB. Keep signals well below $P_{1dB}$ for linear operation.",
+      "formula": "OP_{1dB} = IP_{1dB} + G - 1\\ \\text{dB}"
+    },
+    {
+      "title": "Explore: third-order intercept",
+      "body": "Two tones $f_1$, $f_2$ of equal level create third-order products at $2f_1 - f_2$ and $2f_2 - f_1$, right next to the wanted band. The tone output rises 1 dB per dB of input, the IM3 output **3 dB per dB**. Extrapolated, the two lines meet at the third-order intercept: IIP3 (input) or OIP3 = IIP3 + G (output). From that one number you get every IM3 level. Here G = 15 dB, IIP3 = +5 dBm. For a weakly nonlinear amplifier IIP3 ≈ $IP_{1dB}$ + 9.6 dB.",
+      "formula": "\\begin{aligned}& P_{IM3} = 3P_{out} - 2\\,OIP3\\\\ & \\Delta_{IM} = P_{out} - P_{IM3}\\\\ & \\Delta_{IM} = 2(OIP3 - P_{out})\\end{aligned}",
+      "plot": {
+        "x": {"min": -40, "max": 10, "label": "P_in per tone", "unit": "dBm"},
+        "y": {"min": -100, "max": 40, "label": "P_out (dBm)"},
+        "sliders": [{"name": "pin", "label": "$P_{in}$", "min": -40, "max": 0, "step": 1, "value": -20, "unit": "dBm"}],
+        "curves": [
+          {"f": "x+15", "label": "tones", "labelAt": 0.3},
+          {"f": "3*x+5", "color": "red", "label": "IM3", "labelAt": 0.55}
+        ],
+        "points": [
+          {"x": 5, "y": 20, "label": "IP3", "guides": false, "color": "purple"},
+          {"x": "pin", "y": "pin+15", "guides": false},
+          {"x": "pin", "y": "3*pin+5", "guides": false, "color": "red"}
+        ],
+        "vlines": [{"x": "pin"}],
+        "readouts": [
+          {"label": "tone out", "value": "pin+15", "unit": "dBm"},
+          {"label": "IM3 out", "value": "3*pin+5", "unit": "dBm"},
+          {"label": "$\\Delta_{IM}$", "value": "2*(5-pin)", "unit": "dB"}
+        ]
+      }
+    },
+    {
+      "title": "Spurious-free dynamic range",
+      "body": "The weakest usable signal is set by the noise floor $N_i$ (referred to the input); the strongest pair of signals by the level at which their IM3 products rise out of that noise floor. Between the two lies the spurious-free dynamic range. Example: NF = 3 dB, B = 1 MHz gives $N_i$ = −111 dBm; with IIP3 = −10 dBm the SFDR is 2/3 × 101 = 67 dB.",
+      "formula": "\\begin{aligned}& N_i = -174 + 10\\log B + NF\\\\ & SFDR = \\tfrac{2}{3}\\left(IIP3 - N_i\\right)\\end{aligned}"
+    },
+    {
+      "title": "Cascaded IP3",
+      "body": "Intercept points combine like conductances (in linear power units, e.g. mW), each referred to the input by the gain in front of it. Now a **later** stage matters more the more gain precedes it, the opposite of noise. Example: LNA with IIP3 = −5 dBm (0.316 mW) and 15 dB gain, mixer with IIP3 = +5 dBm (3.16 mW): 1/IIP3 = 3.16 + 31.6/3.16 = 13.2 /mW, so IIP3 = −11.2 dBm. More LNA gain lowers the noise figure but also the IIP3: the front-end gain is a compromise.",
+      "formula": "\\begin{aligned}& \\frac{1}{IIP3} = \\frac{1}{IIP3_1} + \\frac{G_1}{IIP3_2}\\\\ & \\qquad\\quad + \\frac{G_1G_2}{IIP3_3} + \\dots\\end{aligned}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "rf-noise-1",
+      "title": "Noise temperature and cascades",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Noise figure in kelvin",
+          "body": "A stage's noise can be described by the temperature $T_e$ that a matched source would need to make the same noise. It converts to the noise factor with the reference temperature $T_0$ = 290 K. Good LNAs have tens of kelvin.",
+          "formula": "T_e = (F-1)\\,T_0,\\quad F = 10^{NF/10}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"NF": [0.4, 0.6, 1, 1.5, 2, 3], "Te": [20, 35, 50, 100, 150]},
+          "prompt": "Convert between noise figure and noise temperature ($T_0$ = 290 K).",
+          "ask": [
+            {
+              "prompt": "An LNA has NF = {{NF}} dB. Find $T_e$.",
+              "answer": "290*(10^(NF/10)-1)",
+              "unit": "K",
+              "explanation": "$F = 10^{NF/10}$ = {{10^(NF/10)||4}}, so $T_e = (F - 1)T_0$ = {{10^(NF/10)-1||3}} × 290 = **{{290*(10^(NF/10)-1)}} K**."
+            },
+            {
+              "prompt": "An amplifier has $T_e$ = {{Te}} K. Find its noise figure in dB.",
+              "answer": "10*log10(1+Te/290)",
+              "unit": "dB",
+              "explanation": "$F = 1 + T_e/T_0$ = 1 + {{Te}}/290 = {{1+Te/290}}, so NF = 10 log({{1+Te/290}}) = **{{10*log10(1+Te/290)}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Friis: the first stage counts most",
+          "body": "Noise added by a later stage is divided by all the gain in front of it. Work in linear units: convert NF and G from dB first, add, then convert back.",
+          "formula": "T_e = T_{e1} + \\frac{T_{e2}}{G_1} + \\frac{T_{e3}}{G_1G_2}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"Te1": [35, 50, 75, 100], "G1": [10, 15, 20], "NF2": [3, 6, 8, 10]},
+          "derived": {"Te2": "290*(10^(NF2/10)-1)", "Te": "Te1+290*(10^(NF2/10)-1)/10^(G1/10)"},
+          "prompt": "An LNA ($T_e$ = {{Te1}} K, gain {{G1}} dB) drives a receiver with NF = {{NF2}} dB.",
+          "ask": [
+            {
+              "prompt": "Find the system noise temperature $T_e$.",
+              "answer": "Te",
+              "unit": "K",
+              "explanation": "Receiver: $T_{e2}$ = 290 × ($10^{ {{NF2}}/10}$ − 1) = {{Te2}} K. $G_1 = 10^{ {{G1}}/10}$ = {{10^(G1/10)}}. $T_e = T_{e1} + T_{e2}/G_1$ = {{Te1}} + {{Te2}}/{{10^(G1/10)}} = **{{Te}} K**."
+            },
+            {
+              "prompt": "Find the system noise figure in dB.",
+              "answer": "10*log10(1+Te/290)",
+              "unit": "dB",
+              "explanation": "$T_e$ = {{Te1}} + {{Te2}}/{{10^(G1/10)}} = {{Te}} K, so NF = 10 log(1 + {{Te}}/290) = **{{10*log10(1+Te/290)}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {"NF1": [1, 1.5, 2], "G1": [10, 12, 15], "NF2": [6, 8, 10, 12]},
+          "derived": {
+            "F1": "10^(NF1/10)",
+            "F2": "10^(NF2/10)",
+            "Gl": "10^(G1/10)"
+          },
+          "prompt": "A preamplifier (NF = {{NF1}} dB, G = {{G1}} dB) is followed by a stage with NF = {{NF2}} dB. What is the total noise figure?",
+          "options": [
+            "{{10*log10(F1+(F2-1)/Gl)}} dB",
+            "{{NF1}} dB",
+            "{{10*log10(F1+F2/Gl)}} dB",
+            "{{NF1+NF2}} dB"
+          ],
+          "answer": 0,
+          "explanation": "Convert first: $F_1$ = {{F1}}, $F_2$ = {{F2}}, $G_1$ = {{Gl}}. $F = F_1 + (F_2 - 1)/G_1$ = {{F1}} + {{F2-1}}/{{Gl}} = {{F1+(F2-1)/Gl}}, so NF = **{{10*log10(F1+(F2-1)/Gl)}} dB**. The second stage still adds a little to the LNA's {{NF1}} dB; forgetting the −1 overestimates it, and adding the noise figures in dB ignores the gain that shields the second stage."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Loss is noise",
+          "body": "A matched lossy component at $T_0$ has a noise figure equal to its loss. Since its gain $1/L$ also divides everything after it, a loss $L$ in front of a chain multiplies the noise factor of the whole chain by $L$: in dB, the loss simply adds.",
+          "formula": "F_{total} = L\\cdot F_{rest}\\quad (\\text{loss at } T_0 \\text{ in front})"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"L": [0.5, 1, 2, 3], "NF1": [0.8, 1.2, 2], "G1": [15, 20], "NF2": [6, 10]},
+          "derived": {"Fr": "10^(NF1/10)+(10^(NF2/10)-1)/10^(G1/10)"},
+          "prompt": "An antenna feeds a {{L}} dB cable, then an LNA (NF {{NF1}} dB, gain {{G1}} dB), then a receiver with NF {{NF2}} dB. Everything is at 290 K. Find the system noise figure.",
+          "answer": "L+10*log10(Fr)",
+          "unit": "dB",
+          "explanation": "LNA plus receiver: $F = 10^{ {{NF1}}/10} + (10^{ {{NF2}}/10} - 1)/10^{ {{G1}}/10}$ = {{Fr}} ({{10*log10(Fr)}} dB). The cable in front multiplies this by its loss: NF = {{L}} + {{10*log10(Fr)}} = **{{L+10*log10(Fr)}} dB**."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Moving an LNA from the antenna to the far end of a 2 dB cable (at room temperature) raises the system noise figure by 2 dB.",
+          "answer": true,
+          "explanation": "True. A matched loss at $T_0$ has $F = L$ and gain $1/L$, so Friis gives $F = L + (F_{rest} - 1)L = L\\cdot F_{rest}$: exactly +2 dB. The same 2 dB cable placed after the LNA would hardly matter."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {"TA": [20, 50, 100, 290], "Te": [35, 50, 100], "B": [1000000.0, 10000000.0, 36000000.0]},
+          "prompt": "A receiver with $T_e$ = {{Te}} K is connected to an antenna with noise temperature $T_A$ = {{TA}} K. Find the noise power in a bandwidth of {{B|Hz}}, in dBm.",
+          "answer": "10*log10(1.38e-23*(TA+Te)*B/0.001)",
+          "unit": "dBm",
+          "tolerance": 0.002,
+          "absTolerance": 0.55,
+          "explanation": "$T_{sys} = T_A + T_e$ = {{TA+Te}} K. $N = kT_{sys}B$ = 1.38 × $10^{-23}$ × {{TA+Te}} × {{B|Hz}} = {{1.38e-23*(TA+Te)*B*1e15||3}} fW, i.e. **{{10*log10(1.38e-23*(TA+Te)*B/0.001)}} dBm**. Check: −174 + 10 log({{TA+Te}}/290) + 10 log B gives the same."
+        }
+      ]
+    },
+    {
+      "id": "rf-noise-2",
+      "title": "Compression and intermodulation",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The 1 dB compression point",
+          "body": "At high drive the gain of every amplifier drops. $P_{1dB}$ is where the output is 1 dB below the ideal linear line. It can be quoted at the input ($IP_{1dB}$) or output ($OP_{1dB}$); at that point the actual gain is G − 1 dB.",
+          "formula": "OP_{1dB} = IP_{1dB} + G - 1"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"IP": [-20, -15, -10, -5, 0], "G": [10, 15, 20, 25]},
+          "prompt": "An amplifier with {{G}} dB small-signal gain has an input 1 dB compression point of {{IP}} dBm. What is its output 1 dB compression point?",
+          "answer": "IP+G-1",
+          "unit": "dBm",
+          "absTolerance": 0.05,
+          "explanation": "At the compression point the gain is already 1 dB lower: $OP_{1dB}$ = {{IP}} + {{G}} − 1 = **{{IP+G-1}} dBm**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Third-order intermodulation",
+          "body": "Two equal tones produce IM3 products at $2f_1 - f_2$ and $2f_2 - f_1$. In dB, the IM3 output grows three times as fast as the tones. The (extrapolated) intercept OIP3 fixes all levels: at a tone output $P_{out}$, IM3 lies $2(OIP3 - P_{out})$ below the tones.",
+          "formula": "\\begin{aligned}& P_{IM3} = 3P_{out} - 2\\,OIP3\\\\ & OIP3 = IIP3 + G\\end{aligned}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"OIP3": [20, 25, 30, 35], "Pout": [-10, -5, 0, 5]},
+          "prompt": "An amplifier with OIP3 = {{OIP3}} dBm puts out two tones of {{Pout}} dBm each.",
+          "ask": [
+            {
+              "prompt": "At what level (dBm) are the IM3 products?",
+              "answer": "3*Pout-2*OIP3",
+              "unit": "dBm",
+              "explanation": "$P_{IM3} = 3P_{out} - 2\\,OIP3$ = 3 × ({{Pout}}) − 2 × {{OIP3}} = **{{3*Pout-2*OIP3}} dBm**."
+            },
+            {
+              "prompt": "How far below the tones are they (in dB)?",
+              "answer": "2*(OIP3-Pout)",
+              "unit": "dB",
+              "explanation": "$\\Delta_{IM} = 2(OIP3 - P_{out})$ = 2 × ({{OIP3}} − ({{Pout}})) = **{{2*(OIP3-Pout)}} dB** (dBc)."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {"d": [1, 2, 3, 5]},
+          "prompt": "Both input tones of a two-tone test are raised by {{d}} dB. By how much do the IM3 products at the output rise?",
+          "options": ["{{3*d}} dB", "{{d}} dB", "{{2*d}} dB", "{{9*d}} dB"],
+          "answer": 0,
+          "explanation": "Third-order products grow with the cube of the input amplitude: 3 dB per dB, so **{{3*d}} dB**. The tones rise {{d}} dB, so the distance between tones and IM3 shrinks by {{2*d}} dB."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"Pin": [-30, -25, -20], "G": [12, 15, 20], "Dim": [40, 50, 60]},
+          "derived": {"Pout": "Pin+G", "Pim": "Pin+G-Dim"},
+          "prompt": "In a two-tone test, each input tone is {{Pin}} dBm, each output tone {{Pout}} dBm and each IM3 product {{Pim}} dBm. Find the IIP3.",
+          "answer": "Pin+Dim/2",
+          "unit": "dBm",
+          "absTolerance": 0.1,
+          "explanation": "Gain G = {{Pout}} − ({{Pin}}) = {{G}} dB, and IM3 is $\\Delta_{IM}$ = {{Pout}} − ({{Pim}}) = {{Dim}} dB below the tones. OIP3 = $P_{out} + \\Delta_{IM}/2$ = {{Pout}} + {{Dim/2}} = {{Pout+Dim/2}} dBm, so IIP3 = OIP3 − G = **{{Pin+Dim/2}} dBm**."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {"IIP3": [-10, -5, 0, 5], "Dt": [40, 50, 60]},
+          "derived": {"pt": "IIP3-Dt/2"},
+          "prompt": "An LNA has 15 dB gain and IIP3 = {{IIP3}} dBm. Drag the input level per tone until the IM3 products are exactly {{Dt}} dB below the tones at the output.",
+          "plot": {
+            "x": {"min": -60, "max": 10, "label": "P_in per tone", "unit": "dBm"},
+            "y": {"min": -120, "max": 40, "label": "P_out (dBm)"},
+            "sliders": [{"name": "pin", "label": "$P_{in}$", "min": -60, "max": 0, "step": 0.5, "value": -55, "unit": "dBm"}],
+            "curves": [
+              {"f": "x+15", "label": "tones", "labelAt": 0.2},
+              {"f": "3*x-2*IIP3+15", "color": "red", "label": "IM3", "labelAt": 0.6}
+            ],
+            "points": [
+              {"x": "pin", "y": "pin+15", "guides": false},
+              {"x": "pin", "y": "3*pin-2*IIP3+15", "guides": false, "color": "red"}
+            ],
+            "vlines": [{"x": "pin"}],
+            "readouts": [
+              {"label": "tone out", "value": "pin+15", "unit": "dBm"},
+              {"label": "IM3 out", "value": "3*pin-2*IIP3+15", "unit": "dBm"}
+            ]
+          },
+          "answer": {"pin": "pt"},
+          "tolerance": 0.001,
+          "absTolerance": 0.6,
+          "explanation": "Referred to the input, $\\Delta_{IM} = 2(IIP3 - P_{in})$. Setting it to {{Dt}} dB gives $P_{in}$ = IIP3 − {{Dt}}/2 = {{IIP3}} − {{Dt/2}} = **{{pt}} dBm**. Each dB less input buys 2 dB more distance."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "For a weakly nonlinear amplifier, the IIP3 typically lies about 10 dB above the input 1 dB compression point.",
+          "answer": true,
+          "explanation": "True. For a pure third-order nonlinearity the theory gives IIP3 − $IP_{1dB}$ ≈ 9.6 dB. Real amplifiers deviate, but 10 dB is the usual rule of thumb to estimate one from the other."
+        }
+      ]
+    },
+    {
+      "id": "rf-noise-3",
+      "title": "Receiver chain calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"Lf": [1, 1.5, 2], "NF1": [0.8, 1.5], "G1": [15, 20], "Lm": [6, 7, 8]},
+          "derived": {
+            "F": "10^(Lf/10)*(10^(NF1/10)+(10^(Lm/10)-1)/10^(G1/10))"
+          },
+          "prompt": "A receiver front end: band filter (loss {{Lf}} dB) → LNA (NF {{NF1}} dB, gain {{G1}} dB) → passive mixer (conversion loss {{Lm}} dB, so NF ≈ {{Lm}} dB). The IF amplifier after the mixer has a negligible effect. Find the noise figure of the chain.",
+          "answer": "10*log10(F)",
+          "unit": "dB",
+          "explanation": "Filter: $F_1 = L_f$ = {{10^(Lf/10)}}, gain 1/$L_f$. LNA and mixer behind it: {{10^(NF1/10)}} + ({{10^(Lm/10)}} − 1)/{{10^(G1/10)}} = {{10^(NF1/10)+(10^(Lm/10)-1)/10^(G1/10)}}. Times $L_f$: F = {{F}}, NF = **{{10*log10(F)}} dB**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"B": [12500, 200000, 1000000.0, 20000000.0], "NF": [2, 3, 5, 8], "SNR": [3, 6, 10, 15]},
+          "prompt": "A receiver with noise bandwidth {{B|Hz}} and NF = {{NF}} dB needs an SNR of {{SNR}} dB. What is its sensitivity, in dBm?",
+          "answer": "-174+10*log10(B)+NF+SNR",
+          "unit": "dBm",
+          "tolerance": 0.002,
+          "absTolerance": 0.55,
+          "explanation": "Noise floor: −174 + 10 log({{B|Hz}}) + {{NF}} = {{-174+10*log10(B)+NF}} dBm. Add the required SNR: **{{-174+10*log10(B)+NF+SNR}} dBm**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"I1": [-10, -5, 0], "G1": [10, 15, 20], "I2": [0, 5, 10]},
+          "derived": {"inv": "1/10^(I1/10)+10^(G1/10)/10^(I2/10)"},
+          "prompt": "An LNA (IIP3 = {{I1}} dBm, gain {{G1}} dB) drives a mixer with IIP3 = {{I2}} dBm. Find the IIP3 of the cascade, in dBm.",
+          "answer": "-10*log10(inv)",
+          "unit": "dBm",
+          "absTolerance": 0.1,
+          "explanation": "In mW: 1/IIP3 = 1/{{10^(I1/10)}} + {{10^(G1/10)}}/{{10^(I2/10)}} = {{inv}} per mW, so IIP3 = {{1/inv}} mW = **{{-10*log10(inv)}} dBm**. The mixer, seen through {{G1}} dB of gain, dominates."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"IIP3": [-15, -10, -5, 0, 5], "NF": [2, 4, 6], "B": [200000, 1000000.0, 10000000.0]},
+          "derived": {"Ni": "-174+10*log10(B)+NF"},
+          "prompt": "A receiver has IIP3 = {{IIP3}} dBm, NF = {{NF}} dB and a noise bandwidth of {{B|Hz}}. Find its spurious-free dynamic range.",
+          "answer": "2/3*(IIP3-Ni)",
+          "unit": "dB",
+          "explanation": "Input noise floor $N_i$ = −174 + 10 log({{B|Hz}}) + {{NF}} = {{Ni}} dBm. SFDR = (2/3)(IIP3 − $N_i$) = 2/3 × ({{IIP3}} − ({{Ni}})) = **{{2/3*(IIP3-Ni)}} dB**."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {"I1": [-5, 0, 5], "G1": [10, 15, 20], "I2": [5, 10, 15, 20]},
+          "derived": {"inv": "1/10^(I1/10)+10^(G1/10)/10^(I2/10)"},
+          "require": "min(abs(I1-I2+G1)-1, 8-abs(I1-I2+G1))",
+          "prompt": "An amplifier with IIP3 = {{I1}} dBm and {{G1}} dB gain is followed by a stage with IIP3 = {{I2}} dBm. What is the cascade IIP3?",
+          "options": ["{{-10*log10(inv)}} dBm", "{{I1}} dBm", "{{I2-G1}} dBm"],
+          "answer": 0,
+          "explanation": "Refer the second stage to the input: {{I2}} − {{G1}} = {{I2-G1}} dBm. Combine in linear units: 1/IIP3 = $10^{-({{I1}})/10}$ + $10^{-({{I2-G1}})/10}$ = {{inv}} /mW, so IIP3 = **{{-10*log10(inv)}} dBm**, lower than either stage alone ({{I1}} and {{I2-G1}} dBm). Both stages count, like resistors in parallel."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {"L": [0.5, 1, 2, 3], "T": [20, 77, 150, 290]},
+          "prompt": "A waveguide section with {{L}} dB of loss is kept at a physical temperature of {{T}} K. Find its equivalent noise temperature.",
+          "answer": "(10^(L/10)-1)*T",
+          "unit": "K",
+          "explanation": "$T_e = (L - 1)T$ with $L = 10^{ {{L}}/10}$ = {{10^(L/10)||4}}: $T_e$ = {{10^(L/10)-1||3}} × {{T}} = **{{(10^(L/10)-1)*T}} K**. Cooling the same loss to a low temperature makes it far less noisy."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {"B": [1000000.0, 5000000.0, 20000000.0], "NF": [2, 5, 8], "G": [20, 30, 40]},
+          "prompt": "A receiver chain has NF = {{NF}} dB, total gain {{G}} dB and noise bandwidth {{B|Hz}}. With a matched 290 K source at its input, how much noise power appears at its output, in dBm?",
+          "answer": "-174+10*log10(B)+NF+G",
+          "unit": "dBm",
+          "explanation": "Input-referred noise: −174 + 10 log({{B|Hz}}) + {{NF}} = {{-174+10*log10(B)+NF}} dBm. The chain amplifies it by {{G}} dB: **{{-174+10*log10(B)+NF+G}} dBm**."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "Adding more LNA gain always improves a receiver.",
+          "answer": false,
+          "explanation": "False. More LNA gain makes later stages' noise less important, but it also drives them harder: the cascaded IIP3 drops as $G_1/IIP3_2$ grows. Beyond some point the dynamic range shrinks. The front-end gain is chosen as a compromise between noise figure and linearity."
+        }
+      ]
+    },
+    {
+      "id": "rf-noise-4",
+      "title": "Front-end trade-offs",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {"Lf": [1, 2], "NF1": [1, 1.5], "G1": [15, 20], "NF2": [8, 10], "B": [200000, 1000000.0], "SNR": [8, 12]},
+          "derived": {
+            "F": "10^(Lf/10)*(10^(NF1/10)+(10^(NF2/10)-1)/10^(G1/10))"
+          },
+          "prompt": "A receiver: filter ({{Lf}} dB loss) → LNA (NF {{NF1}} dB, {{G1}} dB gain) → mixer and IF stages (NF {{NF2}} dB together). The noise bandwidth is {{B|Hz}} and the demodulator needs {{SNR}} dB SNR.",
+          "ask": [
+            {
+              "prompt": "Find the system noise figure.",
+              "answer": "10*log10(F)",
+              "unit": "dB",
+              "explanation": "Behind the filter: {{10^(NF1/10)}} + ({{10^(NF2/10)}} − 1)/{{10^(G1/10)}} = {{F/10^(Lf/10)}}. The filter loss multiplies this: F = {{F}}, NF = **{{10*log10(F)}} dB**."
+            },
+            {
+              "prompt": "Find the sensitivity in dBm.",
+              "answer": "-174+10*log10(B)+10*log10(F)+SNR",
+              "unit": "dBm",
+              "tolerance": 0.002,
+              "absTolerance": 0.55,
+              "explanation": "NF = {{10*log10(F)}} dB. $S_{min}$ = −174 + 10 log({{B|Hz}}) + {{10*log10(F)}} + {{SNR}} = **{{-174+10*log10(B)+10*log10(F)+SNR}} dBm**."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {"NF1": [0.8, 1, 1.5], "NF2": [6, 8, 10], "Nt": [0.3, 0.5]},
+          "derived": {"F1": "10^(NF1/10)", "F2": "10^(NF2/10)", "Ft": "10^((NF1+Nt)/10)"},
+          "prompt": "An LNA with NF = {{NF1}} dB drives a receiver with NF = {{NF2}} dB. The system noise figure may be at most {{Nt}} dB worse than the LNA's own. What minimum LNA gain (in dB) is needed?",
+          "answer": "10*log10((F2-1)/(Ft-F1))",
+          "unit": "dB",
+          "absTolerance": 0.1,
+          "explanation": "Target $F_t = 10^{({{NF1}} + {{Nt}})/10}$ = {{Ft}}. Friis: $F_t = F_1 + (F_2 - 1)/G_1$, so $G_1 = (F_2 - 1)/(F_t - F_1)$ = {{F2-1}}/{{Ft-F1}} = {{(F2-1)/(Ft-F1)}}, i.e. **{{10*log10((F2-1)/(Ft-F1))}} dB**."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {"NF1": [1, 2], "G1": [10, 15, 20], "I1": [-5, 0, 5], "NF2": [8, 10], "I2": [5, 10], "B": [1000000.0]},
+          "derived": {
+            "F": "10^(NF1/10)+(10^(NF2/10)-1)/10^(G1/10)",
+            "IIP3": "-10*log10(1/10^(I1/10)+10^(G1/10)/10^(I2/10))",
+            "Ni": "-174+60+10*log10(10^(NF1/10)+(10^(NF2/10)-1)/10^(G1/10))"
+          },
+          "prompt": "A two-stage front end: LNA (NF {{NF1}} dB, gain {{G1}} dB, IIP3 {{I1}} dBm) and mixer (NF {{NF2}} dB, IIP3 {{I2}} dBm), noise bandwidth 1 MHz. Find the spurious-free dynamic range of the cascade.",
+          "answer": "2/3*(IIP3-Ni)",
+          "unit": "dB",
+          "explanation": "NF: F = {{10^(NF1/10)}} + {{10^(NF2/10)-1}}/{{10^(G1/10)}} = {{F}} ({{10*log10(F)}} dB), so $N_i$ = −174 + 60 + {{10*log10(F)}} = {{Ni}} dBm. IIP3: 1/IIP3 = $10^{-({{I1}})/10}$ + {{10^(G1/10)}}/{{10^(I2/10)}} → {{IIP3}} dBm. SFDR = (2/3)({{IIP3}} − ({{Ni}})) = **{{2/3*(IIP3-Ni)}} dB**."
+        },
+        {
+          "id": "c4",
+          "type": "slider",
+          "params": {"NF1": [1, 1.5], "I1": [-10, -5, 0], "NF2": [8, 10, 12], "I2": [5, 10, 15]},
+          "derived": {
+            "F1": "10^(NF1/10)",
+            "c": "10^(NF2/10)-1",
+            "Gopt": "10*log10(sqrt((10^(NF2/10)-1)*10^(I2/10)/(10^(NF1/10)*10^(I1/10))))"
+          },
+          "prompt": "LNA: NF {{NF1}} dB, IIP3 {{I1}} dBm. Mixer behind it: NF {{NF2}} dB, IIP3 {{I2}} dBm. Noise bandwidth 1 MHz. Drag the LNA gain to the value that **maximizes** the spurious-free dynamic range.",
+          "plot": {
+            "x": {"min": 0, "max": 30, "label": "LNA gain G_1", "unit": "dB"},
+            "y": {"min": 40, "max": 90, "label": "SFDR (dB)"},
+            "sliders": [{"name": "g", "label": "$G_1$", "min": 0, "max": 30, "step": 0.5, "value": 0, "unit": "dB"}],
+            "let": {
+              "nf": "10*log10(F1+c/10^(g/10))",
+              "ip": "-10*log10(1/10^(I1/10)+10^(g/10)/10^(I2/10))"
+            },
+            "curves": [{"f": "2/3*(-10*log10(1/10^(I1/10)+10^(x/10)/10^(I2/10))+114-10*log10(F1+c/10^(x/10)))"}],
+            "points": [{"x": "g", "y": "2/3*(ip+114-nf)", "guides": false}],
+            "readouts": [
+              {"label": "NF", "value": "nf", "unit": "dB"},
+              {"label": "IIP3", "value": "ip", "unit": "dBm"},
+              {"label": "SFDR", "value": "2/3*(ip+114-nf)", "unit": "dB"}
+            ]
+          },
+          "answer": {"g": "Gopt"},
+          "tolerance": 0.001,
+          "absTolerance": 1.5,
+          "explanation": "SFDR grows with IIP3/F. With $a = 1/IIP3_1$, $b = 1/IIP3_2$ (mW) and $c = F_2 - 1$, the product $(a + bG)(F_1 + c/G)$ is smallest at $G = \\sqrt{ac/(bF_1)} = \\sqrt{(F_2-1)IIP3_2/(F_1IIP3_1)}$ = **{{Gopt}} dB**. Less gain and the mixer's noise shows; more gain and the mixer's distortion does."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {"P": [-40, -35, -30], "IIP3": [-10, -5, 0], "NF": [3, 5], "B": [200000, 1000000.0]},
+          "derived": {"Pim": "3*P-2*IIP3", "Ni": "-174+10*log10(B)+NF"},
+          "prompt": "Two strong interferers of {{P}} dBm each reach a receiver (IIP3 = {{IIP3}} dBm, NF = {{NF}} dB, bandwidth {{B|Hz}}), spaced so that an IM3 product falls in the wanted channel. By how many dB does that product (referred to the input) exceed the noise floor?",
+          "answer": "Pim-Ni",
+          "unit": "dB",
+          "absTolerance": 0.1,
+          "explanation": "Input-referred IM3: $3P_{in} - 2\\,IIP3$ = 3 × ({{P}}) − 2 × ({{IIP3}}) = {{Pim}} dBm. Noise floor: −174 + 10 log({{B|Hz}}) + {{NF}} = {{Ni}} dBm. Difference: **{{Pim-Ni}} dB** (negative means it is buried in the noise). A weak wanted signal would be swamped if this is positive."
+        },
+        {
+          "id": "c6",
+          "type": "orderSteps",
+          "prompt": "Put the blocks of a superheterodyne receiver front end in signal order.",
+          "items": ["Antenna", "Preselector (band) filter", "Low-noise amplifier", "Image-reject filter", "Mixer", "IF filter and amplifier"],
+          "explanation": "The band filter keeps strong out-of-band signals from overloading the LNA (it costs a little NF). The LNA sets the noise figure. The image filter removes noise and signals at the image before the mixer. After the mixer, the IF filter sets the channel selectivity."
+        }
+      ]
+    }
+  ]
+}

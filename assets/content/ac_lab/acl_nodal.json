@@ -1,0 +1,4143 @@
+{
+ "id": "acl-nodal",
+ "title": "Nodal & Mesh Analysis",
+ "description": "Node voltages and mesh currents as phasors in circuits with several sources, current sources and dependent sources.",
+ "reference": "Hambley §2.4–2.5, §5.4",
+ "study": [
+  {
+   "title": "Node analysis with phasors",
+   "body": "Pick a reference node, label the unknown node voltage phasors and write KCL at each one: the current leaving through an impedance $Z$ to node $k$ is $(\\mathbf{V}_n - \\mathbf{V}_k)/Z$. Admittances are handy: $j\\omega C$ for a capacitor and $1/(j\\omega L) = -j/(\\omega L)$ for an inductor. Solve the complex linear system (substitution or Cramer's rule).",
+   "formula": "\\sum_k \\frac{\\mathbf{V}_n - \\mathbf{V}_k}{Z_{nk}} = \\mathbf{I}_{\\text{in}}"
+  },
+  {
+   "title": "Sources and their phasors",
+   "body": "All sources must share one frequency. Cosines map directly to $V_m\\angle\\theta$; a sine first becomes a cosine: $\\sin(\\omega t + \\alpha) = \\cos(\\omega t + \\alpha - 90^\\circ)$. A voltage source between two non-reference nodes forms a **supernode**: one KCL for both nodes plus $\\mathbf{V}_b - \\mathbf{V}_a = \\mathbf{V}_s$.",
+   "formula": "V_m\\sin(\\omega t + \\alpha) \\;\\leftrightarrow\\; V_m\\angle(\\alpha - 90^\\circ)"
+  },
+  {
+   "title": "Dependent sources",
+   "body": "Keep the dependent source in every equation, as if it were independent with value gain × control. Then add one equation that expresses the control variable in the unknowns, e.g. $\\mathbf{I}_x = (\\mathbf{V}_s - \\mathbf{V}_a)/R_1$. Never zero it."
+  },
+  {
+   "title": "Mesh analysis",
+   "body": "Assign clockwise mesh currents and write KVL around each mesh with impedances. An element shared by meshes 1 and 2 carries $\\mathbf{I}_1 - \\mathbf{I}_2$; a current source in an outer branch sets that mesh current directly.",
+   "formula": "(Z_1 + Z_3)\\mathbf{I}_1 - Z_3\\mathbf{I}_2 = \\mathbf{V}_1",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "v_1",
+      "polarity": "-+",
+      "flip": true
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "Z_1"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       3,
+       2
+      ],
+      "label": "Z_3",
+      "flip": true
+     },
+     {
+      "type": "resistor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       6,
+       0
+      ],
+      "label": "Z_2"
+     },
+     {
+      "type": "acsource",
+      "from": [
+       6,
+       2
+      ],
+      "to": [
+       6,
+       0
+      ],
+      "label": "v_2",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        6,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       3,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       3,
+       2
+      ]
+     },
+     {
+      "type": "loop",
+      "at": [
+       1.0,
+       1
+      ],
+      "label": "I_1"
+     },
+     {
+      "type": "loop",
+      "at": [
+       4.5,
+       1
+      ],
+      "label": "I_2"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Common mistakes",
+   "body": "- Writing a sine source as $V_m\\angle\\alpha$ instead of $V_m\\angle(\\alpha - 90^\\circ)$.\n- Using $j\\omega C$ as an impedance (it is the admittance).\n- Subtracting amplitudes for a shared branch: the current is the phasor $\\mathbf{I}_1 - \\mathbf{I}_2$.\n- Adding phasors of sources with **different** frequencies: use superposition in the time domain."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "acl-nodal-1",
+   "title": "Node voltages",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "V1": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "V2": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th2": [
+       -90,
+       -60,
+       -45,
+       -30,
+       30,
+       45,
+       60,
+       90
+      ],
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "G": "1/R",
+      "B": "w*C - 1/(w*L)"
+     },
+     "require": "min(v_a - 0.5, 1.5*max(V1, V2) - v_a, abs(B)*R - 0.15)",
+     "prompt": "$v_1(t) = {{V1}}\\cos({{w}}t)$ V and $v_2(t) = {{V2}}\\cos({{w}}t + \\theta_2)$ V with $\\theta_2$ = {{th2}}° (same frequency). Use node analysis.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of the node voltage $v_a$.",
+       "answer": "v_a",
+       "unit": "V",
+       "explanation": "KCL at a: $\\frac{\\mathbf{V}_a - \\mathbf{V}_1}{R} + j\\omega C\\,\\mathbf{V}_a + \\frac{\\mathbf{V}_a - \\mathbf{V}_2}{j\\omega L} = 0$, so $\\mathbf{V}_a = \\frac{\\mathbf{V}_1/R + \\mathbf{V}_2/(j\\omega L)}{1/R + j(\\omega C - 1/\\omega L)}$. The denominator is {{G|S}} + j({{B|S}}). Result: $\\mathbf{V}_a$ = **{{v_a|V}}** ∠ {{v_a_ph|°}}."
+      },
+      {
+       "prompt": "Find the phase of $v_a$ in degrees.",
+       "answer": "v_a_ph",
+       "unit": "°",
+       "explanation": "$\\mathbf{V}_a = \\frac{\\mathbf{V}_1/R + \\mathbf{V}_2/(j\\omega L)}{1/R + j(\\omega C - 1/\\omega L)}$ with $\\mathbf{V}_1$ = {{V1}}∠0° V, $\\mathbf{V}_2$ = {{V2}}∠{{th2}}° V, and the denominator {{G|S}} + j({{B|S}}). Result: {{v_a|V}} ∠ **{{v_a_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of the current through $C$.",
+       "answer": "I_C1",
+       "unit": "A",
+       "explanation": "Node analysis gives $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}}. Then $|\\mathbf{I}_C| = \\omega C\\,|\\mathbf{V}_a|$ = {{w*C|S}} · {{v_a|V}} = **{{I_C1|A}}**."
+      },
+      {
+       "prompt": "Find the amplitude of the current through $L$.",
+       "answer": "I_L1",
+       "unit": "A",
+       "explanation": "With $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}}: $\\mathbf{I}_L = \\frac{\\mathbf{V}_a - \\mathbf{V}_2}{j\\omega L}$, and $|\\mathbf{V}_a - \\mathbf{V}_2|$ = {{I_L1*w*L|V}}, so $|\\mathbf{I}_L|$ = {{I_L1*w*L|V}} / {{w*L|Ω}} = **{{I_L1|A}}**."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "V1",
+        "val": "V1",
+        "phase": "0",
+        "label": "v_1",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "acsource",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "V2",
+        "val": "V2",
+        "phase": "th2",
+        "label": "v_2",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Vm": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th": [
+       -60,
+       -45,
+       -30,
+       0,
+       30,
+       45,
+       60,
+       90
+      ],
+      "R1": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0
+      ],
+      "R2": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47,
+       0.68,
+       1.0
+      ],
+      "C": [
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05
+      ],
+      "w": [
+       1000,
+       2000,
+       5000,
+       10000
+      ]
+     },
+     "derived": {
+      "YL": "1/(w*L)",
+      "YC": "w*C"
+     },
+     "require": "min(v_b - 0.05*Vm, 1.5*Vm - v_a, 1.5*Vm - v_b, abs(v_b_ph - th) - 5, abs(v_a_ph - th) - 5)",
+     "prompt": "$v_s(t) = {{Vm}}\\cos({{w}}t + \\theta)$ V with $\\theta$ = {{th}}°. Use node analysis with the reference node shown.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $v_a$.",
+       "answer": "v_a",
+       "unit": "V",
+       "explanation": "KCL at a: $\\frac{\\mathbf{V}_a - \\mathbf{V}_s}{R_1} + \\frac{\\mathbf{V}_a}{j\\omega L} + j\\omega C(\\mathbf{V}_a - \\mathbf{V}_b) = 0$. KCL at b: $j\\omega C(\\mathbf{V}_b - \\mathbf{V}_a) + \\frac{\\mathbf{V}_b}{R_2} = 0$. With $1/\\omega L$ = {{YL|S}} and $\\omega C$ = {{YC|S}}, solving gives $\\mathbf{V}_a$ = **{{v_a|V}}** ∠ {{v_a_ph|°}}."
+      },
+      {
+       "prompt": "Find the phase of $v_b$ in degrees.",
+       "answer": "v_b_ph",
+       "unit": "°",
+       "explanation": "From KCL at b: $\\mathbf{V}_b = \\mathbf{V}_a\\frac{j\\omega CR_2}{1 + j\\omega CR_2}$, which leads $\\mathbf{V}_a$ by $90^\\circ - \\arctan(\\omega CR_2)$ = {{90-deg(atan(YC*R2))|°}}. Solving both equations: $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}}, so $\\mathbf{V}_b$ = {{v_b|V}} ∠ **{{v_b_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $v_b$.",
+       "answer": "v_b",
+       "unit": "V",
+       "explanation": "Solving the two KCL equations gives $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}}. Node b is a divider of $\\mathbf{V}_a$: $|\\mathbf{V}_b| = |\\mathbf{V}_a|\\frac{\\omega CR_2}{\\sqrt{1 + (\\omega CR_2)^2}}$ = **{{v_b|V}}**."
+      },
+      {
+       "prompt": "Find the amplitude of the current through $C$.",
+       "answer": "I_C1",
+       "unit": "A",
+       "explanation": "$\\mathbf{I}_C = j\\omega C(\\mathbf{V}_a - \\mathbf{V}_b)$, which is also the current in $R_2$: $|\\mathbf{I}_C| = |\\mathbf{V}_b|/R_2$ = {{v_b|V}} / {{R2|Ω}} = **{{I_C1|A}}**."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "th",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "name": "R1",
+        "val": "R1",
+        "label": "R_1"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "name": "R2",
+        "val": "R2",
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Vm": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "Im": [
+       0.005,
+       0.01,
+       0.02,
+       0.05
+      ],
+      "phi": [
+       -90,
+       -45,
+       0,
+       45,
+       90,
+       180
+      ],
+      "R1": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "R2": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05
+      ],
+      "w": [
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "require": "min(v_b - 0.5, 40 - v_b, v_a - 0.5, 40 - v_a)",
+     "prompt": "$v_s(t) = {{Vm}}\\cos({{w}}t)$ V and $i_s(t) = {{Im*1000}}\\cos({{w}}t + \\varphi)$ mA with $\\varphi$ = {{phi}}°.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $v_b$.",
+       "answer": "v_b",
+       "unit": "V",
+       "explanation": "KCL at a: $\\frac{\\mathbf{V}_a - \\mathbf{V}_s}{R_1} + j\\omega C\\mathbf{V}_a + \\frac{\\mathbf{V}_a - \\mathbf{V}_b}{R_2} = 0$. KCL at b (the source current enters b): $\\frac{\\mathbf{V}_b - \\mathbf{V}_a}{R_2} + \\frac{\\mathbf{V}_b}{j\\omega L} = \\mathbf{I}_s$. Solving: $\\mathbf{V}_b$ = **{{v_b|V}}** ∠ {{v_b_ph|°}} (and $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}})."
+      },
+      {
+       "prompt": "Find the phase of $v_b$ in degrees.",
+       "answer": "v_b_ph",
+       "unit": "°",
+       "explanation": "Write KCL at a and b (with $\\mathbf{I}_s$ = {{Im*1000}}∠{{phi}}° mA entering b), then solve the 2×2 complex system: $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}}, $\\mathbf{V}_b$ = {{v_b|V}} ∠ **{{v_b_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $v_a$.",
+       "answer": "v_a",
+       "unit": "V",
+       "explanation": "KCL at a and b, solved together: $\\mathbf{V}_a$ = **{{v_a|V}}** ∠ {{v_a_ph|°}}, $\\mathbf{V}_b$ = {{v_b|V}} ∠ {{v_b_ph|°}}."
+      },
+      {
+       "prompt": "Find the amplitude of the current through $R_2$.",
+       "answer": "I_R2",
+       "unit": "A",
+       "explanation": "$\\mathbf{I}_{R_2} = (\\mathbf{V}_a - \\mathbf{V}_b)/R_2$ with $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}} and $\\mathbf{V}_b$ = {{v_b|V}} ∠ {{v_b_ph|°}}: subtract in rectangular form, $|\\mathbf{I}_{R_2}|$ = **{{I_R2|A}}**."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "0",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "name": "R1",
+        "val": "R1",
+        "label": "R_1"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "R2",
+        "val": "R2",
+        "label": "R_2"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "Is",
+        "val": "Im",
+        "phase": "phi",
+        "label": "i_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "orderSteps",
+     "prompt": "Put the steps of phasor node-voltage analysis in order.",
+     "items": [
+      "Convert every source to a phasor (same $\\omega$) and every R, L, C to an impedance",
+      "Choose the reference node and label the unknown node voltages",
+      "Write KCL at each unknown node with currents $(\\mathbf{V}_n - \\mathbf{V}_k)/Z$",
+      "Solve the complex linear equations",
+      "Compute the requested branch currents and convert back to time functions"
+     ],
+     "explanation": "It is the DC method with complex numbers. Voltage sources connected to the reference fix a node voltage directly; a floating voltage source needs a supernode."
+    },
+    {
+     "id": "q5",
+     "type": "multipleChoice",
+     "prompt": "Which equation is KCL at node a (currents leaving a)?",
+     "options": [
+      "$\\frac{\\mathbf{V}_a - \\mathbf{V}_1}{R} + j\\omega C\\,\\mathbf{V}_a + \\frac{\\mathbf{V}_a - \\mathbf{V}_2}{j\\omega L} = 0$",
+      "$\\frac{\\mathbf{V}_a - \\mathbf{V}_1}{R} + \\frac{\\mathbf{V}_a}{j\\omega C} + \\frac{\\mathbf{V}_a - \\mathbf{V}_2}{j\\omega L} = 0$",
+      "$\\frac{\\mathbf{V}_a - \\mathbf{V}_1}{R} + j\\omega C\\,\\mathbf{V}_a + j\\omega L(\\mathbf{V}_a - \\mathbf{V}_2) = 0$",
+      "$\\frac{\\mathbf{V}_1 - \\mathbf{V}_a}{R} + j\\omega C\\,\\mathbf{V}_a + \\frac{\\mathbf{V}_a - \\mathbf{V}_2}{j\\omega L} = 0$"
+     ],
+     "answer": 0,
+     "explanation": "Each current leaving a is (voltage difference)/impedance. For $C$ that is $\\mathbf{V}_a/(1/j\\omega C) = j\\omega C\\,\\mathbf{V}_a$; for $L$ it is $(\\mathbf{V}_a - \\mathbf{V}_2)/(j\\omega L)$. The other options multiply by an impedance instead of dividing, or flip the sign of one leaving current.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_1",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "C"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "L"
+       },
+       {
+        "type": "acsource",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "v_2",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "Vm": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th": [
+       -60,
+       -45,
+       -30,
+       0,
+       30,
+       45,
+       60,
+       90
+      ],
+      "R1": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "R2": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "R3": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C1": [
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05
+      ],
+      "C2": [
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05
+      ],
+      "w": [
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "require": "min(v_c - 0.05*Vm, 1.5*Vm - v_a, 1.5*Vm - v_b, 1.5*Vm - v_c)",
+     "prompt": "$v_s(t) = {{Vm}}\\cos({{w}}t + \\theta)$ V with $\\theta$ = {{th}}°. Three unknown nodes a, b, c.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $v_c$.",
+       "answer": "v_c",
+       "unit": "V",
+       "explanation": "KCL at a: $\\frac{\\mathbf{V}_a - \\mathbf{V}_s}{R_1} + j\\omega C_1\\mathbf{V}_a + \\frac{\\mathbf{V}_a - \\mathbf{V}_b}{j\\omega L} = 0$; at b: $\\frac{\\mathbf{V}_b - \\mathbf{V}_a}{j\\omega L} + \\frac{\\mathbf{V}_b}{R_2} + j\\omega C_2(\\mathbf{V}_b - \\mathbf{V}_c) = 0$; at c: $j\\omega C_2(\\mathbf{V}_c - \\mathbf{V}_b) + \\frac{\\mathbf{V}_c}{R_3} = 0$. Solving: $\\mathbf{V}_c$ = **{{v_c|V}}** ∠ {{v_c_ph|°}}."
+      },
+      {
+       "prompt": "Find the phase of $v_c$ in degrees.",
+       "answer": "v_c_ph",
+       "unit": "°",
+       "explanation": "Solve the three KCL equations (a, b, c): $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}}, $\\mathbf{V}_b$ = {{v_b|V}} ∠ {{v_b_ph|°}}, $\\mathbf{V}_c$ = {{v_c|V}} ∠ **{{v_c_ph|°}}**. Check: c is an RC divider of b, so it leads $\\mathbf{V}_b$ by $90^\\circ - \\arctan(\\omega C_2 R_3)$ = {{90-deg(atan(w*C2*R3))|°}}.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $v_b$.",
+       "answer": "v_b",
+       "unit": "V",
+       "explanation": "Solve KCL at a, b and c together: $\\mathbf{V}_b$ = **{{v_b|V}}** ∠ {{v_b_ph|°}}."
+      },
+      {
+       "prompt": "Find the amplitude of the current through $L$.",
+       "answer": "I_L1",
+       "unit": "A",
+       "explanation": "Solving KCL at a, b, c gives $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}} and $\\mathbf{V}_b$ = {{v_b|V}} ∠ {{v_b_ph|°}}. $|\\mathbf{I}_L| = |\\mathbf{V}_a - \\mathbf{V}_b|/(\\omega L)$ = **{{I_L1|A}}**."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "th",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "name": "R1",
+        "val": "R1",
+        "label": "R_1"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "name": "C1",
+        "val": "C1",
+        "label": "C_1"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "name": "R2",
+        "val": "R2",
+        "label": "R_2"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "C2",
+        "val": "C2",
+        "label": "C_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "R3",
+        "val": "R3",
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ],
+        "label": "c"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q7",
+     "type": "numeric",
+     "params": {
+      "V1": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "V2": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th2": [
+       -90
+      ],
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "G": "1/R",
+      "B": "w*C - 1/(w*L)"
+     },
+     "require": "min(v_a - 0.5, 1.5*max(V1, V2) - v_a, abs(B)*R - 0.15)",
+     "prompt": "$v_1(t) = {{V1}}\\cos({{w}}t)$ V and $v_2(t) = {{V2}}\\sin({{w}}t)$ V. Note the **sine**.",
+     "ask": [
+      {
+       "prompt": "Find the phase of $v_a$ in degrees (cosine reference).",
+       "answer": "v_a_ph",
+       "unit": "°",
+       "explanation": "First convert: $\\sin(\\omega t) = \\cos(\\omega t - 90^\\circ)$, so $\\mathbf{V}_2$ = {{V2}}∠−90° V = −j{{V2}} V. KCL at a: $\\mathbf{V}_a = \\frac{\\mathbf{V}_1/R + \\mathbf{V}_2/(j\\omega L)}{1/R + j(\\omega C - 1/\\omega L)}$, denominator {{G|S}} + j({{B|S}}). Result: {{v_a|V}} ∠ **{{v_a_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $v_a$.",
+       "answer": "v_a",
+       "unit": "V",
+       "explanation": "$\\mathbf{V}_2$ = {{V2}}∠−90° V (sine → cosine with −90°). $\\mathbf{V}_a = \\frac{\\mathbf{V}_1/R + \\mathbf{V}_2/(j\\omega L)}{1/R + j(\\omega C - 1/\\omega L)}$ = **{{v_a|V}}** ∠ {{v_a_ph|°}}."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "V1",
+        "val": "V1",
+        "phase": "0",
+        "label": "v_1",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "acsource",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "V2",
+        "val": "V2",
+        "phase": "th2",
+        "label": "v_2",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q8",
+     "type": "trueFalse",
+     "prompt": "A circuit has a 50 Hz source and a 150 Hz source. You can find a node voltage by writing one set of phasor node equations with both sources in it.",
+     "answer": false,
+     "explanation": "A phasor carries one frequency, and the impedances $j\\omega L$, $1/(j\\omega C)$ differ per frequency. Use **superposition**: solve the circuit once per source (with its own $\\omega$), convert each result back to a time function, and add the time functions — never the phasors."
+    }
+   ]
+  },
+  {
+   "id": "acl-nodal-2",
+   "title": "Current and dependent sources",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       0.1,
+       0.2,
+       0.5,
+       1
+      ],
+      "R1": [
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0,
+       2700.0,
+       3300.0,
+       3900.0,
+       4700.0,
+       5600.0,
+       6800.0,
+       8200.0,
+       10000.0
+      ],
+      "Rf": [
+       10000.0,
+       12000.0,
+       15000.0,
+       18000.0,
+       22000.0,
+       27000.0,
+       33000.0,
+       39000.0,
+       47000.0,
+       56000.0,
+       68000.0,
+       82000.0,
+       100000.0
+      ],
+      "R2": [
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0,
+       2700.0,
+       3300.0,
+       3900.0,
+       4700.0,
+       5600.0,
+       6800.0,
+       8200.0,
+       10000.0
+      ],
+      "g": [
+       0.001,
+       0.002,
+       0.005,
+       0.01
+      ],
+      "C": [
+       1e-09,
+       1.5e-09,
+       2.2e-09,
+       3.3e-09,
+       4.7e-09,
+       6.8e-09,
+       1e-08,
+       1.5e-08,
+       2.2e-08,
+       3.3e-08,
+       4.7e-08,
+       6.8e-08,
+       1e-07
+      ],
+      "w": [
+       1000,
+       2000,
+       5000,
+       10000
+      ]
+     },
+     "require": "min(abs(v_v_x_ph) - 8, 75 - abs(v_v_x_ph), 15 - v_v_out, v_v_out - 0.05, v_v_x - 0.02)",
+     "prompt": "Amplifier model: $v_s(t) = {{Vm}}\\cos({{w}}t)$ V, and the VCCS draws $g\\,v_x$ downward with $g$ = {{g*1000}} mS, where $v_x$ is the voltage across $C$.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $v_{out}$.",
+       "answer": "v_v_out",
+       "unit": "V",
+       "explanation": "KCL at x: $\\frac{\\mathbf{V}_x - \\mathbf{V}_s}{R_1} + j\\omega C\\mathbf{V}_x + \\frac{\\mathbf{V}_x - \\mathbf{V}_{out}}{R_f} = 0$. KCL at out: $\\frac{\\mathbf{V}_{out} - \\mathbf{V}_x}{R_f} + g\\mathbf{V}_x + \\frac{\\mathbf{V}_{out}}{R_2} = 0$. Solving: $\\mathbf{V}_x$ = {{v_v_x|V}} ∠ {{v_v_x_ph|°}}, $\\mathbf{V}_{out}$ = **{{v_v_out|V}}** ∠ {{v_v_out_ph|°}}."
+      },
+      {
+       "prompt": "Find the phase of $v_{out}$ in degrees.",
+       "answer": "v_v_out_ph",
+       "unit": "°",
+       "explanation": "Solve the two KCL equations (x and out) with the dependent current $g\\mathbf{V}_x$ leaving node out: $\\mathbf{V}_{out}$ = {{v_v_out|V}} ∠ **{{v_v_out_ph|°}}**. Roughly $\\mathbf{V}_{out} \\approx -gR_2\\mathbf{V}_x$ (inverting, about 180° from $\\mathbf{V}_x$ = {{v_v_x|V}} ∠ {{v_v_x_ph|°}}); $R_f$ modifies this.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "Writing KCL at x and out and solving the 2×2 system: $\\mathbf{V}_x$ = **{{v_v_x|V}}** ∠ {{v_v_x_ph|°}}. The feedback resistor $R_f$ couples the output back to x, so you cannot treat the input as a plain RC divider."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "0",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "name": "R1",
+        "val": "R1",
+        "label": "R_1"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C",
+        "polarity": "+-"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "Rf",
+        "val": "Rf",
+        "label": "R_f"
+       },
+       {
+        "type": "ccsource",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "name": "G1",
+        "val": "g",
+        "ctrl": "V(C1)",
+        "label": "g·v_x",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "R2",
+        "val": "R2",
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Vm": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th": [
+       -30,
+       0,
+       30,
+       45
+      ],
+      "R1": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "r": [
+       10,
+       20,
+       50,
+       100
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "require": "min(v_a - 0.05*Vm, 2*Vm - v_a, abs(v_a_ph - th) - 5)",
+     "prompt": "$v_s(t) = {{Vm}}\\cos({{w}}t + \\theta)$ V with $\\theta$ = {{th}}°. The CCVS (+ at the top) produces $r\\,i_x$ with $r$ = {{r}} Ω.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $v_a$.",
+       "answer": "v_a",
+       "unit": "V",
+       "explanation": "KCL at a: $\\frac{\\mathbf{V}_a - \\mathbf{V}_s}{R_1} + j\\omega C\\mathbf{V}_a + \\frac{\\mathbf{V}_a - r\\mathbf{I}_x}{j\\omega L} = 0$, with the control equation $\\mathbf{I}_x = \\frac{\\mathbf{V}_s - \\mathbf{V}_a}{R_1}$. Substituting and solving: $\\mathbf{V}_a$ = **{{v_a|V}}** ∠ {{v_a_ph|°}}."
+      },
+      {
+       "prompt": "Find the phase of $v_a$ in degrees.",
+       "answer": "v_a_ph",
+       "unit": "°",
+       "explanation": "Replace $\\mathbf{I}_x$ by $(\\mathbf{V}_s - \\mathbf{V}_a)/R_1$ in KCL at a, collect the $\\mathbf{V}_a$ terms and solve: $\\mathbf{V}_a$ = {{v_a|V}} ∠ **{{v_a_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $i_x$.",
+       "answer": "I_R1",
+       "unit": "A",
+       "explanation": "After solving for $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}}: $\\mathbf{I}_x = (\\mathbf{V}_s - \\mathbf{V}_a)/R_1$, amplitude **{{I_R1|A}}**."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "th",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.2,
+         0
+        ],
+        "to": [
+         0.8,
+         0
+        ],
+        "label": "i_x"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "name": "R1",
+        "val": "R1",
+        "label": "R_1"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "cvsource",
+        "from": [
+         5,
+         2
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "name": "H1",
+        "val": "r",
+        "ctrl": "I(R1)",
+        "label": "r·i_x",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "prompt": "A circuit contains a dependent source $\\beta\\,\\mathbf{I}_x$. How do you handle it in node analysis?",
+     "options": [
+      "Treat it as a source in KCL and add an equation for $\\mathbf{I}_x$ in terms of the node voltages",
+      "Set it to zero while writing KCL, then add its effect at the end",
+      "Replace it by an impedance $\\beta$",
+      "Use superposition: one solution with only the dependent source active"
+     ],
+     "answer": 0,
+     "explanation": "A dependent source stays in the circuit in every step: write KCL as if it were an independent source with value $\\beta\\mathbf{I}_x$, then express the control variable ($\\mathbf{I}_x$, or a voltage $\\mathbf{V}_x$) in the node-voltage unknowns. It can never be switched off or used alone in superposition, because it cannot drive the circuit by itself."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "I1": [
+       0.01,
+       0.02,
+       0.05,
+       0.1
+      ],
+      "I2": [
+       0.01,
+       0.02,
+       0.05,
+       0.1
+      ],
+      "phi": [
+       -90,
+       -45,
+       45,
+       90,
+       135,
+       180
+      ],
+      "R": [
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "require": "min(v_a - 0.3, v_b - 0.3, 30 - v_a, 30 - v_b, I_C1 - 0.002)",
+     "prompt": "Two current sources at the same frequency: $i_1(t) = {{I1*1000}}\\cos({{w}}t)$ mA and $i_2(t) = {{I2*1000}}\\cos({{w}}t + \\varphi)$ mA with $\\varphi$ = {{phi}}°.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $v_a$.",
+       "answer": "v_a",
+       "unit": "V",
+       "explanation": "KCL (sources entering): a: $\\frac{\\mathbf{V}_a}{R} + j\\omega C(\\mathbf{V}_a - \\mathbf{V}_b) = \\mathbf{I}_1$; b: $j\\omega C(\\mathbf{V}_b - \\mathbf{V}_a) + \\frac{\\mathbf{V}_b}{j\\omega L} = \\mathbf{I}_2$. Solving: $\\mathbf{V}_a$ = **{{v_a|V}}** ∠ {{v_a_ph|°}}."
+      },
+      {
+       "prompt": "Find the phase of $v_b$ in degrees.",
+       "answer": "v_b_ph",
+       "unit": "°",
+       "explanation": "Solve the KCL equations at a and b (admittances $1/R$, $j\\omega C$ = j{{w*C|S}}, $1/(j\\omega L)$ = −j{{1/(w*L)|S}}): $\\mathbf{V}_b$ = {{v_b|V}} ∠ **{{v_b_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $v_b$.",
+       "answer": "v_b",
+       "unit": "V",
+       "explanation": "Solving the two KCL equations: $\\mathbf{V}_b$ = **{{v_b|V}}** ∠ {{v_b_ph|°}}."
+      },
+      {
+       "prompt": "Find the amplitude of the current through $C$.",
+       "answer": "I_C1",
+       "unit": "A",
+       "explanation": "$\\mathbf{I}_C = j\\omega C(\\mathbf{V}_a - \\mathbf{V}_b)$ with $\\mathbf{V}_a$ = {{v_a|V}} ∠ {{v_a_ph|°}} and $\\mathbf{V}_b$ = {{v_b|V}} ∠ {{v_b_ph|°}}: **{{I_C1|A}}**. Check with KCL at a: $\\mathbf{I}_C = \\mathbf{I}_1 - \\mathbf{V}_a/R$."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "I1",
+        "val": "I1",
+        "phase": "0",
+        "label": "i_1",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "I2",
+        "val": "I2",
+        "phase": "phi",
+        "label": "i_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "Im": [
+       0.01,
+       0.02,
+       0.05,
+       0.1
+      ],
+      "V2": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th2": [
+       -90,
+       -45,
+       0,
+       45,
+       90
+      ],
+      "R": [
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "require": "min(v_a - 0.3, v_b - 0.3, 40 - v_a, 40 - v_b)",
+     "prompt": "$i_s(t) = {{Im*1000}}\\cos({{w}}t)$ mA and the floating source $v_2(t) = {{V2}}\\cos({{w}}t + \\theta_2)$ V with $\\theta_2$ = {{th2}}° (+ on the b side).",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $v_b$.",
+       "answer": "v_b",
+       "unit": "V",
+       "explanation": "a and b form a **supernode** with $\\mathbf{V}_b = \\mathbf{V}_a + \\mathbf{V}_2$. KCL for the supernode: $j\\omega C\\mathbf{V}_a + \\frac{\\mathbf{V}_b}{R} + \\frac{\\mathbf{V}_b}{j\\omega L} = \\mathbf{I}_s$. Substitute $\\mathbf{V}_a = \\mathbf{V}_b - \\mathbf{V}_2$ and solve: $\\mathbf{V}_b$ = **{{v_b|V}}** ∠ {{v_b_ph|°}}."
+      },
+      {
+       "prompt": "Find the phase of $v_a$ in degrees.",
+       "answer": "v_a_ph",
+       "unit": "°",
+       "explanation": "Supernode KCL $j\\omega C\\mathbf{V}_a + (\\mathbf{V}_a + \\mathbf{V}_2)\\left(\\frac1R + \\frac{1}{j\\omega L}\\right) = \\mathbf{I}_s$ gives $\\mathbf{V}_a = \\frac{\\mathbf{I}_s - \\mathbf{V}_2(1/R + 1/j\\omega L)}{j\\omega C + 1/R + 1/j\\omega L}$ = {{v_a|V}} ∠ **{{v_a_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $v_a$.",
+       "answer": "v_a",
+       "unit": "V",
+       "explanation": "$\\mathbf{V}_a = \\frac{\\mathbf{I}_s - \\mathbf{V}_2(1/R + 1/j\\omega L)}{j\\omega C + 1/R + 1/j\\omega L}$ = **{{v_a|V}}** ∠ {{v_a_ph|°}} (from the supernode KCL with $\\mathbf{V}_b = \\mathbf{V}_a + \\mathbf{V}_2$)."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Is",
+        "val": "Im",
+        "phase": "0",
+        "label": "i_s",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "acsource",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "V2",
+        "val": "V2",
+        "phase": "th2",
+        "label": "v_2",
+        "polarity": "-+"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       0.5,
+       1,
+       2,
+       5
+      ],
+      "th": [
+       0,
+       30,
+       60,
+       -30
+      ],
+      "R1": [
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0,
+       2700.0,
+       3300.0,
+       3900.0,
+       4700.0,
+       5600.0,
+       6800.0,
+       8200.0,
+       10000.0
+      ],
+      "L": [
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47,
+       0.68,
+       1.0
+      ],
+      "beta": [
+       10,
+       20,
+       50
+      ],
+      "R2": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "w": [
+       1000,
+       2000,
+       5000,
+       10000
+      ]
+     },
+     "derived": {
+      "XL": "w*L"
+     },
+     "require": "min(XL/R1 - 0.2, 5 - XL/R1, 20 - v_v_out, v_v_out - 0.1)",
+     "prompt": "$v_s(t) = {{Vm}}\\cos({{w}}t + \\theta)$ V with $\\theta$ = {{th}}°. The CCCS pushes $\\beta i_x$ upward with $\\beta$ = {{beta}}.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $i_x$.",
+       "answer": "I_R1",
+       "unit": "A",
+       "explanation": "The left loop is a series $R_1$, $L$ circuit (the CCCS does not load it): $\\mathbf{I}_x = \\frac{\\mathbf{V}_s}{R_1 + j\\omega L}$, $|R_1 + j\\omega L|$ = {{sqrt(R1^2+XL^2)|Ω}}, so $|\\mathbf{I}_x|$ = **{{I_R1|A}}**."
+      },
+      {
+       "prompt": "Find the phase of $v_{out}$ in degrees.",
+       "answer": "v_v_out_ph",
+       "unit": "°",
+       "explanation": "$\\mathbf{V}_{out} = \\beta\\mathbf{I}_x R_2$ has the phase of $\\mathbf{I}_x = \\mathbf{V}_s/(R_1 + j\\omega L)$: {{th}}° − arctan({{XL|Ω}}/{{R1|Ω}}) = **{{v_v_out_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $v_{out}$.",
+       "answer": "v_v_out",
+       "unit": "V",
+       "explanation": "$|\\mathbf{I}_x|$ = {{I_R1|A}}. The dependent current {{beta}} · {{I_R1|A}} = {{beta*I_R1|A}} flows up into the output node and down through $R_2$: $|\\mathbf{V}_{out}| = \\beta|\\mathbf{I}_x|R_2$ = **{{v_v_out|V}}**."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "th",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.2,
+         0
+        ],
+        "to": [
+         0.8,
+         0
+        ],
+        "label": "i_x"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "name": "R1",
+        "val": "R1",
+        "label": "R_1"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "ccsource",
+        "from": [
+         5,
+         2
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "name": "F1",
+        "val": "beta",
+        "ctrl": "I(R1)",
+        "label": "β·i_x",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         7,
+         0
+        ],
+        "to": [
+         7,
+         2
+        ],
+        "name": "R2",
+        "val": "R2",
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          7,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         7,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q7",
+     "type": "tapCircuit",
+     "prompt": "Tap the nodes that together form a **supernode**.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_1",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "C"
+       },
+       {
+        "type": "acsource",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "v_2",
+        "polarity": "-+"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "L"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         0,
+         0
+        ],
+        "name": "n1",
+        "label": "1"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "name": "n2",
+        "label": "2"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "name": "n3",
+        "label": "3"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ],
+        "name": "n4",
+        "label": "4"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "n1",
+      "n2",
+      "n3",
+      "n4"
+     ],
+     "answer": [
+      "n2",
+      "n3"
+     ],
+     "explanation": "$v_2$ connects nodes 2 and 3, neither of which is the reference, so its current is unknown and KCL is written for nodes 2 and 3 together, plus the constraint that $\\mathbf{V}_3 - \\mathbf{V}_2$ equals the phasor of $v_2$. Node 1 is not part of it: $v_1$ goes to the reference, so it simply fixes $\\mathbf{V}_1 = \\mathbf{V}_{s1}$. Node 4 is an ordinary node."
+    }
+   ]
+  },
+  {
+   "id": "acl-nodal-3",
+   "title": "Mesh currents",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Mesh currents with phasors",
+     "body": "Give every window of the circuit a clockwise mesh current $\\mathbf{I}_1, \\mathbf{I}_2, \\dots$ and write KVL around each mesh with impedances. An element shared by two meshes carries $\\mathbf{I}_1 - \\mathbf{I}_2$ (in the direction of mesh 1). A current source on an outer branch fixes its mesh current.",
+     "formula": "(Z_1 + Z_3)\\mathbf{I}_1 - Z_3\\mathbf{I}_2 = \\mathbf{V}_1"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "V1": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "V2": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th2": [
+       -90,
+       -60,
+       -30,
+       30,
+       60,
+       90,
+       180
+      ],
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "require": "min(I_R1 - 0.002, I_L1 - 0.002, I_C1 - 0.002, 2 - I_R1, 2 - I_L1, 4 - I_L1*w*L/max(V1,V2), abs(abs(w*L - 1/(w*C)) - 0.1*w*L))",
+     "prompt": "$v_1(t) = {{V1}}\\cos({{w}}t)$ V and $v_2(t) = {{V2}}\\cos({{w}}t + \\theta_2)$ V with $\\theta_2$ = {{th2}}°. Mesh currents $\\mathbf{I}_1$, $\\mathbf{I}_2$ are clockwise.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $\\mathbf{I}_1$.",
+       "answer": "I_R1",
+       "unit": "A",
+       "explanation": "KVL mesh 1: $(R + Z_C)\\mathbf{I}_1 - Z_C\\mathbf{I}_2 = \\mathbf{V}_1$. Mesh 2 (clockwise enters the + of $v_2$): $-Z_C\\mathbf{I}_1 + (Z_C + j\\omega L)\\mathbf{I}_2 = -\\mathbf{V}_2$. With $Z_C$ = −j{{1/(w*C)|Ω}} and $j\\omega L$ = j{{w*L|Ω}}: $\\mathbf{I}_1$ = **{{I_R1|A}}** ∠ {{I_R1_ph|°}}."
+      },
+      {
+       "prompt": "Find the phase of $\\mathbf{I}_1$ in degrees.",
+       "answer": "I_R1_ph",
+       "unit": "°",
+       "explanation": "Solve $(R + Z_C)\\mathbf{I}_1 - Z_C\\mathbf{I}_2 = \\mathbf{V}_1$ and $-Z_C\\mathbf{I}_1 + (Z_C + j\\omega L)\\mathbf{I}_2 = -\\mathbf{V}_2$ (Cramer's rule or substitution): $\\mathbf{I}_1$ = {{I_R1|A}} ∠ **{{I_R1_ph|°}}**, $\\mathbf{I}_2$ = {{I_L1|A}} ∠ {{I_L1_ph|°}}.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $\\mathbf{I}_2$.",
+       "answer": "I_L1",
+       "unit": "A",
+       "explanation": "From the two mesh equations: $\\mathbf{I}_2$ = **{{I_L1|A}}** ∠ {{I_L1_ph|°}} (and $\\mathbf{I}_1$ = {{I_R1|A}} ∠ {{I_R1_ph|°}})."
+      },
+      {
+       "prompt": "Find the amplitude of the current through $C$.",
+       "answer": "I_C1",
+       "unit": "A",
+       "explanation": "$C$ is shared: its current (downward) is $\\mathbf{I}_1 - \\mathbf{I}_2$ = {{I_R1|A}}∠{{I_R1_ph|°}} − {{I_L1|A}}∠{{I_L1_ph|°}}. Subtract in rectangular form: **{{I_C1|A}}** — not the difference of the amplitudes."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "V1",
+        "val": "V1",
+        "phase": "0",
+        "label": "v_1",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "acsource",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "V2",
+        "val": "V2",
+        "phase": "th2",
+        "label": "v_2",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.0,
+         1
+        ],
+        "label": "I_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "I_2"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "Which is the KVL equation for mesh 2 (clockwise mesh currents)?",
+     "options": [
+      "$-Z_C\\mathbf{I}_1 + (Z_C + j\\omega L)\\mathbf{I}_2 = -\\mathbf{V}_2$",
+      "$-Z_C\\mathbf{I}_1 + (Z_C + j\\omega L)\\mathbf{I}_2 = \\mathbf{V}_2$",
+      "$Z_C\\mathbf{I}_1 + (Z_C + j\\omega L)\\mathbf{I}_2 = -\\mathbf{V}_2$",
+      "$(Z_C + j\\omega L)\\mathbf{I}_2 = -\\mathbf{V}_2$"
+     ],
+     "answer": 0,
+     "explanation": "Going clockwise around mesh 2, the shared $C$ carries $\\mathbf{I}_2 - \\mathbf{I}_1$, the inductor carries $\\mathbf{I}_2$, and the mesh current enters the + terminal of $v_2$, a voltage **rise** of $-\\mathbf{V}_2$ as seen by the mesh: $Z_C(\\mathbf{I}_2 - \\mathbf{I}_1) + j\\omega L\\,\\mathbf{I}_2 + \\mathbf{V}_2 = 0$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_1",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "C",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "L"
+       },
+       {
+        "type": "acsource",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "v_2",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.0,
+         1
+        ],
+        "label": "I_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "I_2"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Vm": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "Im": [
+       0.01,
+       0.02,
+       0.05,
+       0.1,
+       0.2
+      ],
+      "phi": [
+       -90,
+       -45,
+       0,
+       45,
+       90,
+       180
+      ],
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "XL": "w*L"
+     },
+     "require": "min(XL/R - 0.2, 5 - XL/R, I_R1 - 0.003, I_L1 - 0.003)",
+     "prompt": "$v_s(t) = {{Vm}}\\cos({{w}}t)$ V and $i_s(t) = {{Im*1000}}\\cos({{w}}t + \\varphi)$ mA with $\\varphi$ = {{phi}}°. Mesh currents are clockwise.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $\\mathbf{I}_1$.",
+       "answer": "I_R1",
+       "unit": "A",
+       "explanation": "The current source is only in mesh 2 and points along it, so $\\mathbf{I}_2 = \\mathbf{I}_s$. Mesh 1: $R\\mathbf{I}_1 + j\\omega L(\\mathbf{I}_1 - \\mathbf{I}_s) = \\mathbf{V}_s$, so $\\mathbf{I}_1 = \\frac{\\mathbf{V}_s + j\\omega L\\,\\mathbf{I}_s}{R + j\\omega L}$ = **{{I_R1|A}}** ∠ {{I_R1_ph|°}} ($\\omega L$ = {{XL|Ω}})."
+      },
+      {
+       "prompt": "Find the phase of $\\mathbf{I}_1$ in degrees.",
+       "answer": "I_R1_ph",
+       "unit": "°",
+       "explanation": "$\\mathbf{I}_2 = \\mathbf{I}_s$ (current source in an outer branch). Then $\\mathbf{I}_1 = \\frac{\\mathbf{V}_s + j\\omega L\\,\\mathbf{I}_s}{R + j\\omega L}$ = {{I_R1|A}} ∠ **{{I_R1_ph|°}}**. $C$ does not appear: its current is fixed by the source.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of the current through $L$.",
+       "answer": "I_L1",
+       "unit": "A",
+       "explanation": "$\\mathbf{I}_L = \\mathbf{I}_1 - \\mathbf{I}_2 = \\mathbf{I}_1 - \\mathbf{I}_s$ with $\\mathbf{I}_1$ = {{I_R1|A}} ∠ {{I_R1_ph|°}} and $\\mathbf{I}_s$ = {{Im*1000}}∠{{phi}}° mA: **{{I_L1|A}}**."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "V1",
+        "val": "Vm",
+        "phase": "0",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L",
+        "flip": true
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "isource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "Is",
+        "val": "Im",
+        "phase": "phi",
+        "label": "i_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.0,
+         1
+        ],
+        "label": "I_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "I_2"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "params": {
+      "V1": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "V2": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th2": [
+       -90,
+       -60,
+       -30,
+       30,
+       60,
+       90
+      ],
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "require": "min(I_R1 - 0.002, I_L1 - 0.002, 2 - I_R1, 2 - I_L1, abs(I_C1 - abs(I_R1 - I_L1)) - 0.1*I_C1)",
+     "prompt": "$v_1(t) = {{V1}}\\cos({{w}}t)$ V, $v_2(t) = {{V2}}\\cos({{w}}t + \\theta_2)$ V with $\\theta_2$ = {{th2}}°. True or false: the amplitude of the current in $C$ equals $\\left||\\mathbf{I}_1| - |\\mathbf{I}_2|\\right|$.",
+     "answer": false,
+     "explanation": "The shared element carries the **phasor** difference $\\mathbf{I}_1 - \\mathbf{I}_2$. Here $\\mathbf{I}_1$ = {{I_R1|A}} ∠ {{I_R1_ph|°}} and $\\mathbf{I}_2$ = {{I_L1|A}} ∠ {{I_L1_ph|°}}, so $|\\mathbf{I}_1 - \\mathbf{I}_2|$ = {{I_C1|A}}, while the difference of the amplitudes is {{abs(I_R1-I_L1)|A}}. They agree only when the two mesh currents are in phase.",
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "V1",
+        "val": "V1",
+        "phase": "0",
+        "label": "v_1",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "acsource",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "V2",
+        "val": "V2",
+        "phase": "th2",
+        "label": "v_2",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.0,
+         1
+        ],
+        "label": "I_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "I_2"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "Vm": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th": [
+       -30,
+       0,
+       30,
+       60
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "R2": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "R3": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "require": "min(I_R3 - 0.003, 2 - I_C1, abs(I_R3_ph - th) - 5, I_R2 - 0.003)",
+     "prompt": "$v_s(t) = {{Vm}}\\cos({{w}}t + \\theta)$ V with $\\theta$ = {{th}}°. Mesh currents are clockwise.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude of $\\mathbf{I}_2$.",
+       "answer": "I_R3",
+       "unit": "A",
+       "explanation": "Mesh 1: $(Z_C + R_2)\\mathbf{I}_1 - R_2\\mathbf{I}_2 = \\mathbf{V}_s$. Mesh 2: $-R_2\\mathbf{I}_1 + (R_2 + j\\omega L + R_3)\\mathbf{I}_2 = 0$, so $\\mathbf{I}_1 = \\mathbf{I}_2(R_2 + j\\omega L + R_3)/R_2$. Substituting: $\\mathbf{I}_2$ = **{{I_R3|A}}** ∠ {{I_R3_ph|°}}."
+      },
+      {
+       "prompt": "Find the phase of $\\mathbf{I}_2$ in degrees.",
+       "answer": "I_R3_ph",
+       "unit": "°",
+       "explanation": "Solving the two mesh equations, $(Z_C + R_2)\\mathbf{I}_1 - R_2\\mathbf{I}_2 = \\mathbf{V}_s$ and $-R_2\\mathbf{I}_1 + (R_2 + j\\omega L + R_3)\\mathbf{I}_2 = 0$: $\\mathbf{I}_2$ = {{I_R3|A}} ∠ **{{I_R3_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of the current through $R_2$.",
+       "answer": "I_R2",
+       "unit": "A",
+       "explanation": "$\\mathbf{I}_{R_2} = \\mathbf{I}_1 - \\mathbf{I}_2$ with $\\mathbf{I}_1$ = {{I_C1|A}} ∠ {{I_C1_ph|°}} and $\\mathbf{I}_2$ = {{I_R3|A}} ∠ {{I_R3_ph|°}}: **{{I_R2|A}}**. Shortcut: $\\mathbf{I}_{R_2} = \\mathbf{I}_2(j\\omega L + R_3)/R_2$."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "th",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "name": "R2",
+        "val": "R2",
+        "label": "R_2",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "R3",
+        "val": "R3",
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.0,
+         1
+        ],
+        "label": "I_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "I_2"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q6",
+     "type": "orderSteps",
+     "prompt": "Put the steps of phasor mesh analysis in order.",
+     "items": [
+      "Convert sources to phasors and elements to impedances",
+      "Assign a clockwise mesh current to every window",
+      "Write KVL around each mesh; shared elements carry the difference of two mesh currents",
+      "Solve the complex equations for the mesh currents",
+      "Find element currents and voltages from the mesh currents"
+     ],
+     "explanation": "Mesh analysis is the dual of node analysis: unknown loop currents and KVL instead of node voltages and KCL. A current source in an outer branch removes an unknown (it fixes that mesh current)."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,1296 @@
+{
+  "id": "pr-rv",
+  "title": "Random Variables",
+  "description": "Discrete and continuous random variables, PMFs, PDFs and CDFs, from bit-error counts to Gaussian noise and the Q-function.",
+  "reference": "Leon-Garcia ch. 3–4",
+  "study": [
+    {
+      "title": "Random variables and the CDF",
+      "body": "A **random variable** $X$ assigns a number to every outcome: the number of bit errors in a packet, a noise voltage, the value of a resistor taken from a reel. Its **cumulative distribution function** $F_X(x) = P(X \\le x)$ describes it completely: $F_X$ rises from 0 to 1, never decreases, and gives the probability of any interval as a difference.",
+      "formula": "P(a < X \\le b) = F_X(b) - F_X(a)"
+    },
+    {
+      "title": "Discrete RVs: Bernoulli and binomial",
+      "body": "A discrete RV takes countable values with probabilities $p_X(k) = P(X = k)$ (the **PMF**), which sum to 1. **Bernoulli**: a single trial, $P(X = 1) = p$, e.g. one bit in error. **Binomial**: the number of successes in $n$ independent Bernoulli trials, e.g. the bit errors in an $n$-bit word. Drag $n$ and $p$: the PMF peaks near $np$.",
+      "formula": "p_X(k) = \\binom{n}{k}p^k(1-p)^{n-k}",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 20.5,
+          "label": "k",
+          "ticks": [
+            0,
+            5,
+            10,
+            15,
+            20
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 0.65,
+          "label": "P(K = k)"
+        },
+        "sliders": [
+          {
+            "name": "n",
+            "label": "$n$",
+            "min": 5,
+            "max": 20,
+            "step": 1,
+            "value": 10
+          },
+          {
+            "name": "p",
+            "label": "$p$",
+            "min": 0.1,
+            "max": 0.9,
+            "step": 0.05,
+            "value": 0.2
+          }
+        ],
+        "curves": [
+          {
+            "x": "floor(t)",
+            "y": "(choose(n, floor(t))*p^floor(t)*(1 - p)^(n - floor(t)))*clamp(4*(1 - abs(2*(t - floor(t)) - 1)) - 1, 0, 1)",
+            "t": [
+              0,
+              "n + 1"
+            ]
+          }
+        ],
+        "readouts": [
+          {
+            "label": "mean $np$",
+            "value": "n*p"
+          },
+          {
+            "label": "$P(K = 0) = (1-p)^n$",
+            "value": "(1 - p)^n"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Geometric and Poisson RVs",
+      "body": "**Geometric**: the number of independent trials up to and including the first success, $P(K = k) = (1-p)^{k-1}p$ for $k \\ge 1$, e.g. the transmissions needed to get a packet through. **Poisson**: the number of events in an interval when they occur independently at an average rate $\\lambda$, with $\\alpha = \\lambda T$ expected events: packets at a router, photons at a detector, radiation-induced bit flips. It also approximates the binomial for large $n$ and small $p$, with $\\alpha = np$. Drag $\\alpha$.",
+      "formula": "P(N = k) = \\frac{\\alpha^k}{k!}\\,e^{-\\alpha}",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 20.5,
+          "label": "k",
+          "ticks": [
+            0,
+            5,
+            10,
+            15,
+            20
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 0.65,
+          "label": "P(N = k)"
+        },
+        "sliders": [
+          {
+            "name": "al",
+            "label": "$\\alpha$",
+            "min": 0.5,
+            "max": 10,
+            "step": 0.1,
+            "value": 3
+          }
+        ],
+        "curves": [
+          {
+            "x": "floor(t)",
+            "y": "(al^floor(t)*exp(-al)/fact(floor(t)))*clamp(4*(1 - abs(2*(t - floor(t)) - 1)) - 1, 0, 1)",
+            "t": [
+              0,
+              21
+            ]
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$P(N = 0) = e^{-\\alpha}$",
+            "value": "exp(-al)"
+          },
+          {
+            "label": "$P(N \\ge 1)$",
+            "value": "1 - exp(-al)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Continuous RVs: uniform and exponential",
+      "body": "A continuous RV has a **probability density function** $f_X(x) = dF_X/dx$: probabilities are areas under it, and $P(X = a) = 0$ for any single value. **Uniform** on $(a, b)$: $f_X = 1/(b-a)$, e.g. the rounding error of an ADC on $(-\\Delta/2, \\Delta/2)$. **Exponential** with rate $\\lambda$: $f_T(t) = \\lambda e^{-\\lambda t}$ for $t \\ge 0$, the waiting time between Poisson events or the lifetime of a part with a constant failure rate. It is **memoryless**: a part that has survived so far is as good as new. Drag $\\lambda$.",
+      "formula": "\\begin{aligned} P(T > t) &= e^{-\\lambda t} \\\\ E[T] &= 1/\\lambda \\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 3.2,
+          "label": "f_T(t) (1/s)"
+        },
+        "sliders": [
+          {
+            "name": "lam",
+            "label": "$\\lambda$ (1/s)",
+            "min": 0.2,
+            "max": 3,
+            "step": 0.1,
+            "value": 1
+          }
+        ],
+        "curves": [
+          {
+            "f": "lam*exp(-lam*x)",
+            "label": "f_T(t)",
+            "labelAt": 0.3
+          },
+          {
+            "f": "lam*exp(-lam*x)",
+            "from": 1,
+            "color": "orange"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 1,
+            "label": "1 s"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$P(T > 1\\text{ s}) = e^{-\\lambda}$ (orange)",
+            "value": "exp(-lam)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The Gaussian random variable",
+      "body": "Thermal noise, sums of many small effects and component spreads are well modelled by the **Gaussian** (normal) density $\\mathcal{N}(\\mu, \\sigma^2)$: a bell centred on the mean $\\mu$ whose width is set by the standard deviation $\\sigma$. About 68 % of the probability lies within $\\mu \\pm \\sigma$, 95 % within $\\mu \\pm 2\\sigma$ and 99.7 % within $\\mu \\pm 3\\sigma$. Drag the threshold $a$: the orange tail beyond it has probability $Q((a-\\mu)/\\sigma)$.",
+      "formula": "f_X(x) = \\frac{1}{\\sqrt{2\\pi}\\,\\sigma}\\,e^{-(x-\\mu)^2/2\\sigma^2}",
+      "plot": {
+        "x": {
+          "min": -4,
+          "max": 6,
+          "label": "x"
+        },
+        "y": {
+          "min": 0,
+          "max": 0.85,
+          "label": "f_X(x)"
+        },
+        "sliders": [
+          {
+            "name": "mu",
+            "label": "$\\mu$",
+            "min": -1,
+            "max": 2,
+            "step": 0.1,
+            "value": 0
+          },
+          {
+            "name": "sig",
+            "label": "$\\sigma$",
+            "min": 0.5,
+            "max": 2,
+            "step": 0.1,
+            "value": 1
+          },
+          {
+            "name": "a",
+            "label": "$a$",
+            "min": -3,
+            "max": 5,
+            "step": 0.1,
+            "value": 1.5
+          }
+        ],
+        "curves": [
+          {
+            "f": "exp(-((x - mu)/(sig))^2/2)/(sqrt(2*pi)*(sig))"
+          },
+          {
+            "f": "exp(-((x - mu)/(sig))^2/2)/(sqrt(2*pi)*(sig))",
+            "from": "a",
+            "color": "orange"
+          }
+        ],
+        "vlines": [
+          {
+            "x": "a",
+            "label": "a"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$z = (a-\\mu)/\\sigma$",
+            "value": "(a - mu)/sig"
+          },
+          {
+            "label": "$P(X > a) = Q(z)$",
+            "value": "Q((a - mu)/sig)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The Q-function",
+      "body": "The Gaussian CDF has no closed form, so tail probabilities are written with $Q(z) = P(Z > z)$ for a **standard** Gaussian $Z$ (mean 0, $\\sigma$ = 1). Standardize any Gaussian with $z = (x-\\mu)/\\sigma$. Values to know: $Q(0) = 0.5$, $Q(1) = 0.159$, $Q(1.28) = 0.10$, $Q(1.645) = 0.05$, $Q(2) = 0.0228$, $Q(2.33) = 0.01$, $Q(3) = 1.35\\times10^{-3}$. Symmetry: $Q(-z) = 1 - Q(z)$. On a calculator, $Q(z) = 1 - \\Phi(z)$ (normal CDF) $= \\tfrac12\\,\\mathrm{erfc}(z/\\sqrt2)$. Drag $z$: the tail falls faster and faster.",
+      "formula": "P(X > x) = Q\\!\\left(\\frac{x-\\mu}{\\sigma}\\right)",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 6,
+          "label": "z"
+        },
+        "y": {
+          "min": 1e-09,
+          "max": 1,
+          "label": "Q(z)",
+          "log": true
+        },
+        "sliders": [
+          {
+            "name": "z",
+            "label": "$z$",
+            "min": 0,
+            "max": 6,
+            "step": 0.05,
+            "value": 2
+          }
+        ],
+        "curves": [
+          {
+            "f": "Q(x)"
+          }
+        ],
+        "points": [
+          {
+            "x": "z",
+            "y": "Q(z)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$Q(z)$",
+            "value": "Q(z)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Worked example: resistor tolerance",
+      "body": "A process makes resistors with $\\mu$ = 1000 Ω and $\\sigma$ = 10 Ω, sold as 1 kΩ ± 2 %. The limits 980 Ω and 1020 Ω lie $z = 20/10 = 2$ standard deviations from the mean, so $P(\\text{out of spec}) = 2Q(2) = 0.0455$: 4.6 % are rejected. With $\\sigma$ = 5 Ω the limits are at $4\\sigma$ and only $2Q(4) = 6.3\\times10^{-5}$ fall outside.",
+      "formula": "P(|X - \\mu| > k\\sigma) = 2Q(k)"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pr-rv-1",
+      "title": "Discrete random variables",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Random variables and PMFs",
+          "body": "A **random variable** maps each outcome to a number. A discrete RV has a probability mass function $p_X(k) = P(X = k)$, with $\\sum_k p_X(k) = 1$. The simplest is the **Bernoulli** RV: 1 with probability $p$ (say, a bit error), 0 otherwise. Counting the errors among $n$ independent bits gives a **binomial** RV.",
+          "formula": "p_X(k) = \\binom{n}{k}p^k(1-p)^{n-k}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "n": [
+              8,
+              10,
+              16,
+              20
+            ],
+            "p": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "k": [
+              1,
+              2
+            ]
+          },
+          "prompt": "A word of {{n}} bits crosses a channel that flips each bit independently with probability {{p}}. What is the probability that the number of bit errors in the word is exactly {{k}}? (probability, 0–1)",
+          "answer": "choose(n,k)*p^k*(1-p)^(n-k)",
+          "unit": "",
+          "explanation": "The number of errors $K$ is binomial: $P(K = {{k}}) = \\binom{{{n}}}{{{k}}}p^{{{k}}}(1-p)^{{{n-k}}}$ = {{choose(n,k)}} × {{p^k}} × {{(1-p)^(n-k)}} = **{{choose(n,k)*p^k*(1-p)^(n-k)}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The geometric RV",
+          "body": "A link repeats a packet until it gets through, and each attempt succeeds independently with probability $q$. The number of attempts $K$ is **geometric**: $k - 1$ failures followed by one success. More than $m$ attempts are needed exactly when the first $m$ all fail.",
+          "formula": "\\begin{aligned} P(K = k) &= (1-q)^{k-1}q \\\\ P(K > m) &= (1-q)^m \\end{aligned}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "q": [
+              0.6,
+              0.7,
+              0.8,
+              0.9
+            ],
+            "k": [
+              2,
+              3
+            ],
+            "m": [
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "Each transmission of a packet succeeds independently with probability {{q}}; the sender repeats until it succeeds.",
+          "ask": [
+            {
+              "prompt": "What is the probability that exactly {{k}} transmissions are needed? (probability, 0–1)",
+              "answer": "(1 - q)^(k - 1)*q",
+              "unit": "",
+              "explanation": "Geometric: {{k-1}} failures, then a success: $(1-q)^{k-1}q$ = $({{1-q}})^{{{k-1}}} \\times {{q}}$ = **{{(1-q)^(k-1)*q}}**."
+            },
+            {
+              "prompt": "What is the probability that more than {{m}} transmissions are needed? (probability, 0–1)",
+              "answer": "(1 - q)^m",
+              "unit": "",
+              "explanation": "More than {{m}} attempts means the first {{m}} all failed: $(1-q)^{m}$ = $({{1-q}})^{{{m}}}$ = **{{(1-q)^m}}**."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The Poisson RV",
+          "body": "Events that occur independently at an average rate $\\lambda$ (packets at a router, photons at a photodiode, radiation-induced bit flips) give a **Poisson** count in an interval $T$, with $\\alpha = \\lambda T$ events expected.",
+          "formula": "P(N = k) = \\frac{(\\lambda T)^k}{k!}\\,e^{-\\lambda T}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "lam": [
+              20,
+              50,
+              100,
+              200
+            ],
+            "T": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "k": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "require": "min(lam*T - 0.4, 8 - lam*T)",
+          "prompt": "Packets arrive at a router as a Poisson stream with an average rate of {{lam}} packets/s. What is the probability that the number of packets arriving in {{T|s}} is exactly {{k}}? (probability, 0–1)",
+          "answer": "(lam*T)^k*exp(-lam*T)/fact(k)",
+          "unit": "",
+          "explanation": "Expected count: $\\alpha = \\lambda T$ = {{lam}} × {{T|s}} = {{lam*T}}. Then $P(N = {{k}}) = \\frac{\\alpha^{{{k}}}}{{{k}}!}e^{-\\alpha}$ = **{{(lam*T)^k*exp(-lam*T)/fact(k)}}**."
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each random variable to a situation it models",
+          "pairs": [
+            [
+              "Bernoulli",
+              "Whether one bit is received in error"
+            ],
+            [
+              "Binomial",
+              "Number of bit errors in a 64-bit word"
+            ],
+            [
+              "Geometric",
+              "Number of transmissions until a packet gets through"
+            ],
+            [
+              "Poisson",
+              "Number of packets arriving at a router in 1 ms"
+            ]
+          ],
+          "explanation": "Bernoulli: one yes/no trial. Binomial: the number of successes in a fixed number $n$ of independent trials. Geometric: the number of trials up to the first success. Poisson: the number of independent events in a fixed time interval, with no upper limit."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "p": [
+              0.2,
+              0.3
+            ]
+          },
+          "prompt": "Each of 10 bits is flipped independently with probability {{p}}. Which stem plot shows the PMF of the number of bit errors $K$?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "k",
+                "ticks": [
+                  0,
+                  2,
+                  4,
+                  6,
+                  8,
+                  10
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 0.45,
+                "label": "P(K = k)"
+              },
+              "curves": [
+                {
+                  "x": "floor(t)",
+                  "y": "(choose(10, floor(t))*p^floor(t)*(1 - p)^(10 - floor(t)))*clamp(4*(1 - abs(2*(t - floor(t)) - 1)) - 1, 0, 1)",
+                  "t": [
+                    0,
+                    11
+                  ]
+                }
+              ],
+              "height": 150
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "k",
+                "ticks": [
+                  0,
+                  2,
+                  4,
+                  6,
+                  8,
+                  10
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 0.45,
+                "label": "P(K = k)"
+              },
+              "curves": [
+                {
+                  "x": "floor(t)",
+                  "y": "(choose(10, floor(t))*(1 - p)^floor(t)*p^(10 - floor(t)))*clamp(4*(1 - abs(2*(t - floor(t)) - 1)) - 1, 0, 1)",
+                  "t": [
+                    0,
+                    11
+                  ]
+                }
+              ],
+              "height": 150
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "k",
+                "ticks": [
+                  0,
+                  2,
+                  4,
+                  6,
+                  8,
+                  10
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 0.45,
+                "label": "P(K = k)"
+              },
+              "curves": [
+                {
+                  "x": "floor(t)",
+                  "y": "(choose(10, floor(t))*0.5^10)*clamp(4*(1 - abs(2*(t - floor(t)) - 1)) - 1, 0, 1)",
+                  "t": [
+                    0,
+                    11
+                  ]
+                }
+              ],
+              "height": 150
+            }
+          ],
+          "answer": 0,
+          "explanation": "$K$ is binomial with $n$ = 10 and $p$ = {{p}}, so its PMF peaks near the mean $np$ = {{10*p}} errors. The mirrored plot (peak near {{10-10*p}}) counts the **correct** bits instead, and the symmetric plot belongs to $p$ = 0.5."
+        }
+      ]
+    },
+    {
+      "id": "pr-rv-2",
+      "title": "Continuous RVs and the Gaussian",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "PDF and the uniform RV",
+          "body": "A continuous RV is described by its probability density $f_X(x)$: the probability of an interval is the area under $f_X$ over that interval, and the total area is 1. The **uniform** RV on $(a, b)$ has the flat density $1/(b-a)$. Example: the rounding error of an ideal ADC is uniform between $-\\Delta/2$ and $+\\Delta/2$ (Δ = 1 LSB).",
+          "formula": "\\begin{aligned} P(c < X \\le d) &= \\int_c^d f_X(x)\\,dx \\\\ &= \\frac{d-c}{b-a}\\ \\text{(uniform)} \\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "D": [
+              0.001,
+              0.002,
+              0.004
+            ],
+            "c": [
+              0.1,
+              0.2,
+              0.25,
+              0.4
+            ]
+          },
+          "derived": {
+            "cc": "c*D"
+          },
+          "prompt": "The rounding error of an ADC is uniform between −Δ/2 and +Δ/2, with Δ = {{D|V}}. What is the probability that the error magnitude is below {{cc|V}}? (probability, 0–1)",
+          "answer": "2*cc/D",
+          "unit": "",
+          "explanation": "The density is $1/\\Delta$ over a width Δ. The event $|e| < c$ is the interval from −{{cc|V}} to +{{cc|V}}, of width {{2*cc|V}}: $P = 2c/\\Delta$ = {{2*cc|V}} / {{D|V}} = **{{2*cc/D}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The exponential RV",
+          "body": "Lifetimes of parts with a constant failure rate, and waiting times between Poisson events, are **exponential** with rate $\\lambda$ (mean $1/\\lambda$). The survival probability decays exponentially, and the distribution is **memoryless**: having survived until now does not change the chances for the next $t$ seconds.",
+          "formula": "\\begin{aligned} f_T(t) &= \\lambda e^{-\\lambda t} \\\\ P(T > t) &= e^{-\\lambda t} \\end{aligned}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "m": [
+              20000,
+              50000,
+              100000
+            ],
+            "t": [
+              5000,
+              10000,
+              20000,
+              40000
+            ]
+          },
+          "prompt": "An LED driver has an exponentially distributed lifetime with a mean (MTTF) of {{m|h}}. What is the probability that it still works after {{t|h}}? (probability, 0–1)",
+          "answer": "exp(-t/m)",
+          "unit": "",
+          "explanation": "$\\lambda = 1/\\text{MTTF}$, so $P(T > t) = e^{-t/\\text{MTTF}}$ = $e^{-{{t/m}}}$ = **{{exp(-t/m)}}**."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The Gaussian RV and the Q-function",
+          "body": "A Gaussian RV $X \\sim \\mathcal{N}(\\mu, \\sigma^2)$ is standardized by $Z = (X-\\mu)/\\sigma$, a Gaussian with mean 0 and $\\sigma$ = 1. Its upper tail is the **Q-function**, $Q(z) = P(Z > z)$ (orange: the tail beyond $z$). Values to remember: $Q(1) = 0.159$, $Q(1.28) = 0.10$, $Q(1.645) = 0.05$, $Q(2) = 0.023$, $Q(2.33) = 0.01$, $Q(3) = 0.0013$. By symmetry $Q(-z) = 1 - Q(z)$; on a calculator, $Q(z) = 1 - \\Phi(z)$ (normal CDF).",
+          "formula": "P(X > a) = Q\\!\\left(\\frac{a-\\mu}{\\sigma}\\right)",
+          "plot": {
+            "x": {
+              "min": -4,
+              "max": 4,
+              "label": "z"
+            },
+            "y": {
+              "min": 0,
+              "max": 0.45,
+              "label": "f_Z(z)"
+            },
+            "curves": [
+              {
+                "f": "exp(-((x - 0)/(1))^2/2)/(sqrt(2*pi)*(1))"
+              },
+              {
+                "f": "exp(-((x - 0)/(1))^2/2)/(sqrt(2*pi)*(1))",
+                "from": 1.2,
+                "color": "orange"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 1.2,
+                "label": "z"
+              }
+            ],
+            "height": 150
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "sig": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "k": [
+              1,
+              1.5,
+              2,
+              2.5,
+              3
+            ]
+          },
+          "derived": {
+            "a": "k*sig"
+          },
+          "prompt": "The noise voltage at an amplifier output is Gaussian with mean 0 and $\\sigma$ = {{sig|V}}. What is the probability that at a given instant it exceeds {{a|V}}? (probability, 0–1)",
+          "answer": "Q(a/sig)",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "Standardize: $z = a/\\sigma$ = {{a|V}} / {{sig|V}} = {{a/sig}}. Then $P(V > a) = Q({{a/sig}})$ = **{{Q(a/sig)}}**."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "sig": [
+              0.001,
+              0.002
+            ],
+            "k": [
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "a": "k*sig"
+          },
+          "prompt": "Gaussian noise has zero mean and $\\sigma$ = {{sig|V}}. What is the probability that its magnitude exceeds {{a|V}}, i.e. $P(|V| > a)$?",
+          "options": [
+            "{{2*Q(k)}}",
+            "{{Q(k)}}",
+            "{{1-2*Q(k)}}",
+            "{{1-Q(k)}}"
+          ],
+          "answer": 0,
+          "explanation": "Both tails count, and by symmetry they are equal: $P(|V| > a) = 2Q(a/\\sigma)$ = 2Q({{k}}) = **{{2*Q(k)}}**. $Q$ alone is one tail; $1 - 2Q$ is the probability of staying **inside** ±{{a|V}}."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "mu": [
+              1,
+              1.5,
+              2
+            ],
+            "sig": [
+              0.1,
+              0.2,
+              0.25
+            ],
+            "zt": [
+              1,
+              1.2816,
+              1.6449,
+              2,
+              2.3263
+            ]
+          },
+          "derived": {
+            "tgt": "Q(zt)",
+            "at": "mu + zt*sig"
+          },
+          "prompt": "A sensor output is Gaussian with mean {{mu|V}} and $\\sigma$ = {{sig|V}}. An alarm trips when it exceeds the threshold $a$. Set $a$ so that the false-alarm probability $P(X > a)$ is {{tgt}}.",
+          "plot": {
+            "x": {
+              "min": "mu - 4*sig",
+              "max": "mu + 4*sig",
+              "label": "x",
+              "unit": "V"
+            },
+            "y": {
+              "min": 0,
+              "max": "0.46/sig",
+              "label": "f_X(x)"
+            },
+            "sliders": [
+              {
+                "name": "a",
+                "label": "$a$",
+                "min": "mu",
+                "max": "mu + 3.5*sig",
+                "step": 0.005,
+                "value": "mu",
+                "unit": "V"
+              }
+            ],
+            "curves": [
+              {
+                "f": "exp(-((x - mu)/(sig))^2/2)/(sqrt(2*pi)*(sig))"
+              },
+              {
+                "f": "exp(-((x - mu)/(sig))^2/2)/(sqrt(2*pi)*(sig))",
+                "from": "a",
+                "color": "orange"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "a",
+                "label": "a"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$z = (a-\\mu)/\\sigma$",
+                "value": "(a - mu)/sig"
+              },
+              {
+                "label": "$P(X > a)$",
+                "value": "Q((a - mu)/sig)",
+                "reveal": true
+              }
+            ]
+          },
+          "check": "0.04 - abs(a - at)/sig",
+          "solution": "$a$ = {{at|V}}",
+          "hint": "Find $z$ with $Q(z)$ = {{tgt}} (values in the previous steps), then $a = \\mu + z\\sigma$.",
+          "explanation": "Look up the $z$ with $Q(z)$ = {{tgt}}: $z$ = {{zt}}. Then $a = \\mu + z\\sigma$ = {{mu|V}} + {{zt}} × {{sig|V}} = **{{at|V}}**."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "For a continuous random variable, $P(X = a) = 0$ for every single value $a$, even where the PDF $f_X(a)$ is large.",
+          "answer": true,
+          "explanation": "A probability is an area under the PDF, and a single point has zero width. $f_X(a)$ is a density: $P(a < X \\le a + \\Delta x) \\approx f_X(a)\\,\\Delta x$ for a small interval. A density can even exceed 1: a uniform PDF on (0, 0.1) equals 10."
+        }
+      ]
+    },
+    {
+      "id": "pr-rv-3",
+      "title": "Working with distributions",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R0": [
+              1000,
+              4700,
+              10000
+            ],
+            "tol": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "s": [
+              0.005,
+              0.008,
+              0.01,
+              0.02
+            ]
+          },
+          "derived": {
+            "sig": "s*R0",
+            "k": "tol/s"
+          },
+          "require": "min(tol/s - 0.99, 4.01 - tol/s)",
+          "prompt": "A process makes resistors with mean {{R0|Ω}} and standard deviation {{sig|Ω}} (Gaussian). What fraction falls **outside** the ±{{100*tol}}% tolerance band? (probability, 0–1)",
+          "answer": "2*Q(k)",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "The band edges are {{tol*R0|Ω}} from the mean, i.e. $k$ = {{tol*R0|Ω}} / {{sig|Ω}} = {{k}} standard deviations. Both tails count: $2Q(k)$ = 2Q({{k}}) = **{{2*Q(k)}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "d": [
+              7,
+              30,
+              90,
+              365
+            ]
+          },
+          "require": "3.01 - r*d",
+          "prompt": "Single-event upsets (bit flips caused by radiation) hit a memory as a Poisson process with an average of {{r}} per day. What is the probability of at least one upset in {{d}} days? (probability, 0–1)",
+          "answer": "1 - exp(-r*d)",
+          "unit": "",
+          "tolerance": 0.01,
+          "explanation": "Expected number: $\\alpha = \\lambda T$ = {{r}} × {{d}} = {{r*d}}. 'At least one' is the complement of 'none': $1 - P(N = 0) = 1 - e^{-\\alpha}$ = **{{1-exp(-r*d)}}**."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "mT": [
+              0.5,
+              1,
+              2
+            ],
+            "t1": [
+              1,
+              2
+            ],
+            "t2": [
+              0.5,
+              1.5
+            ]
+          },
+          "prompt": "The time between bursts of interference on a bus is exponential with mean {{mT|s}}. No burst has occurred during the last {{t1|s}}. What is the probability that none occurs in the next {{t2|s}}?",
+          "options": [
+            "{{exp(-t2/mT)}}",
+            "{{exp(-(t1+t2)/mT)}}",
+            "{{1-exp(-t2/mT)}}",
+            "{{exp(-t1/mT)}}"
+          ],
+          "answer": 0,
+          "explanation": "The exponential distribution is **memoryless**: $P(T > t_1 + t_2 \\mid T > t_1) = \\frac{e^{-(t_1+t_2)/m}}{e^{-t_1/m}} = e^{-t_2/m}$ = **{{exp(-t2/mT)}}**. The {{t1|s}} already waited does not matter; {{exp(-(t1+t2)/mT)}} would be the probability of no burst during the whole {{t1+t2|s}} from the start."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "mu": [
+              5
+            ],
+            "sig": [
+              0.08,
+              0.1,
+              0.12
+            ],
+            "lo": [
+              4.85,
+              4.9
+            ],
+            "hi": [
+              5.1,
+              5.15,
+              5.2
+            ]
+          },
+          "prompt": "A 5 V rail has a Gaussian error: mean {{mu|V}}, $\\sigma$ = {{sig|V}}. A monitor flags the rail when a reading is below {{lo|V}} or above {{hi|V}}. What is the probability that a reading is flagged? (probability, 0–1)",
+          "answer": "Q((mu - lo)/sig) + Q((hi - mu)/sig)",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "Standardize both limits: $z_{lo}$ = ({{mu|V}} − {{lo|V}}) / {{sig|V}} = {{(mu-lo)/sig}} and $z_{hi}$ = ({{hi|V}} − {{mu|V}}) / {{sig|V}} = {{(hi-mu)/sig}}. The two tails are disjoint, so add them: $Q({{(mu-lo)/sig}}) + Q({{(hi-mu)/sig}})$ = {{Q((mu-lo)/sig)}} + {{Q((hi-mu)/sig)}} = **{{Q((mu-lo)/sig)+Q((hi-mu)/sig)}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "n": [
+              20,
+              50,
+              100
+            ],
+            "p": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "A board uses {{n}} identical ICs, each defective with probability {{p}}, independently. What is the probability that two or more ICs on a board are defective? (probability, 0–1)",
+          "answer": "1 - (1 - p)^n - n*p*(1 - p)^(n - 1)",
+          "unit": "",
+          "explanation": "Use the complement and the binomial PMF: $P(K \\ge 2) = 1 - P(K = 0) - P(K = 1)$ = 1 − {{(1-p)^n||5}} − {{n*p*(1-p)^(n-1)||5}} = **{{1-(1-p)^n-n*p*(1-p)^(n-1)}}**."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which graph can be the cumulative distribution function $F_X(x)$ of a random variable? (The dashed line is at 1.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -1,
+                "max": 5,
+                "label": "x"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.4,
+                "label": "F(x)"
+              },
+              "curves": [
+                {
+                  "f": "step(x)*(1 - exp(-1.2*x))"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 1
+                }
+              ],
+              "height": 140
+            },
+            {
+              "x": {
+                "min": -1,
+                "max": 5,
+                "label": "x"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.4,
+                "label": "F(x)"
+              },
+              "curves": [
+                {
+                  "f": "step(x)*exp(-1.2*x)"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 1
+                }
+              ],
+              "height": 140
+            },
+            {
+              "x": {
+                "min": -1,
+                "max": 5,
+                "label": "x"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.4,
+                "label": "F(x)"
+              },
+              "curves": [
+                {
+                  "f": "step(x)*min(1.3, 0.6*x)"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 1
+                }
+              ],
+              "height": 140
+            },
+            {
+              "x": {
+                "min": -1,
+                "max": 5,
+                "label": "x"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.4,
+                "label": "F(x)"
+              },
+              "curves": [
+                {
+                  "f": "step(x)*(x/1.5)*exp(1 - x/1.5)"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 1
+                }
+              ],
+              "height": 140
+            }
+          ],
+          "answer": 0,
+          "explanation": "A CDF $F_X(x) = P(X \\le x)$ starts at 0, **never decreases** (a larger $x$ can only include more outcomes) and approaches 1. The exponential CDF $1 - e^{-x}$ does exactly that. A curve that goes down somewhere or rises above 1 cannot be a CDF; the decaying curve looks like an exponential **PDF**."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "mu": [
+              0.0005,
+              0.001,
+              0.0015
+            ],
+            "sig": [
+              0.0005,
+              0.001
+            ]
+          },
+          "prompt": "A comparator should output high because its input is a DC level of {{mu|V}}, but Gaussian noise with $\\sigma$ = {{sig|V}} is added. What is the probability that at a given instant the input is below 0 V (a wrong output)? (probability, 0–1)",
+          "answer": "Q(mu/sig)",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "$P(X < 0) = P\\!\\left(Z < \\frac{0-\\mu}{\\sigma}\\right) = Q(\\mu/\\sigma)$ by symmetry, with $\\mu/\\sigma$ = {{mu|V}} / {{sig|V}} = {{mu/sig}}: **{{Q(mu/sig)}}**."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "params": {
+            "k": [
+              2,
+              2.5,
+              3,
+              3.5
+            ]
+          },
+          "prompt": "For a Gaussian random variable, $P(|X - \\mu| > {{k}}\\sigma)$ is below 1 %.",
+          "answer": "0.01 - 2*Q(k)",
+          "explanation": "$P(|X-\\mu| > k\\sigma) = 2Q(k)$ = 2Q({{k}}) = {{2*Q(k)}}, i.e. {{200*Q(k)}} %. The 1 % point lies at $k$ = 2.58."
+        }
+      ]
+    },
+    {
+      "id": "pr-rv-4",
+      "title": "Tails, photons and retries",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              0.5,
+              1,
+              2
+            ],
+            "sig": [
+              0.2,
+              0.25,
+              0.4,
+              0.5
+            ]
+          },
+          "require": "min(A/sig - 1.5, 5.01 - A/sig)",
+          "prompt": "A bit is sent as +{{A|V}} (a 1) or −{{A|V}} (a 0). The receiver adds Gaussian noise with $\\sigma$ = {{sig|V}} and decides '1' when the sample is positive. What is the probability that a sent 1 is decoded as 0? (probability, 0–1)",
+          "answer": "Q(A/sig)",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "A sent 1 gives $X = A + N$, Gaussian with mean {{A|V}}. An error needs $X < 0$, i.e. $N < -A$: $P = Q(A/\\sigma)$ = Q({{A/sig}}) = **{{Q(A/sig)}}**. By symmetry a sent 0 fails equally often."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "R0": [
+              1000,
+              2200,
+              4700,
+              10000
+            ],
+            "tol": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "Resistors of nominal value {{R0|Ω}} are specified at ±{{100*tol}}%. The process is centred and Gaussian. What is the largest standard deviation $\\sigma$ that keeps at most 0.2 % of the parts outside the tolerance band? Use $Q(3.09) = 0.001$.",
+          "answer": "tol*R0/3.09",
+          "unit": "Ω",
+          "explanation": "Out of tolerance means beyond $\\pm k\\sigma$, with probability $2Q(k)$. Setting $2Q(k)$ = 0.002 gives $Q(k)$ = 0.001, so $k$ = 3.09: the band half-width {{tol*R0|Ω}} must be at least 3.09 σ. $\\sigma$ = {{tol*R0|Ω}} / 3.09 = **{{tol*R0/3.09|Ω}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "mu": [
+              1003,
+              1005,
+              1008
+            ],
+            "sig": [
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "A resistor process should be centred on 1 kΩ but has drifted to a mean of {{mu||4}} Ω, with $\\sigma$ = {{sig}} Ω (Gaussian). The spec is 1 kΩ ± 1 % (990 Ω to 1010 Ω). What fraction is out of spec? (probability, 0–1)",
+          "answer": "Q((1010 - mu)/sig) + Q((mu - 990)/sig)",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "Upper margin: (1010 − {{mu||4}}) / {{sig}} = {{(1010-mu)/sig}} σ; lower margin: ({{mu||4}} − 990) / {{sig}} = {{(mu-990)/sig}} σ. Out of spec: $Q({{(1010-mu)/sig}}) + Q({{(mu-990)/sig}})$ = {{Q((1010-mu)/sig)}} + {{Q((mu-990)/sig)}} = **{{Q((1010-mu)/sig)+Q((mu-990)/sig)}}**. Centred, it would be only 2Q({{10/sig}}) = {{2*Q(10/sig)}}: the drift costs far more than it seems."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "al": [
+              5,
+              10,
+              15,
+              20
+            ],
+            "tg": [
+              1e-06,
+              1e-09,
+              1e-12
+            ]
+          },
+          "prompt": "An optical receiver decides '1' when at least one photon is detected during the bit. Photon counts are Poisson, and the transmitter is dark for a 0 (no photons at all).",
+          "ask": [
+            {
+              "prompt": "A 1 pulse delivers on average {{al}} photons. What is the probability that a sent 1 is missed? (probability, 0–1)",
+              "answer": "exp(-al)",
+              "unit": "",
+              "explanation": "A 1 is missed only if zero photons arrive: $P(N = 0) = e^{-\\alpha}$ = $e^{-{{al}}}$ = **{{exp(-al)}}**."
+            },
+            {
+              "prompt": "How many photons must a 1 pulse deliver on average for a miss probability of {{tg}}?",
+              "answer": "-ln(tg)",
+              "unit": "",
+              "explanation": "$e^{-\\alpha}$ = {{tg}} gives $\\alpha = -\\ln({{tg}})$ = **{{-ln(tg)}}** photons per 1 pulse. This is the 'quantum limit' of optical detection: with equally likely bits it averages to about {{-ln(tg)/2}} photons per bit."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "q": [
+              0.5,
+              0.7,
+              0.8,
+              0.9
+            ],
+            "P": [
+              0.99,
+              0.999
+            ]
+          },
+          "prompt": "Each transmission attempt of a packet succeeds independently with probability {{q}}. What is the smallest number of attempts $m$ the protocol must allow so that the packet gets through with probability at least {{P}}?",
+          "answer": "ceil(ln(1 - P)/ln(1 - q) - 1e-9)",
+          "unit": "",
+          "explanation": "All $m$ attempts fail with probability $(1-q)^m$, which must be at most $1 - P$ = {{1-P}}. So $m \\ge \\frac{\\ln({{1-P}})}{\\ln({{1-q}})}$ = {{ln(1-P)/ln(1-q)}}, and the smallest whole number is **{{ceil(ln(1-P)/ln(1-q)-1e-9)}}**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "n": [
+              1000,
+              2000,
+              5000
+            ],
+            "p": [
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "k": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "require": "min(n*p - 0.49, 6.01 - n*p)",
+          "prompt": "A {{n}}-bit block crosses a channel with bit-error probability {{p}}. Use the Poisson approximation to find the probability that the number of bit errors is exactly {{k}}. (probability, 0–1)",
+          "answer": "(n*p)^k*exp(-n*p)/fact(k)",
+          "unit": "",
+          "explanation": "With $n$ large and $p$ small the error count is nearly Poisson with $\\alpha = np$ = {{n*p}}: $P(K = {{k}}) \\approx \\frac{\\alpha^{{{k}}}}{{{k}}!}e^{-\\alpha}$ = **{{(n*p)^k*exp(-n*p)/fact(k)}}**. The exact binomial gives {{choose(n,k)*p^k*(1-p)^(n-k)}}."
+        },
+        {
+          "id": "q7",
+          "type": "slider",
+          "params": {
+            "P0": [
+              0.5,
+              0.2,
+              0.1,
+              0.05
+            ]
+          },
+          "derived": {
+            "at": "-ln(P0)"
+          },
+          "prompt": "Packets arrive as a Poisson stream. Set the expected number of packets per time slot, $\\alpha$, so that a slot is empty with probability {{P0}} (dashed line).",
+          "plot": {
+            "x": {
+              "min": -0.5,
+              "max": 12.5,
+              "label": "k",
+              "ticks": [
+                0,
+                2,
+                4,
+                6,
+                8,
+                10,
+                12
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 1,
+              "label": "P(N = k)"
+            },
+            "sliders": [
+              {
+                "name": "al",
+                "label": "$\\alpha$",
+                "min": 0.1,
+                "max": 6,
+                "step": 0.01,
+                "value": 5.5
+              }
+            ],
+            "curves": [
+              {
+                "x": "floor(t)",
+                "y": "(al^floor(t)*exp(-al)/fact(floor(t)))*clamp(4*(1 - abs(2*(t - floor(t)) - 1)) - 1, 0, 1)",
+                "t": [
+                  0,
+                  13
+                ]
+              }
+            ],
+            "hlines": [
+              {
+                "y": "P0",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$P(N = 0)$",
+                "value": "exp(-al)",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "al": "at"
+          },
+          "tolerance": 0.03,
+          "explanation": "$P(N = 0) = e^{-\\alpha}$ = {{P0}} ⇒ $\\alpha = -\\ln({{P0}})$ = **{{at}}**. Notice how the whole PMF shifts right and spreads out as $\\alpha$ grows: its mean and its variance both equal $\\alpha$."
+        }
+      ]
+    }
+  ]
+}

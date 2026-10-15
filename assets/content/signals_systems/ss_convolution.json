@@ -1,0 +1,1475 @@
+{
+  "id": "ss-convolution",
+  "title": "LTI Systems & Convolution",
+  "description": "The impulse response tells you everything about an LTI system; convolution gives the output.",
+  "reference": "Phillips §3.1–3.4",
+  "study": [
+    {
+      "title": "Impulse response and convolution",
+      "body": "The **impulse response** $h(t)$ is the output of an LTI system when the input is $\\delta(t)$. Any input is a weighted sum of shifted impulses, $x(t) = \\int x(\\tau)\\delta(t-\\tau)d\\tau$, so linearity and time invariance give the output as a weighted sum of shifted impulse responses: the **convolution** $y = x * h$.",
+      "formula": "y(t) = \\int_{-\\infty}^{\\infty} x(\\tau)\\,h(t - \\tau)\\,d\\tau"
+    },
+    {
+      "title": "Convolution sum",
+      "body": "In discrete time: $y[n] = \\sum_k x[k]\\,h[n-k]$. For finite sequences of lengths $N$ and $M$ the result has $N + M - 1$ samples, starting at the sum of the start indices. Example: $\\{1, 2\\} * \\{1, 1, 1\\} = \\{1, 3, 3, 2\\}$. Each output sample is a sum of products whose indices add up to $n$.",
+      "formula": "y[n] = \\sum_{k=-\\infty}^{\\infty} x[k]\\,h[n - k]"
+    },
+    {
+      "title": "Flip and slide",
+      "body": "To evaluate $y(t)$ graphically:\n- Plot $x(\\tau)$ and the flipped, shifted $h(t - \\tau)$ against $\\tau$.\n- Multiply them (green) and integrate over the overlap.\n- Slide $t$ from $-\\infty$ to $\\infty$; the integration limits change whenever an edge of $h(t-\\tau)$ passes an edge of $x(\\tau)$.\nHere $x$ is a unit pulse and $h(t) = e^{-t}u(t)$. Drag $t$: the area under the green product is $y(t)$, traced by the dot on the grey output curve.",
+      "plot": {
+        "x": {
+          "min": -2,
+          "max": 4,
+          "label": "τ",
+          "ticks": [
+            -2,
+            -1,
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "y": {
+          "min": -0.1,
+          "max": 1.4,
+          "label": "",
+          "ticks": [
+            0,
+            0.5,
+            1
+          ]
+        },
+        "sliders": [
+          {
+            "name": "t",
+            "label": "$t$",
+            "min": -1,
+            "max": 3.5,
+            "step": 0.05,
+            "value": 0.6
+          }
+        ],
+        "curves": [
+          {
+            "f": "step(x)-step(x-1)",
+            "color": "blue"
+          },
+          {
+            "f": "step(t-x)*exp(-(t-x))",
+            "color": "red",
+            "dash": true
+          },
+          {
+            "f": "(step(x)-step(x-1))*step(t-x)*exp(-(t-x))",
+            "color": "green",
+            "from": 0,
+            "to": "max(0.001, min(t, 1))"
+          },
+          {
+            "f": "step(x)*(1-exp(-x)) - step(x-1)*(1-exp(-(x-1)))",
+            "color": "grey",
+            "dash": true
+          }
+        ],
+        "vlines": [
+          {
+            "x": "t",
+            "label": "t"
+          }
+        ],
+        "points": [
+          {
+            "x": "t",
+            "y": "step(t)*(1-exp(-t)) - step(t-1)*(1-exp(-(t-1)))",
+            "label": "y(t)",
+            "guides": false
+          }
+        ],
+        "labels": [
+          {
+            "x": 1.1,
+            "y": 1.15,
+            "text": "x(τ)",
+            "color": "blue"
+          },
+          {
+            "x": -1.9,
+            "y": 1.15,
+            "text": "h(t − τ)",
+            "color": "red"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "overlap $0 < \\tau <$",
+            "value": "clamp(t, 0, 1)"
+          },
+          {
+            "label": "$y(t)$ = area",
+            "value": "step(t)*(1-exp(-t)) - step(t-1)*(1-exp(-(t-1)))"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Pulse convolved with pulse",
+      "body": "Two rectangular pulses of heights $A$, $B$ and widths $T_1 \\le T_2$ give a **trapezoid**: it ramps up for $T_1$, stays flat at the maximum $ABT_1$ for $T_2 - T_1$, and ramps down for $T_1$. Total duration $T_1 + T_2$. Equal widths give a triangle. In general, the output starts at the sum of the start times and lasts the sum of the durations.",
+      "formula": "y_{max} = A\\,B\\,T_1",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 3.5,
+          "label": "t",
+          "ticks": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "y": {
+          "min": -0.1,
+          "max": 1.5,
+          "label": "",
+          "ticks": [
+            0,
+            0.5,
+            1
+          ]
+        },
+        "curves": [
+          {
+            "f": "max(0, min(x, 1) - max(0, x-2))"
+          }
+        ],
+        "labels": [
+          {
+            "x": 0.9,
+            "y": 1.25,
+            "text": "width 1 * width 2",
+            "color": "primary"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Properties",
+      "body": "- Commutative: $x * h = h * x$.\n- Associative: a cascade $h_1$ then $h_2$ equals $h_1 * h_2$ (order does not matter).\n- Distributive: systems in parallel add, $h_1 + h_2$.\n- Identity and delay: $x * \\delta(t - t_0) = x(t - t_0)$.\n- Causal LTI system: $h(t) = 0$ for $t < 0$. Stable: $\\int|h|\\,dt < \\infty$.",
+      "formula": "x(t) * \\delta(t - t_0) = x(t - t_0)"
+    },
+    {
+      "title": "Step response",
+      "body": "The step response is $s = u * h$, i.e. the running integral of $h$. Conversely $h = ds/dt$. Its final value is the DC gain $\\int h\\,dt$. Example: $h(t) = \\frac{1}{\\tau}e^{-t/\\tau}u(t)$ (an RC low-pass) gives $s(t) = (1 - e^{-t/\\tau})u(t)$.",
+      "formula": "s(t) = \\int_{-\\infty}^{t} h(\\lambda)\\,d\\lambda, \\qquad h(t) = \\frac{ds}{dt}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "t / τ",
+          "ticks": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 1.2,
+          "label": "",
+          "ticks": [
+            0,
+            0.5,
+            1
+          ]
+        },
+        "curves": [
+          {
+            "f": "exp(-x)",
+            "color": "blue",
+            "dash": true
+          },
+          {
+            "f": "1-exp(-x)",
+            "label": "s(t)",
+            "labelAt": 0.5
+          }
+        ],
+        "labels": [
+          {
+            "x": 1.5,
+            "y": 0.36,
+            "text": "τ·h(t)",
+            "color": "blue"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ss-convolution-1",
+      "title": "Impulse response and convolution",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The impulse response",
+          "body": "Apply $\\delta(t)$ to an LTI system; the output is its **impulse response** $h(t)$. Since any input is a sum of weighted, shifted impulses, the output is the same sum of weighted, shifted copies of $h$. That sum is the **convolution integral** $y = x * h$:",
+          "formula": "y(t) = \\int_{-\\infty}^{\\infty} x(\\tau)\\,h(t - \\tau)\\,d\\tau"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "What is $x(t) * \\delta(t - 3)$?",
+          "options": [
+            "$x(t - 3)$",
+            "$x(3)$",
+            "$x(t + 3)$",
+            "$x(t)\\,\\delta(t - 3)$"
+          ],
+          "answer": 0,
+          "explanation": "$\\int x(\\tau)\\,\\delta(t - 3 - \\tau)\\,d\\tau$ sifts out $\\tau = t - 3$, giving $x(t - 3)$: a system with $h(t) = \\delta(t-3)$ is a pure 3 s delay. $x(3)$ would be the result of an integral of a **product** with $\\delta$, not a convolution."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The convolution sum",
+          "body": "In discrete time the integral becomes a sum. Each output sample adds up all products $x[k]\\,h[m]$ whose indices satisfy $k + m = n$. Example: $\\{1, 2\\} * \\{1, 1, 1\\} = \\{1, 3, 3, 2\\}$.",
+          "formula": "y[n] = \\sum_{k} x[k]\\,h[n - k]"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "prompt": "$x[n] = \\{ {{x0}}, {{x1}} \\}$ and $h[n] = \\{ {{h0}}, {{h1}}, {{h2}} \\}$, both starting at $n = 0$. Find $y[1]$ of $y = x * h$.",
+          "answer": "x0*h1 + x1*h0",
+          "unit": "",
+          "explanation": "Pairs with indices adding to 1: $x[0]h[1] + x[1]h[0] = {{x0}}\\cdot{{h1}} + {{x1}}\\cdot{{h0}}$ = {{x0*h1 + x1*h0}}.",
+          "params": {
+            "x0": [
+              1,
+              2,
+              3
+            ],
+            "x1": [
+              -1,
+              1,
+              2,
+              3
+            ],
+            "h0": [
+              1,
+              2
+            ],
+            "h1": [
+              1,
+              2,
+              -1,
+              3
+            ],
+            "h2": [
+              1,
+              2
+            ]
+          },
+          "absTolerance": 0.01
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Flip and slide",
+          "body": "To evaluate $y(t)$ for one value of $t$: plot $x(\\tau)$, flip $h$ and shift it to $h(t - \\tau)$, multiply, and integrate the product over $\\tau$. Then slide $t$ and repeat. Here $x$ is a unit pulse and $h(t) = e^{-t}u(t)$, shown for $t = 0.6$.",
+          "plot": {
+            "x": {
+              "min": -2,
+              "max": 3,
+              "label": "τ",
+              "ticks": [
+                -2,
+                -1,
+                0,
+                1,
+                2,
+                3
+              ]
+            },
+            "y": {
+              "min": -0.1,
+              "max": 1.4,
+              "label": "",
+              "ticks": [
+                0,
+                0.5,
+                1
+              ]
+            },
+            "curves": [
+              {
+                "f": "step(x)-step(x-1)"
+              },
+              {
+                "f": "step(0.6-x)*exp(-(0.6-x))",
+                "color": "red",
+                "dash": true
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0.6,
+                "label": "t"
+              }
+            ],
+            "labels": [
+              {
+                "x": 1.1,
+                "y": 1.15,
+                "text": "x(τ)",
+                "color": "primary"
+              },
+              {
+                "x": -1.9,
+                "y": 1.15,
+                "text": "h(t − τ)",
+                "color": "red"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "orderSteps",
+          "prompt": "Order the steps to compute $y(t) = x(t) * h(t)$ graphically.",
+          "items": [
+            "Plot $x(\\tau)$ against $\\tau$",
+            "Flip $h$ to get $h(-\\tau)$",
+            "Shift it by $t$ to get $h(t - \\tau)$",
+            "Multiply $x(\\tau)\\,h(t - \\tau)$ and integrate over $\\tau$",
+            "Slide $t$ and repeat for every interval"
+          ],
+          "explanation": "Flip first, then shift: $h(t - \\tau) = h(-(\\tau - t))$ is the mirrored $h$ moved to position $t$. The integral of the product is the output at that one instant $t$."
+        },
+        {
+          "id": "i5",
+          "type": "info",
+          "title": "Try it: two pulses",
+          "body": "$x$ is a unit pulse of width 1 (blue), $h$ a unit pulse of width $T_2$, flipped and shifted to $h(t - \\tau)$ (red). Drag $t$: the output $y(t)$ is the overlap area (green). It ramps up while the pulses slide into each other, stays flat while the short one is fully inside the long one, and ramps down again. Change $T_2$ to see the trapezoid turn into a triangle when the widths are equal.",
+          "plot": {
+            "x": {
+              "min": -1.5,
+              "max": 5,
+              "label": "τ",
+              "ticks": [
+                -1,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "y": {
+              "min": -0.1,
+              "max": 1.4,
+              "label": "",
+              "ticks": [
+                0,
+                0.5,
+                1
+              ]
+            },
+            "sliders": [
+              {
+                "name": "t",
+                "label": "$t$",
+                "min": -1,
+                "max": 4.5,
+                "step": 0.05,
+                "value": 0.5
+              },
+              {
+                "name": "T2",
+                "label": "$T_2$",
+                "min": 0.5,
+                "max": 2.5,
+                "step": 0.25,
+                "value": 2
+              }
+            ],
+            "curves": [
+              {
+                "f": "step(x)-step(x-1)",
+                "color": "blue"
+              },
+              {
+                "f": "step(x-t+T2)-step(x-t)",
+                "color": "red",
+                "dash": true
+              },
+              {
+                "f": "(step(x)-step(x-1))*(step(x-t+T2)-step(x-t))",
+                "color": "green",
+                "from": "max(0, t-T2)",
+                "to": "max(0, t-T2) + max(0.001, min(1, t) - max(0, t-T2))"
+              },
+              {
+                "f": "max(0, min(1, x) - max(0, x - T2))",
+                "color": "grey",
+                "dash": true
+              }
+            ],
+            "vlines": [
+              {
+                "x": "t",
+                "label": "t"
+              }
+            ],
+            "points": [
+              {
+                "x": "t",
+                "y": "max(0, min(1, t) - max(0, t - T2))",
+                "label": "y(t)",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$y(t)$ = overlap",
+                "value": "max(0, min(1, t) - max(0, t - T2))"
+              }
+            ]
+          }
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Step response",
+          "body": "The response to $u(t)$ is $s(t) = h * u$, which is the running integral of $h$. So $h$ is the derivative of the step response. The final value $s(\\infty) = \\int h\\,dt$ is the DC gain of the system.",
+          "formula": "s(t) = \\int_{-\\infty}^{t}h(\\lambda)\\,d\\lambda",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 5,
+              "label": "t / τ",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 1.2,
+              "label": "",
+              "ticks": [
+                0,
+                0.5,
+                1
+              ]
+            },
+            "curves": [
+              {
+                "f": "exp(-x)",
+                "color": "blue",
+                "dash": true
+              },
+              {
+                "f": "1-exp(-x)",
+                "label": "s(t)",
+                "labelAt": 0.5
+              }
+            ],
+            "labels": [
+              {
+                "x": 1.5,
+                "y": 0.36,
+                "text": "τ·h(t)",
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "An LTI system has $h(t) = {{K}}e^{-{{a}}t}u(t)$ ($t$ in s).",
+          "answer": "K/a",
+          "unit": "",
+          "explanation": "",
+          "params": {
+            "K": [
+              2,
+              4,
+              5,
+              10
+            ],
+            "a": [
+              0.5,
+              2,
+              5
+            ],
+            "t0": [
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "ask": [
+            {
+              "prompt": " Find the final value $s(\\infty)$ of its step response.",
+              "answer": "K/a",
+              "explanation": "$s(\\infty) = \\int_0^\\infty {{K}}e^{-{{a}}\\lambda}d\\lambda = \\frac{K}{a} = \\frac{ {{K}} }{ {{a}} }$ = {{K/a}}."
+            },
+            {
+              "prompt": " Find its step response at $t = {{t0}}$ s.",
+              "answer": "K/a*(1-exp(-a*t0))",
+              "explanation": "$s(t) = \\int_0^t {{K}}e^{-{{a}}\\lambda}d\\lambda = \\frac{K}{a}\\left(1 - e^{-at}\\right)$. At $t = {{t0}}$: {{K/a}}·$(1 - e^{-{{a*t0}}})$ = {{K/a*(1-exp(-a*t0))}}."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "An LTI system with $h(t) = e^{-2t}u(t + 1)$ is causal.",
+          "answer": false,
+          "explanation": "$u(t+1)$ is already 1 for $-1 < t < 0$, so $h(t) \\ne 0$ for some negative $t$. The output would react up to 1 s **before** an impulse arrives. Causal requires $h(t) = 0$ for all $t < 0$."
+        }
+      ]
+    },
+    {
+      "id": "ss-convolution-2",
+      "title": "Computing convolutions",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "prompt": "$x[n] = \\{ {{x0}}, {{x1}}, {{x2}} \\}$ and $h[n] = \\{ {{h0}}, {{h1}} \\}$, both starting at $n = 0$, and $y = x * h$.",
+          "answer": "y0",
+          "unit": "",
+          "explanation": "",
+          "params": {
+            "x0": [
+              1,
+              2,
+              3
+            ],
+            "x1": [
+              -1,
+              2,
+              4
+            ],
+            "x2": [
+              1,
+              -2,
+              3
+            ],
+            "h0": [
+              1,
+              2,
+              3
+            ],
+            "h1": [
+              -1,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "y0": "x0*h0",
+            "y1": "x0*h1 + x1*h0",
+            "y2": "x1*h1 + x2*h0",
+            "y3": "x2*h1"
+          },
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": " Find $y[1]$.",
+              "answer": "y1",
+              "explanation": "Index pairs adding to 1: $x[0]h[1] + x[1]h[0] = {{x0}}\\cdot{{h1}} + {{x1}}\\cdot{{h0}}$ = {{y1}}. The full result is $\\{ {{y0}}, {{y1}}, {{y2}}, {{y3}} \\}$."
+            },
+            {
+              "prompt": " Find $y[2]$.",
+              "answer": "y2",
+              "explanation": "Index pairs adding to 2: $x[1]h[1] + x[2]h[0] = {{x1}}\\cdot{{h1}} + {{x2}}\\cdot{{h0}}$ = {{y2}}. ($h[2] = 0$.) The full result is $\\{ {{y0}}, {{y1}}, {{y2}}, {{y3}} \\}$."
+            },
+            {
+              "prompt": " Find $y[3]$.",
+              "answer": "y3",
+              "explanation": "Only $x[2]h[1]$ has indices adding to 3: ${{x2}}\\cdot{{h1}}$ = {{y3}}. It is the last sample: 3 + 2 − 1 = 4 samples, $n = 0 \\dots 3$."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "prompt": "$x[n]$ is nonzero only for ${{n1}} \\le n \\le {{n1+N-1}}$ and $h[n]$ only for ${{n2}} \\le n \\le {{n2+M-1}}$.",
+          "answer": "n1+n2",
+          "unit": "",
+          "explanation": "",
+          "params": {
+            "n1": [
+              -2,
+              0,
+              1,
+              3
+            ],
+            "N": [
+              3,
+              4,
+              5
+            ],
+            "n2": [
+              -1,
+              0,
+              2
+            ],
+            "M": [
+              2,
+              3,
+              6
+            ]
+          },
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": " What is the first index $n$ where $y = x*h$ can be nonzero?",
+              "answer": "n1+n2",
+              "explanation": "The earliest product is $x[{{n1}}]\\,h[{{n2}}]$, at $n = {{n1}} + ({{n2}})$ = {{n1+n2}}: start indices add."
+            },
+            {
+              "prompt": " What is the last index $n$ where $y = x*h$ can be nonzero?",
+              "answer": "n1+N-1+n2+M-1",
+              "explanation": "The latest product is $x[{{n1+N-1}}]\\,h[{{n2+M-1}}]$, at $n$ = {{n1+N-1+n2+M-1}}: end indices add."
+            },
+            {
+              "prompt": " How many samples long is $y$ (from first to last possible nonzero sample)?",
+              "answer": "N+M-1",
+              "explanation": "$x$ has $N$ = {{N}} samples and $h$ has $M$ = {{M}}, so $y$ spans $N + M - 1$ = {{N+M-1}} samples."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "The graph shows $x(t)$ (solid) and $h(t)$ (dashed), $t$ in s. Find $y(t) = x * h$ at $t = {{t0}}$ s.",
+          "answer": "A*B*max(0, min(t0,T1) - max(0, t0-T2))",
+          "unit": "",
+          "explanation": "$y(t) = AB \\times$ (length of overlap of $x(\\tau)$ on $[0, {{T1}}]$ and $h(t - \\tau)$ on $[t - {{T2}}, t]$). At $t = {{t0}}$ the overlap runs from {{max(0,t0-T2)}} to {{min(t0,T1)}}: length {{max(0, min(t0,T1) - max(0, t0-T2))}} s. So $y = {{A}}\\cdot{{B}}\\cdot{{max(0, min(t0,T1) - max(0, t0-T2))}}$ = {{A*B*max(0, min(t0,T1) - max(0, t0-T2))}}.",
+          "params": {
+            "A": [
+              1,
+              2,
+              3
+            ],
+            "T1": [
+              1,
+              2
+            ],
+            "B": [
+              1,
+              2
+            ],
+            "T2": [
+              3,
+              4
+            ],
+            "t0": [
+              0.5,
+              1.5,
+              2.5,
+              3.5,
+              4.5
+            ]
+          },
+          "absTolerance": 0.01,
+          "plot": {
+            "x": {
+              "min": -0.5,
+              "max": 5,
+              "label": "t",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 3.6,
+              "label": "",
+              "ticks": [
+                0,
+                1,
+                2,
+                3
+              ]
+            },
+            "curves": [
+              {
+                "f": "A*(step(x)-step(x-T1))"
+              },
+              {
+                "f": "B*(step(x)-step(x-T2))",
+                "color": "blue",
+                "dash": true
+              }
+            ],
+            "labels": [
+              {
+                "x": "T1/2-0.3",
+                "y": "A+0.25",
+                "text": "x(t)",
+                "color": "primary"
+              },
+              {
+                "x": "T2-0.9",
+                "y": "B+0.25",
+                "text": "h(t)",
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "$x(t) = h(t) = u(t) - u(t-1)$. Which graph is $y = x * h$?",
+          "answer": 0,
+          "explanation": "Two equal unit pulses give a **triangle**: the overlap grows linearly from $t = 0$ to its maximum (area 1) at $t = 1$, then shrinks to zero at $t = 2$. Duration = 1 + 1 = 2 s. A trapezoid needs unequal widths.",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -0.5,
+                "max": 3.5,
+                "label": "t",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "y": {
+                "min": -0.1,
+                "max": 1.3,
+                "label": "",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "max(0, 1-abs(x-1))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 3.5,
+                "label": "t",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "y": {
+                "min": -0.1,
+                "max": 1.3,
+                "label": "",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "max(0, min(x, 1) - max(0, x-2))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 3.5,
+                "label": "t",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "y": {
+                "min": -0.1,
+                "max": 1.3,
+                "label": "",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "step(x)-step(x-2)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 3.5,
+                "label": "t",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "y": {
+                "min": -0.1,
+                "max": 1.3,
+                "label": "",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "max(0, 1-2*abs(x-0.5))"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "prompt": "Find $y({{t0}})$ for $y(t) = e^{-{{a}}t}u(t) * u(t)$ ($t$ in s).",
+          "answer": "(1-exp(-a*t0))/a",
+          "unit": "",
+          "explanation": "For $t > 0$: $y(t) = \\int_0^t e^{-{{a}}\\tau}d\\tau = \\frac{1 - e^{-at}}{a}$. At $t = {{t0}}$: $\\frac{1 - e^{-{{a*t0}}}}{ {{a}} }$ = {{(1-exp(-a*t0))/a}}.",
+          "params": {
+            "a": [
+              0.5,
+              2,
+              4,
+              5
+            ],
+            "t0": [
+              0.5,
+              1,
+              2
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "prompt": "Find $y({{t0}})$ for $y(t) = e^{-{{a}}t}u(t) * e^{-{{b}}t}u(t)$ ($t$ in s).",
+          "answer": "(exp(-a*t0)-exp(-b*t0))/(b-a)",
+          "unit": "",
+          "explanation": "For $t>0$: $y(t) = \\int_0^t e^{-{{a}}\\tau}e^{-{{b}}(t-\\tau)}d\\tau = e^{-{{b}}t}\\int_0^t e^{({{b}}-{{a}})\\tau}d\\tau = \\frac{e^{-at} - e^{-bt}}{b - a}$. At $t = {{t0}}$: $\\frac{e^{-{{a*t0}}} - e^{-{{b*t0}}}}{ {{b-a}} }$ = {{(exp(-a*t0)-exp(-b*t0))/(b-a)}}.",
+          "params": {
+            "a": [
+              0.5,
+              2,
+              3
+            ],
+            "b": [
+              1,
+              4,
+              5
+            ],
+            "t0": [
+              0.5,
+              1
+            ]
+          },
+          "require": "abs(a-b)"
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "prompt": "The graph shows the impulse response $h(t)$ of an LTI system ($t$ in s). Find its step response at $t = {{t0}}$ s.",
+          "answer": "A*min(t0,T)",
+          "unit": "",
+          "explanation": "$s(t) = \\int_0^t h(\\lambda)d\\lambda$ is the area under $h$ up to $t$. $h$ has height $A$ = {{A}} and lasts $T$ = {{T}} s, so $s(t) = A\\min(t, T)$. At $t = {{t0}}$: {{A}}·{{min(t0,T)}} = {{A*min(t0,T)}}.",
+          "params": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "T": [
+              1,
+              2,
+              3
+            ],
+            "t0": [
+              0.5,
+              1.5,
+              2.5,
+              4
+            ]
+          },
+          "plot": {
+            "x": {
+              "min": -0.5,
+              "max": 5,
+              "label": "t",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 6,
+              "label": "h(t)",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ]
+            },
+            "curves": [
+              {
+                "f": "A*(step(x)-step(x-T))"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "Two LTI systems $h_1$ and $h_2$ in cascade have overall impulse response $h_1 * h_2$, and swapping their order does not change the overall output.",
+          "answer": true,
+          "explanation": "Associativity: $(x * h_1) * h_2 = x * (h_1 * h_2)$, and commutativity makes $h_1 * h_2 = h_2 * h_1$. (In real circuits loading can spoil this; the math assumes ideal blocks.)"
+        }
+      ]
+    },
+    {
+      "id": "ss-convolution-3",
+      "title": "Flip and slide",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "g1",
+          "type": "multipleChoice",
+          "prompt": "$x(t) = u(t) - u(t - 1)$ is applied to a system with $h(t) = e^{-t}u(t)$. Which graph is the output?",
+          "answer": 0,
+          "explanation": "For $0 < t < 1$ the overlap is $[0, t]$: $y = \\int_0^t e^{-(t-\\tau)}d\\tau = 1 - e^{-t}$, rising. For $t > 1$ the pulse has ended: $y = e^{-(t-1)} - e^{-t}$, decaying. Equivalently $y = s(t) - s(t - 1)$ with $s(t) = (1 - e^{-t})u(t)$. Graph \"$1 - e^{-t}$ forever\" is the step response.",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -0.5,
+                "max": 4,
+                "label": "t",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              },
+              "y": {
+                "min": -0.1,
+                "max": 1.2,
+                "label": "",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "step(x)*(1-exp(-x)) - step(x-1)*(1-exp(-(x-1)))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 4,
+                "label": "t",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              },
+              "y": {
+                "min": -0.1,
+                "max": 1.2,
+                "label": "",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "step(x)*(1-exp(-x))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 4,
+                "label": "t",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              },
+              "y": {
+                "min": -0.1,
+                "max": 1.2,
+                "label": "",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "step(x)-step(x-1)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 4,
+                "label": "t",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              },
+              "y": {
+                "min": -0.1,
+                "max": 1.2,
+                "label": "",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "max(0, 1-abs(x-1))"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "prompt": "$x(t) = {{A}}\\left[u(t) - u(t - {{T1}})\\right]$ drives a system with $h(t) = e^{-{{a}}t}u(t)$ ($t$ in s).",
+          "answer": "ya",
+          "unit": "",
+          "explanation": "",
+          "params": {
+            "A": [
+              2,
+              4,
+              6
+            ],
+            "T1": [
+              2,
+              3
+            ],
+            "a": [
+              0.5,
+              2,
+              3
+            ],
+            "t0a": [
+              0.5,
+              1,
+              1.5
+            ],
+            "t0b": [
+              3.5,
+              4,
+              5
+            ]
+          },
+          "derived": {
+            "ya": "A/a*(1-exp(-a*t0a))",
+            "yb": "A/a*(exp(-a*(t0b-T1)) - exp(-a*t0b))"
+          },
+          "ask": [
+            {
+              "prompt": " Find $y(t)$ at $t = {{t0a}}$ s.",
+              "answer": "ya",
+              "explanation": "$t$ = {{t0a}} lies inside the pulse, so the overlap is $[0, t]$: $y = {{A}}\\int_0^{t}e^{-{{a}}(t-\\tau)}d\\tau = \\frac{A}{a}(1 - e^{-at}) = {{A/a}}(1 - e^{-{{a*t0a}}})$ = {{ya}}."
+            },
+            {
+              "prompt": " Find $y(t)$ at $t = {{t0b}}$ s.",
+              "answer": "yb",
+              "explanation": "$t$ = {{t0b}} is after the pulse, so the overlap is the whole pulse $[0, {{T1}}]$: $y = {{A}}\\int_0^{ {{T1}} }e^{-{{a}}(t-\\tau)}d\\tau = \\frac{A}{a}\\left(e^{-a(t - T_1)} - e^{-at}\\right) = {{A/a}}(e^{-{{a*(t0b-T1)}}} - e^{-{{a*t0b}}})$ = {{yb}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "Find $y[{{n0}}]$ for $y[n] = ({{a}})^n u[n] * u[n]$.",
+          "answer": "(1-a^(n0+1))/(1-a)",
+          "unit": "",
+          "explanation": "$y[n] = \\sum_{k=0}^{n} a^k$ (all $h[n-k] = 1$ for $k \\le n$), a finite geometric series: $\\frac{1 - a^{n+1}}{1 - a} = \\frac{1 - {{a}}^{ {{n0+1}} }}{ {{1-a}} }$ = {{(1-a^(n0+1))/(1-a)}}. It approaches $1/(1-a)$ = {{1/(1-a)}} as $n \\to \\infty$.",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9
+            ],
+            "n0": [
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "For $y(t) = u(t) * e^{-2t}u(t)$ and $t > 0$, the convolution integral $\\int x(\\tau)h(t-\\tau)d\\tau$ runs over",
+          "options": [
+            "$0 < \\tau < t$",
+            "$-\\infty < \\tau < t$",
+            "$0 < \\tau < \\infty$",
+            "$t < \\tau < \\infty$"
+          ],
+          "answer": 0,
+          "explanation": "$x(\\tau) = u(\\tau)$ is zero for $\\tau < 0$, and $h(t - \\tau)$ is zero for $\\tau > t$ (its argument would be negative). The product is nonzero only for $0 < \\tau < t$; for $t < 0$ there is no overlap and $y = 0$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "prompt": "The graph shows $x(t)$ (solid) and $h(t)$ (dashed), $t$ in s. Consider $y = x * h$.",
+          "answer": "A*B*T1",
+          "unit": "",
+          "explanation": "",
+          "params": {
+            "A": [
+              1,
+              2,
+              3
+            ],
+            "T1": [
+              1,
+              2
+            ],
+            "B": [
+              1,
+              2
+            ],
+            "T2": [
+              3,
+              4
+            ],
+            "s": [
+              1,
+              2
+            ]
+          },
+          "absTolerance": 0.01,
+          "plot": {
+            "x": {
+              "min": -0.5,
+              "max": 8,
+              "label": "t",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 3.6,
+              "label": "",
+              "ticks": [
+                0,
+                1,
+                2,
+                3
+              ]
+            },
+            "curves": [
+              {
+                "f": "A*(step(x-s)-step(x-s-T1))"
+              },
+              {
+                "f": "B*(step(x)-step(x-T2))",
+                "color": "blue",
+                "dash": true
+              }
+            ],
+            "labels": [
+              {
+                "x": "s+T1/2-0.3",
+                "y": "A+0.25",
+                "text": "x(t)",
+                "color": "primary"
+              },
+              {
+                "x": 0.1,
+                "y": "B+0.25",
+                "text": "h(t)",
+                "color": "blue"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": " Find its maximum value.",
+              "answer": "A*B*T1",
+              "explanation": "The maximum occurs when the shorter pulse lies completely inside the longer one: $y_{max} = A\\,B\\,T_1 = {{A}}\\cdot{{B}}\\cdot{{T1}}$ = {{A*B*T1}}."
+            },
+            {
+              "prompt": " For how many seconds does it stay at its maximum?",
+              "answer": "T2-T1",
+              "unit": "s",
+              "explanation": "The flat top lasts as long as the short pulse fits inside the long one: $T_2 - T_1 = {{T2}} - {{T1}}$ = {{T2-T1}} s."
+            },
+            {
+              "prompt": " At what time does it return to zero for good?",
+              "answer": "s+T1+T2",
+              "unit": "s",
+              "explanation": "$x$ ends at {{s+T1}} s and $h$ at {{T2}} s; end times add: $y$ ends at {{s+T1}} + {{T2}} = {{s+T1+T2}} s. (It starts at {{s}} + 0 = {{s}} s.)"
+            }
+          ]
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "A": [
+              1,
+              2
+            ],
+            "s1": [
+              0.5,
+              1,
+              1.5
+            ],
+            "T1": [
+              0.5,
+              1
+            ],
+            "T2": [
+              2,
+              2.5,
+              3
+            ]
+          },
+          "prompt": "$x(t)$ = {{A}} for {{s1}} < $t$ < {{s1+T1}} s (blue) and $h(t)$ = 1 for 0 < $t$ < {{T2}} s. The red pulse is $h(t - \\tau)$. Slide $t$ to the **last** instant at which $y = x * h$ is still at its maximum value.",
+          "hint": "$y(t)$ is at its maximum while the short pulse lies completely inside the long one.",
+          "plot": {
+            "x": {
+              "min": -1,
+              "max": 7,
+              "label": "τ (s)",
+              "ticks": [
+                -1,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ]
+            },
+            "y": {
+              "min": -0.1,
+              "max": 2.5,
+              "label": "",
+              "ticks": [
+                0,
+                1,
+                2
+              ]
+            },
+            "sliders": [
+              {
+                "name": "t",
+                "label": "$t$",
+                "min": -1,
+                "max": 7,
+                "step": 0.05,
+                "value": 0,
+                "unit": "s"
+              }
+            ],
+            "curves": [
+              {
+                "f": "A*(step(x-s1)-step(x-s1-T1))",
+                "color": "blue"
+              },
+              {
+                "f": "step(x-t+T2)-step(x-t)",
+                "color": "red",
+                "dash": true
+              },
+              {
+                "f": "A*(step(x-s1)-step(x-s1-T1))*(step(x-t+T2)-step(x-t))",
+                "color": "green",
+                "from": "max(s1, t-T2)",
+                "to": "max(s1, t-T2) + max(0.001, min(s1+T1, t) - max(s1, t-T2))"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "t",
+                "label": "t"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$y(t)$",
+                "value": "A*max(0, min(s1+T1, t) - max(s1, t-T2))",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "t": "s1+T2"
+          },
+          "absTolerance": 0.06,
+          "explanation": "The red pulse covers $t - {{T2}} < \\tau < t$. $y$ is at its maximum $A\\,T_1$ = {{A*T1}} while the whole blue pulse ({{s1}} to {{s1+T1}}) lies inside it: $t \\ge$ {{s1+T1}} and $t - {{T2}} \\le$ {{s1}}. So the flat top runs from {{s1+T1}} s to {{s1+T2}} s; after $t$ = {{s1+T2}} s the trailing edge of the red pulse cuts into the blue one and $y$ falls, reaching 0 at {{s1+T1+T2}} s (start times add, durations add)."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "prompt": "$x[n] = \\{ {{x0}}, {{x1}}, {{x2}} \\}$ and $h[n] = \\{ {{h0}}, {{h1}}, {{h2}} \\}$, both starting at $n = 0$. Find $y[2]$ of $y = x * h$.",
+          "answer": "x0*h2 + x1*h1 + x2*h0",
+          "unit": "",
+          "explanation": "Index pairs adding to 2: $x[0]h[2] + x[1]h[1] + x[2]h[0] = {{x0}}\\cdot{{h2}} + {{x1}}\\cdot{{h1}} + {{x2}}\\cdot{{h0}}$ = {{x0*h2 + x1*h1 + x2*h0}}. This middle sample is where the flipped $h$ fully overlaps $x$.",
+          "params": {
+            "x0": [
+              1,
+              2,
+              -1
+            ],
+            "x1": [
+              2,
+              3,
+              -2
+            ],
+            "x2": [
+              1,
+              4
+            ],
+            "h0": [
+              1,
+              2
+            ],
+            "h1": [
+              -1,
+              1,
+              3
+            ],
+            "h2": [
+              2,
+              -2,
+              1
+            ]
+          },
+          "absTolerance": 0.01
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Convolving a pulse of duration 2 s with a pulse of duration 3 s gives a signal that lasts 5 s.",
+          "answer": true,
+          "explanation": "Start times add and end times add, so durations add: 2 + 3 = 5 s. The result is a trapezoid with a 2 s ramp up, 1 s flat top and 2 s ramp down."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "prompt": "Two systems $h_1(t) = e^{-{{a}}t}u(t)$ and $h_2(t) = {{K}}e^{-{{b}}t}u(t)$ are in cascade. Find the final value of the overall step response.",
+          "answer": "K/(a*b)",
+          "unit": "",
+          "explanation": "The final value of the step response is the DC gain $\\int h\\,dt$, and for a cascade the DC gains multiply ($\\int (h_1 * h_2) = \\int h_1 \\cdot \\int h_2$): $\\frac{1}{ {{a}} }\\cdot\\frac{ {{K}} }{ {{b}} }$ = {{K/(a*b)}}.",
+          "params": {
+            "a": [
+              0.5,
+              2,
+              4
+            ],
+            "K": [
+              2,
+              5,
+              10
+            ],
+            "b": [
+              0.5,
+              2,
+              5
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

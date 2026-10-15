@@ -1,0 +1,431 @@
+{
+  "id": "sd-carriers",
+  "title": "Carriers in Equilibrium",
+  "description": "How many electrons and holes a semiconductor holds: Fermi–Dirac statistics, intrinsic carriers, doping, the mass-action law and the Fermi level.",
+  "reference": "Neamen §3.4–3.5, ch. 4",
+  "study": [
+    {
+      "title": "Constants for this subject",
+      "body": "Unless stated otherwise, silicon at $T$ = 300 K:\n- $q = 1.602\\times10^{-19}$ C, $k = 8.617\\times10^{-5}$ eV/K, so $kT$ = 0.0259 eV and $kT/q$ = 0.0259 V\n- $E_g$ = 1.12 eV, $n_i = 1.5\\times10^{10}$ cm⁻³\n- $N_c = 2.8\\times10^{19}$ cm⁻³, $N_v = 1.04\\times10^{19}$ cm⁻³\n- $\\varepsilon_{Si} = 11.7\\,\\varepsilon_0$, $\\varepsilon_{ox} = 3.9\\,\\varepsilon_0$ (SiO$_2$), $\\varepsilon_0 = 8.85\\times10^{-14}$ F/cm\nDevice physics works in centimetres: concentrations in cm⁻³, mobilities in cm²/V·s, lengths in cm (1 µm = $10^{-4}$ cm)."
+    },
+    {
+      "title": "Density of states",
+      "body": "How many electron states are there per unit energy? Near the conduction-band edge the density of states grows as the square root of the energy above $E_c$ (and below $E_v$ for holes). A heavier effective mass gives more states. Multiplying by the occupation probability and integrating over the band gives the **effective density of states** $N_c$, as if all states were packed at $E_c$. $N_c$ and $N_v$ grow as $T^{3/2}$.",
+      "formula": "g_c(E) = \\frac{4\\pi(2m_n^*)^{3/2}}{h^3}\\sqrt{E - E_c}"
+    },
+    {
+      "title": "Explore: Fermi–Dirac vs Boltzmann",
+      "body": "The probability that a state at energy $E$ is occupied is the **Fermi–Dirac** function. At $E = E_F$ it is exactly ½ at any temperature; the transition from 1 to 0 is a few $kT$ wide. When $E - E_F > 3kT$ the 1 in the denominator hardly matters and $f$ becomes the **Boltzmann** exponential (dashed). Drag $T$: at low temperature the step becomes sharp.",
+      "formula": "\\begin{aligned}& f(E) = \\frac{1}{1 + e^{(E - E_F)/kT}}\\\\ & f(E) \\approx e^{-(E - E_F)/kT}\\end{aligned}",
+      "plot": {
+        "x": {"min": -0.2, "max": 0.3, "label": "E - E_F", "unit": "eV"},
+        "y": {"min": 0, "max": 1.2, "label": "f(E)"},
+        "sliders": [{"name": "T", "label": "$T$", "min": 50, "max": 600, "step": 10, "value": 300, "unit": "K"}],
+        "let": {"kT": "8.617e-5*T"},
+        "curves": [
+          {"f": "1/(1+exp(x/kT))", "label": "Fermi–Dirac", "labelAt": 0.25},
+          {"f": "exp(-x/kT)", "label": "Boltzmann", "color": "orange", "dash": true, "from": -0.05, "labelAt": 0.5}
+        ],
+        "readouts": [
+          {"label": "$kT$", "value": "kT", "unit": "eV"},
+          {"label": "$f(E_F + 0.1\\ \\text{eV})$", "value": "1/(1+exp(0.1/kT))"}
+        ]
+      }
+    },
+    {
+      "title": "Electron and hole concentrations",
+      "body": "Integrating density of states × probability gives the thermal-equilibrium concentrations. The closer $E_F$ lies to $E_c$, the more electrons; the closer to $E_v$, the more holes. These Boltzmann forms hold while $E_F$ stays more than about $3kT$ away from both band edges (a **nondegenerate** semiconductor).",
+      "formula": "\\begin{aligned}& n_0 = N_c\\, e^{-(E_c - E_F)/kT}\\\\ & p_0 = N_v\\, e^{-(E_F - E_v)/kT}\\end{aligned}"
+    },
+    {
+      "title": "Intrinsic carriers",
+      "body": "In a pure crystal $n_0 = p_0 = n_i$; multiplying $n_0$ and $p_0$ eliminates $E_F$. With the $N_c$ and $N_v$ above the formula gives about $7\\times10^9$ cm⁻³ at 300 K, but we use the measured value $1.5\\times10^{10}$ cm⁻³. Since $n_i \\propto T^{3/2}e^{-E_g/2kT}$ it rises steeply with temperature; scale it from 300 K with the second formula ($E_g$ kept fixed). The intrinsic Fermi level $E_{Fi}$ sits $\\tfrac12 kT\\ln(N_c/N_v)$ = 0.0128 eV below midgap. On the graph, a sample doped with $N_d = 10^{13}$ cm⁻³ (dashed line) becomes intrinsic above about 415 K.",
+      "formula": "\\begin{aligned}& n_i^2 = N_cN_v\\, e^{-E_g/kT}\\\\ & n_i(T) = n_i(300)\\left(\\frac{T}{300}\\right)^{3/2} e^{-x}\\\\ & x = \\frac{E_g}{2k}\\left(\\frac{1}{T} - \\frac{1}{300}\\right)\\end{aligned}",
+      "plot": {
+        "x": {"min": 200, "max": 700, "label": "T", "unit": "K"},
+        "y": {"min": 1e6, "max": 1e17, "label": "n_i (cm⁻³)", "log": true},
+        "curves": [{"f": "1.5e10*(x/300)^1.5*exp(-6498.8*(1/x-1/300))", "label": "Si", "labelAt": 0.88}],
+        "points": [{"x": 300, "y": 1.5e10, "label": "1.5e10 at 300 K"}],
+        "hlines": [{"y": 1e13, "label": "N_d = 1e13", "color": "orange"}]
+      }
+    },
+    {
+      "title": "Doping and the mass-action law",
+      "body": "**Donors** (group V: P, As) have a fifth electron bound by only about 0.045 eV; at 300 K they are fully ionized and give $n_0 \\approx N_d$: **n-type**. **Acceptors** (group III: B) grab an electron from a bond, creating a hole: $p_0 \\approx N_a$, **p-type**. Whatever the doping, in equilibrium the product $n_0p_0$ stays $n_i^2$, so adding majority carriers suppresses the minority carriers.",
+      "formula": "n_0p_0 = n_i^2 \\;\\Rightarrow\\; p_0 = \\frac{n_i^2}{N_d}"
+    },
+    {
+      "title": "Explore: doping moves the Fermi level",
+      "body": "With both dopants present (**compensation**) only the difference counts. Charge neutrality $n_0 + N_a = p_0 + N_d$ with $n_0p_0 = n_i^2$ gives the formula below (when $N_d > N_a$; swap the roles for $N_a > N_d$). $E_F$ moves above $E_{Fi}$ by $kT\\ln(n_0/n_i)$ in n-type material and below it by $kT\\ln(p_0/n_i)$ in p-type material. Drag the dopings.",
+      "formula": "n_0 = \\tfrac{N_d - N_a}{2} + \\sqrt{\\left(\\tfrac{N_d - N_a}{2}\\right)^2 + n_i^2}",
+      "plot": {
+        "x": {"min": 0, "max": 1, "label": "position"},
+        "y": {"min": -0.15, "max": 1.3, "label": "E - E_v (eV)"},
+        "sliders": [
+          {"name": "Nd", "label": "$N_d$", "min": 1e10, "max": 1e18, "log": true, "value": 1e16, "unit": "cm⁻³"},
+          {"name": "Na", "label": "$N_a$", "min": 1e10, "max": 1e18, "log": true, "value": 1e10, "unit": "cm⁻³"}
+        ],
+        "let": {
+          "D": "Nd - Na",
+          "n0": "if(D, D/2 + sqrt(D^2/4 + 2.25e20), 2.25e20/(-D/2 + sqrt(D^2/4 + 2.25e20)))",
+          "EF": "0.5472 + 0.0259*ln(n0/1.5e10)"
+        },
+        "curves": [
+          {"f": "1.12", "label": "E_c", "labelAt": 0.05},
+          {"f": "0", "label": "E_v", "color": "blue", "labelAt": 0.05},
+          {"f": "0.5472", "label": "E_{Fi}", "color": "grey", "dash": true, "labelAt": 0.92},
+          {"f": "EF", "label": "E_F", "color": "red", "labelAt": 0.5}
+        ],
+        "readouts": [
+          {"label": "$n_0$", "value": "n0", "unit": "cm⁻³"},
+          {"label": "$p_0$", "value": "2.25e20/n0", "unit": "cm⁻³"},
+          {"label": "$E_F - E_{Fi}$", "value": "EF - 0.5472", "unit": "eV"}
+        ]
+      }
+    },
+    {
+      "title": "Worked example",
+      "body": "Si with $N_d = 10^{16}$ cm⁻³ at 300 K:\n- $n_0 \\approx N_d$ = $10^{16}$ cm⁻³, since $N_d \\gg n_i$\n- $p_0 = n_i^2/n_0$ = $2.25\\times10^{20}/10^{16}$ = $2.25\\times10^{4}$ cm⁻³\n- $E_F - E_{Fi} = kT\\ln(n_0/n_i)$ = $0.0259\\ln(6.67\\times10^5)$ = 0.347 eV\n- $E_c - E_F = kT\\ln(N_c/n_0)$ = $0.0259\\ln(2800)$ = 0.206 eV\nThese two do not add up exactly to $E_c - E_{Fi}$ = 0.573 eV because the measured $n_i$ = 1.5$\\times10^{10}$ cm⁻³ is about twice the value $\\sqrt{N_cN_v}\\,e^{-E_g/2kT} \\approx 7\\times10^{9}$ cm⁻³ that these $N_c$, $N_v$ and $E_g$ give. Never mix the two in one calculation: use the formula that matches the data you are given.",
+      "formula": "E_F - E_{Fi} = kT\\ln\\frac{n_0}{n_i}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sd-carriers-1",
+      "title": "Fermi–Dirac statistics",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "States and their occupation",
+          "body": "To count carriers we need two things: how many states exist at each energy (the **density of states**, rising as $\\sqrt{E - E_c}$ above the conduction-band edge) and the probability that a state is occupied. That probability is the **Fermi–Dirac** function. The **Fermi energy** $E_F$ is where the probability is exactly ½.",
+          "formula": "f(E) = \\frac{1}{1 + e^{(E - E_F)/kT}}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"T": [77, 200, 250, 350, 400, 500]},
+          "prompt": "Find the thermal energy $kT$ at $T$ = {{T}} K. ($k = 8.617\\times10^{-5}$ eV/K)",
+          "answer": "8.617e-5*T",
+          "unit": "eV",
+          "explanation": "$kT$ = 8.617$\\times10^{-5}$ eV/K × {{T}} K = **{{8.617e-5*T|eV}}**. Compare 25.9 meV at 300 K. In joules this would be $kT$ = {{1.381e-23*T*1e21||3}}$\\times10^{-21}$ J; the eV is much handier next to band energies of about 1 eV."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"dE": [0.05, 0.1, 0.15, 0.2, 0.3], "T": [250, 300, 350, 400]},
+          "prompt": "A state lies {{dE}} eV **above** the Fermi level at $T$ = {{T}} K. What is the probability that it is occupied by an electron? ($k = 8.617\\times10^{-5}$ eV/K)",
+          "answer": "1/(1+exp(dE/(8.617e-5*T)))",
+          "unit": "",
+          "absTolerance": 0,
+          "explanation": "$kT$ = {{8.617e-5*T||3}} eV, so $(E - E_F)/kT$ = {{dE}} / {{8.617e-5*T||3}} = {{dE/(8.617e-5*T)||3}}. Then $f = 1/(1 + e^{ {{dE/(8.617e-5*T)||3}} })$ = **{{1/(1+exp(dE/(8.617e-5*T)))||3}}**."
+        },
+        {
+          "id": "q3", "type": "trueFalse",
+          "prompt": "At any temperature, a state exactly at the Fermi energy has a 50 % chance of being occupied.",
+          "answer": true,
+          "explanation": "At $E = E_F$ the exponent is 0: $f = 1/(1 + e^0) = 1/2$, independent of $T$. That is in fact the definition of $E_F$. Only the **width** of the transition (a few $kT$) changes with temperature."
+        },
+        {
+          "id": "i2", "type": "info", "title": "The Boltzmann approximation",
+          "body": "If $E - E_F$ is more than about $3kT$, then $e^{(E-E_F)/kT} \\gg 1$ and the 1 in the denominator can be dropped. The occupation then decays exponentially, like a classical Boltzmann distribution. Conduction-band states in a nondegenerate semiconductor always satisfy this.",
+          "formula": "f(E) \\approx e^{-(E - E_F)/kT}"
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"m": [1, 2, 3, 4, 5]},
+          "prompt": "A state lies $E - E_F = {{m}}\\,kT$ above the Fermi level. By what percentage does the Boltzmann approximation **overestimate** its occupation probability?",
+          "answer": "100*exp(-m)",
+          "unit": "%",
+          "explanation": "With $x = (E - E_F)/kT$ = {{m}}: $\\frac{f_B}{f} = e^{-x}(1 + e^{x}) = 1 + e^{-x}$. The relative error is $e^{-x} = e^{-{{m}}}$ = **{{100*exp(-m)||3}} %**. At $3kT$ it is about 5 %, which is why $3kT$ is the usual limit."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"d": [0.2, 0.25, 0.3, 0.4]},
+          "prompt": "At 300 K ($kT$ = 0.0259 eV) a valence-band state lies {{d}} eV **below** $E_F$. What is the probability that it is **empty** (holds a hole)?",
+          "answer": "1/(1+exp(d/0.0259))",
+          "unit": "",
+          "absTolerance": 0,
+          "tolerance": 0.03,
+          "explanation": "The state is empty with probability $1 - f(E) = \\frac{1}{1 + e^{(E_F - E)/kT}}$ = $1/(1 + e^{ {{d}}/0.0259 })$ = $1/(1 + e^{ {{d/0.0259||3}} })$ = **{{1/(1+exp(d/0.0259))||3}}**. Holes follow the same statistics mirrored about $E_F$."
+        },
+        {
+          "id": "q6", "type": "matchPairs",
+          "prompt": "Match each energy with the Fermi–Dirac occupation probability",
+          "pairs": [
+            ["$E = E_F$", "exactly ½"],
+            ["$E = E_F + 3kT$", "about 0.047"],
+            ["$E = E_F - 3kT$", "about 0.95"],
+            ["$E - E_F \\gg kT$", "$\\approx e^{-(E-E_F)/kT}$"]
+          ],
+          "explanation": "$f(E_F) = 1/2$. At $+3kT$: $1/(1 + e^3)$ = 0.047. At $-3kT$: $1/(1 + e^{-3})$ = 0.953 (symmetric: $f(E_F + \\Delta) = 1 - f(E_F - \\Delta)$). Far above $E_F$ the Boltzmann exponential takes over."
+        }
+      ]
+    },
+    {
+      "id": "sd-carriers-2",
+      "title": "Intrinsic carriers and doping",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Concentrations from the Fermi level",
+          "body": "Integrating density of states × occupation over the conduction band gives $n_0$; the effective density of states $N_c = 2.8\\times10^{19}$ cm⁻³ (Si, 300 K) collects all states as if they sat at $E_c$. Holes work the same way with $N_v = 1.04\\times10^{19}$ cm⁻³.",
+          "formula": "\\begin{aligned}& n_0 = N_c\\, e^{-(E_c - E_F)/kT}\\\\ & p_0 = N_v\\, e^{-(E_F - E_v)/kT}\\end{aligned}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"d": [0.15, 0.2, 0.25, 0.3]},
+          "prompt": "In silicon at 300 K the Fermi level lies {{d}} eV below $E_c$. Find the electron concentration $n_0$. ($N_c = 2.8\\times10^{19}$ cm⁻³, $kT$ = 0.0259 eV)",
+          "answer": "2.8e19*exp(-d/0.0259)",
+          "unit": "cm⁻³",
+          "tolerance": 0.03,
+          "explanation": "$n_0 = N_c\\,e^{-(E_c - E_F)/kT}$ = 2.8$\\times10^{19}$ × $e^{-{{d}}/0.0259}$ = 2.8$\\times10^{19}$ × {{exp(-d/0.0259)||3}} = **{{2.8e19*exp(-d/0.0259)}} cm⁻³**. Every 60 meV closer to $E_c$ multiplies $n_0$ by 10."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"d": [0.15, 0.2, 0.25, 0.35]},
+          "prompt": "In silicon at 300 K the Fermi level lies {{d}} eV above $E_v$. Find the hole concentration $p_0$. ($N_v = 1.04\\times10^{19}$ cm⁻³, $kT$ = 0.0259 eV)",
+          "answer": "1.04e19*exp(-d/0.0259)",
+          "unit": "cm⁻³",
+          "tolerance": 0.03,
+          "explanation": "$p_0 = N_v\\,e^{-(E_F - E_v)/kT}$ = 1.04$\\times10^{19}$ × $e^{-{{d}}/0.0259}$ = **{{1.04e19*exp(-d/0.0259)}} cm⁻³**. Use $N_v$ for holes, not $N_c$."
+        },
+        {
+          "id": "i2", "type": "info", "title": "Intrinsic concentration",
+          "body": "In a pure crystal $n_0 = p_0 = n_i$. Multiplying $n_0$ and $p_0$ removes $E_F$, so the product depends only on the material and $T$. The steep exponential makes $n_i$ very temperature dependent. At 300 K we use the measured value $n_i = 1.5\\times10^{10}$ cm⁻³ for Si.",
+          "formula": "n_i^2 = N_cN_v\\, e^{-E_g/kT}"
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"T": [250, 350, 400, 450, 500]},
+          "prompt": "Estimate $n_i$ of silicon at {{T}} K by scaling from $1.5\\times10^{10}$ cm⁻³ at 300 K: $n_i(T) = n_i(300)\\,(T/300)^{3/2}e^{-x}$ with $x = \\frac{E_g}{2k}\\left(\\frac{1}{T} - \\frac{1}{300}\\right)$, $E_g$ = 1.12 eV fixed and $k = 8.617\\times10^{-5}$ eV/K.",
+          "answer": "1.5e10*(T/300)^1.5*exp(-1.12/(2*8.617e-5)*(1/T-1/300))",
+          "unit": "cm⁻³",
+          "tolerance": 0.03,
+          "explanation": "$E_g/2k$ = 1.12 / (2 × 8.617$\\times10^{-5}$) = 6499 K. The exponent is $-6499 \\times (1/{{T}} - 1/300)$ = {{-6498.8*(1/T-1/300)||3}}, and $(T/300)^{3/2}$ = {{(T/300)^1.5||3}}. So $n_i$ = 1.5$\\times10^{10}$ × {{(T/300)^1.5||3}} × $e^{ {{-6498.8*(1/T-1/300)||3}} }$ = **{{1.5e10*(T/300)^1.5*exp(-1.12/(2*8.617e-5)*(1/T-1/300))}} cm⁻³**. Almost all of the change comes from the exponential."
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "params": {"T": [200, 400, 500, 600]},
+          "prompt": "$N_c = 2.8\\times10^{19}$ cm⁻³ at 300 K. What is $N_c$ of silicon at {{T}} K?",
+          "options": ["{{2.8e19*(T/300)^1.5}} cm⁻³", "{{2.8e19*T/300}} cm⁻³", "{{2.8e19*(T/300)^3}} cm⁻³", "2.8e19 cm⁻³"],
+          "answer": 0,
+          "explanation": "The effective density of states scales as $T^{3/2}$: $N_c = 2.8\\times10^{19}\\,({{T}}/300)^{3/2}$ = **{{2.8e19*(T/300)^1.5}} cm⁻³**. The power 3 appears in $n_i^2 \\propto T^3$, not in $N_c$."
+        },
+        {
+          "id": "i3", "type": "info", "title": "Doping and $n_0p_0 = n_i^2$",
+          "body": "Phosphorus (group V) has a fifth electron that is bound by only about 0.045 eV, so at room temperature it is free: a **donor**, $n_0 \\approx N_d$. Boron (group III) accepts an electron from a neighbouring bond, leaving a hole: an **acceptor**, $p_0 \\approx N_a$. In equilibrium the product $n_0p_0 = n_i^2$ still holds: extra electrons recombine with holes until the minority concentration drops to $n_i^2/N$.",
+          "formula": "n_0 p_0 = n_i^2"
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"Nd": [1e14, 5e14, 1e15, 1e16, 5e16, 1e17]},
+          "prompt": "Silicon at 300 K is doped with $N_d$ = {{Nd}} cm⁻³ donors (fully ionized). Find the hole concentration $p_0$.",
+          "answer": "2.25e20/Nd",
+          "unit": "cm⁻³",
+          "explanation": "$n_0 \\approx N_d$ = {{Nd}} cm⁻³ (much larger than $n_i$). Mass action: $p_0 = n_i^2/n_0$ = (1.5$\\times10^{10}$)² / {{Nd}} = 2.25$\\times10^{20}$ / {{Nd}} = **{{2.25e20/Nd}} cm⁻³**. The minority carriers are suppressed far below $n_i$."
+        },
+        {
+          "id": "q6", "type": "trueFalse",
+          "prompt": "Adding donors to silicon increases the electron concentration **and** the hole concentration.",
+          "answer": false,
+          "explanation": "Since $n_0p_0 = n_i^2$ is fixed at a given temperature, raising $n_0$ lowers $p_0$: the extra electrons recombine with holes. Donors make electrons the **majority** and holes a tiny **minority**."
+        }
+      ]
+    },
+    {
+      "id": "sd-carriers-3",
+      "title": "Doping and the Fermi level",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Nd": [1e14, 1e15, 1e16, 1e17, 5e17]},
+          "prompt": "Silicon at 300 K has $N_d$ = {{Nd}} cm⁻³. How far is the Fermi level above the intrinsic level, $E_F - E_{Fi}$? ($kT$ = 0.0259 eV)",
+          "answer": "0.0259*ln(Nd/1.5e10)",
+          "unit": "eV",
+          "explanation": "$n_0 \\approx N_d$, so $E_F - E_{Fi} = kT\\ln(n_0/n_i)$ = 0.0259 × ln({{Nd}} / 1.5$\\times10^{10}$) = 0.0259 × {{ln(Nd/1.5e10)||3}} = **{{0.0259*ln(Nd/1.5e10)||3}} eV**. Ten times more doping moves $E_F$ up by $kT\\ln 10$ = 60 meV."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Nd": [1e14, 1e15, 1e16, 1e17, 5e17]},
+          "prompt": "Silicon at 300 K has $N_d$ = {{Nd}} cm⁻³. How far is the Fermi level below the conduction-band edge, $E_c - E_F$? ($N_c = 2.8\\times10^{19}$ cm⁻³, $kT$ = 0.0259 eV)",
+          "answer": "0.0259*ln(2.8e19/Nd)",
+          "unit": "eV",
+          "explanation": "From $n_0 = N_c e^{-(E_c - E_F)/kT}$: $E_c - E_F = kT\\ln(N_c/n_0)$ = 0.0259 × ln(2.8$\\times10^{19}$ / {{Nd}}) = **{{0.0259*ln(2.8e19/Nd)||3}} eV**. Heavier doping pushes $E_F$ towards $E_c$."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"Nd": [5e15, 1e16, 3e16], "Na": [1e15, 2e15, 4e15]},
+          "derived": {"n0": "(Nd-Na)/2 + sqrt(((Nd-Na)/2)^2 + 2.25e20)"},
+          "prompt": "A silicon sample at 300 K contains $N_d$ = {{Nd}} cm⁻³ donors and $N_a$ = {{Na}} cm⁻³ acceptors, all ionized.",
+          "ask": [
+            {"prompt": "Find the electron concentration $n_0$.", "answer": "n0", "unit": "cm⁻³",
+             "explanation": "Compensation: the acceptors capture {{Na}} of the donor electrons. $n_0 = \\frac{N_d - N_a}{2} + \\sqrt{\\left(\\frac{N_d - N_a}{2}\\right)^2 + n_i^2}$; since $N_d - N_a \\gg n_i$ this is simply $N_d - N_a$ = **{{n0}} cm⁻³**."},
+            {"prompt": "Find the hole concentration $p_0$.", "answer": "2.25e20/n0", "unit": "cm⁻³",
+             "explanation": "$n_0 \\approx N_d - N_a$ = {{n0}} cm⁻³, then $p_0 = n_i^2/n_0$ = 2.25$\\times10^{20}$ / {{n0}} = **{{2.25e20/n0}} cm⁻³**. Using $N_d$ instead of $N_d - N_a$ is the usual mistake."}
+          ]
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "params": {"Nd": [1e15, 3e15, 1e16, 5e16], "Na": [2e15, 5e15, 2e16, 1e17]},
+          "require": "abs(Nd - Na)",
+          "prompt": "Silicon contains $N_d$ = {{Nd}} cm⁻³ and $N_a$ = {{Na}} cm⁻³. Where is the Fermi level?",
+          "options": ["Above $E_{Fi}$: the material is n-type", "Below $E_{Fi}$: the material is p-type", "Exactly at $E_{Fi}$: the dopants cancel"],
+          "answer": "if(Nd - Na, 0, 1)",
+          "explanation": "Only the net doping counts: $N_d - N_a$ = {{Nd - Na}} cm⁻³. Positive means net donors (n-type, $E_F$ above $E_{Fi}$); negative means net acceptors (p-type, $E_F$ below $E_{Fi}$). The Fermi level is $kT\\ln(|N_d - N_a|/n_i)$ = {{0.0259*ln(abs(Nd-Na)/1.5e10)||3}} eV away from $E_{Fi}$."
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"d": [0.2, 0.25, 0.3, 0.35, 0.4]},
+          "prompt": "Silicon at 300 K. Drag the donor concentration until the Fermi level reaches the dashed target, {{d}} eV above $E_{Fi}$.",
+          "plot": {
+            "x": {"min": 0, "max": 1, "label": "position"},
+            "y": {"min": -0.15, "max": 1.3, "label": "E - E_v (eV)"},
+            "sliders": [{"name": "Nd", "label": "$N_d$", "min": 1e11, "max": 1e18, "log": true, "value": 1e11, "unit": "cm⁻³"}],
+            "let": {"EF": "0.5472 + 0.0259*ln(Nd/1.5e10)"},
+            "curves": [
+              {"f": "1.12", "label": "E_c", "labelAt": 0.05},
+              {"f": "0", "label": "E_v", "color": "blue", "labelAt": 0.05},
+              {"f": "0.5472", "label": "E_{Fi}", "color": "grey", "labelAt": 0.92},
+              {"f": "EF", "label": "E_F", "color": "red", "labelAt": 0.5},
+              {"f": "0.5472 + d", "label": "target", "color": "orange", "dash": true, "labelAt": 0.3}
+            ],
+            "readouts": [{"label": "$E_F - E_{Fi}$", "value": "EF - 0.5472", "unit": "eV", "reveal": true}]
+          },
+          "answer": {"Nd": "1.5e10*exp(d/0.0259)"},
+          "tolerance": 0.1,
+          "explanation": "Invert $E_F - E_{Fi} = kT\\ln(N_d/n_i)$: $N_d = n_i\\,e^{(E_F - E_{Fi})/kT}$ = 1.5$\\times10^{10}$ × $e^{ {{d}}/0.0259 }$ = **{{1.5e10*exp(d/0.0259)}} cm⁻³**. Each decade of doping moves $E_F$ by about 60 meV."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"Na": [1e15, 5e15, 1e16, 1e17]},
+          "prompt": "Boron-doped silicon at 300 K has $N_a$ = {{Na}} cm⁻³.",
+          "ask": [
+            {"prompt": "How far is $E_F$ below $E_{Fi}$, i.e. $E_{Fi} - E_F$? ($kT$ = 0.0259 eV)", "answer": "0.0259*ln(Na/1.5e10)", "unit": "eV",
+             "explanation": "$p_0 \\approx N_a$, so $E_{Fi} - E_F = kT\\ln(p_0/n_i)$ = 0.0259 × ln({{Na}} / 1.5$\\times10^{10}$) = **{{0.0259*ln(Na/1.5e10)||3}} eV**."},
+            {"prompt": "How far is $E_F$ above the valence-band edge, $E_F - E_v$? ($N_v = 1.04\\times10^{19}$ cm⁻³, $kT$ = 0.0259 eV)", "answer": "0.0259*ln(1.04e19/Na)", "unit": "eV",
+             "explanation": "From $p_0 = N_v e^{-(E_F - E_v)/kT}$: $E_F - E_v = kT\\ln(N_v/p_0)$ = 0.0259 × ln(1.04$\\times10^{19}$ / {{Na}}) = **{{0.0259*ln(1.04e19/Na)||3}} eV**."}
+          ]
+        },
+        {
+          "id": "q6", "type": "matchPairs",
+          "prompt": "Match each item with its effect in silicon",
+          "pairs": [
+            ["Phosphorus (group V)", "Donor: gives an electron"],
+            ["Boron (group III)", "Acceptor: takes an electron"],
+            ["$N_d > N_a$", "n-type, $E_F$ above $E_{Fi}$"],
+            ["$N_a > N_d$", "p-type, $E_F$ below $E_{Fi}$"]
+          ],
+          "explanation": "Group-V atoms have one valence electron more than Si, group-III atoms one fewer. When both are present they compensate and only the difference sets the type and the Fermi level."
+        },
+        {
+          "id": "q7", "type": "trueFalse",
+          "params": {"Nd": [2e15, 1e16, 5e16], "Na": [1e15, 3e15, 2e16, 8e16]},
+          "require": "abs(Nd - Na)",
+          "prompt": "A silicon sample with $N_d$ = {{Nd}} cm⁻³ and $N_a$ = {{Na}} cm⁻³ is p-type.",
+          "answer": "Na - Nd",
+          "explanation": "Compare the two: $N_a - N_d$ = {{Na - Nd}} cm⁻³. If that is positive there are net acceptors and holes are the majority (p-type); if negative, net donors make it n-type. The majority concentration is about $|N_d - N_a|$ = {{abs(Nd - Na)}} cm⁻³."
+        }
+      ]
+    },
+    {
+      "id": "sd-carriers-4",
+      "title": "Temperature and compensation",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Nd": [1e13, 1e14, 1e15], "T": [450, 500, 550, 600]},
+          "derived": {"ni": "1.5e10*(T/300)^1.5*exp(-6498.8*(1/T-1/300))"},
+          "prompt": "Silicon with $N_d$ = {{Nd}} cm⁻³ is heated to {{T}} K, where $n_i$ = {{ni}} cm⁻³. Find $n_0$ (all donors ionized).",
+          "answer": "Nd/2 + sqrt((Nd/2)^2 + ni^2)",
+          "unit": "cm⁻³",
+          "explanation": "$n_i$ is no longer negligible, so use the full neutrality result: $n_0 = \\frac{N_d}{2} + \\sqrt{\\left(\\frac{N_d}{2}\\right)^2 + n_i^2}$ = {{Nd/2}} + √({{(Nd/2)^2}} + {{ni^2}}) = **{{Nd/2 + sqrt((Nd/2)^2 + ni^2)}} cm⁻³**. When $n_i \\gg N_d$ the material behaves intrinsically and $n_0 \\to n_i$."
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"Nd": [1e13, 1e14, 1e15, 1e16]},
+          "derived": {
+            "L": "ln(1.5e10/Nd)",
+            "T0": "1/(1/300 + L/6498.8)",
+            "T1": "1/(1/300 + (L + 1.5*ln(T0/300))/6498.8)",
+            "T2": "1/(1/300 + (L + 1.5*ln(T1/300))/6498.8)",
+            "T3": "1/(1/300 + (L + 1.5*ln(T2/300))/6498.8)",
+            "Tx": "1/(1/300 + (L + 1.5*ln(T3/300))/6498.8)"
+          },
+          "prompt": "A device doped with $N_d$ = {{Nd}} cm⁻³ stops working once $n_i$ reaches $N_d$. Drag the temperature to that point on the $n_i(T)$ curve of silicon.",
+          "plot": {
+            "x": {"min": 300, "max": 900, "label": "T", "unit": "K"},
+            "y": {"min": 1e9, "max": 5e17, "label": "n_i (cm⁻³)", "log": true},
+            "sliders": [{"name": "T", "label": "$T$", "min": 300, "max": 900, "step": 1, "value": 300, "unit": "K"}],
+            "let": {"niT": "1.5e10*(T/300)^1.5*exp(-6498.8*(1/T-1/300))"},
+            "curves": [{"f": "1.5e10*(x/300)^1.5*exp(-6498.8*(1/x-1/300))", "label": "n_i(T)", "labelAt": 0.15}],
+            "hlines": [{"y": "Nd", "label": "N_d", "color": "orange"}],
+            "points": [{"x": "T", "y": "niT", "guides": false}],
+            "readouts": [{"label": "$n_i$", "value": "niT", "unit": "cm⁻³"}]
+          },
+          "answer": {"T": "Tx"},
+          "tolerance": 0.01,
+          "explanation": "Setting $n_i(T) = N_d$ gives about **{{Tx|K}}** (solve numerically, or read the crossing of the curve with the line). Lighter doping hits the intrinsic limit at lower temperature, and a wider gap pushes it up: this is one reason SiC and GaN devices can run hot."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"T": [250, 300, 350, 400, 500]},
+          "prompt": "$E_{Fi}$ is not exactly at midgap: $E_{Fi} - E_{midgap} = \\tfrac12 kT\\ln(N_v/N_c)$. How far **below** midgap is $E_{Fi}$ in silicon at {{T}} K? (Both $N_c$ and $N_v$ scale as $T^{3/2}$; at 300 K they are $2.8\\times10^{19}$ and $1.04\\times10^{19}$ cm⁻³.)",
+          "answer": "0.5*8.617e-5*T*ln(2.8/1.04)",
+          "unit": "eV",
+          "explanation": "The ratio $N_c/N_v$ = 2.8/1.04 = 2.69 does not change with $T$. So $E_{midgap} - E_{Fi} = \\tfrac12 kT\\ln(N_c/N_v)$ = 0.5 × {{8.617e-5*T||3}} eV × ln 2.69 = **{{0.5*8.617e-5*T*ln(2.8/1.04)|eV}}**. Small compared with $E_g/2$ = 0.56 eV: placing $E_{Fi}$ at midgap is usually fine."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"T": [250, 300, 350, 400], "m": [2, 3]},
+          "prompt": "A design rule treats the Boltzmann expressions as valid while $E_c - E_F \\ge {{m}}kT$. Up to what donor concentration does that hold in silicon at {{T}} K? ($N_c = 2.8\\times10^{19}$ cm⁻³ at 300 K, scaling as $T^{3/2}$)",
+          "answer": "2.8e19*(T/300)^1.5*exp(-m)",
+          "unit": "cm⁻³",
+          "explanation": "$N_c({{T}}\\ \\text{K})$ = 2.8$\\times10^{19}$ × ({{T}}/300)$^{3/2}$ = {{2.8e19*(T/300)^1.5}} cm⁻³. Setting $E_c - E_F = {{m}}kT$ in $n_0 = N_c e^{-(E_c-E_F)/kT}$: $N_d = N_c e^{-{{m}}}$ = **{{2.8e19*(T/300)^1.5*exp(-m)}} cm⁻³** (assuming full ionization). Heavier doping pushes $E_F$ closer to $E_c$: towards a **degenerate** semiconductor, where Fermi–Dirac integrals are needed. The usual limit is $3kT$ (Boltzmann error about 5 %); at $2kT$ the error is already about 14 %."
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"Nd": [1e16, 5e16, 1e17], "fr": [0.2, 0.5, 0.8]},
+          "derived": {"Na": "fr*Nd", "dEF": "0.0259*ln((Nd-Na)/1.5e10)"},
+          "prompt": "A silicon wafer is known to contain $N_d$ = {{Nd}} cm⁻³ donors plus an unknown acceptor concentration. At 300 K its Fermi level is {{dEF||4}} eV above $E_{Fi}$. Find $N_a$. ($kT$ = 0.0259 eV)",
+          "answer": "Nd - 1.5e10*exp(dEF/0.0259)",
+          "unit": "cm⁻³",
+          "tolerance": 0.03,
+          "explanation": "First the electrons: $n_0 = n_i e^{(E_F - E_{Fi})/kT}$ = 1.5$\\times10^{10}$ × $e^{ {{dEF||4}}/0.0259 }$ = {{1.5e10*exp(dEF/0.0259)}} cm⁻³. With $n_0 \\approx N_d - N_a$: $N_a$ = {{Nd}} − {{1.5e10*exp(dEF/0.0259)}} = **{{Nd - 1.5e10*exp(dEF/0.0259)}} cm⁻³**."
+        },
+        {
+          "id": "q5", "type": "multipleChoice",
+          "params": {"Nd": [1e14, 1e15, 1e16]},
+          "prompt": "An n-type silicon sample with $N_d$ = {{Nd}} cm⁻³ is cooled from 300 K to 20 K. What happens to $n_0$?",
+          "options": [
+            "It drops far below $N_d$: the donor electrons freeze out onto their donor atoms",
+            "It stays at $N_d$: donors are always ionized",
+            "It rises, because $n_i$ falls",
+            "It becomes equal to $n_i$"
+          ],
+          "answer": 0,
+          "explanation": "The donor level is about 0.045 eV below $E_c$, which is many $kT$ at 20 K ($kT$ = 1.7 meV). The electrons fall back into the donor states (**freeze-out**), so $n_0 \\ll N_d$ = {{Nd}} cm⁻³. Between roughly 100 K and 450 K (for moderate doping) $n_0 \\approx N_d$: the **extrinsic** range where devices operate."
+        },
+        {
+          "id": "q6", "type": "orderSteps",
+          "prompt": "Order the temperature ranges of a doped semiconductor from **cold to hot**",
+          "items": [
+            "Freeze-out: donors not ionized, $n_0 < N_d$",
+            "Extrinsic: all donors ionized, $n_0 \\approx N_d$",
+            "Transition: $n_i$ approaches $N_d$",
+            "Intrinsic: $n_i \\gg N_d$, $n_0 \\approx n_i$"
+          ],
+          "explanation": "At low $T$ there is not enough thermal energy to ionize the donors. Over a wide middle range every donor has given its electron and $n_0 = N_d$, independent of $T$. At high $T$ thermal generation across the gap takes over and the doping no longer matters."
+        },
+        {
+          "id": "q7", "type": "numeric",
+          "params": {"Na": [1e15, 1e16, 1e17], "T": [350, 400]},
+          "derived": {"kT": "8.617e-5*T", "ni": "1.5e10*(T/300)^1.5*exp(-6498.8*(1/T-1/300))"},
+          "prompt": "Boron-doped silicon with $N_a$ = {{Na}} cm⁻³ operates at {{T}} K, where $n_i$ = {{ni}} cm⁻³. Find $E_{Fi} - E_F$. ($k = 8.617\\times10^{-5}$ eV/K)",
+          "answer": "kT*ln(Na/ni)",
+          "unit": "eV",
+          "explanation": "$kT$ = {{kT||3}} eV and $p_0 \\approx N_a$ (still $\\gg n_i$). $E_{Fi} - E_F = kT\\ln(p_0/n_i)$ = {{kT||3}} × ln({{Na}} / {{ni}}) = **{{kT*ln(Na/ni)||3}} eV**. At 300 K it would be {{0.0259*ln(Na/1.5e10)||3}} eV: as $T$ rises, $n_i$ grows and $E_F$ moves back towards $E_{Fi}$."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1087 @@
+{
+  "id": "pe-dcm",
+  "title": "Discontinuous Conduction Mode",
+  "description": "Why converters enter DCM at light load, the K test for the mode boundary, and the load-dependent conversion ratios and diode interval in DCM.",
+  "reference": "Erickson ch. 5",
+  "study": [
+    {
+      "title": "Explore: where DCM comes from",
+      "body": "The inductor ripple $\\Delta i_L$ does not depend on the load, but the DC current $I = V/R$ does. At light load $I$ drops below $\\Delta i_L$ and the current would have to go negative. The diode cannot conduct backwards, so $i_L$ stays at **zero** for a third interval $D_3T_s$ with both switch and diode off: **discontinuous conduction mode** (DCM). Drag $R$ upward ($V_g$ = 24 V, $D$ = 0.4, $L$ = 20 µH, $f_s$ = 100 kHz) and watch $V$ rise above $DV_g$.",
+      "formula": "\\text{DCM when } I < \\Delta i_L",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "t / T_s"
+        },
+        "y": {
+          "min": 0,
+          "max": 5,
+          "label": "i_L",
+          "unit": "A"
+        },
+        "sliders": [
+          {
+            "name": "R",
+            "label": "$R$",
+            "min": 3,
+            "max": 60,
+            "log": true,
+            "value": 4,
+            "unit": "Ω"
+          }
+        ],
+        "let": {
+          "Vg": "24",
+          "D": "0.4",
+          "L": "20e-6",
+          "Ts": "1e-5",
+          "K": "2*L/(R*Ts)",
+          "Kc": "1 - D",
+          "M": "if(K - Kc, D, 2/(1 + sqrt(1 + 4*K/D^2)))",
+          "V": "M*Vg",
+          "dI": "(Vg - V)*D*Ts/(2*L)",
+          "I": "V/R",
+          "D2": "D*(1 - M)/M"
+        },
+        "curves": [
+          {
+            "f": "if(K - Kc, if(D - mod(x, 1), I - dI + 2*dI*mod(x, 1)/D, I + dI - 2*dI*(mod(x, 1) - D)/(1 - D)), if(D - mod(x, 1), 2*dI*mod(x, 1)/D, max(0, 2*dI*(1 - (mod(x, 1) - D)/D2))))"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$V$",
+            "value": "V",
+            "unit": "V"
+          },
+          {
+            "label": "$K$",
+            "value": "K"
+          },
+          {
+            "label": "$K_{crit}$",
+            "value": "Kc"
+          }
+        ]
+      }
+    },
+    {
+      "title": "$K$ and $K_{crit}$",
+      "body": "Erickson's dimensionless $K = 2L/(RT_s)$ measures how big the inductor is relative to the load. The converter is in CCM when $K > K_{crit}(D)$ and in DCM when $K < K_{crit}(D)$. The boundary follows from $I = \\Delta i_L$. Drag $K$: for a given $D$, the converter is in DCM where the curve lies above the line.",
+      "formula": "\\begin{aligned}& K = \\frac{2L}{RT_s}\\\\ & K_{crit,buck} = 1 - D\\\\ & K_{crit,boost} = D(1-D)^2\\\\ & K_{crit,buck\\text{-}boost} = (1-D)^2\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "duty cycle D"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.05,
+          "label": "K_crit"
+        },
+        "sliders": [
+          {
+            "name": "K",
+            "label": "$K$",
+            "min": 0.01,
+            "max": 1,
+            "log": true,
+            "value": 0.1
+          }
+        ],
+        "curves": [
+          {
+            "f": "1 - x",
+            "label": "buck",
+            "labelAt": 0.12
+          },
+          {
+            "f": "x*(1 - x)^2",
+            "color": "red",
+            "label": "boost",
+            "labelAt": 0.5
+          },
+          {
+            "f": "(1 - x)^2",
+            "color": "blue",
+            "label": "buck-boost",
+            "labelAt": 0.3
+          }
+        ],
+        "hlines": [
+          {
+            "y": "K",
+            "color": "orange",
+            "label": "K"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: the buck in DCM",
+      "body": "In DCM volt-second and charge balance still hold, but the inductor current is a triangle starting from zero, so the small-ripple approximation no longer applies to it. Solving gives a conversion ratio that depends on $K$, i.e. on the **load**: as the load gets lighter (smaller $K$) $V$ rises towards $V_g$. The diode conducts for $D_2T_s$. Drag $K$ and compare with the CCM line $M = D$.",
+      "formula": "\\begin{aligned}& M = \\frac{2}{1 + \\sqrt{1 + 4K/D^2}}\\\\ & D_2 = \\frac{D(1 - M)}{M}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "duty cycle D"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.05,
+          "label": "M = V / V_g"
+        },
+        "sliders": [
+          {
+            "name": "K",
+            "label": "$K$",
+            "min": 0.01,
+            "max": 1,
+            "log": true,
+            "value": 0.1
+          }
+        ],
+        "curves": [
+          {
+            "f": "x",
+            "color": "grey",
+            "dash": true,
+            "label": "CCM",
+            "labelAt": 0.85
+          },
+          {
+            "f": "if(K - (1 - x), x, 2/(1 + sqrt(1 + 4*K/x^2)))",
+            "from": 0.005
+          }
+        ],
+        "vlines": [
+          {
+            "x": "max(0, 1 - K)",
+            "color": "orange"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Boost and buck-boost in DCM",
+      "body": "The same method (three intervals, triangle current, volt-second and charge balance) gives the DCM ratios below. The buck-boost result is especially simple: the output voltage is proportional to $D$ and to $\\sqrt{R}$. In all cases the DCM output voltage is **larger** (in magnitude) than the CCM formula predicts.",
+      "formula": "\\begin{aligned}& M_{boost} = \\frac{1 + \\sqrt{1 + 4D^2/K}}{2}\\\\ & M_{buck\\text{-}boost} = -\\frac{D}{\\sqrt{K}}\\end{aligned}"
+    },
+    {
+      "title": "The second and third intervals",
+      "body": "Volt-second balance fixes how long the diode conducts:\n- buck: $D(V_g - V) = D_2V$\n- boost: $DV_g = D_2(V - V_g)$\n- buck-boost: $DV_g = D_2|V|$, so $D_2 = \\sqrt{K}$\nThe rest of the period, $D_3 = 1 - D - D_2$, has $i_L = 0$. Charge balance uses the triangle's average, $\\langle i_L\\rangle = \\frac12 i_{pk}(D + D_2)$ with $i_{pk} = v_{L,on}DT_s/L$.",
+      "formula": "D_3 = 1 - D - D_2"
+    },
+    {
+      "title": "DCM in practice",
+      "body": "- A DCM buck-boost or flyback delivers a fixed energy $\\frac12 Li_{pk}^2$ per cycle, so it acts like a **power source**: $P = V_g^2D^2T_s/(2L)$, independent of $R$.\n- DCM avoids diode reverse recovery (the diode current reaches zero by itself) and gives zero-current turn-on, but has higher peak currents.\n- A **synchronous** converter (MOSFET instead of the diode) lets $i_L$ go negative and stays in CCM at any load, unless the controller blocks reverse current to save light-load losses.",
+      "formula": "P = \\frac{V_g^2D^2T_s}{2L}\\quad\\text{(DCM buck-boost)}"
+    },
+    {
+      "title": "Worked example: buck in DCM",
+      "body": "$V_g$ = 24 V, $D$ = 0.4, $L$ = 20 µH, $f_s$ = 100 kHz, $R$ = 30 Ω.\n- $K = 2L/(RT_s)$ = 40 µH / (30 Ω × 10 µs) = 0.133; $K_{crit} = 1 - D$ = 0.6, so DCM.\n- $M = 2/(1 + \\sqrt{1 + 4 \\cdot 0.133/0.16})$ = 0.649, so $V$ = 15.6 V (the CCM formula would give 9.6 V).\n- $D_2 = D(1 - M)/M$ = 0.216, $D_3$ = 0.384, $i_{pk} = (V_g - V)DT_s/L$ = 1.68 A.\n- Check: $\\frac12$ × 1.68 A × (0.4 + 0.216) = 0.52 A = $V/R$."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pe-dcm-1",
+      "title": "Why DCM happens",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Light load",
+          "body": "In CCM the inductor current swings $\\pm\\Delta i_L$ around its DC value $I$. Reduce the load and $I$ falls while $\\Delta i_L$ stays the same. When $I < \\Delta i_L$ the valley would be negative, but the diode only conducts forward: the current sticks at zero until the next turn-on.",
+          "formula": "\\text{CCM: } I > \\Delta i_L,\\qquad \\text{DCM: } I < \\Delta i_L",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t / T_s"
+            },
+            "y": {
+              "min": 0,
+              "max": 2,
+              "label": "i_L",
+              "unit": "A"
+            },
+            "curves": [
+              {
+                "f": "if(0.4 - mod(x, 1), 1.68*mod(x, 1)/0.4, max(0, 1.68*(1 - (mod(x, 1) - 0.4)/0.216)))"
+              }
+            ],
+            "labels": [
+              {
+                "x": 0.66,
+                "y": 0.2,
+                "text": "D_3",
+                "color": "grey"
+              },
+              {
+                "x": 0.15,
+                "y": 1.75,
+                "text": "D",
+                "color": "grey"
+              },
+              {
+                "x": 0.45,
+                "y": 1.75,
+                "text": "D_2",
+                "color": "grey"
+              }
+            ],
+            "height": 150
+          }
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "In a CCM buck converter, reducing the load current also reduces the inductor current ripple.",
+          "answer": false,
+          "explanation": "$2\\Delta i_L = (V_g - V)DT_s/L$ depends on voltages, $D$, $T_s$ and $L$ only. A lighter load lowers the DC level $I$ but not the ripple, which is exactly why the valley eventually hits zero and the converter enters DCM."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ]
+          },
+          "require": "Vg - V - 4",
+          "prompt": "A buck converter makes {{V|V}} from {{Vg|V}} with $L$ = {{L|H}} at {{fs|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Below what load current does it enter DCM?",
+              "answer": "(Vg-V)*(V/Vg)/(2*fs*L)",
+              "unit": "A",
+              "explanation": "The boundary is $I = \\Delta i_L = \\frac{(V_g - V)DT_s}{2L}$ with $D$ = {{V/Vg||3}}: {{Vg-V}} V × {{V/Vg/fs|s}} / (2 × {{L|H}}) = **{{(Vg-V)*(V/Vg)/(2*fs*L)|A}}**."
+            },
+            {
+              "prompt": "Above what load resistance does it enter DCM?",
+              "answer": "V/((Vg-V)*(V/Vg)/(2*fs*L))",
+              "unit": "Ω",
+              "explanation": "Boundary current $\\Delta i_L$ = {{(Vg-V)*(V/Vg)/(2*fs*L)|A}} (with $D$ = {{V/Vg||3}}). $R_{crit} = V/\\Delta i_L$ = {{V|V}} / {{(Vg-V)*(V/Vg)/(2*fs*L)|A}} = **{{V/((Vg-V)*(V/Vg)/(2*fs*L))|Ω}}**. Equivalently $R_{crit} = 2Lf_s/(1-D)$."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The K test",
+          "body": "Erickson compresses the boundary into one dimensionless number, $K = 2L/(RT_s)$, compared with $K_{crit}(D)$. For the buck, $I > \\Delta i_L$ means $\\frac{V}{R} > \\frac{VD'T_s}{2L}$, i.e. $K > 1 - D$.",
+          "formula": "\\begin{aligned}& K = \\frac{2L}{RT_s} = \\frac{2Lf_s}{R}\\\\ & \\text{CCM if } K > K_{crit}(D)\\end{aligned}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05,
+              0.0001
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "R": [
+              5,
+              10,
+              20,
+              50
+            ]
+          },
+          "prompt": "A converter has $L$ = {{L|H}}, $f_s$ = {{fs|Hz}} and a {{R|Ω}} load. Find $K$.",
+          "answer": "2*L*fs/R",
+          "unit": "",
+          "explanation": "$K = \\frac{2L}{RT_s} = \\frac{2Lf_s}{R}$ = 2 × {{L|H}} × {{fs|Hz}} / {{R|Ω}} = **{{2*L*fs/R||3}}**."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "params": {
+            "D": [
+              0.3,
+              0.5,
+              0.7
+            ],
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "R": [
+              5,
+              10,
+              20,
+              50
+            ]
+          },
+          "require": "abs(2*L*fs/R - (1 - D)) - 0.03",
+          "prompt": "A buck converter runs at $D$ = {{D}} with $L$ = {{L|H}}, $f_s$ = {{fs|Hz}} and $R$ = {{R|Ω}}. True or false: it operates in CCM.",
+          "answer": "2*L*fs/R - (1 - D)",
+          "explanation": "$K = 2Lf_s/R$ = {{2*L*fs/R||3}} and $K_{crit} = 1 - D$ = {{1-D||2}}. CCM requires $K > K_{crit}$. The margin $K - K_{crit}$ = {{2*L*fs/R-(1-D)||2}}: positive means CCM (true), negative means DCM (false)."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.3,
+              0.4,
+              0.5,
+              0.6
+            ],
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ]
+          },
+          "prompt": "A buck converter: $V_g$ = {{Vg|V}}, $D$ = {{D}}, $L$ = {{L|H}}, $f_s$ = {{fs|Hz}}. It starts at a very light load. Lower $R$ (more load) until the converter sits exactly on the CCM/DCM boundary.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t / T_s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.6*Vg*(1-D)*D/(fs*L)",
+              "label": "i_L",
+              "unit": "A"
+            },
+            "sliders": [
+              {
+                "name": "R",
+                "label": "$R$",
+                "min": 1,
+                "max": 200,
+                "log": true,
+                "value": 200,
+                "unit": "Ω"
+              }
+            ],
+            "let": {
+              "Ts": "1/fs",
+              "K": "2*L/(R*Ts)",
+              "Kc": "1 - D",
+              "M": "if(K - Kc, D, 2/(1 + sqrt(1 + 4*K/D^2)))",
+              "V": "M*Vg",
+              "dI": "(Vg - V)*D*Ts/(2*L)",
+              "I": "V/R",
+              "D2": "D*(1 - M)/M"
+            },
+            "curves": [
+              {
+                "f": "if(K - Kc, if(D - mod(x, 1), I - dI + 2*dI*mod(x, 1)/D, I + dI - 2*dI*(mod(x, 1) - D)/(1 - D)), if(D - mod(x, 1), 2*dI*mod(x, 1)/D, max(0, 2*dI*(1 - (mod(x, 1) - D)/D2))))"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$V$",
+                "value": "V",
+                "unit": "V"
+              },
+              {
+                "label": "$K$",
+                "value": "K",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "R": "2*L*fs/(1-D)"
+          },
+          "tolerance": 0.04,
+          "explanation": "At the boundary the valley just touches zero: $K = K_{crit}$, i.e. $\\frac{2Lf_s}{R} = 1 - D$, so $R_{crit} = \\frac{2Lf_s}{1 - D}$ = 2 × {{L|H}} × {{fs|Hz}} / {{1-D||2}} = **{{2*L*fs/(1-D)|Ω}}**. For larger $R$ the current stays at zero for part of the period and $V$ rises above $DV_g$ = {{D*Vg|V}}."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A **synchronous** buck converter (a MOSFET instead of the diode, driven as the complement of $Q_1$) runs at a very light load. What happens?",
+          "options": [
+            "The inductor current goes negative during part of the period and the converter stays in CCM with $V = DV_g$",
+            "It enters DCM just like the diode version",
+            "The output voltage rises towards $V_g$",
+            "The inductor saturates"
+          ],
+          "answer": 0,
+          "explanation": "A MOSFET conducts in both directions, so nothing stops $i_L$ from going below zero: the triangle simply shifts down and volt-second balance still gives $V = DV_g$. Many controllers deliberately block the reverse current at light load (“diode emulation”) to cut circulating losses, and then the converter does enter DCM."
+        }
+      ]
+    },
+    {
+      "id": "pe-dcm-2",
+      "title": "$K$ and $K_{crit}$",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "$K_{crit}$ for the three converters",
+          "body": "The boundary $I = \\Delta i_L$ gives a different $K_{crit}(D)$ for each converter. The boost's $K_{crit}$ never exceeds 4/27 (at $D$ = 1/3), so with $K > 4/27$ a boost is in CCM at every duty cycle. The buck needs $K > 1$ for that.",
+          "formula": "\\begin{aligned}& K_{crit,buck} = 1 - D\\\\ & K_{crit,boost} = D(1 - D)^2\\\\ & K_{crit,buck\\text{-}boost} = (1 - D)^2\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each converter to its $K_{crit}(D)$",
+          "pairs": [
+            [
+              "Buck",
+              "$1 - D$"
+            ],
+            [
+              "Boost",
+              "$D(1 - D)^2$"
+            ],
+            [
+              "Buck-boost",
+              "$(1 - D)^2$"
+            ]
+          ],
+          "explanation": "Set $I = \\Delta i_L$. Buck: $\\frac{V}{R} = \\frac{VD'T_s}{2L}$ → $K = D'$. Boost: $\\frac{V}{D'R} = \\frac{V_gDT_s}{2L}$ with $V_g = D'V$ → $K = DD'^2$. Buck-boost: $\\frac{|V|}{D'R} = \\frac{V_gDT_s}{2L}$ with $V_g = |V|D'/D$ → $K = D'^2$."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "D": [
+              0.2,
+              0.3,
+              0.5,
+              0.6,
+              0.7
+            ],
+            "R": [
+              20,
+              50,
+              100
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ]
+          },
+          "prompt": "A boost converter runs at $D$ = {{D}} with a {{R|Ω}} load and $f_s$ = {{fs|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is $K_{crit}$?",
+              "answer": "D*(1-D)^2",
+              "unit": "",
+              "explanation": "$K_{crit} = D(1 - D)^2$ = {{D}} × {{1-D||2}}² = **{{D*(1-D)^2||3}}**."
+            },
+            {
+              "prompt": "What is the smallest inductance that keeps it in CCM?",
+              "answer": "D*(1-D)^2*R/(2*fs)",
+              "unit": "H",
+              "explanation": "$K > K_{crit}$ with $K = 2Lf_s/R$: $L > \\frac{K_{crit}R}{2f_s}$ = {{D*(1-D)^2||3}} × {{R|Ω}} / (2 × {{fs|Hz}}) = **{{D*(1-D)^2*R/(2*fs)|H}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "D": [
+              0.3,
+              0.4,
+              0.5,
+              0.6
+            ]
+          },
+          "prompt": "A buck-boost converter has $L$ = {{L|H}}, $f_s$ = {{fs|Hz}} and runs at $D$ = {{D}}. Above which load resistance does it enter DCM?",
+          "answer": "2*L*fs/(1-D)^2",
+          "unit": "Ω",
+          "explanation": "DCM when $K < (1 - D)^2$, i.e. $\\frac{2Lf_s}{R} < (1-D)^2$ → $R > \\frac{2Lf_s}{(1-D)^2}$ = 2 × {{L|H}} × {{fs|Hz}} / {{(1-D)^2||3}} = **{{2*L*fs/(1-D)^2|Ω}}**."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "If $K > 4/27$, a boost converter operates in CCM at every duty cycle.",
+          "answer": true,
+          "explanation": "$K_{crit} = D(1-D)^2$ has its maximum where $\\frac{d}{dD}[D(1-D)^2] = (1-D)(1-3D) = 0$, at $D$ = 1/3: $K_{crit,max}$ = (1/3)(2/3)² = 4/27 ≈ 0.148. Any $K$ above that is above the whole curve."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "Imin": [
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "require": "Vg - V - 4",
+          "prompt": "A {{Vg|V}} → {{V|V}} buck converter at {{fs|Hz}} must stay in CCM down to a load current of {{Imin|A}}. What is the minimum inductance?",
+          "answer": "(Vg-V)*(V/Vg)/(2*fs*Imin)",
+          "unit": "H",
+          "explanation": "CCM needs $I > \\Delta i_L = \\frac{(V_g - V)DT_s}{2L}$ at the lightest load, so $L > \\frac{(V_g - V)DT_s}{2I_{min}}$ = {{Vg-V}} V × {{V/Vg/fs|s}} / (2 × {{Imin|A}}) = **{{(Vg-V)*(V/Vg)/(2*fs*Imin)|H}}**."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A buck converter with a fixed load and inductor is close to the CCM/DCM boundary. Which change pushes it **into** DCM?",
+          "options": [
+            "Lowering the switching frequency",
+            "Raising the inductance",
+            "Lowering the load resistance",
+            "Raising the switching frequency"
+          ],
+          "answer": 0,
+          "explanation": "$K = 2Lf_s/R$. Lowering $f_s$ lengthens each ramp, so the ripple grows and $K$ falls below $K_{crit}$. A larger $L$, a heavier load (smaller $R$) or a higher $f_s$ all raise $K$ and move the converter deeper into CCM."
+        }
+      ]
+    },
+    {
+      "id": "pe-dcm-3",
+      "title": "Conversion ratio in DCM",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "DCM conversion ratios",
+          "body": "Once you know the converter is in DCM ($K < K_{crit}$), use the DCM formulas. They depend on $K$, so the output voltage now depends on the load; a feedback loop adjusts $D$ to compensate.",
+          "formula": "\\begin{aligned}& M_{buck} = \\frac{2}{1 + \\sqrt{1 + 4K/D^2}}\\\\ & M_{boost} = \\frac{1 + \\sqrt{1 + 4D^2/K}}{2}\\\\ & M_{buck\\text{-}boost} = -\\frac{D}{\\sqrt{K}}\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4,
+              0.5
+            ],
+            "L": [
+              5e-06,
+              1e-05,
+              2.2e-05
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "R": [
+              20,
+              50,
+              100
+            ]
+          },
+          "derived": {
+            "K": "2*L*fs/R",
+            "M": "2/(1 + sqrt(1 + 4*K/D^2))"
+          },
+          "require": "(1 - D) - K - 0.05",
+          "prompt": "A buck converter: $V_g$ = {{Vg|V}}, $D$ = {{D}}, $L$ = {{L|H}}, $f_s$ = {{fs|Hz}}, $R$ = {{R|Ω}}. It operates in DCM.",
+          "ask": [
+            {
+              "prompt": "Find the output voltage.",
+              "answer": "M*Vg",
+              "unit": "V",
+              "explanation": "$K = 2Lf_s/R$ = {{K||3}} < $K_{crit}$ = {{1-D||2}}, so DCM. $M = \\frac{2}{1 + \\sqrt{1 + 4K/D^2}}$ = 2 / (1 + √(1 + 4 × {{K||3}}/{{D^2||3}})) = {{M||3}}, $V = MV_g$ = **{{M*Vg|V}}** (CCM would give {{D*Vg|V}})."
+            },
+            {
+              "prompt": "Find $D_2$, the fraction of the period in which the diode conducts.",
+              "answer": "D*(1-M)/M",
+              "unit": "",
+              "explanation": "$K$ = {{K||3}}, $M$ = {{M||3}}. Volt-seconds: $D(V_g - V) = D_2V$ → $D_2 = \\frac{D(1 - M)}{M}$ = {{D}} × {{1-M||3}} / {{M||3}} = **{{D*(1-M)/M||3}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4,
+              0.5
+            ],
+            "L": [
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "R": [
+              50,
+              100,
+              200
+            ]
+          },
+          "derived": {
+            "K": "2*L*fs/R"
+          },
+          "require": "min(D*(1-D)^2 - K - 0.01, 4 - (1 + sqrt(1 + 4*D^2/K))/2)",
+          "prompt": "A boost converter in DCM: $V_g$ = {{Vg|V}}, $D$ = {{D}}, $L$ = {{L|H}}, $f_s$ = {{fs|Hz}}, $R$ = {{R|Ω}}. Find the output voltage.",
+          "answer": "Vg*(1 + sqrt(1 + 4*D^2/K))/2",
+          "unit": "V",
+          "explanation": "$K = 2Lf_s/R$ = {{K||3}} < $K_{crit} = D(1-D)^2$ = {{D*(1-D)^2||3}}: DCM. $M = \\frac{1 + \\sqrt{1 + 4D^2/K}}{2}$ = {{(1+sqrt(1+4*D^2/K))/2||3}}, $V$ = **{{Vg*(1+sqrt(1+4*D^2/K))/2|V}}** (CCM: {{Vg/(1-D)|V}})."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4
+            ],
+            "L": [
+              5e-06,
+              1e-05,
+              2.2e-05
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "R": [
+              50,
+              100,
+              200
+            ]
+          },
+          "derived": {
+            "K": "2*L*fs/R"
+          },
+          "require": "min((1-D)^2 - K - 0.02, 3 - D/sqrt(K))",
+          "prompt": "A buck-boost converter in DCM: $V_g$ = {{Vg|V}}, $D$ = {{D}}, $L$ = {{L|H}}, $f_s$ = {{fs|Hz}}, $R$ = {{R|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find the output voltage (with sign).",
+              "answer": "-D*Vg/sqrt(K)",
+              "unit": "V",
+              "explanation": "$K$ = {{K||3}} < $(1-D)^2$ = {{(1-D)^2||3}}: DCM. $V = -\\frac{D}{\\sqrt K}V_g$ = −{{D}}/{{sqrt(K)||3}} × {{Vg}} V = **{{-D*Vg/sqrt(K)|V}}**."
+            },
+            {
+              "prompt": "Find $D_2$.",
+              "answer": "sqrt(K)",
+              "unit": "",
+              "explanation": "$DV_g = D_2|V|$ → $D_2 = \\frac{D}{|M|} = \\sqrt K$ = √{{K||3}} = **{{sqrt(K)||3}}**. Then $D_3 = 1 - D - D_2$ = {{1-D-sqrt(K)||3}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "slider",
+          "params": {
+            "K": [
+              0.02,
+              0.05,
+              0.1,
+              0.2
+            ],
+            "Mt": [
+              0.4,
+              0.5,
+              0.6,
+              0.7
+            ]
+          },
+          "require": "min((1 - K) - Mt*sqrt(K/(1-Mt)) - 0.05, Mt*sqrt(K/(1-Mt)) - 0.09)",
+          "prompt": "A buck converter has $K$ = {{K}}. The curve shows its conversion ratio versus $D$ (DCM to the left of the CCM boundary). Set $D$ so that $V/V_g$ = {{Mt}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "duty cycle D"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.05,
+              "label": "M = V / V_g"
+            },
+            "sliders": [
+              {
+                "name": "Dd",
+                "label": "$D$",
+                "min": 0.02,
+                "max": 0.95,
+                "step": 0.001,
+                "value": 0.9
+              }
+            ],
+            "curves": [
+              {
+                "f": "if(K - (1 - x), x, 2/(1 + sqrt(1 + 4*K/x^2)))",
+                "from": 0.005
+              },
+              {
+                "f": "x",
+                "color": "grey",
+                "dash": true,
+                "label": "CCM",
+                "labelAt": 0.9
+              }
+            ],
+            "points": [
+              {
+                "x": "Dd",
+                "y": "if(K - (1 - Dd), Dd, 2/(1 + sqrt(1 + 4*K/Dd^2)))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "Mt",
+                "color": "orange"
+              }
+            ]
+          },
+          "answer": {
+            "Dd": "Mt*sqrt(K/(1-Mt))"
+          },
+          "tolerance": 0.04,
+          "explanation": "In DCM, solve $M = \\frac{2}{1 + \\sqrt{1 + 4K/D^2}}$ for $D$: $D = M\\sqrt{\\frac{K}{1 - M}}$ = {{Mt}} × √({{K}}/{{1-Mt||2}}) = **{{Mt*sqrt(K/(1-Mt))||3}}**, well below the CCM value {{Mt}}. The light load needs a much shorter on-time."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05,
+              0.0001
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ]
+          },
+          "prompt": "A buck-boost (or flyback, referred to the primary) runs in DCM from {{Vg|V}} with $L$ = {{L|H}}, $D$ = {{D}} and $f_s$ = {{fs|Hz}}. How much power does it deliver?",
+          "answer": "Vg^2*D^2/(2*L*fs)",
+          "unit": "W",
+          "explanation": "Each cycle the inductor is charged to $i_{pk} = V_gDT_s/L$ = {{Vg*D/(fs*L)|A}} and fully emptied into the output. $P = \\frac12Li_{pk}^2f_s = \\frac{V_g^2D^2T_s}{2L}$ = **{{Vg^2*D^2/(2*L*fs)|W}}**, whatever the load (as long as it stays in DCM)."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A buck converter in DCM keeps a fixed duty cycle while its load gets lighter. What happens to the output voltage?",
+          "options": [
+            "It rises towards $V_g$",
+            "It stays at $DV_g$",
+            "It falls towards zero",
+            "It starts to oscillate at $f_s$"
+          ],
+          "answer": 0,
+          "explanation": "$M = 2/(1 + \\sqrt{1 + 4K/D^2})$ grows as $K = 2L/(RT_s)$ shrinks (larger $R$): with no load the output capacitor charges to $V_g$. That is why every DCM converter needs feedback (or a minimum load)."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "D": [
+              0.2,
+              0.25,
+              0.3,
+              0.4
+            ],
+            "M": [
+              0.5,
+              0.6,
+              0.7,
+              0.8
+            ]
+          },
+          "require": "1 - D - D*(1-M)/M - 0.05",
+          "prompt": "A buck converter in DCM runs at $D$ = {{D}} with $M$ = {{M}}. For what fraction of the period is the inductor current zero ($D_3$)?",
+          "answer": "1 - D - D*(1-M)/M",
+          "unit": "",
+          "explanation": "$D_2 = \\frac{D(1-M)}{M}$ = {{D}} × {{1-M||2}} / {{M}} = {{D*(1-M)/M||3}}. $D_3 = 1 - D - D_2$ = 1 − {{D}} − {{D*(1-M)/M||3}} = **{{1-D-D*(1-M)/M||3}}**."
+        }
+      ]
+    },
+    {
+      "id": "pe-dcm-4",
+      "title": "DCM design problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.25,
+              0.4,
+              0.5
+            ],
+            "L": [
+              4.7e-06,
+              1e-05,
+              2.2e-05
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "R": [
+              100,
+              200,
+              470
+            ]
+          },
+          "derived": {
+            "K": "2*L*fs/R"
+          },
+          "require": "min(D*(1-D)^2 - K - 0.01, 4 - (1 + sqrt(1 + 4*D^2/K))/2)",
+          "prompt": "A boost converter: $V_g$ = {{Vg|V}}, $D$ = {{D}}, $L$ = {{L|H}}, $f_s$ = {{fs|Hz}}, $R$ = {{R|Ω}}. Determine the operating mode, then find the output voltage.",
+          "answer": "Vg*(1 + sqrt(1 + 4*D^2/K))/2",
+          "unit": "V",
+          "explanation": "$K = 2Lf_s/R$ = {{K||3}}; $K_{crit} = D(1-D)^2$ = {{D*(1-D)^2||3}}. Since $K < K_{crit}$ it runs in **DCM**: $M = \\frac{1 + \\sqrt{1 + 4D^2/K}}{2}$ = {{(1+sqrt(1+4*D^2/K))/2||3}}, so $V$ = **{{Vg*(1+sqrt(1+4*D^2/K))/2|V}}**. The CCM formula would have predicted {{Vg/(1-D)|V}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "L": [
+              4.7e-06,
+              1e-05
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "R": [
+              20,
+              50,
+              100
+            ]
+          },
+          "derived": {
+            "K": "2*L*fs/R"
+          },
+          "require": "min(Vg - V - 4, (1 - K) - (V/Vg)*sqrt(K/(1-V/Vg)) - 0.05, (V/Vg)*sqrt(K/(1-V/Vg)) - 0.05)",
+          "prompt": "A {{Vg|V}} buck converter ($L$ = {{L|H}}, $f_s$ = {{fs|Hz}}) must deliver {{V|V}} to a light {{R|Ω}} load, where it runs in DCM. What duty cycle does the controller settle at?",
+          "answer": "(V/Vg)*sqrt(K/(1-V/Vg))",
+          "unit": "",
+          "explanation": "$K = 2Lf_s/R$ = {{K||3}}, $M = V/V_g$ = {{V/Vg||3}}. From $M = \\frac{2}{1 + \\sqrt{1 + 4K/D^2}}$: $D = M\\sqrt{\\frac{K}{1 - M}}$ = **{{(V/Vg)*sqrt(K/(1-V/Vg))||3}}** (check: below $1 - K$ = {{1-K||3}}, so DCM indeed). In CCM it would be {{V/Vg||3}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "P": [
+              10,
+              20,
+              50
+            ],
+            "Vg": [
+              100,
+              150,
+              200
+            ],
+            "D": [
+              0.4,
+              0.45
+            ],
+            "fs": [
+              65000.0,
+              100000.0
+            ]
+          },
+          "prompt": "A DCM flyback must deliver {{P|W}} from a minimum input of {{Vg|V}} at $D_{max}$ = {{D}} and {{fs|Hz}}. What is the **largest** magnetizing inductance that can still deliver this power?",
+          "answer": "Vg^2*D^2/(2*fs*P)",
+          "unit": "H",
+          "explanation": "In DCM $P = \\frac{V_g^2D^2T_s}{2L_M}$, so $L_M \\le \\frac{V_g^2D^2}{2f_sP}$ = {{Vg}}² × {{D}}² / (2 × {{fs|Hz}} × {{P|W}}) = **{{Vg^2*D^2/(2*fs*P)|H}}**. A larger $L_M$ stores too little energy per cycle at full duty."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "R": [
+              10,
+              25,
+              50,
+              100
+            ],
+            "fs": [
+              50000.0,
+              100000.0,
+              200000.0
+            ]
+          },
+          "prompt": "A boost converter drives a {{R|Ω}} load at $f_s$ = {{fs|Hz}}. Its duty cycle can take any value. What is the smallest $L$ that guarantees CCM at every duty cycle?",
+          "answer": "4/27*R/(2*fs)",
+          "unit": "H",
+          "explanation": "$K_{crit} = D(1-D)^2$ peaks at 4/27 (at $D$ = 1/3). Require $\\frac{2Lf_s}{R} > \\frac{4}{27}$: $L > \\frac{4R}{27\\cdot 2f_s}$ = 4 × {{R|Ω}} / (54 × {{fs|Hz}}) = **{{4/27*R/(2*fs)|H}}**."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "K": [
+              0.02,
+              0.05,
+              0.1
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4
+            ],
+            "Vg": [
+              12,
+              24
+            ]
+          },
+          "require": "(1-D)^2 - K - 0.02",
+          "prompt": "A buck-boost converter with $K$ = {{K}} runs at $D$ = {{D}} from {{Vg|V}}. What is the output voltage?",
+          "options": [
+            "{{-D*Vg/sqrt(K)|V}}",
+            "{{-D*Vg/(1-D)|V}}",
+            "{{-D^2*Vg/K|V}}",
+            "{{-D*Vg/K|V}}"
+          ],
+          "answer": 0,
+          "explanation": "$K_{crit} = (1-D)^2$ = {{(1-D)^2||3}} > $K$, so DCM: $V = -\\frac{D}{\\sqrt K}V_g$ = **{{-D*Vg/sqrt(K)|V}}**. The CCM formula $-DV_g/(1-D)$ would give {{-D*Vg/(1-D)|V}}."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "params": {
+            "D": [
+              0.1,
+              0.33,
+              0.5,
+              0.7,
+              0.9
+            ],
+            "K": [
+              0.01,
+              0.03,
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "require": "abs(D*(1-D)^2 - K) - 0.005",
+          "prompt": "A boost converter runs at $D$ = {{D}} with $K$ = {{K}}. True or false: it is in DCM.",
+          "answer": "D*(1-D)^2 - K",
+          "explanation": "$K_{crit} = D(1-D)^2$ = {{D*(1-D)^2||3}}. DCM requires $K < K_{crit}$. Here $K_{crit} - K$ = {{D*(1-D)^2-K||2}}: positive means DCM (true), negative means CCM (false). Note how small $K_{crit}$ is near $D$ = 0 and $D$ = 1."
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the steps for analysing a converter that might be in DCM in order",
+          "items": [
+            "Compute K = 2L/(RT_s)",
+            "Compute K_crit(D) for the converter",
+            "If K > K_crit, use the CCM result",
+            "Otherwise write volt-second and charge balance with three intervals",
+            "Solve for M and D_2, and check that D + D_2 < 1"
+          ],
+          "explanation": "The quick $K$ test tells you which set of equations is valid. In DCM the inductor current is a triangle from zero, so charge balance must use its true average $\\frac12 i_{pk}(D + D_2)$ instead of the small-ripple DC value."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2808 @@
+{
+ "id": "fr-filters",
+ "title": "First-Order Filters",
+ "description": "RC and RL lowpass and highpass filters: break frequency, magnitude, phase and component choice.",
+ "reference": "Hambley §6.2, §6.5; H&H §1.18–1.19; Frenzel §2-3",
+ "study": [
+  {
+   "title": "RC lowpass filter",
+   "body": "The output is taken across the capacitor. At low frequencies $C$ is almost an open circuit, so $V_{out} \\approx V_{in}$; at high frequencies its impedance $1/(j2\\pi fC)$ becomes small and shorts the output. Voltage division gives the transfer function below, with break (cutoff, half-power, 3-dB) frequency $f_B$.",
+   "formula": "H(f) = \\frac{1}{1 + jf/f_B},\\qquad f_B = \\frac{1}{2\\pi RC}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       3
+      ],
+      "to": [
+       0,
+       1
+      ],
+      "label": "V_{in}",
+      "flip": true
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       1
+      ],
+      "to": [
+       2,
+       1
+      ],
+      "label": "R"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        2,
+        1
+       ],
+       [
+        4,
+        1
+       ]
+      ]
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       2,
+       1
+      ],
+      "to": [
+       2,
+       3
+      ],
+      "label": "C"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        3
+       ],
+       [
+        4,
+        3
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       1
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       3
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       4,
+       1
+      ],
+      "label": "+"
+     },
+     {
+      "type": "terminal",
+      "at": [
+       4,
+       3
+      ],
+      "label": "−"
+     },
+     {
+      "type": "text",
+      "at": [
+       4.7,
+       2
+      ],
+      "label": "V_{out}"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Magnitude and phase",
+   "body": "For the lowpass, $|H| = 1/\\sqrt{1 + (f/f_B)^2}$ and $\\angle H = -\\arctan(f/f_B)$.\n- $f \\ll f_B$: $|H| \\approx 1$, phase ≈ 0°\n- $f = f_B$: $|H| = 1/\\sqrt2 \\approx 0.707$ (−3 dB, half power), phase −45°\n- $f \\gg f_B$: $|H| \\approx f_B/f$ (−20 dB/decade), phase → −90°\nDrag $C$: a larger capacitance moves $f_B$ down and the whole curve slides left without changing shape. Watch how a fixed 1 kHz signal is passed, attenuated or blocked.",
+   "formula": "|H(f)| = \\frac{1}{\\sqrt{1 + (f/f_B)^2}},\\quad \\angle H(f) = -\\arctan\\frac{f}{f_B}",
+   "plot": {
+    "x": {
+     "min": 10,
+     "max": 100000,
+     "label": "f",
+     "unit": "Hz",
+     "log": true
+    },
+    "y": {
+     "min": 0,
+     "max": 1.1,
+     "label": "|H|"
+    },
+    "sliders": [
+     {
+      "name": "C",
+      "label": "$C$ (with $R$ = 10 kΩ)",
+      "min": 1e-09,
+      "max": 1e-06,
+      "log": true,
+      "value": 1.59e-08,
+      "unit": "F"
+     }
+    ],
+    "let": {
+     "fB": "1/(2*pi*10000*C)",
+     "H1": "1/sqrt(1 + (1000/fB)^2)"
+    },
+    "curves": [
+     {
+      "f": "1/sqrt(1+(x/fB)^2)",
+      "label": "|H|",
+      "labelAt": 0.85
+     }
+    ],
+    "hlines": [
+     {
+      "y": 0.707,
+      "label": "0.707 (−3 dB)"
+     }
+    ],
+    "vlines": [
+     {
+      "x": "fB",
+      "label": "f_B"
+     }
+    ],
+    "points": [
+     {
+      "x": 1000,
+      "y": "H1",
+      "label": "1 kHz",
+      "color": "orange"
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$f_B = 1/2\\pi RC$",
+      "value": "fB",
+      "unit": "Hz"
+     },
+     {
+      "label": "$|H|$ at 1 kHz",
+      "value": "20*log10(H1)",
+      "unit": "dB"
+     },
+     {
+      "label": "$\\angle H$ at 1 kHz",
+      "value": "-deg(atan(1000/fB))",
+      "unit": "°"
+     }
+    ]
+   }
+  },
+  {
+   "title": "RC highpass filter",
+   "body": "Swap the elements: $C$ in series and the output across $R$. The capacitor blocks low frequencies and passes high ones. $|H| = \\frac{f/f_B}{\\sqrt{1 + (f/f_B)^2}}$ and $\\angle H = 90^\\circ - \\arctan(f/f_B)$: −3 dB and +45° at $f_B$, +20 dB/decade below it, 0 dB and 0° far above it. $f_B = 1/(2\\pi RC)$ as before.",
+   "formula": "H(f) = \\frac{jf/f_B}{1 + jf/f_B}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       3
+      ],
+      "to": [
+       0,
+       1
+      ],
+      "label": "V_{in}",
+      "flip": true
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       0,
+       1
+      ],
+      "to": [
+       2,
+       1
+      ],
+      "label": "C"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        2,
+        1
+       ],
+       [
+        4,
+        1
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       1
+      ],
+      "to": [
+       2,
+       3
+      ],
+      "label": "R"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        3
+       ],
+       [
+        4,
+        3
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       1
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       3
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       4,
+       1
+      ],
+      "label": "+"
+     },
+     {
+      "type": "terminal",
+      "at": [
+       4,
+       3
+      ],
+      "label": "−"
+     },
+     {
+      "type": "text",
+      "at": [
+       4.7,
+       2
+      ],
+      "label": "V_{out}"
+     }
+    ]
+   },
+   "plot": {
+    "x": {
+     "min": 10,
+     "max": 100000,
+     "label": "f",
+     "unit": "Hz",
+     "log": true
+    },
+    "y": {
+     "min": 0,
+     "max": 1.1,
+     "label": "|H|"
+    },
+    "curves": [
+     {
+      "f": "(x/1000)/sqrt(1+(x/1000)^2)"
+     }
+    ],
+    "hlines": [
+     {
+      "y": 0.707,
+      "label": "0.707"
+     }
+    ],
+    "vlines": [
+     {
+      "x": 1000,
+      "label": "f_B"
+     }
+    ]
+   }
+  },
+  {
+   "title": "RL versions",
+   "body": "An inductor behaves opposite to a capacitor: a short circuit at dc and nearly open at high frequency. So **L in series with the output across R** is a lowpass, and **R in series with the output across L** is a highpass. The transfer functions have the same form, with the break frequency below.",
+   "formula": "f_B = \\frac{R}{2\\pi L}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       3
+      ],
+      "to": [
+       0,
+       1
+      ],
+      "label": "V_{in}",
+      "flip": true
+     },
+     {
+      "type": "inductor",
+      "from": [
+       0,
+       1
+      ],
+      "to": [
+       2,
+       1
+      ],
+      "label": "L"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        2,
+        1
+       ],
+       [
+        4,
+        1
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       1
+      ],
+      "to": [
+       2,
+       3
+      ],
+      "label": "R"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        3
+       ],
+       [
+        4,
+        3
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       1
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       3
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       4,
+       1
+      ],
+      "label": "+"
+     },
+     {
+      "type": "terminal",
+      "at": [
+       4,
+       3
+      ],
+      "label": "−"
+     },
+     {
+      "type": "text",
+      "at": [
+       4.7,
+       2
+      ],
+      "label": "V_{out}"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Choosing components",
+   "body": "Fix one component (often $R$, which sets the impedance level) and solve for the other.\n**Example:** for $f_B$ = 1 kHz with $R$ = 10 kΩ: $C = 1/(2\\pi \\cdot 10^4 \\cdot 10^3)$ = 15.9 nF. With the standard value 15 nF the actual $f_B$ = 1.06 kHz.",
+   "formula": "C = \\frac{1}{2\\pi R f_B},\\qquad L = \\frac{R}{2\\pi f_B}"
+  },
+  {
+   "title": "Pitfalls",
+   "body": "$f_B = 1/(2\\pi RC)$ is in Hz; $1/RC$ is the corner in rad/s. A load $R_L$ across the output changes the filter: for the RC lowpass the capacitor then sees $R\\|R_L$, so $f_B = 1/(2\\pi (R\\|R_L) C)$ and the passband gain drops to $R_L/(R + R_L)$. A first-order filter falls only 20 dB/decade, so strong rejection requires $f_B$ far from the unwanted frequency."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "fr-filters-1",
+   "title": "RC and RL filters",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "The RC lowpass filter",
+     "body": "With the output across $C$, voltage division gives $H = \\frac{1/(j2\\pi fC)}{R + 1/(j2\\pi fC)} = \\frac{1}{1 + j2\\pi fRC}$. Low frequencies pass (C ≈ open), high frequencies are shorted to ground (C ≈ short).",
+     "formula": "H(f) = \\frac{1}{1 + jf/f_B},\\qquad f_B = \\frac{1}{2\\pi RC}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "R"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "C"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       2200,
+       4700,
+       10000
+      ],
+      "C": [
+       1e-08,
+       2.2e-08,
+       1e-07,
+       1e-06
+      ]
+     },
+     "prompt": "Find the break frequency $f_B$ of this RC lowpass filter.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "answer": "1/(2*pi*R*C)",
+     "unit": "Hz",
+     "explanation": "$f_B = \\frac{1}{2\\pi RC}$ = 1/(2π × {{R|Ω}} × {{C|F}}) = 1/({{2*pi*R*C|s}}) = {{1/(2*pi*R*C)|Hz}}. (Forgetting the 2π would give the corner in rad/s, {{1/(R*C)}} rad/s.)"
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "At $f = f_B$, what are $|H|$ and $\\angle H$ of the RC lowpass filter?",
+     "options": [
+      "0.707 and −45°",
+      "0.5 and −45°",
+      "0.707 and −90°",
+      "1 and 0°"
+     ],
+     "answer": 0,
+     "explanation": "At $f = f_B$: $H = \\frac{1}{1 + j}$. $|1 + j| = \\sqrt 2$ and $\\angle(1+j) = 45^\\circ$, so $H = 0.707\\angle{-45^\\circ}$. That is −3 dB, the half-power point (power ∝ $V^2$, and $0.707^2 = 0.5$)."
+    },
+    {
+     "id": "i4",
+     "type": "info",
+     "title": "Try it: moving the break frequency",
+     "body": "An RC lowpass with $R$ = 10 kΩ. Drag $C$ and follow the 1 kHz point: while $f_B \\gg$ 1 kHz it passes almost unchanged (0 dB, ≈ 0°); at $f_B$ = 1 kHz it is down 3 dB with −45°; once $f_B \\ll$ 1 kHz it loses 20 dB for every decade and lags by almost 90°.",
+     "plot": {
+      "x": {
+       "min": 10,
+       "max": 100000,
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": 0,
+       "max": 1.1,
+       "label": "|H|"
+      },
+      "sliders": [
+       {
+        "name": "C",
+        "label": "$C$ (with $R$ = 10 kΩ)",
+        "min": 1e-09,
+        "max": 1e-06,
+        "log": true,
+        "value": 1.59e-08,
+        "unit": "F"
+       }
+      ],
+      "let": {
+       "fB": "1/(2*pi*10000*C)",
+       "H1": "1/sqrt(1 + (1000/fB)^2)"
+      },
+      "curves": [
+       {
+        "f": "1/sqrt(1+(x/fB)^2)",
+        "label": "|H|",
+        "labelAt": 0.85
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0.707,
+        "label": "0.707 (−3 dB)"
+       }
+      ],
+      "vlines": [
+       {
+        "x": "fB",
+        "label": "f_B"
+       }
+      ],
+      "points": [
+       {
+        "x": 1000,
+        "y": "H1",
+        "label": "1 kHz",
+        "color": "orange"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$f_B = 1/2\\pi RC$",
+        "value": "fB",
+        "unit": "Hz"
+       },
+       {
+        "label": "$|H|$ at 1 kHz",
+        "value": "20*log10(H1)",
+        "unit": "dB"
+       },
+       {
+        "label": "$\\angle H$ at 1 kHz",
+        "value": "-deg(atan(1000/fB))",
+        "unit": "°"
+       }
+      ]
+     }
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "The RC highpass filter",
+     "body": "Swap R and C: the capacitor in series blocks low frequencies, and the output is taken across $R$. Same $f_B = 1/(2\\pi RC)$; at $f_B$ the magnitude is again 0.707 (−3 dB) but the phase is **+45°**.",
+     "formula": "H(f) = \\frac{jf/f_B}{1 + jf/f_B}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "C"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "R"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "trueFalse",
+     "prompt": "In a first-order RC highpass filter the output voltage is taken across the capacitor.",
+     "answer": false,
+     "explanation": "In the highpass the capacitor is in **series** and the output is across the resistor. At dc the capacitor is open, so no current flows and $V_{out} = 0$; at high frequency it is a short and $V_{out} \\approx V_{in}$."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "RL filters",
+     "body": "An inductor is a short at dc and nearly open at high frequency — the opposite of a capacitor. So an RL filter with **L in series** (output across R) is a lowpass, and with **R in series** (output across L) it is a highpass.",
+     "formula": "f_B = \\frac{R}{2\\pi L}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "L"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "R"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "matchPairs",
+     "prompt": "Match each circuit to the filter it forms.",
+     "pairs": [
+      [
+       "R in series, output across C",
+       "RC lowpass"
+      ],
+      [
+       "C in series, output across R",
+       "RC highpass"
+      ],
+      [
+       "L in series, output across R",
+       "RL lowpass"
+      ],
+      [
+       "R in series, output across L",
+       "RL highpass"
+      ]
+     ],
+     "explanation": "Ask what the reactive element does at low and high $f$. C: open at dc, short at high $f$. L: short at dc, open at high $f$. A series element that blocks high $f$ (L) or a shunt element that shorts high $f$ (C) gives a lowpass; the reverse gives a highpass."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "R": [
+       100,
+       470,
+       1000,
+       2200
+      ],
+      "L": [
+       0.001,
+       0.01,
+       0.047,
+       0.1
+      ]
+     },
+     "prompt": "Find the break frequency of this RL lowpass filter.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "answer": "R/(2*pi*L)",
+     "unit": "Hz",
+     "explanation": "For an RL filter $f_B = \\frac{R}{2\\pi L}$ = {{R|Ω}}/(2π × {{L|H}}) = {{R/(2*pi*L)|Hz}}. At this frequency $2\\pi f_B L = R$: the inductor's reactance equals the resistance."
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "What is the phase of a first-order highpass filter's transfer function at frequencies far **below** $f_B$?",
+     "options": [
+      "About +90°",
+      "About 0°",
+      "About −90°",
+      "Exactly +45°"
+     ],
+     "answer": 0,
+     "explanation": "$\\angle H = 90^\\circ - \\arctan(f/f_B)$. For $f \\ll f_B$, $\\arctan(f/f_B) \\approx 0$, so the phase approaches +90° (the output leads). It is +45° only at $f_B$ and approaches 0° far above $f_B$."
+    },
+    {
+     "id": "g1",
+     "type": "multipleChoice",
+     "prompt": "Which graph is the Bode magnitude plot ($|H|_{dB}$ against log $f$) of a first-order **highpass** filter? (The top of each graph is just above 0 dB.)",
+     "optionPlots": [
+      {
+       "x": {
+        "min": 10,
+        "max": 100000,
+        "label": "",
+        "log": true
+       },
+       "y": {
+        "min": -45,
+        "max": 5,
+        "label": ""
+       },
+       "curves": [
+        {
+         "f": "20*log10(x/1000)-10*log10(1+(x/1000)^2)"
+        }
+       ]
+      },
+      {
+       "x": {
+        "min": 10,
+        "max": 100000,
+        "label": "",
+        "log": true
+       },
+       "y": {
+        "min": -45,
+        "max": 5,
+        "label": ""
+       },
+       "curves": [
+        {
+         "f": "-10*log10(1+(x/1000)^2)"
+        }
+       ]
+      },
+      {
+       "x": {
+        "min": 10,
+        "max": 100000,
+        "label": "",
+        "log": true
+       },
+       "y": {
+        "min": -45,
+        "max": 5,
+        "label": ""
+       },
+       "curves": [
+        {
+         "f": "-10*log10(1+(x/1000-1000/x)^2)"
+        }
+       ]
+      },
+      {
+       "x": {
+        "min": 10,
+        "max": 100000,
+        "label": "",
+        "log": true
+       },
+       "y": {
+        "min": -45,
+        "max": 5,
+        "label": ""
+       },
+       "curves": [
+        {
+         "f": "20*log10(abs(1-(x/1000)^2))-10*log10((1-(x/1000)^2)^2+(x/1000)^2)"
+        }
+       ]
+      }
+     ],
+     "answer": 0,
+     "explanation": "A highpass blocks low frequencies: its magnitude rises at +20 dB/decade below $f_B$ and is flat at 0 dB above it. The lowpass is the mirror image (flat, then falling). A peak in the middle is a bandpass, a dip is a band-reject (notch) filter."
+    }
+   ]
+  },
+  {
+   "id": "fr-filters-2",
+   "title": "Filter calculations",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       4700,
+       10000
+      ],
+      "C": [
+       1e-08,
+       4.7e-08,
+       1e-07
+      ],
+      "f": [
+       200,
+       1000,
+       5000,
+       20000
+      ]
+     },
+     "derived": {
+      "fB": "1/(2*pi*R*C)"
+     },
+     "prompt": "Find $|H(f)| = |V_{out}/V_{in}|$ of this filter at $f$ = {{f|Hz}}.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "answer": "1/sqrt(1+(f/fB)^2)",
+     "unit": "",
+     "explanation": "It is an RC lowpass with $f_B = 1/(2\\pi RC)$ = {{fB|Hz}}. Then $f/f_B$ = {{f/fB}} and $|H| = 1/\\sqrt{1 + (f/f_B)^2}$ = 1/√(1 + {{(f/fB)^2}}) = {{1/sqrt(1+(f/fB)^2)}}."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       4700,
+       10000
+      ],
+      "C": [
+       1e-08,
+       4.7e-08,
+       1e-07
+      ],
+      "f": [
+       200,
+       1000,
+       5000,
+       20000
+      ]
+     },
+     "derived": {
+      "fB": "1/(2*pi*R*C)"
+     },
+     "prompt": "Find the phase $\\angle H(f)$ of this filter at $f$ = {{f|Hz}}, in degrees.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "answer": "-deg(atan(f/fB))",
+     "unit": "°",
+     "absTolerance": 0.5,
+     "explanation": "RC lowpass: $f_B$ = {{fB|Hz}} and $\\angle H = -\\arctan(f/f_B)$ = −arctan({{f/fB}}) = {{-deg(atan(f/fB))}}°. The output lags the input."
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       2200,
+       10000
+      ],
+      "C": [
+       2.2e-08,
+       1e-07,
+       4.7e-07
+      ],
+      "f": [
+       50,
+       200,
+       1000,
+       5000
+      ]
+     },
+     "derived": {
+      "fB": "1/(2*pi*R*C)",
+      "x": "f/fB"
+     },
+     "prompt": "Find $|H(f)|$ of this highpass filter in decibels at $f$ = {{f|Hz}}.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "answer": "20*log10(x/sqrt(1+x^2))",
+     "unit": "dB",
+     "absTolerance": 0.1,
+     "explanation": "$f_B = 1/(2\\pi RC)$ = {{fB|Hz}}, so $f/f_B$ = {{x}}. $|H| = \\frac{f/f_B}{\\sqrt{1 + (f/f_B)^2}}$ = {{x/sqrt(1+x^2)}}, and 20 log10({{x/sqrt(1+x^2)}}) = {{20*log10(x/sqrt(1+x^2))|dB}}."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "A": [
+       1,
+       2,
+       5,
+       10
+      ],
+      "R": [
+       1000,
+       2200,
+       10000
+      ],
+      "C": [
+       2.2e-08,
+       1e-07,
+       4.7e-07
+      ],
+      "f": [
+       100,
+       500,
+       2000
+      ]
+     },
+     "derived": {
+      "fB": "1/(2*pi*R*C)",
+      "x": "f/fB"
+     },
+     "prompt": "The input of this highpass filter is $v_{in}(t) = {{A}}\\cos(2\\pi\\cdot{{f}}\\,t)$ V. Find the amplitude of $v_{out}(t)$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "answer": "A*x/sqrt(1+x^2)",
+     "unit": "V",
+     "explanation": "$f_B$ = {{fB|Hz}}, $f/f_B$ = {{x}}, $|H| = \\frac{f/f_B}{\\sqrt{1 + (f/f_B)^2}}$ = {{x/sqrt(1+x^2)}}. Output amplitude = {{x/sqrt(1+x^2)}} × {{A|V}} = {{A*x/sqrt(1+x^2)|V}}."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "fB": [
+       100,
+       500,
+       1000,
+       3000,
+       20000
+      ],
+      "R": [
+       1000,
+       4700,
+       10000,
+       47000
+      ]
+     },
+     "prompt": "You need an RC lowpass with $f_B$ = {{fB|Hz}} using $R$ = {{R|Ω}}. What capacitance is required?",
+     "answer": "1/(2*pi*R*fB)",
+     "unit": "F",
+     "explanation": "From $f_B = 1/(2\\pi RC)$: $C = \\frac{1}{2\\pi R f_B}$ = 1/(2π × {{R|Ω}} × {{fB|Hz}}) = {{1/(2*pi*R*fB)|F}}."
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "params": {
+      "fB": [
+       1000,
+       5000,
+       20000
+      ],
+      "R": [
+       50,
+       100,
+       470,
+       1000
+      ]
+     },
+     "prompt": "An RL highpass filter (R in series, output across L) must have $f_B$ = {{fB|Hz}} with $R$ = {{R|Ω}}. What inductance is needed?",
+     "answer": "R/(2*pi*fB)",
+     "unit": "H",
+     "explanation": "From $f_B = R/(2\\pi L)$: $L = \\frac{R}{2\\pi f_B}$ = {{R|Ω}}/(2π × {{fB|Hz}}) = {{R/(2*pi*fB)|H}}."
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       2200,
+       10000
+      ],
+      "C": [
+       2.2e-08,
+       1e-07,
+       4.7e-07
+      ],
+      "f": [
+       50,
+       200,
+       1000,
+       5000
+      ]
+     },
+     "derived": {
+      "fB": "1/(2*pi*R*C)"
+     },
+     "prompt": "Find the phase $\\angle H(f)$ of this highpass filter at $f$ = {{f|Hz}}, in degrees.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "answer": "90-deg(atan(f/fB))",
+     "unit": "°",
+     "absTolerance": 0.5,
+     "explanation": "$\\angle H = 90^\\circ - \\arctan(f/f_B)$ with $f_B$ = {{fB|Hz}}: 90° − arctan({{f/fB}}) = 90° − {{deg(atan(f/fB))}}° = {{90-deg(atan(f/fB))}}°. The output leads the input."
+    },
+    {
+     "id": "p8",
+     "type": "multipleChoice",
+     "prompt": "In an RC lowpass filter you replace $C$ by a capacitor 10 times larger. What happens to the break frequency?",
+     "options": [
+      "It becomes 10 times lower",
+      "It becomes 10 times higher",
+      "It does not change",
+      "It becomes √10 times lower"
+     ],
+     "answer": 0,
+     "explanation": "$f_B = 1/(2\\pi RC)$ is inversely proportional to $C$, so ×10 in $C$ gives ÷10 in $f_B$ — one decade lower on the Bode plot."
+    },
+    {
+     "id": "s1",
+     "type": "slider",
+     "params": {
+      "R": [
+       1000,
+       4700,
+       10000
+      ],
+      "f1": [
+       500,
+       1000,
+       2000,
+       5000
+      ],
+      "X": [
+       1,
+       3,
+       6,
+       10,
+       20
+      ]
+     },
+     "derived": {
+      "fBt": "f1/sqrt(10^(X/10) - 1)",
+      "Ct": "1/(2*pi*R*fBt)"
+     },
+     "prompt": "Choose $C$ for this RC lowpass ($R$ = {{R|Ω}}) so that a {{f1|Hz}} signal is attenuated by exactly {{X}} dB. The graph is the Bode magnitude plot.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "C"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "plot": {
+      "x": {
+       "min": 10,
+       "max": 100000,
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": -40,
+       "max": 5,
+       "label": "|H| (dB)"
+      },
+      "sliders": [
+       {
+        "name": "C",
+        "label": "$C$",
+        "min": 1e-10,
+        "max": 1e-05,
+        "log": true,
+        "value": 1e-09,
+        "unit": "F"
+       }
+      ],
+      "let": {
+       "fB": "1/(2*pi*R*C)"
+      },
+      "curves": [
+       {
+        "f": "-10*log10(1 + (x/fB)^2)",
+        "label": "|H|",
+        "labelAt": 0.1
+       }
+      ],
+      "vlines": [
+       {
+        "x": "f1",
+        "label": "{{f1|Hz}}"
+       }
+      ],
+      "hlines": [
+       {
+        "y": "-X",
+        "label": "−{{X}} dB",
+        "reveal": true
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$|H|$ at {{f1|Hz}}",
+        "value": "-10*log10(1 + (f1/fB)^2)",
+        "unit": "dB",
+        "reveal": true
+       },
+       {
+        "label": "$f_B$",
+        "value": "fB",
+        "unit": "Hz",
+        "reveal": true
+       }
+      ]
+     },
+     "answer": {
+      "C": "Ct"
+     },
+     "tolerance": 0.05,
+     "absTolerance": 1e-14,
+     "hint": "First find which $f_B$ gives $-10\\log_{10}(1 + (f_1/f_B)^2) = -X$ dB, then $C = 1/(2\\pi Rf_B)$.",
+     "explanation": "$|H|_{dB} = -10\\log_{10}\\left(1 + (f_1/f_B)^2\\right) = -{{X}}$ dB gives $(f_1/f_B)^2 = 10^{ {{X}}/10 } - 1$ = {{10^(X/10) - 1}}, so\n$f_B = \\frac{f_1}{\\sqrt{10^{X/10} - 1}}$ = {{f1|Hz}} / {{sqrt(10^(X/10) - 1)||3}} = {{fBt|Hz}}\n$C = \\frac{1}{2\\pi Rf_B}$ = 1 / (2π × {{R|Ω}} × {{fBt|Hz}}) = **{{Ct|F}}**. (3 dB attenuation means $f_B = f_1$; far above $f_B$ every extra 20 dB needs one more decade.)"
+    },
+    {
+     "id": "g1",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       4700,
+       10000
+      ],
+      "fB": [
+       100,
+       200,
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "lo": "10^(floor(log10(fB))-1)"
+     },
+     "prompt": "The graph shows $|H(f)|$ of an RC lowpass filter with $R$ = {{R|Ω}}. Find $C$.",
+     "plot": {
+      "x": {
+       "min": "lo",
+       "max": "lo*10000",
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": 0,
+       "max": 1.1,
+       "label": "|H|"
+      },
+      "curves": [
+       {
+        "f": "1/sqrt(1+(x/fB)^2)"
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0.707,
+        "label": "0.707"
+       }
+      ]
+     },
+     "answer": "1/(2*pi*R*fB)",
+     "unit": "F",
+     "tolerance": 0.1,
+     "explanation": "The break frequency is where $|H| = 1/\\sqrt2 \\approx 0.707$ (−3 dB): the curve crosses the 0.707 line at $f_B$ = {{fB|Hz}}. From $f_B = 1/(2\\pi RC)$: $C = 1/(2\\pi R f_B)$ = {{1/(2*pi*R*fB)|F}}."
+    }
+   ]
+  },
+  {
+   "id": "fr-filters-3",
+   "title": "Filters in action",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       2200,
+       4700
+      ],
+      "C": [
+       4.7e-08,
+       1e-07,
+       2.2e-07
+      ],
+      "A1": [
+       1,
+       2
+      ],
+      "A2": [
+       0.2,
+       0.5,
+       1
+      ],
+      "f1": [
+       50,
+       100
+      ],
+      "f2": [
+       20000,
+       50000
+      ]
+     },
+     "derived": {
+      "fB": "1/(2*pi*R*C)"
+     },
+     "prompt": "The input is $v_{in}(t) = {{A1}}\\cos(2\\pi\\cdot{{f1}}\\,t) + {{A2}}\\cos(2\\pi\\cdot{{f2}}\\,t)$ V. Find the amplitude of the {{f2|Hz}} component in $v_{out}(t)$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "answer": "A2/sqrt(1+(f2/fB)^2)",
+     "unit": "V",
+     "explanation": "$f_B = 1/(2\\pi RC)$ = {{fB|Hz}}. At {{f2|Hz}}: $|H|$ = 1/√(1 + {{(f2/fB)^2}}) = {{1/sqrt(1+(f2/fB)^2)}}, so the amplitude is {{A2|V}} × {{1/sqrt(1+(f2/fB)^2)}} = {{A2/sqrt(1+(f2/fB)^2)|V}}. The {{f1|Hz}} component is attenuated far less ({{A1/sqrt(1+(f1/fB)^2)|V}})."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "fh": [
+       50,
+       60
+      ],
+      "A": [
+       6,
+       10,
+       20,
+       30
+      ]
+     },
+     "derived": {
+      "m": "10^(-A/20)"
+     },
+     "prompt": "A first-order highpass filter must attenuate a {{fh|Hz}} hum by **exactly** {{A}} dB (i.e. $|H|_{dB}$ = −{{A}} dB at {{fh|Hz}}). What break frequency $f_B$ is needed? Use the exact magnitude formula.",
+     "answer": "fh*sqrt(1-m^2)/m",
+     "unit": "Hz",
+     "hint": "Solve |H| = x/√(1+x²) for x = f/f_B.",
+     "explanation": "Required $|H| = 10^{-A/20}$ = {{m}}. With $x = f/f_B$: $\\frac{x}{\\sqrt{1+x^2}} = m \\Rightarrow x = \\frac{m}{\\sqrt{1 - m^2}}$ = {{m/sqrt(1-m^2)}}. So $f_B = f/x$ = {{fh|Hz}}/{{m/sqrt(1-m^2)}} = {{fh*sqrt(1-m^2)/m|Hz}}. (The asymptote estimate would be {{fh*10^(A/20)|Hz}}.)"
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       4700,
+       10000
+      ],
+      "RL": [
+       1000,
+       4700,
+       10000
+      ],
+      "C": [
+       1e-08,
+       1e-07
+      ]
+     },
+     "prompt": "An RC lowpass ($R$ = {{R|Ω}}, $C$ = {{C|F}}) drives a load $R_L$ = {{RL|Ω}}. Find the break frequency with the load connected.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         1
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "label": "R_L",
+        "value": "{{RL|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       }
+      ]
+     },
+     "answer": "1/(2*pi*par(R,RL)*C)",
+     "unit": "Hz",
+     "explanation": "Replace everything the capacitor sees by its Thévenin equivalent: $V_t = V_{in}\\frac{R_L}{R + R_L}$ and $R_t = R\\|R_L$ = {{par(R,RL)|Ω}}. The filter is then a lowpass with $f_B = \\frac{1}{2\\pi R_t C}$ = {{1/(2*pi*par(R,RL)*C)|Hz}} (unloaded: {{1/(2*pi*R*C)|Hz}}) and passband gain {{RL/(R+RL)}}."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000,
+       4700,
+       10000
+      ],
+      "C": [
+       1e-08,
+       4.7e-08,
+       1e-07
+      ],
+      "th": [
+       30,
+       60,
+       75,
+       80
+      ]
+     },
+     "derived": {
+      "fB": "1/(2*pi*R*C)"
+     },
+     "prompt": "At what frequency does the output of this filter lag the input by {{th}}°?",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         1
+        ],
+        "label": "V_{in}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         1
+        ],
+        "to": [
+         2,
+         1
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          1
+         ],
+         [
+          4,
+          1
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         1
+        ],
+        "to": [
+         2,
+         3
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          4,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         1
+        ],
+        "label": "+"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4,
+         3
+        ],
+        "label": "−"
+       },
+       {
+        "type": "text",
+        "at": [
+         4.7,
+         2
+        ],
+        "label": "V_{out}"
+       }
+      ]
+     },
+     "answer": "fB*tan(rad(th))",
+     "unit": "Hz",
+     "explanation": "Set $-\\arctan(f/f_B) = -\\theta$ with θ = {{th}}°, so $f = f_B\\tan\\theta$. With $f_B$ = {{fB|Hz}}: $f$ = {{fB|Hz}} × {{tan(rad(th))}} = {{fB*tan(rad(th))|Hz}}."
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "fB": [
+       100,
+       1000,
+       5000
+      ],
+      "m": [
+       0.9,
+       0.5,
+       0.2,
+       0.1
+      ]
+     },
+     "prompt": "A first-order lowpass has $f_B$ = {{fB|Hz}}. At what frequency is $|H| = {{m}}$?",
+     "answer": "fB*sqrt(1/m^2-1)",
+     "unit": "Hz",
+     "explanation": "$\\frac{1}{\\sqrt{1 + (f/f_B)^2}} = m \\Rightarrow (f/f_B)^2 = \\frac{1}{m^2} - 1$ = {{1/m^2-1}}. So $f = f_B\\sqrt{1/m^2 - 1}$ = {{fB|Hz}} × {{sqrt(1/m^2-1)}} = {{fB*sqrt(1/m^2-1)|Hz}}."
+    },
+    {
+     "id": "c6",
+     "type": "multipleChoice",
+     "prompt": "A microphone signal carries speech (300 Hz – 3 kHz) plus switching noise from a power supply at 50 kHz and above. Which first-order filter is the best choice?",
+     "options": [
+      "Lowpass with $f_B$ ≈ 6 kHz",
+      "Highpass with $f_B$ ≈ 6 kHz",
+      "Lowpass with $f_B$ ≈ 100 Hz",
+      "Highpass with $f_B$ ≈ 50 kHz"
+     ],
+     "answer": 0,
+     "explanation": "The wanted signal is below the noise, so use a lowpass with $f_B$ above the speech band. With $f_B$ = 6 kHz: at 3 kHz $|H| = 1/\\sqrt{1.25}$ = 0.89 (−1 dB), at 50 kHz $|H| \\approx 6/50$ = 0.12 (−18.5 dB). A 100 Hz lowpass would remove the speech too; a highpass would keep the noise."
+    },
+    {
+     "id": "c7",
+     "type": "trueFalse",
+     "prompt": "To attenuate an unwanted component by about 40 dB with a first-order filter, the break frequency must be roughly two decades away from that component.",
+     "answer": true,
+     "explanation": "Beyond $f_B$ a first-order filter changes by 20 dB/decade, so 40 dB needs 40/20 = 2 decades — a factor 100 in frequency. That is why first-order filters cannot separate components that are close in frequency; resonant (second-order) circuits do better."
+    },
+    {
+     "id": "g1",
+     "type": "multipleChoice",
+     "params": {
+      "k": [
+       0,
+       1
+      ],
+      "fB": [
+       100,
+       200,
+       1000,
+       5000
+      ]
+     },
+     "derived": {
+      "lo": "10^(floor(log10(fB))-1)"
+     },
+     "prompt": "The graph is the Bode magnitude plot of a first-order filter. What is it?",
+     "plot": {
+      "x": {
+       "min": "lo",
+       "max": "lo*10000",
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": -65,
+       "max": 5,
+       "label": "|H| (dB)"
+      },
+      "curves": [
+       {
+        "f": "k*20*log10(x/fB)-10*log10(1+(x/fB)^2)"
+       }
+      ]
+     },
+     "options": [
+      "Lowpass, $f_B$ ≈ {{fB|Hz}}",
+      "Highpass, $f_B$ ≈ {{fB|Hz}}",
+      "Lowpass, $f_B$ ≈ {{fB*10|Hz}}",
+      "Highpass, $f_B$ ≈ {{fB/10|Hz}}"
+     ],
+     "answer": "k",
+     "explanation": "Flat at 0 dB at low frequencies and falling above → lowpass; rising and then flat → highpass. $f_B$ is the corner, where the curve is 3 dB below the flat part: here {{fB|Hz}}. One decade past the corner ({{fB*10|Hz}} for a lowpass, {{fB/10|Hz}} for a highpass) the curve is already about −20 dB, so those are not the break frequency."
+    }
+   ]
+  }
+ ]
+}

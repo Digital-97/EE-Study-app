@@ -1,0 +1,379 @@
+{
+  "id": "sd-diode",
+  "title": "pn-Junction Diode Currents",
+  "description": "Where the Shockley equation comes from: injected minority carriers, the saturation current from doping and lifetimes, temperature effects, real-diode currents and the small-signal model.",
+  "reference": "Neamen §8.1–8.3",
+  "study": [
+    {
+      "title": "The law of the junction",
+      "body": "A forward bias $V_a$ lowers the barrier from $V_{bi}$ to $V_{bi} - V_a$. Majority carriers that can now cross become **minority carriers** on the other side: the minority concentration at each edge of the depletion region rises by the factor $e^{V_a/V_t}$ ($V_t = kT/q$). Under reverse bias the factor becomes tiny and the edge is practically emptied of minority carriers.",
+      "formula": "\\begin{aligned}& p_n(x_n) = p_{n0}\\,e^{V_a/V_t}\\\\ & n_p(-x_p) = n_{p0}\\,e^{V_a/V_t}\\end{aligned}"
+    },
+    {
+      "title": "Explore: minority carriers under bias",
+      "body": "Excess electrons injected into the p side ($x < 0$) and holes into the n side ($x > 0$) diffuse away from the junction and recombine, decaying with their diffusion lengths (the thin depletion region is drawn at $x$ = 0). Here $N_a = 10^{17}$, $N_d = 10^{16}$ cm⁻³, $L_n$ = 15.8 µm, $L_p$ = 31.6 µm. Note the log scale: every 60 mV raises both curves by a decade, and so the current.",
+      "plot": {
+        "x": {"min": -60, "max": 100, "label": "x (µm)"},
+        "y": {"min": 100, "max": 1e17, "label": "excess (cm⁻³)", "log": true},
+        "sliders": [{"name": "Va", "label": "$V_a$", "min": 0.1, "max": 0.65, "step": 0.01, "value": 0.5, "unit": "V"}],
+        "let": {"f": "exp(Va/0.0259) - 1"},
+        "curves": [
+          {"f": "2.25e3*f*exp(x/15.81)", "label": "δn_p", "color": "blue", "from": -60, "to": 0, "labelAt": 0.5},
+          {"f": "2.25e4*f*exp(-x/31.62)", "label": "δp_n", "color": "red", "from": 0, "to": 100, "labelAt": 0.4}
+        ],
+        "vlines": [{"x": 0, "label": "junction"}],
+        "readouts": [
+          {"label": "$\\delta p_n(x_n)$", "value": "2.25e4*f", "unit": "cm⁻³"},
+          {"label": "$J$", "value": "1.71e-11*f", "unit": "A/cm²"}
+        ]
+      }
+    },
+    {
+      "title": "The ideal diode equation",
+      "body": "The current at each depletion edge is pure minority-carrier diffusion: $qD_p/L_p$ times the excess hole concentration on the n side, plus the same for electrons on the p side. Since $p_{n0} = n_i^2/N_d$ and $n_{p0} = n_i^2/N_a$, the saturation current density follows from doping, diffusion coefficients and lifetimes ($L = \\sqrt{D\\tau}$). It is dominated by the **lightly** doped side. This is the Shockley equation of the first-year course, now with $I_s = AJ_s$ explained.",
+      "formula": "\\begin{aligned}& J = J_s\\left(e^{V_a/V_t} - 1\\right)\\\\ & J_s = qn_i^2\\left(\\frac{D_p}{L_pN_d} + \\frac{D_n}{L_nN_a}\\right)\\end{aligned}"
+    },
+    {
+      "title": "Assumptions of the ideal diode",
+      "body": "- Abrupt depletion region, neutral regions outside it.\n- Boltzmann statistics (nondegenerate doping).\n- **Low-level injection**: excess minority carriers ≪ majority carriers.\n- No generation or recombination **inside** the depletion region, so the electron and hole currents are each constant across it.\n- Long neutral regions ($W \\gg L$), so the profiles decay as $e^{-x/L}$.\nReal silicon diodes violate the fourth assumption at low bias and the third at high bias."
+    },
+    {
+      "title": "Temperature",
+      "body": "$J_s \\propto n_i^2 \\propto T^3e^{-E_g/kT}$ (the weak temperature dependence of $D/L$ ignored). Near 300 K that is about +16 % per kelvin: $I_s$ **doubles every 4–5 K**. At a fixed current the forward voltage therefore drops, by about −2 mV/K (formula: −1.8 mV/K at 0.65 V). This is the base–emitter drift you met in analog design, and the principle of a diode thermometer.",
+      "formula": "\\frac{dV_a}{dT}\\Big|_I = \\frac{V_a - E_g/q - 3kT/q}{T}"
+    },
+    {
+      "title": "The short diode",
+      "body": "If the neutral n region is much thinner than $L_p$ (width $W_n'$ between the depletion edge and an ohmic contact, where the excess is forced to zero), almost no carriers recombine on the way. The excess profile becomes a straight line and the gradient is $\\delta p(x_n)/W_n'$ instead of $\\delta p(x_n)/L_p$. So $L_p$ is replaced by $W_n'$ in $J_s$: a short diode has a **larger** saturation current. The emitter of a bipolar transistor is usually short.",
+      "formula": "J_s \\approx \\frac{qn_i^2D_p}{N_dW_n'} \\quad (p^+n,\\ W_n' \\ll L_p)"
+    },
+    {
+      "title": "Explore: real I–V characteristics",
+      "body": "Carriers that recombine **inside** the depletion region add a current with $e^{V_a/2V_t}$: it dominates at low forward bias (ideality factor $n \\approx 2$), while ideal diffusion current ($n = 1$) takes over at higher bias. In reverse bias, thermal generation in the depletion region gives $J_{gen} = qn_iW/2\\tau_0$, usually far larger than $J_s$ in Si. At high currents high injection and series resistance bend the curve again. The graph uses $I_s$ = 1 fA and $I_{r0}$ = 10 pA.",
+      "formula": "\\begin{aligned}& I = I_s\\left(e^{V_a/V_t} - 1\\right)\\\\ & \\quad + I_{r0}\\left(e^{V_a/2V_t} - 1\\right)\\end{aligned}",
+      "plot": {
+        "x": {"min": 0.05, "max": 0.75, "label": "V_a (V)"},
+        "y": {"min": 1e-13, "max": 0.1, "label": "I (A)", "log": true},
+        "curves": [
+          {"f": "1e-15*(exp(x/0.0259)-1)", "label": "n = 1", "color": "red", "dash": true, "labelAt": 0.3},
+          {"f": "1e-11*(exp(x/0.0518)-1)", "label": "n = 2", "color": "blue", "dash": true, "labelAt": 0.9},
+          {"f": "1e-15*(exp(x/0.0259)-1) + 1e-11*(exp(x/0.0518)-1)", "label": "total", "labelAt": 0.15}
+        ]
+      }
+    },
+    {
+      "title": "Small-signal model",
+      "body": "Around a forward bias point $I_{DQ}$ the diode is a resistance $r_d$ in parallel with a capacitance. The **diffusion capacitance** comes from the stored minority charge, which follows the voltage with a delay of about the lifetime; for a long $p^+n$ diode Neamen's small-signal analysis gives $C_d = I_{DQ}\\tau_p/2V_t$ (valid for $\\omega\\tau_p \\ll 1$). Many circuit books use the simpler charge-control estimate $I_{DQ}\\tau/V_t$, twice as large; this subject follows Neamen. The junction capacitance $C_j = \\varepsilon_sA/W$ of the previous unit is in parallel; $C_d$ dominates in forward bias, $C_j$ in reverse bias.",
+      "formula": "\\begin{aligned}& r_d = \\frac{V_t}{I_{DQ}}\\\\ & C_d = \\frac{I_{p0}\\tau_{p0} + I_{n0}\\tau_{n0}}{2V_t}\\end{aligned}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sd-diode-1",
+      "title": "The ideal diode equation",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Injection: the law of the junction",
+          "body": "Forward bias lowers the barrier by $V_a$, so exponentially more majority carriers make it across, where they become minority carriers. At the edge of the depletion region the minority concentration rises by $e^{V_a/V_t}$ above its equilibrium value $p_{n0} = n_i^2/N_d$.",
+          "formula": "p_n(x_n) = p_{n0}\\,e^{V_a/V_t}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 1e17], "Va": [0.4, 0.5, 0.6]},
+          "require": "Nd - 10*2.25e20/Nd*exp(Va/0.0259)",
+          "prompt": "The n side of a silicon junction has $N_d$ = {{Nd}} cm⁻³. Find the hole concentration at the n-side edge of the depletion region for a forward bias of {{Va}} V. ($V_t$ = 0.0259 V)",
+          "answer": "2.25e20/Nd*exp(Va/0.0259)",
+          "unit": "cm⁻³",
+          "tolerance": 0.03,
+          "explanation": "In equilibrium $p_{n0} = n_i^2/N_d$ = {{2.25e20/Nd}} cm⁻³. Then $p_n(x_n) = p_{n0}e^{V_a/V_t}$ = {{2.25e20/Nd}} × $e^{ {{Va/0.0259||3}} }$ = **{{2.25e20/Nd*exp(Va/0.0259)}} cm⁻³**. Still far below $N_d$: low-level injection holds."
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"t": [1e10, 1e11, 1e12, 1e13, 1e14]},
+          "prompt": "The n side of a diode has $N_d = 10^{16}$ cm⁻³, so $p_{n0} = 2.25\\times10^{4}$ cm⁻³. Drag the forward bias until the excess hole concentration at the depletion edge reaches {{t}} cm⁻³ (dashed line).",
+          "plot": {
+            "x": {"min": 0, "max": 100, "label": "x - x_n (µm)"},
+            "y": {"min": 100, "max": 1e16, "label": "δp_n (cm⁻³)", "log": true},
+            "sliders": [{"name": "Va", "label": "$V_a$", "min": 0.1, "max": 0.7, "step": 0.005, "value": 0.2, "unit": "V"}],
+            "curves": [{"f": "2.25e4*(exp(Va/0.0259)-1)*exp(-x/31.6)", "label": "δp_n(x)", "labelAt": 0.5}],
+            "hlines": [{"y": "t", "label": "target", "color": "orange"}],
+            "readouts": [{"label": "$\\delta p_n(x_n)$", "value": "2.25e4*(exp(Va/0.0259)-1)", "unit": "cm⁻³", "reveal": true}]
+          },
+          "answer": {"Va": "0.0259*ln(t/2.25e4 + 1)"},
+          "absTolerance": 0.006,
+          "explanation": "$\\delta p_n(x_n) = p_{n0}(e^{V_a/V_t} - 1)$, so $V_a = V_t\\ln(\\delta p/p_{n0} + 1)$ = 0.0259 × ln({{t}} / 2.25$\\times10^{4}$ + 1) = **{{0.0259*ln(t/2.25e4 + 1)|V}}**. Each decade costs 60 mV, and the excess decays into the n region with $L_p$ = 31.6 µm."
+        },
+        {
+          "id": "i2", "type": "info", "title": "From profiles to current",
+          "body": "In the neutral regions the injected minority carriers simply diffuse and recombine, so their excess decays as $e^{-x/L}$. The diffusion current at the depletion edge is $qD/L$ times the excess there. Adding the hole current (n side) and electron current (p side) gives the ideal diode equation.",
+          "formula": "J_s = qn_i^2\\left(\\frac{D_p}{L_pN_d} + \\frac{D_n}{L_nN_a}\\right)"
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 1e17], "Dp": [8, 10, 12], "tau": [0.1, 1, 10]},
+          "derived": {"Lp": "sqrt(Dp*tau*1e-6)", "Js": "1.602e-19*2.25e20*Dp/(Lp*Nd)"},
+          "prompt": "A $p^+n$ silicon diode has $N_d$ = {{Nd}} cm⁻³, hole diffusion coefficient $D_p$ = {{Dp}} cm²/s and lifetime $\\tau_{p0}$ = {{tau}} µs. Neglecting the electron term, find the saturation current density $J_s$.",
+          "answer": "Js",
+          "unit": "A/cm²",
+          "absTolerance": 0,
+          "explanation": "$L_p = \\sqrt{D_p\\tau_{p0}}$ = {{Lp}} cm. $J_s = qn_i^2D_p/(L_pN_d)$ = 1.602$\\times10^{-19}$ × 2.25$\\times10^{20}$ × {{Dp}} / ({{Lp}} × {{Nd}}) = **{{Js*1e12||3}} pA/cm²**. Lighter doping and shorter lifetime both increase $J_s$."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"a": [1, 2, 5], "Va": [0.5, 0.6, 0.7]},
+          "prompt": "A diode has $I_s = {{a}}\\times10^{-15}$ A. Find the current at a forward bias of {{Va}} V ($V_t$ = 0.0259 V).",
+          "answer": "a*1e-15*(exp(Va/0.0259)-1)",
+          "unit": "A",
+          "absTolerance": 0,
+          "tolerance": 0.03,
+          "explanation": "$I = I_s(e^{V_a/V_t} - 1)$ = {{a}}$\\times10^{-15}$ × ($e^{ {{Va/0.0259||3}} }$ − 1) = **{{a*1e-15*(exp(Va/0.0259)-1)|A}}**. With $V_t$ = 0.025 or 0.026 V the result differs by tens of percent: the exponent is very sensitive."
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "prompt": "Which of these is **not** an assumption of the ideal-diode derivation?",
+          "options": [
+            "The current at the depletion edges is carried mainly by drift of majority carriers",
+            "No generation or recombination inside the depletion region",
+            "Low-level injection",
+            "Boltzmann statistics apply (nondegenerate doping)"
+          ],
+          "answer": 0,
+          "explanation": "The derivation evaluates the **minority-carrier diffusion** currents at the depletion edges, which is why $D$, $L$ and $p_{n0}$ appear. The other three are genuine assumptions; dropping the one about generation and recombination in the depletion region gives the recombination current with $n \\approx 2$."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"Na": [1e16, 1e17, 1e18], "Nd": [1e15, 1e16, 1e17]},
+          "prompt": "A diode has $N_a$ = {{Na}} cm⁻³, $N_d$ = {{Nd}} cm⁻³, $D_p$ = 10 cm²/s, $L_p$ = 20 µm, $D_n$ = 25 cm²/s and $L_n$ = 30 µm. What fraction of the forward current is carried by holes injected into the n side?",
+          "answer": "(10/(20e-4*Nd))/(10/(20e-4*Nd) + 25/(30e-4*Na))",
+          "unit": "",
+          "explanation": "Each term of $J_s$ is $D/(LN)$ of the side the carriers are injected into, so the hole-to-electron current ratio is $r = \\frac{D_pL_nN_a}{D_nL_pN_d}$ = (10 × 30 × {{Na}}) / (25 × 20 × {{Nd}}) = {{(10*30*Na)/(25*20*Nd)||3}}. The hole fraction is $r/(1 + r)$ = **{{(10/(20e-4*Nd))/(10/(20e-4*Nd) + 25/(30e-4*Na))||3}}**. The more heavily doped side injects into the lighter one: this is the idea behind the emitter of a transistor."
+        }
+      ]
+    },
+    {
+      "id": "sd-diode-2",
+      "title": "Temperature and short diodes",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Why diodes are thermometers",
+          "body": "$J_s$ is proportional to $n_i^2$, which grows as $T^3e^{-E_g/kT}$. Near room temperature that means roughly +16 % per kelvin. At a fixed current the diode voltage must then drop.",
+          "formula": "J_s \\propto T^3\\,e^{-E_g/kT}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"dT": [5, 10, 25, 50]},
+          "prompt": "By what factor does the saturation current of a silicon diode increase when it warms from 300 K to {{300+dT}} K? Use $J_s \\propto T^3e^{-E_g/kT}$ with $E_g$ = 1.12 eV and $k = 8.617\\times10^{-5}$ eV/K.",
+          "answer": "((300+dT)/300)^3*exp(-1.12/8.617e-5*(1/(300+dT) - 1/300))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "Ratio = $(T_2/T_1)^3\\exp\\left[-\\frac{E_g}{k}\\left(\\frac{1}{T_2} - \\frac{1}{T_1}\\right)\\right]$. $E_g/k$ = 13 000 K. The exponent: −13 000 × (1/{{300+dT}} − 1/300) = {{-1.12/8.617e-5*(1/(300+dT) - 1/300)||3}}. So the factor is {{((300+dT)/300)^3||3}} × $e^{ {{-1.12/8.617e-5*(1/(300+dT) - 1/300)||3}} }$ = **{{((300+dT)/300)^3*exp(-1.12/8.617e-5*(1/(300+dT) - 1/300))||3}}**."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Va": [0.55, 0.6, 0.65, 0.7]},
+          "prompt": "A silicon diode runs at a constant current with $V_a$ = {{Va}} V at 300 K. Using $dV_a/dT = (V_a - E_g/q - 3kT/q)/T$, find its temperature coefficient.",
+          "answer": "(Va - 1.12 - 3*0.0259)/300",
+          "unit": "V/K",
+          "explanation": "$dV_a/dT$ = ({{Va}} − 1.12 − 3 × 0.0259) / 300 = {{Va - 1.12 - 0.0777||3}} V / 300 K = **{{(Va - 1.12 - 3*0.0259)/300|V/K}}**. Negative: the voltage at fixed current falls by about 2 mV per kelvin."
+        },
+        {
+          "id": "q3", "type": "multipleChoice",
+          "prompt": "$V_t = kT/q$ grows with temperature, which by itself would **raise** the forward voltage at a fixed current. Why does the forward voltage fall instead?",
+          "options": [
+            "$I_s \\propto n_i^2$ rises far more steeply (about 16 % per K), which outweighs the growth of $V_t$",
+            "The band gap of silicon grows with temperature",
+            "The mobility rises with temperature",
+            "The depletion region gets wider"
+          ],
+          "answer": 0,
+          "explanation": "$V_a = V_t\\ln(I/I_s)$. $V_t$ grows by 1/300 per kelvin (0.33 %), but $\\ln(I/I_s)$ shrinks by about 0.15 per kelvin because $I_s$ climbs exponentially. The net effect is about −2 mV/K. (The gap actually shrinks slightly with $T$, and mobility falls.)"
+        },
+        {
+          "id": "i2", "type": "info", "title": "The short diode",
+          "body": "When the neutral region between the depletion edge and the contact is thinner than the diffusion length, hardly any carriers recombine before reaching the contact. The excess profile becomes a straight line from $\\delta p(x_n)$ to zero, so its slope is set by the width $W_n'$ instead of $L_p$.",
+          "formula": "J_s \\approx \\frac{qn_i^2D_p}{N_dW_n'}"
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 1e17], "W": [1, 2, 5], "Dp": [8, 10]},
+          "prompt": "A $p^+n$ diode has a short n region: $W_n'$ = {{W}} µm (much less than $L_p$), $N_d$ = {{Nd}} cm⁻³ and $D_p$ = {{Dp}} cm²/s. Find $J_s$.",
+          "answer": "1.602e-19*2.25e20*Dp/(Nd*W*1e-4)",
+          "unit": "A/cm²",
+          "absTolerance": 0,
+          "explanation": "$J_s = qn_i^2D_p/(N_dW_n')$ = 1.602$\\times10^{-19}$ × 2.25$\\times10^{20}$ × {{Dp}} / ({{Nd}} × {{W}}$\\times10^{-4}$ cm) = **{{1.602e-19*2.25e20*Dp/(Nd*W*1e-4)*1e12||3}} pA/cm²**."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"L": [20, 30, 50], "W": [1, 2, 5]},
+          "require": "L - 10*W",
+          "prompt": "Two otherwise identical $p^+n$ diodes have n regions of {{W}} µm (short) and of many diffusion lengths (long), with $L_p$ = {{L}} µm. By what factor is the saturation current of the short diode larger?",
+          "answer": "L/W",
+          "unit": "",
+          "explanation": "Long: gradient $\\delta p/L_p$; short: $\\delta p/W_n'$. The ratio is $L_p/W_n'$ = {{L}} / {{W}} = **{{L/W||3}}**. (The exact ratio is $\\coth(W_n'/L_p)$, which approaches $L_p/W_n'$ when $W_n' \\ll L_p$.)"
+        },
+        {
+          "id": "q6", "type": "trueFalse",
+          "prompt": "In a short diode the excess minority-carrier concentration in the neutral region falls approximately **linearly** to zero at the contact.",
+          "answer": true,
+          "explanation": "With hardly any recombination the diffusion current is constant across the thin region, so the gradient is constant: a straight line from $\\delta p(x_n)$ to 0 at the ohmic contact. In a long diode the profile is exponential instead."
+        }
+      ]
+    },
+    {
+      "id": "sd-diode-3",
+      "title": "Real diodes: generation and recombination",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Currents from the depletion region",
+          "body": "Real Si diodes also generate and recombine carriers **inside** the depletion region. In reverse bias thermal generation gives a current proportional to $n_i$ (not $n_i^2$) and to $W$. In forward bias recombination there adds a component growing only as $e^{V_a/2V_t}$, dominant at low currents.",
+          "formula": "J_{gen} = \\frac{qn_iW}{2\\tau_0}, \\quad J_{rec} \\propto e^{V_a/2V_t}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"W": [0.5, 1, 2], "tau": [0.1, 1, 10]},
+          "prompt": "A reverse-biased silicon diode has a depletion width of {{W}} µm and an effective generation lifetime $\\tau_0$ = {{tau}} µs. Find the generation current density.",
+          "answer": "1.602e-19*1.5e10*W*1e-4/(2*tau*1e-6)",
+          "unit": "A/cm²",
+          "absTolerance": 0,
+          "explanation": "$J_{gen} = qn_iW/(2\\tau_0)$ = 1.602$\\times10^{-19}$ × 1.5$\\times10^{10}$ × {{W}}$\\times10^{-4}$ cm / (2 × {{tau}}$\\times10^{-6}$ s) = **{{1.602e-19*1.5e10*W*1e-4/(2*tau*1e-6)|A/cm²}}**. It grows with reverse bias, because $W$ does."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 1e17]},
+          "derived": {"Js": "1.602e-19*2.25e20*10/(sqrt(10*1e-6)*Nd)", "Jg": "1.602e-19*1.5e10*1e-4/(2*1e-6)"},
+          "prompt": "A $p^+n$ silicon diode ($N_d$ = {{Nd}} cm⁻³, $D_p$ = 10 cm²/s, $\\tau_{p0} = \\tau_0$ = 1 µs) is reverse biased with $W$ = 1 µm. By what factor does the generation current exceed the ideal saturation current $J_s$?",
+          "answer": "Jg/Js",
+          "unit": "",
+          "explanation": "$L_p = \\sqrt{10\\times10^{-6}}$ = 3.16$\\times10^{-3}$ cm, so $J_s = qn_i^2D_p/(L_pN_d)$ = {{Js*1e12||3}} pA/cm². $J_{gen} = qn_iW/2\\tau_0$ = {{Jg*1e9||3}} nA/cm². Ratio: **{{Jg/Js}}**. Because $n_i$ is so small in Si, the $n_i$-proportional generation current wins by orders of magnitude: measured Si reverse currents are generation currents."
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"a": [1, 3], "b": [1, 10, 100]},
+          "derived": {"Is": "a*1e-15", "Ir": "b*1e-12", "Vx": "2*0.0259*ln(Ir/Is)"},
+          "prompt": "A diode has an ideal component $I_s$ = {{a}} fA ($n$ = 1) and a recombination component $I_{r0}$ = {{b}} pA ($n$ = 2). Drag $V_a$ to the voltage where both components are equal; above it the ideal diffusion current dominates.",
+          "plot": {
+            "x": {"min": 0.05, "max": 0.8, "label": "V_a (V)"},
+            "y": {"min": 1e-12, "max": 0.1, "label": "I_D", "unit": "A", "log": true},
+            "sliders": [{"name": "Va", "label": "$V_a$", "min": 0.05, "max": 0.8, "step": 0.005, "value": 0.05, "unit": "V"}],
+            "curves": [
+              {"f": "Is*(exp(x/0.0259)-1)", "label": "n = 1", "color": "red", "dash": true, "labelAt": 0.9},
+              {"f": "Ir*(exp(x/0.0518)-1)", "label": "n = 2", "color": "blue", "dash": true, "labelAt": 0.15},
+              {"f": "Is*(exp(x/0.0259)-1) + Ir*(exp(x/0.0518)-1)", "label": "total", "labelAt": 0.6}
+            ],
+            "vlines": [{"x": "Va", "label": "V_a"}]
+          },
+          "answer": {"Va": "Vx"},
+          "absTolerance": 0.01,
+          "explanation": "Setting $I_se^{V_a/V_t} = I_{r0}e^{V_a/2V_t}$ gives $e^{V_a/2V_t} = I_{r0}/I_s$, so $V_a = 2V_t\\ln(I_{r0}/I_s)$ = 2 × 0.0259 × ln({{Ir/Is}}) = **{{Vx|V}}**. On the log plot the total curve bends from a slope of 120 mV/decade to 60 mV/decade there."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"n": [1, 1.2, 1.5, 1.8, 2]},
+          "derived": {"dV": "n*0.0259*ln(10)"},
+          "prompt": "On a semilog plot a diode's forward current rises one decade for every {{dV*1000||3}} mV. Find its ideality factor $n$ ($V_t$ = 0.0259 V).",
+          "answer": "dV/(0.0259*ln(10))",
+          "unit": "",
+          "explanation": "$I \\propto e^{V_a/nV_t}$, so one decade needs $\\Delta V = nV_t\\ln 10$ = $n$ × 59.6 mV. Hence $n$ = {{dV*1000||3}} / 59.6 = **{{dV/(0.0259*ln(10))||2}}**. $n$ = 1: ideal diffusion current; $n$ = 2: recombination in the depletion region."
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "prompt": "At very small forward currents a silicon diode shows an ideality factor close to 2. What is the reason?",
+          "options": [
+            "Recombination inside the depletion region dominates; it grows only as $e^{V_a/2V_t}$",
+            "High-level injection halves the effective voltage",
+            "Series resistance takes half the applied voltage",
+            "The diffusion current flows through both sides, so it counts twice"
+          ],
+          "answer": 0,
+          "explanation": "Recombination in the depletion region is fastest where $n \\approx p$, and there both are about $n_ie^{V_a/2V_t}$, hence the factor ½ in the exponent. At higher currents the diffusion current ($n$ = 1) takes over. High injection and series resistance matter at **large** currents."
+        },
+        {
+          "id": "q5", "type": "trueFalse",
+          "prompt": "In a silicon diode at room temperature, the measured reverse current is usually much larger than the ideal saturation current $I_s$.",
+          "answer": true,
+          "explanation": "The ideal $I_s \\propto n_i^2$ is extremely small in silicon. Thermal generation in the depletion region gives a current $\\propto n_i W$, typically thousands of times larger, and it grows with reverse bias as $W$ widens."
+        }
+      ]
+    },
+    {
+      "id": "sd-diode-4",
+      "title": "Diode design and small-signal model",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 1e17], "tau": [0.1, 1], "A": [1e-4, 1e-3], "Va": [0.5, 0.55, 0.6, 0.65]},
+          "derived": {"Lp": "sqrt(10*tau*1e-6)", "Js": "1.602e-19*2.25e20*10/(Lp*Nd)"},
+          "require": "Nd - 10*2.25e20/Nd*exp(Va/0.0259)",
+          "prompt": "A $p^+n$ silicon diode has area {{A}} cm², $N_d$ = {{Nd}} cm⁻³, $D_p$ = 10 cm²/s and $\\tau_{p0}$ = {{tau}} µs. Find the ideal diode current at $V_a$ = {{Va}} V.",
+          "answer": "A*Js*(exp(Va/0.0259)-1)",
+          "unit": "A",
+          "absTolerance": 0,
+          "tolerance": 0.03,
+          "explanation": "$L_p$ = {{Lp}} cm and $J_s = qn_i^2D_p/(L_pN_d)$ = {{Js*1e12||3}} pA/cm², so $I_s = AJ_s$ = {{A*Js*1e15||3}} fA. Then $I = I_s(e^{V_a/V_t} - 1)$ = **{{A*Js*(exp(Va/0.0259)-1)|A}}**."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"I": [0.1, 0.5, 1, 5]},
+          "prompt": "A diode is biased at $I_{DQ}$ = {{I}} mA. Find its small-signal (diffusion) resistance $r_d$ at 300 K.",
+          "answer": "0.0259/(I*1e-3)",
+          "unit": "Ω",
+          "explanation": "$r_d = (dI/dV)^{-1} = V_t/I_{DQ}$ = 0.0259 V / {{I}} mA = **{{0.0259/(I*1e-3)|Ω}}**."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"I": [0.1, 1, 5], "tau": [0.1, 1, 10]},
+          "prompt": "A long $p^+n$ diode with hole lifetime $\\tau_{p0}$ = {{tau}} µs is biased at {{I}} mA. Find its small-signal diffusion capacitance (Neamen's model, 300 K).",
+          "answer": "I*1e-3*tau*1e-6/(2*0.0259)",
+          "unit": "F",
+          "absTolerance": 0,
+          "explanation": "Almost all current is hole current, so $C_d = I_{DQ}\\tau_{p0}/2V_t$ = {{I}}$\\times10^{-3}$ × {{tau}}$\\times10^{-6}$ / (2 × 0.0259) = **{{I*1e-3*tau*1e-6/(2*0.0259)|F}}**. Far larger than a typical junction capacitance (pF): forward-biased diodes are slow."
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"tau": [0.01, 0.1, 1, 10]},
+          "prompt": "For a long $p^+n$ diode with $\\tau_{p0}$ = {{tau}} µs, find the frequency at which the current through $C_d$ equals the current through $r_d$ (Neamen's small-signal model).",
+          "answer": "1/(pi*tau*1e-6)",
+          "unit": "Hz",
+          "explanation": "$\\omega C_d = 1/r_d$ gives $\\omega = 1/(r_dC_d)$, and $r_dC_d = (V_t/I)(I\\tau_p/2V_t) = \\tau_p/2$: the bias current cancels! So $f = 1/(\\pi\\tau_p)$ = 1 / (π × {{tau}}$\\times10^{-6}$ s) = **{{1/(pi*tau*1e-6)|Hz}}**. (Neamen derives $C_d$ for $\\omega\\tau_p \\ll 1$, so take this corner as an order-of-magnitude estimate.) Fast diodes need short lifetimes (e.g. gold doping)."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"T": [250, 300, 350, 400]},
+          "prompt": "Near temperature $T$ = {{T}} K, after how many kelvin of warming does the saturation current of a silicon diode double? Use $d\\ln J_s/dT = 3/T + E_g/kT^2$ with $E_g$ = 1.12 eV.",
+          "answer": "ln(2)/(3/T + 1.12/(8.617e-5*T^2))",
+          "unit": "K",
+          "tolerance": 0.03,
+          "explanation": "$d\\ln J_s/dT$ = 3/{{T}} + 1.12/(8.617$\\times10^{-5}$ × {{T}}²) = {{3/T + 1.12/(8.617e-5*T^2)||3}} per K. Doubling needs $\\Delta T = \\ln 2$ / that = **{{ln(2)/(3/T + 1.12/(8.617e-5*T^2))||3}} K**. At room temperature: about every 4.5 K. (Using the rate at the start of the interval underestimates slightly: solving the full $T^3e^{-E_g/kT}$ ratio gives 1–2 % more.)"
+        },
+        {
+          "id": "q6", "type": "multipleChoice",
+          "prompt": "A pn diode is used once with 5 V reverse bias and once with 1 mA forward bias. Which capacitance dominates in each case?",
+          "options": [
+            "Reverse: junction (depletion) capacitance; forward: diffusion capacitance",
+            "Reverse: diffusion capacitance; forward: junction capacitance",
+            "Junction capacitance in both cases",
+            "Diffusion capacitance in both cases"
+          ],
+          "answer": 0,
+          "explanation": "In reverse bias there is almost no stored minority charge, so only $C_j = \\varepsilon_sA/W$ remains (pF range). In forward bias the injected minority charge grows exponentially with $V_a$, and $C_d \\propto I_{DQ}\\tau$ easily reaches nanofarads."
+        },
+        {
+          "id": "q7", "type": "matchPairs",
+          "prompt": "Match each diode quantity with its expression",
+          "pairs": [
+            ["Diffusion resistance $r_d$", "$V_t/I_{DQ}$"],
+            ["Diffusion capacitance ($p^+n$)", "$I_{DQ}\\tau_p/2V_t$"],
+            ["Junction capacitance", "$\\varepsilon_sA/W$"],
+            ["Generation current density", "$qn_iW/2\\tau_0$"],
+            ["Ideal $J_s$ ($p^+n$, long)", "$qn_i^2D_p/(L_pN_d)$"]
+          ],
+          "explanation": "$r_d$ and $C_d$ belong to the forward-biased diode and both scale with the bias current; $C_j$ and $J_{gen}$ depend on the depletion width; $J_s$ follows from minority-carrier diffusion in the neutral region."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,425 @@
+{
+  "id": "fr-transfer",
+  "title": "Transfer Functions",
+  "description": "Describe how a circuit scales and shifts each frequency component with H(f) = V_out/V_in.",
+  "reference": "Hambley §6.1",
+  "study": [
+    {
+      "title": "Signals are sums of sinusoids",
+      "body": "Fourier analysis shows that practically any signal can be written as a sum of sinusoids with different frequencies, amplitudes and phases. A **periodic** signal with period $T$ contains only a dc term plus components at the fundamental $f_0 = 1/T$ and its harmonics $2f_0, 3f_0, \\ldots$ Non-periodic signals such as speech have components spread over a continuous range (audio: roughly 20 Hz to 15 kHz).",
+      "formula": "v(t) = V_0 + \\sum_{n=1}^{\\infty} V_n\\cos(2\\pi n f_0 t + \\theta_n)"
+    },
+    {
+      "title": "The transfer function",
+      "body": "A **filter** is a two-port circuit that changes the amplitude and phase of each component depending on its frequency. For a sinusoidal input of frequency $f$, the transfer function is the output phasor divided by the input phasor. It is complex: $|H(f)|$ is the ratio of output to input amplitude and $\\angle H(f)$ is the phase shift the filter adds.",
+      "formula": "H(f) = \\frac{V_{out}}{V_{in}} = |H(f)|\\angle H(f)"
+    },
+    {
+      "title": "Output for one sinusoid",
+      "body": "Read the frequency from the input ($f = \\omega/2\\pi$), evaluate $H$ at that frequency and multiply phasors: **magnitudes multiply, angles add**. The output has the same frequency as the input.\n**Example:** $H(500\\text{ Hz}) = 2\\angle{-30^\\circ}$ and $v_{in}(t) = 3\\cos(1000\\pi t + 10^\\circ)$ V give $V_{out} = 2\\angle{-30^\\circ} \\times 3\\angle 10^\\circ = 6\\angle{-20^\\circ}$, so $v_{out}(t) = 6\\cos(1000\\pi t - 20^\\circ)$ V.",
+      "formula": "V_{out} = H(f)\\,V_{in}"
+    },
+    {
+      "title": "Inputs with several components",
+      "body": "Use superposition and treat each component on its own:\n- split the input into components; note each frequency and phasor\n- evaluate $H(f)$ at each frequency (a dc term is the component at $f = 0$, multiplied by the real number $H(0)$)\n- multiply to get each output phasor\n- convert each output phasor back to a time function and **add the time functions**\nNever add phasors of different frequencies."
+    },
+    {
+      "title": "Finding H(f) from a circuit",
+      "body": "Replace every element by its impedance ($R$, $j2\\pi fL$, $1/(j2\\pi fC)$) and solve for $V_{out}/V_{in}$, usually with a voltage divider. To measure $H(f)$, apply a sinusoid, record the amplitudes and phases of input and output in steady state, divide, and repeat for each frequency of interest. Beware: $H(f)$ depends on the load connected to the output.",
+      "formula": "H(f) = \\frac{Z_2}{Z_1 + Z_2}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "fr-transfer-1",
+      "title": "What a filter does",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Signals as sums of sinusoids",
+          "body": "Fourier analysis tells us that almost any signal is a sum of sinusoids. A periodic signal with period $T$ has a dc part plus components at $f_0 = 1/T$ and its **harmonics** $2f_0, 3f_0, \\ldots$",
+          "formula": "v(t) = V_0 + \\sum_{n=1}^{\\infty} V_n\\cos(2\\pi n f_0 t + \\theta_n)"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {"T": [0.1e-3, 0.5e-3, 1e-3, 2e-3, 20e-3]},
+          "prompt": "A periodic voltage repeats every $T$ = {{T|s}}. At which frequencies can it contain sinusoidal components?",
+          "options": [
+            "0 (dc), {{1/T|Hz}}, {{2/T|Hz}}, {{3/T|Hz}}, …",
+            "Only at {{1/T|Hz}}",
+            "At every frequency between 0 and {{1/T|Hz}}",
+            "0 (dc), {{2*pi/T|Hz}}, {{4*pi/T|Hz}}, …"
+          ],
+          "answer": 0,
+          "explanation": "The fundamental frequency is $f_0 = 1/T$ = 1/{{T|s}} = {{1/T|Hz}}. A periodic signal can only contain a dc term and harmonics at integer multiples of $f_0$: {{1/T|Hz}}, {{2/T|Hz}}, {{3/T|Hz}}, … Values like $2\\pi/T$ are angular frequencies in rad/s, not frequencies in Hz."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The transfer function",
+          "body": "A **filter** passes some frequency components and weakens others. For a sinusoidal input of frequency $f$, its transfer function is the output phasor divided by the input phasor. $|H(f)|$ tells how much the amplitude is scaled, $\\angle H(f)$ how much the phase is shifted.",
+          "formula": "H(f) = \\frac{V_{out}}{V_{in}}"
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "At the input frequency a filter has $|H(f)| = 0.5$ and $\\angle H(f) = -60^\\circ$. The output sinusoid then has half the input amplitude and lags the input by 60°.",
+          "answer": true,
+          "explanation": "$V_{out} = H\\,V_{in}$: the amplitude is multiplied by 0.5 and −60° is added to the phase. A negative phase shift means the output reaches its peaks later, so it lags the input by 60°."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Output for one sinusoid",
+          "body": "For an input $A\\cos(\\omega t + \\theta)$ the frequency is $f = \\omega/2\\pi$. Evaluate $H$ at that frequency and multiply phasors: **magnitudes multiply, angles add**. The output has the same frequency as the input.",
+          "formula": "V_{out} = H(f)\\,V_{in}"
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {"k": [200, 1000, 4000, 6000, 20000]},
+          "prompt": "The input is $v_{in}(t) = 5\\cos({{k}}\\pi t)$ V. At which frequency $f$ must you evaluate $H(f)$?",
+          "options": ["{{k/2|Hz}}", "{{k|Hz}}", "{{k*pi|Hz}}"],
+          "answer": 0,
+          "explanation": "$\\omega$ = {{k}}π rad/s, so $f = \\omega/2\\pi$ = {{k}}π/(2π) = {{k/2|Hz}}. Answering {{k|Hz}} forgets the factor 2; {{k*pi|Hz}} confuses the angular frequency (rad/s) with the frequency (Hz)."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"A": [0.5, 1, 2, 4, 5], "Hm": [0.1, 0.25, 0.6, 2, 3, 8], "f": [100, 500, 1000, 2000], "th": [-60, -45, -30, 20, 40], "ph": [0, 15, 30, 50]},
+          "prompt": "At {{f|Hz}} a filter has $H = {{Hm}}\\angle{{th}}^\\circ$. The input is $v_{in}(t) = {{A}}\\cos(2\\pi\\cdot{{f}}\\,t + {{ph}}^\\circ)$ V. What is the amplitude of $v_{out}(t)$?",
+          "answer": "A*Hm",
+          "unit": "V",
+          "explanation": "Magnitudes multiply: $V_{out,m} = |H|\\,V_{in,m}$ = {{Hm}} × {{A|V}} = {{A*Hm|V}}. (The phase becomes {{ph}}° + ({{th}}°) = {{ph+th}}°, and the frequency stays {{f|Hz}}.)"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {"A": [0.5, 1, 2, 4, 5], "Hm": [0.1, 0.25, 0.6, 2, 3, 8], "f": [100, 500, 1000, 2000], "th": [-60, -45, -30, 20, 40], "ph": [0, 15, 30, 50]},
+          "prompt": "At {{f|Hz}} a filter has $H = {{Hm}}\\angle{{th}}^\\circ$ and the input is $v_{in}(t) = {{A}}\\cos(2\\pi\\cdot{{f}}\\,t + {{ph}}^\\circ)$ V. Writing $v_{out}(t) = V_m\\cos(2\\pi\\cdot{{f}}\\,t + \\theta)$, find $\\theta$ in degrees.",
+          "answer": "ph+th",
+          "unit": "°",
+          "absTolerance": 0.5,
+          "explanation": "Angles add when phasors are multiplied: $\\theta = \\theta_{in} + \\angle H$ = {{ph}}° + ({{th}}°) = {{ph+th}}°. The output amplitude is {{Hm}} × {{A}} = {{A*Hm|V}}."
+        },
+        {
+          "id": "g1",
+          "type": "multipleChoice",
+          "params": {"g": [0.4, 0.6, 1.5, 2], "ph": [-60, -30, 30, 60]},
+          "prompt": "The graph shows the input $v_{in}$ (grey, dashed) and the output $v_{out}$ (solid) of a filter at one frequency. What does the filter do at this frequency?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 720,
+              "label": "ωt (°)",
+              "ticks": [0, 90, 180, 270, 360, 450, 540, 630, 720]
+            },
+            "y": {
+              "min": -2.6,
+              "max": 2.6,
+              "label": "v (V)"
+            },
+            "curves": [
+              {
+                "f": "cos(rad(x))",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "g*cos(rad(x)+rad(ph))"
+              }
+            ]
+          },
+          "options": ["It attenuates the signal and the output lags ($\\angle H < 0$)", "It amplifies the signal and the output lags ($\\angle H < 0$)", "It attenuates the signal and the output leads ($\\angle H > 0$)", "It amplifies the signal and the output leads ($\\angle H > 0$)"],
+          "answer": "step(g-1)+2*step(ph)",
+          "explanation": "Magnitude: compare the peaks. The input peak is 1 V and the output peak {{g}} V, so $|H| = V_{out}/V_{in}$ = {{g}}: below 1 the filter attenuates, above 1 it amplifies. Phase: the input peaks at $\\omega t$ = 0° and 360°, the output at {{mod(-ph,360)}}°. An output peak that comes **later** than the matching input peak means a lag ($\\angle H < 0$), an earlier one a lead. Here $\\angle H$ = {{ph}}°."
+        }
+      ]
+    },
+    {
+      "id": "fr-transfer-2",
+      "title": "Applying H(f)",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {"K": [1, 2, 5, 10], "fc": [500, 1000, 2000, 5000], "f": [250, 1000, 3000, 10000]},
+          "prompt": "A filter has $H(f) = \\frac{K}{1 + jf/f_c}$ with $K$ = {{K}} and $f_c$ = {{fc|Hz}}. Find $|H(f)|$ at $f$ = {{f|Hz}}.",
+          "answer": "K/sqrt(1+(f/fc)^2)",
+          "unit": "",
+          "explanation": "The magnitude of a quotient is the quotient of magnitudes: $|H| = \\frac{K}{\\sqrt{1 + (f/f_c)^2}}$. Here $f/f_c$ = {{f/fc}}, so $|H|$ = {{K}}/√(1 + {{(f/fc)^2}}) = {{K/sqrt(1+(f/fc)^2)}}."
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {"K": [1, 2, 5, 10], "fc": [500, 1000, 2000, 5000], "f": [250, 1000, 3000, 10000]},
+          "prompt": "A filter has $H(f) = \\frac{K}{1 + jf/f_c}$ with $K$ = {{K}} and $f_c$ = {{fc|Hz}}. Find the phase $\\angle H(f)$ at $f$ = {{f|Hz}}, in degrees.",
+          "answer": "-deg(atan(f/fc))",
+          "unit": "°",
+          "absTolerance": 0.5,
+          "explanation": "Phase of a quotient = phase of numerator − phase of denominator. The numerator $K$ is real and positive (0°); the denominator $1 + j${{f/fc}} has angle $\\arctan$({{f/fc}}) = {{deg(atan(f/fc))}}°. So $\\angle H$ = {{-deg(atan(f/fc))}}°."
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {"V0": [1, 2, 3, 5], "H0": [0.5, 1.5, 2, 4], "A1": [1, 2, 4], "f1": [500, 1000, 2000], "H1": [0.2, 0.8, 3], "t1": [-70, -30, 45]},
+          "prompt": "The input $v_{in}(t) = {{V0}} + {{A1}}\\cos(2\\pi\\cdot{{f1}}\\,t)$ V is applied to a filter with $H(0) = {{H0}}$ and $H({{f1}}\\text{ Hz}) = {{H1}}\\angle{{t1}}^\\circ$. What is the dc component of $v_{out}(t)$?",
+          "answer": "V0*H0",
+          "unit": "V",
+          "explanation": "The dc term is a component at $f = 0$, so it is multiplied by $H(0)$: $V_{out,dc}$ = {{H0}} × {{V0|V}} = {{V0*H0|V}}. The {{f1|Hz}} component is handled separately: it becomes a sinusoid with amplitude {{A1*H1|V}} and phase {{t1}}°."
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {"V0": [1, 2], "A1": [1, 2, 5], "A2": [0.5, 1, 3], "H0": [1, 2], "H1": [0.9, 1.5], "H2": [0.1, 0.25, 0.4, 2.5]},
+          "prompt": "A filter has $H(0) = {{H0}}$, $H(1\\text{ kHz}) = {{H1}}\\angle{-20^\\circ}$ and $H(3\\text{ kHz}) = {{H2}}\\angle{-75^\\circ}$. The input is $v_{in}(t) = {{V0}} + {{A1}}\\cos(2000\\pi t) + {{A2}}\\cos(6000\\pi t)$ V. Find the amplitude of the 3 kHz component of $v_{out}$.",
+          "answer": "A2*H2",
+          "unit": "V",
+          "explanation": "$6000\\pi t$ means $f = 6000\\pi/2\\pi$ = 3 kHz, so use $H(3\\text{ kHz})$: amplitude = {{H2}} × {{A2|V}} = {{A2*H2|V}} (phase −75°). The other components use their own $H$ values and are added as separate time functions."
+        },
+        {
+          "id": "p5",
+          "type": "multipleChoice",
+          "params": {"A": [1, 2, 5], "B": [1, 2, 4], "Ha": [0.8, 2, 3], "Hb": [0.1, 0.25, 0.4], "ta": [10, 30, 45], "tb": [-80, -60, -45]},
+          "prompt": "At 500 Hz a filter has $H = {{Ha}}\\angle{{ta}}^\\circ$, at 1500 Hz $H = {{Hb}}\\angle{{tb}}^\\circ$. For $v_{in}(t) = {{A}}\\cos(1000\\pi t) + {{B}}\\cos(3000\\pi t + 20^\\circ)$, which is $v_{out}(t)$?",
+          "options": [
+            "${{A*Ha}}\\cos(1000\\pi t + {{ta}}^\\circ) + {{B*Hb}}\\cos(3000\\pi t {{20+tb}}^\\circ)$",
+            "${{A*Ha}}\\cos(1000\\pi t - {{ta}}^\\circ) + {{B*Hb}}\\cos(3000\\pi t + {{20-tb}}^\\circ)$",
+            "${{A*Hb}}\\cos(1000\\pi t {{tb}}^\\circ) + {{B*Ha}}\\cos(3000\\pi t + {{20+ta}}^\\circ)$"
+          ],
+          "answer": 0,
+          "explanation": "$1000\\pi t$ is the 500 Hz component and $3000\\pi t$ the 1500 Hz one. 500 Hz: {{A}}∠0° × {{Ha}}∠{{ta}}° = {{A*Ha}}∠{{ta}}°. 1500 Hz: {{B}}∠20° × {{Hb}}∠{{tb}}° = {{B*Hb}}∠{{20+tb}}°. Convert each back to a cosine and add the time functions. Subtracting the angles, or using the wrong frequency's $H$, are the typical mistakes."
+        },
+        {
+          "id": "p6",
+          "type": "orderSteps",
+          "prompt": "Put the steps for finding a filter's output for a multi-frequency input in order.",
+          "items": [
+            "Split the input into components; note each frequency and phasor",
+            "Evaluate H(f) at each component's frequency",
+            "Multiply each input phasor by its H(f)",
+            "Convert each output phasor back to a time function",
+            "Add the time functions"
+          ],
+          "explanation": "This is superposition: each frequency passes through the filter independently. Phasors of different frequencies cannot be added, so the components are converted to time functions before adding."
+        },
+        {
+          "id": "p7",
+          "type": "numeric",
+          "params": {"f": [500, 1000, 2000, 5000], "frac": [0.05, 0.1, 0.125, 0.25, 0.4]},
+          "derived": {"dt": "frac/f"},
+          "prompt": "To measure $H(f)$ at {{f|Hz}}, you see on an oscilloscope that each output peak occurs {{dt|s}} **after** the corresponding input peak. What is $\\angle H(f)$ in degrees (between −180° and 0°)?",
+          "answer": "-360*frac",
+          "unit": "°",
+          "explanation": "One period is $T = 1/f$ = {{1/f|s}}. A delay of {{dt|s}} is {{frac}} of a period, i.e. {{frac}} × 360° = {{360*frac}}°. The output lags, so $\\angle H$ = −{{360*frac}}°."
+        },
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {"A": [2, 4, 5], "g": [0.25, 0.5, 0.8, 2], "ph": [-135, -90, -45, 45], "Tms": [1, 2, 5]},
+          "derived": {"T": "Tms/1000", "dt": "mod(-ph/360*T, T)"},
+          "prompt": "The graph shows one period of the input $v_{in}$ (grey, dashed) and the output $v_{out}$ (solid) of a filter.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "T",
+              "label": "t",
+              "unit": "s",
+              "ticks": ["0", "T/4", "T/2", "3*T/4", "T"]
+            },
+            "y": {
+              "min": "-1.3*max(A,g*A)",
+              "max": "1.3*max(A,g*A)",
+              "label": "v (V)"
+            },
+            "curves": [
+              {
+                "f": "A*cos(2*pi*x/T)",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "g*A*cos(2*pi*x/T+rad(ph))"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find $|H(f)|$ at this frequency.",
+              "answer": "g",
+              "unit": "",
+              "tolerance": 0.1,
+              "explanation": "$|H| = V_{out,peak}/V_{in,peak}$ = {{g*A|V}} / {{A|V}} = {{g}}."
+            },
+            {
+              "prompt": "Find $\\angle H(f)$ in degrees ($-180^\\circ < \\angle H \\le 180^\\circ$).",
+              "answer": "ph",
+              "unit": "°",
+              "tolerance": 0.1,
+              "absTolerance": 10,
+              "explanation": "The input peaks at $t = 0$ and $t = T$ = {{T|s}}; the output peaks at $t$ = {{dt|s}}, a fraction {{dt/T}} of a period. $\\angle H = \\theta_{out} - \\theta_{in} = -360^\\circ\\cdot t_{peak}/T$ = {{-360*dt/T}}°, which is the same angle as {{ph}}° (a later peak is a lag, a negative angle)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fr-transfer-3",
+      "title": "From circuit to output",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "multipleChoice",
+          "prompt": "Which expression is the transfer function $H(f) = V_{out}/V_{in}$ of this circuit?",
+          "circuit": {"elements": [
+            {"type": "acsource", "from": [0, 3], "to": [0, 1], "label": "V_{in}", "flip": true},
+            {"type": "resistor", "from": [0, 1], "to": [2, 1], "label": "R_1"},
+            {"type": "wire", "points": [[2, 1], [6, 1]]},
+            {"type": "resistor", "from": [2, 1], "to": [2, 3], "label": "R_2"},
+            {"type": "capacitor", "from": [4, 1], "to": [4, 3], "label": "C"},
+            {"type": "wire", "points": [[0, 3], [6, 3]]},
+            {"type": "node", "at": [2, 1]}, {"type": "node", "at": [4, 1]},
+            {"type": "node", "at": [2, 3]}, {"type": "node", "at": [4, 3]},
+            {"type": "terminal", "at": [6, 1], "label": "+"},
+            {"type": "terminal", "at": [6, 3], "label": "−"},
+            {"type": "text", "at": [6.7, 2], "label": "V_{out}"}
+          ]},
+          "options": [
+            "$\\frac{R_2}{R_1 + R_2 + j2\\pi f C R_1 R_2}$",
+            "$\\frac{1}{1 + j2\\pi f R_1 C}$",
+            "$\\frac{R_1}{R_1 + R_2 + j2\\pi f C R_1 R_2}$"
+          ],
+          "answer": 0,
+          "explanation": "$R_2$ and $C$ are in parallel: $Z_p = \\frac{R_2}{1 + j2\\pi f C R_2}$. Voltage divider: $H = \\frac{Z_p}{R_1 + Z_p} = \\frac{R_2}{R_1 + R_2 + j2\\pi f C R_1 R_2}$. Dividing through by $R_1 + R_2$ gives $H = \\frac{K}{1 + jf/f_B}$ with $K = \\frac{R_2}{R_1+R_2}$ and $f_B = \\frac{1}{2\\pi C (R_1\\|R_2)}$. Ignoring $R_2$ or putting $R_1$ in the numerator are the typical slips."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {"V0": [1, 2, 5, 10], "R1": [1000, 2200, 4700, 10000], "R2": [1000, 3300, 4700, 10000], "C": [10e-9, 47e-9, 100e-9]},
+          "prompt": "The input of this circuit is $v_{in}(t) = {{V0}} + 2\\cos(2000\\pi t)$ V. What is the dc component of $v_{out}(t)$?",
+          "circuit": {"elements": [
+            {"type": "acsource", "from": [0, 3], "to": [0, 1], "label": "V_{in}", "flip": true},
+            {"type": "resistor", "from": [0, 1], "to": [2, 1], "label": "R_1", "value": "{{R1|Ω}}"},
+            {"type": "wire", "points": [[2, 1], [6, 1]]},
+            {"type": "resistor", "from": [2, 1], "to": [2, 3], "label": "R_2", "value": "{{R2|Ω}}"},
+            {"type": "capacitor", "from": [4, 1], "to": [4, 3], "label": "C", "value": "{{C|F}}"},
+            {"type": "wire", "points": [[0, 3], [6, 3]]},
+            {"type": "node", "at": [2, 1]}, {"type": "node", "at": [4, 1]},
+            {"type": "node", "at": [2, 3]}, {"type": "node", "at": [4, 3]},
+            {"type": "terminal", "at": [6, 1], "label": "+"},
+            {"type": "terminal", "at": [6, 3], "label": "−"},
+            {"type": "text", "at": [6.7, 2], "label": "V_{out}"}
+          ]},
+          "answer": "V0*R2/(R1+R2)",
+          "unit": "V",
+          "explanation": "At $f = 0$ the capacitor is an open circuit, so $H(0) = \\frac{R_2}{R_1 + R_2}$ = {{R2|Ω}}/({{R1|Ω}} + {{R2|Ω}}) = {{R2/(R1+R2)}}. The dc output is {{R2/(R1+R2)}} × {{V0|V}} = {{V0*R2/(R1+R2)|V}}."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {"R1": [1000, 2200, 4700, 10000], "R2": [1000, 3300, 4700, 10000], "C": [10e-9, 47e-9, 100e-9], "f": [1000, 2000, 5000, 10000]},
+          "derived": {"K": "R2/(R1+R2)", "fB": "1/(2*pi*C*par(R1,R2))"},
+          "prompt": "For this circuit, find $|H(f)| = |V_{out}/V_{in}|$ at $f$ = {{f|Hz}}.",
+          "circuit": {"elements": [
+            {"type": "acsource", "from": [0, 3], "to": [0, 1], "label": "V_{in}", "flip": true},
+            {"type": "resistor", "from": [0, 1], "to": [2, 1], "label": "R_1", "value": "{{R1|Ω}}"},
+            {"type": "wire", "points": [[2, 1], [6, 1]]},
+            {"type": "resistor", "from": [2, 1], "to": [2, 3], "label": "R_2", "value": "{{R2|Ω}}"},
+            {"type": "capacitor", "from": [4, 1], "to": [4, 3], "label": "C", "value": "{{C|F}}"},
+            {"type": "wire", "points": [[0, 3], [6, 3]]},
+            {"type": "node", "at": [2, 1]}, {"type": "node", "at": [4, 1]},
+            {"type": "node", "at": [2, 3]}, {"type": "node", "at": [4, 3]},
+            {"type": "terminal", "at": [6, 1], "label": "+"},
+            {"type": "terminal", "at": [6, 3], "label": "−"},
+            {"type": "text", "at": [6.7, 2], "label": "V_{out}"}
+          ]},
+          "answer": "K/sqrt(1+(f/fB)^2)",
+          "unit": "",
+          "hint": "Write H(f) = K/(1 + jf/f_B) with K = R₂/(R₁+R₂) and f_B = 1/(2πC(R₁∥R₂)).",
+          "explanation": "$H = \\frac{K}{1 + jf/f_B}$ with $K = \\frac{R_2}{R_1+R_2}$ = {{K}} and $R_1\\|R_2$ = {{par(R1,R2)|Ω}}, so $f_B = \\frac{1}{2\\pi C (R_1\\|R_2)}$ = {{fB|Hz}}. Then $|H| = \\frac{K}{\\sqrt{1 + (f/f_B)^2}}$ = {{K}}/√(1 + {{(f/fB)^2}}) = {{K/sqrt(1+(f/fB)^2)}}."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {"R1": [1000, 2200, 4700, 10000], "R2": [1000, 3300, 4700, 10000], "C": [10e-9, 47e-9, 100e-9], "f": [1000, 2000, 5000, 10000]},
+          "derived": {"fB": "1/(2*pi*C*par(R1,R2))"},
+          "prompt": "For this circuit, find the phase $\\angle H(f)$ at $f$ = {{f|Hz}}, in degrees.",
+          "circuit": {"elements": [
+            {"type": "acsource", "from": [0, 3], "to": [0, 1], "label": "V_{in}", "flip": true},
+            {"type": "resistor", "from": [0, 1], "to": [2, 1], "label": "R_1", "value": "{{R1|Ω}}"},
+            {"type": "wire", "points": [[2, 1], [6, 1]]},
+            {"type": "resistor", "from": [2, 1], "to": [2, 3], "label": "R_2", "value": "{{R2|Ω}}"},
+            {"type": "capacitor", "from": [4, 1], "to": [4, 3], "label": "C", "value": "{{C|F}}"},
+            {"type": "wire", "points": [[0, 3], [6, 3]]},
+            {"type": "node", "at": [2, 1]}, {"type": "node", "at": [4, 1]},
+            {"type": "node", "at": [2, 3]}, {"type": "node", "at": [4, 3]},
+            {"type": "terminal", "at": [6, 1], "label": "+"},
+            {"type": "terminal", "at": [6, 3], "label": "−"},
+            {"type": "text", "at": [6.7, 2], "label": "V_{out}"}
+          ]},
+          "answer": "-deg(atan(f/fB))",
+          "unit": "°",
+          "absTolerance": 0.5,
+          "explanation": "$H = \\frac{K}{1 + jf/f_B}$ with real $K$, so $\\angle H = -\\arctan(f/f_B)$. $R_1\\|R_2$ = {{par(R1,R2)|Ω}} gives $f_B$ = {{fB|Hz}}, so $f/f_B$ = {{f/fB}} and $\\angle H$ = {{-deg(atan(f/fB))}}°."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {"R1": [1000, 2200, 4700, 10000], "R2": [1000, 3300, 4700, 10000], "C": [10e-9, 47e-9, 100e-9]},
+          "prompt": "At low frequencies this circuit has $|H| = R_2/(R_1+R_2)$. At what frequency has $|H|$ dropped to $1/\\sqrt{2}$ of that value?",
+          "circuit": {"elements": [
+            {"type": "acsource", "from": [0, 3], "to": [0, 1], "label": "V_{in}", "flip": true},
+            {"type": "resistor", "from": [0, 1], "to": [2, 1], "label": "R_1", "value": "{{R1|Ω}}"},
+            {"type": "wire", "points": [[2, 1], [6, 1]]},
+            {"type": "resistor", "from": [2, 1], "to": [2, 3], "label": "R_2", "value": "{{R2|Ω}}"},
+            {"type": "capacitor", "from": [4, 1], "to": [4, 3], "label": "C", "value": "{{C|F}}"},
+            {"type": "wire", "points": [[0, 3], [6, 3]]},
+            {"type": "node", "at": [2, 1]}, {"type": "node", "at": [4, 1]},
+            {"type": "node", "at": [2, 3]}, {"type": "node", "at": [4, 3]},
+            {"type": "terminal", "at": [6, 1], "label": "+"},
+            {"type": "terminal", "at": [6, 3], "label": "−"},
+            {"type": "text", "at": [6.7, 2], "label": "V_{out}"}
+          ]},
+          "answer": "1/(2*pi*C*par(R1,R2))",
+          "unit": "Hz",
+          "explanation": "$|H| = K/\\sqrt{1 + (f/f_B)^2}$ equals $K/\\sqrt 2$ when $f = f_B$. The capacitor sees the Thévenin resistance $R_1\\|R_2$ = {{par(R1,R2)|Ω}}, so $f_B = \\frac{1}{2\\pi C(R_1\\|R_2)}$ = 1/(2π × {{C|F}} × {{par(R1,R2)|Ω}}) = {{1/(2*pi*C*par(R1,R2))|Hz}}."
+        },
+        {
+          "id": "c6",
+          "type": "numeric",
+          "params": {"A": [1, 2, 5], "R1": [1000, 2200, 4700], "R2": [1000, 3300, 10000], "C": [10e-9, 47e-9, 100e-9], "f": [2000, 5000, 10000]},
+          "derived": {"K": "R2/(R1+R2)", "fB": "1/(2*pi*C*par(R1,R2))"},
+          "prompt": "The circuit is driven by $v_{in}(t) = 3 + {{A}}\\cos(2\\pi\\cdot{{f}}\\,t)$ V. Find the amplitude of the sinusoidal part of $v_{out}(t)$.",
+          "circuit": {"elements": [
+            {"type": "acsource", "from": [0, 3], "to": [0, 1], "label": "V_{in}", "flip": true},
+            {"type": "resistor", "from": [0, 1], "to": [2, 1], "label": "R_1", "value": "{{R1|Ω}}"},
+            {"type": "wire", "points": [[2, 1], [6, 1]]},
+            {"type": "resistor", "from": [2, 1], "to": [2, 3], "label": "R_2", "value": "{{R2|Ω}}"},
+            {"type": "capacitor", "from": [4, 1], "to": [4, 3], "label": "C", "value": "{{C|F}}"},
+            {"type": "wire", "points": [[0, 3], [6, 3]]},
+            {"type": "node", "at": [2, 1]}, {"type": "node", "at": [4, 1]},
+            {"type": "node", "at": [2, 3]}, {"type": "node", "at": [4, 3]},
+            {"type": "terminal", "at": [6, 1], "label": "+"},
+            {"type": "terminal", "at": [6, 3], "label": "−"},
+            {"type": "text", "at": [6.7, 2], "label": "V_{out}"}
+          ]},
+          "answer": "A*K/sqrt(1+(f/fB)^2)",
+          "unit": "V",
+          "explanation": "Only the {{f|Hz}} component matters here. $K$ = {{K}}, $f_B$ = {{fB|Hz}}, so $|H({{f}}\\text{ Hz})|$ = {{K}}/√(1 + {{(f/fB)^2}}) = {{K/sqrt(1+(f/fB)^2)}}. Amplitude = {{K/sqrt(1+(f/fB)^2)}} × {{A|V}} = {{A*K/sqrt(1+(f/fB)^2)|V}}. (The dc part separately becomes 3 × {{K}} = {{3*K|V}}.)"
+        },
+        {
+          "id": "c7",
+          "type": "trueFalse",
+          "prompt": "If you connect a load resistor across the output terminals of this circuit, its transfer function $H(f)$ stays the same.",
+          "answer": false,
+          "explanation": "The load appears in parallel with $R_2$ and $C$, changing $Z_p$ and therefore both $K$ and $f_B$. A transfer function is only valid for the load it was derived (or measured) with — the same reason $H_1$ of a cascade must be found with the next stage attached."
+        }
+      ]
+    }
+  ]
+}

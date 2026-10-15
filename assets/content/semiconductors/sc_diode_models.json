@@ -1,0 +1,2166 @@
+{
+  "id": "sc-diode-models",
+  "title": "Diode Models & Load Lines",
+  "description": "Find diode operating points graphically with load lines, or quickly with ideal, constant-drop and piecewise-linear models.",
+  "reference": "Hambley §10.2, §10.4–10.5",
+  "study": [
+    {
+      "title": "Load-line analysis",
+      "body": "For a source $V_{SS}$, a resistor $R$ and a diode in series, KVL gives a straight line in the $i_D$–$v_D$ plane: the **load line**. It meets the axes at $v_D = V_{SS}$ (where $i_D = 0$) and at $i_D = V_{SS}/R$ (where $v_D = 0$). The **operating point** (Q point) is where the load line crosses the diode characteristic. Drag $V_{SS}$: the line moves parallel to itself. Drag $R$: it rotates about the point $(V_{SS}, 0)$. Either way the Q point slides along the steep diode curve, so $V_{DQ}$ hardly changes while $I_{DQ}$ changes a lot.",
+      "formula": "V_{SS} = R\\,i_D + v_D",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_{SS}"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "arrow",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              3,
+              0
+            ],
+            "label": "i_D"
+          },
+          {
+            "type": "diode",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "v_D",
+            "polarity": "+-"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          }
+        ]
+      },
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 2.2,
+          "label": "v_D (V)"
+        },
+        "y": {
+          "min": 0,
+          "max": 0.025,
+          "label": "i_D",
+          "unit": "A"
+        },
+        "sliders": [
+          {
+            "name": "VSS",
+            "label": "$V_{SS}$",
+            "min": 1,
+            "max": 2,
+            "step": 0.05,
+            "value": 2,
+            "unit": "V"
+          },
+          {
+            "name": "R",
+            "label": "$R$",
+            "min": 80,
+            "max": 400,
+            "step": 10,
+            "value": 100,
+            "unit": "Ω"
+          }
+        ],
+        "let": {
+          "v1": "0.026*ln((VSS - 0.7)/(R*1e-14) + 1)",
+          "v2": "0.026*ln((VSS - v1)/(R*1e-14) + 1)",
+          "vQ": "0.026*ln((VSS - v2)/(R*1e-14) + 1)",
+          "iQ": "(VSS - vQ)/R"
+        },
+        "curves": [
+          {
+            "f": "1e-14*(exp(x/0.026)-1)",
+            "to": 0.8
+          },
+          {
+            "f": "(VSS-x)/R",
+            "to": "VSS",
+            "color": "orange",
+            "label": "load line",
+            "labelAt": 0.6
+          }
+        ],
+        "points": [
+          {
+            "x": "vQ",
+            "y": "iQ",
+            "label": "Q"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$V_{DQ}$",
+            "value": "vQ",
+            "unit": "V"
+          },
+          {
+            "label": "$I_{DQ}$",
+            "value": "iQ",
+            "unit": "A"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Load lines for larger circuits",
+      "body": "If a circuit has resistors, sources and a **single** nonlinear element, first replace the linear part by its Thévenin equivalent $V_t$, $R_t$. Then the load line is $V_t = R_t i_D + v_D$. Its slope is $-1/R_t$: changing the source shifts the line parallel to itself; changing the resistance rotates it about $(V_t, 0)$."
+    },
+    {
+      "title": "Ideal-diode model",
+      "body": "The ideal diode is a perfect one-way switch.\n- **On:** short circuit, $v_D = 0$; valid if $i_D > 0$.\n- **Off:** open circuit, $i_D = 0$; valid if $v_D < 0$.\nIt works well when the circuit voltages are much larger than the 0.7 V diode drop."
+    },
+    {
+      "title": "Assumed-states analysis",
+      "body": "- Assume a state (on or off) for every diode.\n- Replace on-diodes by their on-model and off-diodes by open circuits; solve the linear circuit.\n- Check: on-diodes need $i_D > 0$ (forward), off-diodes need $v_D$ below the turn-on voltage.\n- If a check fails, change that assumption and solve again.\nTip: if two diodes in an assumed state would force a node to two different voltages, that state is impossible."
+    },
+    {
+      "title": "Constant-voltage-drop model",
+      "body": "A conducting diode is replaced by a 0.7 V source (+ at the anode); an off diode by an open circuit. On is valid if $i_D > 0$; off is valid if $v_D < 0.7$ V. For the simple series circuit:",
+      "formula": "i_D = \\frac{V_{SS} - 0.7\\text{ V}}{R}"
+    },
+    {
+      "title": "Piecewise-linear models",
+      "body": "Approximate the characteristic by straight-line segments. A forward segment through $(v_1, i_1)$ and $(v_2, i_2)$ becomes a source $V_a$ in series with a resistance $R_a = \\frac{v_2 - v_1}{i_2 - i_1}$, where $V_a$ is where the line crosses $i_D = 0$. The ideal and constant-drop models are the special cases with $R_a = 0$.",
+      "formula": "v_D = V_a + R_a i_D"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sc-diode-models-1",
+      "title": "Load lines",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Writing the load line",
+          "body": "The diode equation is nonlinear, so we solve graphically. KVL around the loop gives a **straight line** relating $i_D$ and $v_D$, set only by the linear part of the circuit.",
+          "formula": "V_{SS} = R\\,i_D + v_D",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{SS}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "i_D"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "v_D",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "VSS": [
+              2,
+              3,
+              5,
+              6,
+              10
+            ],
+            "R": [
+              100,
+              220,
+              470,
+              1000
+            ]
+          },
+          "prompt": "With $V_{SS}$ = {{VSS|V}} and $R$ = {{R|Ω}}, where does the load line cross the $i_D$ axis (the point with $v_D = 0$)?",
+          "answer": "VSS/R",
+          "unit": "A",
+          "explanation": "Set $v_D = 0$ in $V_{SS} = Ri_D + v_D$: $i_D = V_{SS}/R$ = {{VSS}} V / {{R|Ω}} = {{VSS/R|A}}."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Where does the same load line cross the $v_D$ axis (the point with $i_D = 0$)?",
+          "options": [
+            "$v_D = V_{SS}$",
+            "$v_D = 0.7$ V",
+            "$v_D = V_{SS}/R$",
+            "$v_D = R\\,V_{SS}$"
+          ],
+          "answer": 0,
+          "explanation": "With $i_D = 0$ there is no drop across $R$, so $v_D = V_{SS}$. The two intercepts $(V_{SS}, 0)$ and $(0, V_{SS}/R)$ are enough to draw the line."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The operating point",
+          "body": "The diode must satisfy both its own characteristic and the load line, so the **operating point** (Q point) is their intersection. Because the forward characteristic is so steep, the Q point of a conducting silicon diode usually sits at $v_D \\approx$ 0.6–0.7 V."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "VSS": [
+              3,
+              5,
+              6
+            ],
+            "R": [
+              500,
+              1000,
+              2000
+            ],
+            "vQ": [
+              0.65,
+              0.7,
+              0.72
+            ]
+          },
+          "prompt": "In the series circuit of a source, a resistor and a forward diode, $V_{SS}$ = {{VSS|V}} and $R$ = {{R|Ω}}. The load line crosses the diode characteristic at $v_D$ = {{vQ|V}}. Find $i_D$ at the Q point.",
+          "answer": "(VSS-vQ)/R",
+          "unit": "A",
+          "explanation": "The Q point lies on the load line: $i_D = \\frac{V_{SS} - v_D}{R} = \\frac{ {{VSS}} - {{vQ}} }{ {{R}} }$ = {{(VSS-vQ)/R|A}}."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "Increasing $V_{SS}$ while keeping $R$ fixed shifts the load line parallel to itself.",
+          "answer": true,
+          "explanation": "The slope of the load line is $-1/R$, which does not depend on $V_{SS}$. Both intercepts grow in proportion, so the line moves parallel to itself."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "What happens to the load line if $R$ is increased while $V_{SS}$ stays the same?",
+          "options": [
+            "It rotates about $(V_{SS}, 0)$ and becomes flatter",
+            "It shifts parallel to the right",
+            "It rotates about the origin",
+            "Nothing, it depends only on $V_{SS}$"
+          ],
+          "answer": 0,
+          "explanation": "The $v_D$-intercept $V_{SS}$ stays put, while the $i_D$-intercept $V_{SS}/R$ drops. So the line rotates about $(V_{SS}, 0)$ and gets a flatter slope $-1/R$: the Q-point current decreases."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Try it: moving the load line",
+          "body": "Drag the sliders. A larger $V_{SS}$ shifts the load line to the right without changing its slope $-1/R$; a larger $R$ makes it flatter. Watch the readouts: the current follows the circuit, but the diode voltage stays near 0.7 V. That is why the constant-voltage-drop model works so well.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{SS}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "i_D"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "v_D",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 2.2,
+              "label": "v_D (V)"
+            },
+            "y": {
+              "min": 0,
+              "max": 0.025,
+              "label": "i_D",
+              "unit": "A"
+            },
+            "sliders": [
+              {
+                "name": "VSS",
+                "label": "$V_{SS}$",
+                "min": 1,
+                "max": 2,
+                "step": 0.05,
+                "value": 2,
+                "unit": "V"
+              },
+              {
+                "name": "R",
+                "label": "$R$",
+                "min": 80,
+                "max": 400,
+                "step": 10,
+                "value": 100,
+                "unit": "Ω"
+              }
+            ],
+            "let": {
+              "v1": "0.026*ln((VSS - 0.7)/(R*1e-14) + 1)",
+              "v2": "0.026*ln((VSS - v1)/(R*1e-14) + 1)",
+              "vQ": "0.026*ln((VSS - v2)/(R*1e-14) + 1)",
+              "iQ": "(VSS - vQ)/R"
+            },
+            "curves": [
+              {
+                "f": "1e-14*(exp(x/0.026)-1)",
+                "to": 0.8
+              },
+              {
+                "f": "(VSS-x)/R",
+                "to": "VSS",
+                "color": "orange",
+                "label": "load line",
+                "labelAt": 0.6
+              }
+            ],
+            "points": [
+              {
+                "x": "vQ",
+                "y": "iQ",
+                "label": "Q"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$V_{DQ}$",
+                "value": "vQ",
+                "unit": "V"
+              },
+              {
+                "label": "$I_{DQ}$",
+                "value": "iQ",
+                "unit": "A"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              5,
+              10,
+              12
+            ],
+            "R1": [
+              1000,
+              2000
+            ],
+            "R2": [
+              1000,
+              3000
+            ]
+          },
+          "prompt": "To draw a load line for this diode, first find the Thévenin voltage $V_t$ seen by the diode (the $v_D$-intercept of the load line).",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "D"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          },
+          "answer": "Vs*R2/(R1+R2)",
+          "unit": "V",
+          "explanation": "Remove the diode and find the open-circuit voltage across its terminals with the divider:\n$V_t = V_s\\frac{R_2}{R_1 + R_2} = {{Vs}}\\times\\frac{ {{R2}} }{ {{R1}} + {{R2}} }$ = {{Vs*R2/(R1+R2)|V}}.\n(The Thévenin resistance is $R_1 \\| R_2$ = {{par(R1,R2)|Ω}}, so the load line is $V_t = R_t i_D + v_D$.)"
+        }
+      ]
+    },
+    {
+      "id": "sc-diode-models-2",
+      "title": "Ideal and constant-drop models",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Quick models",
+          "body": "- **Ideal diode:** on = short ($v_D = 0$, needs $i_D > 0$), off = open ($i_D = 0$, needs $v_D < 0$).\n- **Constant-voltage drop:** on = 0.7 V source ($i_D > 0$), off = open ($v_D < 0.7$ V).\nAssume a state, solve, then check the assumption."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "VSS": [
+              5,
+              10,
+              12,
+              15
+            ],
+            "R": [
+              1000,
+              2200,
+              4700
+            ]
+          },
+          "prompt": "Using the **ideal-diode** model, find $i_D$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{SS}",
+                "value": "{{VSS|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "i_D"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "D"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "answer": "VSS/R",
+          "unit": "A",
+          "explanation": "Assume D is on (short circuit). Then all of $V_{SS}$ is across $R$:\n$i_D = V_{SS}/R$ = {{VSS}} V / {{R|Ω}} = {{VSS/R|A}}.\nCheck: $i_D > 0$, so the assumption holds."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "VSS": [
+              5,
+              10,
+              12
+            ],
+            "R": [
+              1000,
+              2200
+            ]
+          },
+          "prompt": "Using the ideal-diode model, find $v_D$ (referenced + at the anode) and $i_D$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{SS}",
+                "value": "{{VSS|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  2
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "D"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "options": [
+            "$v_D$ = {{-VSS|V}}, $i_D = 0$",
+            "$v_D = 0$, $i_D$ = {{VSS/R|A}}",
+            "$v_D$ = {{VSS|V}}, $i_D = 0$",
+            "$v_D$ = −0.7 V, $i_D = 0$"
+          ],
+          "answer": 0,
+          "explanation": "The cathode faces the + terminal, so assume D is off (open). Then $i_D = 0$, there is no drop across $R$, the cathode is at {{VSS|V}} and the anode at 0 V: $v_D$ = 0 − {{VSS}} = {{-VSS|V}}.\nCheck: $v_D < 0$, so off is correct. (Assuming on would give a negative $i_D$.)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "VSS": [
+              3,
+              5,
+              9,
+              12
+            ],
+            "R": [
+              220,
+              470,
+              1000
+            ]
+          },
+          "prompt": "Now use the **constant-voltage-drop** model with 0.7 V. Find $i_D$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{SS}",
+                "value": "{{VSS|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "i_D"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "D"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "answer": "(VSS-0.7)/R",
+          "unit": "A",
+          "explanation": "Assume D is on and replace it by a 0.7 V source:\n$i_D = \\frac{V_{SS} - 0.7}{R} = \\frac{ {{VSS}} - 0.7}{ {{R}} }$ = {{(VSS-0.7)/R|A}}.\nCheck: $i_D > 0$. The ideal model would give {{VSS/R|A}}; the difference matters most for small $V_{SS}$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "VSS": [
+              3,
+              5,
+              9
+            ],
+            "R": [
+              100,
+              220,
+              470
+            ]
+          },
+          "prompt": "Using the 0.7 V constant-drop model for both diodes, find the loop current $i$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{SS}",
+                "value": "{{VSS|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "D_2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "i"
+              }
+            ]
+          },
+          "answer": "(VSS-1.4)/R",
+          "unit": "A",
+          "explanation": "Both diodes point the same way around the loop, so assume both on. KVL: $V_{SS} = Ri + 0.7 + 0.7$, so\n$i = \\frac{ {{VSS}} - 1.4}{ {{R}} }$ = {{(VSS-1.4)/R|A}}.\nThe result is positive, so both diodes are indeed on."
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Put the steps of assumed-states analysis in order",
+          "items": [
+            "Assume a state (on or off) for each diode",
+            "Replace on-diodes by their on-model and off-diodes by open circuits",
+            "Solve the resulting linear circuit",
+            "Check $i_D > 0$ for on-diodes and $v_D$ below turn-on for off-diodes",
+            "If a check fails, change that assumption and repeat"
+          ],
+          "explanation": "Guess, solve, check. Each diode model is linear once the state is fixed, so the circuit can be solved with ordinary circuit analysis. The checks tell you whether the guess was consistent."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              8,
+              10,
+              12
+            ],
+            "VB": [
+              2,
+              3,
+              5
+            ],
+            "R": [
+              1000,
+              2200
+            ]
+          },
+          "prompt": "Using the 0.7 V model, find the diode current $i_D$ (anode to cathode).",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{in}",
+                "value": "{{Vin|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "D"
+              },
+              {
+                "type": "vsource",
+                "from": [
+                  3,
+                  4
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "V_B",
+                "value": "{{VB|V}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    4
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              }
+            ]
+          },
+          "answer": "(Vin-VB-0.7)/R",
+          "unit": "A",
+          "explanation": "Assume D on. KVL around the loop: $V_{in} = Ri_D + 0.7 + V_B$, so\n$i_D = \\frac{ {{Vin}} - 0.7 - {{VB}} }{ {{R}} }$ = {{(Vin-VB-0.7)/R|A}}.\n$i_D > 0$, so the assumption is consistent. The diode only conducts when $V_{in} > V_B + 0.7$ V."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "In ideal-diode analysis, if a diode assumed **on** turns out to have a negative $i_D$, the assumption was wrong.",
+          "answer": true,
+          "explanation": "An ideal diode can only conduct in the forward direction, so an on-diode must have $i_D > 0$. A negative result means the diode is actually off: redo the analysis with it as an open circuit."
+        }
+      ]
+    },
+    {
+      "id": "sc-diode-models-3",
+      "title": "Multi-diode circuits",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              10,
+              12,
+              15
+            ],
+            "R1": [
+              1000,
+              2000
+            ],
+            "R2": [
+              1000,
+              2200,
+              3300
+            ],
+            "R3": [
+              470,
+              1000
+            ]
+          },
+          "derived": {
+            "Vt": "Vs*R2/(R1+R2)",
+            "Rt": "par(R1, R2)",
+            "iD": "(Vt-0.7)/(Rt+R3)"
+          },
+          "prompt": "Using the 0.7 V model, find the diode current $i_D$. (Hint: replace $V_s$, $R_1$, $R_2$ by a Thévenin equivalent first.)",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  5,
+                  0
+                ],
+                "label": "D"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  0
+                ],
+                "to": [
+                  5,
+                  2
+                ],
+                "label": "R_3",
+                "value": "{{R3|Ω}}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          },
+          "answer": "iD",
+          "unit": "A",
+          "explanation": "Thévenin equivalent to the left of D:\n$V_t = {{Vs}}\\frac{ {{R2}} }{ {{R1}} + {{R2}} }$ = {{Vt|V}}, $R_t = R_1\\|R_2$ = {{Rt|Ω}}.\nAssume D on: $i_D = \\frac{V_t - 0.7}{R_t + R_3} = \\frac{ {{Vt}} - 0.7}{ {{Rt}} + {{R3}} }$ = {{iD|A}} (positive, so D is on)."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "VA": [
+              4,
+              5
+            ],
+            "VB": [
+              0,
+              1,
+              2
+            ],
+            "R": [
+              1000,
+              4700
+            ]
+          },
+          "prompt": "The inputs are held at $V_A$ = {{VA|V}} and $V_B$ = {{VB|V}} relative to ground. Using the 0.7 V model, which diodes conduct?",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0
+                ],
+                "label": "V_A",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "D_A"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  2
+                ],
+                "label": "V_B",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "D_B"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  0
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  4,
+                  2
+                ]
+              }
+            ]
+          },
+          "options": [
+            "Only $D_A$",
+            "Only $D_B$",
+            "Both",
+            "Neither"
+          ],
+          "answer": 0,
+          "explanation": "Both on is impossible: $v_o$ would have to be {{VA-0.7}} V and {{VB-0.7}} V at the same time.\nAssume only $D_A$ on: $v_o = V_A - 0.7$ = {{VA-0.7|V}}, and $i_{DA} = v_o/R > 0$ ✓. For $D_B$: $v_D = V_B - v_o$ = {{VB-VA+0.7|V}} < 0.7 V ✓, so $D_B$ is off. The higher input wins: this is a diode OR gate."
+        },
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "Diode logic gate, 0.7 V model. The inputs are $V_A$ = 5 V, $V_B$ = 0 V and $V_C$ = 5 V. Tap every diode that **conducts**.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0
+                ],
+                "label": "V_A",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "name": "DA",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "D_A"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  1.5
+                ],
+                "label": "V_B",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "name": "DB",
+                "from": [
+                  2,
+                  1.5
+                ],
+                "to": [
+                  0,
+                  1.5
+                ],
+                "label": "D_B"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  3
+                ],
+                "label": "V_C",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "name": "DC",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  0,
+                  3
+                ],
+                "label": "D_C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    5,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  1.5
+                ]
+              },
+              {
+                "type": "resistor",
+                "name": "R",
+                "from": [
+                  4,
+                  1.5
+                ],
+                "to": [
+                  4,
+                  -0.5
+                ],
+                "label": "R"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  4,
+                  -0.5
+                ],
+                "label": "+5 V"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  1.5
+                ],
+                "label": "v_o"
+              }
+            ]
+          },
+          "selectable": [
+            "DA",
+            "DB",
+            "DC"
+          ],
+          "answer": [
+            "DB"
+          ],
+          "explanation": "The resistor pulls current from +5 V into the anodes. The diode with the **lowest** cathode voltage takes it: $D_B$ conducts and clamps\n$$v_o = V_B + 0.7 = 0.7\\text{ V}$$\nNow $D_A$ and $D_C$ have 0.7 V on the anode and 5 V on the cathode: reverse biased, off. (Check: if $D_A$ were on, $v_o$ would be 5.7 V and $D_B$ would have 5.7 V across it, impossible.) This circuit is an AND gate: $v_o$ is high only if all inputs are high."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "VA": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "VB": [
+              4,
+              5,
+              6
+            ],
+            "R": [
+              1000,
+              4700
+            ]
+          },
+          "prompt": "In the same diode OR circuit, $V_A$ = {{VA|V}}, $V_B$ = {{VB|V}} and $R$ = {{R|Ω}}. Using the 0.7 V model, find $v_o$.",
+          "answer": "max(VA,VB)-0.7",
+          "unit": "V",
+          "explanation": "The diode at the higher input conducts and the other is reverse biased. Here $D_B$ is on: $v_o = V_B - 0.7$ = {{max(VA,VB)-0.7|V}}.\nCheck $D_A$: $v_D = V_A - v_o$ = {{VA-VB+0.7|V}} < 0.7 V, so it is off."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              6,
+              8
+            ],
+            "R1": [
+              1000,
+              2000
+            ],
+            "R2": [
+              1000
+            ],
+            "VB": [
+              5,
+              6
+            ]
+          },
+          "derived": {
+            "vA": "Vs*R2/(R1+R2)"
+          },
+          "prompt": "Using the 0.7 V model, find the node voltage $v_A$ (top of $R_2$, relative to ground).",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  5,
+                  0
+                ],
+                "label": "D"
+              },
+              {
+                "type": "vsource",
+                "from": [
+                  5,
+                  2
+                ],
+                "to": [
+                  5,
+                  0
+                ],
+                "label": "V_B",
+                "value": "{{VB|V}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ],
+                "label": "v_A"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          "answer": "vA",
+          "unit": "V",
+          "explanation": "Try D on: then $v_A = V_B + 0.7$ = {{VB+0.7|V}}, $i_{R1} = ({{Vs}} - {{VB+0.7}})/{{R1}}$ = {{(Vs-VB-0.7)/R1|A}} and $i_{R2}$ = {{(VB+0.7)/R2|A}}, so $i_D = i_{R1} - i_{R2}$ = {{(Vs-VB-0.7)/R1-(VB+0.7)/R2|A}} < 0. Wrong assumption!\nD off: $v_A = V_s\\frac{R_2}{R_1+R_2}$ = {{vA|V}}. Check: $v_D = v_A - V_B$ = {{vA-VB|V}} < 0.7 V ✓."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "v1": [
+              0.6,
+              0.65
+            ],
+            "i1": [
+              0.001,
+              0.002
+            ],
+            "dv": [
+              0.1,
+              0.15,
+              0.2
+            ],
+            "di": [
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "A piecewise-linear diode model uses the straight line through ({{v1|V}}, {{i1|A}}) and ({{v1+dv|V}}, {{i1+di|A}}). Find the series resistance $R_a$ of the model.",
+          "answer": "dv/di",
+          "unit": "Ω",
+          "explanation": "$R_a$ is the inverse slope of the line:\n$R_a = \\frac{\\Delta v}{\\Delta i} = \\frac{ {{dv}}\\text{ V} }{ {{di}}\\text{ A} }$ = {{dv/di|Ω}}."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "v1": [
+              0.6,
+              0.65
+            ],
+            "i1": [
+              0.001,
+              0.002
+            ],
+            "dv": [
+              0.1,
+              0.15,
+              0.2
+            ],
+            "di": [
+              0.01,
+              0.02
+            ]
+          },
+          "derived": {
+            "Ra": "dv/di",
+            "Va": "v1 - i1*dv/di"
+          },
+          "prompt": "For the line through ({{v1|V}}, {{i1|A}}) and ({{v1+dv|V}}, {{i1+di|A}}), find the model voltage $V_a$, where the line crosses $i_D = 0$.",
+          "answer": "Va",
+          "unit": "V",
+          "explanation": "$R_a = \\Delta v/\\Delta i$ = {{Ra|Ω}}. On the line $v_D = V_a + R_a i_D$, so using the first point:\n$V_a = v_1 - R_a i_1 = {{v1}} - {{Ra}}\\times{{i1}}$ = {{Va|V}}."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "VSS": [
+              3,
+              5,
+              9
+            ],
+            "R": [
+              100,
+              220,
+              470
+            ],
+            "Va": [
+              0.6,
+              0.65
+            ],
+            "Ra": [
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "A diode is modeled by $V_a$ = {{Va|V}} in series with $R_a$ = {{Ra|Ω}} when on. It is in series with $R$ = {{R|Ω}} across $V_{SS}$ = {{VSS|V}} (forward direction). Find $i_D$.",
+          "answer": "(VSS-Va)/(R+Ra)",
+          "unit": "A",
+          "explanation": "Replace the diode by its model: $V_{SS} = (R + R_a)i_D + V_a$, so\n$i_D = \\frac{ {{VSS}} - {{Va}} }{ {{R}} + {{Ra}} }$ = {{(VSS-Va)/(R+Ra)|A}}.\nThen $v_D = V_a + R_a i_D$ = {{Va+Ra*(VSS-Va)/(R+Ra)|V}}."
+        },
+        {
+          "id": "q8",
+          "type": "matchPairs",
+          "prompt": "Match each diode model with its equivalent circuit",
+          "pairs": [
+            [
+              "Ideal diode, on",
+              "Short circuit"
+            ],
+            [
+              "Constant drop, on",
+              "0.7 V source"
+            ],
+            [
+              "Piecewise-linear, on",
+              "$V_a$ in series with $R_a$"
+            ],
+            [
+              "Any model, off",
+              "Open circuit"
+            ]
+          ],
+          "explanation": "All three on-models are linear: a short, a fixed voltage source, or a source with a series resistance. In every model an off diode is an open circuit."
+        }
+      ]
+    },
+    {
+      "id": "sc-diode-models-4",
+      "title": "Load lines on the graph",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "g1", "type": "numeric",
+          "params": {"VSS": [2, 3, 4, 5], "R": [100, 150, 200, 250, 300]},
+          "derived": {
+            "i1": "(VSS-0.7)/R",
+            "v1": "0.026*ln(i1/1e-14+1)",
+            "i2": "(VSS-v1)/R",
+            "v2": "0.026*ln(i2/1e-14+1)",
+            "iQ": "(VSS-v2)/R",
+            "vQ": "0.026*ln(iQ/1e-14+1)"
+          },
+          "prompt": "A source $V_{SS}$, a resistor $R$ and a diode are connected in series. The graph shows the diode characteristic (green) and the load line of the circuit (orange). Read the diode current at the operating point.",
+          "plot": {
+            "x": {"min": 0, "max": "1.1*VSS", "label": "v_D", "unit": "V"},
+            "y": {"min": 0, "max": "1.2*VSS/R", "label": "i_D", "unit": "A"},
+            "curves": [{"f": "1e-14*(exp(x/0.026)-1)", "to": 0.8}, {"f": "(VSS-x)/R", "to": "VSS", "color": "orange"}]
+          },
+          "answer": "iQ",
+          "unit": "A",
+          "tolerance": 0.07,
+          "explanation": "The operating point (Q point) is where the load line crosses the diode curve, because both equations must hold at once. Going left from the crossing to the $i_D$ axis gives $i_D$ ≈ {{iQ|A}}, at $v_D$ ≈ {{vQ||2}} V. Check with KVL: $i_D = (V_{SS} - v_D)/R$ = ({{VSS|V}} − {{vQ||2}} V) / {{R|Ω}} = {{iQ|A}}."
+        },
+        {
+          "id": "g2", "type": "numeric",
+          "params": {"VSS": [2, 3, 4, 5, 6], "isc": [0.01, 0.02, 0.025, 0.04, 0.05]},
+          "derived": {"R": "VSS/isc"},
+          "prompt": "The orange line is the load line of a series circuit with a source $V_{SS}$, a resistor $R$ and the diode. Read the intercepts of the load line and find $R$.",
+          "plot": {
+            "x": {"min": 0, "max": "1.1*VSS", "label": "v_D", "unit": "V"},
+            "y": {"min": 0, "max": "1.2*VSS/R", "label": "i_D", "unit": "A"},
+            "curves": [{"f": "1e-14*(exp(x/0.026)-1)", "to": 0.8}, {"f": "(VSS-x)/R", "to": "VSS", "color": "orange"}]
+          },
+          "answer": "R",
+          "unit": "Ω",
+          "tolerance": 0.05,
+          "explanation": "The load line $V_{SS} = R\\,i_D + v_D$ meets the $v_D$ axis at $v_D = V_{SS}$ = {{VSS|V}} (there $i_D$ = 0) and the $i_D$ axis at $i_D = V_{SS}/R$ = {{isc|A}} (there $v_D$ = 0). So $R$ = {{VSS|V}} / {{isc|A}} = {{R|Ω}}. Its slope is $-1/R$."
+        },
+        {
+          "id": "g3", "type": "multipleChoice",
+          "params": {"VSS": [3, 4, 5], "R": [100, 200], "c": [0, 1, 2, 3]},
+          "derived": {
+            "d0": "max(0, 1-abs(c-0))",
+            "d1": "max(0, 1-abs(c-1))",
+            "d2": "max(0, 1-abs(c-2))",
+            "d3": "max(0, 1-abs(c-3))",
+            "V2": "VSS*(1 + 0.5*d0 - 0.4*d1)",
+            "R2": "R*(1 + d2 - 0.5*d3)"
+          },
+          "prompt": "One component value of the diode circuit was changed, which moved the load line from the solid orange line (before) to the dashed blue line (after). What was changed?",
+          "plot": {
+            "x": {"min": 0, "max": "1.1*max(VSS, V2)", "label": "v_D", "unit": "V"},
+            "y": {"min": 0, "max": "1.2*max(VSS/R, V2/R2)", "label": "i_D", "unit": "A"},
+            "curves": [
+              {"f": "1e-14*(exp(x/0.026)-1)", "to": 0.8, "color": "grey"},
+              {"f": "(VSS-x)/R", "to": "VSS", "color": "orange"},
+              {"f": "(V2-x)/R2", "to": "V2", "color": "blue", "dash": true}
+            ]
+          },
+          "options": ["$V_{SS}$ was increased", "$V_{SS}$ was decreased", "$R$ was increased", "$R$ was decreased"],
+          "answer": "c",
+          "explanation": "The load line runs from $(V_{SS}, 0)$ on the $v_D$ axis to $(0, V_{SS}/R)$ on the $i_D$ axis, with slope $-1/R$.\n- Only $V_{SS}$ changed: same slope, the line **shifts parallel** (right for a larger $V_{SS}$).\n- Only $R$ changed: same $v_D$ intercept, the line **rotates** about $(V_{SS}, 0)$: flatter for a larger $R$, steeper for a smaller $R$."
+        },
+        {
+          "id": "g4", "type": "numeric",
+          "params": {"Va": [0.5, 0.6, 0.7], "Ra": [10, 20, 25, 50]},
+          "prompt": "The graph shows a piecewise-linear diode model: no current below $V_a$, and $v_D = V_a + R_a i_D$ when the diode conducts.",
+          "plot": {
+            "x": {"min": 0, "max": 1.5, "label": "v_D (V)"},
+            "y": {"min": 0, "max": "1.1/Ra", "label": "i_D", "unit": "A"},
+            "curves": [{"f": "max(0, (x-Va)/Ra)"}]
+          },
+          "ask": [
+            {
+              "prompt": "Read $V_a$.",
+              "answer": "Va",
+              "unit": "V",
+              "tolerance": 0.07,
+              "explanation": "$V_a$ is where the sloped segment meets $i_D$ = 0: the line leaves the axis at $v_D$ ≈ {{Va|V}}. In the circuit model it is a voltage source of {{Va|V}} in series with $R_a$."
+            },
+            {
+              "prompt": "Find $R_a$ from the slope of the conducting segment.",
+              "answer": "Ra",
+              "unit": "Ω",
+              "tolerance": 0.1,
+              "explanation": "Take two points on the sloped segment: it starts at $V_a$ = {{Va|V}} with $i_D$ = 0 and reaches {{(1.4-Va)/Ra|A}} at $v_D$ = 1.4 V. $R_a = \\Delta v_D/\\Delta i_D$ = (1.4 V − {{Va|V}}) / {{(1.4-Va)/Ra|A}} = {{Ra|Ω}}."
+            }
+          ]
+        },
+        {
+          "id": "g5", "type": "multipleChoice",
+          "prompt": "Which graph shows the **constant-voltage-drop** model of a diode? ($v_D$ horizontal, $i_D$ vertical, gridlines every 0.5 V.)",
+          "optionPlots": [
+            {"x": {"min": -1, "max": 2}, "y": {"min": -0.2, "max": 1}, "curves": [{"f": "max(0, x-0.7)*1000"}]},
+            {"x": {"min": -1, "max": 2}, "y": {"min": -0.2, "max": 1}, "curves": [{"f": "max(0, x)*1000"}]},
+            {"x": {"min": -1, "max": 2}, "y": {"min": -0.2, "max": 1}, "curves": [{"f": "max(0, x-0.5)"}]},
+            {"x": {"min": -1, "max": 2}, "y": {"min": -0.2, "max": 1}, "curves": [{"f": "0.5*x"}]}
+          ],
+          "answer": 0,
+          "explanation": "The constant-voltage-drop model says: no current below 0.7 V, and any current at exactly 0.7 V. Its graph is the $v_D$ axis up to 0.7 V and then a **vertical** line at 0.7 V. A vertical line at 0 V is the ideal-diode model; a sloped line starting at $V_a$ is a piecewise-linear model with $R_a > 0$; a line through the origin is a plain resistor."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "R": [
+              100,
+              150,
+              200
+            ],
+            "I": [
+              0.005,
+              0.008,
+              0.01
+            ]
+          },
+          "derived": {
+            "vI": "0.026*ln(I/1e-14 + 1)",
+            "Vt": "R*I + vI"
+          },
+          "prompt": "In this circuit ($R$ = {{R|Ω}}) the diode follows the green characteristic. Set $V_{SS}$ so that the diode current is {{I|A}}.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{SS}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "i_D"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "v_D",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "v_D",
+              "unit": "V"
+            },
+            "y": {
+              "min": 0,
+              "max": 0.025,
+              "label": "i_D",
+              "unit": "A"
+            },
+            "sliders": [
+              {
+                "name": "VSS",
+                "label": "$V_{SS}$",
+                "min": 0.8,
+                "max": 3,
+                "step": 0.01,
+                "value": 1,
+                "unit": "V"
+              }
+            ],
+            "let": {
+              "v1": "0.026*ln((VSS - 0.7)/(R*1e-14) + 1)",
+              "v2": "0.026*ln((VSS - v1)/(R*1e-14) + 1)",
+              "vQ": "0.026*ln((VSS - v2)/(R*1e-14) + 1)",
+              "iQ": "(VSS - vQ)/R"
+            },
+            "curves": [
+              {
+                "f": "1e-14*(exp(x/0.026)-1)",
+                "to": 0.8
+              },
+              {
+                "f": "(VSS-x)/R",
+                "to": "VSS",
+                "color": "orange",
+                "label": "load line",
+                "labelAt": 0.12
+              }
+            ],
+            "points": [
+              {
+                "x": "vQ",
+                "y": "iQ",
+                "guides": false
+              }
+            ],
+            "hlines": [
+              {
+                "y": "I",
+                "label": "{{I|A}}",
+                "reveal": true
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$I_{DQ}$",
+                "value": "iQ",
+                "unit": "A",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "VSS": "Vt"
+          },
+          "tolerance": 0.03,
+          "hint": "Read $v_D$ at the wanted current from the diode curve; then KVL gives $V_{SS}$.",
+          "explanation": "At $i_D$ = {{I|A}} the diode curve gives $v_D$ ≈ {{vI||3}} V (the Q point must lie on the characteristic). KVL around the loop:\n$V_{SS} = R\\,i_D + v_D$ = {{R|Ω}} × {{I|A}} + {{vI||3}} V = **{{Vt|V}}**.\nThe load line then runs from $(V_{SS}, 0)$ with slope $-1/R$ through that point."
+        }
+      ]
+    }
+  ]
+}

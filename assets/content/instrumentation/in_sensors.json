@@ -1,0 +1,1105 @@
+{
+  "id": "in-sensors",
+  "title": "Sensors",
+  "description": "How strain gauges, RTDs, thermistors, thermocouples and light sensors turn a physical quantity into an electrical one, and how to read them without loading.",
+  "reference": "Hambley §9.1",
+  "study": [
+    {
+      "title": "Sensors and measurands",
+      "body": "A **sensor** turns a physical quantity, the **measurand** $m$, into an electrical quantity: a voltage, a current or a change in resistance, capacitance or inductance. Ideally the output is proportional to the measurand with sensitivity $K$ (e.g. V/N for a load cell).\nExamples: temperature $\\to$ thermocouple, RTD, thermistor; force $\\to$ load cell (strain gauges); light $\\to$ photodiode, LDR; displacement $\\to$ LVDT, potentiometer; proximity $\\to$ Hall-effect sensor.",
+      "formula": "v_{sensor} = K\\,m"
+    },
+    {
+      "title": "Strain gauges",
+      "body": "A strain gauge is a thin metal-foil resistor bonded to a part. When the part is stretched by strain $\\varepsilon = \\Delta L/L$, the gauge gets longer and thinner and its resistance rises. The **gauge factor** $G$ (about 2 for metal foil) links the two. Strains are tiny (typically below 0.002, written in µε = $10^{-6}$), so $\\Delta R$ is a fraction of an ohm and is read with a bridge (next unit).",
+      "formula": "\\frac{\\Delta R}{R} = G\\,\\varepsilon"
+    },
+    {
+      "title": "RTDs and thermistors",
+      "body": "An **RTD** (resistance temperature detector, usually platinum) has a resistance that rises almost linearly with temperature; $R = R_0(1+\\alpha T)$; for a Pt100, $R_0$ = 100 Ω at 0 °C and $\\alpha$ = 0.00385 /°C.\nAn **NTC thermistor** is a semiconductor whose resistance falls steeply and nonlinearly with temperature (temperatures in kelvin in the formula): much more sensitive, but less linear and over a smaller range.",
+      "formula": "R_{NTC} = R_{25}\\exp\\left[\\beta\\left(\\frac{1}{T} - \\frac{1}{T_{25}}\\right)\\right]",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 100,
+          "label": "T",
+          "unit": "°C"
+        },
+        "y": {
+          "min": 0,
+          "max": 3.5,
+          "label": "R / R_{25}"
+        },
+        "curves": [
+          {
+            "f": "(1+0.00385*x)/(1+0.00385*25)",
+            "color": "blue"
+          },
+          {
+            "f": "exp(3950*(1/(x+273.15) - 1/298.15))",
+            "color": "red"
+          }
+        ],
+        "labels": [
+          {
+            "x": 15,
+            "y": 2.6,
+            "text": "NTC thermistor",
+            "color": "red"
+          },
+          {
+            "x": 62,
+            "y": 1.5,
+            "text": "Pt RTD",
+            "color": "blue"
+          }
+        ],
+        "height": 180
+      }
+    },
+    {
+      "title": "Thermocouples",
+      "body": "Two different metals joined at a hot junction produce a small voltage (**Seebeck effect**) proportional to the temperature **difference** between the hot junction and the reference (cold) junction where the wires meet the copper of the instrument. The Seebeck coefficient $S$ is tens of µV/°C (about 41 µV/°C for type K). The reference temperature must be measured separately: **cold-junction compensation**.",
+      "formula": "v \\approx S\\,(T_{hot} - T_{ref})"
+    },
+    {
+      "title": "Light sensors",
+      "body": "A reverse-biased **photodiode** produces a current proportional to the light power: $i_D = \\mathcal{R}P$ with responsivity $\\mathcal{R}$ ≈ 0.5 A/W. To keep its voltage constant it feeds a **current-to-voltage converter** (transimpedance amplifier) with nearly zero input resistance: $v_o = -R_f i_D$.\nAn **LDR** (photoconductive cell) is a resistor whose resistance drops as the light gets brighter; it is slow but cheap.",
+      "circuit": {
+        "elements": [
+          {
+            "type": "isource",
+            "from": [
+              2,
+              3.5
+            ],
+            "to": [
+              2,
+              1.5
+            ],
+            "label": "i_D",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1.5
+              ],
+              [
+                3,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1.5
+              ],
+              [
+                2,
+                0.5
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0.5
+            ],
+            "to": [
+              5,
+              0.5
+            ],
+            "label": "R_f"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                0.5
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "opamp",
+            "at": [
+              4,
+              2
+            ],
+            "name": "U1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2.5
+              ],
+              [
+                3,
+                3.5
+              ]
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              3,
+              3.5
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              2,
+              3.5
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              1.5
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                2
+              ],
+              [
+                6,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              6,
+              2
+            ],
+            "label": "v_o"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Sensor loading",
+      "body": "Model a voltage-output sensor as a Thévenin source $v_{sensor}$ with resistance $R_{sensor}$. The amplifier's input resistance $R_{in}$ forms a voltage divider with it, so the amplifier sees less than $v_{sensor}$, and the loss changes whenever $R_{sensor}$ changes.\nVoltage-output sensors need $R_{in} \\gg R_{sensor}$; current-output sensors (photodiodes) need $R_{in} \\approx 0$.",
+      "formula": "v_{in} = v_{sensor}\\,\\frac{R_{in}}{R_{in} + R_{sensor}}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_{sensor}"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "R_{sensor}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "R_{in}",
+            "polarity": "+-"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                4,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "at": [
+              1,
+              2.6
+            ],
+            "label": "sensor"
+          },
+          {
+            "type": "text",
+            "at": [
+              4,
+              2.6
+            ],
+            "label": "amplifier input"
+          },
+          {
+            "type": "ground",
+            "at": [
+              0,
+              2
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "in-sensors-1",
+      "title": "From measurand to signal",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "What a sensor does",
+          "body": "A **sensor** converts the quantity we want to know, the **measurand**, into an electrical signal. Many sensors give a voltage proportional to the measurand; the constant $K$ is the **sensitivity**. Others change a resistance or produce a current that a signal conditioner turns into a voltage.",
+          "formula": "v_{sensor} = K\\,m"
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each measurand to a typical sensor",
+          "pairs": [
+            [
+              "Temperature",
+              "Thermocouple"
+            ],
+            [
+              "Force",
+              "Load cell"
+            ],
+            [
+              "Light",
+              "Photodiode"
+            ],
+            [
+              "Linear displacement",
+              "LVDT"
+            ],
+            [
+              "Proximity of a magnet",
+              "Hall-effect sensor"
+            ]
+          ],
+          "explanation": "A thermocouple produces a temperature-dependent voltage, a load cell uses strain gauges on a loaded element, a photodiode gives a current proportional to light, an LVDT (linear variable differential transformer) senses core position, and a Hall sensor responds to a magnetic field."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Strain gauges",
+          "body": "Stretching a metal-foil gauge by a strain $\\varepsilon = \\Delta L/L$ increases its resistance. The gauge factor $G$ (≈ 2) is the ratio of relative resistance change to strain. Strains are tiny: 1000 µε = 0.001 = 0.1 %.",
+          "formula": "\\Delta R = G\\,\\varepsilon\\,R"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "R": [
+              120,
+              350
+            ],
+            "G": [
+              2.0,
+              2.05,
+              2.1
+            ],
+            "u": {
+              "min": 200,
+              "max": 1500,
+              "step": 100
+            }
+          },
+          "prompt": "A {{R|Ω}} strain gauge with gauge factor {{G}} is stretched by {{u}} µε. Find the change in its resistance.",
+          "answer": "G*u*1e-6*R",
+          "unit": "Ω",
+          "explanation": "$\\Delta R = G\\varepsilon R$ = {{G}} × {{u}} × $10^{-6}$ × {{R|Ω}} = **{{G*u*1e-6*R|Ω}}**, only {{G*u*1e-4|%}} of $R$. That is why gauges are read with a bridge and an amplifier."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Resistance thermometers",
+          "body": "A platinum **RTD** increases its resistance almost linearly with temperature. The common Pt100 has $R_0$ = 100 Ω at 0 °C and $\\alpha$ = 0.00385 per °C, so it changes by 0.385 Ω/°C. A **thermistor** is far more sensitive but strongly nonlinear.",
+          "formula": "R = R_0\\,(1 + \\alpha\\,T)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "T": {
+              "min": 20,
+              "max": 200,
+              "step": 5
+            },
+            "R0": [
+              100,
+              1000
+            ]
+          },
+          "prompt": "A platinum RTD has $R_0$ = {{R0|Ω}} at 0 °C and $\\alpha$ = 0.00385 /°C. Find its resistance at {{T}} °C.",
+          "answer": "R0*(1+0.00385*T)",
+          "unit": "Ω",
+          "explanation": "$R = R_0(1 + \\alpha T)$ = {{R0|Ω}} × (1 + 0.00385 × {{T}}) = **{{R0*(1+0.00385*T)|Ω|4}}**."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "A temperature sensor has the resistance–temperature characteristic below. What kind of sensor is it?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 100,
+              "label": "T",
+              "unit": "°C"
+            },
+            "y": {
+              "min": 0,
+              "max": 35000,
+              "label": "R",
+              "unit": "Ω"
+            },
+            "curves": [
+              {
+                "f": "10000*exp(3950*(1/(x+273.15) - 1/298.15))",
+                "label": "R(T)"
+              }
+            ],
+            "height": 170
+          },
+          "options": [
+            "NTC thermistor",
+            "Platinum RTD",
+            "Thermocouple",
+            "Strain gauge"
+          ],
+          "answer": 0,
+          "explanation": "The resistance **falls** steeply and nonlinearly (from about 34 kΩ to below 1 kΩ) as the temperature rises: a negative-temperature-coefficient (NTC) thermistor. A platinum RTD would be a nearly straight, slowly **rising** line, and a thermocouple produces a voltage, not a resistance."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Thermocouples and photodiodes",
+          "body": "A **thermocouple** gives a voltage proportional to the temperature difference between its hot junction and the reference (cold) junction, with a Seebeck coefficient $S$ of tens of µV/°C.\nA **photodiode** gives a **current** proportional to light power. It is read with a current-to-voltage converter whose input resistance is nearly zero.",
+          "formula": "v \\approx S\\,(T_{hot} - T_{ref})"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "S": [
+              41,
+              52
+            ],
+            "Th": {
+              "min": 100,
+              "max": 600,
+              "step": 10
+            },
+            "Tr": [
+              0,
+              20,
+              25
+            ]
+          },
+          "prompt": "A thermocouple with $S$ = {{S}} µV/°C has its hot junction at {{Th}} °C and its reference junction at {{Tr}} °C. Find its output voltage.",
+          "answer": "S*1e-6*(Th-Tr)",
+          "unit": "V",
+          "explanation": "$v = S(T_{hot} - T_{ref})$ = {{S}} µV/°C × ({{Th}} − {{Tr}}) °C = **{{S*1e-6*(Th-Tr)|V}}**. Only the temperature **difference** counts."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "A photodiode should be connected to an amplifier with a very **high** input resistance, so it is not loaded.",
+          "answer": false,
+          "explanation": "A photodiode is a **current** source: its current is proportional to light only if its voltage stays constant. It therefore needs a current-to-voltage converter with nearly **zero** input resistance. High input resistance is what voltage-output sensors need."
+        }
+      ]
+    },
+    {
+      "id": "in-sensors-2",
+      "title": "Sensor calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "T": {
+              "min": 5,
+              "max": 200,
+              "step": 1
+            },
+            "R0": [
+              100,
+              1000
+            ]
+          },
+          "derived": {
+            "Rm": "round(R0*(1+0.00385*T)*10)/10"
+          },
+          "prompt": "A platinum RTD ($R_0$ = {{R0|Ω}} at 0 °C, $\\alpha$ = 0.00385 /°C) measures {{Rm||5}} Ω. What is the temperature in °C?",
+          "answer": "(Rm/R0 - 1)/0.00385",
+          "unit": "°C",
+          "tolerance": 0.01,
+          "absTolerance": 0.5,
+          "explanation": "Solve $R = R_0(1+\\alpha T)$ for $T$: $T = \\frac{R/R_0 - 1}{\\alpha}$ = ({{Rm/R0||5}} − 1) / 0.00385 = **{{(Rm/R0-1)/0.00385||4}} °C**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "R": [
+              120,
+              350
+            ],
+            "G": [
+              2.0,
+              2.1
+            ],
+            "u": {
+              "min": 100,
+              "max": 2000,
+              "step": 50
+            }
+          },
+          "derived": {
+            "dR": "round(G*u*1e-6*R*1000)/1000"
+          },
+          "prompt": "A {{R|Ω}} strain gauge with gauge factor {{G}} changes by +{{dR*1000||3}} mΩ under load. Find the strain (type e.g. 850u for 850 µε).",
+          "answer": "dR/(G*R)",
+          "unit": "m/m",
+          "explanation": "$\\varepsilon = \\frac{\\Delta R/R}{G}$ = ({{dR|Ω}} / {{R|Ω}}) / {{G}} = **{{dR/(G*R)|m/m}}** = {{dR/(G*R)*1e6||3}} µε (tension, since $R$ increased)."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "S": [
+              41,
+              52
+            ],
+            "Th": {
+              "min": 80,
+              "max": 700,
+              "step": 1
+            },
+            "Tr": [
+              18,
+              22,
+              25,
+              30
+            ]
+          },
+          "derived": {
+            "v": "round(S*(Th-Tr)/10)/100"
+          },
+          "prompt": "A thermocouple with $S$ = {{S}} µV/°C reads {{v||4}} mV. A sensor at the reference junction shows {{Tr}} °C. Find the hot-junction temperature.",
+          "answer": "Tr + v*1000/S",
+          "unit": "°C",
+          "tolerance": 0.01,
+          "explanation": "$T_{hot} = T_{ref} + \\frac{v}{S}$ = {{Tr}} °C + {{v||4}} mV / {{S}} µV/°C = {{Tr}} + {{v*1000/S||4}} = **{{Tr+v*1000/S||4}} °C**. Forgetting the reference junction would give only {{v*1000/S||4}} °C."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "b": [
+              3435,
+              3950,
+              4250
+            ],
+            "T": {
+              "min": 0,
+              "max": 80,
+              "step": 5
+            }
+          },
+          "derived": {
+            "TK": "T + 273.15"
+          },
+          "prompt": "An NTC thermistor has $R_{25}$ = 10 kΩ at 25 °C and $\\beta$ = {{b}} K. Find its resistance at {{T}} °C, using $R = R_{25}\\,e^{\\beta(1/T - 1/T_{25})}$ with temperatures in kelvin.",
+          "answer": "10000*exp(b*(1/TK - 1/298.15))",
+          "unit": "Ω",
+          "explanation": "$T$ = {{TK||5}} K, $T_{25}$ = 298.15 K. Exponent: {{b}} × (1/{{TK||5}} − 1/298.15) = {{b*(1/TK-1/298.15)||3}}. $R$ = 10 kΩ × $e^{ {{b*(1/TK-1/298.15)||3}} }$ = **{{10000*exp(b*(1/TK-1/298.15))|Ω}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              0.05,
+              0.2,
+              1,
+              2.5
+            ],
+            "Rs": [
+              1000,
+              10000,
+              47000,
+              100000
+            ],
+            "Rin": [
+              100000,
+              1000000,
+              10000000
+            ]
+          },
+          "prompt": "A sensor with internal voltage $V_{sensor}$ and resistance $R_{sensor}$ drives an amplifier with input resistance $R_{in}$.",
+          "ask": [
+            {
+              "prompt": "Find the amplifier input voltage.",
+              "answer": "abs(V_Rin)",
+              "unit": "V",
+              "explanation": "Voltage divider: $v_{in} = V_{sensor}\\frac{R_{in}}{R_{in}+R_{sensor}}$ = {{Vs|V}} × {{Rin|Ω}} / {{Rin+Rs|Ω|4}} = **{{abs(V_Rin)|V}}**."
+            },
+            {
+              "prompt": "By what percentage is the signal reduced by loading?",
+              "answer": "Rs/(Rin+Rs)*100",
+              "unit": "%",
+              "explanation": "Loss = $1 - \\frac{R_{in}}{R_{in}+R_{sensor}} = \\frac{R_{sensor}}{R_{in}+R_{sensor}}$ = {{Rs|Ω}} / {{Rin+Rs|Ω|4}} = **{{Rs/(Rin+Rs)*100|%}}**."
+            }
+          ],
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{sensor}",
+                "name": "Vs",
+                "val": "Vs"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_{sensor}",
+                "name": "Rs",
+                "val": "Rs"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_{in}",
+                "polarity": "+-",
+                "name": "Rin",
+                "val": "Rin"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  1,
+                  2.6
+                ],
+                "label": "sensor"
+              },
+              {
+                "type": "text",
+                "at": [
+                  4,
+                  2.6
+                ],
+                "label": "amplifier input"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Rl": [
+              0.4,
+              0.5,
+              0.6
+            ],
+            "P": {
+              "min": 5e-06,
+              "max": 0.0001,
+              "step": 5e-06
+            },
+            "Rf": [
+              10000,
+              47000,
+              100000
+            ]
+          },
+          "prompt": "A photodiode with responsivity {{Rl}} A/W receives {{P|W}} of light. Its current $i_D$ feeds the ideal current-to-voltage converter shown. Find $v_o$.",
+          "answer": "V_U1",
+          "unit": "V",
+          "explanation": "$i_D = \\mathcal{R}P$ = {{Rl}} A/W × {{P|W}} = {{Rl*P|A}}. The − input is a virtual ground, so all of $i_D$ flows through $R_f$ towards the output: $v_o = -R_f\\,i_D$ = −{{Rf|Ω}} × {{Rl*P|A}} = **{{V_U1|V}}**.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "isource",
+                "from": [
+                  2,
+                  3.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "i_D",
+                "flip": true,
+                "name": "Id",
+                "val": "Rl*P"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0.5
+                ],
+                "to": [
+                  5,
+                  0.5
+                ],
+                "label": "R_f",
+                "name": "Rf",
+                "val": "Rf"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    0.5
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ],
+                "name": "U1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  3.5
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  2,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "I": [
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "R0": [
+              100,
+              1000
+            ]
+          },
+          "prompt": "A platinum RTD ($R_0$ = {{R0|Ω}}, $\\alpha$ = 0.00385 /°C) is excited by a constant current of {{I|A}}. Find the sensitivity of its voltage to temperature (volts per °C).",
+          "answer": "I*0.00385*R0",
+          "unit": "V/°C",
+          "explanation": "$v = I R_0(1 + \\alpha T)$, so $\\frac{dv}{dT} = I\\,\\alpha R_0$ = {{I|A}} × 0.00385 × {{R0|Ω}} = **{{I*0.00385*R0|V/°C}}**. More current means more signal, but also more self-heating of the sensor."
+        },
+        {
+          "id": "q8",
+          "type": "matchPairs",
+          "prompt": "Match each sensor to the electrical quantity it changes or produces",
+          "pairs": [
+            [
+              "Thermocouple",
+              "Voltage"
+            ],
+            [
+              "Photodiode",
+              "Current"
+            ],
+            [
+              "RTD",
+              "Resistance"
+            ],
+            [
+              "Liquid-level probe (two plates)",
+              "Capacitance"
+            ]
+          ],
+          "explanation": "A thermocouple generates a voltage, a photodiode a current, an RTD changes its resistance and a level probe changes its capacitance as the liquid replaces air between the plates. Resistance and capacitance sensors need an excitation source to produce a voltage."
+        }
+      ]
+    },
+    {
+      "id": "in-sensors-3",
+      "title": "Sensor design problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "b": [
+              3435,
+              3950
+            ],
+            "Rm": {
+              "min": 1500,
+              "max": 20000,
+              "step": 500
+            }
+          },
+          "prompt": "An NTC thermistor ($R_{25}$ = 10 kΩ at 25 °C, $\\beta$ = {{b}} K) measures {{Rm|Ω}}. Find the temperature in °C.",
+          "answer": "1/(1/298.15 + ln(Rm/10000)/b) - 273.15",
+          "unit": "°C",
+          "tolerance": 0.01,
+          "absTolerance": 0.5,
+          "explanation": "Take the logarithm of $R = R_{25}e^{\\beta(1/T - 1/T_{25})}$: $\\frac{1}{T} = \\frac{1}{T_{25}} + \\frac{\\ln(R/R_{25})}{\\beta}$ = 1/298.15 + ln({{Rm/10000||3}})/{{b}} = {{1/298.15+ln(Rm/10000)/b||4}} 1/K. So $T$ = {{1/(1/298.15+ln(Rm/10000)/b)||4}} K = **{{1/(1/298.15+ln(Rm/10000)/b)-273.15||3}} °C**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1e-05,
+              2e-05,
+              4e-05
+            ],
+            "dT": [
+              5,
+              10,
+              20
+            ],
+            "G": [
+              2.0,
+              2.1
+            ]
+          },
+          "prompt": "The resistance of a strain gauge (gauge factor {{G}}) also changes with temperature, with coefficient {{a*1e6}} ppm/°C. The unloaded part warms by {{dT}} °C. What strain would be wrongly indicated? (type e.g. 100u)",
+          "answer": "a*dT/G",
+          "unit": "m/m",
+          "explanation": "Temperature gives $\\frac{\\Delta R}{R} = \\alpha\\Delta T$ = {{a*dT*1e6||3}} ppm. The instrument interprets this as $\\varepsilon = \\frac{\\Delta R/R}{G}$ = **{{a*dT/G|m/m}}** ({{a*dT/G*1e6||3}} µε), comparable to real strains. A second, unstrained gauge in the bridge cancels this."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Ra": [
+              2000,
+              5000
+            ],
+            "Rb": [
+              10000,
+              20000
+            ],
+            "e": [
+              0.1,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "A sensor's internal resistance varies between {{Ra|Ω}} and {{Rb|Ω}}. Find the minimum amplifier input resistance so that the overall sensitivity changes by no more than {{e}} % over this range.",
+          "answer": "((1-e/100)*Rb - Ra)/(e/100)",
+          "unit": "Ω",
+          "explanation": "Sensitivity is proportional to $\\frac{R_{in}}{R_{in}+R_s}$. Require $\\frac{R_{in}}{R_{in}+R_b} \\ge (1-\\varepsilon)\\frac{R_{in}}{R_{in}+R_a}$, i.e. $R_{in} + R_a \\ge (1-\\varepsilon)(R_{in}+R_b)$, so $R_{in} \\ge \\frac{(1-\\varepsilon)R_b - R_a}{\\varepsilon}$ = ({{(1-e/100)*Rb|Ω}} − {{Ra|Ω}}) / {{e/100||3}} = **{{((1-e/100)*Rb-Ra)/(e/100)|Ω}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "V": [
+              2.5,
+              5,
+              10
+            ],
+            "Rl": [
+              0.4,
+              0.5,
+              0.6
+            ],
+            "Pm": [
+              5e-05,
+              0.0001,
+              0.0002,
+              0.0005
+            ]
+          },
+          "prompt": "A photodiode (responsivity {{Rl}} A/W) feeds a current-to-voltage converter. Choose $R_f$ so that the maximum light power of {{Pm|W}} gives an output magnitude of {{V|V}}.",
+          "answer": "V/(Rl*Pm)",
+          "unit": "Ω",
+          "explanation": "Maximum current: $i = \\mathcal{R}P$ = {{Rl}} × {{Pm|W}} = {{Rl*Pm|A}}. $|v_o| = R_f i$, so $R_f$ = {{V|V}} / {{Rl*Pm|A}} = **{{V/(Rl*Pm)|Ω}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.5,
+              1,
+              2,
+              5
+            ],
+            "R0": [
+              100,
+              1000
+            ]
+          },
+          "prompt": "A platinum RTD ($R_0$ = {{R0|Ω}}, $\\alpha$ = 0.00385 /°C) is connected with two copper leads of {{r|Ω}} each and read as a plain 2-wire resistance. How large is the resulting temperature error?",
+          "answer": "2*r/(0.00385*R0)",
+          "unit": "°C",
+          "explanation": "The meter sees the sensor plus both leads: an extra {{2*r|Ω}}. The RTD changes by $\\alpha R_0$ = {{0.00385*R0|Ω}} per °C, so the reading is too high by {{2*r|Ω}} / {{0.00385*R0||3}} Ω/°C = **{{2*r/(0.00385*R0)||3}} °C**. Use 3- or 4-wire connections (or a Pt1000) to avoid this."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "K": [
+              0.04,
+              0.05,
+              0.06,
+              0.08
+            ],
+            "V0": [
+              0.2,
+              0.5
+            ]
+          },
+          "prompt": "The graph shows the calibration of a pressure sensor. Find its sensitivity (volts per kPa).",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 50,
+              "label": "p (kPa)",
+              "ticks": [
+                0,
+                10,
+                20,
+                30,
+                40,
+                50
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": "V0 + 50*K + 0.3",
+              "label": "v (V)"
+            },
+            "curves": [
+              {
+                "f": "V0 + K*x",
+                "label": "v(p)"
+              }
+            ],
+            "height": 190
+          },
+          "answer": "K",
+          "unit": "V/kPa",
+          "tolerance": 0.06,
+          "explanation": "Sensitivity is the **slope**, not $v/p$ at one point (the line has an offset of {{V0|V}} at zero pressure). From 0 to 50 kPa the output goes from {{V0|V}} to {{V0+50*K|V}}: $K$ = ({{V0+50*K|V}} − {{V0|V}}) / 50 kPa = **{{K|V/kPa}}**."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Compared with a platinum RTD, an NTC thermistor is much more sensitive (larger relative resistance change per °C) but much less linear.",
+          "answer": true,
+          "explanation": "A Pt RTD changes by about 0.4 % per °C, almost linearly. An NTC thermistor changes by about −4 % per °C near room temperature, but exponentially, so it needs linearisation and works over a smaller range."
+        }
+      ]
+    }
+  ]
+}

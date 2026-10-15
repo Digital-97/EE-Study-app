@@ -1,0 +1,3479 @@
+{
+ "id": "cl-multi-source",
+ "title": "Multi-Source Circuits",
+ "description": "Node analysis, superposition and bridges with two sources: node voltages, branch currents and source powers.",
+ "reference": "Hambley §2.4–2.5, 2.7–2.8",
+ "study": [
+  {
+   "title": "Choose your method",
+   "body": "**Node-voltage** analysis: one KCL equation per non-reference node, best when there are few nodes or many current sources. **Mesh-current** analysis: one KVL equation per mesh, handy with voltage sources in the outer branches. **Superposition**: one source at a time, then add, nice when each single-source circuit is a simple series-parallel network."
+  },
+  {
+   "title": "Superposition",
+   "body": "Keep one independent source and turn the others off: a voltage source becomes a **short**, a current source an **open**. Solve, repeat for each source and add the results with their signs. It works for voltages and currents, but **not for power** (power is quadratic).",
+   "formula": "v = v' + v'' \\qquad p \\ne p' + p''"
+  },
+  {
+   "title": "Delivered or absorbed?",
+   "body": "With the passive reference configuration (current entering the + terminal), $p = vi$ is the power **absorbed**. For a source it is usually easier to use the current leaving the + terminal: then $vi$ is the power **delivered**. A negative delivered power means the source actually absorbs power (like a battery being charged). The powers of all elements sum to zero.",
+   "formula": "p_{delivered} = -p_{absorbed}"
+  },
+  {
+   "title": "Wheatstone bridge",
+   "body": "Two voltage dividers fed by the same source. The voltage between their midpoints is the difference of the divider outputs. The bridge is **balanced** when $v_{ab}$ = 0, i.e. $R_1/R_2 = R_3/R_4$; then a detector between a and b carries no current, whatever its resistance.",
+   "formula": "v_{ab} = V_s\\left(\\frac{R_2}{R_1+R_2} - \\frac{R_4}{R_3+R_4}\\right)",
+   "circuit": {
+    "elements": [
+     {
+      "type": "vsource",
+      "from": [
+       0,
+       4
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_s"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       2,
+       2
+      ],
+      "label": "R_1"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       2
+      ],
+      "to": [
+       2,
+       4
+      ],
+      "label": "R_2"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       6,
+       0
+      ],
+      "to": [
+       6,
+       2
+      ],
+      "label": "R_3"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       6,
+       2
+      ],
+      "to": [
+       6,
+       4
+      ],
+      "label": "R_4"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        4
+       ],
+       [
+        6,
+        4
+       ]
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        2,
+        2
+       ],
+       [
+        3,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       3,
+       2
+      ],
+      "label": "a"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        6,
+        2
+       ],
+       [
+        5,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       5,
+       2
+      ],
+      "label": "b",
+      "flip": true
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       4
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       2
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       6,
+       2
+      ]
+     },
+     {
+      "type": "ground",
+      "at": [
+       0,
+       4
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "lessons": [
+  {
+   "title": "Two sources, one node",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "V1": {
+       "min": 6,
+       "max": 24,
+       "step": 1
+      },
+      "V2": {
+       "min": 2,
+       "max": 15,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "abs(I_V2) - 0.0002",
+     "prompt": "Two voltage sources share the resistor $R_3$.",
+     "ask": [
+      {
+       "prompt": "Find the node voltage $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "KCL at $v_x$ (currents leaving): $\\frac{v_x-V_1}{R_1} + \\frac{v_x}{R_3} + \\frac{v_x-V_2}{R_2} = 0$, so $v_x = \\frac{V_1/R_1 + V_2/R_2}{1/R_1+1/R_2+1/R_3}$ = ({{V1/R1*1e3}} + {{V2/R2*1e3}}) mA / {{(1/R1+1/R2+1/R3)*1e3}} mS = **{{v_v_x|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_3$.",
+       "answer": "abs(I_R3)",
+       "unit": "A",
+       "explanation": "$v_x = \\frac{V_1/R_1 + V_2/R_2}{1/R_1+1/R_2+1/R_3}$ = {{v_v_x|V}}, so $I_{R_3} = v_x/R_3$ = **{{abs(I_R3)|A}}**."
+      },
+      {
+       "prompt": "Find the power **delivered** by $V_2$ (negative if $V_2$ absorbs power).",
+       "answer": "P_V2",
+       "unit": "W",
+       "explanation": "$v_x$ = {{v_v_x|V}} from KCL. The current leaving the + terminal of $V_2$ flows through $R_2$ toward $v_x$: $I = (V_2 - v_x)/R_2$ = {{I_V2|A}}. $P_{del} = V_2 I$ = **{{P_V2|W}}**. A negative value means current is pushed **into** the + terminal: $V_2$ absorbs power.",
+       "absTolerance": 1e-05
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "V1",
+        "val": "V1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "vsource",
+        "name": "V2",
+        "val": "V2",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "V_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "trueFalse",
+     "prompt": "Superposition lets you find the power in a resistor by adding the powers caused by each source separately.",
+     "answer": false,
+     "explanation": "Power is quadratic in current: $(i'+i'')^2R \\ne i'^2R + i''^2R$. Superpose the **currents or voltages** first, then compute the power from the total."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 3,
+       "max": 18,
+       "step": 1
+      },
+      "Is": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "abs(I_Vs) - 0.0001",
+     "prompt": "A voltage source and a current source drive node $v_x$.",
+     "ask": [
+      {
+       "prompt": "Find $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "Superposition. $V_s$ alone ($I_s$ open): $v' = V_s\\frac{R_2}{R_1+R_2}$ = {{Vs*R2/(R1+R2)|V}}. $I_s$ alone ($V_s$ shorted): $v'' = I_s(R_1\\parallel R_2)$ = {{Is*par(R1,R2)|V}}. Total: $v_x$ = **{{v_v_x|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_2$.",
+       "answer": "abs(I_R2)",
+       "unit": "A",
+       "explanation": "$v_x = V_s\\frac{R_2}{R_1+R_2} + I_s(R_1\\parallel R_2)$ = {{Vs*R2/(R1+R2)|V}} + {{Is*par(R1,R2)|V}} = {{v_v_x|V}}, so $I_{R_2} = v_x/R_2$ = **{{abs(I_R2)|A}}**."
+      },
+      {
+       "prompt": "Find the power **delivered** by the current source.",
+       "answer": "P_Is",
+       "unit": "W",
+       "explanation": "The voltage across $I_s$ is $v_x$ = {{v_v_x|V}} (superposition: $V_s\\frac{R_2}{R_1+R_2} + I_s R_1\\parallel R_2$), with the current leaving its + side, so $P_{del} = v_xI_s$ = **{{P_Is|W}}**."
+      },
+      {
+       "prompt": "Find the power **delivered** by $V_s$ (negative if it absorbs power).",
+       "answer": "P_Vs",
+       "unit": "W",
+       "explanation": "$v_x$ = {{v_v_x|V}}. The current out of the + terminal of $V_s$ is $(V_s - v_x)/R_1$ = {{I_Vs|A}}, so $P_{del} = V_sI$ = **{{P_Vs|W}}**. If $v_x > V_s$ the current source pushes current back into $V_s$ and $V_s$ absorbs power.",
+       "absTolerance": 1e-05
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "multipleChoice",
+     "prompt": "When you apply superposition, what replaces an independent current source that is turned off?",
+     "options": [
+      "An open circuit",
+      "A short circuit",
+      "A resistor of 1 Ω",
+      "A voltage source of 0 V in series with it"
+     ],
+     "answer": 0,
+     "explanation": "Turning a current source off means forcing its current to zero, which is an **open circuit**. A voltage source turned off has zero voltage, which is a **short circuit**."
+    },
+    {
+     "id": "t1",
+     "type": "tapCircuit",
+     "prompt": "You apply superposition and keep only $V_1$ active. Tap every resistor that then carries **no current**.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "V1",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         1.5
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "from": [
+         2,
+         3
+        ],
+        "to": [
+         2,
+         1.5
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "vsource",
+        "name": "V2",
+        "from": [
+         4,
+         3
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "V_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         3
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          6,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         3
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         3
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "answer": [
+      "R2",
+      "R4"
+     ],
+     "hint": "Replace $V_2$ by a wire and $I_s$ by a gap first.",
+     "explanation": "With only $V_1$ active, $V_2$ becomes a short circuit and $I_s$ an open circuit.\n- $R_2$ is in series with the opened current source, so its branch is broken: no current.\n- $R_4$ is in parallel with $V_2$. Shorting $V_2$ puts 0 V across $R_4$: no current.\n$V_1$ drives current through $R_1$ and $R_3$, which now ends on the shorted $V_2$ (the bottom rail)."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "abs(Voc) - 0.05",
+     "prompt": "A Wheatstone bridge with open terminals a and b.",
+     "ask": [
+      {
+       "prompt": "Find $v_{ab} = v_a - v_b$ (sign matters).",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "Two independent dividers: $v_a = V_s\\frac{R_2}{R_1+R_2}$ = {{Vs*R2/(R1+R2)|V}} and $v_b = V_s\\frac{R_4}{R_3+R_4}$ = {{Vs*R4/(R3+R4)|V}}. $v_{ab}$ = **{{Voc|V}}**.",
+       "absTolerance": 0.01
+      },
+      {
+       "prompt": "Which value of $R_4$ would balance the bridge (all other values unchanged)?",
+       "answer": "R3*R2/R1",
+       "unit": "Ω",
+       "explanation": "Balance: $\\frac{R_1}{R_2} = \\frac{R_3}{R_4}$, so $R_4 = \\frac{R_2R_3}{R_1}$ = {{R2|Ω}} · {{R3|Ω}} / {{R1|Ω}} = **{{R3*R2/R1|Ω}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          3,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         3,
+         2
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "A Wheatstone bridge (left arm $R_1$ over $R_2$, right arm $R_3$ over $R_4$) is balanced when…",
+     "options": [
+      "$R_1R_4 = R_2R_3$",
+      "$R_1R_2 = R_3R_4$",
+      "$R_1 + R_2 = R_3 + R_4$",
+      "$R_1 = R_4$ and $R_2 = R_3$"
+     ],
+     "answer": 0,
+     "explanation": "Balance means equal divider ratios: $\\frac{R_2}{R_1+R_2} = \\frac{R_4}{R_3+R_4}$, which simplifies to $\\frac{R_1}{R_2} = \\frac{R_3}{R_4}$, i.e. $R_1R_4 = R_2R_3$. Equal sums are not enough, the **ratios** must match.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          3,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         3,
+         2
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-multi-source-1"
+  },
+  {
+   "title": "Nodes, superposition and bridges",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "Is1": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "Is2": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "D": "(G1+G2)*(G2+G3)-G2^2",
+      "v1": "(Is1*(G2+G3)-Is2*G2)/D",
+      "v2": "(G2*Is1-(G1+G2)*Is2)/D"
+     },
+     "require": "min(abs(v2), abs(v1-v2)) - 0.1",
+     "prompt": "Two current sources; $I_{s2}$ pulls current out of node 2. Node voltages are relative to ground and may be negative.",
+     "ask": [
+      {
+       "prompt": "Find $v_1$.",
+       "answer": "v_v_1",
+       "unit": "V",
+       "explanation": "KCL, leaving = entering: node 1: $(G_1+G_2)v_1 - G_2v_2 = I_{s1}$; node 2: $-G_2v_1 + (G_2+G_3)v_2 = -I_{s2}$. With $\\Delta = (G_1+G_2)(G_2+G_3) - G_2^2$ = {{D*1e6}} mS²: $v_1 = \\frac{I_{s1}(G_2+G_3) - I_{s2}G_2}{\\Delta}$ = **{{v_v_1|V}}**.",
+       "absTolerance": 0.01
+      },
+      {
+       "prompt": "Find $v_2$.",
+       "answer": "v_v_2",
+       "unit": "V",
+       "explanation": "Node 1: $(G_1+G_2)v_1 - G_2v_2 = I_{s1}$; node 2: $-G_2v_1 + (G_2+G_3)v_2 = -I_{s2}$. Cramer: $v_2 = \\frac{G_2I_{s1} - (G_1+G_2)I_{s2}}{\\Delta}$ with $\\Delta$ = {{D*1e6}} mS², so $v_2$ = **{{v_v_2|V}}**.",
+       "absTolerance": 0.01
+      },
+      {
+       "prompt": "Find the current through $R_2$ from node 1 to node 2 (negative if it flows the other way).",
+       "answer": "I_R2",
+       "unit": "A",
+       "explanation": "Solve the two node equations: $v_1$ = {{v_v_1|V}}, $v_2$ = {{v_v_2|V}}. Then $i = (v_1 - v_2)/R_2$ = **{{I_R2|A}}**.",
+       "absTolerance": 2e-06
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is1",
+        "val": "Is1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_{s1}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "name": "Is2",
+        "val": "Is2",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "I_{s2}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 3,
+       "max": 18,
+       "step": 1
+      },
+      "Is": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Use superposition on this circuit.",
+     "ask": [
+      {
+       "prompt": "Find the part of $v_x$ caused by $V_s$ alone.",
+       "answer": "Vs*R2/(R1+R2)",
+       "unit": "V",
+       "explanation": "Turn $I_s$ off (open). $R_1$ and $R_2$ form a divider: $v' = V_s\\frac{R_2}{R_1+R_2}$ = **{{Vs*R2/(R1+R2)|V}}**."
+      },
+      {
+       "prompt": "Find the part of $v_x$ caused by $I_s$ alone.",
+       "answer": "Is*par(R1,R2)",
+       "unit": "V",
+       "explanation": "Turn $V_s$ off (short). $I_s$ then sees $R_1\\parallel R_2$ = {{par(R1,R2)|Ω}}: $v'' = I_s(R_1\\parallel R_2)$ = **{{Is*par(R1,R2)|V}}**."
+      },
+      {
+       "prompt": "Find the total $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "$v_x = v' + v''$ = {{Vs*R2/(R1+R2)|V}} + {{Is*par(R1,R2)|V}} = **{{v_v_x|V}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "V1": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "V2": {
+       "min": 2,
+       "max": 15,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "G4": "1/R4",
+      "G5": "1/R5",
+      "a11": "G1+G2+G3",
+      "a22": "G3+G4+G5",
+      "D": "a11*a22-G3^2",
+      "vx": "(V1*G1*a22+G3*V2*G5)/D",
+      "vy": "(a11*V2*G5+G3*V1*G1)/D"
+     },
+     "require": "min(abs(I_R3) - 0.00005, abs(I_V2) - 0.0001)",
+     "prompt": "Two voltage sources, two unknown nodes.",
+     "ask": [
+      {
+       "prompt": "Find $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "Node equations (conductances in mS, currents in mA):\n$$ {{a11*1e3}}\\,v_x - {{G3*1e3}}\\,v_y = {{V1*G1*1e3}} $$\n$$ -{{G3*1e3}}\\,v_x + {{a22*1e3}}\\,v_y = {{V2*G5*1e3}} $$\nCramer: $v_x$ = **{{v_v_x|V}}**."
+      },
+      {
+       "prompt": "Find $v_y$.",
+       "answer": "v_v_y",
+       "unit": "V",
+       "explanation": "Node equations (conductances in mS, currents in mA):\n$$ {{a11*1e3}}\\,v_x - {{G3*1e3}}\\,v_y = {{V1*G1*1e3}} $$\n$$ -{{G3*1e3}}\\,v_x + {{a22*1e3}}\\,v_y = {{V2*G5*1e3}} $$\nCramer: $v_y$ = **{{v_v_y|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_3$ from $v_x$ to $v_y$ (negative if it flows the other way).",
+       "answer": "I_R3",
+       "unit": "A",
+       "explanation": "Node equations (conductances in mS, currents in mA):\n$$ {{a11*1e3}}\\,v_x - {{G3*1e3}}\\,v_y = {{V1*G1*1e3}} $$\n$$ -{{G3*1e3}}\\,v_x + {{a22*1e3}}\\,v_y = {{V2*G5*1e3}} $$\ngives $v_x$ = {{v_v_x|V}}, $v_y$ = {{v_v_y|V}}, so $i = (v_x - v_y)/R_3$ = **{{I_R3|A}}**.",
+       "absTolerance": 1e-06
+      },
+      {
+       "prompt": "Find the power **delivered** by $V_2$ (negative if it absorbs power).",
+       "answer": "P_V2",
+       "unit": "W",
+       "explanation": "Node equations (conductances in mS, currents in mA):\n$$ {{a11*1e3}}\\,v_x - {{G3*1e3}}\\,v_y = {{V1*G1*1e3}} $$\n$$ -{{G3*1e3}}\\,v_x + {{a22*1e3}}\\,v_y = {{V2*G5*1e3}} $$\ngives $v_y$ = {{v_v_y|V}}. Current out of the + terminal of $V_2$: $(V_2 - v_y)/R_5$ = {{I_V2|A}}, so $P_{del}$ = **{{P_V2|W}}**.",
+       "absTolerance": 1e-05
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "V1",
+        "val": "V1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "vsource",
+        "name": "V2",
+        "val": "V2",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "V_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_y"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p4",
+     "type": "trueFalse",
+     "prompt": "If a voltage source delivers a negative power, it is actually absorbing power from the rest of the circuit.",
+     "answer": true,
+     "explanation": "$p_{delivered} = -p_{absorbed}$. A negative delivered power means current is forced **into** its + terminal, as when a battery is being charged."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "G4": "1/R4",
+      "G5": "1/R5",
+      "a11": "G1+G2+G5",
+      "a22": "G3+G4+G5",
+      "D": "a11*a22-G5^2",
+      "va": "(Vs*G1*a22+G5*Vs*G3)/D",
+      "vb": "(a11*Vs*G3+G5*Vs*G1)/D"
+     },
+     "require": "abs(I_R5) - 0.00002",
+     "prompt": "An unbalanced bridge with a detector resistor $R_5$ between a and b. The bridge is not series-parallel: use node analysis.",
+     "ask": [
+      {
+       "prompt": "Find the current through $R_5$ from a to b (negative if it flows from b to a).",
+       "answer": "I_R5",
+       "unit": "A",
+       "explanation": "KCL at a and b ($G = 1/R$):\n$$ (G_1+G_2+G_5)v_a - G_5v_b = G_1V_s $$\n$$ -G_5v_a + (G_3+G_4+G_5)v_b = G_3V_s $$\nSolving: $v_a$ = {{v_a|V}}, $v_b$ = {{v_b|V}}, so $i = (v_a - v_b)/R_5$ = **{{I_R5|A}}**.",
+       "absTolerance": 2e-06
+      },
+      {
+       "prompt": "Find $v_a$.",
+       "answer": "v_a",
+       "unit": "V",
+       "explanation": "KCL at a and b ($G = 1/R$):\n$$ (G_1+G_2+G_5)v_a - G_5v_b = G_1V_s $$\n$$ -G_5v_a + (G_3+G_4+G_5)v_b = G_3V_s $$\nCramer: $v_a$ = **{{v_a|V}}** (without $R_5$ it would be {{Vs*R2/(R1+R2)|V}})."
+      },
+      {
+       "prompt": "Find the power absorbed by $R_5$.",
+       "answer": "P_R5",
+       "unit": "W",
+       "explanation": "From the two node equations: $v_a$ = {{v_a|V}}, $v_b$ = {{v_b|V}}. $P = (v_a-v_b)^2/R_5$ = **{{P_R5|W}}**.",
+       "tolerance": 0.03
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_5",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ],
+        "label": "b"
+       }
+      ]
+     }
+    },
+    {
+     "id": "p6",
+     "type": "orderSteps",
+     "prompt": "Put the steps of node-voltage analysis in order.",
+     "items": [
+      "Choose a reference node (ground)",
+      "Label the other node voltages",
+      "Write KCL at each unknown node in terms of the node voltages",
+      "Solve the equations",
+      "Find branch currents and powers from the node voltages"
+     ],
+     "explanation": "Node analysis turns the circuit into $N-1$ KCL equations. Voltage sources connected to ground fix a node voltage directly; a floating voltage source needs a supernode."
+    }
+   ],
+   "id": "cl-multi-source-2"
+  },
+  {
+   "title": "Supernodes and power",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "Is": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "abs(v_v_x) - 0.1",
+     "prompt": "The current source $I_s$ is connected between $v_x$ and $v_y$ (arrow from $v_x$ to $v_y$). Node voltages may be negative.",
+     "ask": [
+      {
+       "prompt": "Find $v_y$.",
+       "answer": "v_v_y",
+       "unit": "V",
+       "explanation": "KCL at $v_y$: $\\frac{v_y - V_s}{R_4} + \\frac{v_y}{R_3} = I_s$, so $v_y = \\frac{V_s/R_4 + I_s}{1/R_4+1/R_3}$ = **{{v_v_y|V}}**. The current source fixes the current, so the two nodes decouple."
+      },
+      {
+       "prompt": "Find $v_x$.",
+       "answer": "v_v_x",
+       "unit": "V",
+       "explanation": "KCL at $v_x$: $\\frac{v_x - V_s}{R_1} + \\frac{v_x}{R_2} + I_s = 0$, so $v_x = \\frac{V_s/R_1 - I_s}{1/R_1+1/R_2}$ = **{{v_v_x|V}}**.",
+       "absTolerance": 0.01
+      },
+      {
+       "prompt": "Find the power **delivered** by the current source.",
+       "answer": "P_Is",
+       "unit": "W",
+       "explanation": "$v_x$ = {{v_v_x|V}}, $v_y$ = {{v_v_y|V}} (KCL at each node). The current leaves the source at $v_y$, so $P_{del} = (v_y - v_x)I_s$ = {{V_Is|V}} · {{Is|A}} = **{{P_Is|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0,
+          -2
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         0,
+         -2
+        ],
+        "to": [
+         4,
+         -2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          -2
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_y"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "Is": [
+       0.002,
+       0.003,
+       0.004,
+       0.005,
+       0.006,
+       0.008,
+       0.01
+      ],
+      "V2": {
+       "min": 1,
+       "max": 9,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "min(abs(v_v_1), abs(v_v_2)) - 0.1",
+     "prompt": "The voltage source $V_2$ sits between nodes 1 and 2 (+ at node 2). Node voltages may be negative.",
+     "ask": [
+      {
+       "prompt": "Find $v_1$.",
+       "answer": "v_v_1",
+       "unit": "V",
+       "explanation": "Supernode around $V_2$, with $v_2 = v_1 + V_2$ and $R_p = R_2\\parallel(R_3+R_4)$ = {{par(R2,R3+R4)|Ω}}: $I_s = \\frac{v_1}{R_1} + \\frac{v_1+V_2}{R_p}$, so $v_1 = \\frac{I_s - V_2/R_p}{1/R_1 + 1/R_p}$ = **{{v_v_1|V}}**.",
+       "absTolerance": 0.01
+      },
+      {
+       "prompt": "Find $v_2$.",
+       "answer": "v_v_2",
+       "unit": "V",
+       "explanation": "Supernode: $I_s = \\frac{v_1}{R_1} + \\frac{v_2}{R_p}$ with $v_2 = v_1 + V_2$ and $R_p$ = {{par(R2,R3+R4)|Ω}}. This gives $v_1$ = {{v_v_1|V}}, so $v_2$ = **{{v_v_2|V}}**."
+      },
+      {
+       "prompt": "Find the power **delivered** by $V_2$ (negative if it absorbs power).",
+       "answer": "P_V2",
+       "unit": "W",
+       "explanation": "Supernode gives $v_2$ = {{v_v_2|V}}. All current into the right part ($R_p$ = {{par(R2,R3+R4)|Ω}}) comes out of the + terminal of $V_2$: $I = v_2/R_p$ = {{I_V2|A}}. $P_{del} = V_2I$ = **{{P_V2|W}}**.",
+       "absTolerance": 1e-05
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "vsource",
+        "name": "V2",
+        "val": "V2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "V_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "Rs": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ]
+     },
+     "require": "abs(I_R5) - 0.00002",
+     "prompt": "A bridge fed through a source resistance $R_s$, with detector $R_5$ between a and b.",
+     "ask": [
+      {
+       "prompt": "Find the current through $R_5$ from a to b (negative if it flows from b to a).",
+       "answer": "I_R5",
+       "unit": "A",
+       "explanation": "Three unknown nodes: the top node $u$, $v_a$ and $v_b$. KCL at each (or a source transformation of $V_s$, $R_s$) gives $v_a$ = {{v_a|V}}, $v_b$ = {{v_b|V}}. $i = (v_a - v_b)/R_5$ = **{{I_R5|A}}**.",
+       "absTolerance": 2e-06
+      },
+      {
+       "prompt": "Find the power delivered by the source.",
+       "answer": "P_Vs",
+       "unit": "W",
+       "explanation": "Node analysis gives the top-node voltage $u$ = {{v_a+V_R1|V}}. The source current is $(V_s - u)/R_s$ = {{I_Vs|A}}, so $P = V_sI$ = **{{P_Vs|W}}**."
+      },
+      {
+       "prompt": "Find $v_{ab} = v_a - v_b$.",
+       "answer": "V_R5",
+       "unit": "V",
+       "explanation": "From node analysis: $v_a$ = {{v_a|V}}, $v_b$ = {{v_b|V}}, so $v_{ab}$ = **{{V_R5|V}}**. A loaded bridge gives less than the open-circuit difference.",
+       "absTolerance": 0.005
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "Rs",
+        "val": "Rs",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         3,
+         2
+        ],
+        "to": [
+         3,
+         4
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         7,
+         0
+        ],
+        "to": [
+         7,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         7,
+         2
+        ],
+        "to": [
+         7,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          7,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         3,
+         2
+        ],
+        "to": [
+         7,
+         2
+        ],
+        "label": "R_5",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         7,
+         2
+        ],
+        "label": "b"
+       }
+      ]
+     }
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "V1": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "V2": {
+       "min": 2,
+       "max": 15,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "G4": "1/R4",
+      "G5": "1/R5",
+      "a11": "G1+G2+G3",
+      "a22": "G3+G4+G5",
+      "D": "a11*a22-G3^2",
+      "vx": "(V1*G1*a22+G3*V2*G5)/D",
+      "vy": "(a11*V2*G5+G3*V1*G1)/D"
+     },
+     "require": "abs(I_V1) - 0.0001",
+     "prompt": "Power bookkeeping in a two-source circuit.",
+     "ask": [
+      {
+       "prompt": "Find the total power absorbed by the five resistors.",
+       "answer": "P_R1+P_R2+P_R3+P_R4+P_R5",
+       "unit": "W",
+       "explanation": "Conservation of power: the resistors absorb what the sources deliver. Node analysis gives $v_x$ = {{v_v_x|V}}, $v_y$ = {{v_v_y|V}}; $P_{V_1} = V_1\\frac{V_1-v_x}{R_1}$ = {{P_V1|W}}, $P_{V_2} = V_2\\frac{V_2-v_y}{R_5}$ = {{P_V2|W}}. Sum: **{{P_V1+P_V2|W}}**."
+      },
+      {
+       "prompt": "Find the power **delivered** by $V_1$.",
+       "answer": "P_V1",
+       "unit": "W",
+       "explanation": "Node equations (conductances in mS, currents in mA):\n$$ {{a11*1e3}}\\,v_x - {{G3*1e3}}\\,v_y = {{V1*G1*1e3}} $$\n$$ -{{G3*1e3}}\\,v_x + {{a22*1e3}}\\,v_y = {{V2*G5*1e3}} $$\ngives $v_x$ = {{v_v_x|V}}. The current out of the + terminal of $V_1$ is $(V_1 - v_x)/R_1$ = {{I_V1|A}}, so $P_{del}$ = **{{P_V1|W}}**.",
+       "absTolerance": 1e-05
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "V1",
+        "val": "V1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "vsource",
+        "name": "V2",
+        "val": "V2",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "V_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_y"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c5",
+     "type": "multipleChoice",
+     "prompt": "A voltage source sits between two non-reference nodes. How do you handle it in node analysis?",
+     "options": [
+      "Form a supernode: one KCL around both nodes plus the equation $v_2 - v_1 = V$",
+      "Write KCL at each node using the source's internal resistance",
+      "Replace the source by an open circuit",
+      "Set both node voltages equal to the source voltage"
+     ],
+     "answer": 0,
+     "explanation": "The current through an ideal voltage source is unknown, so KCL at either node alone has an extra unknown. Enclose both nodes in a **supernode** for one KCL equation, and add the source constraint $v_2 - v_1 = V$."
+    },
+    {
+     "id": "c6",
+     "type": "trueFalse",
+     "prompt": "In a **balanced** Wheatstone bridge, removing the detector resistor between a and b changes none of the other currents.",
+     "answer": true,
+     "explanation": "Balanced means $v_a = v_b$ with or without the detector, so the detector carries zero current. Removing a branch that carries no current changes nothing else.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_5",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ],
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ],
+        "label": "b"
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-multi-source-3"
+  }
+ ]
+}

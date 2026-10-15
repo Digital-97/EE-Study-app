@@ -1,0 +1,1402 @@
+{
+  "id": "dt-ztransform",
+  "title": "The z-Transform",
+  "description": "Turn sequences into functions of z with the geometric series, use the properties and invert with partial fractions.",
+  "reference": "Phillips §11.1–11.5",
+  "study": [
+    {
+      "title": "Definition",
+      "body": "The unilateral z-transform weights each sample $x[n]$, $n \\geq 0$, with $z^{-n}$, so $z^{-1}$ stands for a delay of one sample. A finite sequence becomes a polynomial in $z^{-1}$: $\\{2, 1, 3\\} \\to 2 + z^{-1} + 3z^{-2}$. For a causal sequence the sum converges outside a circle, $|z| > r$: the **region of convergence** (ROC). Results are usually rewritten in positive powers of $z$.",
+      "formula": "X(z) = \\mathcal{Z}\\{x[n]\\} = \\sum_{n=0}^{\\infty} x[n]\\,z^{-n}"
+    },
+    {
+      "title": "Explore: from s-plane to z-plane",
+      "body": "Sampling $e^{s_0t}$ every $T$ seconds gives $(e^{s_0T})^n$: a geometric sequence with a pole at $z = e^{s_0T}$. The real part $\\sigma$ sets the radius and $\\omega$ the angle. The left half s-plane maps inside the unit circle, the $j\\omega$ axis onto it and $s = 0$ to $z = 1$. Since $\\omega$ and $\\omega + 2\\pi/T$ land on the same $z$ (aliasing), $\\omega T$ only needs the range $-\\pi \\ldots \\pi$.",
+      "formula": "z = e^{sT} \\;\\Rightarrow\\; |z| = e^{\\sigma T},\\quad \\angle z = \\omega T",
+      "plot": {
+        "x": {
+          "min": -1.6,
+          "max": 1.6,
+          "label": "Re z"
+        },
+        "y": {
+          "min": -1.25,
+          "max": 1.25,
+          "label": "Im z"
+        },
+        "height": 240,
+        "sliders": [
+          {
+            "name": "sT",
+            "label": "$\\sigma T$",
+            "min": -1.5,
+            "max": 0.4,
+            "step": 0.01,
+            "value": -0.3
+          },
+          {
+            "name": "wT",
+            "label": "$\\omega T$ (rad)",
+            "min": -3.14,
+            "max": 3.14,
+            "step": 0.01,
+            "value": 0.8
+          }
+        ],
+        "curves": [
+          {
+            "f": "sqrt(max(0,1-x^2))",
+            "from": -1,
+            "to": 1,
+            "color": "grey"
+          },
+          {
+            "f": "-sqrt(max(0,1-x^2))",
+            "from": -1,
+            "to": 1,
+            "color": "grey"
+          }
+        ],
+        "points": [
+          {
+            "x": "exp(sT)*cos(wT)",
+            "y": "exp(sT)*sin(wT)",
+            "marker": "x",
+            "color": "red",
+            "guides": false,
+            "label": "z"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$|z|$",
+            "value": "exp(sT)"
+          },
+          {
+            "label": "$\\angle z$",
+            "value": "wT*180/pi",
+            "unit": "°"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Pairs from the geometric series",
+      "body": "Most pairs follow from $\\sum_{n=0}^{\\infty} q^n = \\frac{1}{1-q}$ for $|q| < 1$. With $q = az^{-1}$ you get $a^nu[n] \\to \\frac{z}{z-a}$ for $|z| > |a|$; $a = 1$ gives the step $\\frac{z}{z-1}$. Differentiating with respect to $a$ gives the ramps, e.g. $n\\,u[n] \\to \\frac{z}{(z-1)^2}$. Also $\\delta[n] \\to 1$ and $\\delta[n-k] \\to z^{-k}$. A pole at $z = a$ means a term $a^n$ in the sequence.",
+      "formula": "\\begin{aligned} a^n u[n] &\\leftrightarrow \\frac{z}{z-a} \\\\ n a^n u[n] &\\leftrightarrow \\frac{az}{(z-a)^2} \\end{aligned}"
+    },
+    {
+      "title": "Sinusoids and damped sinusoids",
+      "body": "Euler splits $\\cos\\Omega n$ into two exponentials with poles $e^{\\pm j\\Omega}$ on the unit circle. A factor $a^n$ pulls the poles in to radius $a$: $ae^{\\pm j\\Omega}$. Read the denominator $z^2 - 2az\\cos\\Omega + a^2$ backwards: $a$ is the square root of the constant term, and $\\cos\\Omega$ follows from the middle term. For $\\sin$, the numerator is $az\\sin\\Omega$.",
+      "formula": "a^n\\cos\\Omega n \\to \\frac{z(z - a\\cos\\Omega)}{z^2 - 2az\\cos\\Omega + a^2}",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 16.5,
+          "label": "n"
+        },
+        "y": {
+          "min": -1.1,
+          "max": 1.1,
+          "label": "x[n]"
+        },
+        "curves": [
+          {
+            "f": "0.85^x",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "-0.85^x",
+            "color": "grey",
+            "dash": true
+          }
+        ],
+        "points": [
+          {
+            "x": 0,
+            "y": "0.85^(0)*cos(pi*(0)/4)",
+            "guides": false
+          },
+          {
+            "x": 1,
+            "y": "0.85^(1)*cos(pi*(1)/4)",
+            "guides": false
+          },
+          {
+            "x": 2,
+            "y": "0.85^(2)*cos(pi*(2)/4)",
+            "guides": false
+          },
+          {
+            "x": 3,
+            "y": "0.85^(3)*cos(pi*(3)/4)",
+            "guides": false
+          },
+          {
+            "x": 4,
+            "y": "0.85^(4)*cos(pi*(4)/4)",
+            "guides": false
+          },
+          {
+            "x": 5,
+            "y": "0.85^(5)*cos(pi*(5)/4)",
+            "guides": false
+          },
+          {
+            "x": 6,
+            "y": "0.85^(6)*cos(pi*(6)/4)",
+            "guides": false
+          },
+          {
+            "x": 7,
+            "y": "0.85^(7)*cos(pi*(7)/4)",
+            "guides": false
+          },
+          {
+            "x": 8,
+            "y": "0.85^(8)*cos(pi*(8)/4)",
+            "guides": false
+          },
+          {
+            "x": 9,
+            "y": "0.85^(9)*cos(pi*(9)/4)",
+            "guides": false
+          },
+          {
+            "x": 10,
+            "y": "0.85^(10)*cos(pi*(10)/4)",
+            "guides": false
+          },
+          {
+            "x": 11,
+            "y": "0.85^(11)*cos(pi*(11)/4)",
+            "guides": false
+          },
+          {
+            "x": 12,
+            "y": "0.85^(12)*cos(pi*(12)/4)",
+            "guides": false
+          },
+          {
+            "x": 13,
+            "y": "0.85^(13)*cos(pi*(13)/4)",
+            "guides": false
+          },
+          {
+            "x": 14,
+            "y": "0.85^(14)*cos(pi*(14)/4)",
+            "guides": false
+          },
+          {
+            "x": 15,
+            "y": "0.85^(15)*cos(pi*(15)/4)",
+            "guides": false
+          },
+          {
+            "x": 16,
+            "y": "0.85^(16)*cos(pi*(16)/4)",
+            "guides": false
+          }
+        ],
+        "labels": [
+          {
+            "x": 9,
+            "y": 0.85,
+            "text": "a = 0.85, Ω = π/4"
+          },
+          {
+            "x": 9,
+            "y": 0.6,
+            "text": "dashed: envelope"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Shifting with initial conditions",
+      "body": "A delay multiplies by $z^{-1}$, but the samples that shift in from $n < 0$ appear as extra terms. This is how initial conditions enter when you transform a difference equation. Two delays give $z^{-2}X(z) + z^{-1}x[-1] + x[-2]$. An advance pushes $x[0]$ out of the sum, so it is subtracted.",
+      "formula": "\\begin{aligned} x[n-1] &\\to z^{-1}X(z) + x[-1] \\\\ x[n+1] &\\to zX(z) - zx[0] \\end{aligned}"
+    },
+    {
+      "title": "More properties",
+      "body": "The transform is linear. Multiplying by $a^n$ scales $z$; multiplying by $n$ differentiates. Convolution becomes multiplication, the reason why $Y(z) = H(z)X(z)$. Initial and final values follow straight from $X(z)$, but the final-value theorem is only valid when all poles of $(z-1)X(z)$ lie **inside** the unit circle.",
+      "formula": "\\begin{aligned} a^n x[n] &\\to X(z/a) \\\\ n\\,x[n] &\\to -z\\,\\frac{dX}{dz} \\\\ x_1[n] * x_2[n] &\\to X_1(z)X_2(z) \\\\ x[0] &= \\lim_{z\\to\\infty} X(z) \\\\ x[\\infty] &= \\lim_{z\\to 1}\\,(z-1)X(z) \\end{aligned}"
+    },
+    {
+      "title": "Inverse z-transform",
+      "body": "Expand $X(z)/z$ (not $X(z)$) in partial fractions, then multiply back by $z$ so every term has the table form $\\frac{kz}{z-p} \\to kp^n$. A complex pair $p = re^{\\pm j\\Omega}$ with residues $k, k^*$ gives $2|k|\\,r^n\\cos(\\Omega n + \\angle k)$. For the first few samples, long division (in powers of $z^{-1}$) is quicker.",
+      "formula": "\\begin{aligned} \\frac{X(z)}{z} &= \\sum_i \\frac{k_i}{z - p_i} \\\\ x[n] &= \\sum_i k_i\\,p_i^{\\,n} \\end{aligned}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dt-ztransform-1",
+      "title": "Sequences in the z-domain",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The z-transform",
+          "body": "The z-transform turns a sequence into a function of the complex variable $z$. Each sample is multiplied by $z^{-n}$, so $z^{-1}$ marks a delay of one sample, just as $e^{-sT}$ does in the Laplace domain. For a finite sequence you simply write down the polynomial.",
+          "formula": "\\begin{aligned} X(z) &= x[0] + x[1]z^{-1} \\\\ &\\quad {}+ x[2]z^{-2} + \\dots \\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "x0": [
+              1,
+              2,
+              3,
+              -1
+            ],
+            "x1": [
+              -2,
+              -1,
+              1,
+              2,
+              4
+            ],
+            "x2": [
+              1,
+              2,
+              3,
+              -3
+            ],
+            "z0": [
+              2,
+              -2,
+              0.5,
+              4
+            ]
+          },
+          "derived": {
+            "X": "x0 + x1/z0 + x2/z0^2"
+          },
+          "require": "abs(X) - 0.05",
+          "prompt": "The sequence $x[n]$ has $x[0]$ = {{x0}}, $x[1]$ = {{x1}}, $x[2]$ = {{x2}} and is zero elsewhere. Evaluate $X(z)$ at $z$ = {{z0}}.",
+          "answer": "X",
+          "unit": "",
+          "explanation": "$X(z) = x[0] + x[1]z^{-1} + x[2]z^{-2}$. With $z$ = {{z0}}: {{x0}} + ({{x1}})/({{z0}}) + ({{x2}})/({{z0}})² = {{x0}} + ({{x1/z0}}) + ({{x2/z0^2}}) = {{X}}."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "N": [
+              3,
+              4,
+              5,
+              6,
+              8
+            ]
+          },
+          "prompt": "Which is the z-transform of the pulse $x[n] = u[n] - u[n-{{N}}]$ ({{N}} samples equal to 1)?",
+          "options": [
+            "$\\dfrac{1 - z^{-{{N}}}}{1 - z^{-1}}$",
+            "$\\dfrac{z}{z - 1}$",
+            "$\\dfrac{1 - z^{-{{N+1}}}}{1 - z^{-1}}$",
+            "$\\dfrac{1}{1 - z^{-{{N}}}}$"
+          ],
+          "answer": 0,
+          "explanation": "$X(z) = \\sum_{n=0}^{{{N-1}}} z^{-n}$, a finite geometric series with ratio $z^{-1}$: $\\frac{1 - z^{-{{N}}}}{1 - z^{-1}}$. Equivalently, by linearity and the delay property: $\\frac{z}{z-1} - z^{-{{N}}}\\frac{z}{z-1}$. $\\frac{z}{z-1}$ is the endless step; the exponent ${{N+1}}$ would count one sample too many."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The geometric series",
+          "body": "For $x[n] = a^n u[n]$ the sum is $\\sum (az^{-1})^n$, which converges to $\\frac{1}{1 - az^{-1}} = \\frac{z}{z-a}$ when $|az^{-1}| < 1$, i.e. for $|z| > |a|$. So a **pole at $z = a$** belongs to the sequence $a^n$: decaying if $|a| < 1$, alternating in sign if $a < 0$.",
+          "formula": "a^n u[n] \\leftrightarrow \\frac{z}{z-a}, \\quad |z| > |a|"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              3,
+              5,
+              10
+            ],
+            "a": [
+              0.5,
+              0.8,
+              0.9,
+              -0.6,
+              -0.5,
+              1.2
+            ],
+            "k": [
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "$$X(z) = \\frac{{{K}}z}{z - a}$$\nwith $a$ = {{a}}. Find $x[{{k}}]$.",
+          "answer": "K*a^k",
+          "unit": "",
+          "explanation": "$\\frac{z}{z-a} \\leftrightarrow a^n u[n]$, so $x[n]$ = {{K}} · ({{a}})$^n$ and $x[{{k}}]$ = {{K}} × ({{a}})$^{{{k}}}$ = {{K*a^k}}."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "params": {
+            "a": [
+              0.5,
+              -0.8,
+              0.9,
+              1.5,
+              -2
+            ],
+            "zt": [
+              0.6,
+              -1,
+              1.2,
+              2.5,
+              -0.4,
+              3
+            ]
+          },
+          "require": "abs(abs(zt) - abs(a)) - 0.05",
+          "prompt": "The sum defining the z-transform of $x[n] = ({{a}})^n u[n]$ converges at $z$ = {{zt}}.",
+          "answer": "abs(zt) - abs(a)",
+          "explanation": "The series $\\sum (az^{-1})^n$ converges only for $|z| > |a|$ = {{abs(a)}}. Here $|z|$ = {{abs(zt)}}, so the statement is true exactly when $|z|$ > {{abs(a)}}, i.e. when the point lies outside the circle through the pole."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "From the s-plane to the z-plane",
+          "body": "Sample $e^{-\\alpha t}$ with period $T$: $x[n] = e^{-\\alpha nT} = (e^{-\\alpha T})^n$, so the s-plane pole $s = -\\alpha$ becomes the z-plane pole $z = e^{-\\alpha T}$. In general $z = e^{sT}$: stable s-plane poles ($\\sigma < 0$) land **inside the unit circle**, the $j\\omega$ axis lands on it, and the Nyquist frequency $\\omega = \\pi/T$ lands on $z = -1$.",
+          "formula": "z = e^{sT}, \\qquad |z| = e^{\\sigma T}, \\quad \\angle z = \\omega T",
+          "plot": {
+            "x": {
+              "min": -1.6,
+              "max": 1.6,
+              "label": "Re z"
+            },
+            "y": {
+              "min": -1.25,
+              "max": 1.25,
+              "label": "Im z"
+            },
+            "height": 240,
+            "curves": [
+              {
+                "f": "sqrt(max(0,1-x^2))",
+                "from": -1,
+                "to": 1,
+                "color": "grey"
+              },
+              {
+                "f": "-sqrt(max(0,1-x^2))",
+                "from": -1,
+                "to": 1,
+                "color": "grey"
+              }
+            ],
+            "points": [
+              {
+                "x": 1,
+                "y": 0,
+                "guides": false,
+                "label": "s = 0"
+              },
+              {
+                "x": -1,
+                "y": 0,
+                "guides": false,
+                "label": "ω = π/T"
+              }
+            ],
+            "labels": [
+              {
+                "x": -0.55,
+                "y": 0.35,
+                "text": "σ < 0",
+                "color": "green"
+              },
+              {
+                "x": 0.95,
+                "y": 1.05,
+                "text": "σ > 0",
+                "color": "red"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "al": [
+              100,
+              200,
+              500,
+              1000,
+              2000
+            ],
+            "T": [
+              0.0001,
+              0.0002,
+              0.0005,
+              0.001
+            ]
+          },
+          "require": "min(al*T - 0.04, 2.5 - al*T)",
+          "prompt": "$x(t) = e^{-{{al}}t}$ (t in s) is sampled every $T$ = {{T|s}}. Where on the real axis is the pole of $X(z)$?",
+          "answer": "exp(-al*T)",
+          "unit": "",
+          "explanation": "$x[n] = e^{-\\alpha nT} = (e^{-\\alpha T})^n$, so the pole is at $z = e^{-\\alpha T} = e^{-{{al}} \\times {{T}}}$ = $e^{-{{al*T}}}$ = {{exp(-al*T)}}. It lies inside the unit circle because the continuous signal decays."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each s-plane location to its image under $z = e^{sT}$.",
+          "pairs": [
+            [
+              "$s = 0$",
+              "$z = 1$"
+            ],
+            [
+              "left half-plane",
+              "inside the unit circle"
+            ],
+            [
+              "$j\\omega$ axis",
+              "on the unit circle"
+            ],
+            [
+              "right half-plane",
+              "outside the unit circle"
+            ],
+            [
+              "$s = j\\pi/T$",
+              "$z = -1$"
+            ]
+          ],
+          "explanation": "$|z| = e^{\\sigma T}$ is below 1 exactly when $\\sigma < 0$ and equals 1 on the $j\\omega$ axis. $s = 0$ gives $e^0 = 1$, and $s = j\\pi/T$ gives $e^{j\\pi} = -1$: half the sampling frequency sits at $z = -1$."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "r": [
+              0.5,
+              0.6,
+              0.7,
+              0.8,
+              0.9
+            ],
+            "deg": [
+              30,
+              45,
+              60,
+              90,
+              120,
+              135,
+              150
+            ]
+          },
+          "derived": {
+            "zr": "r*cos(deg*pi/180)",
+            "zi": "r*sin(deg*pi/180)"
+          },
+          "prompt": "Move the s-plane pole with the sliders $\\sigma T$ and $\\omega T$ so that its image $z = e^{sT}$ (red cross) lands on the target $z$ = {{r}}∠{{deg}}°.",
+          "plot": {
+            "x": {
+              "min": -1.6,
+              "max": 1.6,
+              "label": "Re z"
+            },
+            "y": {
+              "min": -1.25,
+              "max": 1.25,
+              "label": "Im z"
+            },
+            "height": 240,
+            "sliders": [
+              {
+                "name": "sT",
+                "label": "$\\sigma T$",
+                "min": -1,
+                "max": 0.3,
+                "step": 0.01,
+                "value": 0
+              },
+              {
+                "name": "wT",
+                "label": "$\\omega T$ (rad)",
+                "min": 0,
+                "max": 3.14,
+                "step": 0.01,
+                "value": 0
+              }
+            ],
+            "curves": [
+              {
+                "f": "sqrt(max(0,1-x^2))",
+                "from": -1,
+                "to": 1,
+                "color": "grey"
+              },
+              {
+                "f": "-sqrt(max(0,1-x^2))",
+                "from": -1,
+                "to": 1,
+                "color": "grey"
+              }
+            ],
+            "points": [
+              {
+                "x": "zr",
+                "y": "zi",
+                "marker": "o",
+                "color": "orange",
+                "guides": false,
+                "label": "target"
+              },
+              {
+                "x": "exp(sT)*cos(wT)",
+                "y": "exp(sT)*sin(wT)",
+                "marker": "x",
+                "color": "red",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$|z|$",
+                "value": "exp(sT)",
+                "reveal": true
+              },
+              {
+                "label": "$\\angle z$",
+                "value": "wT*180/pi",
+                "unit": "°",
+                "reveal": true
+              }
+            ]
+          },
+          "check": "0.06 - sqrt((exp(sT)*cos(wT) - zr)^2 + (exp(sT)*sin(wT) - zi)^2)",
+          "solution": "$\\sigma T$ = ln {{r}} = {{ln(r)}}, $\\omega T$ = {{deg*pi/180}} rad",
+          "explanation": "$|z| = e^{\\sigma T}$, so $\\sigma T = \\ln|z|$ = ln {{r}} = {{ln(r)}}. $\\angle z = \\omega T$, so $\\omega T$ = {{deg}}° = {{deg*pi/180}} rad. A pole closer to the origin needs a more negative $\\sigma T$ (faster decay per sample)."
+        }
+      ]
+    },
+    {
+      "id": "dt-ztransform-2",
+      "title": "Pairs and properties",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.5,
+              0.6,
+              0.7,
+              0.8,
+              0.9,
+              0.95
+            ],
+            "kk": [
+              3,
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "c": "r*cos(pi/kk)"
+          },
+          "prompt": "The z-transform of $x[n] = ({{r}})^n\\cos(\\pi n/{{kk}})\\,u[n]$ has the form\n$$X(z) = \\frac{z(z - c)}{z^2 + d_1z + d_2}$$\nwith real constants $c$, $d_1$ and $d_2$.",
+          "ask": [
+            {
+              "prompt": "Find $d_1$.",
+              "answer": "-2*c",
+              "absTolerance": 0.005,
+              "explanation": "The table gives the denominator $z^2 - 2az\\cos\\Omega + a^2$, so $d_1 = -2a\\cos\\Omega$ = −2 × {{r}} × cos(π/{{kk}}) = {{-2*c}}. (The poles are at $ae^{\\pm j\\Omega}$ = {{r}}$e^{\\pm j\\pi/{{kk}}}$.)"
+            },
+            {
+              "prompt": "Find $c$ in the numerator.",
+              "answer": "c",
+              "absTolerance": 0.005,
+              "explanation": "The numerator is $z(z - a\\cos\\Omega)$, so $c = a\\cos\\Omega$ = {{r}} × cos(π/{{kk}}) = {{c}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.6,
+              0.7,
+              0.8,
+              0.9
+            ],
+            "kk": [
+              3,
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "c": "a*cos(pi/kk)",
+            "W": "pi/kk"
+          },
+          "prompt": "$$X(z) = \\frac{z(z - {{c||4}})}{z^2 - {{2*c||4}}z + {{a^2||4}}}$$\nis a damped cosine $a^n\\cos(\\Omega n)\\,u[n]$.",
+          "ask": [
+            {
+              "prompt": "Find $a$.",
+              "answer": "a",
+              "explanation": "The constant term of the denominator is $a^2$: $a = \\sqrt{{{a^2||4}}}$ = {{a}}."
+            },
+            {
+              "prompt": "Find $\\Omega$ in rad/sample.",
+              "answer": "W",
+              "unit": "rad",
+              "explanation": "$a = \\sqrt{{{a^2||4}}}$ = {{a}}. The middle term is $2a\\cos\\Omega$ = {{2*c||4}}, so $\\cos\\Omega$ = {{2*c||4}} / (2 × {{a}}) = {{cos(W)}} and $\\Omega$ = {{W}} rad (π/{{kk}})."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Shifting with initial conditions",
+          "body": "Transform $y[n-1]$ for $n \\geq 0$: the sample $y[-1]$ moves into the sum at $n = 0$, so $\\mathcal{Z}\\{y[n-1]\\} = z^{-1}Y(z) + y[-1]$. Every extra delay adds one more initial-condition term. These terms carry the stored state of a system into the z-domain.",
+          "formula": "\\begin{aligned} y[n-2] \\to\\; &z^{-2}Y(z) \\\\ &{}+ z^{-1}y[-1] + y[-2] \\end{aligned}"
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "An advance: what is $\\mathcal{Z}\\{x[n+1]\\}$ (unilateral)?",
+          "options": [
+            "$zX(z) - zx[0]$",
+            "$zX(z) - x[0]$",
+            "$zX(z)$",
+            "$zX(z) + x[-1]$"
+          ],
+          "answer": 0,
+          "explanation": "$\\sum_{n\\geq0} x[n+1]z^{-n} = z\\sum_{m\\geq1} x[m]z^{-m} = z\\,(X(z) - x[0])$. The sample $x[0]$ is pushed out of the sum, and it carries the factor $z$ too. Only for $x[0] = 0$ is the advance a pure multiplication by $z$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9,
+              -0.5,
+              -0.8
+            ],
+            "y0": [
+              2,
+              4,
+              5,
+              10
+            ],
+            "k": [
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "$y[n] = {{a}}\\,y[n-1]$ for $n \\geq 0$, with $y[-1]$ = {{y0}}. Transform the equation, solve for $Y(z)$ and find $y[{{k}}]$.",
+          "answer": "y0*a^(k+1)",
+          "unit": "",
+          "explanation": "$Y(z) = a\\,(z^{-1}Y(z) + y[-1]) \\Rightarrow Y(z) = \\frac{a\\,y[-1]\\,z}{z - a}$.\nSo $y[n] = a\\,y[-1]\\,a^n = y[-1]\\,a^{n+1}$ and $y[{{k}}]$ = {{y0}} × ({{a}})$^{{{k+1}}}$ = {{y0*a^(k+1)}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "b0": [
+              2,
+              3,
+              4
+            ],
+            "b1": [
+              0.5,
+              2,
+              3
+            ],
+            "p": [
+              0.5,
+              0.8,
+              1.2,
+              1.5
+            ],
+            "q": [
+              0.25,
+              0.5,
+              0.3
+            ]
+          },
+          "prompt": "$$X(z) = \\frac{{{b0}}z^2 + {{b1}}z}{z^2 - {{p}}z + {{q}}}$$\nis the z-transform of a causal sequence $x[n]$.",
+          "ask": [
+            {
+              "prompt": "Use the initial-value theorem to find $x[0]$.",
+              "answer": "b0",
+              "explanation": "$x[0] = \\lim_{z\\to\\infty} X(z)$. For large $z$ only the highest powers count: {{b0}}$z^2/z^2$ = {{b0}}."
+            },
+            {
+              "prompt": "Find $x[1]$ (hint: $x[1] = \\lim_{z\\to\\infty} z\\,(X(z) - x[0])$, or long division).",
+              "answer": "b1 + p*b0",
+              "explanation": "Long division in powers of $z^{-1}$: $X(z)$ = {{b0}} + ({{b1}} + {{p}} × {{b0}})$z^{-1}$ + …, because $X(z) - x[0] = \\frac{({{b1}} + {{p}}\\cdot{{b0}})z - {{q}}\\cdot{{b0}}}{z^2 - {{p}}z + {{q}}}$. So $x[1]$ = {{b1 + p*b0}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "K": [
+              0.5,
+              2,
+              3,
+              5
+            ],
+            "a": [
+              0.5,
+              0.8,
+              -0.5,
+              0.2,
+              0.9
+            ]
+          },
+          "prompt": "$$X(z) = \\frac{{{K}}z^2}{(z-1)(z-a)}$$\nwith $a$ = {{a}}. Find $\\lim_{n\\to\\infty} x[n]$.",
+          "answer": "K/(1-a)",
+          "unit": "",
+          "explanation": "$(z-1)X(z) = \\frac{{{K}}z^2}{z - a}$ has its only pole at $a$ = {{a}}, inside the unit circle, so the final-value theorem applies:\n$x[\\infty] = \\lim_{z\\to1} \\frac{{{K}}z^2}{z-a}$ = {{K}} / (1 − ({{a}})) = {{K/(1-a)}}."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "params": {
+            "p": [
+              0.5,
+              1.25,
+              -0.6,
+              1.5,
+              -1.2
+            ]
+          },
+          "prompt": "$$X(z) = \\frac{z^2}{(z-1)(z - p)}$$\nwith $p$ = {{p}}. The final-value theorem gives $1/(1-p)$ = {{1/(1-p)}}, so $x[n]$ settles at that value.",
+          "answer": "1 - abs(p)",
+          "explanation": "The theorem only holds when all poles of $(z-1)X(z) = \\frac{z^2}{z-p}$ lie inside the unit circle. The pole is at {{p}}, $|p|$ = {{abs(p)}}, so the theorem is valid only if $|p| < 1$. Then $p^n$ dies out and $x[n] \\to 1/(1-p)$. For $|p| > 1$ the term $p^n$ grows without bound and $x[n]$ never settles, whatever the formula gives."
+        }
+      ]
+    },
+    {
+      "id": "dt-ztransform-3",
+      "title": "Inverse z-transform",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Partial fractions of X(z)/z",
+          "body": "Table pairs look like $\\frac{kz}{z-p}$, with a $z$ in the numerator. So expand $X(z)/z$, find each residue $k_i = (z - p_i)\\frac{X(z)}{z}$ evaluated at $z = p_i$, multiply by $z$ again and read off $k_i p_i^n$.",
+          "formula": "\\begin{aligned} \\frac{X(z)}{z} &= \\frac{k_1}{z-p_1} + \\frac{k_2}{z-p_2} \\\\ \\Rightarrow\\; x[n] &= k_1p_1^{\\,n} + k_2p_2^{\\,n} \\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.5,
+              0.6,
+              0.8,
+              0.9
+            ],
+            "p2": [
+              0.2,
+              0.3,
+              -0.4,
+              -0.5,
+              0.1
+            ],
+            "N": [
+              2,
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "k1": "p1/(p1-p2)",
+            "k2": "-p2/(p1-p2)"
+          },
+          "require": "abs(p1 + p2) - 0.05",
+          "prompt": "$$X(z) = \\frac{z^2}{(z - {{p1}})(z - p_2)}$$\nwith $p_2$ = {{p2}}.",
+          "ask": [
+            {
+              "prompt": "Find the residue $k_1$ of $X(z)/z$ at $z$ = {{p1}}.",
+              "answer": "k1",
+              "explanation": "$\\frac{X(z)}{z} = \\frac{z}{(z - {{p1}})(z - p_2)}$. Cover up $(z - {{p1}})$ and set $z$ = {{p1}}: $k_1$ = {{p1}} / ({{p1}} − ({{p2}})) = {{k1}}."
+            },
+            {
+              "prompt": "Find $x[{{N}}]$.",
+              "answer": "k1*p1^N + k2*p2^N",
+              "explanation": "$k_1 = \\frac{p_1}{p_1 - p_2}$ = {{k1}}, $k_2 = \\frac{p_2}{p_2 - p_1}$ = {{k2}}, so $x[n]$ = {{k1}}·{{p1}}$^n$ + ({{k2}})·({{p2}})$^n$.\n$x[{{N}}]$ = {{k1*p1^N}} + ({{k2*p2^N}}) = {{k1*p1^N + k2*p2^N}}. Check: $x[0] = k_1 + k_2 = 1$."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "b0": [
+              2,
+              3
+            ],
+            "b1": [
+              0.5,
+              2,
+              3
+            ],
+            "b2": [
+              0.5,
+              2,
+              3
+            ],
+            "p": [
+              0.5,
+              0.8,
+              1.2
+            ],
+            "q": [
+              0.25,
+              0.5,
+              0.75
+            ]
+          },
+          "derived": {
+            "x0": "b0",
+            "x1": "b1 + p*x0",
+            "x2": "b2 + p*x1 - q*x0"
+          },
+          "require": "abs(x2) - 0.05",
+          "prompt": "Expand\n$$X(z) = \\frac{{{b0}}z^2 + {{b1}}z + {{b2}}}{z^2 - {{p}}z + {{q}}}$$\nin powers of $z^{-1}$ by long division.",
+          "ask": [
+            {
+              "prompt": "Find $x[1]$.",
+              "answer": "x1",
+              "explanation": "Write $x[n] = b_n + {{p}}\\,x[n-1] - {{q}}\\,x[n-2]$ (the division recursion, with $b_n$ the numerator coefficients). $x[0]$ = {{b0}}; $x[1]$ = {{b1}} + {{p}} × {{x0}} = {{x1}}."
+            },
+            {
+              "prompt": "Find $x[2]$.",
+              "answer": "x2",
+              "explanation": "Division recursion: $x[n] = b_n + {{p}}\\,x[n-1] - {{q}}\\,x[n-2]$.\n$x[0]$ = {{b0}}, $x[1]$ = {{b1}} + {{p}} × {{x0}} = {{x1}}, $x[2]$ = {{b2}} + {{p}} × {{x1}} − {{q}} × {{x0}} = {{x2}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q3",
+          "type": "orderSteps",
+          "prompt": "Put the steps of an inverse z-transform by partial fractions in order.",
+          "items": [
+            "Divide by $z$: form $X(z)/z$",
+            "Find the poles $p_i$ of $X(z)/z$",
+            "Compute the residues $k_i$",
+            "Multiply by $z$: $X(z) = \\sum k_i\\,z/(z - p_i)$",
+            "Invert term by term: $x[n] = \\sum k_i p_i^{\\,n}$"
+          ],
+          "explanation": "Dividing by $z$ first is the trick that makes every partial fraction come back in the table form $\\frac{kz}{z-p}$ after multiplying by $z$ again."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "re": [
+              0.3,
+              0.5,
+              0.6,
+              -0.4,
+              -0.2
+            ],
+            "im": [
+              0.4,
+              0.5,
+              0.6,
+              0.7
+            ]
+          },
+          "derived": {
+            "r": "sqrt(re^2 + im^2)",
+            "W": "atan2(im, re)"
+          },
+          "require": "0.99 - r",
+          "prompt": "$X(z)$ has a complex pole pair at $z$ = {{re}} ± j{{im}}, so $x[n]$ contains a term $A\\,r^n\\cos(\\Omega n + \\theta)$.",
+          "ask": [
+            {
+              "prompt": "Find $r$.",
+              "answer": "r",
+              "explanation": "$r = |p| = \\sqrt{({{re}})^2 + {{im}}^2}$ = {{r}}. The envelope shrinks by this factor every sample."
+            },
+            {
+              "prompt": "Find $\\Omega$ in rad/sample.",
+              "answer": "W",
+              "unit": "rad",
+              "explanation": "$\\Omega = \\angle p$ = atan2({{im}}, {{re}}) = {{W}} rad, i.e. {{2*pi/W}} samples per cycle."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "c": [
+              2,
+              3,
+              4
+            ],
+            "a": [
+              0.5,
+              0.8,
+              0.9,
+              -0.5
+            ],
+            "N": [
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "Find $x[{{N}}]$ for\n$$X(z) = \\frac{{{c}}z}{(z - a)^2}$$\nwith $a$ = {{a}}.",
+          "answer": "c*N*a^(N-1)",
+          "unit": "",
+          "explanation": "Table: $na^nu[n] \\leftrightarrow \\frac{az}{(z-a)^2}$. So $X(z) = \\frac{c}{a}\\cdot\\frac{az}{(z-a)^2}$ and $x[n] = \\frac{c}{a}\\,n a^n = c\\,n\\,a^{n-1}$.\n$x[{{N}}]$ = {{c}} × {{N}} × ({{a}})$^{{{N-1}}}$ = {{c*N*a^(N-1)}}."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "a": [
+              0.7,
+              0.8,
+              0.85
+            ]
+          },
+          "prompt": "Which graph shows the inverse transform of\n$$X(z) = \\frac{z}{z + {{a}}}?$$",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "n"
+              },
+              "y": {
+                "min": -1.1,
+                "max": 1.1
+              },
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ],
+              "points": [
+                {
+                  "x": 0,
+                  "y": "(-a)^(0)",
+                  "guides": false
+                },
+                {
+                  "x": 1,
+                  "y": "(-a)^(1)",
+                  "guides": false
+                },
+                {
+                  "x": 2,
+                  "y": "(-a)^(2)",
+                  "guides": false
+                },
+                {
+                  "x": 3,
+                  "y": "(-a)^(3)",
+                  "guides": false
+                },
+                {
+                  "x": 4,
+                  "y": "(-a)^(4)",
+                  "guides": false
+                },
+                {
+                  "x": 5,
+                  "y": "(-a)^(5)",
+                  "guides": false
+                },
+                {
+                  "x": 6,
+                  "y": "(-a)^(6)",
+                  "guides": false
+                },
+                {
+                  "x": 7,
+                  "y": "(-a)^(7)",
+                  "guides": false
+                },
+                {
+                  "x": 8,
+                  "y": "(-a)^(8)",
+                  "guides": false
+                },
+                {
+                  "x": 9,
+                  "y": "(-a)^(9)",
+                  "guides": false
+                },
+                {
+                  "x": 10,
+                  "y": "(-a)^(10)",
+                  "guides": false
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "n"
+              },
+              "y": {
+                "min": -1.1,
+                "max": 1.1
+              },
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ],
+              "points": [
+                {
+                  "x": 0,
+                  "y": "a^(0)",
+                  "guides": false
+                },
+                {
+                  "x": 1,
+                  "y": "a^(1)",
+                  "guides": false
+                },
+                {
+                  "x": 2,
+                  "y": "a^(2)",
+                  "guides": false
+                },
+                {
+                  "x": 3,
+                  "y": "a^(3)",
+                  "guides": false
+                },
+                {
+                  "x": 4,
+                  "y": "a^(4)",
+                  "guides": false
+                },
+                {
+                  "x": 5,
+                  "y": "a^(5)",
+                  "guides": false
+                },
+                {
+                  "x": 6,
+                  "y": "a^(6)",
+                  "guides": false
+                },
+                {
+                  "x": 7,
+                  "y": "a^(7)",
+                  "guides": false
+                },
+                {
+                  "x": 8,
+                  "y": "a^(8)",
+                  "guides": false
+                },
+                {
+                  "x": 9,
+                  "y": "a^(9)",
+                  "guides": false
+                },
+                {
+                  "x": 10,
+                  "y": "a^(10)",
+                  "guides": false
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 10.5,
+                "label": "n"
+              },
+              "y": {
+                "min": -1.1,
+                "max": 1.1
+              },
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ],
+              "points": [
+                {
+                  "x": 0,
+                  "y": "-(a^(0))",
+                  "guides": false
+                },
+                {
+                  "x": 1,
+                  "y": "-(a^(1))",
+                  "guides": false
+                },
+                {
+                  "x": 2,
+                  "y": "-(a^(2))",
+                  "guides": false
+                },
+                {
+                  "x": 3,
+                  "y": "-(a^(3))",
+                  "guides": false
+                },
+                {
+                  "x": 4,
+                  "y": "-(a^(4))",
+                  "guides": false
+                },
+                {
+                  "x": 5,
+                  "y": "-(a^(5))",
+                  "guides": false
+                },
+                {
+                  "x": 6,
+                  "y": "-(a^(6))",
+                  "guides": false
+                },
+                {
+                  "x": 7,
+                  "y": "-(a^(7))",
+                  "guides": false
+                },
+                {
+                  "x": 8,
+                  "y": "-(a^(8))",
+                  "guides": false
+                },
+                {
+                  "x": 9,
+                  "y": "-(a^(9))",
+                  "guides": false
+                },
+                {
+                  "x": 10,
+                  "y": "-(a^(10))",
+                  "guides": false
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "$\\frac{z}{z + {{a}}} = \\frac{z}{z - (-{{a}})}$: a pole at $z$ = −{{a}}, so $x[n] = (-{{a}})^n$. It starts at 1 and flips sign every sample while the magnitude decays. A pole on the positive real axis would give a non-alternating decay."
+        }
+      ]
+    },
+    {
+      "id": "dt-ztransform-4",
+      "title": "Putting the transform to work",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "al": [
+              100,
+              200,
+              500
+            ],
+            "f": [
+              50,
+              100,
+              200,
+              250
+            ],
+            "fs": [
+              1000,
+              2000,
+              4000
+            ]
+          },
+          "derived": {
+            "r": "exp(-al/fs)",
+            "W": "2*pi*f/fs"
+          },
+          "require": "fs - 2*f - 1",
+          "prompt": "$x(t) = e^{-{{al}}t}\\cos(2\\pi\\cdot{{f}}\\,t)$ ($t$ in s) is sampled at $f_s$ = {{fs|Hz}}. $X(z)$ has the denominator $z^2 - 2rz\\cos\\Omega + r^2$.",
+          "ask": [
+            {
+              "prompt": "Find the pole radius $r$.",
+              "answer": "r",
+              "explanation": "$x[n] = (e^{-\\alpha T})^n\\cos(\\omega T n)$ with $T = 1/f_s$, so $r = e^{-\\alpha T}$ = $e^{-{{al}}/{{fs}}}$ = {{r}}."
+            },
+            {
+              "prompt": "Find the pole angle $\\Omega$ in rad/sample.",
+              "answer": "W",
+              "unit": "rad",
+              "explanation": "$\\Omega = \\omega T = 2\\pi f/f_s$ = 2π × {{f}} / {{fs}} = {{W}} rad."
+            },
+            {
+              "prompt": "Find the middle coefficient $-2r\\cos\\Omega$ of the denominator.",
+              "answer": "-2*r*cos(W)",
+              "absTolerance": 0.005,
+              "explanation": "$r = e^{-{{al}}/{{fs}}}$ = {{r}} and $\\Omega = 2\\pi\\cdot{{f}}/{{fs}}$ = {{W}} rad, so $-2r\\cos\\Omega$ = −2 × {{r}} × {{cos(W)}} = {{-2*r*cos(W)}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.9,
+              0.8,
+              0.5
+            ],
+            "b": [
+              0.5,
+              0.2,
+              -0.5,
+              -0.8
+            ],
+            "N": [
+              2,
+              3,
+              5
+            ]
+          },
+          "require": "min(abs(a - b), abs(a + b)) - 0.05",
+          "derived": {
+            "k1": "a/(a-b)",
+            "k2": "-b/(a-b)",
+            "y": "(a^(N+1) - b^(N+1))/(a - b)"
+          },
+          "prompt": "$y[n] = x_1[n] * x_2[n]$ with $x_1[n] = ({{a}})^n u[n]$ and $x_2[n] = ({{b}})^n u[n]$. Use $Y(z) = X_1(z)X_2(z)$ to find $y[{{N}}]$.",
+          "answer": "y",
+          "unit": "",
+          "explanation": "$Y(z) = \\frac{z^2}{(z-a)(z-b)}$. Residues of $Y(z)/z$: $k_1 = \\frac{a}{a-b}$ = {{k1}}, $k_2 = \\frac{b}{b-a}$ = {{k2}}.\n$y[n] = k_1a^n + k_2b^n = \\frac{a^{n+1} - b^{n+1}}{a - b}$, so $y[{{N}}]$ = {{y}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "K": [
+              0.5,
+              2,
+              3
+            ],
+            "a": [
+              0.5,
+              0.6,
+              0.8,
+              -0.4
+            ]
+          },
+          "prompt": "$$X(z) = \\frac{{{K}}z}{(z - 1)(z - a)}$$\nwith $a$ = {{a}}.",
+          "ask": [
+            {
+              "prompt": "Find $x[1]$.",
+              "answer": "K",
+              "explanation": "The numerator degree is one lower than the denominator, so $x[0] = \\lim_{z\\to\\infty}X(z) = 0$. Then $x[1] = \\lim_{z\\to\\infty} zX(z) = \\lim \\frac{{{K}}z^2}{z^2}$ = {{K}}."
+            },
+            {
+              "prompt": "Find $\\lim_{n\\to\\infty} x[n]$.",
+              "answer": "K/(1-a)",
+              "explanation": "$(z-1)X(z) = \\frac{{{K}}z}{z-a}$ has its pole at {{a}}, inside the unit circle, so the final-value theorem holds: $x[\\infty]$ = {{K}} × 1/(1 − ({{a}})) = {{K/(1-a)}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.7,
+              0.8,
+              0.9
+            ],
+            "kk": [
+              3,
+              4,
+              6
+            ],
+            "K": [
+              0.5,
+              2,
+              3
+            ],
+            "N": [
+              2,
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "W": "pi/kk",
+            "x": "K*r^(N-1)*sin(W*N)/sin(W)"
+          },
+          "require": "abs(sin(N*pi/kk)) - 0.1",
+          "prompt": "Find $x[{{N}}]$ for\n$$X(z) = \\frac{{{K}}z}{z^2 - {{2*r*cos(pi/kk)||4}}z + {{r^2||4}}}.$$\n(Hint: compare with the $a^n\\sin(\\Omega n)$ pair.)",
+          "answer": "x",
+          "unit": "",
+          "explanation": "Denominator $z^2 - 2rz\\cos\\Omega + r^2$: $r = \\sqrt{{{r^2||4}}}$ = {{r}}, $\\cos\\Omega$ = {{2*r*cos(pi/kk)||4}}/(2 × {{r}}) = {{cos(W)}}, so $\\Omega$ = π/{{kk}}.\nThe pair $r^n\\sin(\\Omega n) \\leftrightarrow \\frac{rz\\sin\\Omega}{\\dots}$ gives $x[n] = \\frac{K}{r\\sin\\Omega}r^n\\sin(\\Omega n)$.\n$x[{{N}}]$ = {{K}}/({{r}} × {{sin(W)}}) × {{r}}$^{{{N}}}$ × {{sin(W*N)}} = {{x}}."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "For which $X(z)$ does the final-value theorem give the true limit of $x[n]$?",
+          "options": [
+            "$\\dfrac{z^2}{(z-1)(z-0.5)}$",
+            "$\\dfrac{z^2}{(z-1)(z+1)}$",
+            "$\\dfrac{z^2}{(z-1)(z-1.5)}$",
+            "$\\dfrac{z}{(z-1)^2}$"
+          ],
+          "answer": 0,
+          "explanation": "Look at the poles of $(z-1)X(z)$: they must all lie strictly inside the unit circle.\n- $\\frac{z^2}{z-0.5}$: pole 0.5, valid; $x[\\infty] = 1/0.5 = 2$.\n- $\\frac{z^2}{z+1}$: pole on the circle, $x[n]$ keeps alternating between 1 and 0.\n- $\\frac{z^2}{z-1.5}$: pole outside, $x[n]$ grows.\n- $\\frac{z}{z-1}$: pole at 1, the ramp $n$ grows without bound."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.2,
+              0.5,
+              0.6,
+              0.8,
+              0.9
+            ]
+          },
+          "prompt": "Use a z-transform to evaluate $S = \\sum_{n=0}^{\\infty} n\\,({{a}})^n$. (Hint: $\\sum x[n] = X(1)$ when $z = 1$ lies in the ROC.)",
+          "answer": "a/(1-a)^2",
+          "unit": "",
+          "explanation": "$n a^n u[n] \\leftrightarrow \\frac{az}{(z-a)^2}$, ROC $|z| > {{a}}$, which contains $z = 1$. Setting $z = 1$ turns $\\sum x[n]z^{-n}$ into $\\sum x[n]$:\n$S = \\frac{a}{(1-a)^2}$ = {{a}} / (1 − {{a}})² = {{a/(1-a)^2}}."
+        }
+      ]
+    }
+  ]
+}

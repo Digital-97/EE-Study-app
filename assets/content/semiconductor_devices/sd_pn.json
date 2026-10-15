@@ -1,0 +1,421 @@
+{
+  "id": "sd-pn",
+  "title": "The pn Junction",
+  "description": "Electrostatics of the abrupt pn junction: built-in potential, depletion widths, electric field, reverse bias, junction capacitance and breakdown.",
+  "reference": "Neamen §7.1–7.4",
+  "study": [
+    {
+      "title": "The junction in equilibrium",
+      "body": "Bring p- and n-type silicon together: holes diffuse into the n side and electrons into the p side, leaving behind uncovered ionized acceptors (−) and donors (+). This **space-charge (depletion) region** creates a field from the n side to the p side that stops further net diffusion. In equilibrium $E_F$ is flat through the whole structure, so the bands bend by $qV_{bi}$. $V_{bi}$ cannot be measured with a voltmeter: contact potentials cancel it.",
+      "formula": "V_{bi} = \\frac{kT}{q}\\ln\\frac{N_aN_d}{n_i^2}"
+    },
+    {
+      "title": "Depletion approximation",
+      "body": "Assume the depletion region is completely empty of carriers and the rest is neutral. Then the charge is two rectangles ($-qN_a$ over $x_p$, $+qN_d$ over $x_n$), the field is a triangle peaking at the junction, and the potential is two parabolas. Total charge must be zero, so $N_ax_p = N_dx_n$: the depletion region reaches further into the **lightly** doped side. The field points from n to p; its peak magnitude is $E_{max} = qN_dx_n/\\varepsilon_s = 2(V_{bi} + V_R)/W$.",
+      "formula": "W = \\sqrt{\\frac{2\\varepsilon_s(V_{bi} + V_R)}{q}\\,\\frac{N_a + N_d}{N_aN_d}}"
+    },
+    {
+      "title": "Explore: reverse bias",
+      "body": "A reverse bias $V_R$ (n side positive) adds to the barrier: replace $V_{bi}$ by $V_{bi} + V_R$. The depletion region widens as $\\sqrt{V_{bi} + V_R}$ and the peak field grows. Here $N_a = 10^{17}$ cm⁻³ and the graph shows $|E(x)|$ with the junction at $x$ = 0 (p side left); the vertical scale follows $E_{max}$. Compare small $N_d$ (one-sided) with $N_d$ close to $N_a$.",
+      "formula": "x_n = W\\frac{N_a}{N_a + N_d}, \\quad x_p = W\\frac{N_d}{N_a + N_d}",
+      "plot": {
+        "x": {"min": -0.6, "max": 4, "label": "x (µm)"},
+        "y": {"min": 0, "max": "1.25*Em", "label": "|E| (kV/cm)"},
+        "sliders": [
+          {"name": "VR", "label": "$V_R$", "min": 0, "max": 10, "step": 0.1, "value": 2, "unit": "V"},
+          {"name": "Nd", "label": "$N_d$", "min": 1e15, "max": 1e17, "log": true, "value": 3e15, "unit": "cm⁻³"}
+        ],
+        "let": {
+          "Vbi": "0.0259*ln(1e17*Nd/2.25e20)",
+          "W": "sqrt(2*1.03545e-12*(Vbi+VR)/1.602e-19*(1e17+Nd)/(1e17*Nd))*1e4",
+          "xn": "W*1e17/(1e17+Nd)",
+          "xp": "W*Nd/(1e17+Nd)",
+          "Em": "2*(Vbi+VR)/(W*1e-4)/1000"
+        },
+        "curves": [{"f": "if(x + xp, if(-x, Em*(1 + x/xp), if(xn - x, Em*(1 - x/xn), 0)), 0)", "label": "|E(x)|", "labelAt": 0.75}],
+        "vlines": [{"x": 0, "label": "junction"}],
+        "readouts": [
+          {"label": "$V_{bi}$", "value": "Vbi", "unit": "V"},
+          {"label": "$W$", "value": "W*1e-6", "unit": "m"},
+          {"label": "$x_n$", "value": "xn*1e-6", "unit": "m"},
+          {"label": "$x_p$", "value": "xp*1e-6", "unit": "m"},
+          {"label": "$E_{max}$", "value": "Em*1000", "unit": "V/cm"}
+        ]
+      }
+    },
+    {
+      "title": "One-sided junctions",
+      "body": "If one side is much more heavily doped, e.g. a $p^+n$ junction with $N_a \\gg N_d$, practically the whole depletion region lies in the lightly doped n side: $x_n \\approx W$, $x_p \\approx 0$. Everything then depends on the light doping only, which is why the C–V method measures the doping of the lightly doped side.",
+      "formula": "W \\approx \\sqrt{\\frac{2\\varepsilon_s(V_{bi} + V_R)}{qN_d}}"
+    },
+    {
+      "title": "Junction capacitance",
+      "body": "A small change of $V_R$ uncovers a little more charge at both edges of the depletion region, like a parallel-plate capacitor with plate distance $W$. The capacitance per area falls as the reverse bias rises: varactor diodes use this for voltage-tuned oscillators. For a one-sided junction, $1/C'^2$ is a straight line in $V_R$: its slope gives $N_d$ and it crosses zero at $V_R = -V_{bi}$.",
+      "formula": "\\begin{aligned}& C' = \\frac{\\varepsilon_s}{W}\\\\ & \\frac{1}{C'^2} = \\frac{2(V_{bi} + V_R)}{q\\varepsilon_sN_d}\\end{aligned}",
+      "plot": {
+        "x": {"min": -1, "max": 10, "label": "V_R", "unit": "V"},
+        "y": {"min": 0, "max": 15, "label": "1/C'² (1e15 cm⁴/F²)"},
+        "curves": [
+          {"f": "2*(0.8736 + x)/(1.602e-19*1.03545e-12*1e16)/1e15", "label": "N_d = 1e16", "labelAt": 0.8},
+          {"f": "2*(0.8916 + x)/(1.602e-19*1.03545e-12*2e16)/1e15", "label": "N_d = 2e16", "color": "red", "labelAt": 0.8}
+        ],
+        "points": [{"x": -0.88, "y": 0, "label": "-V_{bi}", "guides": false}]
+      }
+    },
+    {
+      "title": "Breakdown",
+      "body": "At large reverse bias the junction conducts heavily:\n- **Avalanche:** carriers gain enough energy in the field to knock out new electron–hole pairs (impact ionization), which multiply. It happens when $E_{max}$ reaches the critical field (about 3–6$\\times10^{5}$ V/cm in Si, rising slowly with doping). Typical above 6–8 V; positive temperature coefficient.\n- **Zener:** in very heavily doped junctions $W$ is so thin that electrons tunnel directly from the valence band on the p side to the conduction band on the n side. Typical below about 5 V; negative temperature coefficient.\nFor a one-sided junction the avalanche voltage is roughly (neglecting $V_{bi}$):",
+      "formula": "V_B \\approx \\frac{\\varepsilon_sE_{crit}^2}{2qN_B}"
+    },
+    {
+      "title": "Worked example",
+      "body": "$N_a = 10^{17}$, $N_d = 10^{16}$ cm⁻³, $\\varepsilon_s$ = 1.035$\\times10^{-12}$ F/cm:\n- $V_{bi}$ = 0.0259 ln($10^{33}$/2.25$\\times10^{20}$) = 0.754 V\n- At $V_R$ = 0: $W$ = 0.327 µm, $x_n$ = 0.298 µm, $x_p$ = 0.030 µm\n- $E_{max} = 2V_{bi}/W$ = 4.6$\\times10^{4}$ V/cm, $C' = \\varepsilon_s/W$ = 31.6 nF/cm²\n- At $V_R$ = 5 V: $W$ = 0.905 µm (×√(5.754/0.754) = ×2.76), $C'$ = 11.4 nF/cm²",
+      "formula": "E_{max} = \\frac{qN_dx_n}{\\varepsilon_s} = \\frac{2(V_{bi} + V_R)}{W}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sd-pn-1",
+      "title": "Built-in potential and depletion",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Why a barrier forms",
+          "body": "At the metallurgical junction electrons diffuse from n to p and holes from p to n. They leave behind fixed, ionized dopants: positive donors on the n side, negative acceptors on the p side. The resulting field opposes further diffusion. In equilibrium the Fermi level is flat, and the bands bend by the built-in potential.",
+          "formula": "V_{bi} = \\frac{kT}{q}\\ln\\frac{N_aN_d}{n_i^2}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Na": [1e15, 1e16, 1e17, 1e18], "Nd": [1e15, 1e16, 1e17]},
+          "prompt": "A silicon pn junction has $N_a$ = {{Na}} cm⁻³ and $N_d$ = {{Nd}} cm⁻³. Find the built-in potential at 300 K ($kT/q$ = 0.0259 V, $n_i = 1.5\\times10^{10}$ cm⁻³).",
+          "answer": "0.0259*ln(Na*Nd/2.25e20)",
+          "unit": "V",
+          "explanation": "$V_{bi} = \\frac{kT}{q}\\ln\\frac{N_aN_d}{n_i^2}$ = 0.0259 × ln({{Na*Nd}} / 2.25$\\times10^{20}$) = 0.0259 × {{ln(Na*Nd/2.25e20)||3}} = **{{0.0259*ln(Na*Nd/2.25e20)|V}}**. Equivalently, it is the sum of the Fermi-level offsets $kT\\ln(N_d/n_i) + kT\\ln(N_a/n_i)$ on both sides."
+        },
+        {
+          "id": "q2", "type": "multipleChoice",
+          "prompt": "Which statement describes a pn junction in thermal equilibrium (no bias)?",
+          "options": [
+            "The Fermi level is constant across the whole junction, and the bands bend by $qV_{bi}$",
+            "The Fermi level is higher on the n side by $qV_{bi}$",
+            "No carriers cross the junction at all",
+            "A voltmeter across the diode reads $V_{bi}$"
+          ],
+          "answer": 0,
+          "explanation": "In equilibrium there is no net current, which requires a flat $E_F$. Carriers still cross all the time, but diffusion and drift balance exactly. $V_{bi}$ is cancelled by the contact potentials at the metal contacts, so a voltmeter reads 0."
+        },
+        {
+          "id": "i2", "type": "info", "title": "The depletion approximation",
+          "body": "Treat the space-charge region as fully depleted with sharp edges at $-x_p$ and $x_n$. The charge density is $-qN_a$ on the p side and $+qN_d$ on the n side. Overall neutrality requires equal charge on both sides, so the region extends further into the lightly doped side. Integrating the charge (Gauss) gives a triangular field profile.",
+          "formula": "N_a x_p = N_d x_n"
+        },
+        {
+          "id": "q3", "type": "multipleChoice",
+          "prompt": "Which graph shows the electric field magnitude $|E(x)|$ across an abrupt pn junction (junction at the centre, depletion approximation)?",
+          "optionPlots": [
+            {"x": {"min": -1, "max": 1}, "y": {"min": 0, "max": 1.2}, "curves": [{"f": "if(x + 0.6, if(-x, 1 + x/0.6, if(0.3 - x, 1 - x/0.3, 0)), 0)"}]},
+            {"x": {"min": -1, "max": 1}, "y": {"min": 0, "max": 1.2}, "curves": [{"f": "if(x + 0.6, if(0.3 - x, 0.8, 0), 0)"}]},
+            {"x": {"min": -1, "max": 1}, "y": {"min": 0, "max": 1.2}, "curves": [{"f": "if(x + 0.6, if(-x, 0.6667*(x/0.6 + 1)^2, if(0.3 - x, 1 - 0.3333*(1 - x/0.3)^2, 1)), 0)"}]},
+            {"x": {"min": -1, "max": 1}, "y": {"min": -1.2, "max": 1.2}, "curves": [{"f": "if(x + 0.6, if(-x, -0.5, if(0.3 - x, 1, 0)), 0)"}]}
+          ],
+          "answer": 0,
+          "explanation": "The charge is constant on each side (rectangles), so by Gauss's law the field changes **linearly**: zero at the depletion edges, maximum at the junction, a triangle. The S-shaped curve is the potential (two parabolas), the two rectangles of opposite sign are the charge density, and a constant field over the region would need no space charge at all."
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"Na": [1e16, 1e17, 1e18], "Nd": [1e15, 5e15, 1e16], "xn": [0.2, 0.5, 1]},
+          "prompt": "In a pn junction with $N_a$ = {{Na}} cm⁻³ and $N_d$ = {{Nd}} cm⁻³ the depletion region extends $x_n$ = {{xn}} µm into the n side. How far does it extend into the p side?",
+          "answer": "xn*Nd/Na*1e-6",
+          "unit": "m",
+          "absTolerance": 0,
+          "explanation": "Charge balance: $N_ax_p = N_dx_n$, so $x_p = x_n N_d/N_a$ = {{xn}} µm × {{Nd}} / {{Na}} = **{{xn*Nd/Na*1e-6|m}}**. The heavily doped side only needs a thin layer to hold the same charge."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"Na": [1e16, 1e17], "Nd": [1e15, 1e16]},
+          "derived": {"Vbi": "0.0259*ln(Na*Nd/2.25e20)", "W": "sqrt(2*1.03545e-12*Vbi/1.602e-19*(Na+Nd)/(Na*Nd))"},
+          "prompt": "Find the zero-bias depletion width of a silicon junction with $N_a$ = {{Na}} cm⁻³ and $N_d$ = {{Nd}} cm⁻³. ($\\varepsilon_s = 11.7\\varepsilon_0$ = 1.035$\\times10^{-12}$ F/cm, $q = 1.602\\times10^{-19}$ C)",
+          "answer": "W*1e-2",
+          "unit": "m",
+          "absTolerance": 0,
+          "explanation": "$V_{bi}$ = 0.0259 ln({{Na*Nd}}/2.25$\\times10^{20}$) = {{Vbi||3}} V. Then $W = \\sqrt{\\frac{2\\varepsilon_sV_{bi}}{q}\\frac{N_a + N_d}{N_aN_d}}$ = {{W}} cm = **{{W*1e-2|m}}**. Keep everything in cm and F/cm, then convert at the end."
+        },
+        {
+          "id": "q6", "type": "trueFalse",
+          "prompt": "The depletion region extends further into the more heavily doped side of the junction.",
+          "answer": false,
+          "explanation": "The opposite: the charges on both sides must be equal, $N_ax_p = N_dx_n$, so the **lightly** doped side needs a wider region to supply the same charge. In a $p^+n$ junction almost all of $W$ lies in the n region."
+        }
+      ]
+    },
+    {
+      "id": "sd-pn-2",
+      "title": "Reverse bias and capacitance",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Reverse bias",
+          "body": "With the n side positive, the applied voltage adds to the barrier: the total potential across the junction becomes $V_{bi} + V_R$. More dopant charge must be uncovered, so the depletion region widens and the peak field rises. Only a tiny leakage current flows.",
+          "formula": "W = \\sqrt{\\frac{2\\varepsilon_s(V_{bi} + V_R)}{q}\\,\\frac{N_a + N_d}{N_aN_d}}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Na": [1e17, 1e18], "Nd": [1e15, 1e16], "VR": [1, 5, 10, 20]},
+          "derived": {"Vbi": "0.0259*ln(Na*Nd/2.25e20)", "W": "sqrt(2*1.03545e-12*(Vbi+VR)/1.602e-19*(Na+Nd)/(Na*Nd))"},
+          "prompt": "A silicon junction ($N_a$ = {{Na}} cm⁻³, $N_d$ = {{Nd}} cm⁻³) is reverse biased at $V_R$ = {{VR}} V. Find the depletion width. ($\\varepsilon_s$ = 1.035$\\times10^{-12}$ F/cm)",
+          "answer": "W*1e-2",
+          "unit": "m",
+          "absTolerance": 0,
+          "explanation": "$V_{bi}$ = {{Vbi||3}} V, so the total is $V_{bi} + V_R$ = {{Vbi+VR||3}} V. $W = \\sqrt{\\frac{2\\varepsilon_s(V_{bi}+V_R)}{q}\\frac{N_a+N_d}{N_aN_d}}$ = {{W}} cm = **{{W*1e-2|m}}**."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Na": [1e17, 1e18], "Nd": [1e15, 1e16], "VR": [1, 5, 10]},
+          "derived": {"Vbi": "0.0259*ln(Na*Nd/2.25e20)", "W": "sqrt(2*1.03545e-12*(Vbi+VR)/1.602e-19*(Na+Nd)/(Na*Nd))"},
+          "prompt": "For the junction with $N_a$ = {{Na}} cm⁻³ and $N_d$ = {{Nd}} cm⁻³ at $V_R$ = {{VR}} V, the depletion width is {{W*1e4||3}} µm. Find the peak electric field magnitude.",
+          "answer": "2*(Vbi+VR)/W",
+          "unit": "V/cm",
+          "explanation": "The field is a triangle of base $W$ whose area is the total voltage: $\\tfrac12E_{max}W = V_{bi} + V_R$. With $V_{bi}$ = {{Vbi||3}} V: $E_{max} = 2(V_{bi} + V_R)/W$ = 2 × {{Vbi+VR||3}} V / {{W}} cm = **{{2*(Vbi+VR)/W|V/cm}}**."
+        },
+        {
+          "id": "q3", "type": "multipleChoice",
+          "params": {"k": [4, 9, 16]},
+          "prompt": "The total junction voltage $V_{bi} + V_R$ is increased by a factor {{k}}. What happens to the depletion width $W$?",
+          "options": ["It grows by a factor {{sqrt(k)}}", "It grows by a factor {{k}}", "It grows by a factor {{k^2}}", "It shrinks by a factor {{sqrt(k)}}"],
+          "answer": 0,
+          "explanation": "$W \\propto \\sqrt{V_{bi} + V_R}$, so it grows by $\\sqrt{ {{k}} }$ = **{{sqrt(k)}}**. The peak field $2(V_{bi}+V_R)/W$ then also grows by {{sqrt(k)}}, and the capacitance drops by {{sqrt(k)}}."
+        },
+        {
+          "id": "i2", "type": "info", "title": "Junction capacitance",
+          "body": "Increasing $V_R$ by $dV$ uncovers extra charge $dQ'$ at the edges of the depletion region. The result behaves like a parallel-plate capacitor with spacing $W$. Because $W$ depends on the voltage, so does the capacitance.",
+          "formula": "C' = \\frac{dQ'}{dV_R} = \\frac{\\varepsilon_s}{W}"
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16], "VR": [0, 2, 5], "A": [1e-4, 1e-3]},
+          "derived": {"Vbi": "0.0259*ln(1e18*Nd/2.25e20)", "W": "sqrt(2*1.03545e-12*(Vbi+VR)/1.602e-19*(1e18+Nd)/(1e18*Nd))"},
+          "prompt": "A $p^+n$ diode ($N_a = 10^{18}$, $N_d$ = {{Nd}} cm⁻³) has an area of {{A}} cm². Find its junction capacitance at $V_R$ = {{VR}} V. ($\\varepsilon_s$ = 1.035$\\times10^{-12}$ F/cm)",
+          "answer": "1.03545e-12*A/W",
+          "unit": "F",
+          "absTolerance": 0,
+          "explanation": "$V_{bi}$ = {{Vbi||3}} V and $W$ = {{W}} cm. $C = \\varepsilon_sA/W$ = 1.035$\\times10^{-12}$ × {{A}} / {{W}} = **{{1.03545e-12*A/W*1e12||3}} pF**. (Per area: $C'$ = {{1.03545e-12/W|F}}/cm².)"
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"Nd": [5e15, 1e16, 5e16], "VRt": [1, 2, 4, 6, 8]},
+          "derived": {"Vbi": "0.0259*ln(1e19*Nd/2.25e20)", "Ct": "sqrt(1.602e-19*1.03545e-12*Nd*1e19/(2*(Vbi+VRt)*(1e19+Nd)))"},
+          "prompt": "A varactor ($N_a = 10^{19}$, $N_d$ = {{Nd}} cm⁻³) must have $C'$ = {{Ct|F}}/cm². Drag the reverse bias until its capacitance reaches the target.",
+          "plot": {
+            "x": {"min": 0, "max": 10, "label": "V_R", "unit": "V"},
+            "y": {"min": 0, "max": "1.1*sqrt(1.602e-19*1.03545e-12*Nd/(2*Vbi))", "label": "C'", "unit": "F/cm²"},
+            "sliders": [{"name": "VR", "label": "$V_R$", "min": 0, "max": 10, "step": 0.05, "value": 0, "unit": "V"}],
+            "let": {"C": "sqrt(1.602e-19*1.03545e-12*Nd*1e19/(2*(Vbi+VR)*(1e19+Nd)))"},
+            "curves": [{"f": "sqrt(1.602e-19*1.03545e-12*Nd*1e19/(2*(Vbi+x)*(1e19+Nd)))", "label": "C'(V_R)", "labelAt": 0.15}],
+            "hlines": [{"y": "Ct", "label": "target", "color": "orange"}],
+            "points": [{"x": "VR", "y": "C", "guides": false}],
+            "readouts": [{"label": "$C'$", "value": "C", "unit": "F/cm²"}]
+          },
+          "answer": {"VR": "VRt"},
+          "absTolerance": 0.1,
+          "explanation": "Invert $C' = \\sqrt{q\\varepsilon_sN_d/2(V_{bi} + V_R)}$ (one-sided): $V_R = \\frac{q\\varepsilon_sN_d}{2C'^2} - V_{bi}$, with $V_{bi}$ = {{Vbi||3}} V. That gives **{{VRt|V}}**. The capacitance falls quickly at first and then ever more slowly, as $1/\\sqrt{V_{bi} + V_R}$."
+        },
+        {
+          "id": "q5", "type": "trueFalse",
+          "prompt": "A small forward bias (below the turn-on voltage) **increases** the junction capacitance compared with zero bias.",
+          "answer": true,
+          "explanation": "Forward bias $V_a$ lowers the barrier to $V_{bi} - V_a$, so $W$ shrinks and $C' = \\varepsilon_s/W$ grows. (At larger forward bias the diffusion capacitance of the next unit takes over.)"
+        }
+      ]
+    },
+    {
+      "id": "sd-pn-3",
+      "title": "One-sided junctions and breakdown",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 1e17], "VR": [0, 1, 5, 10]},
+          "derived": {"Vbi": "0.0259*ln(1e19*Nd/2.25e20)"},
+          "prompt": "A $p^+n$ junction has $N_a = 10^{19}$ cm⁻³ and $N_d$ = {{Nd}} cm⁻³. Using the one-sided approximation, find $W$ at $V_R$ = {{VR}} V.",
+          "answer": "sqrt(2*1.03545e-12*(Vbi+VR)/(1.602e-19*Nd))*1e-2",
+          "unit": "m",
+          "absTolerance": 0,
+          "explanation": "$V_{bi}$ = 0.0259 ln($10^{19}$ × {{Nd}} / 2.25$\\times10^{20}$) = {{Vbi||3}} V. One-sided: $W \\approx \\sqrt{2\\varepsilon_s(V_{bi} + V_R)/qN_d}$ = {{sqrt(2*1.03545e-12*(Vbi+VR)/(1.602e-19*Nd))}} cm = **{{sqrt(2*1.03545e-12*(Vbi+VR)/(1.602e-19*Nd))*1e-2|m}}**, practically all on the n side."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Nd": [3e15, 1e16, 4e16], "A": [1e-4, 1e-3]},
+          "derived": {"S": "2/(1.602e-19*1.03545e-12*Nd*A^2)"},
+          "prompt": "For a $p^+n$ diode of area {{A}} cm², a plot of $1/C^2$ against $V_R$ is a straight line with slope {{S}} F$^{-2}$V$^{-1}$. Find the donor concentration. ($\\varepsilon_s$ = 1.035$\\times10^{-12}$ F/cm)",
+          "answer": "2/(1.602e-19*1.03545e-12*A^2*S)",
+          "unit": "cm⁻³",
+          "explanation": "For the total capacitance $1/C^2 = 2(V_{bi} + V_R)/(q\\varepsilon_sN_dA^2)$, so the slope is $2/(q\\varepsilon_sN_dA^2)$. Then $N_d = 2/(q\\varepsilon_sA^2 \\cdot \\text{slope})$ = 2 / (1.602$\\times10^{-19}$ × 1.035$\\times10^{-12}$ × {{A^2}} × {{S}}) = **{{2/(1.602e-19*1.03545e-12*A^2*S)}} cm⁻³**. Don't forget to square the area."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 1e17], "Na": [1e18, 1e19]},
+          "derived": {"Vbi": "0.0259*ln(Na*Nd/2.25e20)"},
+          "prompt": "The graph shows measured $1/C^2$ (arbitrary units) against $V_R$ for a one-sided junction. Read the built-in potential.",
+          "plot": {
+            "x": {"min": -1.2, "max": 2, "label": "V_R (V)", "ticks": [-1.2, -1, -0.8, -0.6, -0.4, -0.2, 0, 0.5, 1, 1.5, 2]},
+            "y": {"min": 0, "max": 5.5, "label": "1/C² (a.u.)"},
+            "curves": [{"f": "1.7*max(x + Vbi, 0)", "label": "measured", "labelAt": 0.75}]
+          },
+          "answer": "Vbi",
+          "unit": "V",
+          "tolerance": 0.06,
+          "explanation": "$1/C^2 \\propto V_{bi} + V_R$, so the line reaches zero at $V_R = -V_{bi}$. It crosses the axis at about {{-Vbi||2}} V, so $V_{bi}$ ≈ **{{Vbi||2}} V**. (Calculated: {{Vbi||3}} V.)"
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"i": [0, 1, 2]},
+          "derived": {"NB": "10^(15+i)", "Ec": "if(i-1.5, 6e5, if(i-0.5, 4e5, 3e5))"},
+          "prompt": "A one-sided silicon junction has $N_B$ = {{NB}} cm⁻³ on its lightly doped side, where the critical field for avalanche is about {{Ec|V/cm}}. Estimate the breakdown voltage (neglect $V_{bi}$).",
+          "answer": "1.03545e-12*Ec^2/(2*1.602e-19*NB)",
+          "unit": "V",
+          "tolerance": 0.03,
+          "explanation": "At breakdown $E_{max} = E_{crit}$, and for a one-sided junction $E_{max}^2 = 2qN_BV_R/\\varepsilon_s$. So $V_B = \\varepsilon_sE_{crit}^2/(2qN_B)$ = 1.035$\\times10^{-12}$ × ({{Ec}})² / (2 × 1.602$\\times10^{-19}$ × {{NB}}) = **{{1.03545e-12*Ec^2/(2*1.602e-19*NB)|V}}**. Lighter doping means a higher breakdown voltage."
+        },
+        {
+          "id": "q5", "type": "multipleChoice",
+          "params": {"V": [2.7, 3.3, 3.9, 4.3]},
+          "prompt": "A silicon zener diode is specified for $V_Z$ = {{V}} V. Which mechanism causes its breakdown, and how does $V_Z$ behave when it warms up?",
+          "options": [
+            "Tunnelling through a very thin depletion region; $V_Z$ decreases with temperature",
+            "Avalanche multiplication; $V_Z$ increases with temperature",
+            "Thermal runaway; $V_Z$ is independent of temperature",
+            "Punch-through of the p region; $V_Z$ increases with temperature"
+          ],
+          "answer": 0,
+          "explanation": "Breakdown below about 5 V requires heavy doping on both sides, which makes $W$ only a few nanometres thick: electrons **tunnel** from the p-side valence band into the n-side conduction band (Zener effect). The band gap shrinks with temperature, so tunnelling gets easier and $V_Z$ drops. Avalanche diodes (above about 6–8 V) have the opposite coefficient; around 5–6 V the two nearly cancel."
+        },
+        {
+          "id": "q6", "type": "numeric",
+          "params": {"Nd": [1e14, 5e14, 1e15], "t": [5, 10, 20]},
+          "derived": {"Vbi": "0.0259*ln(1e19*Nd/2.25e20)", "Vpt": "1.602e-19*Nd*(t*1e-4)^2/(2*1.03545e-12) - Vbi"},
+          "require": "Vpt - 1",
+          "prompt": "A $p^+n$ photodiode ($N_a = 10^{19}$ cm⁻³ in the $p^+$ layer) has an n layer of thickness {{t}} µm ($N_d$ = {{Nd}} cm⁻³) on a heavily doped $n^+$ substrate. At what reverse bias does the depletion region reach through the whole n layer?",
+          "answer": "Vpt",
+          "unit": "V",
+          "explanation": "Set $W = t$ in the one-sided formula: $V_{bi} + V_R = qN_dt^2/(2\\varepsilon_s)$ = 1.602$\\times10^{-19}$ × {{Nd}} × ({{t}}$\\times10^{-4}$ cm)² / (2 × 1.035$\\times10^{-12}$) = {{Vpt+Vbi||3}} V. With $V_{bi}$ = {{Vbi||3}} V: $V_R$ = **{{Vpt|V}}**. Beyond this the whole layer collects light efficiently and the capacitance stops falling."
+        },
+        {
+          "id": "q7", "type": "matchPairs",
+          "prompt": "Match each breakdown item with the right description",
+          "pairs": [
+            ["Zener breakdown", "Band-to-band tunnelling"],
+            ["Avalanche breakdown", "Impact ionization"],
+            ["$dV_Z/dT$ of a 3.3 V diode", "Negative"],
+            ["$dV_B/dT$ of a 50 V diode", "Positive"]
+          ],
+          "explanation": "Zener breakdown is tunnelling through a very thin depletion region; it needs heavy doping on both sides and occurs below about 5 V. Tunnelling gets easier as the gap shrinks with $T$, so its breakdown voltage falls (negative coefficient). Avalanche breakdown is carrier multiplication by impact ionization; at higher temperature carriers lose more energy to phonons between collisions, so a larger field (voltage) is needed (positive coefficient)."
+        }
+      ]
+    },
+    {
+      "id": "sd-pn-4",
+      "title": "Junction design",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Na": [5e16, 1e17, 5e17], "Nd": [1e15, 5e15, 1e16], "VR": [2, 5, 10]},
+          "derived": {"Vbi": "0.0259*ln(Na*Nd/2.25e20)", "W": "sqrt(2*1.03545e-12*(Vbi+VR)/1.602e-19*(Na+Nd)/(Na*Nd))"},
+          "prompt": "A silicon junction with $N_a$ = {{Na}} cm⁻³ and $N_d$ = {{Nd}} cm⁻³ is reverse biased at {{VR}} V.",
+          "ask": [
+            {"prompt": "Find $x_n$, the depletion width on the n side.", "answer": "W*Na/(Na+Nd)*1e-2", "unit": "m", "absTolerance": 0,
+             "explanation": "$V_{bi}$ = {{Vbi||3}} V, $W$ = {{W}} cm. $x_n = WN_a/(N_a + N_d)$ = **{{W*Na/(Na+Nd)*1e-2|m}}**."},
+            {"prompt": "Find $x_p$, the depletion width on the p side.", "answer": "W*Nd/(Na+Nd)*1e-2", "unit": "m", "absTolerance": 0,
+             "explanation": "$V_{bi}$ = {{Vbi||3}} V, $W$ = {{W}} cm. $x_p = WN_d/(N_a + N_d)$ = **{{W*Nd/(Na+Nd)*1e-2|m}}**, much smaller than $x_n$."},
+            {"prompt": "Find the peak field $E_{max}$.", "answer": "1.602e-19*Nd*W*Na/(Na+Nd)/1.03545e-12", "unit": "V/cm",
+             "explanation": "$V_{bi}$ = {{Vbi||3}} V, $W$ = {{W}} cm, $x_n$ = {{W*Na/(Na+Nd)}} cm. $E_{max} = qN_dx_n/\\varepsilon_s$ = **{{1.602e-19*Nd*W*Na/(Na+Nd)/1.03545e-12|V/cm}}**, the same as $2(V_{bi} + V_R)/W$."}
+          ]
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"i": [0, 1, 2]},
+          "derived": {
+            "Nd": "10^(15+i)",
+            "Ec": "if(i-1.5, 6e5, if(i-0.5, 4e5, 3e5))",
+            "Vbi": "0.0259*ln(1e19*Nd/2.25e20)",
+            "VB": "1.03545e-12*Ec^2*(1e19+Nd)/(2*1.602e-19*1e19*Nd) - Vbi",
+            "Wb": "2*(VB+Vbi)/Ec*1e4"
+          },
+          "prompt": "A $p^+n$ junction ($N_a = 10^{19}$, $N_d$ = {{Nd}} cm⁻³) avalanches when the peak field reaches {{Ec|V/cm}} (dashed line). Drag the reverse bias to the breakdown voltage.",
+          "plot": {
+            "x": {"min": "-0.1*Wb", "max": "1.2*Wb", "label": "x (µm)"},
+            "y": {"min": 0, "max": "1.3*Ec/1000", "label": "|E| (kV/cm)"},
+            "sliders": [{"name": "VR", "label": "$V_R$", "min": 0, "max": "1.2*VB", "step": 0.5, "value": 0, "unit": "V"}],
+            "let": {
+              "W": "sqrt(2*1.03545e-12*(Vbi+VR)/1.602e-19*(1e19+Nd)/(1e19*Nd))*1e4",
+              "Em": "2*(Vbi+VR)/(W*1e-4)/1000"
+            },
+            "curves": [{"f": "if(x, if(W - x, Em*(1 - x/W), 0), 0)", "label": "|E(x)|", "labelAt": 0.4}],
+            "hlines": [{"y": "Ec/1000", "label": "E_{crit}", "color": "orange"}],
+            "readouts": [{"label": "$E_{max}$", "value": "Em*1000", "unit": "V/cm"}]
+          },
+          "answer": {"VR": "VB"},
+          "tolerance": 0.05,
+          "explanation": "Breakdown when $2(V_{bi} + V_R)/W = E_{crit}$. For the one-sided junction this gives $V_{bi} + V_R = \\varepsilon_sE_{crit}^2/(2qN_d)$, so $V_B$ ≈ **{{VB|V}}**, with $W$ = {{Wb||3}} µm at breakdown. Ten times lighter doping gives a much wider depletion region and a far higher breakdown voltage."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Na": [1e16, 1e17, 1e18], "Nd": [1e15, 1e16, 1e17]},
+          "prompt": "In a junction with $N_a$ = {{Na}} cm⁻³ and $N_d$ = {{Nd}} cm⁻³, what fraction of the total junction voltage $V_{bi} + V_R$ drops across the **n side** of the depletion region?",
+          "answer": "Na/(Na+Nd)",
+          "unit": "",
+          "explanation": "The potential drop on each side is $qN x^2/2\\varepsilon_s$. With $N_dx_n = N_ax_p$, the ratio $V_n/V_p = N_dx_n^2/(N_ax_p^2)$ = $x_n/x_p$ = $N_a/N_d$. So $V_n/(V_n + V_p) = N_a/(N_a + N_d)$ = **{{Na/(Na+Nd)||3}}**: most of the voltage drops across the lightly doped side."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 1e17], "V1": [0, 1], "V2": [5, 10, 20]},
+          "derived": {"Vbi": "0.0259*ln(1e19*Nd/2.25e20)"},
+          "prompt": "A $p^+n$ varactor ($N_a = 10^{19}$, $N_d$ = {{Nd}} cm⁻³) is tuned from $V_1$ = {{V1}} V to $V_2$ = {{V2}} V of reverse bias. Find the capacitance ratio $C(V_1)/C(V_2)$.",
+          "answer": "sqrt((Vbi+V2)/(Vbi+V1))",
+          "unit": "",
+          "explanation": "$C \\propto 1/\\sqrt{V_{bi} + V_R}$, so $C_1/C_2 = \\sqrt{(V_{bi} + V_2)/(V_{bi} + V_1)}$ with $V_{bi}$ = {{Vbi||3}} V: √({{Vbi+V2||3}} / {{Vbi+V1||3}}) = **{{sqrt((Vbi+V2)/(Vbi+V1))||3}}**. Hyperabrupt doping profiles are used when a larger tuning ratio is needed."
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "prompt": "You double the doping of the lightly doped n side of a $p^+n$ junction. Roughly what happens to its avalanche breakdown voltage?",
+          "options": [
+            "It roughly halves",
+            "It roughly doubles",
+            "It drops by a factor 4",
+            "It does not change, because the $p^+$ side sets it"
+          ],
+          "answer": 0,
+          "explanation": "$V_B \\approx \\varepsilon_sE_{crit}^2/(2qN_d)$: inversely proportional to the light doping. (In reality $E_{crit}$ rises slightly with doping, so the drop is a bit less than a factor 2.) This is the basic trade-off of power devices: a high blocking voltage needs a lightly doped, thick drift region, which adds resistance."
+        },
+        {
+          "id": "q5", "type": "orderSteps",
+          "prompt": "Order the steps to find the peak field in a reverse-biased abrupt junction from its doping",
+          "items": [
+            "Compute $V_{bi} = (kT/q)\\ln(N_aN_d/n_i^2)$",
+            "Add the reverse bias: $V_{bi} + V_R$",
+            "Compute $W$ from the depletion-width formula",
+            "Find $E_{max} = 2(V_{bi} + V_R)/W$"
+          ],
+          "explanation": "The built-in potential comes first, since the total voltage across the depletion region is $V_{bi} + V_R$. That determines $W$, and the triangular field profile then gives $E_{max}$ from its area."
+        },
+        {
+          "id": "q6", "type": "numeric",
+          "params": {"Na": [1e17, 1e18], "Nd": [1e15, 1e16], "VR": [0, 5], "A": [1e-4, 5e-4]},
+          "derived": {"Vbi": "0.0259*ln(Na*Nd/2.25e20)", "Cp": "sqrt(1.602e-19*1.03545e-12*Na*Nd/(2*(Vbi+VR)*(Na+Nd)))", "W": "1.03545e-12/Cp"},
+          "prompt": "Find the junction capacitance of a diode with $N_a$ = {{Na}} cm⁻³, $N_d$ = {{Nd}} cm⁻³ and area {{A}} cm² at $V_R$ = {{VR}} V.",
+          "answer": "Cp*A",
+          "unit": "F",
+          "absTolerance": 0,
+          "explanation": "$V_{bi}$ = {{Vbi||3}} V, and the depletion-width formula gives $W$ = {{W}} cm. So $C' = \\varepsilon_s/W$ = {{Cp|F}}/cm². Times the area: $C$ = **{{Cp*A*1e12||3}} pF**."
+        },
+        {
+          "id": "q7", "type": "trueFalse",
+          "params": {"Na": [1e18, 1e19], "Nd": [1e15, 5e16]},
+          "prompt": "In a junction with $N_a$ = {{Na}} cm⁻³ and $N_d$ = {{Nd}} cm⁻³, more than 99 % of the depletion width lies on the n side.",
+          "answer": "Na/(Na+Nd) - 0.99",
+          "explanation": "$x_n/W = N_a/(N_a + N_d)$ = {{Na/(Na+Nd)||4}}. If this exceeds 0.99 the statement is true, and the one-sided approximation is excellent."
+        }
+      ]
+    }
+  ]
+}

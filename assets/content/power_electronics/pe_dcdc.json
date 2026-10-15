@@ -1,0 +1,1522 @@
+{
+  "id": "pe-dcdc",
+  "title": "Buck, Boost & Buck-Boost",
+  "description": "Conversion ratios, currents and voltage stresses of the three basic converters, sizing L and C, and how inductor resistance limits gain and efficiency.",
+  "reference": "Erickson ch. 2–3",
+  "study": [
+    {
+      "title": "Explore: three basic converters",
+      "body": "The same switch, diode and inductor, arranged three ways, give three conversion ratios (CCM, ideal parts). The **buck** steps down, $M = D$. The **boost** steps up, $M = 1/D'$. The **buck-boost** inverts the polarity and can step up or down, $M = -D/D'$. Drag $D$ to compare.",
+      "formula": "\\begin{aligned}& M_{buck} = D\\\\ & M_{boost} = \\frac{1}{1 - D}\\\\ & M_{buck\\text{-}boost} = -\\frac{D}{1 - D}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "duty cycle D"
+        },
+        "y": {
+          "min": -5,
+          "max": 5,
+          "label": "M(D) = V / V_g"
+        },
+        "sliders": [
+          {
+            "name": "D",
+            "label": "$D$",
+            "min": 0.05,
+            "max": 0.9,
+            "step": 0.01,
+            "value": 0.5
+          }
+        ],
+        "curves": [
+          {
+            "f": "x",
+            "label": "buck",
+            "labelAt": 0.75
+          },
+          {
+            "f": "1/(1 - x)",
+            "color": "red",
+            "label": "boost",
+            "labelAt": 0.55,
+            "to": 0.95
+          },
+          {
+            "f": "-x/(1 - x)",
+            "color": "blue",
+            "label": "buck-boost",
+            "labelAt": 0.5,
+            "to": 0.95
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "vlines": [
+          {
+            "x": "D",
+            "color": "grey"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "buck",
+            "value": "D"
+          },
+          {
+            "label": "boost",
+            "value": "1/(1 - D)"
+          },
+          {
+            "label": "buck-boost",
+            "value": "-D/(1 - D)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The buck-boost converter",
+      "body": "$Q_1$ on: the inductor is charged from the input ($v_L = V_g$) while the diode blocks and $C$ feeds the load. $Q_1$ off: the inductor current continues through the diode and pulls the output **negative** ($v_L = V$). Volt-second balance: $DV_g + D'V = 0$. The load current only arrives during $D'T_s$, so $I_L = |I_{out}|/D'$.",
+      "formula": "V = -\\frac{D}{1 - D}V_g,\\qquad I_L = \\frac{|V|}{D'R}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              3
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_g"
+          },
+          {
+            "type": "switch",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "inductor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              2,
+              3
+            ],
+            "label": "L"
+          },
+          {
+            "type": "diode",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "D_1"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              3
+            ],
+            "label": "C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              3
+            ],
+            "label": "R",
+            "polarity": "-+"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                3
+              ],
+              [
+                6,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              3
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "DC currents and component stresses",
+      "body": "- **Buck**: $I_L = I_{out}$; $Q_1$ and $D_1$ block $V_g$.\n- **Boost**: $I_L = I_{in} = I_{out}/D'$; $Q_1$ and $D_1$ block $V$.\n- **Buck-boost**: $I_L = I_{out}/D'$; $Q_1$ and $D_1$ block $V_g + |V|$.\nIn all three the switch carries $i_L$ during $DT_s$ (average $DI_L$) and the diode during $D'T_s$ (average $D'I_L$); both see the peak $I_L + \\Delta i_L$.",
+      "formula": "\\langle i_Q\\rangle = DI_L,\\qquad \\langle i_D\\rangle = D'I_L"
+    },
+    {
+      "title": "Sizing L and C",
+      "body": "Choose the inductor ripple first, typically $2\\Delta i_L$ = 20–40 % of $I_L$, and solve for $L$. Then choose $C$ for the allowed output ripple: in the buck the capacitor only sees the inductor ripple; in the boost and buck-boost it must supply the whole load current while $Q_1$ is on, so they need much more capacitance.",
+      "formula": "\\begin{aligned}& 2\\Delta i_L = \\frac{V_gDT_s}{L}\\quad\\text{(boost, buck-boost)}\\\\ & 2\\Delta i_L = \\frac{(V_g - V)DT_s}{L}\\quad\\text{(buck)}\\\\ & 2\\Delta v = \\frac{I_{out}DT_s}{C}\\quad\\text{(boost, buck-boost)}\\end{aligned}"
+    },
+    {
+      "title": "Inductor copper loss: the DC transformer model",
+      "body": "Put the winding resistance $R_L$ in series with the inductor. Volt-second balance then contains an extra $-I_LR_L$ in each interval. The result is an ideal **DC transformer** with ratio $1 : M(D)$ plus the resistor $R_L$. For the boost the model is $V_g$, $R_L$ and a $D' : 1$ transformer; referred to the output, $R_L$ looks like $R_L/D'^2$, so the loss grows quickly at large $D$.",
+      "formula": "\\begin{aligned}& \\frac{V}{V_g} = \\frac{1}{D'}\\cdot\\frac{1}{1 + R_L/(D'^2R)}\\\\ & \\eta = \\frac{1}{1 + R_L/(D'^2R)}\\quad\\text{(boost)}\\end{aligned}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_g"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "R_L"
+          },
+          {
+            "type": "transformer",
+            "at": [
+              3,
+              1
+            ],
+            "label": "D' : 1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                2,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              2
+            ],
+            "label": "R",
+            "value": "V",
+            "polarity": "+-"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                6,
+                2
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: boost with copper loss",
+      "body": "With $R_L$ the boost gain no longer goes to infinity: it peaks at $M_{max} = \\frac{1}{2\\sqrt{R_L/R}}$ at $D' = \\sqrt{R_L/R}$ and falls beyond, while the efficiency collapses. For the buck the same analysis gives $V = DV_g/(1 + R_L/R)$ and $\\eta = 1/(1 + R_L/R)$; for the buck-boost, $\\eta$ has the same form as for the boost. Drag $R_L/R$.",
+      "formula": "M_{max} = \\frac{1}{2\\sqrt{R_L/R}}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "duty cycle D"
+        },
+        "y": {
+          "min": 0,
+          "max": 8,
+          "label": "M = V / V_g"
+        },
+        "sliders": [
+          {
+            "name": "a",
+            "label": "$R_L/R$",
+            "min": 0.002,
+            "max": 0.1,
+            "log": true,
+            "value": 0.02
+          }
+        ],
+        "curves": [
+          {
+            "f": "1/(1 - x)",
+            "color": "grey",
+            "dash": true,
+            "label": "ideal",
+            "labelAt": 0.7,
+            "to": 0.95
+          },
+          {
+            "f": "(1/(1 - x))/(1 + a/(1 - x)^2)",
+            "label": "with R_L",
+            "labelAt": 0.45,
+            "to": 0.999
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$M_{max}$",
+            "value": "1/(2*sqrt(a))"
+          },
+          {
+            "label": "at $D$",
+            "value": "1 - sqrt(a)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Worked example: boost with copper loss",
+      "body": "$V_g$ = 12 V, $D$ = 0.6, $R$ = 20 Ω, $R_L$ = 0.1 Ω.\n- $D'$ = 0.4, $R_L/(D'^2R)$ = 0.1/(0.16 × 20) = 0.031, so $\\eta$ = 1/1.031 = 97.0 %.\n- $V = \\frac{V_g}{D'}\\eta$ = 30 V × 0.970 = 29.1 V (ideal: 30 V).\n- $I_L = V/(D'R)$ = 3.64 A, copper loss $I_L^2R_L$ = 1.32 W, $P_{out}$ = 42.3 W, $P_{in} = V_gI_L$ = 43.6 W."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pe-dcdc-1",
+      "title": "Three basic converters",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The buck-boost converter",
+          "body": "Move the inductor to the switch node and the diode to the output and you get the buck-boost. While $Q_1$ is on the inductor charges from $V_g$; while it is off the inductor discharges into the output through the diode, making the output **negative**. Volt-second balance: $DV_g + D'V = 0$.",
+          "formula": "M(D) = \\frac{V}{V_g} = -\\frac{D}{1 - D}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_g"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "L"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "R",
+                "polarity": "-+"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "D": [
+              0.25,
+              0.4,
+              0.6,
+              0.75
+            ]
+          },
+          "prompt": "A buck-boost converter runs from {{Vg|V}} at $D$ = {{D}}. Find the output voltage (with sign).",
+          "answer": "-Vg*D/(1-D)",
+          "unit": "V",
+          "explanation": "$V = -\\frac{D}{1 - D}V_g$ = −{{D}}/{{1-D||2}} × {{Vg}} V = **{{-Vg*D/(1-D)|V}}**. For $D$ < 0.5 the magnitude is below $V_g$, above 0.5 it is larger."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "Vo": [
+              3.3,
+              5,
+              12,
+              15,
+              48
+            ]
+          },
+          "prompt": "A buck-boost converter must make −{{Vo|V}} from {{Vg|V}}. What duty cycle does it need?",
+          "answer": "Vo/(Vo+Vg)",
+          "unit": "",
+          "explanation": "$\\frac{D}{1-D} = \\frac{|V|}{V_g}$ → $D = \\frac{|V|}{|V| + V_g}$ = {{Vo}} / ({{Vo}} + {{Vg}}) = **{{Vo/(Vo+Vg)||3}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Comparing M(D)",
+          "body": "The buck ratio is linear in $D$. The boost and buck-boost ratios grow without bound as $D \\to 1$ (in theory: losses limit them in practice). Drag $D$ and compare the three readouts.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "duty cycle D"
+            },
+            "y": {
+              "min": -5,
+              "max": 5,
+              "label": "M(D) = V / V_g"
+            },
+            "sliders": [
+              {
+                "name": "D",
+                "label": "$D$",
+                "min": 0.05,
+                "max": 0.9,
+                "step": 0.01,
+                "value": 0.5
+              }
+            ],
+            "curves": [
+              {
+                "f": "x",
+                "label": "buck",
+                "labelAt": 0.75
+              },
+              {
+                "f": "1/(1 - x)",
+                "color": "red",
+                "label": "boost",
+                "labelAt": 0.55,
+                "to": 0.95
+              },
+              {
+                "f": "-x/(1 - x)",
+                "color": "blue",
+                "label": "buck-boost",
+                "labelAt": 0.5,
+                "to": 0.95
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "vlines": [
+              {
+                "x": "D",
+                "color": "grey"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "buck",
+                "value": "D"
+              },
+              {
+                "label": "boost",
+                "value": "1/(1 - D)"
+              },
+              {
+                "label": "buck-boost",
+                "value": "-D/(1 - D)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each conversion ratio to its converter",
+          "pairs": [
+            [
+              "$M(D) = D$",
+              "Buck"
+            ],
+            [
+              "$M(D) = 1/(1-D)$",
+              "Boost"
+            ],
+            [
+              "$M(D) = -D/(1-D)$",
+              "Buck-boost"
+            ]
+          ],
+          "explanation": "Buck: on $v_L = V_g - V$, off $-V$. Boost: on $V_g$, off $V_g - V$. Buck-boost: on $V_g$, off $V$. Volt-second balance on each gives the three ratios."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "A sensor needs −12 V, and the only supply is a 5 V rail. Which basic converter can do this with one inductor?",
+          "options": [
+            "Buck-boost",
+            "Buck",
+            "Boost",
+            "None of them"
+          ],
+          "answer": 0,
+          "explanation": "Only the buck-boost inverts the polarity, and with $D$ = 12/(12 + 5) = 0.71 it also steps the magnitude up. The buck and boost keep the output positive."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "k": [
+              1.5,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "A boost converter runs from {{Vg|V}}. The curve shows $V$ versus $D$. Move the operating point (dot) to an output of {{k*Vg|V}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.9,
+              "label": "duty cycle D"
+            },
+            "y": {
+              "min": 0,
+              "max": "6*Vg",
+              "label": "V",
+              "unit": "V"
+            },
+            "sliders": [
+              {
+                "name": "D",
+                "label": "$D$",
+                "min": 0,
+                "max": 0.9,
+                "step": 0.005,
+                "value": 0.1
+              }
+            ],
+            "curves": [
+              {
+                "f": "Vg/(1 - x)",
+                "label": "V = V_g/(1−D)",
+                "labelAt": 0.3
+              }
+            ],
+            "points": [
+              {
+                "x": "D",
+                "y": "Vg/(1 - D)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "k*Vg",
+                "color": "orange"
+              }
+            ]
+          },
+          "answer": {
+            "D": "1 - 1/k"
+          },
+          "tolerance": 0.02,
+          "explanation": "$V = V_g/(1 - D)$ → $D = 1 - V_g/V$ = 1 − {{Vg}}/{{k*Vg}} = **{{1-1/k||3}}**. Note how flat the curve is at small $D$ and how steep it gets near 1: a boost is hard to control at high gain."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "An ideal buck-boost converter at $D$ = 0.5 delivers an output voltage of the same magnitude as its input.",
+          "answer": true,
+          "explanation": "$|M| = D/(1 - D)$ = 0.5/0.5 = 1. The output is $-V_g$: same magnitude, opposite polarity."
+        }
+      ]
+    },
+    {
+      "id": "pe-dcdc-2",
+      "title": "Currents, stresses and sizing",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Where the current flows",
+          "body": "Charge balance on the output capacitor gives the DC inductor current. In the buck the inductor feeds the output all the time, so $I_L = I_{out}$. In the boost and buck-boost the output is fed only through the diode during $D'T_s$, so $I_L = I_{out}/D'$. The switch and diode share $i_L$: averages $DI_L$ and $D'I_L$.",
+          "formula": "I_L = \\frac{I_{out}}{D'}\\quad\\text{(boost, buck-boost)}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "V": [
+              24,
+              36,
+              48
+            ],
+            "Io": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "require": "min(V - 1.5*Vg, 5*Vg - V)",
+          "prompt": "A boost converter steps {{Vg|V}} up to {{V|V}} and delivers {{Io|A}}.",
+          "ask": [
+            {
+              "prompt": "What is the DC inductor current?",
+              "answer": "Io*V/Vg",
+              "unit": "A",
+              "explanation": "$D' = V_g/V$ = {{Vg/V||3}}. $I_L = I_{out}/D'$ = {{Io|A}} / {{Vg/V||3}} = **{{Io*V/Vg|A}}**. Power balance agrees: $V_gI_L = VI_{out}$."
+            },
+            {
+              "prompt": "What is the average switch current?",
+              "answer": "Io*V/Vg*(1-Vg/V)",
+              "unit": "A",
+              "explanation": "$D = 1 - V_g/V$ = {{1-Vg/V||3}}, $I_L$ = {{Io*V/Vg|A}}. The switch conducts $i_L$ during $DT_s$: $\\langle i_Q\\rangle = DI_L$ = **{{Io*V/Vg*(1-Vg/V)|A}}**. The diode carries the rest, $D'I_L = I_{out}$ = {{Io|A}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "Vo": [
+              5,
+              12,
+              15
+            ],
+            "Io": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "A buck-boost converter makes −{{Vo|V}} at {{Io|A}} from {{Vg|V}}.",
+          "ask": [
+            {
+              "prompt": "What voltage must the MOSFET block when it is off?",
+              "answer": "Vg+Vo",
+              "unit": "V",
+              "explanation": "With $Q_1$ off the diode conducts, so the switch node sits at the output, −{{Vo}} V, while the MOSFET's other side is at +{{Vg}} V. It blocks $V_g + |V|$ = **{{Vg+Vo|V}}**. The diode blocks the same voltage when $Q_1$ is on."
+            },
+            {
+              "prompt": "What is the DC inductor current?",
+              "answer": "Io*(Vo+Vg)/Vg",
+              "unit": "A",
+              "explanation": "$D = \\frac{|V|}{|V| + V_g}$ = {{Vo/(Vo+Vg)||3}}, $D'$ = {{Vg/(Vo+Vg)||3}}. $I_L = I_{out}/D'$ = {{Io|A}} / {{Vg/(Vo+Vg)||3}} = **{{Io*(Vo+Vg)/Vg|A}}**: the sum of input ({{Io*Vo/Vg|A}}) and output current."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "V": [
+              15,
+              36,
+              48,
+              60
+            ]
+          },
+          "require": "min(V - 2.5*Vg, 5*Vg - V)",
+          "prompt": "A boost converter makes {{V|V}} from {{Vg|V}}. What voltage must its MOSFET and diode be able to block (before adding margin)?",
+          "options": [
+            "{{V|V}}",
+            "{{Vg|V}}",
+            "{{V-Vg|V}}",
+            "{{V+Vg|V}}"
+          ],
+          "answer": 0,
+          "explanation": "$Q_1$ off: the diode conducts and the switch node sits at $V$ = {{V|V}}, so the MOSFET blocks $V$. $Q_1$ on: the switch node is at 0 and the diode blocks $V$. Both need a rating above **{{V|V}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Choosing L and C",
+          "body": "Pick the inductor ripple (20–40 % of $I_L$ peak-to-peak is typical) and solve the ripple formula for $L$. For the output capacitor: a buck's $C$ only filters the inductor ripple, but in a boost or buck-boost $C$ alone carries the load for $DT_s$, so it must be much larger for the same ripple. The formulas below are for the boost and buck-boost, where $v_L = V_g$ while $Q_1$ is on (for a buck, replace $V_g$ by $V_g - V$ in $L$).",
+          "formula": "\\begin{aligned}& L = \\frac{V_gDT_s}{2\\Delta i_L}\\\\ & C = \\frac{I_{out}DT_s}{2\\Delta v}\\end{aligned}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "V": [
+              24,
+              48
+            ],
+            "Io": [
+              0.5,
+              1,
+              2
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "r": [
+              0.2,
+              0.3,
+              0.4
+            ]
+          },
+          "require": "min(V - 1.5*Vg, 5*Vg - V)",
+          "prompt": "A boost converter: {{Vg|V}} → {{V|V}} at {{Io|A}}, $f_s$ = {{fs|Hz}}. Choose $L$ for a peak-to-peak inductor ripple of {{r*100}} % of $I_L$.",
+          "answer": "Vg*(1-Vg/V)/(fs*r*Io*V/Vg)",
+          "unit": "H",
+          "explanation": "$D = 1 - V_g/V$ = {{1-Vg/V||3}}, $I_L = I_{out}V/V_g$ = {{Io*V/Vg|A}}, $2\\Delta i_L$ = {{r*Io*V/Vg|A}}. $L = \\frac{V_gDT_s}{2\\Delta i_L}$ = {{Vg}} V × {{(1-Vg/V)/fs|s}} / {{r*Io*V/Vg|A}} = **{{Vg*(1-Vg/V)/(fs*r*Io*V/Vg)|H}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Io": [
+              0.5,
+              1,
+              2,
+              5
+            ],
+            "D": [
+              0.3,
+              0.5,
+              0.6
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "dv": [
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "A buck-boost converter delivers {{Io|A}} at $D$ = {{D}} and $f_s$ = {{fs|Hz}}. What output capacitance gives {{dv|V}} peak-to-peak ripple (ignore ESR)?",
+          "answer": "Io*D/(fs*dv)",
+          "unit": "F",
+          "explanation": "While $Q_1$ is on, $C$ alone supplies {{Io|A}} for $DT_s$ = {{D/fs|s}}. $C = \\frac{I_{out}DT_s}{2\\Delta v}$ = {{Io|A}} × {{D/fs|s}} / {{dv|V}} = **{{Io*D/(fs*dv)|F}}**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Io": [
+              2,
+              5,
+              10
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4,
+              0.6
+            ]
+          },
+          "prompt": "A buck converter delivers {{Io|A}} at $D$ = {{D}}.",
+          "ask": [
+            {
+              "prompt": "What is the average MOSFET current (= average input current)?",
+              "answer": "D*Io",
+              "unit": "A",
+              "explanation": "In the buck $I_L = I_{out}$. The MOSFET carries it during $DT_s$: $DI_L$ = {{D}} × {{Io|A}} = **{{D*Io|A}}**."
+            },
+            {
+              "prompt": "What is the average diode current?",
+              "answer": "(1-D)*Io",
+              "unit": "A",
+              "explanation": "The diode carries $I_L = I_{out}$ during $D'T_s$: $D'I_L$ = {{1-D||2}} × {{Io|A}} = **{{(1-D)*Io|A}}**. At low $D$ (large step-down) the diode carries most of the current, which is why synchronous rectifiers pay off there."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pe-dcdc-3",
+      "title": "Copper loss and efficiency",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The DC transformer model",
+          "body": "Include the inductor winding resistance $R_L$ and redo volt-second balance: each interval gets an extra $-I_LR_L$. The converter then behaves like an ideal $1 : M(D)$ DC transformer with $R_L$ in series. For the boost (shown), $R_L$ referred to the output is $R_L/D'^2$.",
+          "formula": "\\begin{aligned}& \\eta_{buck} = \\frac{1}{1 + R_L/R}\\\\ & \\eta_{boost} = \\frac{1}{1 + R_L/(D'^2R)}\\\\ & \\eta_{buck\\text{-}boost} = \\eta_{boost}\\end{aligned}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_g"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_L"
+              },
+              {
+                "type": "transformer",
+                "at": [
+                  3,
+                  1
+                ],
+                "label": "D' : 1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    2,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "R",
+                "value": "V",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    6,
+                    2
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.25,
+              0.4,
+              0.5
+            ],
+            "R": [
+              1,
+              2,
+              5
+            ],
+            "RL": [
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "A buck converter runs from {{Vg|V}} at $D$ = {{D}} into $R$ = {{R|Ω}}. The inductor has $R_L$ = {{RL|Ω}}; everything else is ideal.",
+          "ask": [
+            {
+              "prompt": "Find the output voltage.",
+              "answer": "D*Vg/(1 + RL/R)",
+              "unit": "V",
+              "explanation": "Volt-seconds with $I_L = V/R$: $D V_g - I_LR_L - V = 0$ → $V = \\frac{DV_g}{1 + R_L/R}$ = {{D*Vg|V}} / (1 + {{RL/R||3}}) = **{{D*Vg/(1+RL/R)|V}}**."
+            },
+            {
+              "prompt": "Find the efficiency in %.",
+              "answer": "100/(1 + RL/R)",
+              "unit": "%",
+              "explanation": "The same current flows through $R_L$ and $R$, so $\\eta = \\frac{R}{R + R_L} = \\frac{1}{1 + R_L/R}$ = 1 / (1 + {{RL/R||3}}) = **{{100/(1+RL/R)|%}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "D": [
+              0.5,
+              0.6,
+              0.75
+            ],
+            "R": [
+              10,
+              20,
+              50
+            ],
+            "RL": [
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "A boost converter runs from {{Vg|V}} at $D$ = {{D}} into $R$ = {{R|Ω}}; the inductor has $R_L$ = {{RL|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find the efficiency in %.",
+              "answer": "100/(1 + RL/((1-D)^2*R))",
+              "unit": "%",
+              "explanation": "$R_L/(D'^2R)$ = {{RL}} / ({{1-D||2}}² × {{R}}) = {{RL/((1-D)^2*R)||3}}. $\\eta = \\frac{1}{1 + R_L/(D'^2R)}$ = **{{100/(1+RL/((1-D)^2*R))|%}}**."
+            },
+            {
+              "prompt": "Find the output voltage.",
+              "answer": "Vg/(1-D)/(1 + RL/((1-D)^2*R))",
+              "unit": "V",
+              "explanation": "Ideal: $V_g/D'$ = {{Vg/(1-D)|V}}. With $R_L$: $V = \\frac{V_g}{D'}\\cdot\\frac{1}{1 + R_L/(D'^2R)}$ = {{Vg/(1-D)|V}} × {{1/(1+RL/((1-D)^2*R))||4}} = **{{Vg/(1-D)/(1+RL/((1-D)^2*R))|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "a": [
+              0.01,
+              0.02,
+              0.04,
+              0.05
+            ]
+          },
+          "prompt": "A boost converter has $R_L/R$ = {{a}}. The curve shows its gain $M$ versus $D$. Set $D$ for the **largest** output voltage.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "duty cycle D"
+            },
+            "y": {
+              "min": 0,
+              "max": 6,
+              "label": "M = V / V_g"
+            },
+            "sliders": [
+              {
+                "name": "D",
+                "label": "$D$",
+                "min": 0.5,
+                "max": 0.99,
+                "step": 0.005,
+                "value": 0.6
+              }
+            ],
+            "curves": [
+              {
+                "f": "(1/(1 - x))/(1 + a/(1 - x)^2)",
+                "to": 0.999
+              }
+            ],
+            "points": [
+              {
+                "x": "D",
+                "y": "(1/(1 - D))/(1 + a/(1 - D)^2)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$M$",
+                "value": "(1/(1 - D))/(1 + a/(1 - D)^2)"
+              }
+            ]
+          },
+          "answer": {
+            "D": "1 - sqrt(a)"
+          },
+          "tolerance": 0.02,
+          "explanation": "$M = \\frac{D'}{D'^2 + R_L/R}$ is largest where $D' = \\sqrt{R_L/R}$ = √{{a}} = {{sqrt(a)||3}}, so **$D$ = {{1-sqrt(a)||3}}** and $M_{max} = \\frac{1}{2\\sqrt{R_L/R}}$ = {{1/(2*sqrt(a))||3}}. Beyond this point more duty cycle only adds loss: the controller must never go there."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24
+            ],
+            "D": [
+              0.4,
+              0.5,
+              0.6,
+              0.7
+            ],
+            "R": [
+              5,
+              10,
+              20
+            ],
+            "RL": [
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "A buck-boost converter runs from {{Vg|V}} at $D$ = {{D}} into {{R|Ω}}; the inductor resistance is {{RL|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find the efficiency in %.",
+              "answer": "100/(1 + RL/((1-D)^2*R))",
+              "unit": "%",
+              "explanation": "The inductor carries $I_L = |V|/(D'R)$, so $P_{loss} = I_L^2R_L$ and $\\eta = \\frac{1}{1 + R_L/(D'^2R)}$ = 1 / (1 + {{RL/((1-D)^2*R)||3}}) = **{{100/(1+RL/((1-D)^2*R))|%}}**."
+            },
+            {
+              "prompt": "Find the output voltage (with sign).",
+              "answer": "-Vg*D/(1-D)/(1 + RL/((1-D)^2*R))",
+              "unit": "V",
+              "explanation": "Ideal: $-V_gD/D'$ = {{-Vg*D/(1-D)|V}}. With $R_L$: multiply by $\\eta$ = {{1/(1+RL/((1-D)^2*R))||4}}: **{{-Vg*D/(1-D)/(1+RL/((1-D)^2*R))|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24
+            ],
+            "V": [
+              1.8,
+              3.3,
+              5
+            ],
+            "VD": [
+              0.4,
+              0.7
+            ]
+          },
+          "prompt": "A non-synchronous buck converter makes {{V|V}} from {{Vg|V}}. Its diode drops {{VD|V}}; the MOSFET and inductor are ideal.",
+          "ask": [
+            {
+              "prompt": "What duty cycle is needed?",
+              "answer": "(V+VD)/(Vg+VD)",
+              "unit": "",
+              "explanation": "Off-interval: $v_L = -V - V_D$. Volt-seconds: $D(V_g - V) - D'(V + V_D) = 0$ → $V = DV_g - D'V_D$ → $D = \\frac{V + V_D}{V_g + V_D}$ = {{V+VD}} / {{Vg+VD}} = **{{(V+VD)/(Vg+VD)||3}}** (ideal: {{V/Vg||3}})."
+            },
+            {
+              "prompt": "What is the efficiency in %?",
+              "answer": "100*V/(Vg*(V+VD)/(Vg+VD))",
+              "unit": "%",
+              "explanation": "$D$ = {{(V+VD)/(Vg+VD)||3}}. Input current is $DI$, so $\\eta = \\frac{VI}{V_gDI} = \\frac{V}{DV_g}$ = {{V}} / ({{(V+VD)/(Vg+VD)||3}} × {{Vg}}) = **{{100*V/(Vg*(V+VD)/(Vg+VD))|%}}**. Equivalent: $\\eta = \\frac{V}{V + D'V_D}$: the diode drop hurts most at low output voltage."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "With a real inductor (winding resistance), a boost converter can still reach any output voltage by pushing $D$ close enough to 1.",
+          "answer": false,
+          "explanation": "$M = \\frac{D'}{D'^2 + R_L/R}$ peaks at $\\frac{1}{2\\sqrt{R_L/R}}$ and falls to zero as $D \\to 1$: the inductor current $V/(D'R)$ grows so large that $R_L$ eats all the voltage. With $R_L/R$ = 0.01 the boost cannot exceed 5×."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "Po": [
+              20,
+              50,
+              100
+            ],
+            "V": [
+              36,
+              48
+            ],
+            "RL": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "A boost converter takes {{Vg|V}} and delivers {{Po|W}} at {{V|V}}. How much power does its {{RL|Ω}} inductor resistance dissipate? (Use the ideal duty cycle and current.)",
+          "answer": "(Po/Vg)^2*RL",
+          "unit": "W",
+          "explanation": "The inductor carries the input current: $I_L = P/V_g$ = {{Po/Vg|A}}. $P_{Cu} = I_L^2R_L$ = ({{Po/Vg|A}})² × {{RL|Ω}} = **{{(Po/Vg)^2*RL|W}}**. Low-voltage, high-power boosts need very low-resistance inductors."
+        }
+      ]
+    },
+    {
+      "id": "pe-dcdc-4",
+      "title": "Converter design",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              9,
+              12,
+              24
+            ],
+            "V": [
+              36,
+              48
+            ],
+            "Io": [
+              0.5,
+              1,
+              2
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "dv": [
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "derived": {
+            "D": "1 - Vg/V",
+            "IL": "Io*V/Vg",
+            "pp": "0.3*IL"
+          },
+          "prompt": "Design a boost converter: {{Vg|V}} → {{V|V}} at {{Io|A}}, $f_s$ = {{fs|Hz}}, peak-to-peak inductor ripple 30 % of $I_L$, output ripple {{dv|V}} peak-to-peak.",
+          "ask": [
+            {
+              "prompt": "Find $L$.",
+              "answer": "Vg*D/(fs*pp)",
+              "unit": "H",
+              "explanation": "$D = 1 - V_g/V$ = {{D||3}}, $I_L = I_{out}V/V_g$ = {{IL|A}}, $2\\Delta i_L$ = 0.3 × {{IL|A}} = {{pp|A}}. $L = \\frac{V_gDT_s}{2\\Delta i_L}$ = **{{Vg*D/(fs*pp)|H}}**."
+            },
+            {
+              "prompt": "Find $C$ (ignore ESR).",
+              "answer": "Io*D/(fs*dv)",
+              "unit": "F",
+              "explanation": "$D$ = {{D||3}}. $C = \\frac{I_{out}DT_s}{2\\Delta v}$ = {{Io|A}} × {{D/fs|s}} / {{dv|V}} = **{{Io*D/(fs*dv)|F}}**."
+            },
+            {
+              "prompt": "Find the peak switch current.",
+              "answer": "1.15*IL",
+              "unit": "A",
+              "explanation": "$I_L$ = {{IL|A}}, $\\Delta i_L$ = half of {{pp|A}} = {{pp/2|A}}. The switch carries $i_L$ while on, up to $I_L + \\Delta i_L$ = **{{1.15*IL|A}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Ron": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "RL": [
+              0.01,
+              0.02,
+              0.04
+            ],
+            "Vg": [
+              5,
+              12
+            ],
+            "D": [
+              0.3,
+              0.5
+            ],
+            "R": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "A synchronous buck converter (two MOSFETs, each {{Ron|Ω}}) with an inductor of {{RL|Ω}} runs from {{Vg|V}} at $D$ = {{D}} into {{R|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find the output voltage.",
+              "answer": "D*Vg/(1 + (Ron+RL)/R)",
+              "unit": "V",
+              "explanation": "In both intervals the inductor current flows through one MOSFET and $R_L$: $D V_g - I(R_{on} + R_L) - V = 0$ with $I = V/R$, so $V = \\frac{DV_g}{1 + (R_{on} + R_L)/R}$ = {{D*Vg|V}} / (1 + {{(Ron+RL)/R||3}}) = **{{D*Vg/(1+(Ron+RL)/R)|V}}**."
+            },
+            {
+              "prompt": "Find the efficiency in %.",
+              "answer": "100*R/(R + Ron + RL)",
+              "unit": "%",
+              "explanation": "The load current sees $R_{on} + R_L$ = {{Ron+RL|Ω}} in series all the time: $\\eta = \\frac{R}{R + R_{on} + R_L}$ = **{{100*R/(R+Ron+RL)|%}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "D": [
+              0.5,
+              0.6,
+              0.75
+            ],
+            "R": [
+              10,
+              20
+            ],
+            "RL": [
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "prompt": "A boost converter runs at $D$ = {{D}} into $R$ = {{R|Ω}} with an inductor resistance of {{RL|Ω}}. What is its efficiency?",
+          "options": [
+            "{{100/(1+RL/((1-D)^2*R))|%}}",
+            "{{100/(1+RL/R)|%}}",
+            "{{100/(1+RL/((1-D)*R))|%}}",
+            "{{100/(1+RL*(1-D)^2/R)|%}}"
+          ],
+          "answer": 0,
+          "explanation": "$I_L = V/(D'R)$, so the copper loss relative to the output power is $\\frac{I_L^2R_L}{V^2/R} = \\frac{R_L}{D'^2R}$ = {{RL/((1-D)^2*R)||3}}. $\\eta$ = 1/(1 + {{RL/((1-D)^2*R)||3}}) = **{{100/(1+RL/((1-D)^2*R))|%}}**. $1/(1 + R_L/R)$ is the buck result, where $I_L = I_{out}$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Po": [
+              5,
+              10,
+              20
+            ],
+            "eta": [
+              0.85,
+              0.9
+            ],
+            "Vb": [
+              2.8,
+              3.0,
+              3.3
+            ]
+          },
+          "prompt": "A battery-powered boost converter delivers {{Po|W}} at {{eta*100}} % efficiency. The battery voltage sags to {{Vb|V}} near the end of discharge. What average current does the converter draw from the battery then?",
+          "answer": "Po/(eta*Vb)",
+          "unit": "A",
+          "explanation": "$P_{in} = P_{out}/\\eta$ = {{Po|W}} / {{eta}} = {{Po/eta|W}}. $I_{in} = P_{in}/V_b$ = {{Po/eta|W}} / {{Vb|V}} = **{{Po/(eta*Vb)|A}}**. The inductor and switch must be rated for this worst case (plus ripple), not for the nominal battery voltage."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "RL": [
+              0.05,
+              0.1,
+              0.2
+            ],
+            "R": [
+              10,
+              20,
+              50,
+              100
+            ]
+          },
+          "prompt": "A boost converter's inductor has $R_L$ = {{RL|Ω}} and the load is {{R|Ω}}. What is the highest voltage gain $V/V_g$ it can reach?",
+          "answer": "1/(2*sqrt(RL/R))",
+          "unit": "",
+          "explanation": "$M = \\frac{D'}{D'^2 + R_L/R}$ is largest at $D' = \\sqrt{R_L/R}$ = {{sqrt(RL/R)||3}}: $M_{max} = \\frac{1}{2\\sqrt{R_L/R}}$ = 1 / (2 × {{sqrt(RL/R)||3}}) = **{{1/(2*sqrt(RL/R))||3}}**. At that point the efficiency is only 50 %."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps of designing a CCM DC–DC converter in order",
+          "items": [
+            "Choose the topology from the input and output voltages",
+            "Calculate the duty-cycle range from M(D)",
+            "Find the DC inductor current from charge balance",
+            "Choose the ripple and calculate L",
+            "Calculate C from the output ripple spec",
+            "Check peak currents, voltage stresses and losses"
+          ],
+          "explanation": "The topology fixes $M(D)$; $D$ and the DC currents follow from the balance equations; the ripple specs then size $L$ and $C$; finally the peak currents and blocking voltages select the semiconductors, and the losses tell you whether the efficiency target is met."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "For the same load current, switching frequency and output voltage ripple (and a typical 20–40 % inductor ripple), a boost converter needs more output capacitance than a buck converter.",
+          "answer": true,
+          "explanation": "In the buck the capacitor only absorbs the small triangular inductor ripple. In the boost the diode current is pulsed: during $DT_s$ the capacitor alone supplies the full load current, so $C = I_{out}DT_s/(2\\Delta v)$, typically far more."
+        }
+      ]
+    }
+  ]
+}

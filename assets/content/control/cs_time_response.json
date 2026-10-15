@@ -1,0 +1,1412 @@
+{
+  "id": "cs-time-response",
+  "title": "Time Response",
+  "description": "Predict rise, overshoot and settling of first- and second-order systems from their poles.",
+  "reference": "",
+  "study": [
+    {
+      "title": "First-order systems",
+      "body": "$G(s) = \\frac{K}{\\tau s + 1}$ has one pole at $s = -1/\\tau$. Its unit step response rises exponentially to $K$ without overshoot.\n- At $t = \\tau$ it has reached 63 % of the final value.\n- 10–90 % rise time: $t_r = 2.2\\tau$.\n- 2 % settling time: $T_s \\approx 4\\tau$.",
+      "formula": "y(t) = K\\left(1 - e^{-t/\\tau}\\right)",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 6,
+          "label": "t / τ",
+          "ticks": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 1.15,
+          "label": "y / K"
+        },
+        "curves": [
+          {
+            "f": "1-exp(-x)",
+            "label": "y(t)",
+            "labelAt": 0.4
+          }
+        ],
+        "points": [
+          {
+            "x": 1,
+            "y": 0.632,
+            "label": "63 %"
+          },
+          {
+            "x": 4,
+            "y": 0.982,
+            "label": "98 %"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Standard second-order form",
+      "body": "$\\omega_n$ is the **natural frequency**, $\\zeta$ the **damping ratio**. The poles are $s = -\\zeta\\omega_n \\pm j\\omega_n\\sqrt{1-\\zeta^2}$.\n- $\\zeta = 0$: undamped, steady oscillation at $\\omega_n$.\n- $0 < \\zeta < 1$: underdamped, decaying oscillation at $\\omega_d = \\omega_n\\sqrt{1-\\zeta^2}$.\n- $\\zeta = 1$: critically damped (double real pole).\n- $\\zeta > 1$: overdamped (two real poles).",
+      "formula": "T(s) = \\frac{\\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 12,
+          "label": "ω_n t"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.6,
+          "label": "y(t)"
+        },
+        "curves": [
+          {
+            "f": "1*(1-exp(-0.2*1*x)*(cos(1*sqrt(1-0.2^2)*x)+0.2/sqrt(1-0.2^2)*sin(1*sqrt(1-0.2^2)*x)))"
+          },
+          {
+            "f": "1*(1-exp(-0.6*1*x)*(cos(1*sqrt(1-0.6^2)*x)+0.6/sqrt(1-0.6^2)*sin(1*sqrt(1-0.6^2)*x)))",
+            "color": "orange"
+          },
+          {
+            "f": "1-exp(-x)*(1+x)",
+            "color": "blue"
+          },
+          {
+            "f": "1-(3.732*exp(-0.268*x)-0.268*exp(-3.732*x))/3.464",
+            "color": "grey"
+          }
+        ],
+        "labels": [
+          {
+            "x": 4.1,
+            "y": 1.45,
+            "text": "ζ = 0.2",
+            "color": "primary"
+          },
+          {
+            "x": 4.4,
+            "y": 1.17,
+            "text": "ζ = 0.6",
+            "color": "orange"
+          },
+          {
+            "x": 3.1,
+            "y": 0.66,
+            "text": "ζ = 1",
+            "color": "blue"
+          },
+          {
+            "x": 9.3,
+            "y": 0.8,
+            "text": "ζ = 2",
+            "color": "grey"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Overshoot, peak time, settling time",
+      "body": "For an underdamped unit step response (final value 1):\n- Percent overshoot depends **only** on $\\zeta$.\n- Peak time $T_p = \\pi/\\omega_d$ (half an oscillation period).\n- 2 % settling time $T_s \\approx 4/(\\zeta\\omega_n)$, set by the decay rate $\\sigma = \\zeta\\omega_n$.\n- Rise time 0–100 %: $t_r = (\\pi - \\arccos\\zeta)/\\omega_d$.\nInverting the overshoot formula: $\\zeta = \\frac{-\\ln(\\%OS/100)}{\\sqrt{\\pi^2 + \\ln^2(\\%OS/100)}}$.",
+      "formula": "\\%OS = 100\\,e^{-\\zeta\\pi/\\sqrt{1-\\zeta^2}}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.4,
+          "label": "y(t)"
+        },
+        "curves": [
+          {
+            "f": "1*(1-exp(-0.4*3*x)*(cos(3*sqrt(1-0.4^2)*x)+0.4/sqrt(1-0.4^2)*sin(3*sqrt(1-0.4^2)*x)))",
+            "label": "ζ = 0.4, ω_n = 3 rad/s",
+            "labelAt": 0.55
+          }
+        ],
+        "points": [
+          {
+            "x": 1.143,
+            "y": 1.254,
+            "label": "peak: 25 % at T_p"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1.02
+          },
+          {
+            "y": 0.98
+          }
+        ],
+        "vlines": [
+          {
+            "x": 3.33,
+            "label": "T_s ≈ 3.3 s"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: damping and natural frequency",
+      "body": "Drag the sliders. A smaller $\\zeta$ gives more overshoot and ringing; $\\zeta \\ge 1$ removes the overshoot completely. A larger $\\omega_n$ makes the same shape happen faster.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 10,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 2,
+          "label": "y(t)"
+        },
+        "sliders": [
+          {
+            "name": "zeta",
+            "label": "$\\zeta$",
+            "min": 0.05,
+            "max": 2,
+            "step": 0.05,
+            "value": 0.3
+          },
+          {
+            "name": "wn",
+            "label": "$\\omega_n$",
+            "min": 0.5,
+            "max": 5,
+            "step": 0.1,
+            "value": 2,
+            "unit": "rad/s"
+          }
+        ],
+        "let": {
+          "Mp": "if(1-zeta, 100*exp(-pi*zeta/sqrt(abs(1-zeta^2)+1e-12)), 0)"
+        },
+        "curves": [
+          {
+            "f": "step2(x, zeta, wn)",
+            "label": "step response",
+            "labelAt": 0.7
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1,
+            "label": "final value"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "Overshoot",
+            "value": "Mp",
+            "unit": "%"
+          },
+          {
+            "label": "$T_s \\approx 4/\\sigma$ (slowest pole)",
+            "value": "4/(wn*(zeta - sqrt(max(0, zeta^2 - 1))))",
+            "unit": "s"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Poles in the s-plane",
+      "body": "An underdamped pole pair $-\\sigma \\pm j\\omega_d$ tells you everything:\n- $\\sigma = \\zeta\\omega_n$ (distance from the imaginary axis) sets the decay, so $T_s \\approx 4/\\sigma$.\n- $\\omega_d$ (height) sets the oscillation, so $T_p = \\pi/\\omega_d$.\n- $\\omega_n = \\sqrt{\\sigma^2 + \\omega_d^2}$ is the distance from the origin.\n- $\\zeta = \\cos\\theta$, with $\\theta$ the angle from the negative real axis: poles on a line through the origin have the same overshoot.",
+      "formula": "\\omega_n = \\sqrt{\\sigma^2+\\omega_d^2}, \\quad \\zeta = \\frac{\\sigma}{\\omega_n} = \\cos\\theta",
+      "plot": {
+        "x": {
+          "min": -5,
+          "max": 1,
+          "label": "σ = Re(s)"
+        },
+        "y": {
+          "min": -5,
+          "max": 5,
+          "label": "jω"
+        },
+        "curves": [
+          {
+            "f": "-x*1.3333",
+            "from": -3.4,
+            "to": 0,
+            "color": "grey",
+            "dash": true
+          }
+        ],
+        "points": [
+          {
+            "x": -3,
+            "y": 4,
+            "label": "−σ + jω_d",
+            "guides": true,
+            "marker": "x",
+            "color": "red"
+          },
+          {
+            "x": -3,
+            "y": -4,
+            "label": "−σ − jω_d",
+            "guides": false,
+            "marker": "x",
+            "color": "red"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Dominant poles",
+      "body": "The response is a sum of terms, one per pole. Poles far to the left decay quickly, so the poles **closest to the imaginary axis dominate** the response. If the other poles (and zeros) are at least about 5 times further left, use the second-order formulas with the dominant pair only. **Pitfall:** a zero near the dominant poles adds overshoot, and the formulas no longer hold."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "cs-time-response-1",
+      "title": "First and second order",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "First-order step response",
+          "body": "$G(s) = \\frac{K}{\\tau s + 1}$ responds to a unit step with $y(t) = K(1 - e^{-t/\\tau})$. After one time constant it has covered 63 % of the way to $K$; after $4\\tau$ it is within 2 %. There is never any overshoot.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 5,
+              "label": "t / τ"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.15,
+              "label": "y / K"
+            },
+            "curves": [
+              {
+                "f": "1-exp(-x)"
+              }
+            ],
+            "points": [
+              {
+                "x": 1,
+                "y": 0.632,
+                "label": "63 %"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              3,
+              5,
+              10
+            ],
+            "tau": [
+              0.2,
+              0.3,
+              0.4,
+              0.5,
+              0.8,
+              1,
+              1.5,
+              2
+            ]
+          },
+          "derived": {
+            "xm": "ceil(6*tau/0.5)*0.5"
+          },
+          "prompt": "The graph shows the unit step response of $G(s) = \\frac{K}{\\tau s + 1}$. Read the time constant $\\tau$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "xm",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.15*K",
+              "label": "y(t)"
+            },
+            "curves": [
+              {
+                "f": "K*(1-exp(-x/tau))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "K",
+                "label": "final value {{K}}"
+              }
+            ]
+          },
+          "answer": "tau",
+          "unit": "s",
+          "tolerance": 0.1,
+          "explanation": "The output settles at $K$ = {{K}}. At $t = \\tau$ it reaches $0.632K$ = {{0.632*K}}. The curve passes that level at $t \\approx$ {{tau|s}}, so $\\tau$ = {{tau|s}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "b": [
+              2,
+              5,
+              10,
+              20
+            ],
+            "a": [
+              0.5,
+              1,
+              2,
+              4,
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "Estimate the 2 % settling time of the step response of $G(s) = \\frac{{{b}}}{s + {{a}}}$.",
+          "answer": "4/a",
+          "unit": "s",
+          "tolerance": 0.03,
+          "explanation": "Rewrite as $\\frac{{{b/a}}}{s/{{a}} + 1}$: the time constant is $\\tau = 1/{{a}}$ = {{1/a|s}}. Within 2 % after about $4\\tau$ = {{4/a|s}}. The gain $b$ only scales the output; it does not change the speed."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Second-order systems",
+          "body": "Many systems (RLC circuits, motors with inertia, mass-spring-dampers) behave like the standard form below. $\\omega_n$ sets the speed and $\\zeta$ the damping. For $0 < \\zeta < 1$ the poles are complex, $s = -\\zeta\\omega_n \\pm j\\omega_d$ with $\\omega_d = \\omega_n\\sqrt{1-\\zeta^2}$, and the step response overshoots and rings.",
+          "formula": "T(s) = \\frac{\\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "wn": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              8,
+              10
+            ],
+            "z": [
+              0.2,
+              0.3,
+              0.4,
+              0.5,
+              0.6,
+              0.7,
+              0.8
+            ]
+          },
+          "derived": {
+            "W": "wn^2",
+            "B": "2*z*wn"
+          },
+          "prompt": "$T(s) = \\frac{{{W}}}{s^2 + {{B}}s + {{W}}}$.",
+          "ask": [
+            {
+              "prompt": "Find the natural frequency $\\omega_n$.",
+              "answer": "wn",
+              "unit": "rad/s",
+              "explanation": "Compare with $\\omega_n^2/(s^2 + 2\\zeta\\omega_n s + \\omega_n^2)$: $\\omega_n^2$ = {{W}}, so $\\omega_n = \\sqrt{{{W}}}$ = {{wn}} rad/s."
+            },
+            {
+              "prompt": "Find the damping ratio $\\zeta$.",
+              "answer": "z",
+              "unit": "",
+              "explanation": "$\\omega_n = \\sqrt{{{W}}}$ = {{wn}} rad/s and $2\\zeta\\omega_n$ = {{B}}, so $\\zeta = \\frac{{{B}}}{2\\cdot{{wn}}}$ = {{z}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match the damping ratio to the step response.",
+          "pairs": [
+            [
+              "$\\zeta = 0$",
+              "Oscillates forever"
+            ],
+            [
+              "$0 < \\zeta < 1$",
+              "Overshoots, decaying ringing"
+            ],
+            [
+              "$\\zeta = 1$",
+              "Fastest response without overshoot"
+            ],
+            [
+              "$\\zeta > 1$",
+              "Slow, no overshoot"
+            ]
+          ],
+          "explanation": "$\\zeta = 0$ puts the poles on the imaginary axis (undamped). Complex poles ($\\zeta < 1$) give decaying oscillations. $\\zeta = 1$ is a double real pole, the boundary case: no overshoot and as fast as possible without it. $\\zeta > 1$ splits it into two real poles; the slow one makes the response sluggish."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Try it: the damping ratio",
+          "body": "Drag $\\zeta$ and watch the step response. Below $\\zeta = 1$ the poles are complex and the output overshoots; at and above 1 it creeps up without overshoot.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 10,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 2,
+              "label": "y(t)"
+            },
+            "sliders": [
+              {
+                "name": "zeta",
+                "label": "$\\zeta$",
+                "min": 0.05,
+                "max": 2,
+                "step": 0.05,
+                "value": 0.3
+              },
+              {
+                "name": "wn",
+                "label": "$\\omega_n$",
+                "min": 0.5,
+                "max": 5,
+                "step": 0.1,
+                "value": 2,
+                "unit": "rad/s"
+              }
+            ],
+            "let": {
+              "Mp": "if(1-zeta, 100*exp(-pi*zeta/sqrt(abs(1-zeta^2)+1e-12)), 0)"
+            },
+            "curves": [
+              {
+                "f": "step2(x, zeta, wn)",
+                "label": "step response",
+                "labelAt": 0.7
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1,
+                "label": "final value"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "Overshoot",
+                "value": "Mp",
+                "unit": "%"
+              },
+              {
+                "label": "$T_s \\approx 4/\\sigma$ (slowest pole)",
+                "value": "4/(wn*(zeta - sqrt(max(0, zeta^2 - 1))))",
+                "unit": "s"
+              }
+            ]
+          }
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Reading a step response",
+          "body": "The overshoot depends only on $\\zeta$. The peak comes after half an oscillation period, $T_p = \\pi/\\omega_d$. The envelope decays as $e^{-\\zeta\\omega_n t}$, so the response stays within 2 % after about $T_s = 4/(\\zeta\\omega_n)$.",
+          "formula": "\\%OS = 100\\,e^{-\\zeta\\pi/\\sqrt{1-\\zeta^2}}, \\quad T_p = \\frac{\\pi}{\\omega_d}, \\quad T_s \\approx \\frac{4}{\\zeta\\omega_n}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 5,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.4,
+              "label": "y(t)"
+            },
+            "curves": [
+              {
+                "f": "1*(1-exp(-0.4*3*x)*(cos(3*sqrt(1-0.4^2)*x)+0.4/sqrt(1-0.4^2)*sin(3*sqrt(1-0.4^2)*x)))"
+              }
+            ],
+            "points": [
+              {
+                "x": 1.143,
+                "y": 1.254,
+                "label": "%OS = 25 %, T_p"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1
+              }
+            ],
+            "vlines": [
+              {
+                "x": 3.33,
+                "label": "T_s"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "z": [
+              0.1,
+              0.2,
+              0.3,
+              0.4,
+              0.5,
+              0.6,
+              0.7,
+              0.8
+            ]
+          },
+          "prompt": "A second-order system has $\\zeta = {{z}}$. What is the percent overshoot of its step response?",
+          "answer": "100*exp(-z*pi/sqrt(1-z^2))",
+          "unit": "%",
+          "explanation": "$\\%OS = 100\\,e^{-\\zeta\\pi/\\sqrt{1-\\zeta^2}} = 100\\,e^{-{{z}}\\pi/\\sqrt{1-{{z}}^2}}$ = {{100*exp(-z*pi/sqrt(1-z^2))}} %. Less damping means more overshoot; $\\omega_n$ plays no role."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which graph is the unit step response of $\\frac{\\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}$ with $\\zeta = 0.2$? (Same $\\omega_n$ and axes in every graph.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 15,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.1,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1*(1-exp(-0.2*1*x)*(cos(1*sqrt(1-0.2^2)*x)+0.2/sqrt(1-0.2^2)*sin(1*sqrt(1-0.2^2)*x)))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 15,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.1,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1-cos(x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 15,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.1,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1*(1-exp(-0.7*1*x)*(cos(1*sqrt(1-0.7^2)*x)+0.7/sqrt(1-0.7^2)*sin(1*sqrt(1-0.7^2)*x)))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 15,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.1,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1-exp(-x)*(1+x)"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "With $\\zeta = 0.2$ the overshoot is $100e^{-0.2\\pi/\\sqrt{0.96}}$ ≈ 53 %, and the ringing decays slowly ($T_s \\approx 4/(0.2\\omega_n) = 20/\\omega_n$). The steady oscillation between 0 and 2 is $\\zeta = 0$, the small overshoot (≈ 5 %) is $\\zeta = 0.7$ and the curve without overshoot is $\\zeta = 1$."
+        }
+      ]
+    },
+    {
+      "id": "cs-time-response-2",
+      "title": "Specs from poles",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "wn": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              8,
+              10
+            ],
+            "z": [
+              0.2,
+              0.3,
+              0.4,
+              0.5,
+              0.6,
+              0.7
+            ]
+          },
+          "derived": {
+            "W": "wn^2",
+            "B": "2*z*wn",
+            "wd": "wn*sqrt(1-z^2)"
+          },
+          "prompt": "A unit step is applied to $T(s) = \\frac{{{W}}}{s^2 + {{B}}s + {{W}}}$.",
+          "ask": [
+            {
+              "prompt": "Find the percent overshoot.",
+              "answer": "100*exp(-z*pi/sqrt(1-z^2))",
+              "unit": "%",
+              "explanation": "$\\omega_n = \\sqrt{{{W}}}$ = {{wn}} rad/s, $\\zeta = {{B}}/(2\\cdot{{wn}})$ = {{z}}. $\\%OS = 100e^{-\\zeta\\pi/\\sqrt{1-\\zeta^2}}$ = {{100*exp(-z*pi/sqrt(1-z^2))}} %."
+            },
+            {
+              "prompt": "Find the peak time $T_p$.",
+              "answer": "pi/wd",
+              "unit": "s",
+              "explanation": "$\\omega_n$ = {{wn}} rad/s, $\\zeta$ = {{z}}, so $\\omega_d = \\omega_n\\sqrt{1-\\zeta^2}$ = {{wd}} rad/s and $T_p = \\pi/\\omega_d$ = {{pi/wd|s}}."
+            },
+            {
+              "prompt": "Estimate the 2 % settling time $T_s$.",
+              "answer": "4/(z*wn)",
+              "unit": "s",
+              "explanation": "$\\zeta\\omega_n = {{B}}/2$ = {{z*wn}} $\\mathrm{s^{-1}}$ (half the $s$ coefficient). $T_s \\approx 4/(\\zeta\\omega_n)$ = {{4/(z*wn)|s}}."
+            }
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "P": [
+              2,
+              5,
+              10,
+              15,
+              20,
+              25,
+              30,
+              40
+            ]
+          },
+          "derived": {
+            "L": "ln(P/100)"
+          },
+          "prompt": "A design asks for a step response with {{P}} % overshoot. Which damping ratio $\\zeta$ is needed?",
+          "answer": "-L/sqrt(pi^2+L^2)",
+          "unit": "",
+          "explanation": "$\\ln(\\%OS/100) = \\ln({{P/100}})$ = {{L}}. Then $\\zeta = \\frac{-\\ln(\\%OS/100)}{\\sqrt{\\pi^2 + \\ln^2(\\%OS/100)}} = \\frac{{{-L}}}{\\sqrt{\\pi^2 + {{L^2}}}}$ = {{-L/sqrt(pi^2+L^2)}}."
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "z": [
+              0.2,
+              0.3,
+              0.4,
+              0.5
+            ],
+            "wn": [
+              2,
+              4,
+              5,
+              10
+            ]
+          },
+          "derived": {
+            "wd": "wn*sqrt(1-z^2)"
+          },
+          "prompt": "The graph shows a unit step response (final value 1). Read the percent overshoot.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "4*pi/wd",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.7,
+              "label": "y(t)",
+              "ticks": [
+                0,
+                0.2,
+                0.4,
+                0.6,
+                0.8,
+                1,
+                1.2,
+                1.4,
+                1.6
+              ]
+            },
+            "curves": [
+              {
+                "f": "1*(1-exp(-z*wn*x)*(cos(wn*sqrt(1-z^2)*x)+z/sqrt(1-z^2)*sin(wn*sqrt(1-z^2)*x)))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1
+              }
+            ]
+          },
+          "answer": "100*exp(-z*pi/sqrt(1-z^2))",
+          "unit": "%",
+          "tolerance": 0.1,
+          "absTolerance": 3,
+          "explanation": "The peak is at about {{1+100*exp(-z*pi/sqrt(1-z^2))/100}}, so the overshoot is ({{1+100*exp(-z*pi/sqrt(1-z^2))/100}} − 1)/1 = {{100*exp(-z*pi/sqrt(1-z^2))}} %. (This curve has $\\zeta$ = {{z}}: $100e^{-\\zeta\\pi/\\sqrt{1-\\zeta^2}}$ = {{100*exp(-z*pi/sqrt(1-z^2))}} %.)"
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {
+            "s": [
+              1,
+              1.5,
+              2,
+              2.5,
+              3,
+              4
+            ],
+            "w": [
+              1,
+              2,
+              3,
+              3.5
+            ]
+          },
+          "derived": {
+            "wn": "sqrt(s^2+w^2)"
+          },
+          "prompt": "The pole-zero map shows the closed-loop poles of a second-order system (no zeros).",
+          "plot": {
+            "x": {
+              "min": -5,
+              "max": 1,
+              "label": "σ = Re(s)"
+            },
+            "y": {
+              "min": -4,
+              "max": 4,
+              "label": "jω"
+            },
+            "points": [
+              {
+                "x": "-s",
+                "y": "w",
+                "guides": true,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": "-s",
+                "y": "-w",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find $\\omega_n$.",
+              "answer": "wn",
+              "unit": "rad/s",
+              "explanation": "The poles are at $-{{s}} \\pm j{{w}}$. $\\omega_n$ is their distance from the origin: $\\sqrt{{{s}}^2 + {{w}}^2}$ = {{wn}} rad/s."
+            },
+            {
+              "prompt": "Find $\\zeta$.",
+              "answer": "s/wn",
+              "unit": "",
+              "explanation": "Poles at $-{{s}} \\pm j{{w}}$: $\\omega_n = \\sqrt{{{s}}^2 + {{w}}^2}$ = {{wn}} rad/s and $\\zeta = \\sigma/\\omega_n = {{s}}/{{wn}}$ = {{s/wn}}."
+            },
+            {
+              "prompt": "Estimate the 2 % settling time.",
+              "answer": "4/s",
+              "unit": "s",
+              "explanation": "The real part $\\sigma$ = {{s}} $\\mathrm{s^{-1}}$ sets the decay $e^{-\\sigma t}$. $T_s \\approx 4/\\sigma$ = {{4/s|s}}. The imaginary part does not matter for $T_s$."
+            }
+          ]
+        },
+        {
+          "id": "p5",
+          "type": "numeric",
+          "params": {
+            "wn": [
+              2,
+              4,
+              5,
+              10,
+              20
+            ],
+            "z": [
+              0.3,
+              0.4,
+              0.5,
+              0.6,
+              0.7
+            ]
+          },
+          "derived": {
+            "wd": "wn*sqrt(1-z^2)"
+          },
+          "prompt": "Find the 0–100 % rise time (first time the step response reaches its final value) for $\\zeta = {{z}}$ and $\\omega_n$ = {{wn}} rad/s.",
+          "answer": "(pi-acos(z))/wd",
+          "unit": "s",
+          "explanation": "$\\omega_d = \\omega_n\\sqrt{1-\\zeta^2}$ = {{wd}} rad/s and $\\theta = \\arccos\\zeta$ = {{acos(z)}} rad. $t_r = (\\pi - \\theta)/\\omega_d$ = {{(pi-acos(z))/wd|s}}. Compare with the peak time $\\pi/\\omega_d$ = {{pi/wd|s}}."
+        },
+        {
+          "id": "p6",
+          "type": "numeric",
+          "params": {
+            "wn": [
+              2,
+              3,
+              4
+            ],
+            "z": [
+              0.4,
+              0.5,
+              0.6
+            ],
+            "c": [
+              25,
+              30,
+              40
+            ]
+          },
+          "derived": {
+            "W": "wn^2",
+            "B": "2*z*wn"
+          },
+          "prompt": "$T(s) = \\frac{{{c*W}}}{(s + {{c}})(s^2 + {{B}}s + {{W}})}$. Use the dominant poles.",
+          "ask": [
+            {
+              "prompt": "Estimate the 2 % settling time.",
+              "answer": "4/(z*wn)",
+              "unit": "s",
+              "explanation": "The pole at $-{{c}}$ is more than 5× further left than the pair (real part $-${{z*wn}}), so its term dies out quickly. The pair dominates: $T_s \\approx 4/(\\zeta\\omega_n) = 4/{{z*wn}}$ = {{4/(z*wn)|s}}."
+            },
+            {
+              "prompt": "Estimate the percent overshoot.",
+              "answer": "100*exp(-z*pi/sqrt(1-z^2))",
+              "unit": "%",
+              "explanation": "Ignore the fast pole at $-{{c}}$ (note the DC gain is still {{c*W}}/({{c}}·{{W}}) = 1). Dominant pair: $\\omega_n$ = {{wn}}, $\\zeta = {{B}}/(2\\cdot{{wn}})$ = {{z}}, so $\\%OS \\approx$ {{100*exp(-z*pi/sqrt(1-z^2))}} %."
+            }
+          ]
+        },
+        {
+          "id": "p7",
+          "type": "trueFalse",
+          "prompt": "Doubling $\\omega_n$ while keeping $\\zeta$ the same halves the settling time and leaves the percent overshoot unchanged.",
+          "answer": true,
+          "explanation": "$\\%OS$ depends only on $\\zeta$, so it does not change. $T_s \\approx 4/(\\zeta\\omega_n)$ and $T_p = \\pi/(\\omega_n\\sqrt{1-\\zeta^2})$ both halve: the whole response is time-compressed by a factor 2. In the s-plane the poles move outward along the same line from the origin."
+        },
+        {
+          "id": "p8",
+          "type": "numeric",
+          "params": {
+            "b": [
+              2,
+              5,
+              10
+            ],
+            "a": [
+              0.5,
+              1,
+              2,
+              4,
+              5,
+              10
+            ]
+          },
+          "prompt": "How long does the step response of $G(s) = \\frac{{{b}}}{s + {{a}}}$ take to reach 90 % of its final value (starting from 0)?",
+          "answer": "ln(10)/a",
+          "unit": "s",
+          "explanation": "$y(t) = y_\\infty(1 - e^{-t/\\tau})$ with $\\tau = 1/{{a}}$ = {{1/a|s}}. Set $1 - e^{-t/\\tau} = 0.9$: $t = \\tau\\ln 10 = 2.30\\tau$ = {{ln(10)/a|s}}."
+        },
+        {
+          "id": "p9",
+          "type": "matchPairs",
+          "prompt": "Match how the complex poles move to the effect on the step response.",
+          "pairs": [
+            [
+              "Further left, same height",
+              "Settles faster, less overshoot"
+            ],
+            [
+              "Further from the real axis, same real part",
+              "More overshoot, same settling time"
+            ],
+            [
+              "Outward along a line from the origin",
+              "Faster, same overshoot"
+            ],
+            [
+              "Onto the imaginary axis",
+              "Oscillates without decaying"
+            ]
+          ],
+          "explanation": "Real part $\\sigma$ sets the settling time ($4/\\sigma$). Angle $\\theta$ from the negative real axis sets the overshoot ($\\zeta = \\cos\\theta$). Moving left at constant $\\omega_d$ decreases $\\theta$ (more damping). Moving up at constant $\\sigma$ increases $\\theta$. Moving radially keeps $\\theta$ and only scales $\\omega_n$. On the imaginary axis $\\sigma = 0$: no decay."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "target": [
+              5,
+              10,
+              15,
+              20,
+              25,
+              30,
+              40
+            ]
+          },
+          "prompt": "Set the damping ratio so the step response overshoots by about {{target}}%.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 10,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 2,
+              "label": "y(t)"
+            },
+            "sliders": [
+              {
+                "name": "zeta",
+                "label": "$\\zeta$",
+                "min": 0.05,
+                "max": 1.5,
+                "step": 0.01,
+                "value": 1
+              }
+            ],
+            "let": {
+              "Mp": "if(1-zeta, 100*exp(-pi*zeta/sqrt(abs(1-zeta^2)+1e-12)), 0)"
+            },
+            "curves": [
+              {
+                "f": "step2(x, zeta, 2)",
+                "label": "y(t)"
+              },
+              {
+                "f": "1+target/100",
+                "dash": true,
+                "color": "orange",
+                "label": "target peak",
+                "labelAt": 0.8
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1
+              }
+            ],
+            "readouts": [
+              {
+                "label": "Overshoot",
+                "value": "Mp",
+                "unit": "%",
+                "reveal": true
+              }
+            ]
+          },
+          "derived": {
+            "zt": "-ln(target/100)/sqrt(pi^2+ln(target/100)^2)"
+          },
+          "answer": {
+            "zeta": "zt"
+          },
+          "tolerance": 0.06,
+          "explanation": "$M_p = e^{-\\pi\\zeta/\\sqrt{1-\\zeta^2}}$, so $\\zeta = \\frac{-\\ln M_p}{\\sqrt{\\pi^2 + \\ln^2 M_p}} = {{zt||3}}$ for $M_p = {{target}}\\,\\%$. The peak of the curve then touches the orange line."
+        }
+      ]
+    },
+    {
+      "id": "cs-time-response-3",
+      "title": "Designing for specs",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              4,
+              5,
+              6,
+              8,
+              10
+            ],
+            "z": [
+              0.5,
+              0.6,
+              0.7,
+              0.8
+            ]
+          },
+          "prompt": "A motor $G(s) = \\frac{K}{s(s + {{a}})}$ is in a unity-feedback loop with gain $K$. Which $K$ gives a damping ratio $\\zeta = {{z}}$?",
+          "answer": "(a/(2*z))^2",
+          "unit": "",
+          "explanation": "Closed loop: $\\frac{K}{s^2 + {{a}}s + K}$, so $\\omega_n = \\sqrt{K}$ and $2\\zeta\\omega_n = {{a}}$. Then $\\omega_n = \\frac{{{a}}}{2\\cdot{{z}}}$ = {{a/(2*z)}} rad/s and $K = \\omega_n^2$ = {{(a/(2*z))^2}}."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              4,
+              6
+            ],
+            "K": [
+              10,
+              20,
+              40,
+              50,
+              80,
+              100
+            ]
+          },
+          "derived": {
+            "wn": "sqrt(K)",
+            "z": "a/(2*sqrt(K))",
+            "wd": "sqrt(K)*sqrt(1-a^2/(4*K))"
+          },
+          "require": "K - a^2/4*1.6",
+          "prompt": "$G(s) = \\frac{{{K}}}{s(s + {{a}})}$ with unity negative feedback; a unit step is applied.",
+          "ask": [
+            {
+              "prompt": "Find the percent overshoot.",
+              "answer": "100*exp(-z*pi/sqrt(1-z^2))",
+              "unit": "%",
+              "explanation": "$T = \\frac{{{K}}}{s^2 + {{a}}s + {{K}}}$: $\\omega_n = \\sqrt{{{K}}}$ = {{wn}} rad/s, $\\zeta = \\frac{{{a}}}{2\\omega_n}$ = {{z}}. $\\%OS = 100e^{-\\zeta\\pi/\\sqrt{1-\\zeta^2}}$ = {{100*exp(-z*pi/sqrt(1-z^2))}} %."
+            },
+            {
+              "prompt": "Estimate the 2 % settling time.",
+              "answer": "8/a",
+              "unit": "s",
+              "explanation": "$\\zeta\\omega_n = {{a}}/2$ = {{a/2}}, so $T_s \\approx 4/(\\zeta\\omega_n) = 8/{{a}}$ = {{8/a|s}}. Notice that it does not depend on $K$: raising $K$ only moves the poles up and down (more overshoot), their real part stays at $-{{a/2}}$."
+            },
+            {
+              "prompt": "Find the peak time.",
+              "answer": "pi/wd",
+              "unit": "s",
+              "explanation": "$\\omega_n$ = {{wn}} rad/s, $\\zeta$ = {{z}}, $\\omega_d = \\omega_n\\sqrt{1-\\zeta^2}$ = {{wd}} rad/s, $T_p = \\pi/\\omega_d$ = {{pi/wd|s}}."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "P": [
+              5,
+              10,
+              15,
+              20
+            ],
+            "Ts": [
+              0.5,
+              1,
+              2,
+              4
+            ]
+          },
+          "derived": {
+            "L": "ln(P/100)",
+            "z": "-ln(P/100)/sqrt(pi^2+ln(P/100)^2)",
+            "sg": "4/Ts"
+          },
+          "prompt": "Specification: {{P}} % overshoot and a 2 % settling time of {{Ts|s}}. The closed-loop poles must be at $-\\sigma \\pm j\\omega_d$.",
+          "ask": [
+            {
+              "prompt": "Find $\\omega_d$.",
+              "answer": "sg*sqrt(1-z^2)/z",
+              "unit": "rad/s",
+              "explanation": "$\\sigma = 4/T_s$ = {{sg}} $\\mathrm{s^{-1}}$. From the overshoot: $\\zeta = \\frac{-\\ln({{P/100}})}{\\sqrt{\\pi^2 + \\ln^2({{P/100}})}}$ = {{z}}. Then $\\omega_n = \\sigma/\\zeta$ = {{sg/z}} rad/s and $\\omega_d = \\omega_n\\sqrt{1-\\zeta^2}$ = {{sg*sqrt(1-z^2)/z}} rad/s."
+            },
+            {
+              "prompt": "Find $\\omega_n$.",
+              "answer": "sg/z",
+              "unit": "rad/s",
+              "explanation": "$\\sigma = 4/T_s$ = {{sg}} $\\mathrm{s^{-1}}$ and $\\zeta = \\frac{-\\ln({{P/100}})}{\\sqrt{\\pi^2 + \\ln^2({{P/100}})}}$ = {{z}}. Since $\\sigma = \\zeta\\omega_n$: $\\omega_n$ = {{sg}}/{{z}} = {{sg/z}} rad/s."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "z": [
+              0.2,
+              0.3,
+              0.4,
+              0.5
+            ],
+            "wn": [
+              1,
+              2,
+              5,
+              10
+            ],
+            "k": [
+              2,
+              4,
+              5
+            ]
+          },
+          "derived": {
+            "wd": "wn*sqrt(1-z^2)"
+          },
+          "prompt": "The graph shows the unit step response of $\\frac{k\\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}$ with $\\zeta$ = {{z}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "6*pi/wd",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.7*k",
+              "label": "y(t)"
+            },
+            "curves": [
+              {
+                "f": "k*(1-exp(-z*wn*x)*(cos(wn*sqrt(1-z^2)*x)+z/sqrt(1-z^2)*sin(wn*sqrt(1-z^2)*x)))"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Read the peak time and find $\\omega_n$.",
+              "answer": "wn",
+              "unit": "rad/s",
+              "tolerance": 0.1,
+              "explanation": "The first peak is at $T_p \\approx$ {{pi/wd|s}}. $T_p = \\frac{\\pi}{\\omega_n\\sqrt{1-\\zeta^2}}$, so $\\omega_n = \\frac{\\pi}{T_p\\sqrt{1-{{z}}^2}}$ ≈ {{wn}} rad/s."
+            },
+            {
+              "prompt": "Read the DC gain $k$ (the final value).",
+              "answer": "k",
+              "unit": "",
+              "tolerance": 0.06,
+              "explanation": "The oscillation dies out around $y$ = {{k}}, so $k$ = {{k}}. The peak, {{k*(1+100*exp(-z*pi/sqrt(1-z^2))/100)}}, is {{100*exp(-z*pi/sqrt(1-z^2))}} % above it, matching $\\zeta$ = {{z}}. Overshoot is always measured relative to the final value, not to 1."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "multipleChoice",
+          "prompt": "Three pole pairs A, B and C are shown. Which pair gives the step response with the **largest overshoot**?",
+          "plot": {
+            "x": {
+              "min": -5,
+              "max": 1,
+              "label": "σ = Re(s)"
+            },
+            "y": {
+              "min": -4,
+              "max": 4,
+              "label": "jω"
+            },
+            "points": [
+              {
+                "x": -1,
+                "y": 3,
+                "label": "A",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -1,
+                "y": -3,
+                "label": "A",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -3,
+                "y": 3,
+                "label": "B",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -3,
+                "y": -3,
+                "label": "B",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -2,
+                "y": 1,
+                "label": "C",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -2,
+                "y": -1,
+                "label": "C",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              }
+            ]
+          },
+          "options": [
+            "A",
+            "B",
+            "C"
+          ],
+          "answer": 0,
+          "shuffle": false,
+          "explanation": "Overshoot depends on $\\zeta = \\cos\\theta = \\sigma/\\omega_n$. A: $1/\\sqrt{10}$ = 0.32 (35 % overshoot). B: $3/\\sqrt{18}$ = 0.71 (4 %). C: $2/\\sqrt5$ = 0.89 (0.2 %). A has the largest angle from the negative real axis, so the most overshoot."
+        },
+        {
+          "id": "c6",
+          "type": "multipleChoice",
+          "prompt": "Same pole pairs. Which one **settles fastest**?",
+          "plot": {
+            "x": {
+              "min": -5,
+              "max": 1,
+              "label": "σ = Re(s)"
+            },
+            "y": {
+              "min": -4,
+              "max": 4,
+              "label": "jω"
+            },
+            "points": [
+              {
+                "x": -1,
+                "y": 3,
+                "label": "A",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -1,
+                "y": -3,
+                "label": "A",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -3,
+                "y": 3,
+                "label": "B",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -3,
+                "y": -3,
+                "label": "B",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -2,
+                "y": 1,
+                "label": "C",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -2,
+                "y": -1,
+                "label": "C",
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              }
+            ]
+          },
+          "options": [
+            "A",
+            "B",
+            "C"
+          ],
+          "answer": 1,
+          "shuffle": false,
+          "explanation": "$T_s \\approx 4/\\sigma$ depends only on the real part. B is furthest left ($\\sigma = 3$, $T_s \\approx$ 1.3 s), then C ($\\sigma = 2$, 2 s), then A ($\\sigma = 1$, 4 s)."
+        },
+        {
+          "id": "c7",
+          "type": "trueFalse",
+          "prompt": "Adding a left-half-plane zero close to the dominant poles of a second-order system leaves its percent overshoot unchanged, because overshoot depends only on $\\zeta$.",
+          "answer": false,
+          "explanation": "The formula $\\%OS = 100e^{-\\zeta\\pi/\\sqrt{1-\\zeta^2}}$ only holds for the pure two-pole system. A zero at $-z$ adds a term proportional to the derivative of the response, $\\frac{1}{z}\\dot y$, which makes the response faster and increases the overshoot, the more so the closer the zero is to the poles."
+        }
+      ]
+    }
+  ]
+}

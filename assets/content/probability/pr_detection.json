@@ -1,0 +1,1142 @@
+{
+  "id": "pr-detection",
+  "title": "Detection & Estimation",
+  "description": "Deciding between signals in Gaussian noise with ML and MAP rules, error probability with the Q-function, BPSK and the matched filter, and linear MMSE estimation.",
+  "reference": "Leon-Garcia ch. 6, 8, 10",
+  "study": [
+    {
+      "title": "Binary detection in Gaussian noise",
+      "body": "A receiver samples $r = s_i + n$: the transmitted level $s_0$ or $s_1$ plus Gaussian noise with standard deviation $\\sigma$. It decides '1' when $r$ exceeds a threshold $\\gamma$. The errors are the tails of the two conditional PDFs on the wrong side of $\\gamma$. Drag the threshold, the noise and the prior $P_1$ (levels −1 V and +1 V): the total error probability is smallest where the prior-weighted curves cross.",
+      "formula": "\\begin{aligned} P(e|0) &= Q\\!\\left(\\frac{\\gamma - s_0}{\\sigma}\\right) \\\\ P(e|1) &= Q\\!\\left(\\frac{s_1 - \\gamma}{\\sigma}\\right) \\end{aligned}",
+      "plot": {
+        "x": {
+          "min": -3,
+          "max": 3,
+          "label": "r",
+          "unit": "V"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.3,
+          "label": "P_i f(r|i)"
+        },
+        "sliders": [
+          {
+            "name": "g",
+            "label": "$\\gamma$",
+            "min": -1,
+            "max": 1,
+            "step": 0.01,
+            "value": 0,
+            "unit": "V"
+          },
+          {
+            "name": "s",
+            "label": "$\\sigma$",
+            "min": 0.3,
+            "max": 1,
+            "step": 0.05,
+            "value": 0.5,
+            "unit": "V"
+          },
+          {
+            "name": "P1",
+            "label": "$P_1$",
+            "min": 0.1,
+            "max": 0.9,
+            "step": 0.05,
+            "value": 0.5
+          }
+        ],
+        "let": {
+          "e0": "Q((g + 1)/s)",
+          "e1": "Q((1 - g)/s)"
+        },
+        "curves": [
+          {
+            "f": "(1 - P1)*exp(-((x - -1)/(s))^2/2)/(sqrt(2*pi)*(s))",
+            "color": "blue",
+            "label": "P_0 f(r|0)",
+            "labelAt": 0.08
+          },
+          {
+            "f": "P1*exp(-((x - 1)/(s))^2/2)/(sqrt(2*pi)*(s))",
+            "color": "orange",
+            "label": "P_1 f(r|1)",
+            "labelAt": 0.75
+          }
+        ],
+        "vlines": [
+          {
+            "x": "g",
+            "label": "γ"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$P(e|0)$",
+            "value": "e0"
+          },
+          {
+            "label": "$P(e|1)$",
+            "value": "e1"
+          },
+          {
+            "label": "$P_e = P_0P(e|0) + P_1P(e|1)$",
+            "value": "(1 - P1)*e0 + P1*e1"
+          }
+        ]
+      }
+    },
+    {
+      "title": "ML and MAP decision rules",
+      "body": "The **maximum-likelihood** (ML) rule picks the hypothesis under which the observation is most likely: decide 1 if $f(r|1) > f(r|0)$. The **maximum a posteriori** (MAP) rule also weighs the priors, $P_1f(r|1) > P_0f(r|0)$, and minimizes the total error probability. For equal-variance Gaussians both reduce to a threshold: ML puts it halfway between the levels, MAP shifts it away from the more likely level. With equal priors they coincide.",
+      "formula": "\\gamma_{MAP} = \\frac{s_0 + s_1}{2} + \\frac{\\sigma^2}{s_1 - s_0}\\ln\\frac{P_0}{P_1}"
+    },
+    {
+      "title": "Error probability and distance",
+      "body": "With the threshold halfway, both conditional error probabilities equal $Q(d/2\\sigma)$, where $d = |s_1 - s_0|$ is the distance between the levels. Antipodal signalling ±A ($d = 2A$) gives $Q(A/\\sigma)$; on–off signalling 0/A gives only $Q(A/2\\sigma)$ for the same peak amplitude. What counts is the distance between the signals relative to the noise.",
+      "formula": "P_e = Q\\!\\left(\\frac{d}{2\\sigma}\\right)"
+    },
+    {
+      "title": "BPSK and $E_b/N_0$",
+      "body": "Digital links are compared at equal energy per bit $E_b$ and noise level $N_0$ (two-sided PSD $N_0/2$). With a matched filter, antipodal signalling (BPSK) achieves the bit-error probability below; on–off keying (same average energy) and coherent FSK need 3 dB more, $Q(\\sqrt{E_b/N_0})$ (orange). BPSK rules of thumb: $10^{-3}$ at 6.8 dB, $10^{-5}$ at 9.6 dB, $10^{-6}$ at 10.5 dB. Drag $E_b/N_0$.",
+      "formula": "P_b = Q\\!\\left(\\sqrt{2E_b/N_0}\\right)",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 14,
+          "label": "E_b/N_0 (dB)"
+        },
+        "y": {
+          "min": 1e-08,
+          "max": 0.5,
+          "label": "P_b",
+          "log": true
+        },
+        "sliders": [
+          {
+            "name": "x0",
+            "label": "$E_b/N_0$",
+            "min": 0,
+            "max": 14,
+            "step": 0.1,
+            "value": 9.6,
+            "unit": "dB"
+          }
+        ],
+        "curves": [
+          {
+            "f": "Q(sqrt(2*10^(x/10)))",
+            "label": "BPSK",
+            "labelAt": 0.45
+          },
+          {
+            "f": "Q(sqrt(10^(x/10)))",
+            "color": "orange",
+            "label": "OOK, FSK",
+            "labelAt": 0.8
+          }
+        ],
+        "points": [
+          {
+            "x": "x0",
+            "y": "Q(sqrt(2*10^(x0/10)))"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "BPSK $P_b$",
+            "value": "Q(sqrt(2*10^(x0/10)))"
+          },
+          {
+            "label": "OOK / coherent FSK $P_b$",
+            "value": "Q(sqrt(10^(x0/10)))"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The matched filter",
+      "body": "To detect a known pulse $s(t)$ of duration $T$ in white noise, filter with $h(t) = s(T - t)$, the pulse reversed in time, and sample at $t = T$. This **matched filter** maximizes the output SNR, and that maximum depends only on the pulse energy $E = \\int s^2(t)\\,dt$, not on its shape. For a rectangular pulse it is simply an integrate-and-dump. For binary signals the error probability is $Q\\big(\\sqrt{E_d/2N_0}\\big)$, with $E_d$ the energy of the difference $s_1(t) - s_0(t)$.",
+      "formula": "\\mathrm{SNR}_{max} = \\frac{2E}{N_0}"
+    },
+    {
+      "title": "Linear MMSE estimation",
+      "body": "To estimate $X$ from an observation $Y$, the best straight line $\\hat X = aY + b$ (minimum mean-squared error) needs only the means, the variances and the covariance. The remaining error variance is $\\sigma_X^2(1-\\rho^2)$. For a signal in additive noise, $Y = X + N$, the gain is $\\frac{\\sigma_X^2}{\\sigma_X^2 + \\sigma_N^2}$: trust the measurement when the noise is small, the prior mean when it is large. For jointly Gaussian $X$ and $Y$ this line is the best estimator of all.",
+      "formula": "\\begin{aligned} \\hat X &= \\mu_X + \\frac{\\mathrm{Cov}(X,Y)}{\\sigma_Y^2}(Y - \\mu_Y) \\\\ \\mathrm{MSE} &= \\sigma_X^2(1-\\rho^2) \\end{aligned}"
+    },
+    {
+      "title": "Worked example: a BPSK link budget",
+      "body": "A receiver gets −90 dBm at $R_b$ = 1 Mbit/s. An ideal receiver at 290 K has $N_0 = kT$ = −174 dBm/Hz. In dB: $E_b/N_0 = P - 10\\log R_b - N_0$ = −90 − 60 + 174 = 24 dB, far more than the 9.6 dB needed for $P_b = 10^{-5}$. The surplus of 14.4 dB is the link margin: the bit rate could rise about 27 times, or the path loss could grow by 14 dB.",
+      "formula": "\\frac{E_b}{N_0} = \\frac{P}{R_b\\,N_0}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pr-detection-1",
+      "title": "Deciding between two signals",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Binary detection",
+          "body": "A bit is sent as level $s_0$ or $s_1$. The receiver samples $r = s_i + n$, with Gaussian noise $n$ (mean 0, standard deviation $\\sigma$), and decides '1' when $r > \\gamma$. An error is a sample on the wrong side of the threshold: the tails of the two PDFs.",
+          "formula": "P(e|0) = Q\\!\\left(\\frac{\\gamma - s_0}{\\sigma}\\right)",
+          "plot": {
+            "x": {
+              "min": -2.5,
+              "max": 2.5,
+              "label": "r",
+              "unit": "V"
+            },
+            "y": {
+              "min": 0,
+              "max": 0.9,
+              "label": "f(r|i)"
+            },
+            "curves": [
+              {
+                "f": "exp(-((x - -1)/(0.5))^2/2)/(sqrt(2*pi)*(0.5))",
+                "color": "blue",
+                "label": "f(r|0)",
+                "labelAt": 0.1
+              },
+              {
+                "f": "exp(-((x - 1)/(0.5))^2/2)/(sqrt(2*pi)*(0.5))",
+                "color": "orange",
+                "label": "f(r|1)",
+                "labelAt": 0.8
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0,
+                "label": "γ"
+              }
+            ],
+            "height": 140
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              1.5
+            ],
+            "sig": [
+              0.25,
+              0.3
+            ],
+            "c": [
+              0.4,
+              0.5,
+              0.6
+            ]
+          },
+          "derived": {
+            "gam": "c*A"
+          },
+          "prompt": "On–off signalling: 0 V for a 0 and {{A|V}} for a 1, with Gaussian noise of $\\sigma$ = {{sig|V}}. The receiver decides '1' when $r > \\gamma$ = {{gam|V}}.",
+          "ask": [
+            {
+              "prompt": "What is the probability that a sent 0 is decoded as 1? (probability, 0–1)",
+              "answer": "Q(gam/sig)",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "A sent 0 gives $r = n$; an error needs $n > \\gamma$: $P(e|0) = Q(\\gamma/\\sigma)$ = Q({{gam/sig}}) = **{{Q(gam/sig)}}**."
+            },
+            {
+              "prompt": "What is the probability that a sent 1 is decoded as 0? (probability, 0–1)",
+              "answer": "Q((A - gam)/sig)",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "A sent 1 gives $r = A + n$; an error needs $r < \\gamma$, i.e. $n < -(A - \\gamma)$: $P(e|1) = Q\\!\\left(\\frac{A - \\gamma}{\\sigma}\\right)$ = Q({{(A-gam)/sig}}) = **{{Q((A-gam)/sig)}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2,
+              3
+            ],
+            "sig": [
+              0.25,
+              0.4,
+              0.5
+            ]
+          },
+          "require": "min(A/(2*sig) - 1, 3.4 - A/(2*sig))",
+          "prompt": "On–off signalling: 0 V for a 0 and {{A|V}} for a 1, equally likely, with Gaussian noise of $\\sigma$ = {{sig|V}} and the threshold halfway. What is the bit-error probability? (probability, 0–1)",
+          "answer": "Q(A/(2*sig))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "Halfway, $\\gamma = A/2$, and both errors need the noise to cover half the distance: $P_e = Q\\!\\left(\\frac{A}{2\\sigma}\\right)$ = Q({{A/(2*sig)}}) = **{{Q(A/(2*sig))}}**. Antipodal signals ±{{A|V}} would give Q({{A/sig}}) = {{Q(A/sig)}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "ML and MAP rules",
+          "body": "The **ML** rule decides for the level that makes the observation most likely; for equal-variance Gaussian noise its threshold lies halfway between the levels. The **MAP** rule also weighs the priors and minimizes the total error probability: the threshold moves away from the more likely level.",
+          "formula": "\\gamma_{MAP} = \\frac{s_0 + s_1}{2} + \\frac{\\sigma^2}{s_1 - s_0}\\ln\\frac{P_0}{P_1}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2
+            ],
+            "sig": [
+              0.3,
+              0.5
+            ],
+            "P1": [
+              0.1,
+              0.2,
+              0.3,
+              0.7,
+              0.8
+            ]
+          },
+          "prompt": "Levels 0 V (for a 0) and {{A|V}} (for a 1), Gaussian noise with $\\sigma$ = {{sig|V}}, and $P(1)$ = {{P1}}. What is the MAP decision threshold?",
+          "answer": "A/2 + sig^2/A*ln((1 - P1)/P1)",
+          "unit": "V",
+          "explanation": "$\\gamma = \\frac{s_0+s_1}{2} + \\frac{\\sigma^2}{s_1-s_0}\\ln\\frac{P_0}{P_1}$ = {{A/2|V}} + ({{sig^2}}/{{A}}) × ln({{1-P1}}/{{P1}}) = {{A/2|V}} + ({{sig^2/A*ln((1-P1)/P1)|V}}) = **{{A/2+sig^2/A*ln((1-P1)/P1)|V}}**."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Binary levels $s_0 < s_1$ in Gaussian noise, MAP detection. If $P(1)$ increases, the MAP threshold moves …",
+          "options": [
+            "toward $s_0$, so '1' is decided more often",
+            "toward $s_1$, so '1' is decided less often",
+            "nowhere: only the noise level matters"
+          ],
+          "answer": 0,
+          "explanation": "$\\ln(P_0/P_1)$ becomes negative when $P_1 > P_0$, so $\\gamma_{MAP}$ drops below the midpoint, toward $s_0$. A likely '1' deserves the benefit of the doubt: ambiguous samples near the middle are now decided as 1. The shift grows with $\\sigma^2$: the noisier the channel, the more the prior matters."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "sig": [
+              0.25,
+              0.3,
+              0.35
+            ],
+            "P1": [
+              0.2,
+              0.3,
+              0.7
+            ]
+          },
+          "derived": {
+            "g": "0.5 + sig^2*ln((1 - P1)/P1)",
+            "Pmin": "(1 - P1)*Q(g/sig) + P1*Q((1 - g)/sig)"
+          },
+          "prompt": "Levels 0 V and 1 V, Gaussian noise with $\\sigma$ = {{sig|V}}, and $P(1)$ = {{P1}}. The curves show $P_0f(r|0)$ and $P_1f(r|1)$. Move the threshold to (nearly) minimize the total error probability $P_e$.",
+          "plot": {
+            "x": {
+              "min": -1,
+              "max": 2,
+              "label": "r",
+              "unit": "V"
+            },
+            "y": {
+              "min": 0,
+              "max": "0.36/sig",
+              "label": "P_i f(r|i)"
+            },
+            "sliders": [
+              {
+                "name": "gam",
+                "label": "$\\gamma$",
+                "min": 0,
+                "max": 1,
+                "step": 0.005,
+                "value": 0.5,
+                "unit": "V"
+              }
+            ],
+            "let": {
+              "Pe": "(1 - P1)*Q(gam/sig) + P1*Q((1 - gam)/sig)"
+            },
+            "curves": [
+              {
+                "f": "(1 - P1)*exp(-((x - 0)/(sig))^2/2)/(sqrt(2*pi)*(sig))",
+                "color": "blue"
+              },
+              {
+                "f": "P1*exp(-((x - 1)/(sig))^2/2)/(sqrt(2*pi)*(sig))",
+                "color": "orange"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "gam",
+                "label": "γ"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$P_e$",
+                "value": "Pe",
+                "sig": 4
+              }
+            ]
+          },
+          "check": "1.01*Pmin - Pe",
+          "solution": "$\\gamma$ ≈ {{g|V}}",
+          "explanation": "$P_e(\\gamma) = P_0Q(\\gamma/\\sigma) + P_1Q((1-\\gamma)/\\sigma)$ is smallest at the MAP threshold, where the weighted curves cross: $\\gamma = 0.5 + \\sigma^2\\ln(P_0/P_1)$ = 0.5 + {{sig^2}} × ln({{1-P1}}/{{P1}}) = **{{g|V}}**, giving $P_e$ = {{Pmin}}. The ML threshold 0.5 V would give {{Q(0.5/sig)}}."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "With equal priors, the MAP rule and the ML rule always make the same decisions.",
+          "answer": true,
+          "explanation": "MAP maximizes $P_if(r|i)$; with $P_0 = P_1$ the priors cancel and it maximizes $f(r|i)$, which is the ML rule. In the threshold formula, $\\ln(P_0/P_1) = 0$."
+        }
+      ]
+    },
+    {
+      "id": "pr-detection-2",
+      "title": "BPSK and the matched filter",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The matched filter",
+          "body": "To detect a known pulse $s(t)$ in white noise ($N_0/2$, two-sided), use the filter $h(t) = s(T - t)$ and sample at $t = T$. The peak output SNR is $2E/N_0$, where $E$ is the pulse energy, whatever the pulse shape. For a rectangular pulse the matched filter is an integrator.",
+          "formula": "\\mathrm{SNR}_{max} = \\frac{2E}{N_0}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              0.01,
+              0.02
+            ],
+            "T": [
+              1e-06,
+              1e-05
+            ],
+            "S": [
+              1e-10,
+              1e-09
+            ]
+          },
+          "prompt": "A rectangular pulse of amplitude {{A|V}} and duration {{T|s}} arrives in white noise with $N_0/2$ = {{S}} V²/Hz. What is the SNR at the output of the matched filter, in dB?",
+          "answer": "10*log10(A^2*T/S)",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.2,
+          "explanation": "Pulse energy (in 1 Ω): $E = A^2T$ = {{A^2*T}} V²s, and $N_0$ = 2 × {{S}} = {{2*S}} V²/Hz. $\\mathrm{SNR} = 2E/N_0$ = {{A^2*T/S}}, i.e. **{{10*log10(A^2*T/S)||3}} dB**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "BPSK and $E_b/N_0$",
+          "body": "BPSK sends ±A for each bit. With a matched filter its bit-error probability depends only on $E_b/N_0$, the energy per bit over the noise level. On–off keying (at the same average energy per bit) and coherent FSK need 3 dB more for the same error rate (orange). Drag $E_b/N_0$.",
+          "formula": "P_b = Q\\!\\left(\\sqrt{2E_b/N_0}\\right)",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 14,
+              "label": "E_b/N_0 (dB)"
+            },
+            "y": {
+              "min": 1e-08,
+              "max": 0.5,
+              "label": "P_b",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "x0",
+                "label": "$E_b/N_0$",
+                "min": 0,
+                "max": 14,
+                "step": 0.1,
+                "value": 8,
+                "unit": "dB"
+              }
+            ],
+            "curves": [
+              {
+                "f": "Q(sqrt(2*10^(x/10)))",
+                "label": "BPSK",
+                "labelAt": 0.45
+              },
+              {
+                "f": "Q(sqrt(10^(x/10)))",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "x0",
+                "y": "Q(sqrt(2*10^(x0/10)))"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "BPSK $P_b$",
+                "value": "Q(sqrt(2*10^(x0/10)))"
+              }
+            ],
+            "height": 170
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "x": [
+              4,
+              6,
+              7,
+              8,
+              9,
+              10
+            ]
+          },
+          "prompt": "A BPSK link with a matched-filter receiver operates at $E_b/N_0$ = {{x}} dB. What is the bit-error probability? (probability, 0–1)",
+          "answer": "Q(sqrt(2*10^(x/10)))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "Convert from dB: $E_b/N_0 = 10^{{{x}}/10}$ = {{10^(x/10)}}. Then $P_b = Q(\\sqrt{2 \\times {{10^(x/10)}}})$ = Q({{sqrt(2*10^(x/10))}}) = **{{Q(sqrt(2*10^(x/10)))}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Pdbm": [
+              -110,
+              -107,
+              -104,
+              -100
+            ],
+            "Rb": [
+              1000000,
+              2000000,
+              5000000,
+              10000000
+            ]
+          },
+          "require": "min(Pdbm + 174 - 10*log10(Rb) - 3, 12 - (Pdbm + 174 - 10*log10(Rb)))",
+          "prompt": "A BPSK receiver gets {{Pdbm}} dBm at {{Rb/1e6}} Mbit/s. It is an ideal receiver at 290 K: $N_0 = kT$ = −174 dBm/Hz.",
+          "ask": [
+            {
+              "prompt": "What is $E_b/N_0$ in dB?",
+              "answer": "Pdbm + 174 - 10*log10(Rb)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$E_b = P/R_b$, so in dB: $E_b/N_0 = P - 10\\log_{10}R_b - N_0$ = {{Pdbm}} − {{10*log10(Rb)||3}} + 174 = **{{Pdbm+174-10*log10(Rb)||3}} dB**."
+            },
+            {
+              "prompt": "What is the bit-error probability? (probability, 0–1)",
+              "answer": "Q(sqrt(2*10^((Pdbm + 174 - 10*log10(Rb))/10)))",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "$E_b/N_0$ = {{Pdbm+174-10*log10(Rb)||3}} dB = {{10^((Pdbm+174-10*log10(Rb))/10)}}. $P_b = Q(\\sqrt{2E_b/N_0})$ = Q({{sqrt(2*10^((Pdbm+174-10*log10(Rb))/10))}}) = **{{Q(sqrt(2*10^((Pdbm+174-10*log10(Rb))/10)))}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "x": [
+              4,
+              6,
+              8
+            ]
+          },
+          "derived": {
+            "g": "10^(x/10)"
+          },
+          "prompt": "A BPSK link operates at $E_b/N_0$ = {{x}} dB. What is its bit-error probability?",
+          "options": [
+            "{{Q(sqrt(2*g))}}",
+            "{{Q(sqrt(g))}}",
+            "{{Q(sqrt(2*x))}}"
+          ],
+          "answer": 0,
+          "explanation": "First convert: $E_b/N_0 = 10^{{{x}}/10}$ = {{g}}. $P_b = Q(\\sqrt{2E_b/N_0})$ = Q({{sqrt(2*g)}}) = **{{Q(sqrt(2*g))}}**. Leaving out the 2 gives the on–off keying result; using the dB value as a ratio is meaningless."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "k": [
+              3,
+              4,
+              5,
+              6
+            ]
+          },
+          "derived": {
+            "xt": "if(k - 5.5, 10.53, if(k - 4.5, 9.59, if(k - 3.5, 8.4, 6.79)))"
+          },
+          "prompt": "Read the BPSK curve: set $E_b/N_0$ so that the bit-error probability is $10^{-{{k}}}$ (red dashed line).",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 14,
+              "label": "E_b/N_0 (dB)"
+            },
+            "y": {
+              "min": 1e-07,
+              "max": 0.5,
+              "label": "P_b",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "x0",
+                "label": "$E_b/N_0$",
+                "min": 0,
+                "max": 14,
+                "step": 0.05,
+                "value": 2,
+                "unit": "dB"
+              }
+            ],
+            "curves": [
+              {
+                "f": "Q(sqrt(2*10^(x/10)))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "10^(-k)",
+                "color": "red",
+                "label": "target"
+              }
+            ],
+            "points": [
+              {
+                "x": "x0",
+                "y": "Q(sqrt(2*10^(x0/10)))"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$P_b$",
+                "value": "Q(sqrt(2*10^(x0/10)))",
+                "reveal": true
+              }
+            ],
+            "height": 260
+          },
+          "answer": {
+            "x0": "xt"
+          },
+          "tolerance": 0.015,
+          "absTolerance": 0.2,
+          "explanation": "The curve crosses $10^{-{{k}}}$ at **{{xt}} dB**: $Q(z) = 10^{-{{k}}}$ needs $z$ = {{sqrt(2*10^(xt/10))}}, and $E_b/N_0 = z^2/2$ = {{10^(xt/10)}}. Near these error rates each extra decade of reliability costs only 1 to 1.6 dB, because the Gaussian tail falls so steeply."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "The output SNR of a matched filter depends on the shape of the pulse, not only on its energy.",
+          "answer": false,
+          "explanation": "The maximum SNR is $2E/N_0$ for any pulse shape: only the energy counts. The shape does matter for the bandwidth the pulse occupies and for intersymbol interference, but not for the SNR at the sampling instant."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Pdbm": [
+              -110,
+              -100,
+              -90
+            ],
+            "req": [
+              6.8,
+              9.6,
+              10.5
+            ]
+          },
+          "prompt": "A BPSK link receives {{Pdbm}} dBm with $N_0$ = −174 dBm/Hz and needs $E_b/N_0$ = {{req}} dB for its target error rate. What is the highest bit rate it can support?",
+          "answer": "10^((Pdbm + 174 - req)/10)",
+          "unit": "bit/s",
+          "explanation": "$E_b/N_0 = \\frac{P}{R_bN_0}$ ⇒ $R_b = \\frac{P/N_0}{E_b/N_0}$. In dB: $10\\log R_b$ = {{Pdbm}} + 174 − {{req}} = {{Pdbm+174-req||3}} dB, so $R_b$ = **{{10^((Pdbm+174-req)/10)|bit/s}}**."
+        }
+      ]
+    },
+    {
+      "id": "pr-detection-3",
+      "title": "Estimation",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Linear MMSE estimation",
+          "body": "The best straight-line estimate of $X$ from $Y$ uses only means, variances and the covariance. For a signal in additive, independent noise, $Y = X + N$, it becomes a weighted average of the prior mean and the measurement.",
+          "formula": "\\begin{aligned} \\hat X &= \\mu_X + \\frac{\\sigma_X^2}{\\sigma_X^2+\\sigma_N^2}(Y - \\mu_X) \\\\ \\mathrm{MSE} &= \\frac{\\sigma_X^2\\sigma_N^2}{\\sigma_X^2+\\sigma_N^2} \\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "mx": [
+              20,
+              25
+            ],
+            "sx": [
+              2,
+              3
+            ],
+            "sn": [
+              1,
+              2,
+              3
+            ],
+            "d": [
+              -4,
+              3,
+              5
+            ]
+          },
+          "derived": {
+            "y": "mx + d"
+          },
+          "prompt": "A room temperature $X$ has prior mean {{mx}} °C and standard deviation {{sx}} °C. A sensor reads $Y = X + N$ with independent noise of {{sn}} °C rms. It reads {{y}} °C.",
+          "ask": [
+            {
+              "prompt": "What is the gain $a$ of the linear MMSE estimator?",
+              "answer": "sx^2/(sx^2 + sn^2)",
+              "unit": "",
+              "explanation": "$a = \\frac{\\sigma_X^2}{\\sigma_X^2 + \\sigma_N^2}$ = {{sx^2}}/({{sx^2}} + {{sn^2}}) = **{{sx^2/(sx^2+sn^2)}}**."
+            },
+            {
+              "prompt": "What is the estimate of the temperature?",
+              "answer": "mx + sx^2/(sx^2 + sn^2)*(y - mx)",
+              "unit": "°C",
+              "explanation": "$\\hat X = \\mu_X + a(Y - \\mu_X)$ = {{mx}} + {{sx^2/(sx^2+sn^2)}} × ({{y-mx}}) = **{{mx+sx^2/(sx^2+sn^2)*(y-mx)}} °C**: between the prior mean and the reading."
+            },
+            {
+              "prompt": "What is the mean-squared error of the estimate, in °C²?",
+              "answer": "sx^2*sn^2/(sx^2 + sn^2)",
+              "unit": "",
+              "explanation": "$\\mathrm{MSE} = \\frac{\\sigma_X^2\\sigma_N^2}{\\sigma_X^2+\\sigma_N^2}$ = {{sx^2}} × {{sn^2}}/{{sx^2+sn^2}} = **{{sx^2*sn^2/(sx^2+sn^2)}}** °C², smaller than both {{sx^2}} (prior) and {{sn^2}} (sensor)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "mx": [
+              1,
+              2
+            ],
+            "my": [
+              0,
+              1
+            ],
+            "sy": [
+              1,
+              2
+            ],
+            "c": [
+              0.5,
+              0.8,
+              -0.6
+            ],
+            "y": [
+              2,
+              -1,
+              3
+            ]
+          },
+          "require": "abs(mx + c/sy^2*(y - my)) - 0.05",
+          "prompt": "$X$ and $Y$ have means $\\mu_X$ = {{mx}} V and $\\mu_Y$ = {{my}} V, $\\sigma_Y$ = {{sy}} V and $\\mathrm{Cov}(X, Y)$ = {{c}} V². You observe $Y$ = {{y}} V. What is the linear MMSE estimate of $X$?",
+          "answer": "mx + c/sy^2*(y - my)",
+          "unit": "V",
+          "explanation": "$\\hat X = \\mu_X + \\frac{\\mathrm{Cov}(X,Y)}{\\sigma_Y^2}(Y - \\mu_Y)$ = {{mx}} + ({{c}}/{{sy^2}}) × ({{y-my}}) = **{{mx+c/sy^2*(y-my)|V}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0.002,
+              0.005,
+              0.01
+            ],
+            "N": [
+              16,
+              25,
+              100
+            ]
+          },
+          "prompt": "A DC level is estimated as the average of {{N}} readings, each with independent Gaussian noise of {{s|V}} rms (this average is also the maximum-likelihood estimate). What is the half-width of the 95 % confidence interval (±1.96 σ of the estimate)?",
+          "answer": "1.96*s/sqrt(N)",
+          "unit": "V",
+          "explanation": "The average has standard deviation $\\sigma/\\sqrt{N}$ = {{s|V}}/√{{N}} = {{s/sqrt(N)|V}}. 95 % of a Gaussian lies within ±1.96 σ: **±{{1.96*s/sqrt(N)|V}}**."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "sx": [
+              2,
+              3
+            ],
+            "rho": [
+              0.4,
+              0.6,
+              0.8
+            ]
+          },
+          "prompt": "A signal $X$ has $\\sigma_X$ = {{sx}} V and correlation coefficient $\\rho$ = {{rho}} with a measurement $Y$. What is the mean-squared error of the best linear estimate of $X$ from $Y$, in V²?",
+          "options": [
+            "{{sx^2*(1-rho^2)}}",
+            "{{sx^2*(1-rho)}}",
+            "{{sx*(1-rho^2)}}",
+            "{{sx^2*rho^2}}"
+          ],
+          "answer": 0,
+          "explanation": "$\\mathrm{MSE} = \\sigma_X^2(1 - \\rho^2)$ = {{sx^2}} × (1 − {{rho^2}}) = **{{sx^2*(1-rho^2)}}** V². The estimate explains the fraction $\\rho^2$ = {{rho^2}} of the variance ({{sx^2*rho^2}} V²); the rest remains as error."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "If $X$ and $Y$ are uncorrelated, the best linear estimate of $X$ from $Y$ is simply the mean of $X$.",
+          "answer": true,
+          "explanation": "The gain $\\mathrm{Cov}(X,Y)/\\sigma_Y^2$ is zero, so $\\hat X = \\mu_X$ and the MSE stays $\\sigma_X^2$: a linear estimator cannot use $Y$. (A nonlinear estimator might, if $X$ and $Y$ are dependent but uncorrelated.)"
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "s1": [
+              0.001,
+              0.002
+            ],
+            "s2": [
+              0.003,
+              0.004
+            ]
+          },
+          "prompt": "Two independent sensors measure the same voltage with unbiased noise of {{s1|V}} rms and {{s2|V}} rms. They are combined as $\\hat X = wY_1 + (1-w)Y_2$ with the weight that minimizes the error variance.",
+          "ask": [
+            {
+              "prompt": "What is the best weight $w$ for sensor 1?",
+              "answer": "s2^2/(s1^2 + s2^2)",
+              "unit": "",
+              "explanation": "Weight each sensor by its inverse variance: $w = \\frac{1/\\sigma_1^2}{1/\\sigma_1^2 + 1/\\sigma_2^2} = \\frac{\\sigma_2^2}{\\sigma_1^2 + \\sigma_2^2}$ = **{{s2^2/(s1^2+s2^2)}}**: the better sensor gets more weight."
+            },
+            {
+              "prompt": "What is the rms error of the combined estimate?",
+              "answer": "1/sqrt(1/s1^2 + 1/s2^2)",
+              "unit": "V",
+              "explanation": "$\\sigma^2 = \\left(\\frac{1}{\\sigma_1^2} + \\frac{1}{\\sigma_2^2}\\right)^{-1}$, so $\\sigma$ = **{{1/sqrt(1/s1^2+1/s2^2)|V}}**, better than either sensor alone."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the steps for building a linear MMSE estimator of $X$ from $Y$ in order.",
+          "items": [
+            "Find the means $\\mu_X$ and $\\mu_Y$",
+            "Find $\\sigma_Y^2$ and $\\mathrm{Cov}(X, Y)$",
+            "Compute the gain $a = \\mathrm{Cov}(X,Y)/\\sigma_Y^2$",
+            "Form $\\hat X = \\mu_X + a(Y - \\mu_Y)$",
+            "Evaluate how good that estimate is: $\\mathrm{MSE} = \\sigma_X^2 - a\\,\\mathrm{Cov}(X,Y)$"
+          ],
+          "explanation": "Only second-order statistics are needed. The gain follows from the covariance and the variance of the observation; the estimate corrects the prior mean by the gain times the 'surprise' $Y - \\mu_Y$; and the MSE $\\sigma_X^2 - a\\,\\mathrm{Cov} = \\sigma_X^2(1-\\rho^2)$ tells how good it is."
+        }
+      ]
+    },
+    {
+      "id": "pr-detection-4",
+      "title": "Optimal receivers",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2
+            ],
+            "sig": [
+              0.3,
+              0.4
+            ],
+            "P1": [
+              0.1,
+              0.2
+            ]
+          },
+          "require": "5 - A/(2*sig)",
+          "prompt": "Levels 0 V (for a 0) and {{A|V}} (for a 1), Gaussian noise with $\\sigma$ = {{sig|V}}, and $P(1)$ = {{P1}}.",
+          "ask": [
+            {
+              "prompt": "What is the MAP threshold?",
+              "answer": "A/2 + sig^2/A*ln((1 - P1)/P1)",
+              "unit": "V",
+              "explanation": "$\\gamma = \\frac{A}{2} + \\frac{\\sigma^2}{A}\\ln\\frac{P_0}{P_1}$ = {{A/2|V}} + {{sig^2/A}} × ln({{(1-P1)/P1}}) = **{{A/2+sig^2/A*ln((1-P1)/P1)|V}}**."
+            },
+            {
+              "prompt": "What is the total error probability with that threshold? (probability, 0–1)",
+              "answer": "(1 - P1)*Q((A/2 + sig^2/A*ln((1 - P1)/P1))/sig) + P1*Q((A/2 - sig^2/A*ln((1 - P1)/P1))/sig)",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "With $\\gamma$ = {{A/2+sig^2/A*ln((1-P1)/P1)|V}}: $P(e|0) = Q(\\gamma/\\sigma)$ = {{Q((A/2+sig^2/A*ln((1-P1)/P1))/sig)}} and $P(e|1) = Q((A-\\gamma)/\\sigma)$ = {{Q((A/2-sig^2/A*ln((1-P1)/P1))/sig)}}. $P_e = P_0P(e|0) + P_1P(e|1)$ = **{{(1-P1)*Q((A/2+sig^2/A*ln((1-P1)/P1))/sig)+P1*Q((A/2-sig^2/A*ln((1-P1)/P1))/sig)}}**, less than the ML value Q({{A/(2*sig)}}) = {{Q(A/(2*sig))}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "x": [
+              2,
+              4,
+              6
+            ]
+          },
+          "prompt": "To protect a bit, it is sent three times with BPSK; each copy arrives with $E_s/N_0$ = {{x}} dB.",
+          "ask": [
+            {
+              "prompt": "What is the error probability of a single copy? (probability, 0–1)",
+              "answer": "Q(sqrt(2*10^(x/10)))",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "$p = Q(\\sqrt{2E_s/N_0})$ = Q({{sqrt(2*10^(x/10))}}) = **{{Q(sqrt(2*10^(x/10)))}}**."
+            },
+            {
+              "prompt": "Hard decisions: each copy is decided separately, then a majority vote. What is the bit-error probability? (probability, 0–1)",
+              "answer": "3*Q(sqrt(2*10^(x/10)))^2 - 2*Q(sqrt(2*10^(x/10)))^3",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "With $p$ = {{Q(sqrt(2*10^(x/10)))}}: $P = 3p^2(1-p) + p^3 = 3p^2 - 2p^3$ = **{{3*Q(sqrt(2*10^(x/10)))^2-2*Q(sqrt(2*10^(x/10)))^3}}**."
+            },
+            {
+              "prompt": "Soft decisions: the three matched-filter outputs are added before one decision. What is the bit-error probability? (probability, 0–1)",
+              "answer": "Q(sqrt(6*10^(x/10)))",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "Adding the samples is a matched filter for the whole 3-copy signal, with energy $3E_s$: $P = Q(\\sqrt{2\\cdot3E_s/N_0})$ = Q({{sqrt(6*10^(x/10))}}) = **{{Q(sqrt(6*10^(x/10)))}}**, better than the majority vote. It equals uncoded BPSK at $E_b = 3E_s$: repetition only spends energy."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "A": [
+              0.01,
+              0.02
+            ],
+            "T": [
+              1e-06,
+              2e-06
+            ],
+            "S": [
+              5e-11,
+              1e-10
+            ]
+          },
+          "prompt": "Bits are sent as rectangular pulses of ±{{A|V}} lasting {{T|s}}, in white noise with $N_0/2$ = {{S}} V²/Hz, and detected with a matched filter. What is the bit-error probability? (probability, 0–1)",
+          "answer": "Q(sqrt(A^2*T/S))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "$E_b = A^2T$ = {{A^2*T}} V²s and $N_0$ = {{2*S}} V²/Hz, so $E_b/N_0$ = {{A^2*T/(2*S)}}. Antipodal: $P_b = Q(\\sqrt{2E_b/N_0})$ = Q({{sqrt(A^2*T/S)}}) = **{{Q(sqrt(A^2*T/S))}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "k": [
+              3,
+              3.5,
+              4
+            ],
+            "d": [
+              4,
+              5,
+              6
+            ]
+          },
+          "require": "d - k",
+          "prompt": "In a simplified radar model, the receiver's sample is Gaussian noise with standard deviation $\\sigma$ (no target), or a target echo of amplitude $A$ = {{d}} σ plus the same noise. It declares a target when the sample exceeds $\\gamma$ = {{k}} σ.",
+          "ask": [
+            {
+              "prompt": "What is the false-alarm probability? (probability, 0–1)",
+              "answer": "Q(k)",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "Noise alone exceeds {{k}} σ with probability $Q({{k}})$ = **{{Q(k)}}**."
+            },
+            {
+              "prompt": "What is the probability of missing a target? (probability, 0–1)",
+              "answer": "Q(d - k)",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "With a target, the sample is Gaussian with mean {{d}} σ. A miss means it stays below {{k}} σ: $Q(d - k)$ = Q({{d-k}}) = **{{Q(d-k)}}**. Raising the threshold trades fewer false alarms for more misses."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows the bit-error curve of BPSK with a matched filter? The dashed lines mark $P_b = 10^{-5}$ and $E_b/N_0$ = 9.6 dB.",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 14,
+                "label": "E_b/N_0 (dB)"
+              },
+              "y": {
+                "min": 1e-08,
+                "max": 0.5,
+                "label": "P_b",
+                "log": true
+              },
+              "curves": [
+                {
+                  "f": "Q(sqrt(2*10^(x/10)))"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 1e-05
+                }
+              ],
+              "vlines": [
+                {
+                  "x": 9.6
+                }
+              ],
+              "height": 130
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 14,
+                "label": "E_b/N_0 (dB)"
+              },
+              "y": {
+                "min": 1e-08,
+                "max": 0.5,
+                "label": "P_b",
+                "log": true
+              },
+              "curves": [
+                {
+                  "f": "Q(sqrt(10^(x/10)))"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 1e-05
+                }
+              ],
+              "vlines": [
+                {
+                  "x": 9.6
+                }
+              ],
+              "height": 130
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 14,
+                "label": "E_b/N_0 (dB)"
+              },
+              "y": {
+                "min": 1e-08,
+                "max": 0.5,
+                "label": "P_b",
+                "log": true
+              },
+              "curves": [
+                {
+                  "f": "Q(sqrt(4*10^(x/10)))"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 1e-05
+                }
+              ],
+              "vlines": [
+                {
+                  "x": 9.6
+                }
+              ],
+              "height": 130
+            }
+          ],
+          "answer": 0,
+          "explanation": "BPSK reaches $P_b = 10^{-5}$ at $E_b/N_0$ = 9.6 dB, so its curve passes through the crossing of the dashed lines. The curve 3 dB to the right is on–off keying or coherent FSK, $Q(\\sqrt{E_b/N_0})$; a curve 3 dB to the left would beat the antipodal limit, which no binary scheme can."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "sx": [
+              2,
+              4
+            ],
+            "sn": [
+              1,
+              2,
+              3
+            ],
+            "dd": [
+              1,
+              2
+            ]
+          },
+          "require": "4.5 - dd/sqrt(sx^2*sn^2/(sx^2 + sn^2))",
+          "prompt": "A signal $X$ (zero mean, $\\sigma_X$ = {{sx}} mV) is measured as $Y = X + N$ with independent noise ($\\sigma_N$ = {{sn}} mV); both are Gaussian. The linear MMSE estimate is used.",
+          "ask": [
+            {
+              "prompt": "What is the rms estimation error, in mV?",
+              "answer": "sqrt(sx^2*sn^2/(sx^2 + sn^2))",
+              "unit": "",
+              "explanation": "$\\mathrm{MSE} = \\frac{\\sigma_X^2\\sigma_N^2}{\\sigma_X^2+\\sigma_N^2}$ = {{sx^2*sn^2/(sx^2+sn^2)}} mV², so the rms error is **{{sqrt(sx^2*sn^2/(sx^2+sn^2))}} mV**."
+            },
+            {
+              "prompt": "What is the probability that the estimate is off by more than {{dd}} mV? (probability, 0–1)",
+              "answer": "2*Q(dd/sqrt(sx^2*sn^2/(sx^2 + sn^2)))",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "For jointly Gaussian variables the error is Gaussian with mean 0 and σ = {{sqrt(sx^2*sn^2/(sx^2+sn^2))}} mV. Both tails count: $2Q(d/\\sigma)$ = 2Q({{dd/sqrt(sx^2*sn^2/(sx^2+sn^2))}}) = **{{2*Q(dd/sqrt(sx^2*sn^2/(sx^2+sn^2)))}}**."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "For equally likely antipodal bits in white Gaussian noise, a matched filter followed by a threshold at zero gives the lowest possible bit-error probability.",
+          "answer": true,
+          "explanation": "The matched filter maximizes the SNR at the sampling instant, and its output is a sufficient statistic: no other processing of the received waveform can do better. With equal priors the MAP threshold is the midpoint, 0 for ±A. The result is $Q(\\sqrt{2E_b/N_0})$."
+        }
+      ]
+    }
+  ]
+}

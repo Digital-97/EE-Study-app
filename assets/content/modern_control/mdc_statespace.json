@@ -1,0 +1,2401 @@
+{
+  "id": "mdc-statespace",
+  "title": "State-Space Models",
+  "description": "Write differential equations, circuits and mechanical systems as state equations, and get the transfer function back.",
+  "reference": "FPE §7.2–7.4",
+  "study": [
+    {
+      "title": "Why state space?",
+      "body": "Year 2 control described each loop by one transfer function. State space keeps the inside of the system: $n$ **state variables** that, together with the input from now on, fix the whole future. The model is $n$ first-order equations in matrix form. It handles several inputs and outputs and leads to designs that place **all** closed-loop poles at once.\n- $\\mathbf{A}$ ($n\\times n$): how the states drive each other\n- $\\mathbf{B}$ ($n\\times m$): how the $m$ inputs enter\n- $\\mathbf{C}$ ($p\\times n$) and $\\mathbf{D}$ ($p\\times m$): what the $p$ outputs measure",
+      "formula": "\\dot{\\mathbf{x}} = \\mathbf{A}\\mathbf{x} + \\mathbf{B}u, \\qquad y = \\mathbf{C}\\mathbf{x} + Du"
+    },
+    {
+      "title": "From a differential equation",
+      "body": "Take the output and its derivatives as states: $x_1 = y$, $x_2 = \\dot y$, … Each state is the derivative of the one before, and the last row is the ODE solved for the highest derivative. First divide by the leading coefficient. **Example:** $2\\ddot y + 10\\dot y + 12y = 4u$ becomes $\\ddot y = -6y - 5\\dot y + 2u$, so with $\\mathbf{C} = [1 \\;\\; 0]$ and $D = 0$:",
+      "formula": "\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -6 & -5 \\end{bmatrix}, \\quad \\mathbf{B} = \\begin{bmatrix} 0 \\\\ 2 \\end{bmatrix}"
+    },
+    {
+      "title": "Mechanical systems",
+      "body": "Masses store kinetic energy and springs potential energy, so the states are **positions and velocities**. A mass $m$ on a spring $k$ with a damper $b$, pushed by a force $F$, obeys $m\\ddot p + b\\dot p + kp = F$. With $x_1 = p$ and $x_2 = \\dot p$ you get the model below. Measuring the position gives $\\mathbf{C} = [1 \\;\\; 0]$, measuring the velocity $\\mathbf{C} = [0 \\;\\; 1]$.",
+      "formula": "\\frac{d}{dt}\\begin{bmatrix} p \\\\ \\dot p \\end{bmatrix} = \\begin{bmatrix} 0 & 1 \\\\ -\\frac{k}{m} & -\\frac{b}{m} \\end{bmatrix}\\begin{bmatrix} p \\\\ \\dot p \\end{bmatrix} + \\begin{bmatrix} 0 \\\\ \\frac{1}{m} \\end{bmatrix}F"
+    },
+    {
+      "title": "Circuits: an RC ladder",
+      "body": "Capacitor voltages and inductor currents are the states. Write KCL at each capacitor ($C\\dot v$ = net current in) and KVL around each inductor ($L\\dot i$ = voltage across it), and keep only states and sources on the right. For the ladder: $C_1\\dot v_1 = \\frac{v_s - v_1}{R_1} - \\frac{v_1 - v_2}{R_2}$ and $C_2\\dot v_2 = \\frac{v_1 - v_2}{R_2}$. With conductances $G_i = 1/R_i$:",
+      "formula": "\\mathbf{A} = \\begin{bmatrix} -\\frac{G_1+G_2}{C_1} & \\frac{G_2}{C_1} \\\\ \\frac{G_2}{C_2} & -\\frac{G_2}{C_2} \\end{bmatrix}, \\; \\mathbf{B} = \\begin{bmatrix} \\frac{G_1}{C_1} \\\\ 0 \\end{bmatrix}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "v_s"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "R_1"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "C_1",
+            "value": "v_1",
+            "polarity": "+-"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "C_2",
+            "value": "v_2",
+            "polarity": "+-"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                4,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Control and observer canonical forms",
+      "body": "A transfer function can be realized straight from its coefficients. Make the denominator **monic** first. For $G(s) = \\frac{b_1s + b_2}{s^2 + a_1s + a_2}$:\n- **Control canonical form**: the negated denominator coefficients fill the **top row** of $\\mathbf{A}_c$, $\\mathbf{B}_c = [1 \\;\\; 0]^T$, and the numerator gives $\\mathbf{C}_c = [b_1 \\;\\; b_2]$.\n- **Observer canonical form**: the transpose, $\\mathbf{A}_o = \\mathbf{A}_c^T = \\begin{bmatrix} -a_1 & 1 \\\\ -a_2 & 0 \\end{bmatrix}$, $\\mathbf{B}_o = \\mathbf{C}_c^T$, $\\mathbf{C}_o = \\mathbf{B}_c^T$.\nThe phase-variable form of Discrete-Time Signals & Systems is the control canonical form with the states numbered in reverse. In the diagram each integrator output is a state; higher orders work the same way.",
+      "formula": "\\mathbf{A}_c = \\begin{bmatrix} -a_1 & -a_2 \\\\ 1 & 0 \\end{bmatrix}, \\quad \\mathbf{B}_c = \\begin{bmatrix} 1 \\\\ 0 \\end{bmatrix}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                1.2,
+                2
+              ]
+            ],
+            "label": "u"
+          },
+          {
+            "type": "sum",
+            "at": [
+              1.5,
+              2
+            ],
+            "kind": "+--"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.8,
+                2
+              ],
+              [
+                3,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.5,
+              2
+            ],
+            "size": [
+              1,
+              1
+            ],
+            "label": "1/s"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                5.5,
+                2
+              ]
+            ],
+            "label": "x_1"
+          },
+          {
+            "type": "block",
+            "at": [
+              6,
+              2
+            ],
+            "size": [
+              1,
+              1
+            ],
+            "label": "1/s"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.5,
+                2
+              ],
+              [
+                7.3,
+                2
+              ]
+            ],
+            "label": "x_2"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                7.3,
+                2
+              ],
+              [
+                8.2,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5.1,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              7.3,
+              2
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                5.1,
+                2
+              ],
+              [
+                5.1,
+                3.3
+              ],
+              [
+                4,
+                3.3
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.5,
+              3.3
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "a_1"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3,
+                3.3
+              ],
+              [
+                1.5,
+                3.3
+              ],
+              [
+                1.5,
+                2.3
+              ]
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                7.3,
+                2
+              ],
+              [
+                7.3,
+                0.7
+              ],
+              [
+                4,
+                0.7
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.5,
+              0.7
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "a_2"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3,
+                0.7
+              ],
+              [
+                1.5,
+                0.7
+              ],
+              [
+                1.5,
+                1.7
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Transfer function from a state model",
+      "body": "Laplace-transform with zero initial state: $s\\mathbf{X} = \\mathbf{A}\\mathbf{X} + \\mathbf{B}U$, so $\\mathbf{X} = (s\\mathbf{I} - \\mathbf{A})^{-1}\\mathbf{B}U$. The denominator is $\\det(s\\mathbf{I} - \\mathbf{A})$: the poles are the **eigenvalues** of $\\mathbf{A}$. For 2×2 use the adjugate (swap the diagonal, negate the off-diagonal) over the determinant.\n**Example:** $\\mathbf{A} = \\begin{bmatrix} -1 & 1 \\\\ 0 & -2 \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}$, $\\mathbf{C} = [1 \\;\\; 0]$. Then $\\mathrm{adj}(s\\mathbf{I}-\\mathbf{A})\\,\\mathbf{B} = \\begin{bmatrix} 1 \\\\ s+1 \\end{bmatrix}$ and $\\det(s\\mathbf{I}-\\mathbf{A}) = (s+1)(s+2)$, so $G(s) = \\frac{1}{(s+1)(s+2)}$.",
+      "formula": "G(s) = \\mathbf{C}(s\\mathbf{I} - \\mathbf{A})^{-1}\\mathbf{B} + D"
+    },
+    {
+      "title": "Block diagram of a state model",
+      "body": "The integrator $1/s$ turns $\\dot{\\mathbf{x}}$ into $\\mathbf{x}$. $\\mathbf{A}$ feeds the states back to the integrator input, $\\mathbf{B}$ injects the input, $\\mathbf{C}$ forms the output and $D$ is a direct path that skips the dynamics. With $D \\ne 0$ the output reacts instantly to a step in $u$.",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                -0.8,
+                1
+              ],
+              [
+                0.4,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "label": "u"
+          },
+          {
+            "type": "node",
+            "at": [
+              0.4,
+              1
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              1.5,
+              1
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "B"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2,
+                1
+              ],
+              [
+                2.7,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "sum",
+            "at": [
+              3,
+              1
+            ],
+            "kind": "++"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3.3,
+                1
+              ],
+              [
+                4,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4.5,
+              1
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "1/s"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                1
+              ],
+              [
+                5.6,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5.6,
+              1
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                5.6,
+                1
+              ],
+              [
+                6.2,
+                1
+              ]
+            ],
+            "label": "x"
+          },
+          {
+            "type": "block",
+            "at": [
+              6.7,
+              1
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "C"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                7.2,
+                1
+              ],
+              [
+                7.9,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "sum",
+            "at": [
+              8.2,
+              1
+            ],
+            "kind": "+ +"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                8.5,
+                1
+              ],
+              [
+                9.3,
+                1
+              ]
+            ],
+            "label": "y"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                5.6,
+                1
+              ],
+              [
+                5.6,
+                2.2
+              ],
+              [
+                5,
+                2.2
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4.5,
+              2.2
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "A"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4,
+                2.2
+              ],
+              [
+                3,
+                2.2
+              ],
+              [
+                3,
+                1.3
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0.4,
+                1
+              ],
+              [
+                0.4,
+                -0.2
+              ],
+              [
+                4,
+                -0.2
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4.5,
+              -0.2
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "D"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                5,
+                -0.2
+              ],
+              [
+                8.2,
+                -0.2
+              ],
+              [
+                8.2,
+                0.7
+              ]
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "mdc-statespace-1",
+      "title": "States and matrices",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "State variables",
+          "body": "The **state** is the smallest set of variables that, together with the input from now on, fixes the future of the system. Natural choices are the energy stores: capacitor voltages, inductor currents, positions and velocities. An $n$th-order system has $n$ states. Collected in a vector $\\mathbf{x}$, they obey $n$ first-order equations.",
+          "formula": "\\dot{\\mathbf{x}} = \\mathbf{A}\\mathbf{x} + \\mathbf{B}\\mathbf{u}, \\qquad \\mathbf{y} = \\mathbf{C}\\mathbf{x} + \\mathbf{D}\\mathbf{u}"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {
+            "n": [
+              3,
+              4,
+              5,
+              6
+            ],
+            "m": [
+              1,
+              2
+            ],
+            "p": [
+              2,
+              3
+            ]
+          },
+          "require": "abs(n-m)*abs(n-p)*abs(m-p)",
+          "prompt": "A system has $n$ = {{n}} states, $m$ = {{m}} input(s) and $p$ = {{p}} outputs. What is the size of $\\mathbf{B}$ (rows × columns)?",
+          "options": [
+            "{{n}} × {{m}}",
+            "{{m}} × {{n}}",
+            "{{n}} × {{p}}",
+            "{{p}} × {{m}}"
+          ],
+          "answer": 0,
+          "explanation": "$\\mathbf{B}\\mathbf{u}$ is added to $\\dot{\\mathbf{x}}$, so it has {{n}} rows; it multiplies $\\mathbf{u}$ with {{m}} entries, so it has {{m}} columns: {{n}} × {{m}}. Likewise $\\mathbf{A}$ is {{n}} × {{n}}, $\\mathbf{C}$ is {{p}} × {{n}} and $\\mathbf{D}$ is {{p}} × {{m}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "From an ODE to state form",
+          "body": "Take the output and its derivatives as states. For $\\ddot y + a_1\\dot y + a_0y = b\\,u$ choose $x_1 = y$ and $x_2 = \\dot y$. Then $\\dot x_1 = x_2$ (by definition) and $\\dot x_2 = \\ddot y = -a_0x_1 - a_1x_2 + bu$ (the ODE solved for the highest derivative). Measuring $y$ gives $\\mathbf{C} = [1 \\;\\; 0]$.",
+          "formula": "\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -a_0 & -a_1 \\end{bmatrix}, \\; \\mathbf{B} = \\begin{bmatrix} 0 \\\\ b \\end{bmatrix}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "q": [
+              2,
+              4,
+              5
+            ],
+            "c1": [
+              3,
+              6,
+              8,
+              10
+            ],
+            "c0": [
+              2,
+              5,
+              6,
+              12,
+              20
+            ],
+            "d": [
+              2,
+              3,
+              4,
+              10
+            ]
+          },
+          "prompt": "Write ${{q}}\\ddot y + {{c1}}\\dot y + {{c0}}y = {{d}}u$ in state form with $x_1 = y$, $x_2 = \\dot y$.",
+          "ask": [
+            {
+              "prompt": "Find $a_{21}$, the bottom-left entry of $\\mathbf{A}$.",
+              "answer": "-c0/q",
+              "unit": "",
+              "explanation": "Divide by {{q}}: $\\ddot y = -\\frac{{{c0}}}{{{q}}}y - \\frac{{{c1}}}{{{q}}}\\dot y + \\frac{{{d}}}{{{q}}}u$. Row 2 of $\\mathbf{A}$ holds the coefficients of $x_1 = y$ and $x_2 = \\dot y$, so $a_{21} = -{{c0}}/{{q}}$ = {{-c0/q}}."
+            },
+            {
+              "prompt": "Find $a_{22}$, the bottom-right entry of $\\mathbf{A}$.",
+              "answer": "-c1/q",
+              "unit": "",
+              "explanation": "Divide by {{q}}: $\\ddot y = -\\frac{{{c0}}}{{{q}}}y - \\frac{{{c1}}}{{{q}}}\\dot y + \\frac{{{d}}}{{{q}}}u$. The coefficient of $x_2 = \\dot y$ is $a_{22} = -{{c1}}/{{q}}$ = {{-c1/q}}."
+            },
+            {
+              "prompt": "Find $b_2$, the bottom entry of $\\mathbf{B}$.",
+              "answer": "d/q",
+              "unit": "",
+              "explanation": "Divide by {{q}}: $\\ddot y = \\ldots + \\frac{{{d}}}{{{q}}}u$. The input only appears in the $\\dot x_2$ equation, so $b_1 = 0$ and $b_2$ = {{d}}/{{q}} = {{d/q}}. Forgetting to divide by the leading coefficient is the classic mistake."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "m": [
+              0.5,
+              1,
+              2,
+              4
+            ],
+            "k": [
+              2,
+              5,
+              8,
+              10,
+              20
+            ],
+            "b": [
+              0.5,
+              1,
+              2,
+              4
+            ]
+          },
+          "prompt": "A {{m}} kg mass on a spring ($k$ = {{k}} N/m) with a damper ($b$ = {{b}} N·s/m) is pushed by a force $F$. States: $x_1 = p$ (position) and $x_2 = \\dot p$ (velocity); input $u = F$.",
+          "ask": [
+            {
+              "prompt": "Find $a_{21}$.",
+              "answer": "-k/m",
+              "unit": "",
+              "explanation": "Newton: $m\\ddot p = F - kp - b\\dot p$, so $\\dot x_2 = -\\frac{k}{m}x_1 - \\frac{b}{m}x_2 + \\frac{1}{m}F$. $a_{21} = -k/m$ = −{{k}}/{{m}} = {{-k/m}}."
+            },
+            {
+              "prompt": "Find $a_{22}$.",
+              "answer": "-b/m",
+              "unit": "",
+              "explanation": "Newton: $m\\ddot p = F - kp - b\\dot p$, so $\\dot x_2 = -\\frac{k}{m}x_1 - \\frac{b}{m}x_2 + \\frac{1}{m}F$. $a_{22} = -b/m$ = −{{b}}/{{m}} = {{-b/m}}."
+            },
+            {
+              "prompt": "Find $b_2$.",
+              "answer": "1/m",
+              "unit": "",
+              "explanation": "Newton: $m\\ddot p = F - kp - b\\dot p$, so the force enters as $\\frac{1}{m}F$ in $\\dot x_2$: $b_2 = 1/m$ = {{1/m}} (and $b_1 = 0$, because $\\dot x_1 = x_2$ does not involve $F$)."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each matrix to its role.",
+          "pairs": [
+            [
+              "$\\mathbf{A}$",
+              "How the states drive each other"
+            ],
+            [
+              "$\\mathbf{B}$",
+              "How the input enters the state equations"
+            ],
+            [
+              "$\\mathbf{C}$",
+              "Which combination of states is measured"
+            ],
+            [
+              "$D$",
+              "Direct path from input to output"
+            ]
+          ],
+          "explanation": "$\\dot{\\mathbf{x}} = \\mathbf{A}\\mathbf{x} + \\mathbf{B}u$: $\\mathbf{A}$ couples the states (its eigenvalues are the poles), $\\mathbf{B}$ says where the input pushes. $y = \\mathbf{C}\\mathbf{x} + Du$: $\\mathbf{C}$ picks what the sensor sees, and $D$ passes the input straight through without any dynamics (often 0 for physical plants)."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Circuits",
+          "body": "In a circuit the energy stores give the states: one voltage per capacitor, one current per inductor. Write $C\\dot v_C$ = (current into the capacitor) from KCL and $L\\dot i_L$ = (voltage across the inductor) from KVL. Then express every current and voltage on the right in terms of states and sources only.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "C_1",
+                "value": "v_1",
+                "polarity": "+-"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "C_2",
+                "value": "v_2",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "R1": [
+              1000,
+              2000,
+              5000,
+              10000
+            ],
+            "R2": [
+              1000,
+              2000,
+              4000,
+              10000
+            ],
+            "C1": [
+              1e-06,
+              2e-06,
+              5e-06,
+              1e-05
+            ],
+            "C2": [
+              1e-06,
+              2e-06,
+              5e-06
+            ]
+          },
+          "prompt": "For the RC ladder with states $v_1$, $v_2$ (across $C_1$, $C_2$) and input $v_s$: $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}}, $C_1$ = {{C1|F}}, $C_2$ = {{C2|F}}.",
+          "ask": [
+            {
+              "prompt": "Find $a_{11}$ (in $\\mathrm{s^{-1}}$).",
+              "answer": "-1/(R1*C1) - 1/(R2*C1)",
+              "unit": "",
+              "explanation": "KCL at $C_1$: $C_1\\dot v_1 = \\frac{v_s - v_1}{R_1} - \\frac{v_1 - v_2}{R_2}$. The coefficient of $v_1$ is $-\\frac{1}{R_1C_1} - \\frac{1}{R_2C_1}$ = −{{1/(R1*C1)}} − {{1/(R2*C1)}} = {{-1/(R1*C1) - 1/(R2*C1)}} $\\mathrm{s^{-1}}$."
+            },
+            {
+              "prompt": "Find $a_{12}$ (in $\\mathrm{s^{-1}}$).",
+              "answer": "1/(R2*C1)",
+              "unit": "",
+              "explanation": "KCL at $C_1$: $C_1\\dot v_1 = \\frac{v_s - v_1}{R_1} - \\frac{v_1 - v_2}{R_2}$. The coefficient of $v_2$ is $+\\frac{1}{R_2C_1}$ = 1/({{R2|Ω}} × {{C1|F}}) = {{1/(R2*C1)}} $\\mathrm{s^{-1}}$."
+            },
+            {
+              "prompt": "Find $a_{21}$ (in $\\mathrm{s^{-1}}$).",
+              "answer": "1/(R2*C2)",
+              "unit": "",
+              "explanation": "KCL at $C_2$: $C_2\\dot v_2 = \\frac{v_1 - v_2}{R_2}$. The coefficient of $v_1$ is $\\frac{1}{R_2C_2}$ = 1/({{R2|Ω}} × {{C2|F}}) = {{1/(R2*C2)}} $\\mathrm{s^{-1}}$."
+            },
+            {
+              "prompt": "Find $b_1$ (in $\\mathrm{s^{-1}}$).",
+              "answer": "1/(R1*C1)",
+              "unit": "",
+              "explanation": "The source only drives $C_1$ through $R_1$: $C_1\\dot v_1 = \\frac{v_s}{R_1} + \\ldots$, so $b_1 = \\frac{1}{R_1C_1}$ = {{1/(R1*C1)}} $\\mathrm{s^{-1}}$ (and $b_2 = 0$)."
+            }
+          ],
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "C_1",
+                "value": "v_1",
+                "polarity": "+-"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "C_2",
+                "value": "v_2",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Every system has exactly one correct state-space model.",
+          "answer": false,
+          "explanation": "Any invertible change of variables $\\mathbf{x} = \\mathbf{T}\\mathbf{z}$ gives another valid model with the same input-output behaviour: you can scale a state (millimetres instead of metres), reorder the states, or mix them. The canonical forms are just convenient standard choices. What is fixed is the transfer function and, for a minimal model, the number of states."
+        }
+      ]
+    },
+    {
+      "id": "mdc-statespace-2",
+      "title": "Canonical forms and G(s)",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Control canonical form",
+          "body": "A transfer function can be turned into a state model by reading off its coefficients. With a **monic** denominator $s^2 + a_1s + a_2$ and numerator $b_1s + b_2$, the control canonical form puts the negated denominator coefficients in the top row of $\\mathbf{A}_c$. The input enters only the first integrator, and the numerator coefficients weight the states in the output: $\\mathbf{C}_c = [b_1 \\;\\; b_2]$.",
+          "formula": "\\mathbf{A}_c = \\begin{bmatrix} -a_1 & -a_2 \\\\ 1 & 0 \\end{bmatrix}, \\; \\mathbf{B}_c = \\begin{bmatrix} 1 \\\\ 0 \\end{bmatrix}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1.2,
+                    2
+                  ]
+                ],
+                "label": "u"
+              },
+              {
+                "type": "sum",
+                "at": [
+                  1.5,
+                  2
+                ],
+                "kind": "+--"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.8,
+                    2
+                  ],
+                  [
+                    3,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.5,
+                  2
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "1/s"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ],
+                "label": "x_1"
+              },
+              {
+                "type": "block",
+                "at": [
+                  6,
+                  2
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "1/s"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.5,
+                    2
+                  ],
+                  [
+                    7.3,
+                    2
+                  ]
+                ],
+                "label": "x_2"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    7.3,
+                    2
+                  ],
+                  [
+                    8.2,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.1,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  7.3,
+                  2
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    5.1,
+                    2
+                  ],
+                  [
+                    5.1,
+                    3.3
+                  ],
+                  [
+                    4,
+                    3.3
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.5,
+                  3.3
+                ],
+                "size": [
+                  1,
+                  0.8
+                ],
+                "label": "a_1"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    3,
+                    3.3
+                  ],
+                  [
+                    1.5,
+                    3.3
+                  ],
+                  [
+                    1.5,
+                    2.3
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    7.3,
+                    2
+                  ],
+                  [
+                    7.3,
+                    0.7
+                  ],
+                  [
+                    4,
+                    0.7
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.5,
+                  0.7
+                ],
+                "size": [
+                  1,
+                  0.8
+                ],
+                "label": "a_2"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    3,
+                    0.7
+                  ],
+                  [
+                    1.5,
+                    0.7
+                  ],
+                  [
+                    1.5,
+                    1.7
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {
+            "a1": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "a2": [
+              1,
+              2,
+              3,
+              4,
+              6,
+              8,
+              10,
+              12
+            ],
+            "b1": [
+              2,
+              3
+            ],
+            "b2": [
+              1,
+              2,
+              4,
+              5,
+              6
+            ]
+          },
+          "require": "abs(a1-a2)*abs(b1*a1 - b2*a2 - b2)",
+          "prompt": "Which $\\mathbf{A}$, together with $\\mathbf{B} = \\begin{bmatrix} 1 \\\\ 0 \\end{bmatrix}$ and $\\mathbf{C} = [{{b1}} \\;\\; {{b2}}]$, realizes $G(s) = \\frac{{{b1}}s + {{b2}}}{s^2 + {{a1}}s + {{a2}}}$?",
+          "options": [
+            "$\\begin{bmatrix} -{{a1}} & -{{a2}} \\\\ 1 & 0 \\end{bmatrix}$",
+            "$\\begin{bmatrix} {{a1}} & {{a2}} \\\\ 1 & 0 \\end{bmatrix}$",
+            "$\\begin{bmatrix} -{{a2}} & -{{a1}} \\\\ 1 & 0 \\end{bmatrix}$",
+            "$\\begin{bmatrix} 0 & 1 \\\\ -{{a2}} & -{{a1}} \\end{bmatrix}$"
+          ],
+          "answer": 0,
+          "explanation": "This is the control canonical form: top row $[-a_1 \\;\\; -a_2]$ = [−{{a1}}  −{{a2}}] in rising order of the subscript, and $[1 \\;\\; 0]$ below it ($\\dot x_2 = x_1$). Then $\\det(s\\mathbf{I} - \\mathbf{A}) = s^2 + {{a1}}s + {{a2}}$. Positive signs would give poles in the right half-plane, swapped coefficients the wrong polynomial, and the bottom-row (phase-variable) layout only works with $\\mathbf{B} = [0 \\;\\; 1]^T$ and $\\mathbf{C} = [b_2 \\;\\; b_1]$."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Observer canonical form",
+          "body": "Transposing gives a second standard realization: $\\mathbf{A}_o = \\mathbf{A}_c^T$, $\\mathbf{B}_o = \\mathbf{C}_c^T$, $\\mathbf{C}_o = \\mathbf{B}_c^T$. Now the numerator enters through $\\mathbf{B}_o$ and the output is simply the first state, $\\mathbf{C}_o = [1 \\;\\; 0]$. The transfer function is the same, because $G(s)$ is a scalar and equals its own transpose.",
+          "formula": "\\mathbf{A}_o = \\begin{bmatrix} -a_1 & 1 \\\\ -a_2 & 0 \\end{bmatrix}, \\; \\mathbf{B}_o = \\begin{bmatrix} b_1 \\\\ b_2 \\end{bmatrix}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "k": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "n1": [
+              2,
+              3,
+              5,
+              7
+            ],
+            "n0": [
+              1,
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "a1": [
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "a2": [
+              2,
+              4,
+              6,
+              10,
+              12
+            ]
+          },
+          "prompt": "Realize $G(s) = \\frac{{{n1}}s + {{n0}}}{{{k}}s^2 + {{k*a1}}s + {{k*a2}}}$ in observer canonical form.",
+          "ask": [
+            {
+              "prompt": "Find the bottom-left entry of $\\mathbf{A}_o$.",
+              "answer": "-a2",
+              "unit": "",
+              "explanation": "First make the denominator monic: divide top and bottom by {{k}}, giving $\\frac{ {{n1/k}}s + {{n0/k}} }{s^2 + {{a1}}s + {{a2}}}$. The first column of $\\mathbf{A}_o$ is $[-a_1 \\;\\; -a_2]^T$, so the bottom-left entry is −{{a2}}."
+            },
+            {
+              "prompt": "Find the top entry of $\\mathbf{B}_o$.",
+              "answer": "n1/k",
+              "unit": "",
+              "explanation": "Divide top and bottom by {{k}}: $\\frac{ {{n1/k}}s + {{n0/k}} }{s^2 + {{a1}}s + {{a2}}}$. $\\mathbf{B}_o = [b_1 \\;\\; b_2]^T$ holds the numerator, so the top entry is $b_1$ = {{n1}}/{{k}} = {{n1/k}}."
+            },
+            {
+              "prompt": "Find the bottom entry of $\\mathbf{B}_o$.",
+              "answer": "n0/k",
+              "unit": "",
+              "explanation": "Divide top and bottom by {{k}}: $\\frac{ {{n1/k}}s + {{n0/k}} }{s^2 + {{a1}}s + {{a2}}}$. $\\mathbf{B}_o = [b_1 \\;\\; b_2]^T$, so the bottom entry is $b_2$ = {{n0}}/{{k}} = {{n0/k}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "The control and the observer canonical form of the same $G(s)$ have the same eigenvalues.",
+          "answer": true,
+          "explanation": "$\\mathbf{A}_o = \\mathbf{A}_c^T$, and a matrix and its transpose have the same characteristic polynomial: $\\det(s\\mathbf{I} - \\mathbf{A}^T) = \\det\\big((s\\mathbf{I} - \\mathbf{A})^T\\big) = \\det(s\\mathbf{I} - \\mathbf{A})$. Both have the poles of $G(s)$ as eigenvalues."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Back to a transfer function",
+          "body": "For a 2×2 model, $(s\\mathbf{I} - \\mathbf{A})^{-1} = \\frac{1}{\\Delta(s)}\\begin{bmatrix} s - a_{22} & a_{12} \\\\ a_{21} & s - a_{11} \\end{bmatrix}$ with $\\Delta(s) = s^2 - \\mathrm{tr}(\\mathbf{A})\\,s + \\det\\mathbf{A}$. The numerator is $\\mathbf{C}\\,\\mathrm{adj}(s\\mathbf{I}-\\mathbf{A})\\,\\mathbf{B}$. With $\\mathbf{B} = [1 \\;\\; 0]^T$ only the first column of the adjugate matters.",
+          "formula": "G(s) = \\frac{\\mathbf{C}\\,\\mathrm{adj}(s\\mathbf{I}-\\mathbf{A})\\,\\mathbf{B}}{\\det(s\\mathbf{I}-\\mathbf{A})} + D"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a11": [
+              -1,
+              -2,
+              -3,
+              -4
+            ],
+            "a12": [
+              1,
+              2,
+              3
+            ],
+            "a21": [
+              -2,
+              -1,
+              1,
+              2
+            ],
+            "a22": [
+              -1,
+              -2,
+              -3,
+              -5
+            ],
+            "c1": [
+              1,
+              2
+            ],
+            "c2": [
+              -1,
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "dt": "a11*a22 - a12*a21",
+            "b0": "-c1*a22 + c2*a21"
+          },
+          "require": "max(dt, 0)*abs(b0)",
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} {{a11}} & {{a12}} \\\\ {{a21}} & {{a22}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 1 \\\\ 0 \\end{bmatrix}$, $\\mathbf{C} = [{{c1}} \\;\\; {{c2}}]$, $D = 0$. Write $G(s) = \\frac{\\beta_1s + \\beta_0}{s^2 + \\alpha_1s + \\alpha_0}$.",
+          "ask": [
+            {
+              "prompt": "Find $\\beta_0$.",
+              "answer": "b0",
+              "unit": "",
+              "explanation": "The first column of $\\mathrm{adj}(s\\mathbf{I}-\\mathbf{A})$ is $[s - a_{22} \\;\\; a_{21}]^T$ = $[s + {{-a22}} \\;\\; {{a21}}]^T$. Multiply by $\\mathbf{C}$: ${{c1}}(s + {{-a22}}) + ({{c2}})({{a21}})$. The constant term is $\\beta_0$ = {{c1*(-a22)}} + ({{c2*a21}}) = {{b0}}."
+            },
+            {
+              "prompt": "Find the DC gain $G(0)$.",
+              "answer": "b0/dt",
+              "unit": "",
+              "explanation": "Numerator: $c_1(s - a_{22}) + c_2a_{21}$, which at $s = 0$ is {{c1}}·({{-a22}}) + ({{c2}})·({{a21}}) = {{b0}}. Denominator at $s = 0$: $\\det\\mathbf{A}$ = ({{a11}})({{a22}}) − ({{a12}})({{a21}}) = {{dt}}. $G(0)$ = {{b0}}/{{dt}} = {{b0/dt}}.",
+              "absTolerance": 0.005
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "D": [
+              2,
+              3
+            ],
+            "b1": [
+              -1,
+              1,
+              2,
+              3
+            ],
+            "b2": [
+              1,
+              2,
+              4,
+              5
+            ],
+            "a1": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "a2": [
+              1,
+              2,
+              3,
+              6
+            ]
+          },
+          "require": "abs(a1-a2)",
+          "prompt": "$G(s) = \\frac{{{D}}s^2 + {{D*a1+b1}}s + {{D*a2+b2}}}{s^2 + {{a1}}s + {{a2}}}$ has numerator and denominator of the same degree, so $D \\ne 0$. Realize it in control canonical form.",
+          "ask": [
+            {
+              "prompt": "Find $D$.",
+              "answer": "D",
+              "unit": "",
+              "explanation": "Divide: $G(s) = D + \\frac{b_1s + b_2}{s^2 + {{a1}}s + {{a2}}}$. The ratio of the leading coefficients gives $D$ = {{D}}; it is the value of $G$ at very high frequency, the direct feedthrough."
+            },
+            {
+              "prompt": "Find the first entry $b_1$ of $\\mathbf{C}_c$.",
+              "answer": "b1",
+              "unit": "",
+              "explanation": "Subtract $D(s^2 + {{a1}}s + {{a2}})$ = ${{D}}s^2 + {{D*a1}}s + {{D*a2}}$ from the numerator: the remainder is $({{D*a1+b1}} - {{D*a1}})s + ({{D*a2+b2}} - {{D*a2}})$ = ${{b1}}s + {{b2}}$. So $b_1$ = {{b1}}."
+            },
+            {
+              "prompt": "Find the second entry $b_2$ of $\\mathbf{C}_c$.",
+              "answer": "b2",
+              "unit": "",
+              "explanation": "Remainder after removing $D$ = {{D}}: $({{D*a2+b2}} - {{D}}\\cdot{{a2}})$ = {{b2}} is the constant term, so $b_2$ = {{b2}}."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps for realizing $G(s) = \\frac{6s^2 + 9s + 12}{3s^2 + 3s + 6}$ in control canonical form in order.",
+          "items": [
+            "Divide numerator and denominator by 3 to make the denominator monic",
+            "Split off $D = 2$ by polynomial division, leaving the remainder $s + 0$",
+            "Put $-1$ and $-2$ in the top row of $\\mathbf{A}_c$ and the remainder coefficients $[1 \\;\\; 0]$ in $\\mathbf{C}_c$",
+            "Check that $\\mathbf{C}_c(s\\mathbf{I} - \\mathbf{A}_c)^{-1}\\mathbf{B}_c + D$ gives back $G(s)$"
+          ],
+          "explanation": "Monic: $\\frac{2s^2 + 3s + 4}{s^2 + s + 2}$. Division: $2 + \\frac{s + 0}{s^2 + s + 2}$, so $D = 2$. Then $\\mathbf{A}_c = \\begin{bmatrix} -1 & -2 \\\\ 1 & 0 \\end{bmatrix}$, $\\mathbf{B}_c = [1 \\;\\; 0]^T$ and $\\mathbf{C}_c = [1 \\;\\; 0]$: the remainder, not the original numerator. Check: $\\mathbf{C}_c(s\\mathbf{I} - \\mathbf{A}_c)^{-1}\\mathbf{B}_c = \\frac{s}{s^2 + s + 2}$, and adding $D = 2$ gives $G(s)$ back."
+        }
+      ]
+    },
+    {
+      "id": "mdc-statespace-3",
+      "title": "Building models",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "b2": [
+              2,
+              3,
+              4
+            ],
+            "b3": [
+              2,
+              5,
+              6,
+              10
+            ],
+            "a1": [
+              2,
+              3,
+              4,
+              6
+            ],
+            "a2": [
+              3,
+              5,
+              8,
+              11
+            ],
+            "a3": [
+              1,
+              2,
+              4,
+              6
+            ]
+          },
+          "prompt": "Realize $G(s) = \\frac{{{b2}}s + {{b3}}}{s^3 + {{a1}}s^2 + {{a2}}s + {{a3}}}$ in control canonical form: $\\mathbf{A}_c$ is 3×3, $\\mathbf{B}_c = [1 \\;\\; 0 \\;\\; 0]^T$, $\\mathbf{C}_c = [b_1 \\;\\; b_2 \\;\\; b_3]$.",
+          "ask": [
+            {
+              "prompt": "Find the entry in row 1, column 2 of $\\mathbf{A}_c$.",
+              "answer": "-a2",
+              "unit": "",
+              "explanation": "The top row of $\\mathbf{A}_c$ is $[-a_1 \\;\\; -a_2 \\;\\; -a_3]$ = [−{{a1}}  −{{a2}}  −{{a3}}]; rows 2 and 3 are $[1 \\;\\; 0 \\;\\; 0]$ and $[0 \\;\\; 1 \\;\\; 0]$. Row 1, column 2: −{{a2}}."
+            },
+            {
+              "prompt": "Find the entry in row 1, column 3 of $\\mathbf{A}_c$.",
+              "answer": "-a3",
+              "unit": "",
+              "explanation": "Top row: $[-a_1 \\;\\; -a_2 \\;\\; -a_3]$ = [−{{a1}}  −{{a2}}  −{{a3}}]. Row 1, column 3 is −{{a3}}."
+            },
+            {
+              "prompt": "Find $b_1$, the first entry of $\\mathbf{C}_c$.",
+              "answer": "0",
+              "unit": "",
+              "explanation": "Write the numerator as $b_1s^2 + b_2s + b_3$ = $0\\cdot s^2 + {{b2}}s + {{b3}}$. There is no $s^2$ term, so $b_1 = 0$ and $\\mathbf{C}_c = [0 \\;\\; {{b2}} \\;\\; {{b3}}]$.",
+              "absTolerance": 0.01
+            },
+            {
+              "prompt": "Find $b_3$, the last entry of $\\mathbf{C}_c$.",
+              "answer": "b3",
+              "unit": "",
+              "explanation": "Numerator $0\\cdot s^2 + {{b2}}s + {{b3}}$, so $\\mathbf{C}_c = [0 \\;\\; {{b2}} \\;\\; {{b3}}]$ and $b_3$ = {{b3}}."
+            }
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "R": [
+              10,
+              20,
+              50,
+              100
+            ],
+            "L": [
+              0.01,
+              0.02,
+              0.05,
+              0.1
+            ],
+            "C": [
+              0.0001,
+              0.0002,
+              0.00047,
+              0.001
+            ]
+          },
+          "prompt": "Parallel RLC driven by a current source, with $R$ = {{R|Ω}}, $C$ = {{C|F}} and $L$ = {{L|H}}. States $\\mathbf{x} = [v_C \\;\\; i_L]^T$, input $i_s$.",
+          "ask": [
+            {
+              "prompt": "Find $a_{11}$ (in $\\mathrm{s^{-1}}$).",
+              "answer": "-1/(R*C)",
+              "unit": "",
+              "explanation": "KCL at the top node: $i_s = \\frac{v_C}{R} + C\\dot v_C + i_L$, so $\\dot v_C = -\\frac{1}{RC}v_C - \\frac{1}{C}i_L + \\frac{1}{C}i_s$. $a_{11} = -\\frac{1}{RC}$ = −1/({{R}} × {{C|F}}) = {{-1/(R*C)}} $\\mathrm{s^{-1}}$."
+            },
+            {
+              "prompt": "Find $a_{12}$.",
+              "answer": "-1/C",
+              "unit": "",
+              "explanation": "From KCL, $\\dot v_C = -\\frac{1}{RC}v_C - \\frac{1}{C}i_L + \\frac{1}{C}i_s$. $a_{12} = -1/C$ = {{-1/C}} (in V/(A·s)). The inductor current leaves the node, hence the minus sign."
+            },
+            {
+              "prompt": "Find $a_{21}$.",
+              "answer": "1/L",
+              "unit": "",
+              "explanation": "The inductor sees the node voltage: $L\\dot i_L = v_C$, so $a_{21} = 1/L$ = {{1/L}} (in A/(V·s)) and $a_{22} = 0$."
+            },
+            {
+              "prompt": "Find $b_1$.",
+              "answer": "1/C",
+              "unit": "",
+              "explanation": "The source current flows into the node: $\\dot v_C = \\ldots + \\frac{1}{C}i_s$, so $b_1 = 1/C$ = {{1/C}} (and $b_2 = 0$)."
+            }
+          ],
+          "circuit": {
+            "elements": [
+              {
+                "type": "isource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "i_s"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    6,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "C",
+                "value": "v_C",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    0
+                  ],
+                  [
+                    6,
+                    0.7
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  6,
+                  0.1
+                ],
+                "to": [
+                  6,
+                  0.6
+                ],
+                "label": "i_L"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  6,
+                  0.7
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "L"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "p3",
+          "type": "multipleChoice",
+          "prompt": "A circuit contains two capacitors connected **directly in parallel**, a resistor and an inductor. How many state variables does a minimal model need?",
+          "options": [
+            "2",
+            "3",
+            "1",
+            "4"
+          ],
+          "answer": 0,
+          "explanation": "Two capacitors in parallel always share one voltage, so they act as one capacitor $C_1 + C_2$ and give only one independent state. Together with the inductor current that makes 2 states. Counting every energy-storage element (3) gives a model that is not minimal."
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {
+            "a11": [
+              -1,
+              -2,
+              -3
+            ],
+            "a12": [
+              1,
+              2,
+              4
+            ],
+            "a21": [
+              -2,
+              -1,
+              0,
+              1
+            ],
+            "a22": [
+              -2,
+              -3,
+              -4
+            ],
+            "c1": [
+              1,
+              2,
+              3
+            ],
+            "c2": [
+              1,
+              2
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} {{a11}} & {{a12}} \\\\ {{a21}} & {{a22}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}$, $\\mathbf{C} = [{{c1}} \\;\\; {{c2}}]$, $D = 0$. $G(s)$ has one zero. Where is it?",
+          "answer": "a11 - c1*a12/c2",
+          "unit": "",
+          "absTolerance": 0.01,
+          "explanation": "With $\\mathbf{B} = [0 \\;\\; 1]^T$ only the second column of $\\mathrm{adj}(s\\mathbf{I} - \\mathbf{A})$ matters: $[a_{12} \\;\\; s - a_{11}]^T$ = $[{{a12}} \\;\\; s + {{-a11}}]^T$. The numerator is ${{c1}}\\cdot{{a12}} + {{c2}}(s + {{-a11}})$, which is zero at $s = a_{11} - \\frac{c_1a_{12}}{c_2}$ = {{a11 - c1*a12/c2}}. The zeros depend on $\\mathbf{B}$ and $\\mathbf{C}$, the poles only on $\\mathbf{A}$.",
+          "derived": {
+            "zz": "a11 - c1*a12/c2"
+          },
+          "require": "abs(zz^2 - (a11 + a22)*zz + a11*a22 - a12*a21)"
+        },
+        {
+          "id": "p5",
+          "type": "slider",
+          "params": {
+            "m": [
+              1,
+              2
+            ],
+            "k": [
+              4,
+              9,
+              16
+            ]
+          },
+          "derived": {
+            "bc": "2*sqrt(k*m)"
+          },
+          "prompt": "A {{m}} kg mass on a spring ($k$ = {{k}} N/m). The plot shows the eigenvalues of its $\\mathbf{A}$ matrix. Set the damper $b$ so that $\\mathbf{A}$ has a **double** eigenvalue (critical damping).",
+          "plot": {
+            "x": {
+              "min": -8,
+              "max": 1,
+              "label": "Re(s)"
+            },
+            "y": {
+              "min": -5,
+              "max": 5,
+              "label": "Im(s)"
+            },
+            "equal": true,
+            "height": 240,
+            "sliders": [
+              {
+                "name": "b",
+                "label": "damper $b$ (N·s/m)",
+                "min": 0.2,
+                "max": 16,
+                "step": 0.05,
+                "value": 0.5
+              }
+            ],
+            "let": {
+              "ds": "b^2 - 4*k*m",
+              "sr": "sqrt(abs(ds))",
+              "re1": "(-b + if(ds, sr, 0))/(2*m)",
+              "re2": "(-b - if(ds, sr, 0))/(2*m)",
+              "im": "if(ds, 0, sr/(2*m))"
+            },
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0
+              }
+            ],
+            "points": [
+              {
+                "x": "re1",
+                "y": "im",
+                "marker": "x",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": "re2",
+                "y": "-im",
+                "marker": "x",
+                "guides": false,
+                "color": "red"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "Re $\\lambda_1$",
+                "value": "re1"
+              },
+              {
+                "label": "Re $\\lambda_2$",
+                "value": "re2"
+              },
+              {
+                "label": "$|\\mathrm{Im}\\,\\lambda|$",
+                "value": "im"
+              },
+              {
+                "label": "$\\zeta = b/(2\\sqrt{km})$",
+                "value": "b/(2*sqrt(k*m))",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "b": "bc"
+          },
+          "tolerance": 0.02,
+          "explanation": "$\\det(s\\mathbf{I} - \\mathbf{A}) = s^2 + \\frac{b}{m}s + \\frac{k}{m}$. A double root needs a zero discriminant: $\\left(\\frac{b}{m}\\right)^2 = \\frac{4k}{m}$, so $b = 2\\sqrt{km}$ = 2√({{k}} × {{m}}) = {{bc}} N·s/m. Both eigenvalues then sit at $-\\frac{b}{2m}$ = {{-bc/(2*m)}}. Less damping splits them into a complex pair, more damping into two real ones."
+        },
+        {
+          "id": "p6",
+          "type": "numeric",
+          "params": {
+            "J": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "bm": [
+              0.05,
+              0.1,
+              0.2
+            ],
+            "Kt": [
+              0.05,
+              0.1,
+              0.5
+            ]
+          },
+          "prompt": "A DC motor with inertia $J$ = {{J}} kg·m², friction $b$ = {{bm}} N·m·s and torque constant $K_t$ = {{Kt}} N·m/A obeys $J\\dot\\omega = -b\\omega + K_ti$. States $\\mathbf{x} = [\\theta \\;\\; \\omega]^T$, input: the current $i$.",
+          "ask": [
+            {
+              "prompt": "Find $a_{22}$ (in $\\mathrm{s^{-1}}$).",
+              "answer": "-bm/J",
+              "unit": "",
+              "explanation": "$\\dot\\theta = \\omega$ gives row 1 = $[0 \\;\\; 1]$. Row 2: $\\dot\\omega = -\\frac{b}{J}\\omega + \\frac{K_t}{J}i$, so $a_{22} = -b/J$ = −{{bm}}/{{J}} = {{-bm/J}} $\\mathrm{s^{-1}}$."
+            },
+            {
+              "prompt": "Find $b_2$.",
+              "answer": "Kt/J",
+              "unit": "",
+              "explanation": "$\\dot\\omega = -\\frac{b}{J}\\omega + \\frac{K_t}{J}i$, so $b_2 = K_t/J$ = {{Kt}}/{{J}} = {{Kt/J}} (rad/s² per A)."
+            },
+            {
+              "prompt": "With the speed as output, $\\mathbf{C} = [0 \\;\\; 1]$, find the DC gain $\\omega_{ss}/i$ (in rad/s per A).",
+              "answer": "Kt/bm",
+              "unit": "",
+              "explanation": "$G(s) = \\frac{K_t/J}{s + b/J}$, so $G(0) = \\frac{K_t}{b}$ = {{Kt}}/{{bm}} = {{Kt/bm}} rad/s per A. In steady state the motor torque $K_ti$ balances the friction torque $b\\omega$."
+            }
+          ]
+        },
+        {
+          "id": "p7",
+          "type": "matchPairs",
+          "prompt": "Match each system to its natural state variables.",
+          "pairs": [
+            [
+              "RLC filter",
+              "Capacitor voltages and inductor currents"
+            ],
+            [
+              "Mass-spring-damper",
+              "Position and velocity"
+            ],
+            [
+              "DC motor driven by a current",
+              "Shaft angle and speed"
+            ],
+            [
+              "Heated block",
+              "Its temperature"
+            ]
+          ],
+          "explanation": "States are the quantities that store energy or matter: electric ($\\frac{1}{2}Cv^2$, $\\frac{1}{2}Li^2$), mechanical (spring compression and kinetic energy), rotational (angle and $\\frac{1}{2}J\\omega^2$) and thermal (heat stored as $C_{th}T$). Their initial values determine the future."
+        }
+      ]
+    },
+    {
+      "id": "mdc-statespace-4",
+      "title": "Models and transfer functions",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "R1": [
+              10000,
+              20000,
+              50000,
+              100000
+            ],
+            "R2": [
+              10000,
+              20000,
+              50000,
+              100000
+            ],
+            "C1": [
+              1e-06,
+              2e-06,
+              5e-06,
+              1e-05
+            ],
+            "C2": [
+              1e-06,
+              2e-06,
+              5e-06,
+              1e-05
+            ]
+          },
+          "prompt": "RC ladder with $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}}, $C_1$ = {{C1|F}}, $C_2$ = {{C2|F}}, output $y = v_2$. Its transfer function is $G(s) = \\frac{\\alpha_0}{s^2 + \\alpha_1s + \\alpha_0}$.",
+          "ask": [
+            {
+              "prompt": "Find $\\alpha_1$ (in $\\mathrm{s^{-1}}$).",
+              "answer": "1/(R1*C1) + 1/(R2*C1) + 1/(R2*C2)",
+              "unit": "",
+              "explanation": "$\\alpha_1 = -\\mathrm{tr}(\\mathbf{A}) = \\frac{1}{R_1C_1} + \\frac{1}{R_2C_1} + \\frac{1}{R_2C_2}$ = {{1/(R1*C1)}} + {{1/(R2*C1)}} + {{1/(R2*C2)}} = {{1/(R1*C1) + 1/(R2*C1) + 1/(R2*C2)}} $\\mathrm{s^{-1}}$."
+            },
+            {
+              "prompt": "Find $\\alpha_0$ (in $\\mathrm{s^{-2}}$).",
+              "answer": "1/(R1*R2*C1*C2)",
+              "unit": "",
+              "explanation": "$\\alpha_0 = \\det\\mathbf{A} = \\left(\\frac{1}{R_1C_1} + \\frac{1}{R_2C_1}\\right)\\frac{1}{R_2C_2}$ $- \\frac{1}{R_2C_1}\\cdot\\frac{1}{R_2C_2} = \\frac{1}{R_1R_2C_1C_2}$ = {{1/(R1*R2*C1*C2)}} $\\mathrm{s^{-2}}$. The numerator is the same number, so the DC gain is 1: at DC no current flows and $v_2 = v_s$."
+            }
+          ],
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "C_1",
+                "value": "v_1",
+                "polarity": "+-"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "C_2",
+                "value": "v_2",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "a11": [
+              -2,
+              -3,
+              -4
+            ],
+            "a12": [
+              1,
+              2
+            ],
+            "a21": [
+              1,
+              -1,
+              2
+            ],
+            "a22": [
+              -1,
+              -2,
+              -5
+            ],
+            "b1": [
+              1,
+              0,
+              2
+            ],
+            "b2": [
+              1,
+              2,
+              -1
+            ],
+            "c1": [
+              1,
+              2
+            ],
+            "c2": [
+              0,
+              1,
+              -1
+            ],
+            "D": [
+              0,
+              0.5,
+              1
+            ]
+          },
+          "derived": {
+            "dt": "a11*a22 - a12*a21"
+          },
+          "require": "max(dt, 0)*abs(D - (c1*(a22*b1 - a12*b2) + c2*(a11*b2 - a21*b1))/dt)",
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} {{a11}} & {{a12}} \\\\ {{a21}} & {{a22}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} {{b1}} \\\\ {{b2}} \\end{bmatrix}$, $\\mathbf{C} = [{{c1}} \\;\\; {{c2}}]$, $D$ = {{D}}. Find the DC gain $G(0)$.",
+          "answer": "D - (c1*(a22*b1 - a12*b2) + c2*(a11*b2 - a21*b1))/dt",
+          "unit": "",
+          "absTolerance": 0.005,
+          "explanation": "At $s = 0$: $G(0) = -\\mathbf{C}\\mathbf{A}^{-1}\\mathbf{B} + D$ (the steady state of $\\dot{\\mathbf{x}} = \\mathbf{0}$ is $\\mathbf{x}_{ss} = -\\mathbf{A}^{-1}\\mathbf{B}u$).\n$\\det\\mathbf{A}$ = ({{a11}})({{a22}}) − ({{a12}})({{a21}}) = {{dt}}, and $\\mathbf{A}^{-1}\\mathbf{B} = \\frac{1}{\\det\\mathbf{A}}\\begin{bmatrix} a_{22}b_1 - a_{12}b_2 \\\\ a_{11}b_2 - a_{21}b_1 \\end{bmatrix}$ = $\\frac{1}{ {{dt}} }\\begin{bmatrix} {{a22*b1 - a12*b2}} \\\\ {{a11*b2 - a21*b1}} \\end{bmatrix}$.\n$G(0)$ = {{D}} − ({{c1}}·({{a22*b1 - a12*b2}}) + ({{c2}})·({{a11*b2 - a21*b1}}))/{{dt}} = {{D - (c1*(a22*b1 - a12*b2) + c2*(a11*b2 - a21*b1))/dt}}."
+        },
+        {
+          "id": "c3",
+          "type": "multipleChoice",
+          "prompt": "Which model does **not** realize $G(s) = \\frac{1}{(s+1)(s+2)}$?",
+          "options": [
+            "$\\mathbf{A} = \\begin{bmatrix} -1 & 0 \\\\ 0 & -2 \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 1 \\\\ 1 \\end{bmatrix}$, $\\mathbf{C} = [1 \\;\\; 1]$",
+            "$\\mathbf{A} = \\begin{bmatrix} -3 & -2 \\\\ 1 & 0 \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 1 \\\\ 0 \\end{bmatrix}$, $\\mathbf{C} = [0 \\;\\; 1]$",
+            "$\\mathbf{A} = \\begin{bmatrix} -3 & 1 \\\\ -2 & 0 \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}$, $\\mathbf{C} = [1 \\;\\; 0]$",
+            "$\\mathbf{A} = \\begin{bmatrix} -1 & 1 \\\\ 0 & -2 \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}$, $\\mathbf{C} = [1 \\;\\; 0]$"
+          ],
+          "answer": 0,
+          "explanation": "Check each one with $\\mathbf{C}(s\\mathbf{I}-\\mathbf{A})^{-1}\\mathbf{B}$:\n- Diagonal model: $\\frac{1}{s+1} + \\frac{1}{s+2} = \\frac{2s+3}{(s+1)(s+2)}$. Wrong numerator; $\\mathbf{C} = [1 \\;\\; -1]$ would have worked.\n- Control canonical form of $\\frac{0\\cdot s + 1}{s^2 + 3s + 2}$: correct.\n- Observer canonical form with $\\mathbf{B}_o = [0 \\;\\; 1]^T$: correct.\n- Triangular model: $\\frac{1}{(s+1)(s+2)}$, correct (the worked example on the study card)."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              1,
+              2
+            ],
+            "p2": [
+              3,
+              4
+            ],
+            "p3": [
+              5,
+              10
+            ],
+            "K": [
+              5,
+              10,
+              20,
+              50
+            ]
+          },
+          "prompt": "Realize $G(s) = \\frac{{{K}}}{(s+{{p1}})(s+{{p2}})(s+{{p3}})}$ in control canonical form ($\\mathbf{B}_c = [1 \\;\\; 0 \\;\\; 0]^T$).",
+          "ask": [
+            {
+              "prompt": "Find the entry in row 1, column 2 of $\\mathbf{A}_c$.",
+              "answer": "-(p1*p2 + p1*p3 + p2*p3)",
+              "unit": "",
+              "explanation": "Multiply out: $s^3 + a_1s^2 + a_2s + a_3$ with $a_1$ = {{p1+p2+p3}}, $a_2 = p_1p_2 + p_1p_3 + p_2p_3$ = {{p1*p2 + p1*p3 + p2*p3}}, $a_3 = p_1p_2p_3$ = {{p1*p2*p3}}. Row 1 of $\\mathbf{A}_c$ is $[-a_1 \\;\\; -a_2 \\;\\; -a_3]$, so the entry is −{{p1*p2 + p1*p3 + p2*p3}}."
+            },
+            {
+              "prompt": "Find the entry in row 1, column 3 of $\\mathbf{A}_c$.",
+              "answer": "-p1*p2*p3",
+              "unit": "",
+              "explanation": "The constant term of the denominator is $a_3 = p_1p_2p_3$ = {{p1}}·{{p2}}·{{p3}} = {{p1*p2*p3}}, so the entry is −{{p1*p2*p3}}."
+            },
+            {
+              "prompt": "Find the last entry of $\\mathbf{C}_c$.",
+              "answer": "K",
+              "unit": "",
+              "explanation": "The numerator is $0\\cdot s^2 + 0\\cdot s + {{K}}$, so $\\mathbf{C}_c = [0 \\;\\; 0 \\;\\; {{K}}]$: the output is {{K}} times the last state."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "R": [
+              10,
+              22,
+              47,
+              100
+            ],
+            "L": [
+              0.01,
+              0.022,
+              0.047,
+              0.1
+            ],
+            "C": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ]
+          },
+          "prompt": "In a series RLC circuit ($R$ = {{R|Ω}}, $L$ = {{L|H}}, $C$ = {{C|F}}) the output is the resistor voltage, $y = Ri_L$. States $[v_C \\;\\; i_L]^T$, input $v_s$.",
+          "ask": [
+            {
+              "prompt": "$G(s) = \\frac{\\beta_1 s}{s^2 + \\alpha_1 s + \\alpha_0}$. Find $\\beta_1$ (in $\\mathrm{s^{-1}}$).",
+              "answer": "R/L",
+              "unit": "",
+              "explanation": "$\\mathbf{A} = \\begin{bmatrix} 0 & \\frac{1}{C} \\\\ -\\frac{1}{L} & -\\frac{R}{L} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ \\frac{1}{L} \\end{bmatrix}$, $\\mathbf{C} = [0 \\;\\; R]$. The second column of the adjugate is $[\\frac{1}{C} \\;\\; s]^T$, so the numerator is $R\\cdot s\\cdot\\frac{1}{L}$: $\\beta_1 = R/L$ = {{R/L}} $\\mathrm{s^{-1}}$."
+            },
+            {
+              "prompt": "Find $|G(j\\omega_0)|$ at $\\omega_0 = 1/\\sqrt{LC}$.",
+              "answer": "1",
+              "unit": "",
+              "explanation": "$G(s) = \\frac{(R/L)s}{s^2 + (R/L)s + 1/(LC)}$. At $s = j\\omega_0$ the terms $-\\omega_0^2$ and $1/(LC)$ cancel, leaving $\\frac{(R/L)j\\omega_0}{(R/L)j\\omega_0} = 1$. At resonance the $L$ and $C$ impedances cancel and the whole source voltage appears across $R$: a band-pass filter."
+            }
+          ],
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "value": "v_R = y",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  2.1,
+                  0
+                ],
+                "to": [
+                  2.9,
+                  0
+                ],
+                "label": "i_L"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  5,
+                  0
+                ],
+                "label": "L"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  5,
+                  0
+                ],
+                "to": [
+                  5,
+                  2
+                ],
+                "label": "C",
+                "value": "v_C",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "c6",
+          "type": "trueFalse",
+          "prompt": "If $D \\ne 0$, the output of a state model that starts at $\\mathbf{x}(0) = \\mathbf{0}$ jumps at $t = 0^+$ when a unit step is applied to $u$.",
+          "answer": true,
+          "explanation": "$y(0^+) = \\mathbf{C}\\mathbf{x}(0^+) + Du(0^+)$. The states come out of integrators and cannot jump, so $\\mathbf{x}(0^+) = \\mathbf{0}$, but $Du$ jumps from 0 to $D$. In transfer-function terms: $G(\\infty) = D \\ne 0$, a biproper $G(s)$ with as many zeros as poles."
+        }
+      ]
+    }
+  ]
+}

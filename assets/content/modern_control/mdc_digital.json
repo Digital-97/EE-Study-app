@@ -1,0 +1,886 @@
+{
+  "id": "mdc-digital",
+  "title": "Digital Controllers",
+  "description": "Turn continuous designs into difference equations, implement PID with anti-windup, and design directly in the z-plane.",
+  "reference": "FPE ch. 8 (§8.3)",
+  "study": [
+    {
+      "title": "Emulation: design in s, then convert",
+      "body": "The quickest route to a digital controller: design $D(s)$ with the Year 2 tools, then approximate it by a $D(z)$ that the processor runs as a difference equation. Each method replaces $s$ by a function of $z$:\n- forward Euler: $s = \\frac{z - 1}{T}$ (can turn a stable pole unstable if $T$ is large)\n- backward Euler: $s = \\frac{z - 1}{Tz}$ (always stable, but distorts)\n- Tustin (bilinear, trapezoidal): below; maps the left half-plane exactly onto the unit disc\nIt works well when sampling at 20–30× the bandwidth; remember the extra $T/2$ delay of the hold.",
+      "formula": "s = \\frac{2}{T}\\,\\frac{z - 1}{z + 1}"
+    },
+    {
+      "title": "Explore: Tustin frequency warping",
+      "body": "Tustin squeezes the whole frequency axis $0 \\ldots \\infty$ into $0 \\ldots \\omega_s/2$. A feature that $D(s)$ has at $\\omega_a$ ends up at the digital frequency $\\omega = \\frac{2}{T}\\arctan\\frac{\\omega_aT}{2}$: almost unchanged at low frequency, compressed near $\\omega_s/2$. Drag $T$: the slower the sampling, the earlier the curve bends away from the diagonal.",
+      "formula": "\\omega_a = \\frac{2}{T}\\tan\\frac{\\omega T}{2}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 100,
+          "label": "analog design frequency ω_a (rad/s)"
+        },
+        "y": {
+          "min": 0,
+          "max": 100,
+          "label": "digital ω (rad/s)"
+        },
+        "sliders": [
+          {
+            "name": "T",
+            "label": "sample period $T$",
+            "min": 0.005,
+            "max": 0.1,
+            "step": 0.005,
+            "value": 0.04,
+            "unit": "s"
+          }
+        ],
+        "curves": [
+          {
+            "f": "x",
+            "color": "grey",
+            "dash": true,
+            "label": "no warping",
+            "labelAt": 0.3
+          },
+          {
+            "f": "(2/T)*atan(x*T/2)",
+            "label": "Tustin",
+            "labelAt": 0.6
+          }
+        ],
+        "hlines": [
+          {
+            "y": "pi/T",
+            "label": "ω_s/2",
+            "color": "orange"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$\\omega_s/2$",
+            "value": "pi/T",
+            "unit": "rad/s"
+          },
+          {
+            "label": "digital $\\omega$ for $\\omega_a$ = 50 rad/s",
+            "value": "(2/T)*atan(50*T/2)",
+            "unit": "rad/s"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Prewarping",
+      "body": "If one frequency matters most (a notch, the crossover), make Tustin exact there: replace $\\frac{2}{T}$ by $\\frac{\\omega_0}{\\tan(\\omega_0T/2)}$. Then $D(z)$ at $e^{j\\omega_0T}$ equals $D(j\\omega_0)$ exactly; other frequencies are still warped. For $\\omega_0T \\ll 1$ the factor is close to $2/T$ and prewarping hardly matters.",
+      "formula": "s = \\frac{\\omega_0}{\\tan(\\omega_0T/2)}\\,\\frac{z - 1}{z + 1}"
+    },
+    {
+      "title": "Matched pole-zero",
+      "body": "Map every pole and zero of $D(s)$ with $z = e^{sT}$, as sampling does. Zeros at $s = \\infty$ go to $z = -1$ (FPE's modified version keeps one at infinity, which leaves a full sample for computing). Finally match the DC gain.\n**Example:** $D(s) = K\\frac{s + a}{s + b}$ becomes $D(z) = K_d\\frac{z - e^{-aT}}{z - e^{-bT}}$ with $K_d$ chosen so that $D(1) = D(0) = Ka/b$.",
+      "formula": "K_d = K\\,\\frac{a}{b}\\,\\frac{1 - e^{-bT}}{1 - e^{-aT}}"
+    },
+    {
+      "title": "Digital PID",
+      "body": "Approximate the integral by a running sum and the derivative by a backward difference. With $s[k] = s[k-1] + e[k]$ and $\\Delta e[k] = e[k] - e[k-1]$:\n$$u[k] = K_pe[k] + K_iT\\,s[k] + \\frac{K_d}{T}\\Delta e[k]$$\nThe **velocity form** computes only the change, $u[k] = u[k-1] + \\Delta u[k]$ (formula below, every term at sample $k$, with $\\Delta^2e = \\Delta e[k] - \\Delta e[k-1]$), which makes switching and saturation easier to handle. Filter the derivative term in practice: $(e[k] - e[k-1])/T$ amplifies noise.",
+      "formula": "\\Delta u = K_p\\Delta e + K_iT\\,e + \\frac{K_d}{T}\\Delta^2e"
+    },
+    {
+      "title": "Integrator windup",
+      "body": "Every actuator saturates. While $u$ sits at its limit, the loop is open, but the integral keeps summing the error. When the output finally reaches the reference, the stored integral keeps $u$ high and the output overshoots far. **Anti-windup:** stop integrating while saturated (clamping), or feed the difference between commanded and saturated $u$ back into the integrator (back-calculation). In the velocity form, store the clipped $u$."
+    },
+    {
+      "title": "Direct digital design",
+      "body": "Instead of converting $D(s)$, design in the z-plane: discretize the plant with the ZOH and place the closed-loop poles at $z = e^{sT}$ of the desired $s$-poles.\n**Example:** $G(z) = \\frac{\\beta}{z - p}$ with $u[k] = K(r[k] - y[k])$ gives the closed-loop pole $z = p - K\\beta$. Pick $K$ to put it where the settling-time spec wants it, inside the circle $|z| = e^{-4T/T_s}$.",
+      "formula": "z_{cl} = p - K\\beta"
+    },
+    {
+      "title": "Deadbeat control",
+      "body": "A digital controller can do what no continuous one can: put **all** closed-loop poles at $z = 0$. The characteristic polynomial becomes $z^n$ and the error reaches zero in at most $n$ samples. Price: large control signals (the required $u$ grows as $T$ shrinks), sensitivity to model errors, and for higher-order plants ripple between the samples. Drag the pole of a first-order loop to 0.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 10,
+          "label": "sample k"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.2,
+          "label": "y[k]"
+        },
+        "sliders": [
+          {
+            "name": "pc",
+            "label": "closed-loop pole $z_c$",
+            "min": 0,
+            "max": 0.9,
+            "step": 0.05,
+            "value": 0.6
+          }
+        ],
+        "curves": [
+          {
+            "f": "1 - pc^floor(x)",
+            "label": "y[k]",
+            "labelAt": 0.7
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1
+          }
+        ],
+        "readouts": [
+          {
+            "label": "samples to reach 98 %",
+            "value": "if(pc - 0.001, ceil(ln(0.02)/ln(pc)), 1)"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "mdc-digital-1",
+      "title": "Emulation",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Emulation",
+          "body": "Design $D(s)$ as usual, then replace $s$ by an approximation in $z$ so that the computer can run it. All methods agree at low frequency (where $z = e^{sT} \\approx 1 + sT$) and differ near $\\omega_s/2$. With fast enough sampling any of them gives nearly the continuous behaviour.",
+          "formula": "s = \\frac{2}{T}\\,\\frac{z - 1}{z + 1} \\quad (\\text{Tustin})"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              5,
+              10,
+              20,
+              50
+            ],
+            "T": [
+              0.005,
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "require": "1.5 - a*T",
+          "prompt": "Convert $D(s) = \\frac{ {{a}} }{s + {{a}}}$ with Tustin at $T$ = {{T|s}}.",
+          "ask": [
+            {
+              "prompt": "Find the pole of $D(z)$.",
+              "answer": "(2 - a*T)/(2 + a*T)",
+              "unit": "",
+              "explanation": "Substitute: $D(z) = \\frac{a}{\\frac{2}{T}\\frac{z-1}{z+1} + a} = \\frac{aT(z + 1)}{(2 + aT)z - (2 - aT)}$. Pole: $z = \\frac{2 - aT}{2 + aT}$ = ({{2 - a*T}})/({{2 + a*T}}) = {{(2 - a*T)/(2 + a*T)||5}}. The exact mapping $e^{-aT}$ = {{exp(-a*T)||5}} is close because $aT$ = {{a*T}} is small."
+            },
+            {
+              "prompt": "For comparison, find the exactly mapped pole $e^{-aT}$.",
+              "answer": "exp(-a*T)",
+              "unit": "",
+              "explanation": "$e^{-aT} = e^{-{{a*T}}}$ = {{exp(-a*T)||5}}. Tustin gives {{(2 - a*T)/(2 + a*T)||5}}: $\\frac{2 - aT}{2 + aT}$ is the (1,1) Padé approximation of $e^{-aT}$, accurate while $aT$ is small."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              5,
+              10,
+              20,
+              50
+            ],
+            "T": [
+              0.005,
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "require": "1.5 - a*T",
+          "prompt": "Convert $D(s) = \\frac{ {{a}} }{s + {{a}}}$ with backward Euler, $s = \\frac{z - 1}{Tz}$, at $T$ = {{T|s}}. Find the pole of $D(z)$.",
+          "answer": "1/(1 + a*T)",
+          "unit": "",
+          "explanation": "$D(z) = \\frac{a}{\\frac{z-1}{Tz} + a} = \\frac{aTz}{(1 + aT)z - 1}$, pole at $z = \\frac{1}{1 + aT}$ = 1/{{1 + a*T}} = {{1/(1 + a*T)||4}}. It is always between 0 and 1, so backward Euler never destabilizes a stable real pole. Exact: $e^{-aT}$ = {{exp(-a*T)||4}}."
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each conversion method to its rule.",
+          "pairs": [
+            [
+              "Forward Euler",
+              "$s = (z - 1)/T$"
+            ],
+            [
+              "Backward Euler",
+              "$s = (z - 1)/(Tz)$"
+            ],
+            [
+              "Tustin",
+              "$s = \\frac{2}{T}\\frac{z - 1}{z + 1}$"
+            ],
+            [
+              "Matched pole-zero",
+              "$z = e^{sT}$ for each pole and zero"
+            ]
+          ],
+          "explanation": "Forward and backward Euler come from approximating a derivative by the difference to the next or the previous sample; Tustin from the trapezoidal rule for an integral. Matched pole-zero copies what sampling does to poles ($z = e^{sT}$) and then fixes the gain."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Frequency warping",
+          "body": "Tustin maps the imaginary axis onto the unit circle, but not linearly: the whole range $0 \\ldots \\infty$ of analog frequencies lands on $0 \\ldots \\omega_s/2$. A feature of $D(s)$ at $\\omega_a$ appears at the digital frequency $\\omega = \\frac{2}{T}\\arctan\\frac{\\omega_aT}{2}$, a bit lower.",
+          "formula": "\\omega = \\frac{2}{T}\\arctan\\frac{\\omega_aT}{2}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 100,
+              "label": "analog design frequency ω_a (rad/s)"
+            },
+            "y": {
+              "min": 0,
+              "max": 100,
+              "label": "digital ω (rad/s)"
+            },
+            "sliders": [
+              {
+                "name": "T",
+                "label": "sample period $T$",
+                "min": 0.005,
+                "max": 0.1,
+                "step": 0.005,
+                "value": 0.04,
+                "unit": "s"
+              }
+            ],
+            "curves": [
+              {
+                "f": "x",
+                "color": "grey",
+                "dash": true,
+                "label": "no warping",
+                "labelAt": 0.3
+              },
+              {
+                "f": "(2/T)*atan(x*T/2)",
+                "label": "Tustin",
+                "labelAt": 0.6
+              }
+            ],
+            "hlines": [
+              {
+                "y": "pi/T",
+                "label": "ω_s/2",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$\\omega_s/2$",
+                "value": "pi/T",
+                "unit": "rad/s"
+              },
+              {
+                "label": "digital $\\omega$ for $\\omega_a$ = 50 rad/s",
+                "value": "(2/T)*atan(50*T/2)",
+                "unit": "rad/s"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "w0": [
+              100,
+              200,
+              300,
+              500
+            ],
+            "T": [
+              0.002,
+              0.004,
+              0.005
+            ]
+          },
+          "require": "w0*T - 0.35",
+          "prompt": "A notch filter is designed at $\\omega_0$ = {{w0}} rad/s and converted with Tustin (no prewarping) at $T$ = {{T|s}}. At which digital frequency does the notch end up?",
+          "answer": "(2/T)*atan(w0*T/2)",
+          "unit": "rad/s",
+          "explanation": "$\\omega = \\frac{2}{T}\\arctan\\frac{\\omega_0T}{2}$ = {{2/T}} × arctan({{w0*T/2}}) = {{(2/T)*atan(w0*T/2)}} rad/s, which is {{100*(1 - (2/T)*atan(w0*T/2)/w0)}} % too low. For a narrow notch aimed at a known disturbance frequency that is a miss: prewarp."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "w0": [
+              100,
+              200,
+              300,
+              500
+            ],
+            "T": [
+              0.002,
+              0.004,
+              0.005
+            ]
+          },
+          "require": "w0*T - 0.35",
+          "prompt": "Prewarp the Tustin substitution at $\\omega_0$ = {{w0}} rad/s for $T$ = {{T|s}}: $s = c\\,\\frac{z - 1}{z + 1}$. Find $c$.",
+          "answer": "w0/tan(w0*T/2)",
+          "unit": "",
+          "explanation": "$c = \\frac{\\omega_0}{\\tan(\\omega_0T/2)}$ = {{w0}}/tan({{w0*T/2}}) = {{w0/tan(w0*T/2)}}, slightly below $2/T$ = {{2/T}}. With this $c$ the point $z = e^{j\\omega_0T}$ maps exactly to $s = j\\omega_0$."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Forward Euler, $s = (z - 1)/T$, always turns a stable continuous pole into a stable discrete pole.",
+          "answer": false,
+          "explanation": "Forward Euler maps $s$ to $z = 1 + sT$. A real pole $s = -a$ becomes $z = 1 - aT$, which lies outside the unit circle once $aT > 2$; complex poles leave even sooner. Backward Euler ($z = \\frac{1}{1 - sT}$) and Tustin always keep stable poles stable."
+        }
+      ]
+    },
+    {
+      "id": "mdc-digital-2",
+      "title": "Digital PID and anti-windup",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "PID as a difference equation",
+          "body": "Integral → running sum: $s[k] = s[k-1] + e[k]$, times $T$. Derivative → backward difference $\\Delta e[k]/T$ with $\\Delta e[k] = e[k] - e[k-1]$. Every sample the processor updates the sum and evaluates one line of arithmetic; it only needs to store $s$ and the previous error.",
+          "formula": "u[k] = K_pe[k] + K_iT\\,s[k] + \\frac{K_d}{T}\\Delta e[k]"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Kp": [
+              1,
+              2,
+              5
+            ],
+            "Ki": [
+              2,
+              5,
+              10
+            ],
+            "Kd": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "T": [
+              0.01,
+              0.02
+            ],
+            "S": [
+              10,
+              20,
+              50
+            ],
+            "e0": [
+              0.5,
+              0.8,
+              1
+            ],
+            "e1": [
+              0.4,
+              0.6,
+              0.9
+            ]
+          },
+          "require": "abs(e1 - e0)",
+          "prompt": "A digital PID with $K_p$ = {{Kp}}, $K_i$ = {{Ki}}, $K_d$ = {{Kd}} and $T$ = {{T|s}} has stored the sum $s[k-1]$ = {{S}} and the previous error $e[k-1]$ = {{e0}}. The new error is $e[k]$ = {{e1}}. Find $u[k]$.",
+          "answer": "Kp*e1 + Ki*T*(S + e1) + Kd/T*(e1 - e0)",
+          "unit": "",
+          "explanation": "$s[k]$ = {{S}} + {{e1}} = {{S + e1}}. P: {{Kp}}·{{e1}} = {{Kp*e1}}. I: {{Ki}}·{{T}}·{{S + e1}} = {{Ki*T*(S + e1)}}. D: ({{Kd}}/{{T}})({{e1}} − {{e0}}) = {{Kd/T*(e1 - e0)}}. Total $u[k]$ = {{Kp*e1 + Ki*T*(S + e1) + Kd/T*(e1 - e0)}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Kp": [
+              1,
+              2,
+              5
+            ],
+            "Ki": [
+              2,
+              5,
+              10
+            ],
+            "Kd": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "T": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "Write the digital PID ($K_p$ = {{Kp}}, $K_i$ = {{Ki}}, $K_d$ = {{Kd}}, $T$ = {{T|s}}) in velocity form, $u[k] = u[k-1] + q_0e[k]$ $+\\, q_1e[k-1] + q_2e[k-2]$.",
+          "ask": [
+            {
+              "prompt": "Find $q_0$.",
+              "answer": "Kp + Ki*T + Kd/T",
+              "unit": "",
+              "explanation": "Subtract $u[k-1]$ from $u[k]$: $\\Delta u = K_p(e[k] - e[k-1]) + K_iTe[k]$ $+ \\frac{K_d}{T}(e[k] - 2e[k-1] + e[k-2])$. The coefficient of $e[k]$: $q_0 = K_p + K_iT + K_d/T$ = {{Kp}} + {{Ki*T}} + {{Kd/T}} = {{Kp + Ki*T + Kd/T}}."
+            },
+            {
+              "prompt": "Find $q_1$.",
+              "answer": "-Kp - 2*Kd/T",
+              "unit": "",
+              "explanation": "From $\\Delta u = K_p(e[k] - e[k-1]) + K_iTe[k]$ $+ \\frac{K_d}{T}(e[k] - 2e[k-1] + e[k-2])$, the coefficient of $e[k-1]$ is $q_1 = -K_p - 2K_d/T$ = −{{Kp}} − {{2*Kd/T}} = {{-Kp - 2*Kd/T}}."
+            },
+            {
+              "prompt": "Find $q_2$.",
+              "answer": "Kd/T",
+              "unit": "",
+              "explanation": "Only the derivative reaches two samples back: $q_2 = K_d/T$ = {{Kd}}/{{T}} = {{Kd/T}}."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Integrator windup",
+          "body": "When the actuator saturates, the error stays large and the integral keeps growing even though $u$ cannot follow. After the output reaches the reference, this stored integral must first be unwound by an error of the opposite sign: a large overshoot. Anti-windup limits the integrator while the actuator is saturated.",
+          "formula": "u_{applied} = \\mathrm{sat}(u_{computed})"
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "What does a clamping (conditional integration) anti-windup do?",
+          "options": [
+            "Stops updating the integral while $u$ is saturated and the error would push it further",
+            "Resets the integral to zero at every sample",
+            "Raises $K_i$ while the actuator is saturated",
+            "Stops sampling until the actuator leaves saturation"
+          ],
+          "answer": 0,
+          "explanation": "Clamping freezes $s[k]$ whenever the computed $u$ exceeds the limit and the error has the sign that would increase it further. The integral then holds a sensible value and the loop recovers without the big overshoot. Resetting every sample would remove integral action altogether; raising $K_i$ makes windup worse."
+        },
+        {
+          "id": "q4",
+          "type": "orderSteps",
+          "prompt": "Put the steps of one sample of a PID with clamping anti-windup in order.",
+          "items": [
+            "Read $y[k]$ and form $e[k] = r[k] - y[k]$",
+            "Compute the P, I (with the candidate new sum) and D terms",
+            "Clip the total to the actuator limits",
+            "Keep the candidate sum only if the total was not clipped (or the error reduces it)"
+          ],
+          "explanation": "The integral update is decided after the saturation check, so the sum cannot run away while the actuator is at its limit. The clipped $u[k]$ goes to the D/A, and the sum and $e[k]$ are stored for the integral and the derivative of the next sample."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Ki": [
+              2,
+              5,
+              10
+            ],
+            "e0": [
+              0.5,
+              1,
+              2
+            ],
+            "ts": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "A PI controller with $K_i$ = {{Ki}} $\\mathrm{s^{-1}}$ and **no** anti-windup sits in saturation for {{ts|s}} while the error stays at {{e0}}. How much does the integral term $K_i\\int e\\,dt$ grow during that time?",
+          "answer": "Ki*e0*ts",
+          "unit": "",
+          "explanation": "$\\Delta(K_i\\int e\\,dt) = K_i e_0 t_{sat}$ = {{Ki}} × {{e0}} × {{ts}} = {{Ki*e0*ts}} (in units of $u$). The actuator cannot use any of it; once the error changes sign, it takes a long negative error to integrate this back down, which shows up as overshoot."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "In the velocity form, $u[k] = u[k-1] + \\Delta u[k]$, windup is avoided if the controller stores the **clipped** value of $u[k]$ as $u[k-1]$ for the next sample.",
+          "answer": true,
+          "explanation": "The velocity form has no separate integral state: the integral lives in $u[k-1]$. If the stored value is the saturated one, $u$ cannot drift beyond the limit, so nothing winds up. Storing the unclipped value would bring windup straight back."
+        }
+      ]
+    },
+    {
+      "id": "mdc-digital-3",
+      "title": "Discrete designs",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              5,
+              10
+            ],
+            "a": [
+              2,
+              5
+            ],
+            "b": [
+              20,
+              30,
+              50
+            ],
+            "T": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "Convert the lead controller $D(s) = {{K}}\\frac{s + {{a}}}{s + {{b}}}$ by matched pole-zero at $T$ = {{T|s}}: $D(z) = K_d\\frac{z - e^{-aT}}{z - e^{-bT}}$. Find $K_d$.",
+          "answer": "K*a/b*(1 - exp(-b*T))/(1 - exp(-a*T))",
+          "unit": "",
+          "explanation": "Zero at $e^{-{{a*T}}}$ = {{exp(-a*T)||4}}, pole at $e^{-{{b*T}}}$ = {{exp(-b*T)||4}}. Match the DC gains: $D(s=0) = K\\frac{a}{b}$ = {{K*a/b}} must equal $D(z=1) = K_d\\frac{1 - e^{-aT}}{1 - e^{-bT}} = K_d\\cdot${{(1 - exp(-a*T))/(1 - exp(-b*T))||4}}. So $K_d$ = {{K*a/b*(1 - exp(-b*T))/(1 - exp(-a*T))}}."
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              5
+            ],
+            "T": [
+              0.1,
+              0.2
+            ],
+            "K": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "The plant $\\frac{ {{a}} }{s + {{a}}}$ with a ZOH at $T$ = {{T|s}} is $G(z) = \\frac{\\beta}{z - p}$ with $p = e^{-aT}$, $\\beta = 1 - p$. A digital P-controller $u[k] = K(r[k] - y[k])$ with $K$ = {{K}} closes the loop. Find the closed-loop pole.",
+          "answer": "exp(-a*T) - K*(1 - exp(-a*T))",
+          "unit": "",
+          "absTolerance": 0.005,
+          "explanation": "$p$ = {{exp(-a*T)||4}}, $\\beta$ = {{1 - exp(-a*T)||4}}. Closed loop: $y[k+1] = py[k] + \\beta K(r[k] - y[k])$, so the pole is $z = p - K\\beta$ = {{exp(-a*T)||4}} − {{K}}·{{1 - exp(-a*T)||4}} = {{exp(-a*T) - K*(1 - exp(-a*T))}}."
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              5
+            ],
+            "T": [
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "Same plant, $G(z) = \\frac{\\beta}{z - p}$ with $a$ = {{a}} and $T$ = {{T|s}}. Which gain $K$ gives **deadbeat** control (closed-loop pole at $z = 0$)?",
+          "answer": "exp(-a*T)/(1 - exp(-a*T))",
+          "unit": "",
+          "explanation": "$z_{cl} = p - K\\beta = 0$ gives $K = p/\\beta$ = {{exp(-a*T)||4}}/{{1 - exp(-a*T)||4}} = {{exp(-a*T)/(1 - exp(-a*T))}}. Then $y[k+1] = \\beta K r[k]$: the output reaches its final value after one sample (it settles at $\\frac{K\\beta}{1 - p + K\\beta}r = pr$ = {{exp(-a*T)}}$r$; a reference gain or an integrator fixes the level)."
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              5
+            ],
+            "T": [
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "Same plant with $a$ = {{a}}, $T$ = {{T|s}}. Above which gain $K$ does the digital P-loop become unstable?",
+          "answer": "(1 + exp(-a*T))/(1 - exp(-a*T))",
+          "unit": "",
+          "explanation": "The pole $z = p - K\\beta$ moves left as $K$ grows and leaves the unit circle at $z = -1$: $K_{max} = \\frac{1 + p}{\\beta}$ = (1 + {{exp(-a*T)||4}})/{{1 - exp(-a*T)||4}} = {{(1 + exp(-a*T))/(1 - exp(-a*T))}}. The continuous loop is stable for every $K$: sampling and hold make high gain dangerous."
+        },
+        {
+          "id": "p5",
+          "type": "slider",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "T": [
+              0.1,
+              0.2
+            ],
+            "zs": [
+              0.5,
+              0.3,
+              0
+            ]
+          },
+          "derived": {
+            "p": "exp(-a*T)",
+            "beta": "1 - exp(-a*T)"
+          },
+          "prompt": "Plant $\\frac{ {{a}} }{s + {{a}}}$, ZOH, $T$ = {{T|s}}, digital P-control. Set $K$ so that the closed-loop pole lands on the target $z$ = {{zs}}.",
+          "plot": {
+            "x": {
+              "min": -1.2,
+              "max": 1.2,
+              "label": "Re z"
+            },
+            "y": {
+              "min": -1.2,
+              "max": 1.2,
+              "label": "Im z"
+            },
+            "equal": true,
+            "height": 240,
+            "sliders": [
+              {
+                "name": "K",
+                "label": "gain $K$",
+                "min": 0,
+                "max": 15,
+                "step": 0.02,
+                "value": 0
+              }
+            ],
+            "curves": [
+              {
+                "x": "1*cos(t)",
+                "y": "1*sin(t)",
+                "t": [
+                  0,
+                  "2*pi"
+                ],
+                "color": "grey"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0
+              }
+            ],
+            "points": [
+              {
+                "x": "zs",
+                "y": 0,
+                "marker": "o",
+                "color": "grey",
+                "guides": false,
+                "label": "target"
+              },
+              {
+                "x": "p - K*beta",
+                "y": "0",
+                "marker": "x",
+                "guides": false,
+                "color": "red",
+                "label": "pole"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "closed-loop pole",
+                "value": "p - K*beta"
+              }
+            ]
+          },
+          "answer": {
+            "K": "(p - zs)/beta"
+          },
+          "tolerance": 0.03,
+          "explanation": "$p = e^{-aT}$ = {{p||4}} and $\\beta = 1 - p$ = {{beta||4}}. The pole is $z = p - K\\beta$, so $K = \\frac{p - z_{target}}{\\beta}$ = ({{p||4}} − {{zs}})/{{beta||4}} = {{(p - zs)/beta}}. Each unit of $K$ moves the pole $\\beta$ to the left along the real axis."
+        },
+        {
+          "id": "p6",
+          "type": "trueFalse",
+          "prompt": "Deadbeat control is robust: with a slightly wrong plant model the output still settles exactly in $n$ samples.",
+          "answer": false,
+          "explanation": "Deadbeat places the poles at $z = 0$ using the model. If the real $p$ or $\\beta$ differ, the poles land somewhere near 0 and the response only approaches the target asymptotically. Worse, deadbeat gains are large, so the model error is amplified into large control signals. Deadbeat is mostly used with conservative sample periods or as a reference point."
+        }
+      ]
+    },
+    {
+      "id": "mdc-digital-4",
+      "title": "Digital design problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "Kp": [
+              1,
+              2,
+              4
+            ],
+            "Ki": [
+              5,
+              10,
+              20
+            ],
+            "T": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "Convert the PI controller $D(s) = K_p + \\frac{K_i}{s}$ with $K_p$ = {{Kp}}, $K_i$ = {{Ki}} by Tustin at $T$ = {{T|s}}, and write it as $u[k] = u[k-1]$ $+\\, b_0e[k] + b_1e[k-1]$.",
+          "ask": [
+            {
+              "prompt": "Find $b_0$.",
+              "answer": "Kp + Ki*T/2",
+              "unit": "",
+              "explanation": "Tustin: $\\frac{1}{s} \\to \\frac{T}{2}\\frac{z + 1}{z - 1}$, so $D(z) = K_p + \\frac{K_iT}{2}\\frac{z+1}{z-1}$. Multiply out $(z - 1)U = [K_p(z - 1) + \\frac{K_iT}{2}(z + 1)]E$: $b_0 = K_p + \\frac{K_iT}{2}$ = {{Kp}} + {{Ki*T/2}} = {{Kp + Ki*T/2}}."
+            },
+            {
+              "prompt": "Find $b_1$.",
+              "answer": "-Kp + Ki*T/2",
+              "unit": "",
+              "explanation": "From $(z - 1)U = [(K_p + \\frac{K_iT}{2})z - K_p + \\frac{K_iT}{2}]E$, the coefficient of $e[k-1]$ is $b_1 = -K_p + \\frac{K_iT}{2}$ = −{{Kp}} + {{Ki*T/2}} = {{-Kp + Ki*T/2}}. (Trapezoidal integration: the average of $e[k]$ and $e[k-1]$.)"
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "T": [
+              0.05,
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "prompt": "A double integrator with ZOH at $T$ = {{T|s}} has $\\Phi = \\begin{bmatrix} 1 & T \\\\ 0 & 1 \\end{bmatrix}$, $\\Gamma = \\begin{bmatrix} T^2/2 \\\\ T \\end{bmatrix}$. Design digital state feedback $u[k] = -\\mathbf{K}\\mathbf{x}[k]$ for **deadbeat** response: both eigenvalues of $\\Phi - \\Gamma\\mathbf{K}$ at $z = 0$.",
+          "ask": [
+            {
+              "prompt": "Find $k_1$.",
+              "answer": "1/T^2",
+              "unit": "",
+              "explanation": "$\\Phi - \\Gamma\\mathbf{K} = \\begin{bmatrix} 1 - k_1T^2/2 & T - k_2T^2/2 \\\\ -k_1T & 1 - k_2T \\end{bmatrix}$. Deadbeat needs trace 0 and determinant 0: $2 - k_1T^2/2 - k_2T = 0$ and $1 - k_2T + k_1T^2/2 = 0$. Adding them: $3 - 2k_2T = 0$; subtracting: $1 - k_1T^2 = 0$, so $k_1 = 1/T^2$ = {{1/T^2}}."
+            },
+            {
+              "prompt": "Find $k_2$.",
+              "answer": "3/(2*T)",
+              "unit": "",
+              "explanation": "From the trace and determinant conditions ($2 - k_1T^2/2 - k_2T = 0$, $1 - k_2T + k_1T^2/2 = 0$), adding gives $k_2 = \\frac{3}{2T}$ = {{3/(2*T)}}. Both gains explode as $T \\to 0$: deadbeat with fast sampling needs huge forces."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "Kp": [
+              1,
+              2,
+              5
+            ],
+            "Ki": [
+              1,
+              2,
+              5
+            ],
+            "Kd": [
+              0.05,
+              0.1,
+              0.2
+            ],
+            "T": [
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "A positional digital PID ($K_p$ = {{Kp}}, $K_i$ = {{Ki}}, $K_d$ = {{Kd}}, $T$ = {{T|s}}, sum and old error zero) sees the reference jump so that $e[0] = 1$. Find $u[0]$.",
+          "answer": "Kp + Ki*T + Kd/T",
+          "unit": "",
+          "explanation": "$s[0] = 1$, $e[-1] = 0$: $u[0] = K_p\\cdot 1 + K_iT\\cdot 1 + \\frac{K_d}{T}(1 - 0)$ = {{Kp}} + {{Ki*T}} + {{Kd/T}} = {{Kp + Ki*T + Kd/T}}. The derivative term ({{Kd/T}}) dominates: a **derivative kick**. Practical PIDs differentiate $-y$ instead of $e$, so reference steps do not kick."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "zt": [
+              0.5,
+              0.6,
+              0.7
+            ],
+            "wn": [
+              2,
+              5,
+              10
+            ],
+            "T": [
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "Direct design: the closed loop should behave like a continuous pair with $\\zeta$ = {{zt}}, $\\omega_n$ = {{wn}} rad/s, sampled at $T$ = {{T|s}}. Its desired characteristic polynomial is $z^2 + \\alpha_1z + \\alpha_2$.",
+          "ask": [
+            {
+              "prompt": "Find $\\alpha_1$.",
+              "answer": "-2*exp(-zt*wn*T)*cos(wn*sqrt(1 - zt^2)*T)",
+              "unit": "",
+              "explanation": "The poles are $z = re^{\\pm j\\theta}$ with $r = e^{-\\zeta\\omega_nT}$ = {{exp(-zt*wn*T)}} and $\\theta = \\omega_n\\sqrt{1-\\zeta^2}\\,T$ = {{wn*sqrt(1 - zt^2)*T}} rad. $(z - re^{j\\theta})(z - re^{-j\\theta}) = z^2 - 2r\\cos\\theta\\,z + r^2$, so $\\alpha_1 = -2r\\cos\\theta$ = {{-2*exp(-zt*wn*T)*cos(wn*sqrt(1 - zt^2)*T)}}."
+            },
+            {
+              "prompt": "Find $\\alpha_2$.",
+              "answer": "exp(-2*zt*wn*T)",
+              "unit": "",
+              "explanation": "$\\alpha_2 = r^2 = e^{-2\\zeta\\omega_nT}$ = $e^{-{{2*zt*wn*T}}}$ = {{exp(-2*zt*wn*T)}}."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "multipleChoice",
+          "prompt": "Which conversion maps the whole left half of the s-plane exactly onto the inside of the unit circle?",
+          "options": [
+            "Tustin",
+            "Forward Euler",
+            "Backward Euler",
+            "None of them"
+          ],
+          "answer": 0,
+          "shuffle": false,
+          "explanation": "Tustin's $z = \\frac{1 + sT/2}{1 - sT/2}$ maps the imaginary axis onto the unit circle and the left half-plane onto the inside of it, one to one. Forward Euler ($z = 1 + sT$) shifts the left half-plane to the left of $z = 1$, partly outside the circle. Backward Euler ($z = \\frac{1}{1 - sT}$) maps it into the smaller disc $|z - \\frac{1}{2}| < \\frac{1}{2}$: stable, but not all of the unit disc is used."
+        },
+        {
+          "id": "c6",
+          "type": "trueFalse",
+          "prompt": "Emulation works well when the sample rate is high compared with the closed-loop bandwidth; at low sample rates a direct digital design usually gives a better result.",
+          "answer": true,
+          "explanation": "Every emulation method matches $D(s)$ only for $\\omega T \\ll 1$, and the hold adds $\\omega T/2$ of lag that the continuous design never saw. At 20–30× the bandwidth this is harmless. At a few times the bandwidth, designing directly in the z-plane, with the ZOH-discretized plant, accounts for the sampling exactly."
+        }
+      ]
+    }
+  ]
+}

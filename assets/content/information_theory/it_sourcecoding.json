@@ -1,0 +1,993 @@
+{
+  "id": "it-sourcecoding",
+  "title": "Source Coding",
+  "description": "Build prefix-free variable-length codes, check them with the Kraft inequality and get close to the entropy with Huffman coding.",
+  "reference": "C&T §5.1–5.4, §5.6",
+  "study": [
+    {
+      "title": "Fixed- and variable-length codes",
+      "body": "A **fixed-length** code gives each of $M$ symbols a codeword of $\\lceil\\log_2 M\\rceil$ bits: 26 letters need 5 bits. A **variable-length** code gives frequent symbols short codewords and rare symbols long ones, like Morse code (E is a single dot). On average it uses fewer bits, as long as the receiver can still split the bit stream into codewords without ambiguity.",
+      "formula": "l_{\\text{fixed}} = \\lceil\\log_2 M\\rceil"
+    },
+    {
+      "title": "Prefix-free codes",
+      "body": "In a **prefix-free** (instantaneous) code no codeword is the beginning of another, so the decoder recognises each codeword the moment it ends. Draw the code as a binary tree: every codeword is a leaf. {0, 10, 110, 111} is prefix-free: 0110100111 splits uniquely as 0|110|10|0|111. {0, 01, 10} is not: 010 could be 0|10 or 01|0."
+    },
+    {
+      "title": "The Kraft inequality",
+      "body": "Codeword lengths $l_1, \\dots, l_M$ can be realised by a prefix-free code **if and only if** the Kraft sum is at most 1. A codeword of length $l$ uses up a fraction $2^{-l}$ of the code tree. A sum below 1 means unused leaves (some codeword could be shortened); a sum above 1 is impossible. Even codes that are only uniquely decodable obey it, so nothing is lost by insisting on prefix-free codes.",
+      "formula": "\\sum_{i=1}^{M} 2^{-l_i} \\le 1"
+    },
+    {
+      "title": "Average length and the source coding theorem",
+      "body": "The average codeword length is $\\bar L = \\sum p_i l_i$ bits per symbol. No uniquely decodable code beats the entropy, and the best symbol code is within 1 bit of it. Choosing $l_i = \\lceil -\\log_2 p_i\\rceil$ (the Shannon code) satisfies Kraft and already achieves $\\bar L < H + 1$. $\\bar L = H$ exactly only when every $p_i$ is a power of 1/2.",
+      "formula": "H(X) \\le \\bar L < H(X) + 1"
+    },
+    {
+      "title": "Huffman coding step by step",
+      "body": "Huffman's algorithm builds an **optimal** prefix code:\n- List the symbols with their probabilities.\n- Merge the two least probable into one node whose probability is their sum.\n- Repeat until one node (probability 1) remains.\n- Label the two branches of every merge 0 and 1; read each codeword from the root down.\nExample A 0.4, B 0.2, C 0.2, D 0.1, E 0.1: merges give 0.2, 0.4, 0.6 and 1.0. Ties can give different trees (lengths 1, 2, 3, 4, 4 or 2, 2, 2, 3, 3), but always the same average length. Shortcut: $\\bar L$ = sum of all merged probabilities = 0.2 + 0.4 + 0.6 + 1 = **2.2 bits**.",
+      "formula": "\\bar L = \\sum_{\\text{merges}} p_{\\text{node}}"
+    },
+    {
+      "title": "Efficiency and redundancy",
+      "body": "The **efficiency** compares the average length with the entropy; the **redundancy** is what is left. For the Huffman example above, $H$ = 2.122 bits and $\\bar L$ = 2.2 bits, so $\\eta$ = 96.5 % and the redundancy is 3.5 %. A fixed 3-bit code for the same five symbols would reach only 70.7 %.",
+      "formula": "\\eta = \\frac{H(X)}{\\bar L},\\qquad \\text{redundancy} = 1 - \\eta"
+    },
+    {
+      "title": "Explore: coding blocks of symbols",
+      "body": "Huffman coding of single symbols wastes up to 1 bit per symbol, which hurts for very skewed sources. A binary source cannot be compressed at all symbol by symbol (each symbol needs 1 bit). Code **pairs** (00, 01, 10, 11) and the loss is spread over two symbols; blocks of $n$ symbols get within $1/n$ bit of the entropy. Drag $p$: pairs help only for $p$ below 0.382.",
+      "formula": "H(X) \\le \\frac{\\bar L_n}{n} < H(X) + \\frac{1}{n}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 0.5,
+          "label": "p = P(1)"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.15,
+          "label": "bits/symbol"
+        },
+        "sliders": [
+          {
+            "name": "q",
+            "label": "$p$",
+            "min": 0.02,
+            "max": 0.5,
+            "step": 0.01,
+            "value": 0.1
+          }
+        ],
+        "let": {
+          "Hq": "(-(q)*log2(max(q, 1e-12)) - (1-(q))*log2(max(1-(q), 1e-12)))",
+          "L2": "if(0.381966 - q, (1 + 3*q - q^2)/2, 1)"
+        },
+        "curves": [
+          {
+            "f": "1",
+            "color": "grey",
+            "dash": true,
+            "label": "single symbols",
+            "labelAt": 0.1
+          },
+          {
+            "f": "if(0.381966 - x, (1 + 3*x - x^2)/2, 1)",
+            "color": "blue",
+            "label": "pairs",
+            "labelAt": 0.45
+          },
+          {
+            "f": "(-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12)))",
+            "label": "H(p)",
+            "labelAt": 0.1
+          }
+        ],
+        "points": [
+          {
+            "x": "q",
+            "y": "L2",
+            "color": "blue",
+            "guides": false
+          },
+          {
+            "x": "q",
+            "y": "Hq",
+            "guides": false
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$H(p)$",
+            "value": "Hq"
+          },
+          {
+            "label": "pairs: $\\bar L_2/2$",
+            "value": "L2"
+          },
+          {
+            "label": "efficiency with pairs",
+            "value": "100*Hq/L2",
+            "unit": "%"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "it-sourcecoding-1",
+      "title": "Codes and the Kraft inequality",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Fixed-length codes",
+          "body": "The simplest code gives every symbol the same number of bits. With $M$ symbols you need $2^l \\ge M$, so $l = \\lceil\\log_2 M\\rceil$. That wastes bits whenever $M$ is not a power of 2 and, more importantly, ignores that some symbols are far more common than others.",
+          "formula": "l = \\lceil\\log_2 M\\rceil"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "M": [
+              5,
+              10,
+              26,
+              27,
+              40,
+              60,
+              100,
+              200,
+              1000
+            ]
+          },
+          "prompt": "A fixed-length binary code must cover {{M}} different symbols. How many bits does each codeword need?",
+          "answer": "ceil(log2(M))",
+          "unit": "bits",
+          "explanation": "$2^{ {{ceil(log2(M))-1}} }$ = {{2^(ceil(log2(M))-1)||5}} is too few, $2^{ {{ceil(log2(M))}} }$ = {{2^ceil(log2(M))||5}} is enough: **{{ceil(log2(M))}} bits** ($\\log_2 {{M}}$ = {{log2(M)}}, rounded up)."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Prefix-free codes",
+          "body": "With variable-length codewords the decoder must know where each codeword ends. In a **prefix-free** code no codeword is the start of another one: read bits until they form a codeword, output its symbol, start again. Such a code is a binary tree with the codewords at the leaves."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Which code is prefix-free?",
+          "options": [
+            "{0, 10, 110, 111}",
+            "{0, 01, 011, 111}",
+            "{1, 10, 100, 000}",
+            "{00, 01, 0, 11}"
+          ],
+          "answer": 0,
+          "explanation": "In {0, 10, 110, 111} no codeword starts another one. In {0, 01, 011, 111}, 0 is the start of 01; in {1, 10, 100, 000}, 1 starts 10; in {00, 01, 0, 11}, 0 starts 00 and 01."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "s1": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "s2": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "s3": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "s4": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "s5": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "s6": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "c1": "if(0.5 - s1, 0, if(1.5 - s1, 10, if(2.5 - s1, 110, 111)))",
+            "c2": "if(0.5 - s2, 0, if(1.5 - s2, 10, if(2.5 - s2, 110, 111)))",
+            "c3": "if(0.5 - s3, 0, if(1.5 - s3, 10, if(2.5 - s3, 110, 111)))",
+            "c4": "if(0.5 - s4, 0, if(1.5 - s4, 10, if(2.5 - s4, 110, 111)))",
+            "c5": "if(0.5 - s5, 0, if(1.5 - s5, 10, if(2.5 - s5, 110, 111)))",
+            "c6": "if(0.5 - s6, 0, if(1.5 - s6, 10, if(2.5 - s6, 110, 111)))"
+          },
+          "prompt": "The code A = 0, B = 10, C = 110, D = 111 is used. The received bits are **{{c1}}{{c2}}{{c3}}{{c4}}{{c5}}{{c6}}**. What is the **fourth** symbol?",
+          "options": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ],
+          "answer": "s4",
+          "shuffle": false,
+          "explanation": "Read from the left and cut as soon as a codeword is complete: a 0 is A, 10 is B, 110 is C, 111 is D. The bits split as {{c1}} | {{c2}} | {{c3}} | {{c4}} | {{c5}} | {{c6}}, so the fourth codeword is {{c4}}."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The Kraft inequality",
+          "body": "A codeword of length $l$ occupies a fraction $2^{-l}$ of the code tree (it blocks every longer word that starts with it). So a prefix-free code with lengths $l_i$ exists exactly when these fractions add up to at most 1.",
+          "formula": "K = \\sum_i 2^{-l_i} \\le 1"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              1,
+              2
+            ],
+            "l2": [
+              2,
+              3
+            ],
+            "l3": [
+              2,
+              3,
+              4
+            ],
+            "l4": [
+              3,
+              4,
+              5
+            ]
+          },
+          "require": "min(l2 - l1, l3 - l2) + 0.5",
+          "prompt": "A code has codewords of lengths {{l1}}, {{l2}}, {{l3}} and {{l4}} bits. What is its Kraft sum?",
+          "answer": "2^(-l1) + 2^(-l2) + 2^(-l3) + 2^(-l4)",
+          "unit": "",
+          "explanation": "$K = 2^{-{{l1}}} + 2^{-{{l2}}} + 2^{-{{l3}}} + 2^{-{{l4}}}$ = {{2^(-l1)}} + {{2^(-l2)}} + {{2^(-l3)}} + {{2^(-l4)}} = **{{2^(-l1) + 2^(-l2) + 2^(-l3) + 2^(-l4)||4}}**. A prefix-free code with these lengths exists only if $K \\le 1$."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "params": {
+            "l1": [
+              1,
+              2
+            ],
+            "l2": [
+              2,
+              3
+            ],
+            "l3": [
+              2,
+              3
+            ],
+            "l4": [
+              3,
+              4
+            ],
+            "l5": [
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "K": "2^(-l1) + 2^(-l2) + 2^(-l3) + 2^(-l4) + 2^(-l5)"
+          },
+          "require": "min(min(l2 - l1, l3 - l2), min(l4 - l3, l5 - l4)) + 0.5",
+          "prompt": "A prefix-free code with codeword lengths {{l1}}, {{l2}}, {{l3}}, {{l4}} and {{l5}} bits exists.",
+          "answer": "1.000001 - K",
+          "explanation": "Kraft sum: $K = 2^{-{{l1}}} + 2^{-{{l2}}} + 2^{-{{l3}}} + 2^{-{{l4}}} + 2^{-{{l5}}}$ = **{{K||4}}**. A prefix-free code exists exactly when $K \\le 1$."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which set of codeword lengths gives a prefix-free code with **no wasted** leaves in its code tree?",
+          "options": [
+            "1, 2, 3, 3",
+            "1, 2, 2, 3",
+            "2, 2, 3, 3",
+            "1, 3, 3, 3"
+          ],
+          "answer": 0,
+          "explanation": "Kraft sums: 1/2 + 1/4 + 1/8 + 1/8 = **1** (a complete tree); 1, 2, 2, 3 gives 1.125 > 1 (impossible); 2, 2, 3, 3 gives 0.75 and 1, 3, 3, 3 gives 0.875 (some codewords could be shorter)."
+        }
+      ]
+    },
+    {
+      "id": "it-sourcecoding-2",
+      "title": "Average length and the coding theorem",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Average codeword length",
+          "body": "What matters is the number of bits per symbol **on average**: weight each codeword length with the probability of its symbol.",
+          "formula": "\\bar L = \\sum_i p_i\\, l_i"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.3,
+              0.35,
+              0.4
+            ],
+            "p2": [
+              0.2,
+              0.25
+            ],
+            "p3": [
+              0.1,
+              0.15,
+              0.2
+            ],
+            "p4": [
+              0.05,
+              0.1
+            ]
+          },
+          "derived": {
+            "p5": "round((1 - p1 - p2 - p3 - p4)*100)/100"
+          },
+          "require": "p5 - 0.049",
+          "prompt": "A source emits A, B, C, D and E with probabilities {{p1}}, {{p2}}, {{p3}}, {{p4}} and {{p5}}. They are coded as 00, 01, 10, 110 and 111. What is the average codeword length?",
+          "answer": "2*(p1 + p2 + p3) + 3*(p4 + p5)",
+          "unit": "bits",
+          "explanation": "$\\bar L = \\sum p_i l_i$ = 2 × ({{p1}} + {{p2}} + {{p3}}) + 3 × ({{p4}} + {{p5}}) = **{{2*(p1 + p2 + p3) + 3*(p4 + p5)||3}} bits/symbol**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The source coding theorem",
+          "body": "No uniquely decodable code can have an average length below the entropy, and the best symbol code is less than 1 bit above it. A simple code that meets the upper bound: give each symbol $l_i = \\lceil -\\log_2 p_i\\rceil$ bits (the **Shannon code**).",
+          "formula": "H(X) \\le \\bar L < H(X) + 1"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.3,
+              0.2,
+              0.15,
+              0.1,
+              0.05,
+              0.03,
+              0.01
+            ]
+          },
+          "prompt": "In a Shannon code, how many bits does the codeword of a symbol with probability {{p}} get?",
+          "answer": "ceil(-log2(p))",
+          "unit": "bits",
+          "explanation": "$l = \\lceil -\\log_2 {{p}}\\rceil = \\lceil {{-log2(p)}}\\rceil$ = **{{ceil(-log2(p))}} bits**. Rounding up is what makes the lengths satisfy the Kraft inequality."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.4,
+              0.5,
+              0.6
+            ],
+            "b": [
+              0.2,
+              0.25,
+              0.3
+            ],
+            "c": [
+              0.05,
+              0.1,
+              0.15
+            ]
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "Hs": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)"
+          },
+          "require": "min(d - 0.049, c - d + 0.001)",
+          "prompt": "A source emits A, B, C and D with probabilities {{a}}, {{b}}, {{c}} and {{d}}, coded as 0, 10, 110 and 111. What is the coding efficiency $\\eta = H/\\bar L$?",
+          "answer": "Hs/(a + 2*b + 3*c + 3*d)",
+          "unit": "",
+          "explanation": "$H$ = {{Hs||4}} bits; $\\bar L$ = {{a}} + 2 × {{b}} + 3 × {{c}} + 3 × {{d}} = {{a + 2*b + 3*c + 3*d||3}} bits. $\\eta$ = {{Hs||4}} / {{a + 2*b + 3*c + 3*d||3}} = **{{Hs/(a + 2*b + 3*c + 3*d)||3}}** ({{100*Hs/(a + 2*b + 3*c + 3*d)||3}} %)."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "params": {
+            "Hs": [
+              1.75,
+              2.1,
+              2.5,
+              3.2
+            ]
+          },
+          "prompt": "For a source with an entropy of {{Hs}} bits/symbol, a clever uniquely decodable code could reach an average length of {{Hs - 0.15}} bits/symbol.",
+          "answer": false,
+          "explanation": "False. The source coding theorem forbids any uniquely decodable code from going below the entropy, {{Hs}} bits/symbol. To beat that you would need to throw information away (lossy coding)."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "Hs": [
+              1.3,
+              1.85,
+              2.2,
+              2.6,
+              3.1
+            ]
+          },
+          "prompt": "A source has an entropy of {{Hs}} bits/symbol. Which of these could be the average length of its Huffman code?",
+          "options": [
+            "{{Hs + 0.3}} bits",
+            "{{Hs - 0.2}} bits",
+            "{{Hs + 1.2}} bits",
+            "{{Hs - 0.7}} bits"
+          ],
+          "answer": 0,
+          "explanation": "An optimal symbol code satisfies $H \\le \\bar L < H + 1$, i.e. between {{Hs}} and {{Hs + 1}} bits. Only **{{Hs + 0.3}} bits** lies in that range: anything below $H$ is impossible, and the Huffman code is never 1 bit or more above $H$."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "prompt": "A source emits five symbols with probabilities 1/2, 1/4, 1/8, 1/16 and 1/16. A code gives each symbol $-\\log_2 p_i$ bits. What is its average length?",
+          "answer": "1.875",
+          "unit": "bits",
+          "explanation": "Lengths 1, 2, 3, 4, 4: $\\bar L$ = 0.5 + 0.5 + 0.375 + 0.25 + 0.25 = **1.875 bits**. That equals the entropy, so the efficiency is 100 %: all probabilities are powers of 1/2, the one case where $\\bar L = H$ is possible."
+        }
+      ]
+    },
+    {
+      "id": "it-sourcecoding-3",
+      "title": "Huffman coding",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Huffman's algorithm",
+          "body": "Repeatedly merge the two least probable symbols (or nodes) into one node with their summed probability, until one node is left. Each merge adds one bit to every symbol below it, so the average length is simply the **sum of the probabilities of all merged nodes**.",
+          "formula": "\\bar L = \\sum_{\\text{merges}} p_{\\text{node}}"
+        },
+        {
+          "id": "q1",
+          "type": "orderSteps",
+          "prompt": "Put the steps of Huffman coding in order.",
+          "items": [
+            "Sort the symbols by probability",
+            "Merge the two least probable into one node with their total probability",
+            "Repeat the merging until a single node remains",
+            "Label the two branches of every merge 0 and 1",
+            "Read each codeword along the path from the root to its symbol"
+          ],
+          "explanation": "Huffman coding builds the tree from the bottom up: always combine the two least likely items, so that rare symbols end up deepest (longest codewords). The 0/1 labels can be chosen freely at every merge; that does not change the lengths."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "c": {
+              "min": 0.05,
+              "max": 0.4,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "m1": "max(a, b)",
+            "n1": "min(a, b)",
+            "m2": "max(c, d)",
+            "n2": "min(c, d)",
+            "s1": "max(m1, m2)",
+            "s4": "min(n1, n2)",
+            "s2": "max(min(m1, m2), max(n1, n2))",
+            "s3": "min(min(m1, m2), max(n1, n2))",
+            "t1": "s3 + s4",
+            "t2": "1 - max(s1, t1)",
+            "L": "t1 + t2 + 1",
+            "Hs": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)"
+          },
+          "require": "d - 0.049",
+          "prompt": "Find the average length of a Huffman code for A: {{a}}, B: {{b}}, C: {{c}}, D: {{d}}.",
+          "answer": "L",
+          "unit": "bits",
+          "explanation": "Sorted: {{s1}}, {{s2}}, {{s3}}, {{s4}}. Merge the two smallest: {{s3}} + {{s4}} = {{t1}}. Then the two smallest of ({{s1}}, {{s2}}, {{t1}}) give {{t2}}, and the last merge gives 1. The average length is the sum of all merged probabilities: $\\bar L$ = {{t1}} + {{t2}} + 1 = **{{L}} bits/symbol**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "p2": [
+              0.15,
+              0.2,
+              0.25
+            ],
+            "p3": [
+              0.1,
+              0.15,
+              0.2
+            ],
+            "p4": [
+              0.05,
+              0.1,
+              0.15
+            ],
+            "p5": [
+              0.05,
+              0.1
+            ]
+          },
+          "derived": {
+            "p1": "round((1 - p2 - p3 - p4 - p5)*100)/100",
+            "t1": "p4 + p5",
+            "t2": "min(t1, p3) + min(max(t1, p3), p2)",
+            "t3": "1 - max(max(p1, t1), t2)",
+            "L": "t1 + t2 + t3 + 1"
+          },
+          "require": "min(min(p2 - p3, p3 - p4), p4 - p5) + 0.001",
+          "prompt": "Find the average length of a Huffman code for A: {{p1}}, B: {{p2}}, C: {{p3}}, D: {{p4}}, E: {{p5}}.",
+          "answer": "L",
+          "unit": "bits",
+          "explanation": "Merge the two smallest: {{p4}} + {{p5}} = {{t1}}. The two smallest of ({{p1}}, {{p2}}, {{p3}}, {{t1}}) give {{t2}}. The two smallest of what remains give {{t3}}, and the last merge gives 1. $\\bar L$ = sum of merged probabilities = {{t1}} + {{t2}} + {{t3}} + 1 = **{{L}} bits/symbol**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "c": {
+              "min": 0.05,
+              "max": 0.4,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "m1": "max(a, b)",
+            "n1": "min(a, b)",
+            "m2": "max(c, d)",
+            "n2": "min(c, d)",
+            "s1": "max(m1, m2)",
+            "s4": "min(n1, n2)",
+            "s2": "max(min(m1, m2), max(n1, n2))",
+            "s3": "min(min(m1, m2), max(n1, n2))",
+            "t1": "s3 + s4",
+            "t2": "1 - max(s1, t1)",
+            "L": "t1 + t2 + 1",
+            "Hs": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)"
+          },
+          "require": "d - 0.049",
+          "prompt": "A source emits A: {{a}}, B: {{b}}, C: {{c}}, D: {{d}}. What is the efficiency $\\eta = H/\\bar L$ of its Huffman code?",
+          "answer": "Hs/L",
+          "unit": "",
+          "explanation": "Huffman: Sorted: {{s1}}, {{s2}}, {{s3}}, {{s4}}. Merge the two smallest: {{s3}} + {{s4}} = {{t1}}. Then the two smallest of ({{s1}}, {{s2}}, {{t1}}) give {{t2}}, and the last merge gives 1. The average length is the sum of all merged probabilities: $\\bar L$ = {{t1}} + {{t2}} + 1 = {{L}} bits. Entropy: $H$ = {{Hs||4}} bits. $\\eta$ = {{Hs||4}} / {{L}} = **{{Hs/L||3}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "N": [
+              10000,
+              50000,
+              100000
+            ],
+            "a": {
+              "min": 0.3,
+              "max": 0.6,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.1,
+              "max": 0.3,
+              "step": 0.05
+            },
+            "c": {
+              "min": 0.05,
+              "max": 0.2,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "m1": "max(a, b)",
+            "n1": "min(a, b)",
+            "m2": "max(c, d)",
+            "n2": "min(c, d)",
+            "s1": "max(m1, m2)",
+            "s4": "min(n1, n2)",
+            "s2": "max(min(m1, m2), max(n1, n2))",
+            "s3": "min(min(m1, m2), max(n1, n2))",
+            "t1": "s3 + s4",
+            "t2": "1 - max(s1, t1)",
+            "L": "t1 + t2 + 1",
+            "Hs": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)"
+          },
+          "require": "d - 0.049",
+          "prompt": "A file of {{N}} symbols from a source with probabilities {{a}}, {{b}}, {{c}} and {{d}} is Huffman coded. Roughly how many bytes does the coded data take (ignore the code table)?",
+          "answer": "N*L/8",
+          "unit": "",
+          "explanation": "Sorted: {{s1}}, {{s2}}, {{s3}}, {{s4}}. Merge the two smallest: {{s3}} + {{s4}} = {{t1}}. Then the two smallest of ({{s1}}, {{s2}}, {{t1}}) give {{t2}}, and the last merge gives 1. The average length is the sum of all merged probabilities: $\\bar L$ = {{t1}} + {{t2}} + 1 = {{L}} bits/symbol. Size ≈ {{N}} × {{L}} / 8 = **{{N*L/8||4}} bytes** (versus {{N*2/8||3}} bytes with a fixed 2-bit code)."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which codeword lengths does Huffman's algorithm give for the probabilities 0.4, 0.3, 0.2, 0.1 (lengths listed in the same order)?",
+          "options": [
+            "1, 2, 3, 3",
+            "2, 2, 2, 2",
+            "1, 2, 2, 3",
+            "1, 3, 3, 2"
+          ],
+          "answer": 0,
+          "explanation": "Merge 0.1 + 0.2 = 0.3, then 0.3 + 0.3 = 0.6, then 0.4 + 0.6 = 1. So 0.4 gets 1 bit, 0.3 gets 2 bits, 0.2 and 0.1 get 3 bits: $\\bar L$ = 1.9 bits. 2, 2, 2, 2 gives 2 bits; 1, 2, 2, 3 breaks the Kraft inequality (sum 1.125); 1, 3, 3, 2 gives the long codewords to likely symbols (2.1 bits)."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each observation to what it tells you.",
+          "pairs": [
+            [
+              "Kraft sum above 1",
+              "No prefix-free code exists"
+            ],
+            [
+              "Kraft sum below 1",
+              "Some codeword could be shortened"
+            ],
+            [
+              "All $p_i$ are powers of 1/2",
+              "Huffman reaches $\\bar L = H$"
+            ],
+            [
+              "$\\bar L < H$",
+              "The code is not uniquely decodable"
+            ]
+          ],
+          "explanation": "Kraft: $\\sum 2^{-l_i} \\le 1$ is required, and a sum below 1 leaves unused leaves. With dyadic probabilities $l_i = -\\log_2 p_i$ is an integer, so $\\bar L = H$. Going below $H$ is impossible for any uniquely decodable code."
+        }
+      ]
+    },
+    {
+      "id": "it-sourcecoding-4",
+      "title": "Coding blocks of symbols",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Group symbols to beat the 1-bit loss",
+          "body": "Symbol-by-symbol codes lose up to 1 bit per symbol to rounding. Coding blocks of $n$ symbols as super-symbols spreads that loss over $n$ symbols. Drag $p$ to compare a binary source's entropy with Huffman coding of single bits and of pairs.",
+          "formula": "H \\le \\frac{\\bar L_n}{n} < H + \\frac{1}{n}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.5,
+              "label": "p = P(1)"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.15,
+              "label": "bits/symbol"
+            },
+            "sliders": [
+              {
+                "name": "q",
+                "label": "$p$",
+                "min": 0.02,
+                "max": 0.5,
+                "step": 0.01,
+                "value": 0.1
+              }
+            ],
+            "let": {
+              "Hq": "(-(q)*log2(max(q, 1e-12)) - (1-(q))*log2(max(1-(q), 1e-12)))",
+              "L2": "if(0.381966 - q, (1 + 3*q - q^2)/2, 1)"
+            },
+            "curves": [
+              {
+                "f": "1",
+                "color": "grey",
+                "dash": true,
+                "label": "single symbols",
+                "labelAt": 0.1
+              },
+              {
+                "f": "if(0.381966 - x, (1 + 3*x - x^2)/2, 1)",
+                "color": "blue",
+                "label": "pairs",
+                "labelAt": 0.45
+              },
+              {
+                "f": "(-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12)))",
+                "label": "H(p)",
+                "labelAt": 0.1
+              }
+            ],
+            "points": [
+              {
+                "x": "q",
+                "y": "L2",
+                "color": "blue",
+                "guides": false
+              },
+              {
+                "x": "q",
+                "y": "Hq",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$H(p)$",
+                "value": "Hq"
+              },
+              {
+                "label": "pairs: $\\bar L_2/2$",
+                "value": "L2"
+              },
+              {
+                "label": "efficiency with pairs",
+                "value": "100*Hq/L2",
+                "unit": "%"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.05,
+              0.1,
+              0.15,
+              0.2,
+              0.25,
+              0.3
+            ]
+          },
+          "prompt": "A binary source emits a 1 with probability {{p}}. Each bit is sent as it is (1 bit per symbol).",
+          "ask": [
+            {
+              "prompt": "What is the entropy of the source?",
+              "answer": "(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))",
+              "unit": "bits",
+              "explanation": "$H({{p}})$ = {{p}} × {{-log2(p)}} + {{1-p}} × {{-log2(1-p)}} = **{{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} bit/symbol**."
+            },
+            {
+              "prompt": "What is the efficiency of sending each bit as it is?",
+              "answer": "(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))",
+              "unit": "",
+              "explanation": "$\\eta = H/\\bar L$ = {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} / 1 = **{{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}}**. With only two symbols, Huffman cannot do better than 1 bit each."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.05,
+              0.1,
+              0.15,
+              0.2,
+              0.25,
+              0.3
+            ]
+          },
+          "prompt": "The same binary source ($P(1)$ = {{p}}) is now Huffman coded in **pairs** of bits (00, 01, 10, 11). What is the average length per **source bit**?",
+          "answer": "(1 + 3*p - p^2)/2",
+          "unit": "bits",
+          "hint": "Average length = sum of the merged probabilities; divide by 2 at the end.",
+          "explanation": "Pair probabilities: 00: {{(1-p)^2||3}}, 01 and 10: {{p*(1-p)||3}} each, 11: {{p^2||3}}. Merges: {{p^2||3}} + {{p*(1-p)||3}} = {{p||3}}; then {{p*(1-p)||3}} + {{p||3}} = {{2*p - p^2||3}} (00 stays the largest); then 1. $\\bar L_2$ = {{p||3}} + {{2*p - p^2||3}} + 1 = {{1 + 3*p - p^2||3}} bits per pair, so **{{(1 + 3*p - p^2)/2||3}} bit per source bit** (lengths 1, 2, 3, 3)."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.05,
+              0.1,
+              0.15,
+              0.2,
+              0.25,
+              0.3
+            ]
+          },
+          "prompt": "For the binary source with $P(1)$ = {{p}}, what efficiency does Huffman coding of pairs reach?",
+          "answer": "(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))/((1 + 3*p - p^2)/2)",
+          "unit": "",
+          "explanation": "$H$ = {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} bit and pairs need $\\bar L_2/2$ = {{(1 + 3*p - p^2)/2||3}} bit per source bit. $\\eta$ = **{{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))/((1 + 3*p - p^2)/2)||3}}**, up from {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} for single bits. Triples and longer blocks get closer still."
+        },
+        {
+          "id": "q4",
+          "type": "slider",
+          "prompt": "Coding pairs stops paying off when $P(00) = (1-p)^2$ drops to $p$: then the Huffman tree becomes a plain 2-bit code. Drag $p$ to that point.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.5,
+              "label": "p = P(1)"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.15,
+              "label": "probability; bits/symbol"
+            },
+            "sliders": [
+              {
+                "name": "q",
+                "label": "$p$",
+                "min": 0.02,
+                "max": 0.5,
+                "step": 0.005,
+                "value": 0.1
+              }
+            ],
+            "let": {
+              "L2": "if(0.381966 - q, (1 + 3*q - q^2)/2, 1)"
+            },
+            "curves": [
+              {
+                "f": "if(0.381966 - x, (1 + 3*x - x^2)/2, 1)",
+                "color": "blue",
+                "label": "pairs",
+                "labelAt": 0.45,
+                "reveal": true
+              },
+              {
+                "f": "(1-x)^2",
+                "color": "orange"
+              },
+              {
+                "f": "x",
+                "color": "purple",
+                "dash": true,
+                "label": "p",
+                "labelAt": 0.85
+              }
+            ],
+            "points": [
+              {
+                "x": "q",
+                "y": "(1-q)^2",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "pairs: $\\bar L_2/2$",
+                "value": "L2",
+                "reveal": true
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1,
+                "label": "single symbols",
+                "color": "grey"
+              }
+            ],
+            "labels": [
+              {
+                "x": 0.22,
+                "y": 0.76,
+                "text": "P(00)",
+                "color": "orange"
+              }
+            ]
+          },
+          "answer": {
+            "q": "(3 - sqrt(5))/2"
+          },
+          "tolerance": 0.03,
+          "explanation": "$(1-p)^2 = p$ gives $p^2 - 3p + 1 = 0$, so $p = (3 - \\sqrt 5)/2$ ≈ **0.382**. Below it the tree has lengths 1, 2, 3, 3 and $\\bar L_2/2 = (1 + 3p - p^2)/2 < 1$; above it all four pairs get 2 bits, no better than sending the bits as they are."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Huffman coding single symbols of a binary source never compresses, however skewed the source is.",
+          "answer": true,
+          "explanation": "True. With two symbols the only prefix code is {0, 1}: 1 bit per symbol whatever $p$ is, even though $H(p)$ may be far below 1. Blocks of symbols (or arithmetic coding) are needed to get closer to the entropy."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Why does coding blocks of $n$ symbols bring the average length per symbol closer to the entropy?",
+          "options": [
+            "The rounding loss of less than 1 bit is shared by $n$ symbols",
+            "Longer blocks have a higher entropy per symbol",
+            "Blocks remove the dependence between symbols",
+            "Huffman codes for blocks may violate the Kraft inequality"
+          ],
+          "answer": 0,
+          "explanation": "For a block of $n$ independent symbols the entropy is $nH$, and a Huffman code for blocks needs less than $nH + 1$ bits. Per symbol that is less than $H + 1/n$. The entropy per symbol itself does not change for independent symbols, and every Huffman code satisfies Kraft."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "c": {
+              "min": 0.05,
+              "max": 0.4,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "m1": "max(a, b)",
+            "n1": "min(a, b)",
+            "m2": "max(c, d)",
+            "n2": "min(c, d)",
+            "s1": "max(m1, m2)",
+            "s4": "min(n1, n2)",
+            "s2": "max(min(m1, m2), max(n1, n2))",
+            "s3": "min(min(m1, m2), max(n1, n2))",
+            "t1": "s3 + s4",
+            "t2": "1 - max(s1, t1)",
+            "L": "t1 + t2 + 1",
+            "Hs": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)",
+            "la": "ceil(-log2(a) - 1e-9)",
+            "lb": "ceil(-log2(b) - 1e-9)",
+            "lc": "ceil(-log2(c) - 1e-9)",
+            "ld": "ceil(-log2(d) - 1e-9)"
+          },
+          "require": "d - 0.049",
+          "prompt": "A Shannon code ($l_i = \\lceil -\\log_2 p_i\\rceil$) is used for A: {{a}}, B: {{b}}, C: {{c}}, D: {{d}}. What is its average length?",
+          "answer": "a*la + b*lb + c*lc + d*ld",
+          "unit": "bits",
+          "explanation": "Lengths: $\\lceil -\\log_2 p\\rceil$ = {{la}}, {{lb}}, {{lc}}, {{ld}} bits. $\\bar L$ = {{a}}·{{la}} + {{b}}·{{lb}} + {{c}}·{{lc}} + {{d}}·{{ld}} = **{{a*la + b*lb + c*lc + d*ld||3}} bits**, against $H$ = {{Hs||4}} bits: within 1 bit, as promised, but Huffman ({{L}} bits) does at least as well."
+        }
+      ]
+    }
+  ]
+}

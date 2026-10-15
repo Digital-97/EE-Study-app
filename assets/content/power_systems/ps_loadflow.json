@@ -1,0 +1,2029 @@
+{
+ "id": "ps-loadflow",
+ "title": "Load Flow",
+ "description": "Bus types, the bus admittance matrix, the power-flow equations and how Gauss–Seidel, Newton–Raphson and the DC approximation solve them.",
+ "reference": "Glover ch. 6",
+ "study": [
+  {
+   "title": "The load-flow problem",
+   "body": "Given the loads and the generators' settings, find the voltage (magnitude and angle) at every bus; line flows and losses follow. Each bus has four quantities, $P$, $Q$, $|V|$ and $\\delta$, of which two are specified:\n- **slack bus** (one, a large generator): $|V|$ and $\\delta = 0$ given, $P$ and $Q$ unknown. It supplies the losses, which are unknown until the end, and is the angle reference.\n- **PV bus** (generators): $P$ and $|V|$ given, $Q$ and $\\delta$ unknown.\n- **PQ bus** (loads): $P$ and $Q$ given, $|V|$ and $\\delta$ unknown.\n$P$ and $Q$ are **net injections**: generation minus load."
+  },
+  {
+   "title": "The bus admittance matrix",
+   "body": "Nodal equations of the network: $\\mathbf I = \\mathbf Y_{bus}\\mathbf V$, with injected currents $\\mathbf I$. Build $\\mathbf Y_{bus}$ by inspection:\n- diagonal $Y_{kk}$: sum of all admittances connected to bus $k$, including shunts such as half the line charging $jB/2$;\n- off-diagonal $Y_{kn}$: minus the sum of the series admittances between buses $k$ and $n$.\nReal grids have only a few lines per bus, so $\\mathbf Y_{bus}$ is **sparse**: mostly zeros.",
+   "formula": "Y_{kk} = \\sum y_{k\\cdot},\\qquad Y_{kn} = -y_{kn}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "node",
+      "at": [
+       0,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       6,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       3,
+       4
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        2,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "inductor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       4,
+       0
+      ],
+      "label": "x_{12}",
+      "value": ""
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        0,
+        4
+       ],
+       [
+        1,
+        4
+       ]
+      ]
+     },
+     {
+      "type": "inductor",
+      "from": [
+       1,
+       4
+      ],
+      "to": [
+       3,
+       4
+      ],
+      "label": "x_{13}",
+      "value": ""
+     },
+     {
+      "type": "inductor",
+      "from": [
+       3,
+       4
+      ],
+      "to": [
+       5,
+       4
+      ],
+      "label": "x_{23}",
+      "value": ""
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        5,
+        4
+       ],
+       [
+        6,
+        4
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "text",
+      "at": [
+       -0.6,
+       -0.5
+      ],
+      "label": "1 (slack)"
+     },
+     {
+      "type": "text",
+      "at": [
+       6.4,
+       -0.5
+      ],
+      "label": "2"
+     },
+     {
+      "type": "text",
+      "at": [
+       3,
+       4.7
+      ],
+      "label": "3"
+     }
+    ]
+   }
+  },
+  {
+   "title": "The power-flow equations",
+   "body": "The complex power injected at bus $k$ is $S_k = V_kI_k^*$ with $I_k = \\sum_n Y_{kn}V_n$. With $Y_{kn} = |Y_{kn}|\\angle\\theta_{kn}$ and $V_n = |V_n|\\angle\\delta_n$, this gives two real equations per bus (below, $V$ and $Y$ are magnitudes and $\\delta_{kn} = \\delta_k - \\delta_n$). They are **nonlinear** (products of voltages, sines and cosines), so they are solved iteratively.",
+   "formula": "\\begin{aligned}P_k &= V_k\\sum_n Y_{kn}V_n\\cos(\\delta_{kn} - \\theta_{kn})\\\\ Q_k &= V_k\\sum_n Y_{kn}V_n\\sin(\\delta_{kn} - \\theta_{kn})\\end{aligned}"
+  },
+  {
+   "title": "Gauss–Seidel",
+   "body": "Solve the equation of bus $k$ for $V_k$ and sweep through the buses, always using the newest values. Start from a **flat start** ($V$ = 1∠0°). At a PV bus, first compute $Q_k$ from the present voltages, then update $V_k$ and rescale its magnitude back to the specified value, keeping the new angle. Simple, but it needs many iterations on large systems.",
+   "formula": "\\begin{aligned}V_k^{(i+1)} = \\frac{1}{Y_{kk}}\\Big[&\\frac{P_k - jQ_k}{V_k^{(i)*}}\\\\ &- \\sum_{n\\neq k}Y_{kn}V_n\\Big]\\end{aligned}"
+  },
+  {
+   "title": "Newton–Raphson",
+   "body": "Write the unknowns as $\\mathbf x = [\\boldsymbol\\delta;\\ |\\mathbf V|]$ and the **mismatches** $\\Delta P_k$, $\\Delta Q_k$ between scheduled and calculated injections. Linearize around the present estimate with the **Jacobian** $\\mathbf J$ (the partial derivatives of $P$ and $Q$ with respect to $\\delta$ and $|V|$) and solve for corrections. Convergence is **quadratic**: a handful of iterations, almost independent of system size. It is the standard method in practice.",
+   "formula": "\\mathbf J\\,\\Delta\\mathbf x = \\begin{bmatrix}\\Delta\\mathbf P\\\\ \\Delta\\mathbf Q\\end{bmatrix},\\qquad \\mathbf x \\leftarrow \\mathbf x + \\Delta\\mathbf x"
+  },
+  {
+   "title": "Explore: Newton–Raphson on one equation",
+   "body": "One generator bus behind a 0.5-pu reactance from a slack bus ($P_{max}$ = 2 pu) must inject the scheduled $P$. From a flat start, each iteration follows the **tangent** (the 1×1 Jacobian $2\\cos\\delta$) from the present estimate to the scheduled value. Step through the iterations: the mismatch shrinks roughly quadratically.",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 100,
+     "label": "δ (°)",
+     "ticks": [
+      0,
+      20,
+      40,
+      60,
+      80,
+      100
+     ]
+    },
+    "y": {
+     "min": 0,
+     "max": 2.2,
+     "label": "P (pu)"
+    },
+    "sliders": [
+     {
+      "name": "n",
+      "label": "iteration $i$",
+      "min": 0,
+      "max": 3,
+      "step": 1,
+      "value": 0
+     },
+     {
+      "name": "Pt",
+      "label": "scheduled $P$",
+      "min": 0.5,
+      "max": 1.9,
+      "step": 0.1,
+      "value": 1.6,
+      "unit": "pu"
+     }
+    ],
+    "let": {
+     "d1": "Pt/2",
+     "d2": "Pt/2 + (Pt - 2*sin(Pt/2))/(2*cos(Pt/2))",
+     "d3": "d2 + (Pt - 2*sin(d2))/(2*cos(d2))",
+     "d4": "d3 + (Pt - 2*sin(d3))/(2*cos(d3))",
+     "dn": "if(n-2.5, d3, if(n-1.5, d2, if(n-0.5, d1, 0)))",
+     "dx": "if(n-2.5, d4, if(n-1.5, d3, if(n-0.5, d2, d1)))"
+    },
+    "curves": [
+     {
+      "f": "2*sin(rad(x))",
+      "label": "P(δ)",
+      "labelAt": 0.95
+     },
+     {
+      "f": "2*sin(dn) + 2*cos(dn)*(rad(x) - dn)",
+      "color": "purple",
+      "dash": true,
+      "label": "tangent",
+      "labelAt": 0.15
+     }
+    ],
+    "hlines": [
+     {
+      "y": "Pt",
+      "color": "orange"
+     }
+    ],
+    "labels": [
+     {
+      "x": 2,
+      "y": "Pt + 0.1",
+      "text": "scheduled P",
+      "color": "orange"
+     }
+    ],
+    "points": [
+     {
+      "x": "deg(dn)",
+      "y": "2*sin(dn)",
+      "guides": false
+     },
+     {
+      "x": "deg(dx)",
+      "y": "Pt",
+      "color": "purple",
+      "label": "next",
+      "guides": false
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$\\delta^{(i)}$",
+      "value": "deg(dn)",
+      "unit": "°",
+      "sig": 4
+     },
+     {
+      "label": "mismatch $\\Delta P$",
+      "value": "Pt - 2*sin(dn)",
+      "unit": "pu",
+      "sig": 2
+     },
+     {
+      "label": "$\\delta^{(i+1)}$",
+      "value": "deg(dx)",
+      "unit": "°",
+      "sig": 4
+     }
+    ],
+    "height": 220
+   }
+  },
+  {
+   "title": "DC power flow",
+   "body": "For quick studies (contingency screening, markets) assume $R \\ll X$, all $|V| \\approx$ 1.0 pu and small angle differences ($\\sin\\delta \\approx \\delta$). Reactive power is ignored and the real-power equations become **linear**: line flows follow from the angles like currents from voltages in a resistive circuit, with $x$ playing the role of resistance and $\\mathbf B$ built like $\\mathbf Y_{bus}$ from $1/x$.",
+   "formula": "P_{ij} = \\frac{\\delta_i - \\delta_j}{x_{ij}},\\qquad \\mathbf P = \\mathbf B\\boldsymbol\\delta"
+  },
+  {
+   "title": "Worked example: Gauss–Seidel on two buses",
+   "body": "Slack bus 1 at 1.0∠0°; line $z$ = 0.02 + j0.08 pu; bus 2 is a PQ bus with a load of 1.0 + j0.5 pu, so $P_2 - jQ_2 = -1.0 + j0.5$. With $Y_{22} = 1/z$ and $Y_{21} = -1/z$, the update is $V_2 = 1 + z(-1.0 + j0.5)/V_2^*$.\n- Flat start $V_2^{(0)}$ = 1: $V_2^{(1)}$ = 1 + (0.02 + j0.08)(−1 + j0.5) = 0.940 − j0.070 = 0.943∠−4.26°.\n- $V_2^{(2)}$ = 1 + (0.02 + j0.08)(−1 + j0.5)/(0.940 + j0.070) = 0.931 − j0.069 = 0.934∠−4.26°.\n- It settles at 0.933∠−4.30° after about four iterations.",
+   "circuit": {
+    "elements": [
+     {
+      "type": "node",
+      "at": [
+       0,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       6,
+       0
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "r"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "jx"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "text",
+      "at": [
+       0,
+       -0.8
+      ],
+      "label": "1: V_1 = 1∠0°"
+     },
+     {
+      "type": "text",
+      "at": [
+       6,
+       -0.8
+      ],
+      "label": "2: load"
+     }
+    ]
+   }
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ps-loadflow-1",
+   "title": "Bus types and Y-bus",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "What a load flow solves",
+     "body": "Given the loads and the generator settings, find every bus voltage $|V|\\angle\\delta$. Each bus has four quantities ($P$, $Q$, $|V|$, $\\delta$); two are known:\n- **slack**: $|V|$ and $\\delta$ (the angle reference; it covers the losses)\n- **PV** (generator): $P$ and $|V|$\n- **PQ** (load): $P$ and $Q$\n$P$ and $Q$ are net injections, generation minus load."
+    },
+    {
+     "id": "q1",
+     "type": "matchPairs",
+     "prompt": "Match each bus type to the quantities that are specified.",
+     "pairs": [
+      [
+       "Slack bus",
+       "$|V|$ and $\\delta$"
+      ],
+      [
+       "PV (generator) bus",
+       "$P$ and $|V|$"
+      ],
+      [
+       "PQ (load) bus",
+       "$P$ and $Q$"
+      ]
+     ],
+     "explanation": "The slack bus fixes the angle reference and balances the unknown losses. Generators regulate their voltage magnitude and are dispatched to a real power; loads simply draw $P$ and $Q$."
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "Which quantities must the load flow find at a PV (generator) bus?",
+     "options": [
+      "$Q$ and $\\delta$",
+      "$P$ and $Q$",
+      "$|V|$ and $\\delta$",
+      "$P$ and $|V|$"
+     ],
+     "answer": 0,
+     "explanation": "$P$ (the dispatch) and $|V|$ (the voltage set point) are specified; the generator supplies whatever reactive power $Q$ is needed to hold $|V|$, and the angle $\\delta$ follows from the power flow."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Building Y-bus",
+     "body": "With series admittances $y_{kn} = 1/z_{kn}$ and shunt admittances (e.g. half the line charging, $jB/2$, at each end):\n- $Y_{kk}$ = sum of every admittance connected to bus $k$;\n- $Y_{kn}$ = −(sum of the series admittances between $k$ and $n$).",
+     "circuit": {
+      "elements": [
+       {
+        "type": "node",
+        "at": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         4
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "x_{12}",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0,
+          4
+         ],
+         [
+          1,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         4
+        ],
+        "to": [
+         3,
+         4
+        ],
+        "label": "x_{13}",
+        "value": ""
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         4
+        ],
+        "to": [
+         5,
+         4
+        ],
+        "label": "x_{23}",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          4
+         ],
+         [
+          6,
+          4
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         -0.6,
+         -0.5
+        ],
+        "label": "1 (slack)"
+       },
+       {
+        "type": "text",
+        "at": [
+         6.4,
+         -0.5
+        ],
+        "label": "2"
+       },
+       {
+        "type": "text",
+        "at": [
+         3,
+         4.7
+        ],
+        "label": "3"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "x12": [
+       0.05,
+       0.08,
+       0.1,
+       0.125
+      ],
+      "x13": [
+       0.1,
+       0.2,
+       0.25
+      ],
+      "b12": [
+       0.02,
+       0.04,
+       0.06
+      ],
+      "b13": [
+       0.03,
+       0.05
+      ]
+     },
+     "prompt": "Bus 1 connects to bus 2 through a line with $x$ = {{x12}} pu and total charging $B$ = {{b12}} pu, and to bus 3 through $x$ = {{x13}} pu, $B$ = {{b13}} pu (resistances neglected). $Y_{11} = jB_{11}$: find $B_{11}$ in per unit.",
+     "answer": "-1/x12 - 1/x13 + (b12 + b13)/2",
+     "unit": "pu",
+     "explanation": "Series admittances: $1/(j{{x12}})$ = −j{{1/x12}} and $1/(j{{x13}})$ = −j{{1/x13}}. Shunts at bus 1: half of each line's charging, j{{b12/2}} + j{{b13/2}}. Sum: $B_{11}$ = −{{1/x12}} − {{1/x13}} + {{(b12+b13)/2}} = {{-1/x12 - 1/x13 + (b12 + b13)/2|pu|4}}. Negative: the bus is dominated by inductive lines."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "r": [
+       0.01,
+       0.02,
+       0.03
+      ],
+      "x": [
+       0.08,
+       0.1,
+       0.12,
+       0.15
+      ]
+     },
+     "derived": {
+      "m": "r^2 + x^2"
+     },
+     "prompt": "The line between buses 1 and 2 has $z$ = {{r}} + j{{x}} pu. Write $Y_{12} = G_{12} + jB_{12}$.",
+     "ask": [
+      {
+       "prompt": "Find $G_{12}$.",
+       "answer": "-r/m",
+       "unit": "pu",
+       "explanation": "$y = 1/z = (r - jx)/(r^2 + x^2)$ = ({{r}} − j{{x}})/{{m}} = {{r/m}} − j{{x/m}} pu. $Y_{12} = -y$, so $G_{12}$ = {{-r/m|pu}} and $B_{12}$ = +{{x/m}}."
+      },
+      {
+       "prompt": "Find $B_{12}$.",
+       "answer": "x/m",
+       "unit": "pu",
+       "explanation": "$y = 1/z = (r - jx)/(r^2 + x^2)$ = {{r/m}} − j{{x/m}} pu. $Y_{12} = -y$ = {{-r/m}} + j{{x/m}}, so $B_{12}$ = {{x/m|pu}}: off-diagonal susceptances are positive, diagonal ones negative."
+      }
+     ]
+    },
+    {
+     "id": "q5",
+     "type": "trueFalse",
+     "prompt": "For a grid with 5000 buses, most of the 25 million entries of $\\mathbf Y_{bus}$ are zero.",
+     "answer": true,
+     "explanation": "$Y_{kn}$ is non-zero only if a branch joins buses $k$ and $n$. A typical bus connects to 2–4 others, so each row has only a few non-zero entries. Sparse-matrix techniques make large load flows fast."
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "Why does a load flow need a slack bus?",
+     "options": [
+      "The line losses are unknown until the solution is found, so one generator must balance the power, and it sets the angle reference",
+      "The slack bus absorbs all the reactive power of the loads",
+      "Gauss–Seidel cannot handle more than one generator",
+      "It represents the largest load in the system"
+     ],
+     "answer": 0,
+     "explanation": "If every $P$ were specified, the total would have to equal the losses exactly, which are not known in advance. Leaving $P$ (and $Q$) free at one bus closes the balance; its angle, 0°, is the reference for all others."
+    }
+   ]
+  },
+  {
+   "id": "ps-loadflow-2",
+   "title": "Equations and iterations",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "The power-flow equations",
+     "body": "Injected power at bus $k$: $S_k = V_k\\left(\\sum_n Y_{kn}V_n\\right)^*$. For two buses joined by a lossless reactance $x$, this reduces to the familiar expressions:",
+     "formula": "\\begin{aligned}P_2 &= \\frac{V_1V_2}{x}\\sin(\\delta_2 - \\delta_1)\\\\ Q_2 &= \\frac{V_2^2 - V_1V_2\\cos(\\delta_2 - \\delta_1)}{x}\\end{aligned}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "PL": [
+       0.8,
+       1.0,
+       1.2
+      ],
+      "x": [
+       0.08,
+       0.1,
+       0.12
+      ],
+      "V": [
+       0.96,
+       0.98
+      ],
+      "d": [
+       -3,
+       -4,
+       -5,
+       -6
+      ]
+     },
+     "derived": {
+      "Pc": "V*sin(rad(d))/x"
+     },
+     "require": "abs(-PL - V*sin(rad(d))/x) - 0.02",
+     "prompt": "Bus 1 (slack, 1.0∠0°) feeds a {{PL}}-pu load at bus 2 through $x$ = {{x}} pu. The present estimate is $V_2$ = {{V}}∠{{d}}° pu. Find the real-power mismatch $\\Delta P_2 = P_{2,sched} - P_{2,calc}$.",
+     "answer": "-PL - Pc",
+     "unit": "pu",
+     "explanation": "Scheduled injection: $P_{2,sched}$ = −{{PL}} pu (a load). Calculated: $P_{2,calc} = V_1V_2\\sin(\\delta_2 - \\delta_1)/x$ = {{V}} × sin({{d}}°)/{{x}} = {{Pc}} pu. $\\Delta P_2$ = −{{PL}} − ({{Pc}}) = {{-PL - Pc|pu}}. A positive mismatch means the estimate draws more than the load takes ($\\delta_2$ must become less negative); a negative one means it draws too little ($\\delta_2$ must become more negative)."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "One Gauss–Seidel step",
+     "body": "Solve bus $k$'s equation for $V_k$, using the latest values of all other voltages. For a PQ bus 2 fed from the slack bus through $z$ ($Y_{22} = 1/z$, $Y_{21} = -1/z$) this becomes $V_2 = V_1 + z(P_2 - jQ_2)/V_2^*$.",
+     "formula": "\\begin{aligned}V_k^{(i+1)} = \\frac{1}{Y_{kk}}\\Big[&\\frac{P_k - jQ_k}{V_k^{(i)*}}\\\\ &- \\sum_{n\\neq k}Y_{kn}V_n\\Big]\\end{aligned}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "node",
+        "at": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "r"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "jx"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         0,
+         -0.8
+        ],
+        "label": "1: V_1 = 1∠0°"
+       },
+       {
+        "type": "text",
+        "at": [
+         6,
+         -0.8
+        ],
+        "label": "2: load"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "r": [
+       0.01,
+       0.02,
+       0.03
+      ],
+      "x": [
+       0.05,
+       0.08,
+       0.1,
+       0.12
+      ],
+      "PL": [
+       0.5,
+       0.8,
+       1.0,
+       1.2
+      ],
+      "QL": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ]
+     },
+     "derived": {
+      "Vr": "1 - PL*r - QL*x",
+      "Vi": "QL*r - PL*x"
+     },
+     "prompt": "Slack bus 1 is at 1.0∠0°. Bus 2 has a load of {{PL}} + j{{QL}} pu and is connected through $z$ = {{r}} + j{{x}} pu. Do one Gauss–Seidel iteration from a flat start.",
+     "ask": [
+      {
+       "prompt": "Find $|V_2^{(1)}|$.",
+       "answer": "sqrt(Vr^2+Vi^2)",
+       "unit": "pu",
+       "tolerance": 0.003,
+       "explanation": "$P_2 - jQ_2$ = −{{PL}} + j{{QL}} (load). With $V_2^{(0)}$ = 1: $V_2^{(1)}$ = $1 + z(-{{PL}} + j{{QL}})$ = 1 + ({{r}} + j{{x}})(−{{PL}} + j{{QL}}) = {{Vr||4}} − j{{-Vi||3}}. $|V_2^{(1)}|$ = {{sqrt(Vr^2+Vi^2)||4}} pu."
+      },
+      {
+       "prompt": "Find the angle of $V_2^{(1)}$ in degrees.",
+       "answer": "deg(atan2(Vi, Vr))",
+       "unit": "°",
+       "absTolerance": 0.1,
+       "explanation": "$V_2^{(1)} = 1 + z(P_2 - jQ_2)$ = 1 + ({{r}} + j{{x}})(−{{PL}} + j{{QL}}) = {{Vr||4}} − j{{-Vi||3}}, so $\\delta_2$ = −atan({{-Vi||3}}/{{Vr||4}}) = {{deg(atan2(Vi, Vr))|°}}. The load bus lags the slack bus."
+      }
+     ]
+    },
+    {
+     "id": "q3",
+     "type": "orderSteps",
+     "prompt": "Put the Gauss–Seidel steps for a PV (generator) bus in order.",
+     "items": [
+      "Compute $Q_k$ from the present voltage estimates",
+      "Check $Q_k$ against the generator's limits",
+      "Update $V_k$ with the Gauss–Seidel formula",
+      "Rescale $|V_k|$ to the specified value, keeping the new angle",
+      "Move on to the next bus"
+     ],
+     "explanation": "At a PV bus $Q_k$ is unknown, so it is first estimated from $Q_k = \\text{Im}\\{V_k(\\sum_n Y_{kn}V_n)^*\\}$. If it violates a limit, the bus is treated as a PQ bus at that limit. Otherwise the updated voltage keeps its angle but its magnitude is reset to the set point."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Newton–Raphson",
+     "body": "Form the mismatches $\\Delta P$, $\\Delta Q$ at the present estimate, linearize with the **Jacobian** $\\mathbf J$ of partial derivatives, solve for the corrections and update. Near the solution the error roughly squares each iteration, so 3–5 iterations usually suffice, even for thousands of buses.",
+     "formula": "\\mathbf J\\begin{bmatrix}\\Delta\\boldsymbol\\delta\\\\ \\Delta|\\mathbf V|\\end{bmatrix} = \\begin{bmatrix}\\Delta\\mathbf P\\\\ \\Delta\\mathbf Q\\end{bmatrix}"
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "PG": [
+       0.6,
+       0.8,
+       1.0,
+       1.2
+      ],
+      "x": [
+       0.3,
+       0.4,
+       0.5
+      ],
+      "V": [
+       1.0,
+       1.02,
+       1.05
+      ]
+     },
+     "derived": {
+      "Pm": "V/x",
+      "d1": "PG*x/V",
+      "d2": "PG*x/V + (PG - V/x*sin(PG*x/V))/(V/x*cos(PG*x/V))"
+     },
+     "require": "0.8 - PG*x/V",
+     "prompt": "A generator bus 2 ($|V_2|$ = {{V}} pu) injects {{PG}} pu into a slack bus (1.0∠0°) through $x$ = {{x}} pu, so $P_2(\\delta) = ({{V}}/{{x}})\\sin\\delta$. Apply Newton–Raphson to $\\delta$ from a flat start ($\\delta^{(0)}$ = 0).",
+     "ask": [
+      {
+       "prompt": "Find $\\delta^{(1)}$ in degrees.",
+       "answer": "deg(d1)",
+       "unit": "°",
+       "absTolerance": 0.1,
+       "explanation": "$J = dP/d\\delta = (V_1V_2/x)\\cos\\delta$ = {{Pm}} at $\\delta$ = 0, and the mismatch is {{PG}} − 0. $\\Delta\\delta$ = {{PG}}/{{Pm}} = {{d1}} rad, so $\\delta^{(1)}$ = {{deg(d1)|°}}."
+      },
+      {
+       "prompt": "Find $\\delta^{(2)}$ in degrees.",
+       "answer": "deg(d2)",
+       "unit": "°",
+       "absTolerance": 0.1,
+       "explanation": "$\\delta^{(1)}$ = {{PG}}/{{Pm}} = {{d1}} rad. Then $\\Delta P = {{PG}} - {{Pm}}\\sin\\delta^{(1)}$ = {{PG - Pm*sin(d1)}}, $J = {{Pm}}\\cos\\delta^{(1)}$ = {{Pm*cos(d1)}}, so $\\delta^{(2)}$ = {{d1}} + {{(PG - Pm*sin(d1))/(Pm*cos(d1))}} = {{d2}} rad = {{deg(d2)|°}}. The exact answer, $\\arcsin(P x/V_1V_2)$ = {{deg(asin(PG/Pm))|°}}, is already very close."
+      }
+     ]
+    },
+    {
+     "id": "q5",
+     "type": "trueFalse",
+     "prompt": "In every Gauss–Seidel iteration the slack bus voltage is updated along with the other buses.",
+     "answer": false,
+     "explanation": "The slack bus voltage (magnitude and angle) is specified and stays fixed. Only its $P$ and $Q$ are computed, after convergence, from its power-flow equation."
+    }
+   ]
+  },
+  {
+   "id": "ps-loadflow-3",
+   "title": "Computing flows",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "DC power flow",
+     "body": "Assume $R \\ll X$, $|V| \\approx$ 1 pu and small angle differences. Then each line carries $P_{ij} = (\\delta_i - \\delta_j)/x_{ij}$ (angles in radians, per unit) and the bus injections satisfy the **linear** equations $\\mathbf P = \\mathbf B\\boldsymbol\\delta$, where $\\mathbf B$ is built like $\\mathbf Y_{bus}$ from the susceptances $1/x$ (slack bus removed).",
+     "formula": "\\begin{bmatrix}P_2\\\\ P_3\\end{bmatrix} = \\begin{bmatrix}\\frac{1}{x_{12}}+\\frac{1}{x_{23}} & -\\frac{1}{x_{23}}\\\\ -\\frac{1}{x_{23}} & \\frac{1}{x_{13}}+\\frac{1}{x_{23}}\\end{bmatrix}\\begin{bmatrix}\\delta_2\\\\ \\delta_3\\end{bmatrix}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "node",
+        "at": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         4
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "x_{12}",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0,
+          4
+         ],
+         [
+          1,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         4
+        ],
+        "to": [
+         3,
+         4
+        ],
+        "label": "x_{13}",
+        "value": ""
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         4
+        ],
+        "to": [
+         5,
+         4
+        ],
+        "label": "x_{23}",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          4
+         ],
+         [
+          6,
+          4
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         -0.6,
+         -0.5
+        ],
+        "label": "1 (slack)"
+       },
+       {
+        "type": "text",
+        "at": [
+         6.4,
+         -0.5
+        ],
+        "label": "2"
+       },
+       {
+        "type": "text",
+        "at": [
+         3,
+         4.7
+        ],
+        "label": "3"
+       }
+      ]
+     }
+    },
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "d1": [
+       0,
+       2,
+       5
+      ],
+      "d2": [
+       -8,
+       -6,
+       -4,
+       -3
+      ],
+      "x": [
+       0.05,
+       0.08,
+       0.1
+      ]
+     },
+     "prompt": "In a DC power flow (100-MVA base) bus $i$ has $\\delta_i$ = {{d1}}° and bus $j$ has $\\delta_j$ = {{d2}}°; the line between them has $x$ = {{x}} pu. Find the power flowing from $i$ to $j$.",
+     "answer": "rad(d1 - d2)/x*1e8",
+     "unit": "W",
+     "explanation": "$P_{ij} = (\\delta_i - \\delta_j)/x_{ij}$ with angles in radians: ({{d1-d2}}° = {{rad(d1-d2)}} rad)/{{x}} = {{rad(d1-d2)/x}} pu × 100 MVA = {{rad(d1 - d2)/x*1e8|W}}."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "x12": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "x13": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "x23": [
+       0.05,
+       0.1,
+       0.15
+      ],
+      "P2": [
+       0.5,
+       0.8,
+       1.0,
+       1.5
+      ],
+      "PL": [
+       1.0,
+       1.5,
+       2.0
+      ]
+     },
+     "derived": {
+      "B22": "1/x12 + 1/x23",
+      "B23": "-1/x23",
+      "B33": "1/x13 + 1/x23",
+      "det": "(1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2",
+      "d2": "(P2*(1/x13 + 1/x23) - (1/x23)*PL)/((1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2)",
+      "d3": "(-(1/x12 + 1/x23)*PL + (1/x23)*P2)/((1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2)"
+     },
+     "require": "min(abs(PL - P2) - 0.1, abs(d2/x12) - 0.05, abs(d3/x13) - 0.05, abs((d2-d3)/x23) - 0.05)",
+     "prompt": "DC power flow, 100-MVA base: bus 1 is the slack ($\\delta_1$ = 0), the generator at bus 2 injects {{P2}} pu, bus 3 has a {{PL}}-pu load. Line reactances as shown. Find $\\delta_2$ in degrees.",
+     "answer": "deg(d2)",
+     "unit": "°",
+     "absTolerance": 0.1,
+     "circuit": {
+      "elements": [
+       {
+        "type": "node",
+        "at": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         4
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "x_{12}",
+        "value": "{{x12}} pu"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0,
+          4
+         ],
+         [
+          1,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         4
+        ],
+        "to": [
+         3,
+         4
+        ],
+        "label": "x_{13}",
+        "value": "{{x13}} pu"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         4
+        ],
+        "to": [
+         5,
+         4
+        ],
+        "label": "x_{23}",
+        "value": "{{x23}} pu"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          4
+         ],
+         [
+          6,
+          4
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         -0.6,
+         -0.5
+        ],
+        "label": "1 (slack)"
+       },
+       {
+        "type": "text",
+        "at": [
+         6.4,
+         -0.5
+        ],
+        "label": "2"
+       },
+       {
+        "type": "text",
+        "at": [
+         3,
+         4.7
+        ],
+        "label": "3"
+       }
+      ]
+     },
+     "explanation": "$B_{22} = 1/x_{12} + 1/x_{23}$ = {{B22}}, $B_{33}$ = {{B33}}, $B_{23} = -1/x_{23}$ = {{B23}}. With $P_2$ = {{P2}} and $P_3$ = −{{PL}}: $\\delta_2 = (P_2B_{33} - B_{23}P_3)/\\det$ with $\\det = B_{22}B_{33} - B_{23}^2$ = {{det}}, so $\\delta_2$ = {{d2}} rad = {{deg(d2)|°}}."
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "x12": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "x13": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "x23": [
+       0.05,
+       0.1,
+       0.15
+      ],
+      "P2": [
+       0.5,
+       0.8,
+       1.0,
+       1.5
+      ],
+      "PL": [
+       1.0,
+       1.5,
+       2.0
+      ]
+     },
+     "derived": {
+      "B22": "1/x12 + 1/x23",
+      "B23": "-1/x23",
+      "B33": "1/x13 + 1/x23",
+      "det": "(1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2",
+      "d2": "(P2*(1/x13 + 1/x23) - (1/x23)*PL)/((1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2)",
+      "d3": "(-(1/x12 + 1/x23)*PL + (1/x23)*P2)/((1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2)"
+     },
+     "require": "min(abs(PL - P2) - 0.1, abs(d2/x12) - 0.05, abs(d3/x13) - 0.05, abs((d2-d3)/x23) - 0.05)",
+     "circuit": {
+      "elements": [
+       {
+        "type": "node",
+        "at": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         4
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "x_{12}",
+        "value": "{{x12}} pu"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0,
+          4
+         ],
+         [
+          1,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         4
+        ],
+        "to": [
+         3,
+         4
+        ],
+        "label": "x_{13}",
+        "value": "{{x13}} pu"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         4
+        ],
+        "to": [
+         5,
+         4
+        ],
+        "label": "x_{23}",
+        "value": "{{x23}} pu"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          4
+         ],
+         [
+          6,
+          4
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         -0.6,
+         -0.5
+        ],
+        "label": "1 (slack)"
+       },
+       {
+        "type": "text",
+        "at": [
+         6.4,
+         -0.5
+        ],
+        "label": "2"
+       },
+       {
+        "type": "text",
+        "at": [
+         3,
+         4.7
+        ],
+        "label": "3"
+       }
+      ]
+     },
+     "prompt": "DC power flow, 100-MVA base: bus 1 is the slack ($\\delta_1$ = 0), the generator at bus 2 injects {{P2}} pu, bus 3 has a {{PL}}-pu load. Line reactances as shown.",
+     "answer": "1",
+     "unit": "W",
+     "ask": [
+      {
+       "prompt": "Find the flow on line 2–3, from bus 2 to bus 3.",
+       "answer": "(d2 - d3)/x23*1e8",
+       "unit": "W",
+       "explanation": "Solving $\\mathbf P = \\mathbf B\\boldsymbol\\delta$: $\\delta_2$ = {{d2}} rad, $\\delta_3$ = {{d3}} rad. $P_{23} = (\\delta_2 - \\delta_3)/x_{23}$ = {{(d2-d3)/x23}} pu = {{(d2 - d3)/x23*1e8|W}}."
+      },
+      {
+       "prompt": "Find the flow on line 1–3, from bus 1 to bus 3 (negative if power flows from bus 3 to bus 1).",
+       "answer": "(0 - d3)/x13*1e8",
+       "unit": "W",
+       "explanation": "Solving $\\mathbf P = \\mathbf B\\boldsymbol\\delta$: $\\delta_3$ = {{d3}} rad. $P_{13} = (\\delta_1 - \\delta_3)/x_{13}$ = {{-d3/x13}} pu = {{(0 - d3)/x13*1e8|W}}."
+      }
+     ]
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "r": [
+       0.01,
+       0.02,
+       0.03
+      ],
+      "x": [
+       0.05,
+       0.08,
+       0.1,
+       0.12
+      ],
+      "PL": [
+       0.5,
+       0.8,
+       1.0,
+       1.2
+      ],
+      "QL": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ]
+     },
+     "derived": {
+      "Vr": "1 - PL*r - QL*x",
+      "Vi": "QL*r - PL*x",
+      "m": "(1 - PL*r - QL*x)^2 + (QL*r - PL*x)^2",
+      "c": "(-PL*(1 - PL*r - QL*x) - QL*(QL*r - PL*x))/((1 - PL*r - QL*x)^2 + (QL*r - PL*x)^2)",
+      "dd": "(-PL*(QL*r - PL*x) + QL*(1 - PL*r - QL*x))/((1 - PL*r - QL*x)^2 + (QL*r - PL*x)^2)"
+     },
+     "prompt": "Slack 1.0∠0°, line $z$ = {{r}} + j{{x}} pu, load {{PL}} + j{{QL}} pu at bus 2. After one Gauss–Seidel iteration $V_2^{(1)}$ = {{Vr||4}} − j{{-Vi||3}} pu. Do the second iteration and find $|V_2^{(2)}|$.",
+     "answer": "sqrt((1 + c*r - dd*x)^2 + (c*x + dd*r)^2)",
+     "unit": "pu",
+     "tolerance": 0.003,
+     "explanation": "$V_2^{(2)} = 1 + z\\,S_2^*/V_2^{(1)*}$ with $S_2^*$ = −{{PL}} + j{{QL}} and $V_2^{(1)*}$ = {{Vr||4}} + j{{-Vi||3}}. Dividing: {{c||4}} + j{{dd||4}}. Times $z$: ({{c*r - dd*x||4}}) + j({{c*x + dd*r||4}}). Adding 1: $|V_2^{(2)}|$ = {{sqrt((1 + c*r - dd*x)^2 + (c*x + dd*r)^2)||4}} pu."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "r": [
+       0.01,
+       0.02,
+       0.03
+      ],
+      "x": [
+       0.08,
+       0.1,
+       0.12
+      ],
+      "V2": [
+       0.95,
+       0.97,
+       0.99
+      ],
+      "d": [
+       -3,
+       -5,
+       -8
+      ]
+     },
+     "derived": {
+      "ar": "1 - V2*cos(rad(d))",
+      "ai": "-V2*sin(rad(d))"
+     },
+     "prompt": "A line with $z$ = {{r}} + j{{x}} pu joins bus 1 (1.0∠0°) and bus 2 ({{V2}}∠{{d}}°). Find the real-power loss in the line on a 100-MVA base.",
+     "answer": "(ar^2 + ai^2)/(r^2 + x^2)*r*1e8",
+     "unit": "W",
+     "explanation": "$V_1 - V_2$ = {{ar||4}} + j{{ai||4}} pu, so $|I| = |V_1 - V_2|/|z|$ = {{sqrt(ar^2+ai^2)||4}}/{{sqrt(r^2+x^2)||4}} = {{sqrt((ar^2+ai^2)/(r^2+x^2))||4}} pu. Loss $|I|^2r$ = {{(ar^2 + ai^2)/(r^2 + x^2)*r||3}} pu = {{(ar^2 + ai^2)/(r^2 + x^2)*r*1e8|W}}."
+    },
+    {
+     "id": "p6",
+     "type": "multipleChoice",
+     "prompt": "Which of these is **not** an assumption of the DC power flow?",
+     "options": [
+      "Reactive power flows are calculated accurately",
+      "Line resistances are much smaller than reactances",
+      "All voltage magnitudes are close to 1.0 pu",
+      "Angle differences across lines are small"
+     ],
+     "answer": 0,
+     "explanation": "The DC power flow ignores reactive power and voltage magnitudes altogether; it only estimates real-power flows. It is exact for no real network but fast and linear, which is why it is used for screening many contingencies and in market clearing."
+    },
+    {
+     "id": "p7",
+     "type": "trueFalse",
+     "prompt": "For large networks, Newton–Raphson usually needs far fewer iterations than Gauss–Seidel.",
+     "answer": true,
+     "explanation": "Gauss–Seidel converges linearly and its iteration count grows with system size; Newton–Raphson converges quadratically in a few iterations regardless of size. Each NR iteration costs more (a sparse Jacobian solve), but overall it is much faster."
+    }
+   ]
+  },
+  {
+   "id": "ps-loadflow-4",
+   "title": "Three-bus problems",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "x12": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "x13": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "x23": [
+       0.05,
+       0.1,
+       0.15
+      ],
+      "P2": [
+       0.5,
+       0.8,
+       1.0,
+       1.5
+      ],
+      "PL": [
+       1.0,
+       1.5,
+       2.0
+      ]
+     },
+     "derived": {
+      "B22": "1/x12 + 1/x23",
+      "B23": "-1/x23",
+      "B33": "1/x13 + 1/x23",
+      "det": "(1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2",
+      "d2": "(P2*(1/x13 + 1/x23) - (1/x23)*PL)/((1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2)",
+      "d3": "(-(1/x12 + 1/x23)*PL + (1/x23)*P2)/((1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2)"
+     },
+     "require": "min(abs(PL - P2) - 0.1, abs(d2/x12) - 0.05, abs(d3/x13) - 0.05, abs((d2-d3)/x23) - 0.05)",
+     "circuit": {
+      "elements": [
+       {
+        "type": "node",
+        "at": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         4
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "x_{12}",
+        "value": "{{x12}} pu"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0,
+          4
+         ],
+         [
+          1,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         4
+        ],
+        "to": [
+         3,
+         4
+        ],
+        "label": "x_{13}",
+        "value": "{{x13}} pu"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         4
+        ],
+        "to": [
+         5,
+         4
+        ],
+        "label": "x_{23}",
+        "value": "{{x23}} pu"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          4
+         ],
+         [
+          6,
+          4
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         -0.6,
+         -0.5
+        ],
+        "label": "1 (slack)"
+       },
+       {
+        "type": "text",
+        "at": [
+         6.4,
+         -0.5
+        ],
+        "label": "2"
+       },
+       {
+        "type": "text",
+        "at": [
+         3,
+         4.7
+        ],
+        "label": "3"
+       }
+      ]
+     },
+     "prompt": "DC power flow, 100-MVA base: bus 1 is the slack ($\\delta_1$ = 0), the generator at bus 2 injects {{P2}} pu, bus 3 has a {{PL}}-pu load. Line reactances as shown.",
+     "answer": "1",
+     "unit": "W",
+     "ask": [
+      {
+       "prompt": "How much power does the slack bus inject (negative if it absorbs power)?",
+       "answer": "(PL - P2)*1e8",
+       "unit": "W",
+       "absTolerance": 100000.0,
+       "explanation": "The DC power flow is lossless, so the slack covers the rest: $P_1 = -(P_2 + P_3)$ = {{PL}} − {{P2}} = {{PL - P2}} pu = {{(PL - P2)*1e8|W}}. Check: $P_{12} + P_{13}$ = {{-d2/x12}} + {{-d3/x13}} = {{-d2/x12 - d3/x13}} pu."
+      },
+      {
+       "prompt": "Find $\\delta_3$ in degrees.",
+       "answer": "deg(d3)",
+       "unit": "°",
+       "absTolerance": 0.1,
+       "explanation": "$B_{22}$ = {{B22}}, $B_{33}$ = {{B33}}, $B_{23}$ = {{B23}}, $\\det$ = {{det}}. $\\delta_3 = (B_{22}P_3 - B_{23}P_2)/\\det$ = ({{B22}} × (−{{PL}}) − ({{B23}}) × {{P2}})/{{det}} = {{d3}} rad = {{deg(d3)|°}}."
+      },
+      {
+       "prompt": "Find the flow on line 1–2, from bus 1 to bus 2 (negative if power flows from bus 2 to bus 1).",
+       "answer": "-d2/x12*1e8",
+       "unit": "W",
+       "explanation": "Solving $\\mathbf P = \\mathbf B\\boldsymbol\\delta$ gives $\\delta_2$ = {{d2}} rad. $P_{12} = (0 - \\delta_2)/x_{12}$ = {{-d2/x12}} pu = {{-d2/x12*1e8|W}}; a negative value means power actually flows from bus 2 to bus 1."
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "V2": [
+       0.95,
+       0.98,
+       1.02
+      ],
+      "x": [
+       0.1,
+       0.2,
+       0.25
+      ],
+      "d": [
+       -10,
+       -5,
+       5,
+       10,
+       15
+      ]
+     },
+     "prompt": "Two buses: slack 1.0∠0° and bus 2 at {{V2}}∠{{d}}°, joined by a lossless $x$ = {{x}} pu. Newton–Raphson needs the Jacobian entries at this estimate.",
+     "ask": [
+      {
+       "prompt": "Find $\\partial P_2/\\partial\\delta_2$.",
+       "answer": "V2*cos(rad(d))/x",
+       "unit": "pu",
+       "explanation": "$P_2 = V_1V_2\\sin(\\delta_2 - \\delta_1)/x$, so $\\partial P_2/\\partial\\delta_2 = V_1V_2\\cos(\\delta_2 - \\delta_1)/x$ = {{V2}} × cos {{d}}°/{{x}} = {{V2*cos(rad(d))/x|pu}}."
+      },
+      {
+       "prompt": "Find $\\partial Q_2/\\partial|V_2|$.",
+       "answer": "(2*V2 - cos(rad(d)))/x",
+       "unit": "pu",
+       "explanation": "$Q_2$ = $[V_2^2 - V_1V_2\\cos(\\delta_2 - \\delta_1)]/x$, so $\\partial Q_2/\\partial V_2$ = $[2V_2 - V_1\\cos(\\delta_2 - \\delta_1)]/x$ = (2 × {{V2}} − cos {{d}}°)/{{x}} = {{(2*V2 - cos(rad(d)))/x|pu}}."
+      }
+     ]
+    },
+    {
+     "id": "c3",
+     "type": "slider",
+     "params": {
+      "x12": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "x13": [
+       0.1,
+       0.15
+      ],
+      "x23": [
+       0.05,
+       0.1
+      ],
+      "PL": [
+       0.8,
+       1.0,
+       1.2
+      ]
+     },
+     "derived": {
+      "B22": "1/x12 + 1/x23",
+      "B23": "-1/x23",
+      "B33": "1/x13 + 1/x23",
+      "det": "(1/x12 + 1/x23)*(1/x13 + 1/x23) - 1/x23^2",
+      "Pz": "PL*(1 + x23/x12)"
+     },
+     "prompt": "Same three-bus DC power flow ($x_{12}$ = {{x12}}, $x_{13}$ = {{x13}}, $x_{23}$ = {{x23}} pu, load {{PL}} pu at bus 3). The graph shows the flows on lines 1–2 and 2–3 against $P_2$. Drag $P_2$ until line 1–3 carries **no** power.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 3,
+       "label": "P_2 (pu)"
+      },
+      "y": {
+       "min": -2,
+       "max": 3,
+       "label": "line flow (pu)"
+      },
+      "sliders": [
+       {
+        "name": "Pg",
+        "label": "$P_2$",
+        "min": 0,
+        "max": 3,
+        "step": 0.02,
+        "value": 0,
+        "unit": "pu"
+       }
+      ],
+      "curves": [
+       {
+        "f": "-((x*B33 + B23*PL)/det)/x12",
+        "label": "P_12",
+        "color": "blue",
+        "labelAt": 0.9
+       },
+       {
+        "f": "((B22*PL + B23*x)/det)/x13",
+        "label": "P_13",
+        "color": "red",
+        "labelAt": 0.1,
+        "reveal": true
+       },
+       {
+        "f": "((x*B33 + B23*PL)/det - (-B22*PL - B23*x)/det)/x23",
+        "label": "P_23",
+        "color": "green",
+        "labelAt": 0.75
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0
+       }
+      ],
+      "vlines": [
+       {
+        "x": "Pg",
+        "label": "P_2"
+       }
+      ]
+     },
+     "answer": {
+      "Pg": "Pz"
+     },
+     "tolerance": 0.03,
+     "absTolerance": 0.02,
+     "explanation": "Quick reasoning: if line 1–3 carries nothing, the whole {{PL}}-pu load must arrive over line 2–3, so $P_{23}$ = {{PL}} pu. Formally, $P_{13} = -\\delta_3/x_{13}$ is zero when $\\delta_3$ = 0 = $\\delta_1$. From $\\delta_3 = (B_{22}P_3 - B_{23}P_2)/\\det$ = 0: $P_2$ = $B_{22}P_3/B_{23}$ = $P_L(1 + x_{23}/x_{12})$ = {{Pz}} pu. Then all of bus 3's load comes over line 2–3, and bus 2 also exports {{Pz - PL}} pu to the slack bus. Every flow is a straight line in $P_2$: the DC power flow is linear."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "V2": [
+       1.0,
+       1.02,
+       1.04
+      ],
+      "x": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "d": [
+       5,
+       10,
+       15
+      ],
+      "QL": [
+       0.1,
+       0.2,
+       0.3
+      ]
+     },
+     "derived": {
+      "Q2": "(V2^2 - V2*cos(rad(d)))/x"
+     },
+     "prompt": "A PV bus 2 ($|V_2|$ = {{V2}} pu, present angle {{d}}°) is connected to the slack bus (1.0∠0°) through a lossless $x$ = {{x}} pu. A local load draws {{QL}} pu of reactive power at bus 2. How much reactive power must the generator at bus 2 produce at this estimate?",
+     "answer": "Q2 + QL",
+     "unit": "pu",
+     "explanation": "Net injection: $Q_2 = [V_2^2 - V_1V_2\\cos\\delta_{21}]/x$ = ({{V2^2||5}} − {{V2*cos(rad(d))||5}})/{{x}} = {{Q2}} pu. The generator must also cover the local load: $Q_G = Q_2 + Q_L$ = {{Q2 + QL|pu}}. If this exceeded its limit, bus 2 would become a PQ bus at the limit."
+    },
+    {
+     "id": "c5",
+     "type": "orderSteps",
+     "prompt": "Put one Newton–Raphson load flow in order.",
+     "items": [
+      "Flat start: $|V|$ = 1.0, $\\delta$ = 0 at all non-slack buses",
+      "Compute $P$ and $Q$ at each bus and the mismatches",
+      "Build the Jacobian at the present estimate",
+      "Solve $\\mathbf J\\Delta\\mathbf x = \\Delta\\mathbf y$ for the corrections",
+      "Update $\\delta$ and $|V|$; repeat until the mismatches are tiny"
+     ],
+     "explanation": "Each iteration linearizes the power-flow equations around the latest estimate; the Jacobian must be recomputed because the equations are nonlinear. Convergence is judged on the mismatches, typically below 10⁻⁴ pu."
+    },
+    {
+     "id": "c6",
+     "type": "multipleChoice",
+     "prompt": "During a load flow, the generator at a PV bus would need more reactive power than its upper limit. What does the program do?",
+     "options": [
+      "Fix its $Q$ at the limit and treat the bus as a PQ bus, letting $|V|$ fall below the set point",
+      "Keep $|V|$ fixed and ignore the limit",
+      "Make that bus the slack bus",
+      "Stop: the load flow has no solution"
+     ],
+     "answer": 0,
+     "explanation": "A generator at its reactive limit can no longer hold its voltage, so the bus becomes a PQ bus with $Q = Q_{max}$ and an unknown $|V|$. If the voltage later recovers, the bus may be switched back to PV."
+    }
+   ]
+  }
+ ]
+}

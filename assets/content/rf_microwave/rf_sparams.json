@@ -1,0 +1,449 @@
+{
+  "id": "rf-sparams",
+  "title": "S-Parameters",
+  "description": "Describe networks by incident and reflected waves: S11 and S21 in dB, reciprocity and losslessness, VNA measurements and reference planes.",
+  "reference": "Pozar §4.3",
+  "study": [
+    {
+      "title": "Waves instead of voltages",
+      "body": "At microwave frequencies you cannot simply short or open a port to measure Z or Y parameters, but you can separate incident and reflected waves with directional couplers. Normalize them to $\\sqrt{Z_0}$: $a_n$ enters port $n$, $b_n$ leaves it. With peak phasors the incident power is $|a_n|^2/2$. The **scattering matrix** links them: $S_{ij} = b_i/a_j$, measured with only port $j$ driven and every other port terminated in $Z_0$ (so no wave enters them).",
+      "formula": "\\begin{aligned}& a_n = \\frac{V_n^+}{\\sqrt{Z_0}},\\quad b_n = \\frac{V_n^-}{\\sqrt{Z_0}}\\\\ & \\begin{pmatrix} b_1 \\\\ b_2 \\end{pmatrix} = \\begin{pmatrix} S_{11} & S_{12} \\\\ S_{21} & S_{22} \\end{pmatrix}\\begin{pmatrix} a_1 \\\\ a_2 \\end{pmatrix}\\end{aligned}"
+    },
+    {
+      "title": "S11, S21 and decibels",
+      "body": "$S_{11}$ is the reflection coefficient at port 1 with port 2 matched; $S_{21}$ the transmission from port 1 to port 2. Both are wave (voltage) ratios, so in dB they use **20 log**; $|S_{21}|^2$ is a power ratio. For passive devices the dB values are negative: return loss RL = −|S11|dB, insertion loss IL = −|S21|dB. An amplifier has |S21| > 1: |S21| = 10 is 20 dB of gain.",
+      "formula": "\\begin{aligned}& |S_{ij}|_{dB} = 20\\log|S_{ij}|\\\\ & RL = -20\\log|S_{11}|\\\\ & IL = -20\\log|S_{21}|\\end{aligned}"
+    },
+    {
+      "title": "Reciprocal and lossless",
+      "body": "A network without ferrites, plasma or active devices is **reciprocal**: $S_{ij} = S_{ji}$, the matrix is symmetric. A **lossless** network has a unitary S: every column has unit length (all power that enters comes out somewhere) and any two columns are orthogonal. For a passive network driven at port 1 with the other ports matched, the power lost inside is $1 - \\sum_i |S_{i1}|^2$ of the incident power.",
+      "formula": "\\begin{aligned}& \\text{reciprocal: } S = S^T\\\\ & \\text{lossless: } \\sum_k |S_{ki}|^2 = 1\\\\ & \\text{and } \\sum_k S_{ki}S_{kj}^* = 0\\ (i \\neq j)\\end{aligned}"
+    },
+    {
+      "title": "Measuring with a VNA",
+      "body": "A vector network analyzer drives one port, uses couplers to sample the incident and reflected waves at both ports and computes complex ratios: magnitude **and** phase of $S_{11}$, $S_{21}$, $S_{12}$, $S_{22}$. Cables, connectors and coupler imperfections add systematic errors, so you first **calibrate** with known standards (for example short, open, load and thru: SOLT) at the ends of the test cables. That moves the reference planes to the calibration point. S11 is usually shown on a Smith chart, S21 in dB and degrees versus frequency.",
+      "formula": "S_{11} = \\frac{b_1}{a_1}\\Big|_{a_2 = 0},\\qquad S_{21} = \\frac{b_2}{a_1}\\Big|_{a_2 = 0}"
+    },
+    {
+      "title": "Shifting the reference planes",
+      "body": "S-parameters belong to chosen reference planes. Moving the plane of port $n$ outward by a matched lossless line of electrical length $\\theta_n = \\beta\\ell_n$ delays waves going in and out: a reflection at that port picks up $2\\theta_n$ of phase, a transmission between ports $m$ and $n$ picks up $\\theta_m + \\theta_n$. Magnitudes do not change. Undoing this (port extension, de-embedding) moves the planes back to the device.",
+      "formula": "\\begin{aligned}& S'_{mn} = S_{mn}\\,e^{-j(\\theta_m + \\theta_n)}\\\\ & S'_{nn} = S_{nn}\\,e^{-j2\\theta_n}\\end{aligned}"
+    },
+    {
+      "title": "A two-port with a load",
+      "body": "$S_{11}$ is the input reflection only when port 2 is matched. With a load $\\Gamma_L$ at port 2, part of the transmitted wave reflects, travels back through $S_{12}$ and adds to the input reflection; the denominator accounts for the repeated bounces. For a unilateral device ($S_{12} = 0$) or a matched load, $\\Gamma_{in} = S_{11}$. This formula is the starting point of amplifier design.",
+      "formula": "\\Gamma_{in} = S_{11} + \\frac{S_{12}S_{21}\\Gamma_L}{1 - S_{22}\\Gamma_L}"
+    },
+    {
+      "title": "Worked example",
+      "body": "A passive two-port at 2 GHz has $S_{11}$ = 0.2∠−30° and $S_{21}$ = 0.8∠−60°.\n- |S11| = 20 log 0.2 = −14.0 dB: return loss 14 dB\n- |S21| = 20 log 0.8 = −1.94 dB: insertion loss 1.94 dB\n- Power: 4 % reflected, 64 % transmitted, so 32 % is dissipated: lossy\n- Add 2 cm of air line at port 1 (λ = 15 cm, $\\theta_1$ = 48°): $S'_{11}$ = 0.2∠(−30° − 96°) = 0.2∠−126°, $S'_{21}$ = 0.8∠(−60° − 48°) = 0.8∠−108°"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "rf-sparams-1",
+      "title": "Waves and S-parameters",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Incident and reflected waves",
+          "body": "Each port has an incoming wave $a_n$ and an outgoing wave $b_n$. $S_{ij}$ is the wave leaving port $i$ per unit wave entering port $j$, with all other ports terminated in $Z_0$. So $S_{11}$ is a reflection coefficient and $S_{21}$ a transmission coefficient; $|S_{21}|^2$ is the power that arrives in the matched load at port 2 per unit incident power at port 1.",
+          "formula": "S_{ij} = \\frac{b_i}{a_j}\\Big|_{a_k = 0,\\ k \\neq j}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"Pin": [-20, -10, 0, 5], "IL": [0.5, 1.5, 3, 6, 10, 20]},
+          "derived": {"Pout": "Pin-IL"},
+          "prompt": "A VNA sends {{Pin}} dBm into port 1 of a filter; a matched power sensor at port 2 reads {{Pout}} dBm.",
+          "ask": [
+            {
+              "prompt": "What is $|S_{21}|$ in dB?",
+              "answer": "Pout-Pin",
+              "unit": "dB",
+              "explanation": "$|S_{21}|^2$ is the power ratio, so in dB it is simply the difference: {{Pout}} − ({{Pin}}) = **{{Pout-Pin}} dB** (an insertion loss of {{IL}} dB)."
+            },
+            {
+              "prompt": "What is the linear magnitude $|S_{21}|$?",
+              "answer": "10^((Pout-Pin)/20)",
+              "unit": "",
+              "explanation": "$|S_{21}|_{dB}$ = {{Pout}} − ({{Pin}}) = {{Pout-Pin}} dB. $|S_{21}|$ is a wave ratio: $10^{-IL/20}$ = $10^{({{Pout-Pin}})/20}$ = **{{10^((Pout-Pin)/20)}}** (and $|S_{21}|^2$ = {{10^((Pout-Pin)/10)}} is the power ratio)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {"m": [0.1, 0.5, 0.707, 0.9, 2, 3.16, 10]},
+          "prompt": "A two-port has $|S_{21}|$ = {{m}}. What is $|S_{21}|$ in dB?",
+          "options": ["{{20*log10(m)}} dB", "{{10*log10(m)}} dB", "{{40*log10(m)}} dB", "{{-20*log10(m)}} dB"],
+          "answer": 0,
+          "explanation": "S-parameters are wave ratios, so use 20 log: 20 log({{m}}) = **{{20*log10(m)}} dB**. 10 log would treat |S21| as a power ratio; 40 log would square it a second time. A value below 1 is a loss (negative dB), above 1 a gain."
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "The input reflection coefficient of a two-port equals $S_{11}$, whatever load is connected to port 2.",
+          "answer": false,
+          "explanation": "False. $S_{11}$ is defined with port 2 matched ($a_2 = 0$). With a load $\\Gamma_L \\neq 0$, waves bounce back through the network: $\\Gamma_{in} = S_{11} + S_{12}S_{21}\\Gamma_L/(1 - S_{22}\\Gamma_L)$. Only a unilateral device ($S_{12} = 0$) shows $S_{11}$ for any load."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Reciprocal, lossless",
+          "body": "Passive networks without ferrites are reciprocal: $S_{21} = S_{12}$. In a lossless network every bit of power that enters leaves again, so for each column $\\sum_k |S_{ki}|^2 = 1$. A matched lossless two-port is therefore a perfect line: $|S_{21}| = 1$.",
+          "formula": "|S_{11}|^2 + |S_{21}|^2 = 1 \\quad (\\text{lossless})"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"RL": [3, 6, 10, 15, 20]},
+          "derived": {"m": "10^(-RL/20)"},
+          "prompt": "A lossless two-port has a return loss of {{RL}} dB at port 1. What is its insertion loss $-|S_{21}|_{dB}$?",
+          "answer": "-10*log10(1-m^2)",
+          "unit": "dB",
+          "explanation": "$|S_{11}| = 10^{-RL/20}$ = {{m}}, so $|S_{11}|^2$ = {{m^2}}. Lossless: $|S_{21}|^2 = 1 - |S_{11}|^2$ = {{1-m^2}}, i.e. IL = −10 log({{1-m^2}}) = **{{-10*log10(1-m^2)}} dB**. A lossless network can only lose power by reflecting it."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each property of a two-port to the test on its S-matrix.",
+          "pairs": [["Reciprocal", "$S_{21} = S_{12}$"], ["Lossless", "$|S_{11}|^2 + |S_{21}|^2 = 1$ (each column)"], ["Matched at port 1", "$S_{11} = 0$"], ["Unilateral", "$S_{12} = 0$"]],
+          "explanation": "Reciprocity is symmetry of S. Losslessness means a unitary S, so every column has unit length. A match means no reflection at that port. A unilateral device (an ideal amplifier or isolator) passes nothing backward."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {"s11": [-20, -15, -10, -6], "s21": [-0.5, -1, -2, -3, -6]},
+          "derived": {"r": "10^(s11/10)", "t": "10^(s21/10)"},
+          "require": "0.97-r-t",
+          "prompt": "A passive two-port shows $S_{11}$ = {{s11}} dB and $S_{21}$ = {{s21}} dB. What percentage of the power incident at port 1 is dissipated inside it?",
+          "answer": "100*(1-r-t)",
+          "unit": "%",
+          "explanation": "Convert to power fractions: reflected $|S_{11}|^2 = 10^{({{s11}})/10}$ = {{100*r}} %, transmitted $|S_{21}|^2 = 10^{({{s21}})/10}$ = {{100*t}} %. The rest is lost: 100 − {{100*r}} − {{100*t}} = **{{100*(1-r-t)}} %**."
+        }
+      ]
+    },
+    {
+      "id": "rf-sparams-2",
+      "title": "Measuring and moving reference planes",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The vector network analyzer",
+          "body": "A VNA measures magnitude and phase of every S-parameter over frequency. Its raw readings include errors from the couplers (finite directivity), mismatches of its ports and the loss and delay of the test cables. Calibrating with known standards at the cable ends removes these systematic errors and puts the reference planes right there."
+        },
+        {
+          "id": "q1",
+          "type": "orderSteps",
+          "prompt": "Put the steps of a two-port VNA measurement in order.",
+          "items": [
+            "Set the frequency range, power and IF bandwidth",
+            "Connect the test cables",
+            "Calibrate at the cable ends with short, open, load and thru",
+            "Connect the device under test",
+            "Read S11 on the Smith chart and S21 in dB and degrees"
+          ],
+          "explanation": "The calibration is only valid for the settings and cables it was done with, so set up first, attach the cables, then calibrate at exactly the planes where the device will sit. Only then connect the device and read the corrected S-parameters."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "What does a VNA calibration remove from the measurement?",
+          "options": [
+            "Systematic errors: coupler directivity, port mismatch, cable loss and delay up to the reference planes",
+            "Random noise and drift that occur after the calibration",
+            "The mismatch of the device under test itself",
+            "Distortion caused by driving the device too hard"
+          ],
+          "answer": 0,
+          "explanation": "Calibration models the repeatable (systematic) imperfections of the instrument and cables and removes them mathematically. Noise and drift are random and not removed; the device's own mismatch is exactly what you want to measure; and a VNA assumes a linear device, so overdrive errors stay."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Reference planes",
+          "body": "Add a matched lossless line of electrical length θ in front of port 1: a reflected wave travels it twice ($S_{11}$ rotates by −2θ), a transmitted wave once ($S_{21}$ rotates by −θ). On the Smith chart, $S_{11}$ turns clockwise on its circle, exactly as a load seen through a line.",
+          "formula": "\\begin{aligned}& S'_{11} = S_{11}e^{-j2\\theta_1}\\\\ & S'_{21} = S_{21}e^{-j(\\theta_1 + \\theta_2)}\\end{aligned}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"f": [1000000000.0, 2000000000.0, 2400000000.0, 5000000000.0], "len": [0.01, 0.015, 0.02, 0.03], "a": [-150, -100, -45, 20, 75, 130], "VF": [0.7, 1]},
+          "derived": {"th": "360*len*f/(VF*3e8)", "ph": "mod(a-2*360*len*f/(VF*3e8)+180, 360)-180"},
+          "prompt": "A device has $S_{11}$ = 0.4∠{{a}}° at {{f|Hz}}. You measure it through an extra {{len*1000}} mm of matched cable (velocity factor {{VF}}) at port 1. What phase does the VNA show for $S_{11}$ (between −180° and 180°)?",
+          "answer": "ph",
+          "unit": "°",
+          "absTolerance": 2,
+          "explanation": "λ on the cable = {{VF}} × 3 × $10^8$ / {{f|Hz}} = {{VF*3e8/f|m}}, so θ = 360° × {{len|m}} / {{VF*3e8/f|m}} = {{th}}°. The reflection crosses the cable twice: {{a}}° − 2 × {{th}}° = {{a-2*th}}°, which is **{{ph}}°**. The magnitude stays 0.4."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"a": [-170, -120, -60, 0, 45, 90], "t1": [20, 35, 50, 80], "t2": [15, 30, 60]},
+          "derived": {"ph": "mod(a-t1-t2+180, 360)-180"},
+          "prompt": "A two-port has $S_{21}$ = 0.9∠{{a}}° at its own reference planes. Matched lines of electrical length {{t1}}° and {{t2}}° are added at ports 1 and 2. What is the phase of the new $S_{21}$ (between −180° and 180°)?",
+          "answer": "ph",
+          "unit": "°",
+          "absTolerance": 1,
+          "explanation": "A wave from port 1 to port 2 passes each added line once: $\\angle S'_{21}$ = {{a}}° − {{t1}}° − {{t2}}° = {{a-t1-t2}}°, i.e. **{{ph}}°**. The magnitude stays 0.9."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Moving the reference plane of port 1 along a lossless matched line changes $|S_{11}|$.",
+          "answer": false,
+          "explanation": "False. A lossless matched line only delays the wave, so only the phase changes: $S'_{11} = S_{11}e^{-j2\\theta}$. On the Smith chart the point turns on a circle of constant |S11|. With a lossy line |S11| would shrink (the spiral)."
+        },
+        {
+          "id": "q6",
+          "type": "slider",
+          "params": {"f": [2000000000.0, 2500000000.0, 4000000000.0, 5000000000.0], "fr": [0.2, 0.35, 0.5, 0.65, 0.8]},
+          "derived": {"T": "1/(2*f)", "tt": "fr/(2*f)"},
+          "prompt": "You measure an open circuit at {{f|Hz}} at the end of an adapter that was not included in the calibration. Its delay rotates $S_{11}$ away from the open end of the chart. Drag the VNA's port extension (one-way delay) until the open shows up at Γ = +1 again.",
+          "plot": {
+            "smith": true,
+            "sliders": [{"name": "tau", "label": "port extension", "min": 0, "max": "T", "step": 5e-13, "value": 0, "unit": "s"}],
+            "let": {"ph": "-4*pi*f*(tt-tau)"},
+            "points": [{"x": "cos(ph)", "y": "sin(ph)", "color": "red"}],
+            "readouts": [{"label": "∠S11", "value": "mod(deg(ph)+180, 360)-180", "unit": "°"}]
+          },
+          "answer": {"tau": "tt"},
+          "tolerance": 0.001,
+          "absTolerance": 2e-12,
+          "explanation": "An open has Γ = +1. The uncalibrated adapter with one-way delay τ adds a phase of −2 × 360° × fτ to $S_{11}$. The port extension removes a delay τ_ext, so the display shows −720° × {{f|Hz}} × (τ − τ_ext). It is back at 0° when τ_ext = τ = **{{tt|s}}** (the chart repeats every {{T|s}} of delay at this frequency)."
+        }
+      ]
+    },
+    {
+      "id": "rf-sparams-3",
+      "title": "S-parameter practice",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"m11": [0.3, 0.5, 0.7], "a11": [-150, -90, -40], "m21": [2, 3, 4], "a21": [40, 80, 120], "m12": [0.05, 0.1], "a12": [20, 50], "m22": [0.3, 0.5], "a22": [-60, -30], "GL": [-0.5, -0.3, 0.3, 0.5]},
+          "derived": {
+            "s11r": "m11*cos(rad(a11))",
+            "s11i": "m11*sin(rad(a11))",
+            "s22r": "m22*cos(rad(a22))",
+            "s22i": "m22*sin(rad(a22))",
+            "qr": "m12*m21*cos(rad(a12+a21))",
+            "qi": "m12*m21*sin(rad(a12+a21))",
+            "nr": "m12*m21*cos(rad(a12+a21))*GL",
+            "ni": "m12*m21*sin(rad(a12+a21))*GL",
+            "dr": "1-m22*cos(rad(a22))*GL",
+            "di": "-m22*sin(rad(a22))*GL",
+            "fr": "(nr*dr+ni*di)/(dr^2+di^2)",
+            "fi": "(ni*dr-nr*di)/(dr^2+di^2)",
+            "gr": "s11r+fr",
+            "gi": "s11i+fi"
+          },
+          "prompt": "A transistor has $S_{11}$ = {{m11}}∠{{a11}}°, $S_{21}$ = {{m21}}∠{{a21}}°, $S_{12}$ = {{m12}}∠{{a12}}°, $S_{22}$ = {{m22}}∠{{a22}}°. Port 2 is terminated in a load with $\\Gamma_L$ = {{GL}}. Find $|\\Gamma_{in}|$.",
+          "answer": "sqrt(gr^2+gi^2)",
+          "unit": "",
+          "explanation": "$S_{12}S_{21}$ = {{m12*m21}}∠{{a12+a21}}° = {{qr}} + j({{qi}}); times $\\Gamma_L$: {{nr}} + j({{ni}}). $1 - S_{22}\\Gamma_L$ = {{dr}} + j({{di}}). Their ratio is {{fr}} + j({{fi}}). Adding $S_{11}$ = {{s11r}} + j({{s11i}}) gives $\\Gamma_{in}$ = {{gr}} + j({{gi}}), so $|\\Gamma_{in}|$ = **{{sqrt(gr^2+gi^2)}}** (compare $|S_{11}|$ = {{m11}})."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {"m": [0.3, 0.4, 0.6, 0.8]},
+          "prompt": "A lossless reciprocal two-port has $|S_{11}|$ = {{m}}. What is $|S_{12}|$?",
+          "options": ["{{sqrt(1-m^2)}}", "{{1-m}}", "{{1-m^2}}", "{{m}}"],
+          "answer": 0,
+          "explanation": "Lossless: the first column has unit length, $|S_{11}|^2 + |S_{21}|^2 = 1$, so $|S_{21}| = \\sqrt{1 - {{m}}^2}$ = {{sqrt(1-m^2)}}. Reciprocal: $S_{12} = S_{21}$, so $|S_{12}|$ = **{{sqrt(1-m^2)}}**. (1 − |S11|² = {{1-m^2}} is the power ratio, not the wave ratio.)"
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {"A": [3, 6, 10, 20]},
+          "prompt": "What is $|S_{21}|$ of an ideal matched {{A}} dB attenuator?",
+          "options": ["{{10^(-A/20)}}", "{{10^(-A/10)}}", "{{10^(-A/40)}}", "{{10^(A/20)}}"],
+          "answer": 0,
+          "explanation": "An attenuation of {{A}} dB means $20\\log|S_{21}|$ = −{{A}}, so $|S_{21}| = 10^{-A/20}$ = **{{10^(-A/20)}}**. The power ratio $|S_{21}|^2$ is {{10^(-A/10)}}. The pad is matched and reciprocal: $S_{11} = S_{22} = 0$, $S_{12} = S_{21}$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"A": [3, 6, 10]},
+          "prompt": "A matched {{A}} dB attenuator ($S_{11} = S_{22} = 0$) has a short circuit at port 2. What return loss do you measure at port 1?",
+          "answer": "2*A",
+          "unit": "dB",
+          "explanation": "With $S_{11} = S_{22} = 0$: $\\Gamma_{in} = S_{12}S_{21}\\Gamma_L$. A short has $|\\Gamma_L|$ = 1, so $|\\Gamma_{in}| = |S_{21}|^2 = 10^{-2A/20}$: RL = 2 × {{A}} = **{{2*A}} dB**. The wave crosses the pad twice. Pads in front of a mismatched load improve the match this way."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {"tau": [5e-10, 1e-09, 2e-09, 3.3e-09], "f1": [1000000000.0, 1500000000.0, 2000000000.0], "df": [10000000.0, 20000000.0]},
+          "derived": {
+            "p1": "mod(-360*tau*f1+180, 360)-180",
+            "p2": "mod(-360*tau*(f1+df)+180, 360)-180"
+          },
+          "prompt": "A VNA shows $\\angle S_{21}$ = {{p1||5}}° at {{f1|Hz}} and {{p2||5}}° at {{f1+df|Hz|4}} for a cable. Find its group delay $\\tau_g = -\\Delta\\varphi/(360°\\cdot\\Delta f)$.",
+          "answer": "tau",
+          "unit": "s",
+          "tolerance": 0.03,
+          "explanation": "The phase drops by Δφ = {{360*tau*df}}° over Δf = {{df|Hz}} (if the reading wraps past −180°, add 360° first). $\\tau_g$ = {{360*tau*df}}° / (360° × {{df|Hz}}) = **{{tau|s}}**. In a dispersion-free cable this is just the travel time."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "An isolator, which passes power from port 1 to port 2 but not back, has $S_{21} \\neq S_{12}$ and is therefore non-reciprocal.",
+          "answer": true,
+          "explanation": "True. An isolator has $|S_{21}| \\approx 1$ but $|S_{12}| \\approx 0$, so S is not symmetric. That requires a non-reciprocal material such as a magnetized ferrite (or an active circuit)."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each two-port to its S-parameters.",
+          "pairs": [
+            ["6 dB attenuator", "$|S_{21}| = |S_{12}| = 0.5$, matched"],
+            ["Isolator", "$|S_{21}| \\approx 1$, $|S_{12}| \\approx 0$"],
+            ["20 dB amplifier", "$|S_{21}| = 10$, $|S_{12}| \\ll 1$"],
+            ["Lossless matched line", "$S_{21} = S_{12} = e^{-j\\beta\\ell}$, $S_{11} = 0$"]
+          ],
+          "explanation": "20 log 0.5 = −6 dB in both directions for the pad; the isolator only passes forward; the amplifier has gain 20 log 10 = 20 dB and little reverse transmission; a matched lossless line transmits everything with a phase delay βℓ."
+        }
+      ]
+    },
+    {
+      "id": "rf-sparams-4",
+      "title": "S-parameter challenge",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {"m11": [0.4, 0.6], "a11": [-120, -60], "m21": [2.5, 4], "a21": [60, 100], "m12": [0.05, 0.08], "a12": [30, 60], "m22": [0.4, 0.5], "a22": [-80, -40], "mL": [0.3, 0.5], "aL": [-90, -30, 30, 90]},
+          "derived": {
+            "s11r": "m11*cos(rad(a11))",
+            "s11i": "m11*sin(rad(a11))",
+            "glr": "mL*cos(rad(aL))",
+            "gli": "mL*sin(rad(aL))",
+            "nr": "m12*m21*mL*cos(rad(a12+a21+aL))",
+            "ni": "m12*m21*mL*sin(rad(a12+a21+aL))",
+            "dr": "1-m22*mL*cos(rad(a22+aL))",
+            "di": "-m22*mL*sin(rad(a22+aL))",
+            "fr": "(nr*dr+ni*di)/(dr^2+di^2)",
+            "fi": "(ni*dr-nr*di)/(dr^2+di^2)",
+            "gr": "s11r+fr",
+            "gi": "s11i+fi",
+            "G": "sqrt((s11r+fr)^2+(s11i+fi)^2)"
+          },
+          "prompt": "A transistor with $S_{11}$ = {{m11}}∠{{a11}}°, $S_{21}$ = {{m21}}∠{{a21}}°, $S_{12}$ = {{m12}}∠{{a12}}°, $S_{22}$ = {{m22}}∠{{a22}}° drives a load with $\\Gamma_L$ = {{mL}}∠{{aL}}°.",
+          "ask": [
+            {
+              "prompt": "Find $|\\Gamma_{in}|$.",
+              "answer": "G",
+              "unit": "",
+              "explanation": "$S_{12}S_{21}\\Gamma_L$ = {{m12*m21*mL}}∠{{a12+a21+aL}}° = {{nr}} + j({{ni}}). $S_{22}\\Gamma_L$ = {{m22*mL}}∠{{a22+aL}}°, so $1 - S_{22}\\Gamma_L$ = {{dr}} + j({{di}}). Ratio: {{fr}} + j({{fi}}). Plus $S_{11}$ = {{s11r}} + j({{s11i}}): $\\Gamma_{in}$ = {{gr}} + j({{gi}}), $|\\Gamma_{in}|$ = **{{G}}**."
+            },
+            {
+              "prompt": "Find the input return loss in dB.",
+              "answer": "-20*log10(G)",
+              "unit": "dB",
+              "explanation": "$\\Gamma_{in}$ = {{gr}} + j({{gi}}) (from $S_{11}$ plus the feedback term {{fr}} + j({{fi}})), so $|\\Gamma_{in}|$ = {{G}} and RL = −20 log({{G}}) = **{{-20*log10(G)}} dB**. With a matched load it would be {{-20*log10(m11)}} dB."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "multipleChoice",
+          "params": {"k": [0, 1, 2, 3]},
+          "derived": {
+            "e11": "if(0.5-k, 0.6, if(1.5-k, 0.3, if(2.5-k, 0.1, 0.5)))",
+            "e12": "if(0.5-k, 0.8, if(1.5-k, 0.7, if(2.5-k, 0.05, 0.1)))",
+            "e21": "if(0.5-k, 0.8, if(1.5-k, 0.7, if(2.5-k, 0.9, 4)))",
+            "e22": "if(0.5-k, -0.6, if(1.5-k, 0.3, if(2.5-k, 0.1, 0.4)))"
+          },
+          "prompt": "A two-port has the (real-valued) scattering matrix $S = \\begin{pmatrix} {{e11}} & {{e12}} \\\\ {{e21}} & {{e22}} \\end{pmatrix}$. What kind of network is it?",
+          "options": ["Lossless and reciprocal", "Passive, lossy and reciprocal", "Passive and non-reciprocal", "Active (it has gain)"],
+          "shuffle": false,
+          "answer": "k",
+          "explanation": "Check symmetry first ($S_{12} = S_{21}$?), then the column power sums: column 1 gives {{e11}}² + {{e21}}² = {{e11^2+e21^2}}, column 2 gives {{e12}}² + {{e22}}² = {{e12^2+e22^2}}. Sums of exactly 1 with orthogonal columns ({{e11}}·{{e12}} + {{e21}}·{{e22}} = {{e11*e12+e21*e22}}) mean lossless; sums below 1 mean loss; a sum above 1 means gain. Unequal $S_{12}$ and $S_{21}$ means non-reciprocal."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {"a11": [-160, -100, -30, 40, 110], "a21": [-150, -90, 0, 60], "t1": [30, 45, 70, 100], "t2": [20, 40, 80]},
+          "derived": {
+            "p11": "mod(a11+2*t1+180, 360)-180",
+            "p21": "mod(a21+t1+t2+180, 360)-180"
+          },
+          "prompt": "A VNA, calibrated at the ends of a test fixture, measures $S_{11}$ = 0.3∠{{a11}}° and $S_{21}$ = 0.7∠{{a21}}°. The fixture's matched lead-in lines are {{t1}}° (port 1) and {{t2}}° (port 2) long. De-embed them.",
+          "ask": [
+            {
+              "prompt": "What is the phase of $S_{11}$ at the device (between −180° and 180°)?",
+              "answer": "p11",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "The measured reflection crossed the port-1 line twice, so add the phase back: {{a11}}° + 2 × {{t1}}° = {{a11+2*t1}}°, i.e. **{{p11}}°**."
+            },
+            {
+              "prompt": "What is the phase of $S_{21}$ at the device (between −180° and 180°)?",
+              "answer": "p21",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "The transmitted wave crossed each line once: {{a21}}° + {{t1}}° + {{t2}}° = {{a21+t1+t2}}°, i.e. **{{p21}}°**. Magnitudes (0.3 and 0.7) are unchanged by lossless lines."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {"P": [-30, -20, -10], "s11": [-6, -10, -15], "s21": [12, 15, 20, 25]},
+          "prompt": "An amplifier with $S_{11}$ = {{s11}} dB and $S_{21}$ = {{s21}} dB is driven by a matched {{P}} dBm source and drives a matched load.",
+          "absTolerance": 0.1,
+          "ask": [
+            {
+              "prompt": "How much power is reflected back toward the source, in dBm?",
+              "answer": "P+s11",
+              "unit": "dBm",
+              "explanation": "The reflected wave is $S_{11}$ times the incident wave, so in dB: {{P}} + ({{s11}}) = **{{P+s11}} dBm**."
+            },
+            {
+              "prompt": "How much power reaches the load, in dBm?",
+              "answer": "P+s21",
+              "unit": "dBm",
+              "explanation": "With matched source and load the delivered power is $|S_{21}|^2$ times the available power: {{P}} + {{s21}} = **{{P+s21}} dBm**. The input mismatch is already included in $S_{21}$."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "trueFalse",
+          "prompt": "For a lossless network, not only every column but also every row of the S-matrix has unit length.",
+          "answer": true,
+          "explanation": "True. Lossless means $S^HS = I$, i.e. S is unitary. For a square matrix this also gives $SS^H = I$, so the rows are orthonormal too. Example: $\\begin{pmatrix} 0.6 & 0.8 \\\\ 0.8 & -0.6 \\end{pmatrix}$."
+        },
+        {
+          "id": "c6",
+          "type": "numeric",
+          "params": {"tau": [1e-09, 2.5e-09, 5e-09, 1e-08], "VF": [0.66, 0.7, 0.83]},
+          "prompt": "From the slope of $\\angle S_{21}$ a VNA finds a group delay of {{tau|s}} for a coax cable with velocity factor {{VF}}. How long is the cable?",
+          "answer": "tau*VF*3e8",
+          "unit": "m",
+          "explanation": "The delay is the travel time: $\\ell = v_p\\tau$ = {{VF}} × 3 × $10^8$ × {{tau|s}} = **{{tau*VF*3e8|m}}**."
+        },
+        {
+          "id": "c7",
+          "type": "orderSteps",
+          "prompt": "Put in order how you check whether a measured S-matrix, given in dB and degrees, is lossless.",
+          "items": [
+            "Convert every entry to a linear complex number (magnitude and phase)",
+            "Square the magnitudes: each $|S_{ki}|^2$ is a power fraction",
+            "Add them down each column: every sum must be 1",
+            "If they are, check that different columns are orthogonal",
+            "Conclude: unit columns that are also orthogonal mean lossless"
+          ],
+          "explanation": "dB values cannot be added like powers, so convert first; the squared magnitudes are power fractions, and a lossless network sends all incident power somewhere, so each column sums to 1. Unit sums alone are not enough: the columns must also be orthogonal ($\\sum_k S_{ki}S_{kj}^* = 0$), which needs the phases. Reciprocity ($S_{ij} = S_{ji}$) is a separate symmetry check."
+        }
+      ]
+    }
+  ]
+}

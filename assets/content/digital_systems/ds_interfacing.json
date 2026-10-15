@@ -1,0 +1,1623 @@
+{
+  "id": "ds-interfacing",
+  "title": "Interfacing",
+  "description": "Connecting a microcontroller to the world: GPIO, LEDs, switches and debouncing, timers, PWM and serial interfaces.",
+  "reference": "Hambley §8.3",
+  "study": [
+    {
+      "title": "General-purpose I/O",
+      "body": "Each GPIO pin is set as an **input** or an **output** by a data-direction register. As an output it drives about $V_{OH} \\approx V_{DD}$ for a 1 and $V_{OL} \\approx 0$ for a 0, and can source or sink only a limited current (typically 5–20 mA per pin). As an input it has a very high impedance and reads the logic level; an unconnected (floating) input reads random values, so every input needs a defined level. Writing or reading the port register sets or reads all pins of a port at once."
+    },
+    {
+      "title": "Driving an LED",
+      "body": "An LED drops roughly its forward voltage $V_F$ (red ≈ 1.8 V, green ≈ 2.1 V, blue/white ≈ 3 V) almost regardless of current, so a series resistor must set the current. The resistor takes the rest of the pin voltage. Choose $I_F$ well below the pin's current limit. Example: 3.3 V pin, red LED, 10 mA: $R$ = (3.3 − 1.8)/0.01 = 150 Ω.",
+      "formula": "R = \\frac{V_{OH} - V_F}{I_F}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_{OH}",
+            "value": ""
+          },
+          {
+            "type": "text",
+            "at": [
+              0,
+              -0.6
+            ],
+            "label": "GPIO pin"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              1,
+              0
+            ],
+            "to": [
+              3,
+              0
+            ],
+            "label": "R",
+            "value": ""
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "led",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "LED",
+            "value": "",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              0,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Pull-up and pull-down resistors",
+      "body": "A switch to ground with a **pull-up** resistor to $V_{DD}$ gives a defined level in both positions: open: the pin reads 1 (no current, no drop across $R_{pu}$), closed: the pin reads 0 (**active low**). A pull-down to ground with the switch to $V_{DD}$ gives active-high. While the switch is closed a current $V_{DD}/R_{pu}$ flows, so values of 4.7–100 kΩ are used. Most microcontrollers have switchable internal pull-ups (≈ 20–50 kΩ).",
+      "formula": "I_{closed} = \\frac{V_{DD}}{R_{pu}}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_{DD}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "R_{pu}",
+            "value": ""
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                2
+              ],
+              [
+                3.6,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              3.6,
+              2
+            ],
+            "label": "input pin"
+          },
+          {
+            "type": "switch",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              2,
+              4
+            ],
+            "label": "S",
+            "closed": false
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                4
+              ],
+              [
+                0,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              0,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Switch bounce and debouncing",
+      "body": "Mechanical contacts **bounce**: when a switch closes, the contact makes and breaks several times for up to a few milliseconds, so a fast input sees several presses. Remedies: an RC filter followed by a Schmitt-trigger input, an SR latch with a changeover switch, or software (after a change, wait about 10–20 ms, or accept a new level only when several samples in a row agree).",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "t (ms)",
+          "ticks": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "y": {
+          "min": -0.5,
+          "max": 6,
+          "label": "v_{pin} (V)"
+        },
+        "curves": [
+          {
+            "f": "5*(1 + (0-(1))*step(x-1) + (1-(0))*step(x-1.25) + (0-(1))*step(x-1.45) + (1-(0))*step(x-1.8) + (0-(1))*step(x-2) + (1-(0))*step(x-2.45) + (0-(1))*step(x-2.6))"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 1,
+            "label": "press"
+          },
+          {
+            "x": 2.6,
+            "label": "stable"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Timers and PWM",
+      "body": "A **timer** is a counter clocked by $f_{clk}$ divided by a prescaler $N$; it counts up to TOP (or overflows at $2^n$) and can raise an interrupt or toggle a pin. **PWM** switches an output on for $t_{on}$ in every period $T$; the duty cycle $D = t_{on}/T$ sets the average voltage, which a motor, a heater or an LED (via the eye) averages out. Changing the PWM frequency does not change the average, only the ripple. Drag $D$: the average (dashed) is $D V_H$. Drag the time constant of an RC low-pass after the pin (PWM period 1 ms): the filtered voltage (blue) ripples around the same average, less as $RC$ grows, but it then also follows changes of $D$ more slowly.",
+      "formula": "\\begin{array}{c} V_{avg} = D\\,V_H, \\quad D = \\dfrac{t_{on}}{T} \\\\[4pt] f_{PWM} = \\dfrac{f_{clk}}{N\\,(\\text{TOP} + 1)} \\end{array}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "t (ms)",
+          "ticks": [
+            0,
+            0.5,
+            1,
+            1.5,
+            2,
+            2.5,
+            3
+          ]
+        },
+        "y": {
+          "min": -0.5,
+          "max": 6,
+          "label": "v (V)"
+        },
+        "sliders": [
+          {
+            "name": "D",
+            "label": "duty cycle $D$",
+            "min": 0.05,
+            "max": 0.95,
+            "step": 0.05,
+            "value": 0.3
+          },
+          {
+            "name": "tau",
+            "label": "$RC$",
+            "min": 0.0001,
+            "max": 0.01,
+            "log": true,
+            "value": 0.0005,
+            "unit": "s"
+          }
+        ],
+        "let": {
+          "ta": "tau*1000",
+          "vmax": "5*(1 - exp(-D/ta))/(1 - exp(-1/ta))",
+          "vmin": "vmax*exp(-(1 - D)/ta)",
+          "rip": "vmax - vmin"
+        },
+        "curves": [
+          {
+            "f": "5*step(D - mod(x, 1) - 1e-9)",
+            "color": "grey",
+            "to": 2.999
+          },
+          {
+            "f": "if(D - mod(x, 1), 5 + (vmin - 5)*exp(-mod(x, 1)/ta), vmax*exp(-(mod(x, 1) - D)/ta))",
+            "color": "blue"
+          },
+          {
+            "f": "5*D",
+            "color": "orange",
+            "dash": true,
+            "label": "average",
+            "labelAt": 0.9
+          }
+        ],
+        "readouts": [
+          {
+            "label": "average $DV_H$",
+            "value": "5*D",
+            "unit": "V"
+          },
+          {
+            "label": "ripple (p-p)",
+            "value": "rip",
+            "unit": "V"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Serial interfaces: UART, SPI, I²C",
+      "body": "**UART**: asynchronous, one TX and one RX line, no clock; each byte is framed by a start bit (0) and a stop bit (1) and sent LSB first at an agreed **baud rate** (8N1: 10 bits per byte). **SPI**: synchronous, the master drives SCLK, MOSI and a select line per slave and reads MISO; full duplex and fast (MHz). **I²C**: two open-drain lines SDA and SCL with pull-up resistors, devices chosen by a 7-bit address, every byte acknowledged (9 clocks per byte).",
+      "formula": "\\text{UART 8N1: } \\frac{\\text{bytes}}{\\text{s}} = \\frac{\\text{baud}}{10}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ds-interfacing-1",
+      "title": "Pins, LEDs and switches",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "General-purpose I/O pins",
+          "body": "Most microcontroller pins are **GPIO**: the program decides whether a pin is an input or an output. An output pin behaves like a voltage source of about $V_{DD}$ (logic 1) or 0 V (logic 0) with a limited current capability (typically 5–20 mA). An input pin draws almost no current and just reads whether the voltage is high or low."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "VOH": [
+              3.3,
+              5
+            ],
+            "VF": [
+              1.8,
+              2.0,
+              2.2
+            ],
+            "I": [
+              0.005,
+              0.008,
+              0.01,
+              0.015
+            ]
+          },
+          "prompt": "A GPIO pin ($V_{OH}$ = {{VOH|V}}) drives an LED with $V_F$ = {{VF|V}} through a series resistor. Which resistance gives an LED current of {{I|A}}?",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{OH}",
+                "value": "{{VOH|V}}"
+              },
+              {
+                "type": "text",
+                "at": [
+                  0,
+                  -0.6
+                ],
+                "label": "GPIO pin"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R",
+                "value": ""
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "led",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "LED",
+                "value": "V_F = {{VF|V}}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          "answer": "(VOH - VF)/I",
+          "unit": "Ω",
+          "explanation": "The resistor takes the voltage the LED does not: $V_R = V_{OH} - V_F$ = {{VOH|V}} − {{VF|V}} = {{VOH-VF|V}}. Then $R = V_R / I$ = {{VOH-VF|V}} / {{I|A}} = **{{(VOH-VF)/I|Ω}}** (pick the next standard value)."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "What happens if an LED is connected straight from an output pin to ground, without a series resistor?",
+          "options": [
+            "The current is limited only by the pin's internal resistance: it can exceed the pin rating and damage the pin or LED",
+            "Nothing: the LED takes exactly its rated current",
+            "The LED does not light because there is no resistor",
+            "The pin automatically switches to input mode"
+          ],
+          "answer": 0,
+          "explanation": "An LED's current rises steeply once its voltage exceeds $V_F$. Without a resistor nothing sets the current except the small output resistance of the pin, so the current can be far above the 5–20 mA a pin is rated for."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Pull-up resistors",
+          "body": "A pushbutton between an input pin and ground is not enough: while it is open, the pin would **float** and read random values. A **pull-up** resistor to $V_{DD}$ fixes this. Open: no current, so the pin is at $V_{DD}$ (logic 1). Pressed: the switch connects the pin to ground (logic 0). Such an input is called **active low**.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{DD}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_{pu}",
+                "value": ""
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3.6,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3.6,
+                  2
+                ],
+                "label": "input pin"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "S",
+                "closed": false
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    4
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "In the pull-up circuit the button is **pressed**. What logic level does the program read on the pin?",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{DD}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_{pu}",
+                "value": ""
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3.6,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3.6,
+                  2
+                ],
+                "label": "input pin"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "S",
+                "closed": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    4
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          },
+          "options": [
+            "0 (low)",
+            "1 (high)",
+            "Undefined: the pin floats"
+          ],
+          "answer": 0,
+          "explanation": "The closed switch connects the pin directly to ground, so it reads 0. The pull-up resistor now just carries a current $V_{DD}/R_{pu}$. When the button is released the resistor pulls the pin back up to 1."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "V": [
+              3.3,
+              5
+            ],
+            "R": [
+              4700,
+              10000,
+              22000,
+              47000
+            ]
+          },
+          "prompt": "A pull-up of {{R|Ω}} to {{V|V}} is used with a pushbutton to ground. What current flows while the button is pressed?",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{DD}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_{pu}",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3.6,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3.6,
+                  2
+                ],
+                "label": "input pin"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "S",
+                "closed": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    4
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              }
+            ]
+          },
+          "answer": "V/R",
+          "unit": "A",
+          "explanation": "With the switch closed the whole supply voltage is across $R_{pu}$: $I = V_{DD}/R_{pu}$ = {{V|V}} / {{R|Ω}} = **{{V/R|A}}**. The input pin itself draws practically nothing. A larger $R_{pu}$ saves power but makes the input more sensitive to noise."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Switch bounce",
+          "body": "When a mechanical switch closes, its contacts **bounce** several times before they settle, typically within a few milliseconds. A microcontroller samples so fast that it would see several presses. **Debouncing** removes this: in hardware with an RC filter and a Schmitt trigger, or in software by waiting 10–20 ms after a change before accepting the new level.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 5,
+              "label": "t (ms)",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "y": {
+              "min": -0.5,
+              "max": 6,
+              "label": "v_{pin} (V)"
+            },
+            "curves": [
+              {
+                "f": "5*(1 + (0-(1))*step(x-1) + (1-(0))*step(x-1.25) + (0-(1))*step(x-1.45) + (1-(0))*step(x-1.8) + (0-(1))*step(x-2) + (1-(0))*step(x-2.45) + (0-(1))*step(x-2.6))"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 1,
+                "label": "press"
+              },
+              {
+                "x": 2.6,
+                "label": "stable"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Without debouncing, a program that counts button presses on every falling edge may count one press several times.",
+          "answer": true,
+          "explanation": "True. Every bounce produces another falling edge, so one press can be counted 2, 3 or more times. Debouncing makes sure a single press gives a single clean transition."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "D": [
+              10,
+              20,
+              25,
+              40,
+              60,
+              75,
+              80,
+              90
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ]
+          },
+          "prompt": "A PWM signal switches between 0 and {{V|V}} with a duty cycle of {{D}} %. What is its average voltage?",
+          "answer": "D/100*V",
+          "unit": "V",
+          "explanation": "The signal is high for {{D}} % of each period, so $V_{avg} = D \\cdot V_H$ = {{D/100}} × {{V|V}} = **{{D/100*V|V}}**."
+        }
+      ]
+    },
+    {
+      "id": "ds-interfacing-2",
+      "title": "PWM and timers",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "D": [
+              0.2,
+              0.3,
+              0.4,
+              0.6,
+              0.7,
+              0.8
+            ],
+            "VH": [
+              5,
+              12
+            ]
+          },
+          "prompt": "The graph shows a PWM output (period 1 ms).",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 2,
+              "label": "t (ms)",
+              "ticks": [
+                0.0,
+                0.1,
+                0.2,
+                0.3,
+                0.4,
+                0.5,
+                0.6,
+                0.7,
+                0.8,
+                0.9,
+                1.0,
+                1.1,
+                1.2,
+                1.3,
+                1.4,
+                1.5,
+                1.6,
+                1.7,
+                1.8,
+                1.9,
+                2.0
+              ]
+            },
+            "y": {
+              "min": -0.5,
+              "max": "1.2*VH",
+              "label": "v (V)"
+            },
+            "curves": [
+              {
+                "f": "VH*step(D - mod(x, 1) - 1e-9)",
+                "to": 1.999
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "What is its duty cycle?",
+              "answer": "100*D",
+              "unit": "%",
+              "tolerance": 0.05,
+              "explanation": "The signal is high for $t_{on}$ = {{D}} ms in every period $T$ = 1 ms: $D = t_{on}/T$ = **{{100*D|%}}**."
+            },
+            {
+              "prompt": "What is its average voltage?",
+              "answer": "D*VH",
+              "unit": "V",
+              "tolerance": 0.05,
+              "explanation": "High level {{VH|V}}, on for {{D}} ms of each 1 ms: $D$ = {{100*D|%}}, so $V_{avg} = D V_H$ = {{D}} × {{VH|V}} = **{{D*VH|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "ton": [
+              5e-05,
+              0.0001,
+              0.00015,
+              0.0002,
+              0.0003
+            ],
+            "f": [
+              1000,
+              2000,
+              2500
+            ],
+            "V": [
+              12,
+              24
+            ]
+          },
+          "require": "1 - ton*f - 0.05",
+          "prompt": "A motor driver is switched by PWM at {{f|Hz}} with an on-time of {{ton|s}} per period, from a {{V|V}} supply. What average voltage does the motor see?",
+          "answer": "ton*f*V",
+          "unit": "V",
+          "explanation": "$T = 1/f$ = {{1/f|s}}, so $D = t_{on}/T$ = {{ton|s}} / {{1/f|s}} = {{100*ton*f|%}}. $V_{avg} = D V$ = {{ton*f}} × {{V|V}} = **{{ton*f*V|V}}**."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "D": [
+              0.25,
+              0.5,
+              0.75
+            ],
+            "X": [
+              50,
+              100,
+              200
+            ]
+          },
+          "derived": {
+            "tau0": "5*D*(1-D)/X*1000"
+          },
+          "prompt": "A 5 V, 1 kHz PWM output with $D$ = {{D}} feeds an RC low-pass to make a simple DAC. Choose the **smallest** time constant $RC$ that keeps the peak-to-peak ripple within {{X}} mV (between the orange lines). A larger $RC$ would only slow the DAC down.",
+          "hint": "For $RC \\gg T$ the capacitor charges almost linearly: $\\Delta v \\approx \\frac{(V_H - \\bar v)\\,DT}{RC}$ with $\\bar v = DV_H$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t (ms)",
+              "ticks": [
+                0,
+                1,
+                2,
+                3
+              ]
+            },
+            "y": {
+              "min": "5*D - 3*X/1000",
+              "max": "5*D + 3*X/1000",
+              "label": "v (V)"
+            },
+            "sliders": [
+              {
+                "name": "tau",
+                "label": "$RC$",
+                "min": 0.0001,
+                "max": 0.1,
+                "log": true,
+                "value": "tau0/4000",
+                "unit": "s"
+              }
+            ],
+            "let": {
+              "ta": "tau*1000",
+              "vmax": "5*(1 - exp(-D/ta))/(1 - exp(-1/ta))",
+              "vmin": "vmax*exp(-(1 - D)/ta)",
+              "rip": "vmax - vmin"
+            },
+            "curves": [
+              {
+                "f": "if(D - mod(x, 1), 5 + (vmin - 5)*exp(-mod(x, 1)/ta), vmax*exp(-(mod(x, 1) - D)/ta))",
+                "color": "blue"
+              },
+              {
+                "f": "5*D + X/2000",
+                "color": "orange",
+                "dash": true
+              },
+              {
+                "f": "5*D - X/2000",
+                "color": "orange",
+                "dash": true
+              }
+            ],
+            "readouts": [
+              {
+                "label": "ripple (p-p)",
+                "value": "rip",
+                "unit": "V",
+                "reveal": true
+              }
+            ]
+          },
+          "check": "min(X/1000 - rip, 1.2*tau0 - tau*1000)",
+          "solution": "$RC$ ≈ {{tau0/1000|s}}",
+          "explanation": "While the output is high the capacitor charges with current $(V_H - \\bar v)/R$ for $DT$; with $RC \\gg T$ the voltage changes almost linearly, so $\\Delta v \\approx \\frac{V_H(1-D)\\,DT}{RC}$. Setting $\\Delta v$ = {{X}} mV: $RC = \\frac{5 \\cdot {{D}} \\cdot {{1-D}} \\cdot 1\\,\\text{ms}}{ {{X/1000}}\\,\\text{V} }$ = {{tau0/1000|s}}. The ripple is worst at $D = 0.5$; the price of a large $RC$ is a slow response: after a change of $D$ the output needs about $5RC$ = {{5*tau0/1000|s}} to settle."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "fc": [
+              8000000.0,
+              16000000.0
+            ],
+            "N": [
+              1,
+              8,
+              64
+            ],
+            "TOP": [
+              255,
+              999,
+              1999
+            ]
+          },
+          "prompt": "A timer runs from $f_{clk}$ = {{fc|Hz}} with prescaler $N$ = {{N}} and counts from 0 to TOP = {{TOP||4}}, then restarts. It generates one PWM period per count cycle. What is the PWM frequency?",
+          "answer": "fc/(N*(TOP+1))",
+          "unit": "Hz",
+          "explanation": "One count cycle has TOP + 1 = {{TOP+1}} ticks of {{N}}/{{fc|Hz}} each: $f_{PWM} = f_{clk}/(N(\\text{TOP}+1))$ = {{fc|Hz}} / ({{N}} × {{TOP+1}}) = **{{fc/(N*(TOP+1))|Hz}}**. (Forgetting the +1 is a classic off-by-one error.)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "n": [
+              8,
+              16
+            ],
+            "N": [
+              1,
+              8,
+              64,
+              256,
+              1024
+            ],
+            "fc": [
+              1000000.0,
+              8000000.0,
+              16000000.0
+            ]
+          },
+          "prompt": "An {{n}}-bit timer is clocked at {{fc|Hz}} through a prescaler of {{N}}. How long does it take from 0 until it overflows?",
+          "answer": "2^n*N/fc",
+          "unit": "s",
+          "explanation": "Tick = $N/f_{clk}$ = {{N}}/{{fc|Hz}} = {{N/fc|s}}. The counter overflows after $2^{ {{n}} }$ = {{2^n||5}} ticks: $T$ = {{2^n||5}} × {{N/fc|s}} = **{{2^n*N/fc|s}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "fc": [
+              8000000.0,
+              16000000.0
+            ],
+            "N": [
+              8,
+              64
+            ],
+            "t": [
+              0.001,
+              0.002,
+              0.004
+            ]
+          },
+          "prompt": "A timer is clocked at {{fc|Hz}} through a prescaler of {{N}}. How many timer ticks must it count for an interval of {{t|s}}?",
+          "answer": "t*fc/N",
+          "unit": "",
+          "tolerance": 0.005,
+          "explanation": "Timer clock = {{fc|Hz}} / {{N}} = {{fc/N|Hz}}, i.e. one tick every {{N/fc|s}}. Ticks = {{t|s}} × {{fc/N|Hz}} = **{{t*fc/N||5}}**. (If it must fit in an 8-bit timer, it has to be ≤ 256; otherwise choose a larger prescaler.)"
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "D": [
+              0.2,
+              0.25,
+              0.3,
+              0.7,
+              0.75,
+              0.8
+            ]
+          },
+          "prompt": "Which graph shows a PWM signal with a duty cycle of {{100*D|%}} and a period of 1 ms?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "y": {
+                "min": -0.2,
+                "max": 1.2,
+                "ticks": []
+              },
+              "curves": [
+                {
+                  "f": "step(D - mod(x,1) - 1e-9)",
+                  "to": 2.999
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "y": {
+                "min": -0.2,
+                "max": 1.2,
+                "ticks": []
+              },
+              "curves": [
+                {
+                  "f": "step(1 - D - mod(x,1) - 1e-9)",
+                  "to": 2.999
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "y": {
+                "min": -0.2,
+                "max": 1.2,
+                "ticks": []
+              },
+              "curves": [
+                {
+                  "f": "step(D - mod(x,2) - 1e-9)"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "Duty cycle = on-time / period. The right graph repeats every 1 ms (ticks at 1 ms) and is high for {{D}} ms of each period. The inverted one has $D$ = {{100*(1-D)|%}}; the one with the same on-time but a 2 ms period has $D$ = {{50*D|%}}."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "n": [
+              8,
+              10,
+              12
+            ],
+            "V": [
+              3.3,
+              5
+            ]
+          },
+          "prompt": "An {{n}}-bit PWM ($2^{ {{n}} }$ duty-cycle steps) drives an RC low-pass filter from a {{V|V}} output to make a simple D/A converter. What is the smallest step in the average output voltage?",
+          "answer": "V/2^n",
+          "unit": "V",
+          "explanation": "The duty cycle can be set in steps of $1/2^{ {{n}} }$ = 1/{{2^n||5}}, so the average voltage changes in steps of $V_H/2^n$ = {{V|V}} / {{2^n||5}} = **{{V/2^n|V}}**."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Doubling the PWM frequency while keeping the duty cycle the same doubles the average output voltage.",
+          "answer": false,
+          "explanation": "False. $V_{avg} = D V_H$ depends only on the duty cycle. A higher frequency only makes the ripple after filtering (or in a motor's current) smaller, at the cost of more switching losses."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "R": [
+              10000,
+              22000,
+              47000
+            ],
+            "C": [
+              1e-07,
+              2.2e-07,
+              4.7e-07,
+              1e-06
+            ],
+            "VT": [
+              2.5,
+              3,
+              3.5
+            ]
+          },
+          "prompt": "A debounce filter: when the button is released, a capacitor $C$ = {{C|F}} charges from 0 V towards $V_{DD}$ = 5 V through $R$ = {{R|Ω}}. The Schmitt-trigger input switches when the capacitor reaches {{VT|V}}. How long after the release does the input switch?",
+          "answer": "R*C*ln(5/(5-VT))",
+          "unit": "s",
+          "explanation": "$v_C(t) = V_{DD}(1 - e^{-t/RC})$. Setting $v_C = V_T$: $t = RC\\,\\ln\\frac{V_{DD}}{V_{DD} - V_T}$. $RC$ = {{R|Ω}} × {{C|F}} = {{R*C|s}}, so $t$ = {{R*C|s}} × ln(5/{{5-VT}}) = **{{R*C*ln(5/(5-VT))|s}}**. Bounces shorter than this are filtered out."
+        }
+      ]
+    },
+    {
+      "id": "ds-interfacing-3",
+      "title": "Serial interfaces",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each serial interface to its signals.",
+          "pairs": [
+            [
+              "UART",
+              "TX and RX, no clock line"
+            ],
+            [
+              "SPI",
+              "SCLK, MOSI, MISO and a select per slave"
+            ],
+            [
+              "I²C",
+              "SDA and SCL with pull-up resistors"
+            ]
+          ],
+          "explanation": "UART is asynchronous: both sides agree on the baud rate and resynchronise on every start bit. SPI and I²C are synchronous: the master supplies a clock. SPI uses separate data lines in each direction plus one select line per slave; I²C shares two open-drain lines between all devices and selects them by address."
+        },
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "b0": [
+              0,
+              1
+            ],
+            "b1": [
+              0,
+              1
+            ],
+            "b2": [
+              0,
+              1
+            ],
+            "b3": [
+              0,
+              1
+            ],
+            "b4": [
+              0,
+              1
+            ],
+            "b5": [
+              0,
+              1
+            ],
+            "b6": [
+              0,
+              1
+            ],
+            "b7": [
+              0,
+              1
+            ]
+          },
+          "require": "1*b0 + 2*b1 + 4*b2 + 8*b3 + 16*b4 + 32*b5 + 64*b6 + 128*b7 - 0.5",
+          "prompt": "The graph shows one UART frame on the TX line (idle high, 8 data bits, no parity, one stop bit). Remember that UART sends the **LSB first**. What byte is sent, as a decimal number?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 12,
+              "label": "bit periods",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12
+              ]
+            },
+            "y": {
+              "min": -0.3,
+              "max": 1.6,
+              "label": "",
+              "ticks": []
+            },
+            "curves": [
+              {
+                "f": "1 + (0-(1))*step(x-1) + (b0-(0))*step(x-2) + (b1-(b0))*step(x-3) + (b2-(b1))*step(x-4) + (b3-(b2))*step(x-5) + (b4-(b3))*step(x-6) + (b5-(b4))*step(x-7) + (b6-(b5))*step(x-8) + (b7-(b6))*step(x-9) + (1-(b7))*step(x-10)",
+                "to": 12
+              }
+            ],
+            "labels": [
+              {
+                "x": 1.05,
+                "y": 1.4,
+                "text": "start",
+                "color": "grey"
+              },
+              {
+                "x": 10.1,
+                "y": 1.4,
+                "text": "stop",
+                "color": "grey"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 2
+              },
+              {
+                "x": 10
+              }
+            ]
+          },
+          "answer": "1*b0 + 2*b1 + 4*b2 + 8*b3 + 16*b4 + 32*b5 + 64*b6 + 128*b7",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "After the start bit (low) come $b_0 \\ldots b_7$ in order: {{b0}}, {{b1}}, {{b2}}, {{b3}}, {{b4}}, {{b5}}, {{b6}}, {{b7}}. Written MSB first that is {{b7}}{{b6}}{{b5}}{{b4}} {{b3}}{{b2}}{{b1}}{{b0}} = **{{1*b0 + 2*b1 + 4*b2 + 8*b3 + 16*b4 + 32*b5 + 64*b6 + 128*b7}}**. Reading the bits in the order they appear as MSB-first is the classic mistake."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "baud": [
+              9600,
+              19200,
+              57600,
+              115200
+            ],
+            "p": [
+              0,
+              1
+            ],
+            "s": [
+              1,
+              2
+            ],
+            "N": [
+              100,
+              500,
+              1000
+            ]
+          },
+          "prompt": "A UART sends frames with 1 start bit, 8 data bits, {{p}} parity bit(s) and {{s}} stop bit(s) at {{baud||6}} baud, back to back.",
+          "ask": [
+            {
+              "prompt": "How many data bytes per second does it transfer?",
+              "answer": "baud/(9 + p + s)",
+              "unit": "",
+              "tolerance": 0.01,
+              "explanation": "Each byte needs 1 + 8 + {{p}} + {{s}} = {{9+p+s}} bit periods. Bytes/s = {{baud||6}} / {{9+p+s}} = **{{baud/(9+p+s)||4}}**."
+            },
+            {
+              "prompt": "How long does it take to send {{N}} bytes?",
+              "answer": "N*(9 + p + s)/baud",
+              "unit": "s",
+              "explanation": "{{N}} bytes × {{9+p+s}} bits = {{N*(9+p+s)}} bits; at {{baud||6}} bit/s: $t$ = **{{N*(9+p+s)/baud|s}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "fc": [
+              8000000.0,
+              16000000.0,
+              20000000.0
+            ],
+            "baud": [
+              9600,
+              19200,
+              57600,
+              115200
+            ]
+          },
+          "derived": {
+            "div": "round(fc/(16*baud))",
+            "act": "fc/(16*round(fc/(16*baud)))"
+          },
+          "prompt": "A UART with 16× oversampling uses baud rate = $f_{clk}/(16 \\cdot \\text{DIV})$, with an integer divisor DIV. The clock is {{fc|Hz}} and the target is {{baud||6}} baud.",
+          "ask": [
+            {
+              "prompt": "Which divisor DIV gives the closest baud rate?",
+              "answer": "div",
+              "unit": "",
+              "tolerance": 0,
+              "absTolerance": 0.4,
+              "explanation": "Ideal DIV = $f_{clk}/(16 \\cdot \\text{baud})$ = {{fc|Hz}} / (16 × {{baud||6}}) = {{fc/(16*baud)||4}}, rounded to **{{div}}**."
+            },
+            {
+              "prompt": "With the best integer divisor, what is the size of the baud-rate error (in %)?",
+              "answer": "100*abs(act - baud)/baud",
+              "unit": "%",
+              "tolerance": 0.05,
+              "absTolerance": 0.02,
+              "explanation": "DIV = round({{fc/(16*baud)||4}}) = {{div}}. Actual rate = {{fc|Hz}} / (16 × {{div}}) = {{act||5}} baud. Error = |{{act||5}} − {{baud||6}}| / {{baud||6}} = **{{100*abs(act-baud)/baud|%}}**. Errors above about 2 % make reception unreliable, which is why crystals like 14.7456 MHz exist."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "f": [
+              1000000.0,
+              4000000.0,
+              8000000.0,
+              20000000.0
+            ],
+            "N": [
+              16,
+              64,
+              256,
+              1024
+            ]
+          },
+          "prompt": "An SPI master clocks out {{N}} bytes at an SCLK of {{f|Hz}} (one bit per clock, no gaps). How long does the transfer take?",
+          "answer": "8*N/f",
+          "unit": "s",
+          "explanation": "{{N}} bytes × 8 = {{8*N||5}} bits, one per clock: $t$ = {{8*N||5}} / {{f|Hz}} = **{{8*N/f|s}}**. During the same clocks the slave sends {{N}} bytes back on MISO (full duplex)."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "f": [
+              100000.0,
+              400000.0
+            ],
+            "N": [
+              1,
+              2,
+              4,
+              8,
+              16
+            ]
+          },
+          "prompt": "An I²C master writes {{N}} data byte(s) to a sensor at SCL = {{f|Hz}}. Every byte, including the address byte, takes 9 clock cycles (8 bits + ACK). Ignoring the start and stop conditions, how long does the transaction take?",
+          "answer": "9*(N+1)/f",
+          "unit": "s",
+          "explanation": "Address byte + {{N}} data byte(s) = {{N+1}} bytes × 9 clocks = {{9*(N+1)}} clocks. $t$ = {{9*(N+1)}} / {{f|Hz}} = **{{9*(N+1)/f|s}}**."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Why do the SDA and SCL lines of an I²C bus need pull-up resistors?",
+          "options": [
+            "The outputs are open-drain: devices can only pull a line low, so the resistor makes it high",
+            "To limit the current into the microcontroller inputs",
+            "To set the baud rate",
+            "To terminate the line and prevent reflections"
+          ],
+          "answer": 0,
+          "explanation": "Every I²C device drives the lines with open-drain transistors that can only pull them low. A line is high only when nobody pulls it down, via the pull-up. This wired-AND lets several devices share the lines without short circuits, and makes ACK and clock stretching possible."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "C": [
+              5e-11,
+              1e-10,
+              2e-10,
+              4e-10
+            ],
+            "tr": [
+              3e-07,
+              1e-06
+            ]
+          },
+          "prompt": "The rise time (30 %–70 %) of an I²C line is $t_r \\approx 0.85\\,R_pC_b$. The bus capacitance is {{C|F}} and the maximum allowed rise time is {{tr|s}}. What is the largest pull-up resistance $R_p$ you can use?",
+          "answer": "tr/(0.85*C)",
+          "unit": "Ω",
+          "explanation": "$R_p \\le t_r/(0.85\\,C_b)$ = {{tr|s}} / (0.85 × {{C|F}}) = **{{tr/(0.85*C)|Ω}}**. A larger resistor makes edges too slow; a much smaller one draws more current than the open-drain outputs may sink (3 mA in standard mode)."
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "prompt": "You must connect ten sensors to a microcontroller using only two signal wires, each sensor having its own address. Which interface fits?",
+          "options": [
+            "I²C",
+            "SPI",
+            "UART",
+            "PWM"
+          ],
+          "answer": 0,
+          "explanation": "I²C shares two lines (SDA, SCL) between up to about a hundred devices, each selected by its address. SPI would need a separate select line for every sensor, UART is point-to-point, and PWM is not a data bus."
+        }
+      ]
+    }
+  ]
+}

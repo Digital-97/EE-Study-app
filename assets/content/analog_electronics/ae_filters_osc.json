@@ -1,0 +1,2334 @@
+{
+  "id": "ae-filters-osc",
+  "title": "Active Filters & Oscillators",
+  "description": "Design Butterworth, Chebyshev and Bessel active filters with Sallen-Key sections, and build relaxation, 555, Wien-bridge and crystal oscillators.",
+  "reference": "H&H ch. 5",
+  "study": [
+    {
+      "title": "Why active filters?",
+      "body": "At audio and low frequencies the inductors of passive LC filters become big, lossy and expensive. An op amp with only resistors and capacitors can make any pair of complex poles, has a low output impedance so sections can be cascaded, and can add gain. Each 2nd-order section is fully described by its natural frequency $f_0$ and quality factor $Q$; higher $Q$ means more peaking near $f_0$. The price: the op amp needs enough bandwidth ($f_T \\gg K f_0$), and the response is sensitive to component tolerances.",
+      "formula": "H(s) = \\frac{K\\,\\omega_0^2}{s^2 + \\frac{\\omega_0}{Q}s + \\omega_0^2}"
+    },
+    {
+      "title": "Explore: Butterworth order",
+      "body": "The Butterworth response is **maximally flat**: no ripple, $-3$ dB at $f_c$ for every order $n$. Far above $f_c$ it falls by $6n$ dB/octave = $20n$ dB/decade. Drag $n$ and watch the attenuation at $2f_c$ grow.",
+      "formula": "|H(f)| = \\frac{1}{\\sqrt{1 + (f/f_c)^{2n}}}",
+      "plot": {
+        "x": {
+          "min": 0.1,
+          "max": 10,
+          "label": "f / f_c",
+          "log": true
+        },
+        "y": {
+          "min": -100,
+          "max": 5,
+          "label": "|H| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "n",
+            "label": "order $n$",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "value": 2
+          }
+        ],
+        "curves": [
+          {
+            "f": "-10*log10(1+x^(2*n))"
+          },
+          {
+            "f": "-10*log10(1+x^2)",
+            "color": "grey",
+            "dash": true
+          }
+        ],
+        "vlines": [
+          {
+            "x": 2,
+            "label": "2f_c"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "Attenuation at $2f_c$",
+            "value": "10*log10(1+4^n)",
+            "unit": "dB"
+          },
+          {
+            "label": "Roll-off",
+            "value": "20*n",
+            "unit": "dB/dec"
+          }
+        ],
+        "labels": [
+          {
+            "x": 0.12,
+            "y": -72,
+            "text": "Butterworth, order n",
+            "color": "primary"
+          },
+          {
+            "x": 0.12,
+            "y": -86,
+            "text": "1st order (dashed)",
+            "color": "grey"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Butterworth, Chebyshev, Bessel",
+      "body": "Same order, different trade-offs (4-pole curves shown):\n- **Butterworth**: flattest passband, moderate roll-off, some overshoot on steps.\n- **Chebyshev**: allows passband ripple (here 1 dB) for a much steeper transition.\n- **Bessel**: nearly linear phase (constant delay), so pulses keep their shape with almost no overshoot, but the roll-off is gentle.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "f / f_c"
+        },
+        "y": {
+          "min": -50,
+          "max": 3,
+          "label": "|H| (dB)"
+        },
+        "curves": [
+          {
+            "f": "-10*log10(1+x^8)"
+          },
+          {
+            "f": "-10*log10(1+0.2589*(8*x^4-8*x^2+1)^2)",
+            "color": "red"
+          },
+          {
+            "f": "-10*log10(((2.114*x)^4-45*(2.114*x)^2+105)^2/11025+(105*(2.114*x)-10*(2.114*x)^3)^2/11025)",
+            "color": "blue"
+          }
+        ],
+        "labels": [
+          {
+            "x": 0.06,
+            "y": -30,
+            "text": "Butterworth",
+            "color": "primary"
+          },
+          {
+            "x": 0.06,
+            "y": -38,
+            "text": "Chebyshev (1 dB)",
+            "color": "red"
+          },
+          {
+            "x": 0.06,
+            "y": -46,
+            "text": "Bessel",
+            "color": "blue"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Sallen-Key (VCVS) low-pass",
+      "body": "Two RC sections; $C_1$ feeds the output back to the middle node, which creates the complex poles. With $R_f$ and $R_g$ the op amp is a non-inverting amplifier of gain $K = 1 + R_f/R_g$ (shorted $R_f$: unity gain). In the **equal-component** design ($R_1 = R_2$, $C_1 = C_2$) $Q = 1/(3-K)$ depends only on $K$: a 2nd-order Butterworth ($Q = 0.707$) needs $K = 1.586$, and $K \\to 3$ makes it oscillate.",
+      "formula": "f_0 = \\frac{1}{2\\pi\\sqrt{R_1R_2C_1C_2}}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              1
+            ],
+            "label": "v_{in}",
+            "flip": true
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              1
+            ],
+            "to": [
+              2,
+              1
+            ],
+            "label": "R_1",
+            "flip": true
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              1
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              1
+            ],
+            "to": [
+              4,
+              1
+            ],
+            "label": "R_2",
+            "flip": true
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              1
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                1
+              ],
+              [
+                6,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              4,
+              1
+            ],
+            "to": [
+              4,
+              3
+            ],
+            "label": "C_2"
+          },
+          {
+            "type": "ground",
+            "at": [
+              4,
+              3
+            ]
+          },
+          {
+            "type": "opamp",
+            "at": [
+              7,
+              1.5
+            ],
+            "flip": true
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              2,
+              1
+            ],
+            "to": [
+              2,
+              -0.5
+            ],
+            "label": "C_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                -0.5
+              ],
+              [
+                9,
+                -0.5
+              ],
+              [
+                9,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                8,
+                1.5
+              ],
+              [
+                10,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              9,
+              1.5
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              10,
+              1.5
+            ],
+            "label": "v_o"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6,
+                2
+              ],
+              [
+                6,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              3
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              3
+            ],
+            "to": [
+              9,
+              3
+            ],
+            "label": "R_f",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                9,
+                3
+              ],
+              [
+                9,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              3
+            ],
+            "to": [
+              6,
+              4.5
+            ],
+            "label": "R_g",
+            "flip": true
+          },
+          {
+            "type": "ground",
+            "at": [
+              6,
+              4.5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Higher order, state-variable and notch",
+      "body": "An $n$-pole filter is a cascade of $n/2$ second-order sections with **different** $Q$s, e.g. a 4-pole Butterworth uses $K$ = 1.152 and 2.235 ($Q$ = 0.54 and 1.31). The **state-variable** (and biquad) filter uses two integrators and a summer: it gives low-pass, high-pass and band-pass outputs at once, and $f_0$ and $Q$ can be set independently. The **twin-T** notch ($R$, $R$, $R/2$ and $C$, $C$, $2C$) rejects a single frequency, e.g. 50 Hz hum.",
+      "formula": "f_{notch} = \\frac{1}{2\\pi RC}"
+    },
+    {
+      "title": "Relaxation oscillator and 555",
+      "body": "An op-amp Schmitt trigger ($R_1$, $R_2$) with an RC integrator ($R$, $C$) charges $C$ between the thresholds $\\pm\\beta V_{sat}$, giving a square wave with $T = 2RC\\ln\\frac{1+\\beta}{1-\\beta}$, $\\beta = \\frac{R_2}{R_1+R_2}$ ($\\beta = 1/2$: $T \\approx 2.2RC$). The 555 timer astable charges $C$ through $R_A + R_B$ and discharges it through $R_B$ between $\\frac13V_{CC}$ and $\\frac23V_{CC}$: high for $0.693(R_A+R_B)C$, low for $0.693R_BC$ (1.443 = 1/0.693), so the duty cycle is always above 50 %.",
+      "formula": "f_{555} = \\frac{1.443}{(R_A + 2R_B)C}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "node",
+            "at": [
+              1,
+              1
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                5,
+                0
+              ],
+              [
+                5,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              1,
+              1
+            ],
+            "to": [
+              1,
+              3
+            ],
+            "label": "C",
+            "flip": true
+          },
+          {
+            "type": "ground",
+            "at": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "opamp",
+            "at": [
+              3,
+              1.5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              3
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              3
+            ],
+            "to": [
+              2,
+              4.5
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "ground",
+            "at": [
+              2,
+              4.5
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              3
+            ],
+            "to": [
+              5,
+              3
+            ],
+            "label": "R_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                3
+              ],
+              [
+                5,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              1.5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                1.5
+              ],
+              [
+                6,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              6,
+              1.5
+            ],
+            "label": "v_o"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Sine-wave oscillators",
+      "body": "A sine oscillator needs a loop gain of exactly 1 at one frequency (Barkhausen). The **Wien bridge** RC network has gain 1/3 and zero phase at $f_0$, so the amplifier needs gain 3, with amplitude stabilisation (lamp, JFET or diodes) to stop it growing into clipping. **LC** oscillators (Colpitts, Hartley) run at the tank resonance for RF. A **quartz crystal** has an extremely high $Q$ (10$^4$–10$^6$) with series and parallel resonances close together, giving stabilities of a few ppm.",
+      "formula": "f_{Wien} = \\frac{1}{2\\pi RC},\\qquad f_{LC} = \\frac{1}{2\\pi\\sqrt{LC}}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ae-filters-osc-1",
+      "title": "Active filter basics",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Why active filters?",
+          "body": "A 1 kHz LC low-pass for a 10 kΩ system would need inductors of more than 1 H: big, lossy, and picking up hum. An op amp plus R and C can create the same complex poles, buffers the output, and lets you cascade sections freely. Every 2nd-order section is described by $f_0$ and $Q$.",
+          "formula": "H(s) = \\frac{K\\,\\omega_0^2}{s^2 + \\frac{\\omega_0}{Q}s + \\omega_0^2}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "n": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              8
+            ]
+          },
+          "prompt": "Far above the cutoff, by how many dB per **decade** does a {{n}}-pole Butterworth low-pass fall?",
+          "answer": "20*n",
+          "unit": "dB",
+          "tolerance": 0.001,
+          "explanation": "Far out $|H| \\approx (f_c/f)^n$, so every decade costs $20n$ dB = 20 × {{n}} = **{{20*n}} dB/decade** (or $6n$ = {{6*n}} dB per octave). Each pole contributes 20 dB/decade."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Three response families",
+          "body": "For a given order you choose the shape:\n- **Butterworth**: maximally flat passband.\n- **Chebyshev**: ripple in the passband buys a steeper transition.\n- **Bessel**: linear phase, so the waveform shape of pulses is preserved.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "f / f_c"
+            },
+            "y": {
+              "min": -50,
+              "max": 3,
+              "label": "|H| (dB)"
+            },
+            "curves": [
+              {
+                "f": "-10*log10(1+x^8)"
+              },
+              {
+                "f": "-10*log10(1+0.2589*(8*x^4-8*x^2+1)^2)",
+                "color": "red"
+              },
+              {
+                "f": "-10*log10(((2.114*x)^4-45*(2.114*x)^2+105)^2/11025+(105*(2.114*x)-10*(2.114*x)^3)^2/11025)",
+                "color": "blue"
+              }
+            ],
+            "height": 180,
+            "labels": [
+              {
+                "x": 0.06,
+                "y": -30,
+                "text": "Butterworth",
+                "color": "primary"
+              },
+              {
+                "x": 0.06,
+                "y": -38,
+                "text": "Chebyshev (1 dB)",
+                "color": "red"
+              },
+              {
+                "x": 0.06,
+                "y": -46,
+                "text": "Bessel",
+                "color": "blue"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "matchPairs",
+          "prompt": "Match each filter response to its strong point",
+          "pairs": [
+            [
+              "Butterworth",
+              "Flattest passband, no ripple"
+            ],
+            [
+              "Chebyshev",
+              "Steepest roll-off for its order"
+            ],
+            [
+              "Bessel",
+              "Constant delay, clean step response"
+            ],
+            [
+              "Twin-T",
+              "Deep notch at one frequency"
+            ]
+          ],
+          "explanation": "Butterworth trades nothing in the passband; Chebyshev accepts ripple for a faster transition to the stopband; Bessel keeps the phase linear so pulses arrive undistorted (at the cost of a slow roll-off); the twin-T is a band-reject (notch) network, e.g. for 50 Hz hum."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The Sallen-Key low-pass",
+          "body": "The unity-gain Sallen-Key uses the op amp as a follower. $C_1$ goes to the **output**, not to ground: near $f_0$ it feeds signal back to the middle node, which lifts the response and makes the poles complex. The natural frequency is set by all four parts.",
+          "formula": "f_0 = \\frac{1}{2\\pi\\sqrt{R_1R_2C_1C_2}}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  1
+                ],
+                "label": "v_{in}",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  2,
+                  1
+                ],
+                "label": "R_1",
+                "flip": true
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "R_2",
+                "flip": true
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  1
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    1
+                  ],
+                  [
+                    6,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "C_2"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  7,
+                  1.5
+                ],
+                "flip": true
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  2,
+                  -0.5
+                ],
+                "label": "C_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    -0.5
+                  ],
+                  [
+                    9,
+                    -0.5
+                  ],
+                  [
+                    9,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    8,
+                    1.5
+                  ],
+                  [
+                    10,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  9,
+                  1.5
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  10,
+                  1.5
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    6,
+                    3
+                  ],
+                  [
+                    9,
+                    3
+                  ],
+                  [
+                    9,
+                    1.5
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "R1": [
+              10000,
+              15000,
+              22000
+            ],
+            "R2": [
+              10000,
+              22000,
+              33000
+            ],
+            "C1": [
+              1e-08,
+              2.2e-08,
+              4.7e-08
+            ],
+            "C2": [
+              4.7e-09,
+              1e-08
+            ]
+          },
+          "prompt": "Find the natural frequency $f_0$ of this unity-gain Sallen-Key low-pass.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  1
+                ],
+                "label": "v_{in}",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  2,
+                  1
+                ],
+                "label": "R_1",
+                "flip": true,
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "R_2",
+                "flip": true,
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  1
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    1
+                  ],
+                  [
+                    6,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "C_2",
+                "value": "{{C2|F}}"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  7,
+                  1.5
+                ],
+                "flip": true
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  2,
+                  -0.5
+                ],
+                "label": "C_1",
+                "value": "{{C1|F}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    -0.5
+                  ],
+                  [
+                    9,
+                    -0.5
+                  ],
+                  [
+                    9,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    8,
+                    1.5
+                  ],
+                  [
+                    10,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  9,
+                  1.5
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  10,
+                  1.5
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    6,
+                    3
+                  ],
+                  [
+                    9,
+                    3
+                  ],
+                  [
+                    9,
+                    1.5
+                  ]
+                ]
+              }
+            ]
+          },
+          "answer": "1/(2*pi*sqrt(R1*R2*C1*C2))",
+          "unit": "Hz",
+          "explanation": "$f_0 = \\frac{1}{2\\pi\\sqrt{R_1R_2C_1C_2}}$. The product $R_1R_2C_1C_2$ = {{R1*R2*C1*C2||3}} s², its square root is {{sqrt(R1*R2*C1*C2)|s}}, so $f_0$ = 1 / (2π × {{sqrt(R1*R2*C1*C2)|s}}) = **{{1/(2*pi*sqrt(R1*R2*C1*C2))|Hz}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Rf": [
+              2200,
+              4700,
+              5600,
+              6800,
+              10000,
+              15000
+            ]
+          },
+          "prompt": "An equal-component Sallen-Key low-pass ($R_1 = R_2$, $C_1 = C_2$) has $R_g$ = 10 kΩ and $R_f$ = {{Rf|Ω}}. Find its $Q$.",
+          "answer": "1/(2 - Rf/10000)",
+          "unit": "",
+          "tolerance": 0.01,
+          "explanation": "Gain $K = 1 + R_f/R_g$ = 1 + {{Rf|Ω}}/10 kΩ = {{1+Rf/10000||3}}. With equal components $Q = \\frac{1}{3-K}$ = 1/(3 − {{1+Rf/10000||3}}) = **{{1/(2-Rf/10000)||3}}**. (Butterworth would need $K$ = 1.586, i.e. $R_f$ = 5.86 kΩ.)"
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Explore: gain sets the peaking",
+          "body": "In the equal-component design, $f_0$ stays put while $K$ changes the shape. $K$ = 1 gives $Q$ = 0.5 (two real poles, droopy), $K$ = 1.586 is Butterworth, and as $K$ approaches 3 the peak near $f_0$ grows without bound. Above 3 the circuit oscillates.",
+          "formula": "Q = \\frac{1}{3-K}",
+          "plot": {
+            "x": {
+              "min": 0.1,
+              "max": 10,
+              "label": "f / f_0",
+              "log": true
+            },
+            "y": {
+              "min": -40,
+              "max": 25,
+              "label": "|H| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "K",
+                "label": "$K$",
+                "min": 1,
+                "max": 2.9,
+                "step": 0.01,
+                "value": 1.2
+              }
+            ],
+            "let": {
+              "Q": "1/(3-K)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(K/sqrt((1-x^2)^2+(x/Q)^2))",
+                "label": "|H|",
+                "labelAt": 0.3
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$Q$",
+                "value": "Q"
+              },
+              {
+                "label": "Peak above DC gain",
+                "value": "if(Q-0.7072, 20*log10(Q/sqrt(1-1/(4*Q^2))), 0)",
+                "unit": "dB"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "Qt": [
+              0.6,
+              0.707,
+              1,
+              1.5,
+              2
+            ]
+          },
+          "derived": {
+            "Kt": "3 - 1/Qt"
+          },
+          "prompt": "Set the gain $K$ of an equal-component Sallen-Key low-pass so that its $Q$ is {{Qt}}.",
+          "plot": {
+            "x": {
+              "min": 0.1,
+              "max": 10,
+              "label": "f / f_0",
+              "log": true
+            },
+            "y": {
+              "min": -40,
+              "max": 25,
+              "label": "|H| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "K",
+                "label": "$K$",
+                "min": 1,
+                "max": 2.9,
+                "step": 0.01,
+                "value": 1
+              }
+            ],
+            "curves": [
+              {
+                "f": "20*log10(K/sqrt((1-x^2)^2+(x*(3-K))^2))",
+                "label": "|H|",
+                "labelAt": 0.3
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$Q$",
+                "value": "1/(3-K)",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "K": "Kt"
+          },
+          "tolerance": 0.01,
+          "explanation": "$Q = \\frac{1}{3-K}$, so $K = 3 - \\frac{1}{Q}$ = 3 − 1/{{Qt}} = **{{Kt||3}}**. Notice how the passband gain ($K$) and the peaking rise together: in this design you cannot set gain and $Q$ separately."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Raising $K$ of an equal-component Sallen-Key low-pass to 3.2 gives an even sharper but still stable filter.",
+          "answer": false,
+          "explanation": "At $K$ = 3 the damping term $(3-K)$ is zero: the poles sit on the $j\\omega$ axis and the circuit oscillates. Above 3 the poles move into the right half-plane and the output grows until it clips. Useful $K$ stays well below 3."
+        }
+      ]
+    },
+    {
+      "id": "ae-filters-osc-2",
+      "title": "Filter calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "n": [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "r": [
+              1.5,
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "A {{n}}-pole Butterworth low-pass has $f_c$ = 1 kHz. Consider a signal at {{r*1000|Hz}}.",
+          "ask": [
+            {
+              "prompt": "By how many dB is it attenuated?",
+              "answer": "10*log10(1+r^(2*n))",
+              "unit": "dB",
+              "explanation": "$A = 10\\log_{10}\\left(1 + (f/f_c)^{2n}\\right)$ = 10 log$_{10}$(1 + {{r}}$^{ {{2*n}} }$) = 10 log$_{10}$({{1+r^(2*n)||4}}) = **{{10*log10(1+r^(2*n))|dB}}**. The far-out rule $20n\\log_{10}(f/f_c)$ gives {{20*n*log10(r)|dB}}, close once $f \\gg f_c$."
+            },
+            {
+              "prompt": "What is the magnitude $|H|$ (as a ratio)?",
+              "answer": "1/sqrt(1+r^(2*n))",
+              "unit": "",
+              "explanation": "$|H| = 1/\\sqrt{1 + (f/f_c)^{2n}}$ = 1/$\\sqrt{1 + {{r}}^{ {{2*n}} }}$ = 1/{{sqrt(1+r^(2*n))||4}} = **{{1/sqrt(1+r^(2*n))||3}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "A": [
+              20,
+              30,
+              40,
+              50,
+              60
+            ],
+            "r": [
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "derived": {
+            "nr": "log10(10^(A/10)-1)/(2*log10(r))"
+          },
+          "require": "min(abs(nr - round(nr)) - 0.04, 8.5 - ceil(nr))",
+          "prompt": "What is the lowest Butterworth order that attenuates a signal at {{r}}$f_c$ by at least {{A}} dB?",
+          "answer": "ceil(nr)",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "Need $(f/f_c)^{2n} \\ge 10^{A/10} - 1$, so $n \\ge \\frac{\\log_{10}(10^{A/10}-1)}{2\\log_{10}(f/f_c)}$ = {{log10(10^(A/10)-1)||3}} / (2 × {{log10(r)||3}}) = {{nr||3}}. Round **up**: $n$ = **{{ceil(nr)}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "fc": [
+              100,
+              250,
+              1000,
+              3400,
+              10000
+            ],
+            "C": [
+              1e-08,
+              2.2e-08,
+              1e-07
+            ]
+          },
+          "derived": {
+            "R": "1/(2*pi*fc*C)"
+          },
+          "require": "min(R - 1000, 1000000 - R)",
+          "prompt": "An equal-component Butterworth Sallen-Key low-pass must have $f_c$ = {{fc|Hz}}, using $C_1 = C_2$ = {{C|F}}. What value must $R_1 = R_2 = R$ have?",
+          "answer": "R",
+          "unit": "Ω",
+          "explanation": "With equal parts $f_0 = \\frac{1}{2\\pi RC}$ (and for Butterworth $f_0 = f_c$). So $R = \\frac{1}{2\\pi f_c C}$ = 1 / (2π × {{fc|Hz}} × {{C|F}}) = **{{R|Ω}}**. The gain $K$ = 1.586 then sets the Butterworth shape."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "R": [
+              10000,
+              22000,
+              47000
+            ],
+            "C1": [
+              1e-08,
+              2.2e-08,
+              4.7e-08,
+              1e-07
+            ],
+            "C2": [
+              4.7e-09,
+              1e-08,
+              2.2e-08
+            ]
+          },
+          "prompt": "This unity-gain Sallen-Key low-pass has $R_1 = R_2$ = {{R|Ω}}.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  1
+                ],
+                "label": "v_{in}",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  2,
+                  1
+                ],
+                "label": "R_1",
+                "flip": true,
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "R_2",
+                "flip": true,
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  1
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    1
+                  ],
+                  [
+                    6,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "C_2",
+                "value": "{{C2|F}}"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  7,
+                  1.5
+                ],
+                "flip": true
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  2,
+                  -0.5
+                ],
+                "label": "C_1",
+                "value": "{{C1|F}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    -0.5
+                  ],
+                  [
+                    9,
+                    -0.5
+                  ],
+                  [
+                    9,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    8,
+                    1.5
+                  ],
+                  [
+                    10,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  9,
+                  1.5
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  10,
+                  1.5
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    6,
+                    3
+                  ],
+                  [
+                    9,
+                    3
+                  ],
+                  [
+                    9,
+                    1.5
+                  ]
+                ]
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find its $Q$, using $Q = \\frac{1}{2}\\sqrt{C_1/C_2}$ (valid for equal resistors).",
+              "answer": "0.5*sqrt(C1/C2)",
+              "unit": "",
+              "explanation": "$Q = \\frac12\\sqrt{C_1/C_2}$ = 0.5 × $\\sqrt{ {{C1/C2||3}} }$ = **{{0.5*sqrt(C1/C2)||3}}**. Butterworth ($Q$ = 0.707) needs $C_1 = 2C_2$; a bigger feedback capacitor $C_1$ gives more peaking."
+            },
+            {
+              "prompt": "Find its natural frequency $f_0$.",
+              "answer": "1/(2*pi*R*sqrt(C1*C2))",
+              "unit": "Hz",
+              "explanation": "$f_0 = \\frac{1}{2\\pi\\sqrt{R_1R_2C_1C_2}} = \\frac{1}{2\\pi R\\sqrt{C_1C_2}}$ = 1 / (2π × {{R|Ω}} × {{sqrt(C1*C2)|F}}) = **{{1/(2*pi*R*sqrt(C1*C2))|Hz}}**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows a 4-pole **Chebyshev** low-pass? (Horizontal axis $f/f_c$ from 0 to 3, vertical axis in dB.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "f / f_c"
+              },
+              "y": {
+                "min": -50,
+                "max": 3,
+                "label": "|H| (dB)"
+              },
+              "curves": [
+                {
+                  "f": "-10*log10(1+0.2589*(8*x^4-8*x^2+1)^2)"
+                }
+              ],
+              "height": 140
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "f / f_c"
+              },
+              "y": {
+                "min": -50,
+                "max": 3,
+                "label": "|H| (dB)"
+              },
+              "curves": [
+                {
+                  "f": "-10*log10(1+x^8)"
+                }
+              ],
+              "height": 140
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "f / f_c"
+              },
+              "y": {
+                "min": -50,
+                "max": 3,
+                "label": "|H| (dB)"
+              },
+              "curves": [
+                {
+                  "f": "-10*log10(((2.114*x)^4-45*(2.114*x)^2+105)^2/11025+(105*(2.114*x)-10*(2.114*x)^3)^2/11025)"
+                }
+              ],
+              "height": 140
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "f / f_c"
+              },
+              "y": {
+                "min": -50,
+                "max": 3,
+                "label": "|H| (dB)"
+              },
+              "curves": [
+                {
+                  "f": "-10*log10(1+x^2)"
+                }
+              ],
+              "height": 140
+            }
+          ],
+          "answer": 0,
+          "explanation": "The Chebyshev response is recognisable by its **ripple** in the passband (here 1 dB) followed by the steepest drop. The flat one with a moderate drop is the Butterworth; the gently rounded one is the Bessel; the slowest curve is a single RC pole."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0,
+              1
+            ]
+          },
+          "derived": {
+            "K": "if(s, 2.235, 1.152)"
+          },
+          "prompt": "A 4-pole Butterworth low-pass is built from two equal-component Sallen-Key sections with gains 1.152 and 2.235.",
+          "ask": [
+            {
+              "prompt": "What is the $Q$ of the section with $K$ = {{K||4}}?",
+              "answer": "1/(3-K)",
+              "unit": "",
+              "explanation": "$Q = \\frac{1}{3-K}$ = 1/(3 − {{K||4}}) = **{{1/(3-K)||3}}**. The two sections have $Q$ = 0.54 and 1.31: the high-$Q$ section's peak fills in the droop of the low-$Q$ one, giving the flat overall response."
+            },
+            {
+              "prompt": "What is the overall passband gain in dB?",
+              "answer": "20*log10(1.152*2.235)",
+              "unit": "dB",
+              "explanation": "Cascaded gains multiply: 1.152 × 2.235 = {{1.152*2.235||4}}, which is 20 log$_{10}$({{1.152*2.235||4}}) = **{{20*log10(1.152*2.235)|dB}}**. Put the low-$Q$ section first so the peaking section does not clip on strong signals."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "R": [
+              10000,
+              33000,
+              68000,
+              100000
+            ],
+            "C": [
+              1e-08,
+              4.7e-08,
+              1e-07
+            ]
+          },
+          "prompt": "A twin-T notch uses resistors $R$, $R$ and $R/2$ and capacitors $C$, $C$ and $2C$, with $R$ = {{R|Ω}} and $C$ = {{C|F}}. At what frequency is the notch?",
+          "answer": "1/(2*pi*R*C)",
+          "unit": "Hz",
+          "explanation": "$f_{notch} = \\frac{1}{2\\pi RC}$ = 1 / (2π × {{R|Ω}} × {{C|F}}) = **{{1/(2*pi*R*C)|Hz}}**. A passive twin-T has a low $Q$ (0.25); adding bootstrapped feedback with an op amp sharpens it."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "In a state-variable filter you can change $Q$ with a single resistor without moving $f_0$.",
+          "answer": true,
+          "explanation": "True. The two integrators set $f_0 = 1/(2\\pi RC)$, while a separate damping resistor in the summing stage sets $Q$. This independence (plus simultaneous LP, HP and BP outputs) is why state-variable and biquad filters are used for high-$Q$ and tunable designs."
+        },
+        {
+          "id": "q9",
+          "type": "multipleChoice",
+          "prompt": "A filter in front of a pulse counter must remove HF noise while keeping the pulses free of overshoot and ringing. Which response do you choose?",
+          "options": [
+            "Bessel",
+            "Chebyshev (2 dB ripple)",
+            "Butterworth",
+            "Chebyshev (0.5 dB ripple)"
+          ],
+          "answer": 0,
+          "explanation": "Overshoot and ringing come from a non-constant group delay. The Bessel filter has nearly linear phase, so all frequency components of a pulse are delayed equally and the step response barely overshoots (under 1 %: 0.8 % for 4 poles, versus 11 % for a 4-pole Butterworth and 18–28 % for 4-pole Chebyshevs)."
+        }
+      ]
+    },
+    {
+      "id": "ae-filters-osc-3",
+      "title": "Oscillators",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The op-amp relaxation oscillator",
+          "body": "$R_1$ and $R_2$ make a Schmitt trigger with thresholds $\\pm\\beta V_{sat}$. The output charges $C$ through $R$ until $v_C$ reaches the threshold, the output flips, and $C$ charges the other way. Each half period lasts $RC\\ln\\frac{1+\\beta}{1-\\beta}$.",
+          "formula": "T = 2RC\\ln\\frac{1+\\beta}{1-\\beta},\\qquad \\beta = \\frac{R_2}{R_1+R_2}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  1
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    1
+                  ],
+                  [
+                    2,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    1
+                  ],
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ],
+                  [
+                    5,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  1,
+                  1
+                ],
+                "to": [
+                  1,
+                  3
+                ],
+                "label": "C",
+                "flip": true
+              },
+              {
+                "type": "ground",
+                "at": [
+                  1,
+                  3
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  3,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  2,
+                  4.5
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  2,
+                  4.5
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  5,
+                  3
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    3
+                  ],
+                  [
+                    5,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    1.5
+                  ],
+                  [
+                    6,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6,
+                  1.5
+                ],
+                "label": "v_o"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R": [
+              10000,
+              22000,
+              47000,
+              100000
+            ],
+            "C": [
+              1e-08,
+              4.7e-08,
+              1e-07
+            ],
+            "R1": [
+              10000,
+              22000,
+              47000
+            ],
+            "R2": [
+              4700,
+              10000,
+              22000
+            ]
+          },
+          "derived": {
+            "b": "R2/(R1+R2)",
+            "T": "2*R*C*ln((1+b)/(1-b))"
+          },
+          "prompt": "In the relaxation oscillator $R$ = {{R|Ω}}, $C$ = {{C|F}}, $R_1$ = {{R1|Ω}} and $R_2$ = {{R2|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find the period $T$.",
+              "answer": "T",
+              "unit": "s",
+              "explanation": "$\\beta = \\frac{R_2}{R_1+R_2}$ = {{R2|Ω}} / {{R1+R2|Ω}} = {{b||3}}. $T = 2RC\\ln\\frac{1+\\beta}{1-\\beta}$ = 2 × {{R*C|s}} × ln({{(1+b)/(1-b)||3}}) = **{{T|s}}**."
+            },
+            {
+              "prompt": "Find the oscillation frequency.",
+              "answer": "1/T",
+              "unit": "Hz",
+              "explanation": "$\\beta$ = {{R2|Ω}} / {{R1+R2|Ω}} = {{b||3}}, so $T = 2RC\\ln\\frac{1+\\beta}{1-\\beta}$ = 2 × {{R*C|s}} × {{ln((1+b)/(1-b))||3}} = {{T|s}} and $f = 1/T$ = **{{1/T|Hz}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "RA": [
+              1000,
+              2200,
+              4700,
+              10000
+            ],
+            "RB": [
+              4700,
+              10000,
+              22000,
+              47000
+            ],
+            "C": [
+              1e-08,
+              1e-07,
+              1e-06
+            ]
+          },
+          "prompt": "A 555 astable has $R_A$ = {{RA|Ω}}, $R_B$ = {{RB|Ω}} and $C$ = {{C|F}}.",
+          "ask": [
+            {
+              "prompt": "Find the output frequency.",
+              "answer": "1.443/((RA+2*RB)*C)",
+              "unit": "Hz",
+              "explanation": "$f = \\frac{1}{0.693(R_A + 2R_B)C}$ = 1.443 / ({{RA+2*RB|Ω}} × {{C|F}}) = **{{1.443/((RA+2*RB)*C)|Hz}}**."
+            },
+            {
+              "prompt": "Find the duty cycle (high time / period) in %.",
+              "answer": "100*(RA+RB)/(RA+2*RB)",
+              "unit": "%",
+              "explanation": "$D = \\frac{R_A+R_B}{R_A+2R_B}$ = {{RA+RB|Ω}} / {{RA+2*RB|Ω}} = **{{100*(RA+RB)/(RA+2*RB)|%}}**. Always above 50 %, because $C$ charges through both resistors but discharges through $R_B$ only."
+            },
+            {
+              "prompt": "How long is the output high in each cycle?",
+              "answer": "0.693*(RA+RB)*C",
+              "unit": "s",
+              "explanation": "$C$ charges from $\\frac13V_{CC}$ to $\\frac23V_{CC}$ through $R_A + R_B$: $t_H = \\ln 2\\,(R_A+R_B)C$ = 0.693 × {{RA+RB|Ω}} × {{C|F}} = **{{0.693*(RA+RB)*C|s}}**."
+            },
+            {
+              "prompt": "How long is the output low in each cycle?",
+              "answer": "0.693*RB*C",
+              "unit": "s",
+              "explanation": "$C$ discharges from $\\frac23V_{CC}$ to $\\frac13V_{CC}$ through $R_B$ only: $t_L = 0.693R_BC$ = 0.693 × {{RB|Ω}} × {{C|F}} = **{{0.693*RB*C|s}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "f": [
+              100,
+              500,
+              1000,
+              2000
+            ],
+            "C": [
+              1e-08,
+              1e-07
+            ],
+            "RA": [
+              1000,
+              2200
+            ]
+          },
+          "derived": {
+            "RB": "(1.443/(f*C) - RA)/2"
+          },
+          "require": "min(RB - 1000, 1000000 - RB)",
+          "prompt": "A 555 astable with $R_A$ = {{RA|Ω}} and $C$ = {{C|F}} must run at {{f|Hz}}. What value of $R_B$ do you need?",
+          "answer": "RB",
+          "unit": "Ω",
+          "explanation": "From $f = \\frac{1.443}{(R_A + 2R_B)C}$: $R_A + 2R_B = \\frac{1.443}{fC}$ = {{1.443/(f*C)|Ω|4}}. So $R_B$ = ({{1.443/(f*C)|Ω|4}} − {{RA|Ω}}) / 2 = **{{RB|Ω}}**."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "The basic 555 astable ($R_A$, $R_B$, $C$, no extra parts) can produce a square wave with a 30 % duty cycle.",
+          "answer": false,
+          "explanation": "$D = \\frac{R_A+R_B}{R_A+2R_B} > 50\\,\\%$ for any $R_A > 0$, because $C$ charges through both resistors but discharges through $R_B$ only. To get below 50 % you add a diode across $R_B$, so $C$ charges through $R_A$ alone ($D \\approx R_A/(R_A+R_B)$), or, with a CMOS 555, charge $C$ quickly from its rail-to-rail output through a diode."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Sine-wave oscillators",
+          "body": "A sine oscillator is an amplifier with a frequency-selective feedback network whose loop gain is exactly 1 at one frequency. The Wien bridge's series and parallel RC network passes 1/3 with zero phase at $f_0$, so the amplifier needs a gain of exactly 3. A little more and the output grows into clipping; a little less and it dies. Real circuits regulate the gain with a lamp, JFET or diodes.",
+          "formula": "f_0 = \\frac{1}{2\\pi RC},\\qquad A_v = 1 + \\frac{R_f}{R_g} = 3"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "R": [
+              1000,
+              4700,
+              10000,
+              22000
+            ],
+            "C": [
+              1e-09,
+              1e-08,
+              1e-07
+            ]
+          },
+          "prompt": "A Wien-bridge oscillator uses $R$ = {{R|Ω}} and $C$ = {{C|F}} in both arms of its frequency-selective network. At what frequency does it oscillate?",
+          "answer": "1/(2*pi*R*C)",
+          "unit": "Hz",
+          "explanation": "$f_0 = \\frac{1}{2\\pi RC}$ = 1 / (2π × {{R|Ω}} × {{C|F}}) = **{{1/(2*pi*R*C)|Hz}}**. At this frequency the network passes exactly 1/3 with zero phase shift."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A Wien-bridge oscillator has its amplifier gain fixed at 3.2 with plain resistors and no amplitude control. What does the output look like?",
+          "options": [
+            "A sine that grows until it clips: a distorted, flattened wave",
+            "A clean sine with 7 % more amplitude than at gain 3",
+            "A sine that slowly dies out",
+            "A sine at a 7 % higher frequency"
+          ],
+          "answer": 0,
+          "explanation": "Loop gain 3.2/3 > 1 means each cycle comes back larger, so the amplitude grows until the op amp saturates. The rails then limit it, flattening the tops (high distortion). Gain only sets **whether** the amplitude grows; the frequency stays at $1/(2\\pi RC)$. Hence the lamp, JFET or diode amplitude control."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "L": [
+              1e-06,
+              1e-05,
+              0.0001
+            ],
+            "C1": [
+              1e-10,
+              4.7e-10,
+              1e-09
+            ],
+            "C2": [
+              2.2e-10,
+              1e-09,
+              2.2e-09
+            ]
+          },
+          "derived": {
+            "Cs": "C1*C2/(C1+C2)"
+          },
+          "prompt": "A Colpitts oscillator has a tank of $L$ = {{L|H}} with the series capacitors $C_1$ = {{C1|F}} and $C_2$ = {{C2|F}}. Estimate its frequency.",
+          "answer": "1/(2*pi*sqrt(L*Cs))",
+          "unit": "Hz",
+          "explanation": "The tank sees $C_1$ and $C_2$ in series: $C = \\frac{C_1C_2}{C_1+C_2}$ = {{Cs|F}}. Then $f = \\frac{1}{2\\pi\\sqrt{LC}}$ = 1 / (2π$\\sqrt{ {{L|H}} \\times {{Cs|F}} }$) = **{{1/(2*pi*sqrt(L*Cs))|Hz}}**. The capacitive divider sets how much of the output is fed back."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "f0": [
+              4000000.0,
+              8000000.0,
+              10000000.0,
+              16000000.0,
+              25000000.0
+            ],
+            "p": [
+              10,
+              20,
+              50,
+              100
+            ]
+          },
+          "prompt": "A {{f0|Hz}} crystal oscillator is specified at ±{{p}} ppm.",
+          "ask": [
+            {
+              "prompt": "What is the largest frequency error in Hz?",
+              "answer": "f0*p*1e-6",
+              "unit": "Hz",
+              "explanation": "1 ppm = $10^{-6}$ of the frequency: $\\Delta f$ = {{p}} × 10$^{-6}$ × {{f0|Hz}} = **{{f0*p*1e-6|Hz}}**."
+            },
+            {
+              "prompt": "A clock counts its cycles. How many seconds can it gain or lose per day?",
+              "answer": "p*1e-6*86400",
+              "unit": "s",
+              "explanation": "The relative error is the same for time: {{p}} × 10$^{-6}$ × 86 400 s = **{{p*1e-6*86400|s}}** per day, independent of the crystal frequency."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ae-filters-osc-4",
+      "title": "Design problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "fc": [
+              1000,
+              2000,
+              5000
+            ],
+            "k": [
+              2,
+              3,
+              4
+            ],
+            "A": [
+              30,
+              40,
+              50,
+              60
+            ]
+          },
+          "derived": {
+            "nr": "log10(10^(A/10)-1)/(2*log10(k))",
+            "n": "ceil(nr)"
+          },
+          "require": "min(abs(nr - round(nr)) - 0.04, 8.5 - n)",
+          "prompt": "An anti-alias low-pass must pass up to {{fc|Hz}} (−3 dB) and attenuate interference at {{k*fc|Hz}} by at least {{A}} dB. You use a Butterworth response built from Sallen-Key sections.",
+          "ask": [
+            {
+              "prompt": "What is the lowest filter order?",
+              "answer": "n",
+              "unit": "",
+              "tolerance": 0.001,
+              "explanation": "$n \\ge \\frac{\\log_{10}(10^{A/10}-1)}{2\\log_{10}(f/f_c)}$ = {{log10(10^(A/10)-1)||3}} / (2 × {{log10(k)||3}}) = {{nr||3}}, so $n$ = **{{n}}**."
+            },
+            {
+              "prompt": "How many op amps does it take (each Sallen-Key section gives 2 poles)?",
+              "answer": "ceil(n/2)",
+              "unit": "",
+              "tolerance": 0.001,
+              "explanation": "First the order: $n \\ge$ {{log10(10^(A/10)-1)||3}} / (2 × {{log10(k)||3}}) = {{nr||3}} → $n$ = {{n}}. Each section gives two poles (an odd order needs an extra RC pole, often next to one op amp), so you need **{{ceil(n/2)}}** op amps."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "R": [
+              10000,
+              22000,
+              47000
+            ],
+            "fc": [
+              100,
+              500,
+              1000,
+              2000
+            ]
+          },
+          "derived": {
+            "C2": "1/(2*sqrt(2)*pi*R*fc)"
+          },
+          "prompt": "Design a unity-gain Sallen-Key Butterworth low-pass for $f_c$ = {{fc|Hz}} with $R_1 = R_2$ = {{R|Ω}}. Butterworth with equal resistors needs $C_1 = 2C_2$.",
+          "ask": [
+            {
+              "prompt": "Find $C_2$ (the capacitor to ground).",
+              "answer": "C2",
+              "unit": "F",
+              "explanation": "$f_c = \\frac{1}{2\\pi R\\sqrt{C_1C_2}} = \\frac{1}{2\\pi R\\sqrt2\\,C_2}$, so $C_2 = \\frac{1}{2\\sqrt2\\pi R f_c}$ = 1 / (2√2 π × {{R|Ω}} × {{fc|Hz}}) = **{{C2|F}}**."
+            },
+            {
+              "prompt": "Find $C_1$ (the feedback capacitor).",
+              "answer": "2*C2",
+              "unit": "F",
+              "explanation": "$C_2 = \\frac{1}{2\\sqrt2\\pi R f_c}$ = {{C2|F}}, and Butterworth needs $Q = \\frac12\\sqrt{C_1/C_2} = 0.707$, i.e. $C_1 = 2C_2$ = **{{2*C2|F}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Rg": [
+              10000,
+              22000,
+              47000
+            ]
+          },
+          "prompt": "An equal-component Sallen-Key must be a 2nd-order Butterworth. $R_g$ = {{Rg|Ω}}. What value must $R_f$ have?",
+          "answer": "0.586*Rg",
+          "unit": "Ω",
+          "tolerance": 0.01,
+          "explanation": "Butterworth: $Q = 0.707 = \\frac{1}{3-K}$ → $K = 3 - \\sqrt2 = 1.586$. With $K = 1 + R_f/R_g$: $R_f = 0.586R_g$ = 0.586 × {{Rg|Ω}} = **{{0.586*Rg|Ω}}**. Use a 1 % part (or a trimmer): $Q$ is sensitive to $K$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "f": [
+              500,
+              1000,
+              5000
+            ],
+            "D": [
+              0.55,
+              0.6,
+              0.7,
+              0.75
+            ],
+            "C": [
+              1e-08,
+              1e-07
+            ]
+          },
+          "derived": {
+            "S": "1.443/(f*C)",
+            "RB": "(1-D)*S",
+            "RA": "(2*D-1)*S"
+          },
+          "require": "min(RA - 1000, 1000000 - RB)",
+          "prompt": "A 555 astable with $C$ = {{C|F}} must run at {{f|Hz}} with a duty cycle of {{D*100}} %.",
+          "ask": [
+            {
+              "prompt": "Find $R_B$.",
+              "answer": "RB",
+              "unit": "Ω",
+              "explanation": "Total: $R_A + 2R_B = \\frac{1.443}{fC}$ = {{S|Ω|4}}. Low-time fraction: $1 - D = \\frac{R_B}{R_A+2R_B}$, so $R_B$ = (1 − {{D}}) × {{S|Ω|4}} = **{{RB|Ω}}**."
+            },
+            {
+              "prompt": "Find $R_A$.",
+              "answer": "RA",
+              "unit": "Ω",
+              "explanation": "$R_A + 2R_B = \\frac{1.443}{fC}$ = {{S|Ω|4}} and $R_B = (1-D)$ × {{S|Ω|4}} = {{RB|Ω|4}}. So $R_A$ = {{S|Ω|4}} − 2 × {{RB|Ω|4}} = $(2D-1)$ × {{S|Ω|4}} = **{{RA|Ω}}**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "f": [
+              100,
+              1000,
+              5000
+            ],
+            "C": [
+              1e-08,
+              1e-07
+            ]
+          },
+          "derived": {
+            "R": "1/(2*ln(3)*f*C)"
+          },
+          "require": "min(R - 1000, 1000000 - R)",
+          "prompt": "An op-amp relaxation oscillator uses $R_1 = R_2$ ($\\beta$ = 0.5) and $C$ = {{C|F}}. What timing resistor $R$ gives {{f|Hz}}?",
+          "answer": "R",
+          "unit": "Ω",
+          "explanation": "With $\\beta = 0.5$: $T = 2RC\\ln 3 = 2.197RC$. So $R = \\frac{1}{2.197\\,fC}$ = 1 / (2.197 × {{f|Hz}} × {{C|F}}) = **{{R|Ω}}**."
+        },
+        {
+          "id": "q6",
+          "type": "slider",
+          "params": {
+            "k": [
+              2,
+              3,
+              4
+            ],
+            "A": [
+              25,
+              35,
+              45,
+              55
+            ]
+          },
+          "derived": {
+            "nr": "log10(10^(A/10)-1)/(2*log10(k))",
+            "nmin": "ceil(nr)"
+          },
+          "require": "min(abs(nr - round(nr)) - 0.04, nmin - 1.5, 8.5 - nmin)",
+          "prompt": "Choose the **lowest** Butterworth order that still meets the spec: at least {{A}} dB attenuation at {{k}}$f_c$ (the red point).",
+          "plot": {
+            "x": {
+              "min": 0.1,
+              "max": 10,
+              "label": "f / f_c",
+              "log": true
+            },
+            "y": {
+              "min": -100,
+              "max": 5,
+              "label": "|H| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "n",
+                "label": "order $n$",
+                "min": 1,
+                "max": 10,
+                "step": 1,
+                "value": 1
+              }
+            ],
+            "curves": [
+              {
+                "f": "-10*log10(1+x^(2*n))",
+                "label": "|H|",
+                "labelAt": 0.3
+              }
+            ],
+            "points": [
+              {
+                "x": "k",
+                "y": "-A",
+                "label": "spec",
+                "color": "red"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "Attenuation at {{k}}$f_c$",
+                "value": "10*log10(1+k^(2*n))",
+                "unit": "dB"
+              }
+            ]
+          },
+          "answer": {
+            "n": "nmin"
+          },
+          "absTolerance": 0.4,
+          "tolerance": 0.001,
+          "explanation": "The curve must pass **below** the spec point. $n \\ge \\frac{\\log_{10}(10^{A/10}-1)}{2\\log_{10}k}$ = {{nr||3}}, so the lowest order is **{{nmin}}**, giving {{10*log10(1+k^(2*nmin))|dB}} at {{k}}$f_c$. One order lower gives only {{10*log10(1+k^(2*nmin-2))|dB}}."
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the steps of designing an active low-pass filter in order",
+          "items": [
+            "Choose the response type (Butterworth, Chebyshev, Bessel)",
+            "Find the order needed to meet the stopband spec",
+            "Look up the gain or Q of each 2nd-order section",
+            "Pick C (standard value), then calculate R",
+            "Check the op amp: f_T well above K·f_0, enough slew rate"
+          ],
+          "explanation": "The application decides the response (flatness, steepness or pulse fidelity); the spec then fixes the order; tables give each section's $K$ or $Q$; capacitors come in fewer values so you choose them first and calculate resistors (10 kΩ–100 kΩ is comfortable); finally verify the op amp is fast enough not to shift the poles."
+        }
+      ]
+    }
+  ]
+}

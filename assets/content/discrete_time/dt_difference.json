@@ -1,0 +1,2342 @@
+{
+  "id": "dt-difference",
+  "title": "Difference Equations & Block Diagrams",
+  "description": "Model filters with difference equations, solve them by iteration and the classical method, judge stability from the roots and find the frequency response.",
+  "reference": "Phillips §10.4–10.7",
+  "study": [
+    {
+      "title": "Difference-equation models",
+      "body": "LTI digital filters are described by linear difference equations with constant coefficients ($a_0 = 1$ usually). With only input terms the filter is **FIR**, e.g. the $M$-point moving average $y[n] = \\frac{1}{M}\\sum_{k=0}^{M-1} x[n-k]$. Feeding back past outputs makes it **recursive (IIR)**, e.g. exponential smoothing $y[n] = a\\,y[n-1] + (1-a)\\,x[n]$. Euler integration $y[n] = y[n-1] + T\\,x[n-1]$ approximates $\\int x\\,dt$ with step $T$.",
+      "formula": "\\sum_{k=0}^{N} a_k\\,y[n-k] = \\sum_{k=0}^{M} b_k\\,x[n-k]"
+    },
+    {
+      "title": "Explore: solving by iteration",
+      "body": "Solve for $y[n]$, start from the initial conditions ($y[-1], y[-2], \\ldots$) and compute one sample at a time; this is exactly what a filter program does. The plot iterates $y[n] = a\\,y[n-1] + x[n]$ for $x[n] = u[n]$. Drag $y[-1]$: the initial condition only changes the decaying natural part; the output always settles at $1/(1-a)$.",
+      "formula": "y[n] = a\\,y[n-1] + x[n]",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 15.5,
+          "label": "n"
+        },
+        "y": {
+          "min": -5.5,
+          "max": 6,
+          "label": "y[n]"
+        },
+        "sliders": [
+          {
+            "name": "a",
+            "label": "$a$",
+            "min": -0.8,
+            "max": 0.8,
+            "step": 0.05,
+            "value": 0.5
+          },
+          {
+            "name": "y0",
+            "label": "$y[-1]$",
+            "min": -5,
+            "max": 5,
+            "step": 0.5,
+            "value": -4
+          }
+        ],
+        "hlines": [
+          {
+            "y": "1/(1-a)",
+            "label": "1/(1 − a)"
+          }
+        ],
+        "curves": [
+          {
+            "f": "(a^1*y0 + (1-a^1)/(1-a))*(1-abs(x-(0))/0.004)",
+            "from": -0.004,
+            "to": 0.004
+          },
+          {
+            "f": "(a^2*y0 + (1-a^2)/(1-a))*(1-abs(x-(1))/0.004)",
+            "from": 0.996,
+            "to": 1.004
+          },
+          {
+            "f": "(a^3*y0 + (1-a^3)/(1-a))*(1-abs(x-(2))/0.004)",
+            "from": 1.996,
+            "to": 2.004
+          },
+          {
+            "f": "(a^4*y0 + (1-a^4)/(1-a))*(1-abs(x-(3))/0.004)",
+            "from": 2.996,
+            "to": 3.004
+          },
+          {
+            "f": "(a^5*y0 + (1-a^5)/(1-a))*(1-abs(x-(4))/0.004)",
+            "from": 3.996,
+            "to": 4.004
+          },
+          {
+            "f": "(a^6*y0 + (1-a^6)/(1-a))*(1-abs(x-(5))/0.004)",
+            "from": 4.996,
+            "to": 5.004
+          },
+          {
+            "f": "(a^7*y0 + (1-a^7)/(1-a))*(1-abs(x-(6))/0.004)",
+            "from": 5.996,
+            "to": 6.004
+          },
+          {
+            "f": "(a^8*y0 + (1-a^8)/(1-a))*(1-abs(x-(7))/0.004)",
+            "from": 6.996,
+            "to": 7.004
+          },
+          {
+            "f": "(a^9*y0 + (1-a^9)/(1-a))*(1-abs(x-(8))/0.004)",
+            "from": 7.996,
+            "to": 8.004
+          },
+          {
+            "f": "(a^10*y0 + (1-a^10)/(1-a))*(1-abs(x-(9))/0.004)",
+            "from": 8.996,
+            "to": 9.004
+          },
+          {
+            "f": "(a^11*y0 + (1-a^11)/(1-a))*(1-abs(x-(10))/0.004)",
+            "from": 9.996,
+            "to": 10.004
+          },
+          {
+            "f": "(a^12*y0 + (1-a^12)/(1-a))*(1-abs(x-(11))/0.004)",
+            "from": 10.996,
+            "to": 11.004
+          },
+          {
+            "f": "(a^13*y0 + (1-a^13)/(1-a))*(1-abs(x-(12))/0.004)",
+            "from": 11.996,
+            "to": 12.004
+          },
+          {
+            "f": "(a^14*y0 + (1-a^14)/(1-a))*(1-abs(x-(13))/0.004)",
+            "from": 12.996,
+            "to": 13.004
+          },
+          {
+            "f": "(a^15*y0 + (1-a^15)/(1-a))*(1-abs(x-(14))/0.004)",
+            "from": 13.996,
+            "to": 14.004
+          },
+          {
+            "f": "(a^16*y0 + (1-a^16)/(1-a))*(1-abs(x-(15))/0.004)",
+            "from": 14.996,
+            "to": 15.004
+          }
+        ],
+        "points": [
+          {
+            "x": 0.0,
+            "y": "a^1*y0 + (1-a^1)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 1.0,
+            "y": "a^2*y0 + (1-a^2)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 2.0,
+            "y": "a^3*y0 + (1-a^3)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 3.0,
+            "y": "a^4*y0 + (1-a^4)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 4.0,
+            "y": "a^5*y0 + (1-a^5)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 5.0,
+            "y": "a^6*y0 + (1-a^6)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 6.0,
+            "y": "a^7*y0 + (1-a^7)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 7.0,
+            "y": "a^8*y0 + (1-a^8)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 8.0,
+            "y": "a^9*y0 + (1-a^9)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 9.0,
+            "y": "a^10*y0 + (1-a^10)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 10.0,
+            "y": "a^11*y0 + (1-a^11)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 11.0,
+            "y": "a^12*y0 + (1-a^12)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 12.0,
+            "y": "a^13*y0 + (1-a^13)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 13.0,
+            "y": "a^14*y0 + (1-a^14)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 14.0,
+            "y": "a^15*y0 + (1-a^15)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 15.0,
+            "y": "a^16*y0 + (1-a^16)/(1-a)",
+            "guides": false,
+            "color": "primary"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Classical solution",
+      "body": "Total response = natural (homogeneous) part + forced (particular) part. With zero input, try $y[n] = C z^n$: this gives the **characteristic equation**, and each root $z_i$ gives a natural term $C_i z_i^n$. The forced part has the shape of the input: a constant for a constant input, $P\\beta^n$ for $x[n] = \\beta^n$ (if $\\beta$ is not a root). Find the $C_i$ last, from the initial conditions.",
+      "formula": "y[n] = \\sum_i C_i\\, z_i^{\\,n} + y_p[n]"
+    },
+    {
+      "title": "Explore: characteristic roots and stability",
+      "body": "A causal LTI system is stable iff every characteristic root lies **inside the unit circle**. A positive real root gives a smooth exponential, a negative one alternates in sign, and a complex pair $r e^{\\pm j\\theta}$ gives a damped oscillation $r^n\\cos(\\theta n + \\phi)$ with a period of $2\\pi/\\theta$ samples. For $z^2 + a_1 z + a_2$ with complex roots, $r = \\sqrt{a_2}$. Drag $r$ past 1 to see the response grow.",
+      "formula": "|z_i| < 1 \\ \\text{for all } i",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 24.5,
+          "label": "n"
+        },
+        "y": {
+          "min": -3.3,
+          "max": 3.3,
+          "label": "y[n]"
+        },
+        "sliders": [
+          {
+            "name": "r",
+            "label": "$r = |z|$",
+            "min": 0.5,
+            "max": 1.05,
+            "step": 0.01,
+            "value": 0.9
+          },
+          {
+            "name": "th",
+            "label": "$\\theta$",
+            "min": 0.1,
+            "max": 3.1,
+            "step": 0.05,
+            "value": 0.6,
+            "unit": "rad"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "period $2\\pi/\\theta$ (samples)",
+            "value": "2*pi/th"
+          }
+        ],
+        "curves": [
+          {
+            "f": "(r^0*cos(th*0))*(1-abs(x-(0))/0.004)",
+            "from": -0.004,
+            "to": 0.004
+          },
+          {
+            "f": "(r^1*cos(th*1))*(1-abs(x-(1))/0.004)",
+            "from": 0.996,
+            "to": 1.004
+          },
+          {
+            "f": "(r^2*cos(th*2))*(1-abs(x-(2))/0.004)",
+            "from": 1.996,
+            "to": 2.004
+          },
+          {
+            "f": "(r^3*cos(th*3))*(1-abs(x-(3))/0.004)",
+            "from": 2.996,
+            "to": 3.004
+          },
+          {
+            "f": "(r^4*cos(th*4))*(1-abs(x-(4))/0.004)",
+            "from": 3.996,
+            "to": 4.004
+          },
+          {
+            "f": "(r^5*cos(th*5))*(1-abs(x-(5))/0.004)",
+            "from": 4.996,
+            "to": 5.004
+          },
+          {
+            "f": "(r^6*cos(th*6))*(1-abs(x-(6))/0.004)",
+            "from": 5.996,
+            "to": 6.004
+          },
+          {
+            "f": "(r^7*cos(th*7))*(1-abs(x-(7))/0.004)",
+            "from": 6.996,
+            "to": 7.004
+          },
+          {
+            "f": "(r^8*cos(th*8))*(1-abs(x-(8))/0.004)",
+            "from": 7.996,
+            "to": 8.004
+          },
+          {
+            "f": "(r^9*cos(th*9))*(1-abs(x-(9))/0.004)",
+            "from": 8.996,
+            "to": 9.004
+          },
+          {
+            "f": "(r^10*cos(th*10))*(1-abs(x-(10))/0.004)",
+            "from": 9.996,
+            "to": 10.004
+          },
+          {
+            "f": "(r^11*cos(th*11))*(1-abs(x-(11))/0.004)",
+            "from": 10.996,
+            "to": 11.004
+          },
+          {
+            "f": "(r^12*cos(th*12))*(1-abs(x-(12))/0.004)",
+            "from": 11.996,
+            "to": 12.004
+          },
+          {
+            "f": "(r^13*cos(th*13))*(1-abs(x-(13))/0.004)",
+            "from": 12.996,
+            "to": 13.004
+          },
+          {
+            "f": "(r^14*cos(th*14))*(1-abs(x-(14))/0.004)",
+            "from": 13.996,
+            "to": 14.004
+          },
+          {
+            "f": "(r^15*cos(th*15))*(1-abs(x-(15))/0.004)",
+            "from": 14.996,
+            "to": 15.004
+          },
+          {
+            "f": "(r^16*cos(th*16))*(1-abs(x-(16))/0.004)",
+            "from": 15.996,
+            "to": 16.004
+          },
+          {
+            "f": "(r^17*cos(th*17))*(1-abs(x-(17))/0.004)",
+            "from": 16.996,
+            "to": 17.004
+          },
+          {
+            "f": "(r^18*cos(th*18))*(1-abs(x-(18))/0.004)",
+            "from": 17.996,
+            "to": 18.004
+          },
+          {
+            "f": "(r^19*cos(th*19))*(1-abs(x-(19))/0.004)",
+            "from": 18.996,
+            "to": 19.004
+          },
+          {
+            "f": "(r^20*cos(th*20))*(1-abs(x-(20))/0.004)",
+            "from": 19.996,
+            "to": 20.004
+          },
+          {
+            "f": "(r^21*cos(th*21))*(1-abs(x-(21))/0.004)",
+            "from": 20.996,
+            "to": 21.004
+          },
+          {
+            "f": "(r^22*cos(th*22))*(1-abs(x-(22))/0.004)",
+            "from": 21.996,
+            "to": 22.004
+          },
+          {
+            "f": "(r^23*cos(th*23))*(1-abs(x-(23))/0.004)",
+            "from": 22.996,
+            "to": 23.004
+          },
+          {
+            "f": "(r^24*cos(th*24))*(1-abs(x-(24))/0.004)",
+            "from": 23.996,
+            "to": 24.004
+          }
+        ],
+        "points": [
+          {
+            "x": 0.0,
+            "y": "r^0*cos(th*0)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 1.0,
+            "y": "r^1*cos(th*1)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 2.0,
+            "y": "r^2*cos(th*2)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 3.0,
+            "y": "r^3*cos(th*3)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 4.0,
+            "y": "r^4*cos(th*4)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 5.0,
+            "y": "r^5*cos(th*5)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 6.0,
+            "y": "r^6*cos(th*6)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 7.0,
+            "y": "r^7*cos(th*7)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 8.0,
+            "y": "r^8*cos(th*8)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 9.0,
+            "y": "r^9*cos(th*9)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 10.0,
+            "y": "r^10*cos(th*10)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 11.0,
+            "y": "r^11*cos(th*11)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 12.0,
+            "y": "r^12*cos(th*12)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 13.0,
+            "y": "r^13*cos(th*13)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 14.0,
+            "y": "r^14*cos(th*14)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 15.0,
+            "y": "r^15*cos(th*15)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 16.0,
+            "y": "r^16*cos(th*16)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 17.0,
+            "y": "r^17*cos(th*17)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 18.0,
+            "y": "r^18*cos(th*18)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 19.0,
+            "y": "r^19*cos(th*19)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 20.0,
+            "y": "r^20*cos(th*20)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 21.0,
+            "y": "r^21*cos(th*21)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 22.0,
+            "y": "r^22*cos(th*22)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 23.0,
+            "y": "r^23*cos(th*23)",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 24.0,
+            "y": "r^24*cos(th*24)",
+            "guides": false,
+            "color": "primary"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Block diagrams: Direct Form I and II",
+      "body": "**Direct Form I** builds the right-hand side (delayed inputs) and then the recursive part (delayed outputs): $N + M$ delays. Because LTI blocks can be swapped, the two delay lines can be merged: **Direct Form II** needs only $\\max(N, M)$ delays (canonical). The diagram is a first-order DF II section for $y[n] = -a_1 y[n-1]$ $+ b_0 x[n] + b_1 x[n-1]$: the state $w[n]$ feeds both the feedback and the output $y[n] = b_0 w[n] + b_1 w[n-1]$.",
+      "formula": "w[n] = x[n] - a_1 w[n-1]",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1.2,
+                0
+              ]
+            ],
+            "label": "x[n]"
+          },
+          {
+            "type": "sum",
+            "at": [
+              1.5,
+              0
+            ],
+            "kind": "+-"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.8,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ],
+            "label": "w[n]"
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              0
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                0
+              ],
+              [
+                3.5,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4,
+              0
+            ],
+            "size": [
+              1,
+              1
+            ],
+            "label": "b_0"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.5,
+                0
+              ],
+              [
+                5.7,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "sum",
+            "at": [
+              6,
+              0
+            ],
+            "kind": "++"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.3,
+                0
+              ],
+              [
+                7.5,
+                0
+              ]
+            ],
+            "label": "y[n]"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3,
+                0
+              ],
+              [
+                3,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3,
+              1.5
+            ],
+            "size": [
+              1,
+              1
+            ],
+            "label": "D"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2
+              ],
+              [
+                3,
+                2.5
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              2.5
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3,
+                2.5
+              ],
+              [
+                2.5,
+                2.5
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              2,
+              2.5
+            ],
+            "size": [
+              1,
+              1
+            ],
+            "label": "a_1"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.5,
+                2.5
+              ],
+              [
+                1.5,
+                0.3
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2.5
+              ],
+              [
+                3.5,
+                2.5
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4,
+              2.5
+            ],
+            "size": [
+              1,
+              1
+            ],
+            "label": "b_1"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.5,
+                2.5
+              ],
+              [
+                6,
+                2.5
+              ],
+              [
+                6,
+                0.3
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: frequency response",
+      "body": "An LTI system answers $e^{j\\Omega n}$ with the same exponential times $H(e^{j\\Omega})$. Substitute it in the difference equation: every delay $k$ becomes a factor $e^{-jk\\Omega}$. A sinusoid $A\\cos(\\Omega n + \\phi)$ leaves as $A|H|\\cos(\\Omega n + \\phi + \\angle H)$. $H$ repeats every $2\\pi$, so $0 \\leq \\Omega \\leq \\pi$ tells everything. Solid: the smoother $y[n] = a\\,y[n-1] + (1-a)\\,x[n]$; dashed grey: the 2-point average. Drag $a$ to make the smoother narrower.",
+      "formula": "H(e^{j\\Omega}) = \\frac{\\sum_k b_k e^{-jk\\Omega}}{\\sum_k a_k e^{-jk\\Omega}}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3.1416,
+          "label": "Ω (rad)",
+          "ticks": [
+            0,
+            0.7854,
+            1.5708,
+            2.3562,
+            3.1416
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "|H|"
+        },
+        "sliders": [
+          {
+            "name": "a",
+            "label": "$a$",
+            "min": 0,
+            "max": 0.95,
+            "step": 0.05,
+            "value": 0.5
+          }
+        ],
+        "curves": [
+          {
+            "f": "abs(cos(x/2))",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "(1-a)/sqrt(1 - 2*a*cos(x) + a^2)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "gain at $\\Omega = \\pi$",
+            "value": "(1-a)/(1+a)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "DC, Nyquist and sampled signals",
+      "body": "At DC, $e^{j0} = 1$, so the gain is $\\sum b_k / \\sum a_k$. At $\\Omega = \\pi$, $e^{-jk\\pi} = (-1)^k$: alternate the signs. For a sampled analog signal $\\Omega = \\omega T = 2\\pi f/f_s$, so $\\Omega = \\pi$ is the Nyquist frequency $f_s/2$: convert the analog frequency to $\\Omega$ first, then evaluate $H$.",
+      "formula": "H(e^{j0}) = \\frac{\\sum_k b_k}{\\sum_k a_k}, \\quad \\Omega = 2\\pi\\frac{f}{f_s}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dt-difference-1",
+      "title": "Difference equations",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Difference equations",
+          "body": "A digital filter computes each output sample from the current and past inputs and, if it is recursive, past outputs. A 3-point moving average uses inputs only (FIR). The first-order filter $y[n] = a\\,y[n-1] + b\\,x[n]$ feeds its own output back, so one input impulse keeps echoing forever (IIR).",
+          "formula": "\\sum_{k=0}^{N} a_k\\,y[n-k] = \\sum_{k=0}^{M} b_k\\,x[n-k]"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Which of these filters is FIR (non-recursive)?",
+          "options": [
+            "$y[n]$ $= \\tfrac{1}{3}\\big(x[n] + x[n-1] + x[n-2]\\big)$",
+            "$y[n] = 0.5\\,y[n-1] + x[n]$",
+            "$y[n] - 0.9\\,y[n-2]$ $= x[n] - x[n-1]$"
+          ],
+          "answer": 0,
+          "explanation": "The moving average uses only input samples, so its impulse response ($\\tfrac{1}{3}, \\tfrac{1}{3}, \\tfrac{1}{3}$) is finite. The other two contain past outputs: an impulse keeps circulating through the feedback, giving an infinitely long $h[n]$."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              -0.5
+            ],
+            "b": [
+              2,
+              3
+            ],
+            "y0": [
+              0,
+              1,
+              2,
+              -1
+            ]
+          },
+          "derived": {
+            "v0": "a*y0 + b",
+            "v1": "a*v0 + b",
+            "v2": "a*v1 + b"
+          },
+          "prompt": "$y[n] = {{a}}\\,y[n-1] + {{b}}\\,x[n]$ with $x[n] = u[n]$ and $y[-1]$ = {{y0}}.",
+          "unit": "",
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": "Find $y[0]$.",
+              "answer": "v0",
+              "explanation": "$y[0]$ $= {{a}} \\cdot y[-1] + {{b}} \\cdot x[0]$ = {{a}} × ({{y0}}) + {{b}} = {{v0}}."
+            },
+            {
+              "prompt": "Find $y[1]$.",
+              "answer": "v1",
+              "explanation": "Iterate: $y[0]$ = {{a}} × ({{y0}}) + {{b}} = {{v0}}, then $y[1] = {{a}} \\cdot y[0] + {{b}}$ = {{a}} × {{v0}} + {{b}} = {{v1}}."
+            },
+            {
+              "prompt": "Find $y[2]$.",
+              "answer": "v2",
+              "explanation": "Iterate: $y[0]$ = {{v0}}, $y[1]$ = {{a}} × {{v0}} + {{b}} = {{v1}}, $y[2]$ = {{a}} × {{v1}} + {{b}} = {{v2}}."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Numerical integration",
+          "body": "Difference equations also approximate differential equations. To integrate $x(t)$ with time step $T$, add the area of one rectangle per step (Euler). The trapezoidal rule uses the average of two samples and is more accurate: $y[n]$ $= y[n-1] + \\frac{T}{2}(x[n] + x[n-1])$.",
+          "formula": "y[n] = y[n-1] + T\\,x[n-1]"
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "The Euler integrator $y[n] = y[n-1] + T\\,x[n-1]$ has an infinitely long impulse response.",
+          "answer": true,
+          "explanation": "$h[n] = T\\,u[n-1]$: one impulse at the input adds $T$ to the stored sum, and it stays there forever. It is an accumulator (IIR), and like every pure integrator it is not BIBO stable."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The characteristic equation",
+          "body": "Set the input to zero and try $y[n] = C z^n$. For $y[n] + a_1 y[n-1] + a_2 y[n-2] = 0$ this gives $z^2 + a_1 z + a_2 = 0$ after dividing by $z^{n-2}$: each delay lowers the power of $z$ by one. Its roots set the natural response $C_1 z_1^n + C_2 z_2^n$, and the system is stable only if all $|z_i| < 1$.",
+          "formula": "y[n] = C z^n \\;\\Rightarrow\\; z^N + a_1 z^{N-1} + \\ldots + a_N = 0"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.5,
+              0.8,
+              0.9,
+              1.2
+            ],
+            "p2": [
+              0.2,
+              0.3,
+              0.4
+            ]
+          },
+          "derived": {
+            "s": "p1 + p2",
+            "pp": "p1*p2"
+          },
+          "prompt": "Find the characteristic root with the larger magnitude for $y[n] - {{s}}\\,y[n-1]$ $+ {{pp}}\\,y[n-2] = x[n]$.",
+          "answer": "p1",
+          "unit": "",
+          "explanation": "Characteristic equation $z^2 - {{s}}z + {{pp}} = 0$, so $z = \\frac{{{s}} \\pm \\sqrt{{{s}}^2 - 4 \\cdot {{pp}}}}{2}$ = {{p1}} and {{p2}}. The larger is {{p1}}. (Check: the roots add up to {{s}} and multiply to {{pp}}.)"
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "params": {
+            "p1": [
+              0.5,
+              0.7,
+              0.9,
+              1.1,
+              1.25
+            ],
+            "p2": [
+              0.2,
+              0.4,
+              -0.3
+            ]
+          },
+          "derived": {
+            "s": "p1 + p2",
+            "pp": "p1*p2"
+          },
+          "prompt": "The causal system with characteristic equation $z^2 - {{s}}\\,z + ({{pp}}) = 0$ is stable.",
+          "answer": "1 - p1",
+          "explanation": "The roots are {{p1}} and {{p2}} (they add up to {{s}} and multiply to {{pp}}). Stable requires both inside the unit circle: the larger magnitude is {{p1}}, so the system is stable only if that is below 1."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps of the classical solution method in order.",
+          "items": [
+            "Write the characteristic equation and find its roots $z_i$",
+            "Write the natural response $\\sum C_i z_i^n$",
+            "Find the forced response: the shape of the input, times $n$ if that shape is already a natural term",
+            "Add both parts and solve for the $C_i$ from the initial conditions"
+          ],
+          "explanation": "The roots come first, because they give the natural terms and also tell you whether the forced guess clashes with one of them (then multiply it by $n$). The constants $C_i$ must be found **last**, on the complete solution: the initial conditions apply to the total response, not to the natural part alone."
+        }
+      ]
+    },
+    {
+      "id": "dt-difference-2",
+      "title": "Solutions, stability and structures",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.6,
+              0.8,
+              -0.5
+            ],
+            "b": [
+              2,
+              3
+            ],
+            "X": [
+              2,
+              4,
+              5
+            ],
+            "y0": [
+              0,
+              1,
+              -2
+            ],
+            "n0": [
+              3,
+              4,
+              5
+            ]
+          },
+          "derived": {
+            "yp": "b*X/(1 - a)",
+            "C": "a*(y0 - yp)",
+            "yn": "C*a^n0 + yp",
+            "yz": "a*y0 + b*X"
+          },
+          "prompt": "$y[n] = {{a}}\\,y[n-1] + {{b}}\\,x[n]$ with $x[n] = {{X}}\\,u[n]$ and $y[-1]$ = {{y0}}. The solution has the form $y[n] = C({{a}})^n + y_p$ for $n \\geq 0$.",
+          "unit": "",
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": "Find the forced (steady-state) response $y_p$.",
+              "answer": "yp",
+              "explanation": "A constant input gives a constant $y_p$: $y_p = {{a}}\\,y_p + {{b}} \\cdot {{X}}$, so $y_p = \\frac{{{b*X}}}{1 - ({{a}})}$ = {{yp}}."
+            },
+            {
+              "prompt": "Find the constant $C$.",
+              "answer": "C",
+              "explanation": "$y_p = \\frac{{{b*X}}}{1 - ({{a}})}$ = {{yp}}. Iterate once for the first sample: $y[0] = {{a}} \\cdot y[-1] + {{b}} \\cdot {{X}}$ = {{yz}}. The solution gives $y[0] = C + y_p$, so $C = y[0] - y_p$ = {{yz}} − {{yp}} = {{C}}. (Shortcut: $C = a\\,(y[-1] - y_p)$.)"
+            },
+            {
+              "prompt": "Find $y[{{n0}}]$.",
+              "answer": "yn",
+              "explanation": "$y_p$ = {{yp}}, $y[0] = {{a}} \\cdot ({{y0}}) + {{b*X}}$ = {{yz}}, so $C = y[0] - y_p$ = {{C}}. Then $y[{{n0}}] = C\\,({{a}})^{{{n0}}} + y_p$ = {{C}} × ({{a^n0}}) + {{yp}} = {{yn}}. (Iterating the equation gives the same.)"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              -0.25
+            ],
+            "be": [
+              -0.5,
+              0.25,
+              0.9
+            ]
+          },
+          "require": "abs(be - a)",
+          "prompt": "$y[n] - {{a}}\\,y[n-1] = x[n]$ with $x[n] = ({{be}})^n u[n]$. The forced response is $y_p[n] = P\\,({{be}})^n$. Find $P$.",
+          "answer": "be/(be - a)",
+          "unit": "",
+          "explanation": "Substitute: $P\\beta^n - {{a}}P\\beta^{n-1} = \\beta^n$. Divide by $\\beta^n$: $P(1 - {{a}}/\\beta) = 1$, so $P = \\frac{\\beta}{\\beta - {{a}}} = \\frac{{{be}}}{{{be}} - ({{a}})}$ = {{be/(be-a)}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.6,
+              0.8,
+              0.9,
+              1.1
+            ],
+            "k": [
+              3,
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "d1": "2*r*cos(pi/k)",
+            "c2": "r^2"
+          },
+          "prompt": "$y[n] = {{d1||4}}\\,y[n-1]$ $- {{c2}}\\,y[n-2] + x[n]$ has complex characteristic roots $r e^{\\pm j\\theta}$.",
+          "unit": "",
+          "tolerance": 0.03,
+          "ask": [
+            {
+              "prompt": "Find their magnitude $r$.",
+              "answer": "r",
+              "explanation": "Characteristic equation $z^2 - {{d1||4}}z + {{c2}} = 0$. For a complex pair the product of the roots is $r^2$ = {{c2}}, so $r = \\sqrt{{{c2}}}$ = {{r}}."
+            },
+            {
+              "prompt": "Find their angle $\\theta$.",
+              "answer": "pi/k",
+              "unit": "rad",
+              "explanation": "The roots add up to $2r\\cos\\theta$ = {{d1||4}}, with $r = \\sqrt{{{c2}}}$ = {{r}}: $\\cos\\theta = \\frac{{{d1||4}}}{2 \\cdot {{r}}}$ = {{cos(pi/k)}}, so $\\theta$ = {{pi/k|rad}}."
+            },
+            {
+              "prompt": "How many samples is one period of the natural oscillation?",
+              "answer": "2*k",
+              "explanation": "$r = \\sqrt{{{c2}}}$ = {{r}} and $\\cos\\theta = {{d1||4}}/(2r)$ = {{cos(pi/k)}}, so $\\theta$ = {{pi/k|rad}}. One period takes $2\\pi/\\theta$ = {{2*k}} samples."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "params": {
+            "r": [
+              0.7,
+              0.95,
+              1.05,
+              1.2
+            ],
+            "k": [
+              3,
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "d1": "2*r*cos(pi/k)",
+            "c2": "r^2"
+          },
+          "prompt": "The causal system $y[n] = {{d1||4}}\\,y[n-1]$ $- {{c2}}\\,y[n-2] + x[n]$ is stable.",
+          "answer": "1 - r",
+          "explanation": "$({{d1||4}})^2 < 4 \\cdot {{c2}}$, so the roots are complex with $|z|^2$ = product of the roots = {{c2}}, i.e. $|z|$ = {{r}}. Stable requires $|z| < 1$."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each characteristic root to its natural response.",
+          "pairs": [
+            [
+              "$z = 0.8$",
+              "decays, same sign"
+            ],
+            [
+              "$z = -0.8$",
+              "decays, alternating sign"
+            ],
+            [
+              "$z = 1$",
+              "constant (marginal)"
+            ],
+            [
+              "$z = 1.1$",
+              "grows without bound"
+            ],
+            [
+              "$z = 0.9e^{\\pm j\\pi/4}$",
+              "decaying oscillation"
+            ]
+          ],
+          "explanation": "The natural term is $C z^n$. $|z| < 1$ decays, $|z| > 1$ grows, $|z| = 1$ stays. A negative real root flips sign every sample; a complex pair $re^{\\pm j\\theta}$ gives $r^n\\cos(\\theta n + \\phi)$."
+        },
+        {
+          "id": "q6",
+          "type": "slider",
+          "params": {
+            "p": [
+              10,
+              20,
+              50
+            ],
+            "N": [
+              5,
+              10
+            ]
+          },
+          "prompt": "The plot shows the natural response $a^n$. Set the root $a$ so that it has fallen to {{p}}% after {{N}} samples.",
+          "plot": {
+            "x": {
+              "min": -0.5,
+              "max": 20.5,
+              "label": "n"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "y[n]"
+            },
+            "sliders": [
+              {
+                "name": "a",
+                "label": "$a$",
+                "min": 0,
+                "max": 0.99,
+                "step": 0.005,
+                "value": 0.5
+              }
+            ],
+            "hlines": [
+              {
+                "y": "p/100",
+                "label": "{{p}}%"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "N",
+                "label": "n = {{N}}"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$a^N$",
+                "value": "a^N",
+                "reveal": true
+              }
+            ],
+            "curves": [
+              {
+                "f": "(a^0)*(1-abs(x-(0))/0.004)",
+                "from": -0.004,
+                "to": 0.004
+              },
+              {
+                "f": "(a^1)*(1-abs(x-(1))/0.004)",
+                "from": 0.996,
+                "to": 1.004
+              },
+              {
+                "f": "(a^2)*(1-abs(x-(2))/0.004)",
+                "from": 1.996,
+                "to": 2.004
+              },
+              {
+                "f": "(a^3)*(1-abs(x-(3))/0.004)",
+                "from": 2.996,
+                "to": 3.004
+              },
+              {
+                "f": "(a^4)*(1-abs(x-(4))/0.004)",
+                "from": 3.996,
+                "to": 4.004
+              },
+              {
+                "f": "(a^5)*(1-abs(x-(5))/0.004)",
+                "from": 4.996,
+                "to": 5.004
+              },
+              {
+                "f": "(a^6)*(1-abs(x-(6))/0.004)",
+                "from": 5.996,
+                "to": 6.004
+              },
+              {
+                "f": "(a^7)*(1-abs(x-(7))/0.004)",
+                "from": 6.996,
+                "to": 7.004
+              },
+              {
+                "f": "(a^8)*(1-abs(x-(8))/0.004)",
+                "from": 7.996,
+                "to": 8.004
+              },
+              {
+                "f": "(a^9)*(1-abs(x-(9))/0.004)",
+                "from": 8.996,
+                "to": 9.004
+              },
+              {
+                "f": "(a^10)*(1-abs(x-(10))/0.004)",
+                "from": 9.996,
+                "to": 10.004
+              },
+              {
+                "f": "(a^11)*(1-abs(x-(11))/0.004)",
+                "from": 10.996,
+                "to": 11.004
+              },
+              {
+                "f": "(a^12)*(1-abs(x-(12))/0.004)",
+                "from": 11.996,
+                "to": 12.004
+              },
+              {
+                "f": "(a^13)*(1-abs(x-(13))/0.004)",
+                "from": 12.996,
+                "to": 13.004
+              },
+              {
+                "f": "(a^14)*(1-abs(x-(14))/0.004)",
+                "from": 13.996,
+                "to": 14.004
+              },
+              {
+                "f": "(a^15)*(1-abs(x-(15))/0.004)",
+                "from": 14.996,
+                "to": 15.004
+              },
+              {
+                "f": "(a^16)*(1-abs(x-(16))/0.004)",
+                "from": 15.996,
+                "to": 16.004
+              },
+              {
+                "f": "(a^17)*(1-abs(x-(17))/0.004)",
+                "from": 16.996,
+                "to": 17.004
+              },
+              {
+                "f": "(a^18)*(1-abs(x-(18))/0.004)",
+                "from": 17.996,
+                "to": 18.004
+              },
+              {
+                "f": "(a^19)*(1-abs(x-(19))/0.004)",
+                "from": 18.996,
+                "to": 19.004
+              },
+              {
+                "f": "(a^20)*(1-abs(x-(20))/0.004)",
+                "from": 19.996,
+                "to": 20.004
+              }
+            ],
+            "points": [
+              {
+                "x": 0.0,
+                "y": "a^0",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 1.0,
+                "y": "a^1",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 2.0,
+                "y": "a^2",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 3.0,
+                "y": "a^3",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 4.0,
+                "y": "a^4",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 5.0,
+                "y": "a^5",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 6.0,
+                "y": "a^6",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 7.0,
+                "y": "a^7",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 8.0,
+                "y": "a^8",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 9.0,
+                "y": "a^9",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 10.0,
+                "y": "a^10",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 11.0,
+                "y": "a^11",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 12.0,
+                "y": "a^12",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 13.0,
+                "y": "a^13",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 14.0,
+                "y": "a^14",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 15.0,
+                "y": "a^15",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 16.0,
+                "y": "a^16",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 17.0,
+                "y": "a^17",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 18.0,
+                "y": "a^18",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 19.0,
+                "y": "a^19",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 20.0,
+                "y": "a^20",
+                "guides": false,
+                "color": "primary"
+              }
+            ]
+          },
+          "answer": {
+            "a": "(p/100)^(1/N)"
+          },
+          "tolerance": 0.012,
+          "explanation": "$a^{{{N}}}$ = {{p/100}}, so $a = {{p/100}}^{1/{{N}}}$ = {{(p/100)^(1/N)}}. Roots close to 1 decay slowly: they give long time constants."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "N": [
+              2,
+              3,
+              4
+            ],
+            "M": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "require": "abs(N - M)",
+          "prompt": "A filter's difference equation contains $y[n-1] \\ldots y[n-{{N}}]$ and $x[n] \\ldots x[n-{{M}}]$, all with nonzero coefficients.",
+          "unit": "",
+          "tolerance": 0.001,
+          "ask": [
+            {
+              "prompt": "How many delays does a Direct Form I realisation need?",
+              "answer": "N + M",
+              "explanation": "Direct Form I keeps separate delay lines for the inputs ({{M}}) and the outputs ({{N}}): {{N+M}} delays."
+            },
+            {
+              "prompt": "How many delays does a Direct Form II realisation need?",
+              "answer": "max(N, M)",
+              "explanation": "Direct Form II shares one delay line between the feedforward and feedback parts, so it needs $\\max(N, M)$ = max({{N}}, {{M}}) = {{max(N,M)}} delays."
+            },
+            {
+              "prompt": "How many multipliers are needed (count every coefficient except $a_0 = 1$)?",
+              "answer": "N + M + 1",
+              "explanation": "There are $M + 1$ = {{M+1}} input coefficients $b_0 \\ldots b_{{{M}}}$ and $N$ = {{N}} feedback coefficients $a_1 \\ldots a_{{{N}}}$: {{N+M+1}} multipliers, in both direct forms."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dt-difference-3",
+      "title": "Frequency response",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Response to a complex exponential",
+          "body": "Put $x[n] = e^{j\\Omega n}$ into an LTI system: $x[n-k] = e^{-jk\\Omega}e^{j\\Omega n}$, so every term is the same exponential times a constant, and $y[n] = H(e^{j\\Omega})\\,e^{j\\Omega n}$. Example, the 2-point average $y[n] = \\frac{1}{2}(x[n] + x[n-1])$: $H = \\frac{1}{2}(1 + e^{-j\\Omega}) = e^{-j\\Omega/2}\\cos(\\Omega/2)$. Gain 1 at DC, 0 at $\\Omega = \\pi$, phase $-\\Omega/2$.",
+          "formula": "x[n] = e^{j\\Omega n} \\;\\Rightarrow\\; y[n] = H(e^{j\\Omega})\\,e^{j\\Omega n}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "den": [
+              2,
+              3,
+              4,
+              6
+            ]
+          },
+          "prompt": "A sinusoid with $\\Omega = \\pi/{{den}}$ enters the 2-point average $y[n] = \\frac{1}{2}(x[n] + x[n-1])$.",
+          "ask": [
+            {
+              "prompt": "Find the gain $|H(e^{j\\Omega})|$.",
+              "answer": "cos(pi/(2*den))",
+              "unit": "",
+              "explanation": "$H = e^{-j\\Omega/2}\\cos(\\Omega/2)$, so $|H| = \\cos(\\pi/(2 \\cdot {{den}}))$ = {{cos(pi/(2*den))}}."
+            },
+            {
+              "prompt": "Find the phase shift $\\angle H(e^{j\\Omega})$ in degrees.",
+              "answer": "-90/den",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "$H = e^{-j\\Omega/2}\\cos(\\Omega/2)$ with $\\cos(\\Omega/2) > 0$, so $\\angle H = -\\Omega/2$ = $-\\pi/{{2*den}}$ = {{-90/den|°}}: half a sample of delay."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9
+            ],
+            "den": [
+              2,
+              4,
+              8,
+              10
+            ]
+          },
+          "derived": {
+            "W": "pi/den",
+            "mag": "(1-a)/sqrt(1 - 2*a*cos(W) + a^2)",
+            "ph": "-atan2(a*sin(W), 1 - a*cos(W))*180/pi"
+          },
+          "prompt": "The smoother $y[n] = {{a}}\\,y[n-1] + {{1-a}}\\,x[n]$ gets a sinusoid with $\\Omega = \\pi/{{den}}$.",
+          "ask": [
+            {
+              "prompt": "Find the gain $|H(e^{j\\Omega})|$.",
+              "answer": "mag",
+              "unit": "",
+              "explanation": "$H = \\frac{1 - a}{1 - a e^{-j\\Omega}}$, so $|H|$ $= \\frac{1 - a}{\\sqrt{1 - 2a\\cos\\Omega + a^2}}$ $= \\frac{{{1-a}}}{\\sqrt{1 - 2 \\cdot {{a}} \\cdot {{cos(W)}} + {{a^2}}}}$ = {{mag}}."
+            },
+            {
+              "prompt": "Find the phase $\\angle H(e^{j\\Omega})$ in degrees.",
+              "answer": "ph",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "The denominator is $1 - a\\cos\\Omega + ja\\sin\\Omega$ = {{1-a*cos(W)}} + j{{a*sin(W)}}. The phase of $H$ is minus its angle: $-\\arctan\\frac{{{a*sin(W)}}}{{{1-a*cos(W)}}}$ = {{ph|°}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "c": [
+              0.5,
+              0.8,
+              -0.5
+            ],
+            "b0": [
+              1,
+              2,
+              3
+            ],
+            "b1": [
+              1,
+              2,
+              -1
+            ]
+          },
+          "require": "abs(b0 - b1)",
+          "prompt": "$y[n] = {{c}}\\,y[n-1]$ $+ b_0\\,x[n] + b_1\\,x[n-1]$ with $b_0$ = {{b0}} and $b_1$ = {{b1}}.",
+          "unit": "",
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": "Find the DC gain $H(e^{j0})$.",
+              "answer": "(b0 + b1)/(1 - c)",
+              "explanation": "$H(e^{j\\Omega})$ $= \\frac{{{b0}} + ({{b1}})e^{-j\\Omega}}{1 - ({{c}})e^{-j\\Omega}}$. At $\\Omega = 0$ every $e^{-jk\\Omega} = 1$: $H = \\frac{{{b0+b1}}}{{{1-c}}}$ = {{(b0+b1)/(1-c)}}."
+            },
+            {
+              "prompt": "Find $H(e^{j\\pi})$, the gain at the Nyquist frequency (with sign).",
+              "answer": "(b0 - b1)/(1 + c)",
+              "explanation": "$H(e^{j\\Omega})$ $= \\frac{{{b0}} + ({{b1}})e^{-j\\Omega}}{1 - ({{c}})e^{-j\\Omega}}$. At $\\Omega = \\pi$, $e^{-j\\pi} = -1$: $H = \\frac{{{b0}} - ({{b1}})}{1 + ({{c}})}$ = {{(b0-b1)/(1+c)}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Which graph is $|H(e^{j\\Omega})|$ of the first difference $y[n] = x[n] - x[n-1]$, for $0 \\leq \\Omega \\leq \\pi$?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 3.1416,
+                "label": "Ω"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.2,
+                "label": "|H|"
+              },
+              "curves": [
+                {
+                  "f": "2*abs(sin(x/2))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3.1416,
+                "label": "Ω"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.2,
+                "label": "|H|"
+              },
+              "curves": [
+                {
+                  "f": "2*abs(cos(x/2))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3.1416,
+                "label": "Ω"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.2,
+                "label": "|H|"
+              },
+              "curves": [
+                {
+                  "f": "1 + 0*x"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3.1416,
+                "label": "Ω"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.2,
+                "label": "|H|"
+              },
+              "curves": [
+                {
+                  "f": "(1-0.5)/sqrt(1 - 2*0.5*cos(x) + 0.5^2)"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "$H = 1 - e^{-j\\Omega} = e^{-j\\Omega/2}\\,2j\\sin(\\Omega/2)$, so $|H| = 2|\\sin(\\Omega/2)|$: 0 at DC (a constant has no differences) and 2 at $\\Omega = \\pi$, where $(-1)^n$ changes by 2 every sample. A high-pass filter."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "A": [
+              2,
+              3,
+              6
+            ],
+            "den": [
+              2,
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "W": "pi/den",
+            "G": "(1 + 2*cos(W))/3"
+          },
+          "prompt": "$x[n] = {{A}}\\cos(\\pi n/{{den}})$ passes through the 3-point moving average $y[n]$ $= \\frac{1}{3}(x[n] + x[n-1] + x[n-2])$.",
+          "ask": [
+            {
+              "prompt": "Find the amplitude of the output sinusoid.",
+              "answer": "A*G",
+              "unit": "",
+              "explanation": "$H$ $= \\frac{1}{3}(1 + e^{-j\\Omega} + e^{-j2\\Omega})$ $= e^{-j\\Omega}\\frac{1 + 2\\cos\\Omega}{3}$. At $\\Omega = \\pi/{{den}}$: $|H|$ = (1 + 2 × {{cos(W)}})/3 = {{G}}, so the amplitude is {{A}} × {{G}} = {{A*G}}."
+            },
+            {
+              "prompt": "Find the phase shift of the output in degrees.",
+              "answer": "-180/den",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "$H = e^{-j\\Omega}\\frac{1 + 2\\cos\\Omega}{3}$ and $1 + 2\\cos\\Omega > 0$ here, so $\\angle H = -\\Omega = -\\pi/{{den}}$ = {{-180/den|°}}: the average is centred one sample back."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "fsk": [
+              1,
+              8,
+              48
+            ],
+            "r": [
+              0.05,
+              0.1,
+              0.125,
+              0.25,
+              0.4
+            ]
+          },
+          "derived": {
+            "fs": "fsk*1000",
+            "f": "r*fs"
+          },
+          "prompt": "A {{f|Hz}} tone is sampled at $f_s$ = {{fs|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Find its discrete frequency $\\Omega$.",
+              "answer": "2*pi*r",
+              "unit": "rad",
+              "explanation": "$\\Omega = \\omega T = 2\\pi f/f_s = 2\\pi \\cdot$ {{f|Hz}} / {{fs|Hz}} = {{2*pi*r|rad}}."
+            },
+            {
+              "prompt": "What is the gain of the 2-point average $\\frac{1}{2}(x[n] + x[n-1])$ for this tone?",
+              "answer": "cos(pi*r)",
+              "unit": "",
+              "explanation": "$\\Omega = 2\\pi f/f_s$ = {{2*pi*r|rad}}, and $|H| = \\cos(\\Omega/2) = \\cos(\\pi f/f_s)$ = {{cos(pi*r)}}."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "slider",
+          "params": {
+            "a": [
+              0.5,
+              0.6,
+              0.7,
+              0.8
+            ]
+          },
+          "prompt": "The graph shows $|H(e^{j\\Omega})|$ of $y[n] = {{a}}\\,y[n-1] + {{1-a}}\\,x[n]$. Move $\\Omega$ to the −3 dB point, where $|H|$ = 0.707.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3.1416,
+              "label": "Ω (rad)"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "|H|"
+            },
+            "sliders": [
+              {
+                "name": "W",
+                "label": "$\\Omega$",
+                "min": 0,
+                "max": 3.14,
+                "step": 0.005,
+                "value": 2.5,
+                "unit": "rad"
+              }
+            ],
+            "curves": [
+              {
+                "f": "(1-a)/sqrt(1 - 2*a*cos(x) + a^2)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0.7071,
+                "label": "0.707"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "W"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$|H|$ at $\\Omega$",
+                "value": "(1-a)/sqrt(1 - 2*a*cos(W) + a^2)"
+              }
+            ]
+          },
+          "answer": {
+            "W": "acos((1 + a^2 - 2*(1-a)^2)/(2*a))"
+          },
+          "tolerance": 0.05,
+          "explanation": "$|H|^2 = \\frac{(1-a)^2}{1 - 2a\\cos\\Omega + a^2} = \\frac{1}{2}$ gives $\\cos\\Omega = \\frac{1 + a^2 - 2(1-a)^2}{2a}$ = {{(1 + a^2 - 2*(1-a)^2)/(2*a)}}, so $\\Omega$ = {{acos((1 + a^2 - 2*(1-a)^2)/(2*a))|rad}}. Larger $a$: stronger smoothing, lower cutoff."
+        }
+      ]
+    },
+    {
+      "id": "dt-difference-4",
+      "title": "Filter design workout",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "c1": [
+              0.5,
+              0.8,
+              1.2,
+              1.5
+            ],
+            "c2": [
+              0.25,
+              0.36,
+              0.5,
+              0.81
+            ]
+          },
+          "derived": {
+            "h2": "c1^2 - c2",
+            "h3": "c1*(c1^2 - c2) - c2*c1"
+          },
+          "prompt": "Find the impulse response of $y[n] = {{c1}}\\,y[n-1]$ $- {{c2}}\\,y[n-2] + x[n]$ by iteration (initially at rest).",
+          "unit": "",
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": "Find $h[2]$.",
+              "answer": "h2",
+              "explanation": "$h[0] = 1$, $h[1] = {{c1}} \\cdot 1$ = {{c1}}, $h[2] = {{c1}} \\cdot h[1] - {{c2}} \\cdot h[0]$ = {{c1^2}} − {{c2}} = {{h2}}."
+            },
+            {
+              "prompt": "Find $h[3]$.",
+              "answer": "h3",
+              "explanation": "$h[0] = 1$, $h[1]$ = {{c1}}, $h[2]$ = {{c1^2}} − {{c2}} = {{h2}}, $h[3] = {{c1}} \\cdot h[2] - {{c2}} \\cdot h[1]$ = {{c1*h2}} − {{c2*c1}} = {{h3}}."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "T": [
+              0.1,
+              0.2,
+              0.5
+            ],
+            "N": [
+              4,
+              5,
+              8,
+              10
+            ]
+          },
+          "prompt": "Integrate $x(t) = t$ from 0 with Euler's rule $y[n] = y[n-1] + T\\,x[n-1]$, $y[0] = 0$, step $T$ = {{T}}.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "Find $y[{{N}}]$ (the estimate of the integral up to $t = {{N*T}}$).",
+              "answer": "T^2*N*(N-1)/2",
+              "explanation": "$y[N] = T\\sum_{k=0}^{N-1} kT = T^2\\frac{N(N-1)}{2}$ = {{T^2}} × {{N*(N-1)/2}} = {{T^2*N*(N-1)/2}}. The exact value is $(NT)^2/2$ = {{(N*T)^2/2}}."
+            },
+            {
+              "prompt": "By what percentage does $y[{{N}}]$ underestimate the exact integral?",
+              "answer": "100/N",
+              "unit": "%",
+              "explanation": "Euler gives $T^2 N(N-1)/2$ = {{T^2*N*(N-1)/2}}; exact is $(NT)^2/2$ = {{(N*T)^2/2}}. The ratio is $(N-1)/N$, so the error is $1/N$ = {{100/N|%}}: it falls only in proportion to the step size."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "fsk": [
+              1,
+              8
+            ],
+            "r": [
+              0.05,
+              0.1,
+              0.125,
+              0.25
+            ],
+            "a": [
+              0.5,
+              0.8,
+              0.9
+            ],
+            "A": [
+              2,
+              3,
+              5
+            ]
+          },
+          "derived": {
+            "fs": "fsk*1000",
+            "f": "r*fs",
+            "W": "2*pi*r",
+            "mag": "(1-a)/sqrt(1 - 2*a*cos(W) + a^2)",
+            "ph": "-atan2(a*sin(W), 1 - a*cos(W))*180/pi"
+          },
+          "prompt": "$x(t) = {{A}}\\cos(2\\pi f t)$ with $f$ = {{f|Hz}} is sampled at {{fs|Hz}} and filtered by $y[n] = {{a}}\\,y[n-1] + {{1-a}}\\,x[n]$.",
+          "ask": [
+            {
+              "prompt": "Find the amplitude of the output sinusoid.",
+              "answer": "A*mag",
+              "unit": "",
+              "explanation": "$\\Omega = 2\\pi f/f_s$ = {{W|rad}}. $|H| = \\frac{1-a}{\\sqrt{1 - 2a\\cos\\Omega + a^2}}$ = {{mag}}, so the amplitude is {{A}} × {{mag}} = {{A*mag}}."
+            },
+            {
+              "prompt": "Find the phase shift of the output in degrees.",
+              "answer": "ph",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "$\\Omega = 2\\pi f/f_s$ = {{W|rad}}. $\\angle H = -\\arctan\\frac{a\\sin\\Omega}{1 - a\\cos\\Omega} = -\\arctan\\frac{{{a*sin(W)}}}{{{1-a*cos(W)}}}$ = {{ph|°}}."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "f0": [
+              50,
+              60
+            ],
+            "fs": [
+              400,
+              500,
+              600,
+              1000
+            ]
+          },
+          "derived": {
+            "W0": "2*pi*f0/fs",
+            "c": "-2*cos(2*pi*f0/fs)"
+          },
+          "prompt": "The FIR notch $y[n] = x[n] + c\\,x[n-1] + x[n-2]$ must remove {{f0|Hz}} hum from a signal sampled at {{fs|Hz}}.",
+          "unit": "",
+          "tolerance": 0.01,
+          "ask": [
+            {
+              "prompt": "Find $c$.",
+              "answer": "c",
+              "explanation": "$H$ $= 1 + ce^{-j\\Omega} + e^{-j2\\Omega}$ $= e^{-j\\Omega}(c + 2\\cos\\Omega)$, which is zero where $\\cos\\Omega = -c/2$. With $\\Omega_0 = 2\\pi f_0/f_s$ = {{W0|rad}}: $c = -2\\cos\\Omega_0$ = {{c||4}}."
+            },
+            {
+              "prompt": "What is the filter's DC gain?",
+              "answer": "2 + c",
+              "explanation": "$c = -2\\cos(2\\pi f_0/f_s)$ = {{c||4}}. At DC, $|H| = |c + 2\\cos 0| = c + 2$ = {{2+c}}. (Normalise by this to get unity DC gain.)",
+              "tolerance": 0.03,
+              "absTolerance": 0.003
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "tapCircuit",
+          "prompt": "This Direct Form I filter has feedforward coefficients $b_0, b_1$ and feedback coefficient $a_1$. Tap the two blocks that make it recursive (IIR).",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ],
+                "label": "x[n]"
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  0
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1.5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "name": "B0",
+                "at": [
+                  2,
+                  0
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "b_0"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.5,
+                    0
+                  ],
+                  [
+                    3.2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "sum",
+                "name": "S1",
+                "at": [
+                  3.5,
+                  0
+                ],
+                "kind": "++"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    3.8,
+                    0
+                  ],
+                  [
+                    4.7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "sum",
+                "name": "S2",
+                "at": [
+                  5,
+                  0
+                ],
+                "kind": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.3,
+                    0
+                  ],
+                  [
+                    6.5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6.5,
+                  0
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.5,
+                    0
+                  ],
+                  [
+                    7.5,
+                    0
+                  ]
+                ],
+                "label": "y[n]"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "name": "DX",
+                "at": [
+                  1,
+                  1.5
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "D"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    1,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1,
+                    3
+                  ],
+                  [
+                    1.5,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "name": "B1",
+                "at": [
+                  2,
+                  3
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "b_1"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.5,
+                    3
+                  ],
+                  [
+                    3.5,
+                    3
+                  ],
+                  [
+                    3.5,
+                    0.3
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.5,
+                    0
+                  ],
+                  [
+                    6.5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "name": "DY",
+                "at": [
+                  6.5,
+                  1.5
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "D"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6.5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.5,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "name": "A1",
+                "at": [
+                  5.5,
+                  3
+                ],
+                "size": [
+                  1,
+                  1
+                ],
+                "label": "a_1"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    5,
+                    3
+                  ],
+                  [
+                    5,
+                    0.3
+                  ]
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "B0",
+            "DX",
+            "B1",
+            "S1",
+            "DY",
+            "A1"
+          ],
+          "answer": [
+            "DY",
+            "A1"
+          ],
+          "explanation": "The feedback path stores the previous **output** in a delay and multiplies it by $a_1$ before subtracting it. Removing that delay and multiplier leaves the FIR part $b_0 x[n] + b_1 x[n-1]$."
+        },
+        {
+          "id": "c6",
+          "type": "multipleChoice",
+          "prompt": "What is the minimum number of delays needed to realise $y[n] = 0.5\\,y[n-1] - 0.2\\,y[n-2]$ $+ x[n] + 3x[n-1] - x[n-3]$?",
+          "options": [
+            "3",
+            "5",
+            "2",
+            "4"
+          ],
+          "answer": 0,
+          "explanation": "$N = 2$ (outputs back to $y[n-2]$) and $M = 3$ (inputs back to $x[n-3]$). Direct Form II shares the delay line: $\\max(N, M) = 3$ delays. Direct Form I would need $N + M = 5$."
+        },
+        {
+          "id": "c7",
+          "type": "trueFalse",
+          "prompt": "For a filter with real coefficients, $|H(e^{j\\Omega})|$ at $\\Omega = 2\\pi - \\Omega_0$ equals $|H(e^{j\\Omega})|$ at $\\Omega_0$.",
+          "answer": true,
+          "explanation": "$H$ is periodic with $2\\pi$, so $H(e^{j(2\\pi - \\Omega_0)}) = H(e^{-j\\Omega_0})$, and for real coefficients that is the complex conjugate of $H(e^{j\\Omega_0})$: same magnitude, opposite phase. That is why only $0 \\leq \\Omega \\leq \\pi$ is plotted."
+        }
+      ]
+    }
+  ]
+}

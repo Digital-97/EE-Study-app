@@ -1,0 +1,928 @@
+{
+  "id": "it-capacity",
+  "title": "Channel Capacity",
+  "description": "Describe noisy channels by transition matrices and find how many bits per use they can carry reliably.",
+  "reference": "C&T §7.1–7.2, §7.7",
+  "study": [
+    {
+      "title": "Discrete memoryless channels",
+      "body": "A **discrete memoryless channel** (DMC) takes an input symbol $x$ and produces an output symbol $y$ with probability $p(y|x)$, independently for every use. Collect these in a **transition matrix**: one row per input, one column per output, every row summing to 1. The binary symmetric channel (BSC) flips a bit with probability $p$:",
+      "formula": "P_{\\text{BSC}} = \\begin{bmatrix} 1-p & p\\\\ p & 1-p\\end{bmatrix}"
+    },
+    {
+      "title": "Channel capacity",
+      "body": "The mutual information $I(X;Y)$ depends on the channel and on how often the transmitter uses each input. The **capacity** is the largest value over all input distributions, in bits per channel use. A noiseless channel with $M$ inputs has $C = \\log_2 M$; for symmetric channels a uniform input is optimal. Multiply by the number of channel uses per second for bit/s.",
+      "formula": "C = \\max_{p(x)} I(X;Y)"
+    },
+    {
+      "title": "Explore: BSC and BEC",
+      "body": "For the BSC a uniform input gives $H(Y)$ = 1 and $H(Y|X) = H(p)$, so $C = 1 - H(p)$. It is 1 bit at $p$ = 0 **and** at $p$ = 1 (just invert every bit) and 0 at $p$ = 0.5. The **binary erasure channel** (BEC) instead loses a bit with probability $\\varepsilon$ and tells the receiver so: $C = 1 - \\varepsilon$. Drag $p$: an erasure costs much less than an undetected error.",
+      "formula": "C_{\\text{BSC}} = 1 - H(p),\\qquad C_{\\text{BEC}} = 1 - \\varepsilon",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "p (crossover / erasure probability)"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "C (bits/use)"
+        },
+        "sliders": [
+          {
+            "name": "q",
+            "label": "$p$",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "value": 0.1
+          }
+        ],
+        "let": {
+          "Cq": "(1 - (-(q)*log2(max(q, 1e-12)) - (1-(q))*log2(max(1-(q), 1e-12))))"
+        },
+        "curves": [
+          {
+            "f": "(1 - (-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12))))",
+            "label": "BSC",
+            "labelAt": 0.3
+          },
+          {
+            "f": "1 - x",
+            "color": "grey",
+            "dash": true,
+            "label": "BEC",
+            "labelAt": 0.8
+          }
+        ],
+        "points": [
+          {
+            "x": "q",
+            "y": "Cq"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "BSC: $C = 1 - H(p)$",
+            "value": "Cq",
+            "unit": "bits"
+          },
+          {
+            "label": "BEC with $\\varepsilon = p$: $C = 1 - \\varepsilon$",
+            "value": "1 - q",
+            "unit": "bits"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The binary erasure channel",
+      "body": "Output 'e' marks an erased bit. With a uniform input, $H(X)$ = 1 and an erased bit leaves 1 bit of uncertainty, so $H(X|Y) = \\varepsilon$ and $I = 1 - \\varepsilon$. Erasures model packet losses detected by a checksum, or symbols the demodulator flags as unreliable. Feedback (retransmission) would also deliver exactly $1 - \\varepsilon$ bits per use on average.",
+      "formula": "P_{\\text{BEC}} = \\begin{bmatrix} 1-\\varepsilon & \\varepsilon & 0\\\\ 0 & \\varepsilon & 1-\\varepsilon\\end{bmatrix}"
+    },
+    {
+      "title": "Symmetric channels",
+      "body": "If every row of the transition matrix is a permutation of every other row and all column sums are equal, the channel is **symmetric** (Cover & Thomas call this weakly symmetric): a uniform input makes the output uniform and $C = \\log_2|\\mathcal Y| - H(\\text{row})$. Example: a ternary channel that keeps a symbol with probability 0.8 and turns it into each other symbol with probability 0.1 has $C = \\log_2 3 - H(0.8, 0.1, 0.1)$ = 1.585 − 0.922 = 0.663 bit per use.",
+      "formula": "C = \\log_2|\\mathcal{Y}| - H(\\text{row of } P)"
+    },
+    {
+      "title": "The channel coding theorem",
+      "body": "Send $k$ message bits as a codeword of $n$ channel symbols: the **rate** is $R = k/n$ bits per channel use. Shannon proved that for every $R < C$ there are codes whose error probability goes to zero as $n$ grows, and that for $R > C$ the error probability cannot be made small. Capacity is therefore a hard speed limit for reliable communication. The proof uses random codes; units 7 and 8 show practical codes.",
+      "formula": "R = \\frac{k}{n} < C\\ \\Rightarrow\\ P_e \\to 0"
+    },
+    {
+      "title": "Cascaded channels",
+      "body": "Two BSCs in series form a BSC whose crossover probability is the chance that exactly one of them flips the bit. $n$ identical hops give $p_n = \\tfrac12[1 - (1-2p)^n]$, which creeps towards 0.5: capacity can only drop along a chain (data-processing inequality), unless the relays decode and re-encode. For erasure channels the survival probabilities multiply.",
+      "formula": "\\begin{aligned} p &= p_1(1-p_2) + p_2(1-p_1)\\\\ 1-\\varepsilon &= (1-\\varepsilon_1)(1-\\varepsilon_2)\\end{aligned}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "it-capacity-1",
+      "title": "Channels as matrices",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "A channel is a table of probabilities",
+          "body": "A discrete memoryless channel turns input $x$ into output $y$ with probability $p(y|x)$, independently every time it is used. Write these as a matrix with one **row per input**: every row is a probability distribution, so it sums to 1.",
+          "formula": "P = \\begin{bmatrix} p(y_1|x_1) & p(y_2|x_1)\\\\ p(y_1|x_2) & p(y_2|x_2)\\end{bmatrix}"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Rows are inputs and columns are outputs. Which matrix is a valid channel transition matrix?",
+          "options": [
+            "$\\begin{bmatrix} 0.9 & 0.1\\\\ 0.2 & 0.8\\end{bmatrix}$",
+            "$\\begin{bmatrix} 0.9 & 0.2\\\\ 0.1 & 0.8\\end{bmatrix}$",
+            "$\\begin{bmatrix} 0.7 & 0.4\\\\ 0.3 & 0.6\\end{bmatrix}$",
+            "$\\begin{bmatrix} 1.1 & -0.1\\\\ 0 & 1\\end{bmatrix}$"
+          ],
+          "answer": 0,
+          "explanation": "Each row lists the output probabilities for one input, so each row must be non-negative and sum to 1: 0.9 + 0.1 = 1 and 0.2 + 0.8 = 1. Two of the other matrices have columns, not rows, that sum to 1, and the remaining one contains a negative 'probability'."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.01,
+              0.05,
+              0.1,
+              0.2
+            ],
+            "s": [
+              0.1,
+              0.2,
+              0.3,
+              0.4
+            ]
+          },
+          "prompt": "A BSC flips each bit with probability {{p}}. The transmitter sends a 1 with probability {{s}}. What is $P(Y = 1)$?",
+          "answer": "s*(1-p) + (1-s)*p",
+          "unit": "",
+          "explanation": "A 1 arrives either as a sent 1 that was not flipped or as a sent 0 that was flipped: $P(Y=1)$ = {{s}} × {{1-p}} + {{1-s}} × {{p}} = **{{s*(1-p) + (1-s)*p||3}}**. Noise pulls the output towards 0.5."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Capacity",
+          "body": "How much information gets through depends on the channel and on the input distribution. The **capacity** is the best you can do: the maximum of $I(X;Y)$ over all input distributions, in bits per channel use. A noiseless channel with $M$ input symbols carries $\\log_2 M$ bits per use.",
+          "formula": "C = \\max_{p(x)} I(X;Y)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "M": [
+              3,
+              4,
+              5,
+              8,
+              16
+            ],
+            "rs": [
+              1000,
+              9600,
+              200000
+            ]
+          },
+          "prompt": "A noiseless channel accepts one of {{M}} symbols per use and is used {{rs||7}} times per second.",
+          "ask": [
+            {
+              "prompt": "What is its capacity per channel use?",
+              "answer": "log2(M)",
+              "unit": "bits",
+              "explanation": "Noiseless: every input is recognised, so use all {{M}} equally often: $C = \\log_2 {{M}}$ = **{{log2(M)}} bits per use**."
+            },
+            {
+              "prompt": "What is its capacity in bit/s?",
+              "answer": "rs*log2(M)",
+              "unit": "bit/s",
+              "explanation": "$C = \\log_2 {{M}}$ = {{log2(M)}} bits per use, × {{rs||7}} uses/s = **{{rs*log2(M)|bit/s}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "The capacity of a channel changes when the transmitter starts sending one input symbol more often than another.",
+          "answer": false,
+          "explanation": "False. $I(X;Y)$ changes with the input distribution, but the capacity is the **maximum** over all input distributions, a property of the channel alone. A badly chosen input distribution simply transfers less than $C$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.01,
+              0.05,
+              0.1
+            ],
+            "s": [
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "prompt": "A BSC with $p$ = {{p}} is driven by a source that sends a 1 with probability {{s}}. Find $I(X;Y)$.",
+          "answer": "(-(s*(1-p) + (1-s)*p)*log2(max(s*(1-p) + (1-s)*p, 1e-12)) - (1-(s*(1-p) + (1-s)*p))*log2(max(1-(s*(1-p) + (1-s)*p), 1e-12))) - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))",
+          "unit": "bits",
+          "absTolerance": 0.005,
+          "explanation": "$P(Y=1)$ = {{s}} × {{1-p}} + {{1-s}} × {{p}} = {{s*(1-p) + (1-s)*p||3}}, so $H(Y)$ = {{(-(s*(1-p) + (1-s)*p)*log2(max(s*(1-p) + (1-s)*p, 1e-12)) - (1-(s*(1-p) + (1-s)*p))*log2(max(1-(s*(1-p) + (1-s)*p), 1e-12)))}}. $H(Y|X) = H({{p}})$ = {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}}. $I = H(Y) - H(Y|X)$ = **{{(-(s*(1-p) + (1-s)*p)*log2(max(s*(1-p) + (1-s)*p, 1e-12)) - (1-(s*(1-p) + (1-s)*p))*log2(max(1-(s*(1-p) + (1-s)*p), 1e-12))) - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} bit**, below the capacity $1 - H(p)$ = {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))}} reached with a uniform input."
+        }
+      ]
+    },
+    {
+      "id": "it-capacity-2",
+      "title": "BSC and BEC",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The binary symmetric channel",
+          "body": "The BSC flips each bit with probability $p$. With a uniform input, $C = 1 - H(p)$. Drag $p$: capacity is 1 at both ends (at $p$ = 1 every bit is inverted, which the receiver can undo) and 0 at $p$ = 0.5, where the output is independent of the input.",
+          "formula": "C = 1 - H(p)",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "p (crossover / erasure probability)"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "C (bits/use)"
+            },
+            "sliders": [
+              {
+                "name": "q",
+                "label": "$p$",
+                "min": 0,
+                "max": 1,
+                "step": 0.01,
+                "value": 0.1
+              }
+            ],
+            "let": {
+              "Cq": "(1 - (-(q)*log2(max(q, 1e-12)) - (1-(q))*log2(max(1-(q), 1e-12))))"
+            },
+            "curves": [
+              {
+                "f": "(1 - (-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12))))",
+                "label": "BSC",
+                "labelAt": 0.3
+              },
+              {
+                "f": "1 - x",
+                "color": "grey",
+                "dash": true,
+                "label": "BEC",
+                "labelAt": 0.8
+              }
+            ],
+            "points": [
+              {
+                "x": "q",
+                "y": "Cq"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "BSC: $C = 1 - H(p)$",
+                "value": "Cq",
+                "unit": "bits"
+              },
+              {
+                "label": "BEC with $\\varepsilon = p$: $C = 1 - \\varepsilon$",
+                "value": "1 - q",
+                "unit": "bits"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.001,
+              0.01,
+              0.02,
+              0.05,
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "prompt": "What is the capacity of a binary symmetric channel with crossover probability {{p}}?",
+          "answer": "(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))",
+          "unit": "bits",
+          "explanation": "$H({{p}})$ = {{p}} × {{-log2(p)}} + {{1-p}} × {{-log2(1-p)}} = {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}}, so $C = 1 - H(p)$ = **{{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))}} bit per use**."
+        },
+        {
+          "id": "q2",
+          "type": "slider",
+          "params": {
+            "c": [
+              0.2,
+              0.3,
+              0.4,
+              0.5,
+              0.6,
+              0.7,
+              0.8
+            ]
+          },
+          "derived": {
+            "h": "1 - c",
+            "p0": "(1 - sqrt(1 - h^(4/3)))/2",
+            "p1": "p0 - (-p0*log2(p0) - (1-p0)*log2(1-p0) - h)/log2((1-p0)/p0)",
+            "p2": "p1 - (-p1*log2(p1) - (1-p1)*log2(1-p1) - h)/log2((1-p1)/p1)",
+            "pt": "p2 - (-p2*log2(p2) - (1-p2)*log2(1-p2) - h)/log2((1-p2)/p2)"
+          },
+          "prompt": "Drag the crossover probability $p$ (at most 0.5) until the BSC has a capacity of {{c}} bit per use.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.5,
+              "label": "p"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "C (bits/use)"
+            },
+            "sliders": [
+              {
+                "name": "q",
+                "label": "$p$",
+                "min": 0.005,
+                "max": 0.5,
+                "step": 0.005,
+                "value": 0.5
+              }
+            ],
+            "let": {
+              "Cq": "(1 - (-(q)*log2(max(q, 1e-12)) - (1-(q))*log2(max(1-(q), 1e-12))))"
+            },
+            "curves": [
+              {
+                "f": "(1 - (-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12))))",
+                "label": "1 − H(p)",
+                "labelAt": 0.6
+              }
+            ],
+            "hlines": [
+              {
+                "y": "c",
+                "label": "target",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "q",
+                "y": "Cq"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$C$",
+                "value": "Cq",
+                "unit": "bits",
+                "reveal": true
+              }
+            ]
+          },
+          "check": "0.015 - abs(Cq - c)",
+          "solution": "$p$ ≈ {{pt||2}}",
+          "explanation": "$1 - H(p)$ = {{c}} needs $H(p)$ = {{1-c}}, which happens at $p$ ≈ **{{pt||2}}**. Note how fast capacity falls: a few percent of flipped bits already cost a large part of the channel."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The binary erasure channel",
+          "body": "The BEC delivers each bit correctly with probability $1 - \\varepsilon$ and otherwise outputs an erasure mark 'e': the receiver knows which bits are missing. Its capacity is $1 - \\varepsilon$: exactly the fraction of bits that arrive.",
+          "formula": "C = 1 - \\varepsilon"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "e": [
+              1,
+              2,
+              5,
+              10,
+              20
+            ],
+            "b": [
+              1000,
+              8000,
+              12000
+            ],
+            "r": [
+              100,
+              500,
+              1000
+            ]
+          },
+          "prompt": "A packet link loses {{e}} % of its packets (lost packets are detected). Each packet carries {{b}} bits and {{r}} packets are sent per second. What is the capacity of the link?",
+          "answer": "r*b*(1 - e/100)",
+          "unit": "bit/s",
+          "explanation": "Detected losses are erasures: $C = (1 - \\varepsilon)$ = {{1 - e/100}} of the raw rate. Raw rate = {{r}} × {{b}} = {{r*b|bit/s}}, so $C$ = **{{r*b*(1 - e/100)|bit/s}}**."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "p": [
+              0.01,
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "One link flips bits with probability {{p}} (BSC), another erases them with probability {{p}} (BEC). Which has the higher capacity?",
+          "options": [
+            "The erasure channel: {{1-p}} vs {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))}} bit",
+            "The flipping channel: {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))}} vs {{1-p}} bit",
+            "Both have {{1-p}} bit"
+          ],
+          "answer": 0,
+          "explanation": "BEC: $C = 1 - \\varepsilon$ = **{{1-p}}**. BSC: $C = 1 - H({{p}})$ = **{{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))}}**. An erasure says 'this bit is unknown'; a flip hides among the correct bits, so finding and fixing it costs much more redundancy."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "A binary symmetric channel with $p$ = 1 (every bit is inverted) has zero capacity.",
+          "answer": false,
+          "explanation": "False. $C = 1 - H(1) = 1 - 0$ = **1 bit**: the receiver simply inverts every bit. A channel is useless only when its output is independent of its input, as for $p$ = 0.5."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows the capacity of a binary symmetric channel as a function of its crossover probability $p$?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "p"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "C"
+              },
+              "curves": [
+                {
+                  "f": "(1 - (-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12))))"
+                }
+              ],
+              "height": 120
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "p"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "C"
+              },
+              "curves": [
+                {
+                  "f": "(-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12)))"
+                }
+              ],
+              "height": 120
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "p"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "C"
+              },
+              "curves": [
+                {
+                  "f": "1 - x"
+                }
+              ],
+              "height": 120
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "p"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "C"
+              },
+              "curves": [
+                {
+                  "f": "abs(1 - 2*x)"
+                }
+              ],
+              "height": 120
+            }
+          ],
+          "answer": 0,
+          "explanation": "$C = 1 - H(p)$: 1 at $p$ = 0 and $p$ = 1, 0 at $p$ = 0.5, with rounded (not straight) sides. The hill is $H(p)$ itself, the straight line $1 - p$ is the erasure channel, and the V-shape $|1 - 2p|$ has the right end points but the wrong shape."
+        }
+      ]
+    },
+    {
+      "id": "it-capacity-3",
+      "title": "The channel coding theorem",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Shannon's speed limit",
+          "body": "A code maps $k$ message bits to $n$ channel symbols, a rate of $R = k/n$ bits per use. For any $R < C$, long enough codes make the error probability as small as you like; for $R > C$ it stays bounded away from zero. In bit/s: capacity per use × channel uses per second.",
+          "formula": "R < C"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.001,
+              0.01,
+              0.05,
+              0.1
+            ],
+            "rs": [
+              9600,
+              1000000,
+              10000000
+            ]
+          },
+          "prompt": "A BSC with $p$ = {{p}} is used at {{rs|baud}} (channel uses per second). What is the highest information rate that can be sent reliably?",
+          "answer": "rs*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))",
+          "unit": "bit/s",
+          "explanation": "$C = 1 - H({{p}})$ = 1 − {{(-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))}} = {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))}} bit per use. × {{rs|baud}}: **{{rs*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))|bit/s}}**. Any rate below that is possible with good enough coding."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "n": [
+              7,
+              15,
+              31,
+              63,
+              127,
+              255
+            ],
+            "p": [
+              0.01,
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "require": "abs(n*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))) - round(n*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))))) - 0.02",
+          "prompt": "Codewords of $n$ = {{n}} bits are sent over a BSC with $p$ = {{p}}. What is the largest number of message bits $k$ for which the rate $k/n$ stays below capacity?",
+          "answer": "floor(n*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))))",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "$C = 1 - H({{p}})$ = {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))||4}}. Need $k < nC$ = {{n}} × {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))||4}} = {{n*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))||4}}, so $k$ = **{{floor(n*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))))}}**. (The theorem promises reliability only for long codes; short codes need a margin.)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.02,
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "prompt": "A ternary channel keeps each symbol with probability {{1-p}} and turns it into each of the two other symbols with probability {{p/2}}. What is its capacity?",
+          "answer": "log2(3) + (1-p)*log2(1-p) + p*log2(p/2)",
+          "unit": "bits",
+          "explanation": "The channel is symmetric, so $C = \\log_2 3 - H(\\text{row})$ with row ({{1-p}}, {{p/2}}, {{p/2}}): $H$ = {{-(1-p)*log2(1-p) - p*log2(p/2)||3}} bits. $C$ = 1.585 − {{-(1-p)*log2(1-p) - p*log2(p/2)||3}} = **{{log2(3) + (1-p)*log2(1-p) + p*log2(p/2)||3}} bits per use**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "M": [
+              4,
+              8,
+              16,
+              26,
+              32
+            ]
+          },
+          "prompt": "A channel has {{M}} input symbols arranged in a circle. Each symbol arrives either unchanged or as the next symbol around the circle (clockwise), with probability 1/2 each. What is its capacity?",
+          "answer": "log2(M) - 1",
+          "unit": "bits",
+          "explanation": "The channel is symmetric with rows (1/2, 1/2, 0, …), so $C = \\log_2 {{M}} - H(1/2, 1/2)$ = {{log2(M)}} − 1 = **{{log2(M) - 1}} bits per use**. Using only every other symbol achieves it with zero errors: the {{M/2}} used symbols can never be confused."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each channel to its capacity.",
+          "pairs": [
+            [
+              "Noiseless binary channel",
+              "1 bit"
+            ],
+            [
+              "BSC with $p$ = 0.5",
+              "0 bits"
+            ],
+            [
+              "BEC with $\\varepsilon$ = 0.25",
+              "0.75 bit"
+            ],
+            [
+              "BSC with $p$ = 0.11",
+              "0.5 bit"
+            ],
+            [
+              "Noiseless 4-ary channel",
+              "2 bits"
+            ]
+          ],
+          "explanation": "Noiseless: $\\log_2 M$. BSC: $1 - H(p)$, which is 0 at $p$ = 0.5 and 0.5 at $p$ = 0.11 (since $H(0.11)$ = 0.5). BEC: $1 - \\varepsilon$."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "params": {
+            "R": [
+              0.25,
+              0.5,
+              0.6,
+              0.75,
+              0.9
+            ],
+            "p": [
+              0.01,
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "require": "abs((1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))) - R) - 0.03",
+          "prompt": "Codes of rate {{R}} exist that reach an arbitrarily small error probability on a BSC with $p$ = {{p}}, provided their block length is large enough.",
+          "answer": "(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))) - R",
+          "explanation": "$C = 1 - H({{p}})$ = {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))||3}} bit per use. The coding theorem allows exactly the rates **below** $C$, so compare: rate $R$ = {{R}} against $C$ = {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))||3}}. Above $C$, no code can make errors rare, however long."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "F": [
+              1,
+              8,
+              100
+            ],
+            "p": [
+              0.01,
+              0.05,
+              0.1
+            ],
+            "rs": [
+              1000000,
+              10000000
+            ]
+          },
+          "prompt": "A {{F}}-Mbit file must cross a BSC with $p$ = {{p}} at {{rs|baud}}. What is the shortest possible transfer time with ideal coding?",
+          "answer": "F*1e6/(rs*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))))",
+          "unit": "s",
+          "explanation": "$C = 1 - H({{p}})$ = {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))||3}} bit per use, so at most {{rs*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))|bit/s}} of information. Time = {{F}} × $10^6$ / {{rs*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))|bit/s}} = **{{F*1e6/(rs*(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12)))))|s}}**."
+        }
+      ]
+    },
+    {
+      "id": "it-capacity-4",
+      "title": "Cascades and comparisons",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Channels in series",
+          "body": "When the output of one channel feeds the next without decoding in between, the chain is a single channel with a worse transition matrix. For BSCs the bit is wrong at the end if an **odd** number of hops flipped it. By the data-processing inequality the cascade can never have more capacity than its weakest link."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.01,
+              0.02,
+              0.05,
+              0.1
+            ],
+            "p2": [
+              0.01,
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "derived": {
+            "pe": "p1*(1-p2) + p2*(1-p1)"
+          },
+          "prompt": "Two BSCs with $p_1$ = {{p1}} and $p_2$ = {{p2}} are connected in series (no decoding in between).",
+          "ask": [
+            {
+              "prompt": "What is the crossover probability of the cascade?",
+              "answer": "pe",
+              "unit": "",
+              "explanation": "Wrong at the end only if exactly one hop flips: $p$ = {{p1}} × {{1-p2}} + {{p2}} × {{1-p1}} = **{{pe||4}}** (two flips cancel)."
+            },
+            {
+              "prompt": "What is the capacity of the cascade?",
+              "answer": "(1 - (-(pe)*log2(max(pe, 1e-12)) - (1-(pe))*log2(max(1-(pe), 1e-12))))",
+              "unit": "bits",
+              "explanation": "$p$ = {{pe||4}}, so $C = 1 - H({{pe||4}})$ = **{{(1 - (-(pe)*log2(max(pe, 1e-12)) - (1-(pe))*log2(max(1-(pe), 1e-12))))||3}} bit per use**, below both $1 - H({{p1}})$ = {{(1 - (-(p1)*log2(max(p1, 1e-12)) - (1-(p1))*log2(max(1-(p1), 1e-12))))||3}} and $1 - H({{p2}})$ = {{(1 - (-(p2)*log2(max(p2, 1e-12)) - (1-(p2))*log2(max(1-(p2), 1e-12))))||3}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "n": [
+              2,
+              5,
+              10,
+              20
+            ],
+            "p": [
+              0.001,
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "A signal passes {{n}} identical regenerating hops, each a BSC with $p$ = {{p}} (bits are re-sent without error correction).",
+          "ask": [
+            {
+              "prompt": "What is the end-to-end crossover probability?",
+              "answer": "(1 - (1 - 2*p)^n)/2",
+              "unit": "",
+              "explanation": "$p_n = \\tfrac12[1 - (1-2p)^n]$ = ½ × [1 − {{1-2*p}}^{{n}}] = **{{(1 - (1 - 2*p)^n)/2||3}}**. For small $p$ this is close to $np$ = {{n*p||3}}."
+            },
+            {
+              "prompt": "What is the end-to-end capacity?",
+              "answer": "(1 - (-((1 - (1 - 2*p)^n)/2)*log2(max((1 - (1 - 2*p)^n)/2, 1e-12)) - (1-((1 - (1 - 2*p)^n)/2))*log2(max(1-((1 - (1 - 2*p)^n)/2), 1e-12))))",
+              "unit": "bits",
+              "explanation": "$p_n$ = {{(1 - (1 - 2*p)^n)/2||3}}, so $C = 1 - H(p_n)$ = **{{(1 - (-((1 - (1 - 2*p)^n)/2)*log2(max((1 - (1 - 2*p)^n)/2, 1e-12)) - (1-((1 - (1 - 2*p)^n)/2))*log2(max(1-((1 - (1 - 2*p)^n)/2), 1e-12))))||3}} bit per use**, against {{(1 - (-(p)*log2(max(p, 1e-12)) - (1-(p))*log2(max(1-(p), 1e-12))))||3}} for one hop."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "e1": [
+              1,
+              2,
+              5,
+              10
+            ],
+            "e2": [
+              2,
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "A packet passes two links that lose (detectably) {{e1}} % and {{e2}} % of the packets. What is the capacity of the chain as a fraction of the raw rate?",
+          "answer": "(1 - e1/100)*(1 - e2/100)",
+          "unit": "",
+          "explanation": "A packet survives only if both links deliver it: $1 - \\varepsilon$ = {{1 - e1/100}} × {{1 - e2/100}} = **{{(1 - e1/100)*(1 - e2/100)||4}}**. For erasure channels the capacities simply multiply."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Channels with capacities $C_1$ and $C_2$ are connected in series, without decoding in between. What can you say about the capacity $C$ of the cascade?",
+          "options": [
+            "$C \\le \\min(C_1, C_2)$ for any two channels",
+            "$C = C_1 C_2$ for any two channels",
+            "$C = C_1 + C_2 - 1$",
+            "$C \\ge \\max(C_1, C_2)$"
+          ],
+          "answer": 0,
+          "explanation": "$X \\to Y \\to Z$ is a Markov chain, so $I(X;Z) \\le I(X;Y) \\le C_1$, and also $I(X;Z) \\le C_2$ because $Z$ only sees what the second channel delivers. $C = C_1C_2$ happens to hold for erasure channels, but not for BSCs."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "x": [
+              0,
+              2,
+              4,
+              6,
+              8
+            ]
+          },
+          "derived": {
+            "pb": "Q(sqrt(2*10^(x/10)))"
+          },
+          "prompt": "BPSK over a noisy radio link with hard decisions acts as a BSC with $p = Q(\\sqrt{2E_b/N_0})$. The link has $E_b/N_0$ = {{x}} dB.",
+          "ask": [
+            {
+              "prompt": "What is the crossover probability?",
+              "answer": "pb",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "$E_b/N_0 = 10^{ {{x}}/10}$ = {{10^(x/10)||3}}, so $p = Q(\\sqrt{2 \\times {{10^(x/10)||3}}}) = Q({{sqrt(2*10^(x/10))||3}})$ = **{{pb||3}}**."
+            },
+            {
+              "prompt": "What is the capacity of the resulting BSC?",
+              "answer": "(1 - (-(pb)*log2(max(pb, 1e-12)) - (1-(pb))*log2(max(1-(pb), 1e-12))))",
+              "unit": "bits",
+              "tolerance": 0.03,
+              "explanation": "$p = Q(\\sqrt{2E_b/N_0})$ = {{pb||3}}, so $C = 1 - H({{pb||3}})$ = **{{(1 - (-(pb)*log2(max(pb, 1e-12)) - (1-(pb))*log2(max(1-(pb), 1e-12))))||3}} bit per use**. Hard decisions throw away reliability information; the next unit shows that the Gaussian channel itself carries more."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "slider",
+          "params": {
+            "p": [
+              0.005,
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "derived": {
+            "nstar": "ceil(ln(1 - 2*0.1100279)/ln(1 - 2*p))"
+          },
+          "prompt": "A chain of identical hops, each a BSC with $p$ = {{p}}, is extended hop by hop. Drag $n$ to the **smallest** number of hops at which the end-to-end capacity has dropped below 0.5 bit.",
+          "plot": {
+            "x": {
+              "min": 1,
+              "max": 30,
+              "label": "number of hops n"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.05,
+              "label": "C (bits/use)"
+            },
+            "sliders": [
+              {
+                "name": "m",
+                "label": "$n$",
+                "min": 1,
+                "max": 30,
+                "step": 1,
+                "value": 1
+              }
+            ],
+            "let": {
+              "Cm": "(1 - (-((1 - (1 - 2*p)^m)/2)*log2(max((1 - (1 - 2*p)^m)/2, 1e-12)) - (1-((1 - (1 - 2*p)^m)/2))*log2(max(1-((1 - (1 - 2*p)^m)/2), 1e-12))))",
+              "Cprev": "(1 - (-((1 - (1 - 2*p)^(m-1))/2)*log2(max((1 - (1 - 2*p)^(m-1))/2, 1e-12)) - (1-((1 - (1 - 2*p)^(m-1))/2))*log2(max(1-((1 - (1 - 2*p)^(m-1))/2), 1e-12))))"
+            },
+            "curves": [
+              {
+                "f": "(1 - (-((1 - (1 - 2*p)^x)/2)*log2(max((1 - (1 - 2*p)^x)/2, 1e-12)) - (1-((1 - (1 - 2*p)^x)/2))*log2(max(1-((1 - (1 - 2*p)^x)/2), 1e-12))))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0.5,
+                "label": "0.5 bit",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "m",
+                "y": "Cm"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$C$ after $n$ hops",
+                "value": "Cm",
+                "unit": "bits",
+                "reveal": true
+              }
+            ],
+            "labels": [
+              {
+                "x": 10,
+                "y": 0.95,
+                "text": "C after n hops",
+                "color": "primary"
+              }
+            ]
+          },
+          "check": "min(0.5 - Cm, Cprev - 0.5)",
+          "solution": "$n$ = {{nstar}}",
+          "explanation": "$C_n = 1 - H(p_n)$ with $p_n = \\tfrac12[1 - (1 - 2p)^n]$ falls below 0.5 bit once $p_n$ exceeds 0.110. That first happens at **$n$ = {{nstar}}** ($C$ = {{(1 - (-((1 - (1 - 2*p)^nstar)/2)*log2(max((1 - (1 - 2*p)^nstar)/2, 1e-12)) - (1-((1 - (1 - 2*p)^nstar)/2))*log2(max(1-((1 - (1 - 2*p)^nstar)/2), 1e-12))))||3}} bit; one hop fewer still gives {{(1 - (-((1 - (1 - 2*p)^(nstar-1))/2)*log2(max((1 - (1 - 2*p)^(nstar-1))/2, 1e-12)) - (1-((1 - (1 - 2*p)^(nstar-1))/2))*log2(max(1-((1 - (1 - 2*p)^(nstar-1))/2), 1e-12))))||3}})."
+        }
+      ]
+    }
+  ]
+}

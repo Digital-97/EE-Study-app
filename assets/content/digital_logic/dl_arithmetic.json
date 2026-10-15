@@ -1,0 +1,979 @@
+{
+  "id": "dl-arithmetic",
+  "title": "Binary Arithmetic",
+  "description": "Add binary numbers, represent negative numbers in two's complement, subtract and detect overflow.",
+  "reference": "Hambley §7.2",
+  "study": [
+    {
+      "title": "Binary addition",
+      "body": "Add column by column from the right, exactly like decimal, but a column overflows already at 2: $1+1 = 10_2$ (sum 0, carry 1) and $1+1+1 = 11_2$ (sum 1, carry 1).\nExample: $0110 + 0111 = 1101$ (6 + 7 = 13).",
+      "formula": "0+0=0,\\quad 0+1=1,\\quad 1+1=10_2,\\quad 1+1+1=11_2"
+    },
+    {
+      "title": "One's and two's complement",
+      "body": "The **one's complement** inverts every bit. The **two's complement** is the one's complement plus 1 (ignore any carry out of the MSB). Shortcut: copy the bits from the right up to and including the first 1, then invert all remaining bits.\nExample: $00101100$ (44) → one's complement $11010011$ → two's complement $11010100$, which represents −44.",
+      "formula": "\\text{two's complement} = \\overline{\\text{bits}} + 1"
+    },
+    {
+      "title": "Signed two's-complement numbers",
+      "body": "In an $n$-bit signed word the MSB is the **sign bit** (0 = positive, 1 = negative) and has weight $-2^{n-1}$. A negative number is stored as the two's complement of its magnitude. There is one zero, and the range is lopsided: 8 bits cover −128 … +127.",
+      "formula": "-2^{n-1} \\;\\le\\; N \\;\\le\\; 2^{n-1}-1"
+    },
+    {
+      "title": "Subtraction",
+      "body": "To compute $A - B$, add the two's complement of $B$ to $A$ and discard any carry out of the sign bit. The same adder hardware therefore does both addition and subtraction.\nExample (8 bits): $45 - 19$: $00101101 + 11101101 = (1)\\,00011010 = 26$.",
+      "formula": "A - B = A + (\\overline{B} + 1)"
+    },
+    {
+      "title": "Overflow",
+      "body": "Overflow (called underflow when the true result is too negative) happens when the true result lies outside the range of the word. Rule: it can only occur when both operands have the **same sign**, and it shows up as a result with the **opposite sign**. Adding numbers of opposite sign never overflows.\nExample (4 bits): $0101 + 0100 = 1001$, i.e. 5 + 4 gives −7. A carry out of the MSB by itself is **not** an overflow indicator."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dl-arithmetic-1",
+      "title": "Adding and negating",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Adding bits",
+          "body": "Binary addition works column by column with carries, just like decimal: $0+1 = 1$, $1+1 = 10_2$ (write 0, carry 1), $1+1+1 = 11_2$ (write 1, carry 1).",
+          "formula": "\\begin{array}{r} 0110 \\\\ +\\,0011 \\\\ \\hline 1001 \\end{array}"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Add ${{a3}}{{a2}}{{a1}}{{a0}}_2 + {{b3}}{{b2}}{{b1}}{{b0}}_2$.",
+          "options": [
+            "${{s3}}{{s2}}{{s1}}{{s0}}_2$",
+            "${{x3}}{{x2}}{{x1}}{{x0}}_2$",
+            "${{o3}}{{o2}}{{o1}}{{o0}}_2$"
+          ],
+          "answer": 0,
+          "explanation": "In decimal this is ${{a}} + {{b}} = {{a+b}}$, which is ${{s3}}{{s2}}{{s1}}{{s0}}_2$. Remember to carry: in every column where both bits are 1, the sum bit is 0 and a 1 carries to the next column. Ignoring the carries gives ${{x3}}{{x2}}{{x1}}{{x0}}_2$, and OR-ing the bits gives ${{o3}}{{o2}}{{o1}}{{o0}}_2$.",
+          "params": {
+            "a": {
+              "min": 1,
+              "max": 14,
+              "step": 1
+            },
+            "b": {
+              "min": 1,
+              "max": 14,
+              "step": 1
+            }
+          },
+          "derived": {
+            "a0": "floor((a)/1) - 2*floor((a)/2)",
+            "a1": "floor((a)/2) - 2*floor((a)/4)",
+            "a2": "floor((a)/4) - 2*floor((a)/8)",
+            "a3": "floor((a)/8) - 2*floor((a)/16)",
+            "b0": "floor((b)/1) - 2*floor((b)/2)",
+            "b1": "floor((b)/2) - 2*floor((b)/4)",
+            "b2": "floor((b)/4) - 2*floor((b)/8)",
+            "b3": "floor((b)/8) - 2*floor((b)/16)",
+            "andv": "8*a3*b3+4*a2*b2+2*a1*b1+a0*b0",
+            "sv": "a+b",
+            "xv": "a+b-2*andv",
+            "ov": "a+b-andv",
+            "s0": "floor((sv)/1) - 2*floor((sv)/2)",
+            "s1": "floor((sv)/2) - 2*floor((sv)/4)",
+            "s2": "floor((sv)/4) - 2*floor((sv)/8)",
+            "s3": "floor((sv)/8) - 2*floor((sv)/16)",
+            "x0": "floor((xv)/1) - 2*floor((xv)/2)",
+            "x1": "floor((xv)/2) - 2*floor((xv)/4)",
+            "x2": "floor((xv)/4) - 2*floor((xv)/8)",
+            "x3": "floor((xv)/8) - 2*floor((xv)/16)",
+            "o0": "floor((ov)/1) - 2*floor((ov)/2)",
+            "o1": "floor((ov)/2) - 2*floor((ov)/4)",
+            "o2": "floor((ov)/4) - 2*floor((ov)/8)",
+            "o3": "floor((ov)/8) - 2*floor((ov)/16)"
+          },
+          "require": "(16-a-b)*andv"
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "In binary, $1 + 1 + 1$ gives a sum bit of 1 and a carry of 1.",
+          "answer": true,
+          "explanation": "$1+1+1 = 3 = 11_2$: the column keeps 1 and passes a carry of 1 to the next column."
+        },
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "This is a full adder. Tap every gate whose output is **1** when $A = 1$, $B = 1$ and $C_{in} = 0$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0.1
+                ],
+                "label": "C_{in} = 0",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0.1
+                  ],
+                  [
+                    3.5,
+                    0.1
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0.7
+                ],
+                "label": "A = 1",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0.7
+                  ],
+                  [
+                    1,
+                    0.7
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  1.3
+                ],
+                "label": "B = 1",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    1.3
+                  ],
+                  [
+                    1,
+                    1.3
+                  ]
+                ]
+              },
+              {
+                "type": "gate",
+                "name": "G1",
+                "at": [
+                  2,
+                  1
+                ],
+                "kind": "xor",
+                "label": "G_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    1
+                  ],
+                  [
+                    3.25,
+                    1
+                  ],
+                  [
+                    3.25,
+                    0.7
+                  ],
+                  [
+                    3.5,
+                    0.7
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3.25,
+                    1
+                  ],
+                  [
+                    3.25,
+                    1.9
+                  ],
+                  [
+                    3.5,
+                    1.9
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3.25,
+                  1
+                ]
+              },
+              {
+                "type": "gate",
+                "name": "G2",
+                "at": [
+                  4.5,
+                  0.4
+                ],
+                "kind": "xor",
+                "label": "G_2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    0.4
+                  ],
+                  [
+                    8,
+                    0.4
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  8,
+                  0.4
+                ],
+                "label": "S"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  2.5
+                ],
+                "label": "C_{in} = 0",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2.5
+                  ],
+                  [
+                    3.5,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "gate",
+                "name": "G4",
+                "at": [
+                  4.5,
+                  2.2
+                ],
+                "kind": "and",
+                "label": "G_4"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  3.3
+                ],
+                "label": "A = 1",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3.3
+                  ],
+                  [
+                    1,
+                    3.3
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  3.9
+                ],
+                "label": "B = 1",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3.9
+                  ],
+                  [
+                    1,
+                    3.9
+                  ]
+                ]
+              },
+              {
+                "type": "gate",
+                "name": "G3",
+                "at": [
+                  2,
+                  3.6
+                ],
+                "kind": "and",
+                "label": "G_3"
+              },
+              {
+                "type": "gate",
+                "name": "G5",
+                "at": [
+                  7,
+                  3.0
+                ],
+                "kind": "or",
+                "label": "G_5"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    2.2
+                  ],
+                  [
+                    5.75,
+                    2.2
+                  ],
+                  [
+                    5.75,
+                    2.7
+                  ],
+                  [
+                    6,
+                    2.7
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    3.6
+                  ],
+                  [
+                    5.75,
+                    3.6
+                  ],
+                  [
+                    5.75,
+                    3.3
+                  ],
+                  [
+                    6,
+                    3.3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    8,
+                    3.0
+                  ],
+                  [
+                    8.3,
+                    3.0
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  8.3,
+                  3.0
+                ],
+                "label": "C_{out}"
+              }
+            ]
+          },
+          "answer": [
+            "G3",
+            "G5"
+          ],
+          "explanation": "- $G_1 = A \\oplus B = 1 \\oplus 1 = 0$\n- $G_2 = G_1 \\oplus C_{in} = 0$: the sum bit $S = 0$\n- $G_3 = AB = $ **1**\n- $G_4 = G_1 C_{in} = 0$\n- $G_5 = G_3 + G_4 = $ **1**: the carry $C_{out} = 1$\nThat matches $1 + 1 + 0 = 10_2$: write 0, carry 1."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Negative numbers",
+          "body": "Computers usually store signed numbers in **two's complement**: to negate a number, invert all bits and add 1.\nExample: $+5 = 00000101$ → invert: $11111010$ → add 1: $11111011 = -5$. The MSB (sign bit) is 1 for every negative number.",
+          "formula": "-N \\;=\\; \\overline{N} + 1"
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "What is the 8-bit two's complement of ${{n7}}{{n6}}{{n5}}{{n4}}\\,{{n3}}{{n2}}{{n1}}{{n0}}$ ({{n}})?",
+          "options": [
+            "${{t7}}{{t6}}{{t5}}{{t4}}\\,{{t3}}{{t2}}{{t1}}{{t0}}$",
+            "${{c7}}{{c6}}{{c5}}{{c4}}\\,{{c3}}{{c2}}{{c1}}{{c0}}$",
+            "${{m7}}{{m6}}{{m5}}{{m4}}\\,{{m3}}{{m2}}{{m1}}{{m0}}$"
+          ],
+          "answer": 0,
+          "explanation": "Invert every bit: ${{c7}}{{c6}}{{c5}}{{c4}}\\,{{c3}}{{c2}}{{c1}}{{c0}}$ (one's complement). Add 1: ${{t7}}{{t6}}{{t5}}{{t4}}\\,{{t3}}{{t2}}{{t1}}{{t0}}$. This pattern represents $-{{n}}$; as an unsigned number it is $256 - {{n}} = {{256-n}}$. Just flipping the sign bit (${{m7}}{{m6}}{{m5}}{{m4}}\\,{{m3}}{{m2}}{{m1}}{{m0}}$) is sign-magnitude, not two's complement.",
+          "params": {
+            "n": {
+              "min": 1,
+              "max": 127,
+              "step": 1
+            }
+          },
+          "derived": {
+            "n0": "floor((n)/1) - 2*floor((n)/2)",
+            "n1": "floor((n)/2) - 2*floor((n)/4)",
+            "n2": "floor((n)/4) - 2*floor((n)/8)",
+            "n3": "floor((n)/8) - 2*floor((n)/16)",
+            "n4": "floor((n)/16) - 2*floor((n)/32)",
+            "n5": "floor((n)/32) - 2*floor((n)/64)",
+            "n6": "floor((n)/64) - 2*floor((n)/128)",
+            "n7": "floor((n)/128) - 2*floor((n)/256)",
+            "tv": "256-n",
+            "cv": "255-n",
+            "mv": "128+n",
+            "t0": "floor((tv)/1) - 2*floor((tv)/2)",
+            "t1": "floor((tv)/2) - 2*floor((tv)/4)",
+            "t2": "floor((tv)/4) - 2*floor((tv)/8)",
+            "t3": "floor((tv)/8) - 2*floor((tv)/16)",
+            "t4": "floor((tv)/16) - 2*floor((tv)/32)",
+            "t5": "floor((tv)/32) - 2*floor((tv)/64)",
+            "t6": "floor((tv)/64) - 2*floor((tv)/128)",
+            "t7": "floor((tv)/128) - 2*floor((tv)/256)",
+            "c0": "floor((cv)/1) - 2*floor((cv)/2)",
+            "c1": "floor((cv)/2) - 2*floor((cv)/4)",
+            "c2": "floor((cv)/4) - 2*floor((cv)/8)",
+            "c3": "floor((cv)/8) - 2*floor((cv)/16)",
+            "c4": "floor((cv)/16) - 2*floor((cv)/32)",
+            "c5": "floor((cv)/32) - 2*floor((cv)/64)",
+            "c6": "floor((cv)/64) - 2*floor((cv)/128)",
+            "c7": "floor((cv)/128) - 2*floor((cv)/256)",
+            "m0": "floor((mv)/1) - 2*floor((mv)/2)",
+            "m1": "floor((mv)/2) - 2*floor((mv)/4)",
+            "m2": "floor((mv)/4) - 2*floor((mv)/8)",
+            "m3": "floor((mv)/8) - 2*floor((mv)/16)",
+            "m4": "floor((mv)/16) - 2*floor((mv)/32)",
+            "m5": "floor((mv)/32) - 2*floor((mv)/64)",
+            "m6": "floor((mv)/64) - 2*floor((mv)/128)",
+            "m7": "floor((mv)/128) - 2*floor((mv)/256)"
+          },
+          "require": "abs(n-64)"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "What decimal value does the 8-bit signed two's-complement word ${{p7}}{{p6}}{{p5}}{{p4}}\\,{{p3}}{{p2}}{{p1}}{{p0}}$ represent?",
+          "answer": "p-256",
+          "unit": "",
+          "explanation": "The sign bit has weight $-128$; the other bits add their normal weights: $-128 + {{p-128}} = {{p-256}}$. (Alternatively: the unsigned value is {{p}}, and $ {{p}} - 256 = {{p-256}}$.)",
+          "tolerance": 0.001,
+          "params": {
+            "p": {
+              "min": 128,
+              "max": 255,
+              "step": 1
+            }
+          },
+          "derived": {
+            "p0": "floor((p)/1) - 2*floor((p)/2)",
+            "p1": "floor((p)/2) - 2*floor((p)/4)",
+            "p2": "floor((p)/4) - 2*floor((p)/8)",
+            "p3": "floor((p)/8) - 2*floor((p)/16)",
+            "p4": "floor((p)/16) - 2*floor((p)/32)",
+            "p5": "floor((p)/32) - 2*floor((p)/64)",
+            "p6": "floor((p)/64) - 2*floor((p)/128)",
+            "p7": "floor((p)/128) - 2*floor((p)/256)"
+          }
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Range of signed words",
+          "body": "With $n$ bits there are $2^n$ patterns: half have sign bit 0 (zero and the positives), half have sign bit 1 (the negatives). So $n$ bits cover $-2^{n-1}$ to $2^{n-1}-1$; for 8 bits that is −128 to +127.",
+          "formula": "-2^{n-1} \\le N \\le 2^{n-1} - 1"
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "What range of integers can a signed two's-complement word of {{n}} bits represent?",
+          "options": [
+            "${{-(2^(n-1))||6}}$ to ${{2^(n-1)-1||6}}$",
+            "${{-(2^(n-1)-1)||6}}$ to ${{2^(n-1)-1||6}}$",
+            "$0$ to ${{2^n-1||6}}$",
+            "${{-(2^(n-1))||6}}$ to ${{2^(n-1)||6}}$"
+          ],
+          "answer": 0,
+          "explanation": "$2^{ {{n}} } = {{2^n||6}}$ patterns: ${{2^(n-1)||6}}$ negative ones (down to ${{-(2^(n-1))||6}}$), plus zero and ${{2^(n-1)-1||6}}$ positive ones. The range from 0 to ${{2^n-1||6}}$ is for unsigned words.",
+          "params": {
+            "n": [
+              4,
+              6,
+              8,
+              12,
+              16
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "In two's complement there is exactly one bit pattern for zero.",
+          "answer": true,
+          "explanation": "Negating $0000\\,0000$ gives $1111\\,1111 + 1 = (1)\\,0000\\,0000$; the carry is discarded, so −0 = +0. (One's complement and sign-magnitude both have a separate −0.)"
+        }
+      ]
+    },
+    {
+      "id": "dl-arithmetic-2",
+      "title": "Subtraction and overflow",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "To compute $A - {{B}}$ with 8-bit two's-complement arithmetic, which pattern is added to $A$?",
+          "options": [
+            "${{t7}}{{t6}}{{t5}}{{t4}}\\,{{t3}}{{t2}}{{t1}}{{t0}}$",
+            "${{c7}}{{c6}}{{c5}}{{c4}}\\,{{c3}}{{c2}}{{c1}}{{c0}}$",
+            "${{b7}}{{b6}}{{b5}}{{b4}}\\,{{b3}}{{b2}}{{b1}}{{b0}}$",
+            "${{m7}}{{m6}}{{m5}}{{m4}}\\,{{m3}}{{m2}}{{m1}}{{m0}}$"
+          ],
+          "answer": 0,
+          "explanation": "${{B}} = {{b7}}{{b6}}{{b5}}{{b4}}\\,{{b3}}{{b2}}{{b1}}{{b0}}$. Invert: ${{c7}}{{c6}}{{c5}}{{c4}}\\,{{c3}}{{c2}}{{c1}}{{c0}}$. Add 1: ${{t7}}{{t6}}{{t5}}{{t4}}\\,{{t3}}{{t2}}{{t1}}{{t0}}$ = $-{{B}}$. Subtracting is adding this pattern and discarding the carry out of the sign bit.",
+          "params": {
+            "B": {
+              "min": 1,
+              "max": 127,
+              "step": 1
+            }
+          },
+          "derived": {
+            "b0": "floor((B)/1) - 2*floor((B)/2)",
+            "b1": "floor((B)/2) - 2*floor((B)/4)",
+            "b2": "floor((B)/4) - 2*floor((B)/8)",
+            "b3": "floor((B)/8) - 2*floor((B)/16)",
+            "b4": "floor((B)/16) - 2*floor((B)/32)",
+            "b5": "floor((B)/32) - 2*floor((B)/64)",
+            "b6": "floor((B)/64) - 2*floor((B)/128)",
+            "b7": "floor((B)/128) - 2*floor((B)/256)",
+            "tv": "256-B",
+            "cv": "255-B",
+            "mv": "128+B",
+            "t0": "floor((tv)/1) - 2*floor((tv)/2)",
+            "t1": "floor((tv)/2) - 2*floor((tv)/4)",
+            "t2": "floor((tv)/4) - 2*floor((tv)/8)",
+            "t3": "floor((tv)/8) - 2*floor((tv)/16)",
+            "t4": "floor((tv)/16) - 2*floor((tv)/32)",
+            "t5": "floor((tv)/32) - 2*floor((tv)/64)",
+            "t6": "floor((tv)/64) - 2*floor((tv)/128)",
+            "t7": "floor((tv)/128) - 2*floor((tv)/256)",
+            "c0": "floor((cv)/1) - 2*floor((cv)/2)",
+            "c1": "floor((cv)/2) - 2*floor((cv)/4)",
+            "c2": "floor((cv)/4) - 2*floor((cv)/8)",
+            "c3": "floor((cv)/8) - 2*floor((cv)/16)",
+            "c4": "floor((cv)/16) - 2*floor((cv)/32)",
+            "c5": "floor((cv)/32) - 2*floor((cv)/64)",
+            "c6": "floor((cv)/64) - 2*floor((cv)/128)",
+            "c7": "floor((cv)/128) - 2*floor((cv)/256)",
+            "m0": "floor((mv)/1) - 2*floor((mv)/2)",
+            "m1": "floor((mv)/2) - 2*floor((mv)/4)",
+            "m2": "floor((mv)/4) - 2*floor((mv)/8)",
+            "m3": "floor((mv)/8) - 2*floor((mv)/16)",
+            "m4": "floor((mv)/16) - 2*floor((mv)/32)",
+            "m5": "floor((mv)/32) - 2*floor((mv)/64)",
+            "m6": "floor((mv)/64) - 2*floor((mv)/128)",
+            "m7": "floor((mv)/128) - 2*floor((mv)/256)"
+          },
+          "require": "abs(B-64)"
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Compute ${{A}} - {{B}}$ using 8-bit two's complement. What is the 8-bit result?",
+          "options": [
+            "${{r7}}{{r6}}{{r5}}{{r4}}\\,{{r3}}{{r2}}{{r1}}{{r0}}$",
+            "${{s7}}{{s6}}{{s5}}{{s4}}\\,{{s3}}{{s2}}{{s1}}{{s0}}$",
+            "${{w7}}{{w6}}{{w5}}{{w4}}\\,{{w3}}{{w2}}{{w1}}{{w0}}$"
+          ],
+          "answer": 0,
+          "explanation": "${{A}} = {{a7}}{{a6}}{{a5}}{{a4}}\\,{{a3}}{{a2}}{{a1}}{{a0}}$ and $-{{B}} = {{t7}}{{t6}}{{t5}}{{t4}}\\,{{t3}}{{t2}}{{t1}}{{t0}}$. Adding gives {{A+256-B}} = 256 + {{A-B}}; discarding the carry out of the sign bit leaves ${{r7}}{{r6}}{{r5}}{{r4}}\\,{{r3}}{{r2}}{{r1}}{{r0}}$ = {{A-B}}. Using the one's complement instead (forgetting the +1) gives one less; adding $B$ itself gives ${{A+B}}$.",
+          "params": {
+            "A": {
+              "min": 20,
+              "max": 120,
+              "step": 1
+            },
+            "B": {
+              "min": 5,
+              "max": 120,
+              "step": 1
+            }
+          },
+          "derived": {
+            "tv": "256-B",
+            "rv": "A-B",
+            "sv": "A+B",
+            "wv": "A-B-1",
+            "a0": "floor((A)/1) - 2*floor((A)/2)",
+            "a1": "floor((A)/2) - 2*floor((A)/4)",
+            "a2": "floor((A)/4) - 2*floor((A)/8)",
+            "a3": "floor((A)/8) - 2*floor((A)/16)",
+            "a4": "floor((A)/16) - 2*floor((A)/32)",
+            "a5": "floor((A)/32) - 2*floor((A)/64)",
+            "a6": "floor((A)/64) - 2*floor((A)/128)",
+            "a7": "floor((A)/128) - 2*floor((A)/256)",
+            "t0": "floor((tv)/1) - 2*floor((tv)/2)",
+            "t1": "floor((tv)/2) - 2*floor((tv)/4)",
+            "t2": "floor((tv)/4) - 2*floor((tv)/8)",
+            "t3": "floor((tv)/8) - 2*floor((tv)/16)",
+            "t4": "floor((tv)/16) - 2*floor((tv)/32)",
+            "t5": "floor((tv)/32) - 2*floor((tv)/64)",
+            "t6": "floor((tv)/64) - 2*floor((tv)/128)",
+            "t7": "floor((tv)/128) - 2*floor((tv)/256)",
+            "r0": "floor((rv)/1) - 2*floor((rv)/2)",
+            "r1": "floor((rv)/2) - 2*floor((rv)/4)",
+            "r2": "floor((rv)/4) - 2*floor((rv)/8)",
+            "r3": "floor((rv)/8) - 2*floor((rv)/16)",
+            "r4": "floor((rv)/16) - 2*floor((rv)/32)",
+            "r5": "floor((rv)/32) - 2*floor((rv)/64)",
+            "r6": "floor((rv)/64) - 2*floor((rv)/128)",
+            "r7": "floor((rv)/128) - 2*floor((rv)/256)",
+            "s0": "floor((sv)/1) - 2*floor((sv)/2)",
+            "s1": "floor((sv)/2) - 2*floor((sv)/4)",
+            "s2": "floor((sv)/4) - 2*floor((sv)/8)",
+            "s3": "floor((sv)/8) - 2*floor((sv)/16)",
+            "s4": "floor((sv)/16) - 2*floor((sv)/32)",
+            "s5": "floor((sv)/32) - 2*floor((sv)/64)",
+            "s6": "floor((sv)/64) - 2*floor((sv)/128)",
+            "s7": "floor((sv)/128) - 2*floor((sv)/256)",
+            "w0": "floor((wv)/1) - 2*floor((wv)/2)",
+            "w1": "floor((wv)/2) - 2*floor((wv)/4)",
+            "w2": "floor((wv)/4) - 2*floor((wv)/8)",
+            "w3": "floor((wv)/8) - 2*floor((wv)/16)",
+            "w4": "floor((wv)/16) - 2*floor((wv)/32)",
+            "w5": "floor((wv)/32) - 2*floor((wv)/64)",
+            "w6": "floor((wv)/64) - 2*floor((wv)/128)",
+            "w7": "floor((wv)/128) - 2*floor((wv)/256)"
+          },
+          "require": "A-B"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "Add the 8-bit signed two's-complement numbers ${{p7}}{{p6}}{{p5}}{{p4}}\\,{{p3}}{{p2}}{{p1}}{{p0}}$ and ${{q7}}{{q6}}{{q5}}{{q4}}\\,{{q3}}{{q2}}{{q1}}{{q0}}$. What is the result in decimal?",
+          "answer": "P+Q-256",
+          "unit": "",
+          "explanation": "${{p7}}{{p6}}{{p5}}{{p4}}\\,{{p3}}{{p2}}{{p1}}{{p0}}$ = {{P}} (sign bit 0). ${{q7}}{{q6}}{{q5}}{{q4}}\\,{{q3}}{{q2}}{{q1}}{{q0}}$ has sign bit 1: $-128 + {{Q-128}} = {{Q-256}}$. Sum: ${{P}} + ({{Q-256}}) = {{P+Q-256}}$. Operands of opposite sign can never overflow, so the 8-bit result is correct.",
+          "tolerance": 0.001,
+          "absTolerance": 0.01,
+          "params": {
+            "P": {
+              "min": 1,
+              "max": 127,
+              "step": 1
+            },
+            "Q": {
+              "min": 128,
+              "max": 255,
+              "step": 1
+            }
+          },
+          "derived": {
+            "p0": "floor((P)/1) - 2*floor((P)/2)",
+            "p1": "floor((P)/2) - 2*floor((P)/4)",
+            "p2": "floor((P)/4) - 2*floor((P)/8)",
+            "p3": "floor((P)/8) - 2*floor((P)/16)",
+            "p4": "floor((P)/16) - 2*floor((P)/32)",
+            "p5": "floor((P)/32) - 2*floor((P)/64)",
+            "p6": "floor((P)/64) - 2*floor((P)/128)",
+            "p7": "floor((P)/128) - 2*floor((P)/256)",
+            "q0": "floor((Q)/1) - 2*floor((Q)/2)",
+            "q1": "floor((Q)/2) - 2*floor((Q)/4)",
+            "q2": "floor((Q)/4) - 2*floor((Q)/8)",
+            "q3": "floor((Q)/8) - 2*floor((Q)/16)",
+            "q4": "floor((Q)/16) - 2*floor((Q)/32)",
+            "q5": "floor((Q)/32) - 2*floor((Q)/64)",
+            "q6": "floor((Q)/64) - 2*floor((Q)/128)",
+            "q7": "floor((Q)/128) - 2*floor((Q)/256)"
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "Add ${{a}} + {{b}}$ in **4-bit** two's complement (${{a3}}{{a2}}{{a1}}{{a0}} + {{b3}}{{b2}}{{b1}}{{b0}}$). What value does the 4-bit result represent?",
+          "answer": "a+b-16",
+          "unit": "",
+          "explanation": "The bit sum is ${{s3}}{{s2}}{{s1}}{{s0}}$. Its sign bit is 1, so it reads as $-8 + {{a+b-8}} = {{a+b-16}}$. The true answer {{a+b}} exceeds the 4-bit maximum of +7: two positive operands gave a negative result, which is **overflow**.",
+          "tolerance": 0.001,
+          "params": {
+            "a": {
+              "min": 1,
+              "max": 7,
+              "step": 1
+            },
+            "b": {
+              "min": 1,
+              "max": 7,
+              "step": 1
+            }
+          },
+          "derived": {
+            "a0": "floor((a)/1) - 2*floor((a)/2)",
+            "a1": "floor((a)/2) - 2*floor((a)/4)",
+            "a2": "floor((a)/4) - 2*floor((a)/8)",
+            "a3": "floor((a)/8) - 2*floor((a)/16)",
+            "b0": "floor((b)/1) - 2*floor((b)/2)",
+            "b1": "floor((b)/2) - 2*floor((b)/4)",
+            "b2": "floor((b)/4) - 2*floor((b)/8)",
+            "b3": "floor((b)/8) - 2*floor((b)/16)",
+            "sv": "a+b",
+            "s0": "floor((sv)/1) - 2*floor((sv)/2)",
+            "s1": "floor((sv)/2) - 2*floor((sv)/4)",
+            "s2": "floor((sv)/4) - 2*floor((sv)/8)",
+            "s3": "floor((sv)/8) - 2*floor((sv)/16)"
+          },
+          "require": "a+b-7.5"
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Adding a positive and a negative two's-complement number can never cause overflow.",
+          "answer": true,
+          "explanation": "The result lies between the two operands, so it is always inside the range if they are. Overflow is only possible when both operands have the same sign."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which of these 8-bit signed additions overflows?",
+          "options": [
+            "$100 + 50$",
+            "$-100 + 50$",
+            "$-60 + (-60)$",
+            "$120 + 7$"
+          ],
+          "answer": 0,
+          "explanation": "The 8-bit range is −128 … +127. $100 + 50 = 150$ is too large → overflow. $-100+50 = -50$ (opposite signs never overflow), $-60-60 = -120$ and $120+7 = 127$ both still fit."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "prompt": "What is the minimum number of bits needed to represent $-{{v}}$ in two's complement?",
+          "answer": "ceil(log10(v)/log10(2))+1",
+          "unit": "",
+          "explanation": "$n$ bits reach down to $-2^{n-1}$, so we need $2^{n-1} \\ge {{v}}$. $2^{ {{ceil(log10(v)/log10(2))}} } = {{2^ceil(log10(v)/log10(2))||4}} \\ge {{v}}$, so $n - 1 = {{ceil(log10(v)/log10(2))}}$ and $n = {{ceil(log10(v)/log10(2))+1}}$.",
+          "tolerance": 0.001,
+          "params": {
+            "v": [
+              20,
+              50,
+              100,
+              130,
+              200,
+              300,
+              500,
+              1000
+            ]
+          }
+        },
+        {
+          "id": "q8",
+          "type": "matchPairs",
+          "prompt": "Match each 4-bit two's-complement word to its value.",
+          "pairs": [
+            [
+              "$0111$",
+              "$+7$"
+            ],
+            [
+              "$1000$",
+              "$-8$"
+            ],
+            [
+              "$1111$",
+              "$-1$"
+            ],
+            [
+              "$1010$",
+              "$-6$"
+            ]
+          ],
+          "explanation": "The sign bit weighs −8: $1000 = -8$, $1111 = -8+7 = -1$, $1010 = -8+2 = -6$. $0111$ has sign bit 0, so it is +7, the largest 4-bit value."
+        }
+      ]
+    },
+    {
+      "id": "dl-arithmetic-3",
+      "title": "Signed arithmetic traps",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Compute ${{A}} - {{B}}$ using 8-bit two's complement. Which 8-bit pattern results?",
+          "options": [
+            "${{r7}}{{r6}}{{r5}}{{r4}}\\,{{r3}}{{r2}}{{r1}}{{r0}}$",
+            "${{d7}}{{d6}}{{d5}}{{d4}}\\,{{d3}}{{d2}}{{d1}}{{d0}}$",
+            "${{m7}}{{m6}}{{m5}}{{m4}}\\,{{m3}}{{m2}}{{m1}}{{m0}}$"
+          ],
+          "answer": 0,
+          "explanation": "${{A}} + (-{{B}}) = {{A}} + {{256-B}} = {{256+A-B}}$ with no carry out. The pattern ${{r7}}{{r6}}{{r5}}{{r4}}\\,{{r3}}{{r2}}{{r1}}{{r0}}$ has sign bit 1, so it is negative: $-128 + {{128+A-B}} = {{A-B}}$ ✓. The magnitude {{B-A}} is ${{d7}}{{d6}}{{d5}}{{d4}}\\,{{d3}}{{d2}}{{d1}}{{d0}}$, but a negative result must be stored in two's-complement form, not as magnitude or sign-magnitude (${{m7}}{{m6}}{{m5}}{{m4}}\\,{{m3}}{{m2}}{{m1}}{{m0}}$).",
+          "params": {
+            "A": {
+              "min": 10,
+              "max": 60,
+              "step": 1
+            },
+            "B": {
+              "min": 61,
+              "max": 120,
+              "step": 1
+            }
+          },
+          "derived": {
+            "rv": "256+A-B",
+            "dv": "B-A",
+            "mv": "128+B-A",
+            "r0": "floor((rv)/1) - 2*floor((rv)/2)",
+            "r1": "floor((rv)/2) - 2*floor((rv)/4)",
+            "r2": "floor((rv)/4) - 2*floor((rv)/8)",
+            "r3": "floor((rv)/8) - 2*floor((rv)/16)",
+            "r4": "floor((rv)/16) - 2*floor((rv)/32)",
+            "r5": "floor((rv)/32) - 2*floor((rv)/64)",
+            "r6": "floor((rv)/64) - 2*floor((rv)/128)",
+            "r7": "floor((rv)/128) - 2*floor((rv)/256)",
+            "d0": "floor((dv)/1) - 2*floor((dv)/2)",
+            "d1": "floor((dv)/2) - 2*floor((dv)/4)",
+            "d2": "floor((dv)/4) - 2*floor((dv)/8)",
+            "d3": "floor((dv)/8) - 2*floor((dv)/16)",
+            "d4": "floor((dv)/16) - 2*floor((dv)/32)",
+            "d5": "floor((dv)/32) - 2*floor((dv)/64)",
+            "d6": "floor((dv)/64) - 2*floor((dv)/128)",
+            "d7": "floor((dv)/128) - 2*floor((dv)/256)",
+            "m0": "floor((mv)/1) - 2*floor((mv)/2)",
+            "m1": "floor((mv)/2) - 2*floor((mv)/4)",
+            "m2": "floor((mv)/4) - 2*floor((mv)/8)",
+            "m3": "floor((mv)/8) - 2*floor((mv)/16)",
+            "m4": "floor((mv)/16) - 2*floor((mv)/32)",
+            "m5": "floor((mv)/32) - 2*floor((mv)/64)",
+            "m6": "floor((mv)/64) - 2*floor((mv)/128)",
+            "m7": "floor((mv)/128) - 2*floor((mv)/256)"
+          },
+          "require": "abs(B-A-64)"
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "The 4-bit word $1011$ must be extended to 8 bits without changing its signed value. Which pattern is correct?",
+          "options": [
+            "$1111\\,1011$",
+            "$0000\\,1011$",
+            "$1000\\,1011$"
+          ],
+          "answer": 0,
+          "explanation": "$1011 = -8 + 3 = -5$. **Sign extension** copies the sign bit into the new positions: $1111\\,1011 = -128 + 123 = -5$ ✓. Padding with zeros gives +11, and $1000\\,1011 = -117$."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "In two's-complement addition, overflow has occurred when …",
+          "options": [
+            "both operands have the same sign and the result has the opposite sign",
+            "there is a carry out of the most significant bit",
+            "the result is negative",
+            "the operands have opposite signs"
+          ],
+          "answer": 0,
+          "explanation": "A carry out of the MSB happens in many correct subtractions (e.g. $45 - 19$), so it is not the test. Overflow means the true result is outside the range, which is only possible with same-sign operands and shows up as a sign flip."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "Two positive 8-bit signed numbers, {{A}} and {{B}}, are added. What (wrong) decimal value does the 8-bit result represent?",
+          "answer": "A+B-256",
+          "unit": "",
+          "explanation": "The bit sum is {{A+B}} as an unsigned number, so the sign bit is 1. Read as signed: ${{A+B}} - 256 = {{A+B-256}}$. The true result {{A+B}} exceeds +127, so this is an overflow: two positives gave a negative.",
+          "tolerance": 0.001,
+          "params": {
+            "A": {
+              "min": 60,
+              "max": 127,
+              "step": 1
+            },
+            "B": {
+              "min": 60,
+              "max": 127,
+              "step": 1
+            }
+          },
+          "require": "A+B-127.5"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "prompt": "How many **negative** values can a two's-complement word of {{n}} bits represent?",
+          "answer": "2^(n-1)",
+          "unit": "",
+          "explanation": "Every pattern with sign bit 1 is negative: that is half of the $2^{ {{n}} }$ patterns, $2^{ {{n-1}} } = {{2^(n-1)}}$ values (from −1 down to $-{{2^(n-1)}}$).",
+          "tolerance": 0.001,
+          "params": {
+            "n": {
+              "min": 4,
+              "max": 10,
+              "step": 1
+            }
+          }
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps for computing $25 - 38$ in 8-bit two's complement in order.",
+          "items": [
+            "Write 38 in binary: $00100110$",
+            "Invert all bits: $11011001$",
+            "Add 1 to get −38: $11011010$",
+            "Add $25 = 00011001$: sum $11110011$",
+            "Sign bit is 1, so the result is negative: $-128 + 115 = -13$"
+          ],
+          "explanation": "Subtraction = addition of the two's complement. $25 + 218 = 243$ with no carry out; 243 has the sign bit set and represents $243 - 256 = -13$ ✓."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "In 8-bit two's complement, negating −128 gives +128.",
+          "answer": false,
+          "explanation": "+128 is outside the 8-bit range (max +127). Negating $10000000$: invert → $01111111$, add 1 → $10000000$ again. The operation overflows and returns −128."
+        }
+      ]
+    }
+  ]
+}

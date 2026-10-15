@@ -1,0 +1,324 @@
+{
+  "id": "dl-minimization",
+  "title": "SOP, POS & Karnaugh Maps",
+  "description": "Write canonical SOP and POS forms from a truth table and minimize them with Karnaugh maps.",
+  "reference": "Hambley §7.4–7.5; H&H §8.13–8.15",
+  "study": [
+    {
+      "title": "Minterms and sum of products",
+      "body": "Number the truth-table rows by the binary value of the inputs ($ABC = 101$ is row 5). A **minterm** is an AND of all variables that is 1 in exactly one row: complement the variables that are 0 in that row ($m_5 = A\\overline{B}C$). OR-ing the minterms of all rows where $F = 1$ gives the canonical **sum of products** (SOP).",
+      "formula": "F = \\sum m(1,2,6) = \\overline{A}\\,\\overline{B}C + \\overline{A}B\\overline{C} + AB\\overline{C}"
+    },
+    {
+      "title": "Maxterms and product of sums",
+      "body": "A **maxterm** is an OR of all variables that is 0 in exactly one row: complement the variables that are 1 in that row ($M_5 = \\overline{A} + B + \\overline{C}$). AND-ing the maxterms of all rows where $F = 0$ gives the canonical **product of sums** (POS). The maxterm list is simply the row numbers missing from the minterm list.",
+      "formula": "\\sum m(1,2,6) = \\prod M(0,3,4,5,7)"
+    },
+    {
+      "title": "Karnaugh maps",
+      "body": "A Karnaugh map arranges the truth-table rows in a grid whose row and column labels follow the Gray order 00, 01, 11, 10, so neighbouring squares differ in one variable. The map wraps around: the left and right edges (and top and bottom) are also adjacent. The 3-variable map of $F = \\sum m(0,2,4,5)$:",
+      "formula": "\\begin{array}{c|cccc} A\\backslash BC & 00 & 01 & 11 & 10 \\\\ \\hline 0 & 1 & 0 & 0 & 1 \\\\ 1 & 1 & 1 & 0 & 0 \\end{array}"
+    },
+    {
+      "title": "Grouping for a minimum SOP",
+      "body": "Circle rectangular groups of 1, 2, 4 or 8 adjacent 1s (they may wrap and overlap). Each group of $2^k$ squares is one product term with $k$ variables eliminated: keep only the variables that are constant across the group. Use the **largest** groups and the **fewest** groups that cover every 1.\nFor the map above: $m_0$ and $m_2$ (adjacent by wrap-around) give $\\overline{A}\\,\\overline{C}$, and $m_4, m_5$ give $A\\overline{B}$. These two groups cover every 1, so the minimum is $F = \\overline{A}\\,\\overline{C} + A\\overline{B}$.",
+      "formula": "F = \\overline{A}\\,\\overline{C} + A\\overline{B}"
+    },
+    {
+      "title": "Don't cares and minimum POS",
+      "body": "Input combinations that never occur are **don't cares** (×): include them in a group when that makes the group larger, otherwise ignore them.\nMinimum POS: group the **0s** to find a minimum SOP for $\\overline{F}$, then apply De Morgan's laws. Example: if $\\overline{F} = \\overline{B}C + A\\overline{C}$ then $F = (B + \\overline{C})(\\overline{A} + C)$."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dl-minimization-1",
+      "title": "Minterms and maxterms",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Minterms",
+          "body": "For every row where $F = 1$, write the AND of all inputs, putting a bar over each input that is 0 in that row. OR the terms together: that is the sum of products (SOP).\nFor the table below, $F = 1$ in rows 1, 2 and 6, so $F = \\overline{A}\\,\\overline{B}C + \\overline{A}B\\overline{C} + AB\\overline{C} = \\sum m(1,2,6)$.",
+          "formula": "\\begin{array}{c|ccc|c} \\text{row} & A & B & C & F \\\\ \\hline 0 & 0 & 0 & 0 & 0 \\\\ 1 & 0 & 0 & 1 & 1 \\\\ 2 & 0 & 1 & 0 & 1 \\\\ 3 & 0 & 1 & 1 & 0 \\\\ 4 & 1 & 0 & 0 & 0 \\\\ 5 & 1 & 0 & 1 & 0 \\\\ 6 & 1 & 1 & 0 & 1 \\\\ 7 & 1 & 1 & 1 & 0 \\end{array}"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Which term is the minterm $m_5$ of a function of $A$, $B$, $C$?",
+          "options": [
+            "$A\\overline{B}C$",
+            "$\\overline{A}B\\overline{C}$",
+            "$A + \\overline{B} + C$",
+            "$\\overline{A} + B + \\overline{C}$"
+          ],
+          "answer": 0,
+          "explanation": "Row 5 is $ABC = 101$. A minterm is a product that is 1 only for this row, so complement the 0 variable: $A\\overline{B}C$. The sums are maxterms; $\\overline{A} + B + \\overline{C}$ is $M_5$."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "prompt": "Which row number (minterm index) does the minterm $\\overline{A}BC\\overline{D}$ correspond to?",
+          "answer": "6",
+          "unit": "",
+          "explanation": "Write 1 for an uncomplemented variable and 0 for a complemented one: $ABCD = 0110_2 = 4 + 2 = 6$. So $\\overline{A}BC\\overline{D} = m_6$.",
+          "tolerance": 0.001
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Maxterms",
+          "body": "Alternatively, look at the rows where $F = 0$. For each, write the OR of all inputs with a bar over each input that is **1** in that row; this sum is 0 only in that row. AND the sums: that is the product of sums (POS).\nFor the table above: $F = \\prod M(0,3,4,5,7)$, e.g. $M_3 = A + \\overline{B} + \\overline{C}$."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "Which term is the maxterm $M_2$ of a function of $A$, $B$, $C$?",
+          "options": [
+            "$A + \\overline{B} + C$",
+            "$\\overline{A} + B + \\overline{C}$",
+            "$\\overline{A}B\\overline{C}$",
+            "$A + B + \\overline{C}$"
+          ],
+          "answer": 0,
+          "explanation": "Row 2 is $ABC = 010$. The maxterm must be 0 there, so every literal must be 0: $A$, $\\overline{B}$, $C$ → $M_2 = A + \\overline{B} + C$. $\\overline{A}B\\overline{C}$ is the minterm $m_2$; $A + B + \\overline{C}$ is $M_1$."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "$F(A,B,C) = \\sum m(1,2,5,7)$. Which is the same function in POS form?",
+          "options": [
+            "$\\prod M(0,3,4,6)$",
+            "$\\prod M(1,2,5,7)$",
+            "$\\sum m(0,3,4,6)$",
+            "$\\prod M(0,3,4)$"
+          ],
+          "answer": 0,
+          "explanation": "The maxterms are the rows where $F = 0$: all 8 rows minus $\\{1,2,5,7\\}$ = $\\{0,3,4,6\\}$. Note $\\sum m(0,3,4,6)$ would be $\\overline{F}$, not $F$."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "A function of 3 variables with 3 minterms has 5 maxterms in its canonical POS form.",
+          "answer": true,
+          "explanation": "There are $2^3 = 8$ rows. Each row is either a minterm row ($F = 1$) or a maxterm row ($F = 0$), so $8 - 3 = 5$ maxterms."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each term with its name (variables $A$, $B$, $C$).",
+          "pairs": [
+            [
+              "$\\overline{A}B\\overline{C}$",
+              "minterm $m_2$"
+            ],
+            [
+              "$A + B + \\overline{C}$",
+              "maxterm $M_1$"
+            ],
+            [
+              "$AB\\overline{C}$",
+              "minterm $m_6$"
+            ],
+            [
+              "$\\overline{A} + B + C$",
+              "maxterm $M_4$"
+            ]
+          ],
+          "explanation": "Minterm: plain variable = 1, bar = 0 ($\\overline{A}B\\overline{C}$ → 010 = 2, $AB\\overline{C}$ → 110 = 6). Maxterm: plain variable = 0, bar = 1 ($A + B + \\overline{C}$ → 001 = 1, $\\overline{A} + B + C$ → 100 = 4)."
+        }
+      ]
+    },
+    {
+      "id": "dl-minimization-2",
+      "title": "Karnaugh maps",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Reading a K-map",
+          "body": "Rows are labelled by $A$, columns by $BC$ in Gray order (00, 01, 11, 10). Group adjacent 1s in blocks of 1, 2, 4 or 8, wrapping around the edges. A group keeps only the variables that do not change inside it.\nExample: a full column $BC = 11$ ($m_3, m_7$) gives $BC$; both end columns together ($m_0, m_2, m_4, m_6$) give $\\overline{C}$.",
+          "formula": "\\begin{array}{c|cccc} A\\backslash BC & 00 & 01 & 11 & 10 \\\\ \\hline 0 & 0 & 0 & 1 & 0 \\\\ 1 & 0 & 0 & 1 & 0 \\end{array}"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Find the minimum SOP for this Karnaugh map.\n$$\\begin{array}{c|cccc} A\\backslash BC & 00 & 01 & 11 & 10 \\\\ \\hline 0 & 1 & 0 & 0 & 1 \\\\ 1 & 1 & 0 & 0 & 1 \\end{array}$$",
+          "options": [
+            "$\\overline{C}$",
+            "$C$",
+            "$\\overline{B}\\,\\overline{C}$",
+            "$\\overline{A}\\,\\overline{C} + A\\overline{B}$"
+          ],
+          "answer": 0,
+          "explanation": "The 1s fill the columns $BC = 00$ and $BC = 10$, which are adjacent through the wrap-around. In this 4-cube $A$ and $B$ both change, only $C = 0$ stays constant: $F = \\overline{C}$."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Find the minimum SOP of $F(A,B,C) = \\sum m(1,3,5,6,7)$.\n$$\\begin{array}{c|cccc} A\\backslash BC & 00 & 01 & 11 & 10 \\\\ \\hline 0 & 0 & 1 & 1 & 0 \\\\ 1 & 0 & 1 & 1 & 1 \\end{array}$$",
+          "options": [
+            "$C + AB$",
+            "$\\overline{A}C + AB$",
+            "$C + AB\\overline{C}$",
+            "$A + C$"
+          ],
+          "answer": 0,
+          "explanation": "The four 1s in columns 01 and 11 ($m_1, m_3, m_5, m_7$) form a 4-cube where only $C = 1$ is constant → $C$. The remaining 1 at $m_6$ groups with $m_7$ → $AB$. $F = C + AB$. ($C + AB\\overline{C}$ is correct but not minimal, since $m_6$ can share the larger group.)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "In a 4-variable Karnaugh map, a group of {{2^k}} square(s) corresponds to a product term with how many literals?",
+          "answer": "4-k",
+          "unit": "",
+          "explanation": "Each doubling of the group size eliminates one variable. A group of $2^{ {{k}} }$ squares eliminates {{k}} of the 4 variables, leaving $4 - {{k}} = {{4-k}}$ literal(s).",
+          "tolerance": 0.001,
+          "params": {
+            "k": [
+              0,
+              1,
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Find the minimum SOP of $F(A,B,C,D) = \\sum m(0,2,8,10)$.",
+          "options": [
+            "$\\overline{B}\\,\\overline{D}$",
+            "$\\overline{A}\\,\\overline{C}$",
+            "$BD$",
+            "$\\overline{B} + \\overline{D}$"
+          ],
+          "answer": 0,
+          "explanation": "$m_0 = 0000$, $m_2 = 0010$, $m_8 = 1000$, $m_{10} = 1010$: the four corners of the map, which are adjacent because the map wraps both ways. Across them $A$ and $C$ change while $B = 0$ and $D = 0$: $F = \\overline{B}\\,\\overline{D}$."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Find the minimum SOP of $F(A,B,C,D) = \\sum m(4,5,6,7,12,13,14,15)$.",
+          "options": [
+            "$B$",
+            "$AB$",
+            "$C + D$",
+            "$\\overline{A}B + AB\\overline{C}$"
+          ],
+          "answer": 0,
+          "explanation": "These are all 8 rows with $B = 1$ (rows $AB = 01$ and $11$ of the map): an 8-cube where only $B$ is constant, so $F = B$."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Find the minimum SOP for this map.\n$$\\begin{array}{c|cccc} AB\\backslash CD & 00 & 01 & 11 & 10 \\\\ \\hline 00 & 1 & 1 & 1 & 1 \\\\ 01 & 0 & 1 & 1 & 0 \\\\ 11 & 0 & 1 & 1 & 0 \\\\ 10 & 0 & 0 & 0 & 0 \\end{array}$$",
+          "options": [
+            "$\\overline{A}\\,\\overline{B} + BD$",
+            "$\\overline{A}\\,\\overline{B} + \\overline{A}D + BD$",
+            "$\\overline{A} + BD$",
+            "$\\overline{A}\\,\\overline{B} + ABD$"
+          ],
+          "answer": 0,
+          "explanation": "Top row ($AB = 00$) is a 4-cube: $\\overline{A}\\,\\overline{B}$. The four 1s in columns 01 and 11 of rows 01 and 11 ($m_5, m_7, m_{13}, m_{15}$) form a 4-cube: $BD$. All 1s are covered, so $F = \\overline{A}\\,\\overline{B} + BD$. Adding $\\overline{A}D$ is redundant, and $\\overline{A}$ would wrongly include $m_4$ and $m_6$."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "A rectangle of 6 adjacent 1s on a Karnaugh map can be used as one product term.",
+          "answer": false,
+          "explanation": "Group sizes must be powers of two (1, 2, 4, 8, 16), because a product term with $k$ variables removed covers exactly $2^k$ squares. Cover 6 ones with two overlapping groups of 4 or a group of 4 plus a group of 2."
+        }
+      ]
+    },
+    {
+      "id": "dl-minimization-3",
+      "title": "Design with K-maps",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "A circuit receives a BCD digit $ABCD$ and must output $F = 1$ when the digit is 5 or more. Codes 10–15 never occur (don't cares). Find the minimum SOP.\n$$\\begin{array}{c|cccc} AB\\backslash CD & 00 & 01 & 11 & 10 \\\\ \\hline 00 & 0 & 0 & 0 & 0 \\\\ 01 & 0 & 1 & 1 & 1 \\\\ 11 & \\times & \\times & \\times & \\times \\\\ 10 & 1 & 1 & \\times & \\times \\end{array}$$",
+          "options": [
+            "$A + BD + BC$",
+            "$A\\overline{B}\\,\\overline{C} + \\overline{A}BD + \\overline{A}BC$",
+            "$A + B$",
+            "$BD + BC$"
+          ],
+          "answer": 0,
+          "explanation": "Using the don't cares as 1s: rows $AB = 11$ and $10$ form an 8-cube → $A$. $m_5, m_7, m_{13}, m_{15}$ → $BD$. $m_6, m_7, m_{14}, m_{15}$ → $BC$. So $F = A + BD + BC$. $A + B$ is wrong because it would include $m_4$ (digit 4)."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Find the minimum POS of $F(A,B,C) = \\sum m(0,2,3,7)$.\n$$\\begin{array}{c|cccc} A\\backslash BC & 00 & 01 & 11 & 10 \\\\ \\hline 0 & 1 & 0 & 1 & 1 \\\\ 1 & 0 & 0 & 1 & 0 \\end{array}$$",
+          "options": [
+            "$(B + \\overline{C})(\\overline{A} + C)$",
+            "$(\\overline{B} + C)(A + \\overline{C})$",
+            "$\\overline{B}C + A\\overline{C}$",
+            "$(B + C)(\\overline{A} + \\overline{C})$"
+          ],
+          "answer": 0,
+          "explanation": "Group the 0s ($m_1, m_4, m_5, m_6$): $\\{1,5\\}$ → $\\overline{B}C$ and $\\{4,6\\}$ → $A\\overline{C}$, so $\\overline{F} = \\overline{B}C + A\\overline{C}$. De Morgan: $F = \\overline{\\overline{B}C}\\cdot\\overline{A\\overline{C}} = (B + \\overline{C})(\\overline{A} + C)$. Check row 0: $(0+1)(1+0) = 1$ ✓."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "How many minterms does $F(A,B,C,D) = \\overline{A}C + B\\overline{C}D$ contain (rows with $F = 1$)?",
+          "answer": "6",
+          "unit": "",
+          "explanation": "$\\overline{A}C$ has two variables fixed and two free: $2^2 = 4$ minterms ($m_2, m_3, m_6, m_7$). $B\\overline{C}D$ has one free variable: 2 minterms ($m_5, m_{13}$). They cannot overlap ($C = 1$ vs $C = 0$), so 6 in total.",
+          "tolerance": 0.001
+        },
+        {
+          "id": "q4",
+          "type": "orderSteps",
+          "prompt": "Put the steps for finding a minimum SOP with a Karnaugh map in order.",
+          "items": [
+            "Write the truth table or minterm list of F",
+            "Put a 1 in every map square where F = 1 (× for don't cares)",
+            "Circle the largest possible groups of 1, 2, 4 or 8 adjacent squares, including wrap-around",
+            "Keep the fewest groups that still cover every 1",
+            "Write one product term per group and OR them together"
+          ],
+          "explanation": "Mapping comes first, then grouping: largest groups first (fewest literals), then remove groups that are not needed to cover any 1 (fewest terms)."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Find the minimum SOP for this map.\n$$\\begin{array}{c|cccc} AB\\backslash CD & 00 & 01 & 11 & 10 \\\\ \\hline 00 & 0 & 1 & 1 & 0 \\\\ 01 & 1 & 1 & 0 & 0 \\\\ 11 & 1 & 1 & 0 & 0 \\\\ 10 & 0 & 1 & 1 & 0 \\end{array}$$",
+          "options": [
+            "$\\overline{B}D + B\\overline{C}$",
+            "$\\overline{B}D + B\\overline{C} + \\overline{C}D$",
+            "$BD + \\overline{B}\\,\\overline{C}$",
+            "$\\overline{C} + D$"
+          ],
+          "answer": 0,
+          "explanation": "$m_1, m_3, m_9, m_{11}$ (columns 01, 11 in rows 00 and 10, adjacent by wrap-around) → $\\overline{B}D$. $m_4, m_5, m_{12}, m_{13}$ → $B\\overline{C}$. Together they cover all 1s. $\\overline{C}D$ ($m_1, m_5, m_9, m_{13}$) is covered already, so adding it is redundant."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A three-input function is 1 when at least two inputs are 1. What is its minimum SOP?",
+          "options": [
+            "$AB + BC + AC$",
+            "$ABC$",
+            "$A\\oplus B\\oplus C$",
+            "$A + B + C$"
+          ],
+          "answer": 0,
+          "explanation": "Minterms: $m_3, m_5, m_6, m_7$. On the map, $m_7$ pairs with each of the others: $\\{3,7\\} \\to BC$, $\\{5,7\\} \\to AC$, $\\{6,7\\} \\to AB$. No 4-cube exists, so $F = AB + BC + AC$."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Don't-care squares must always be included in some group.",
+          "answer": false,
+          "explanation": "A don't care may be treated as 1 **or** 0. Include it only when it makes a group larger; otherwise leave it out so it doesn't force an extra term."
+        }
+      ]
+    }
+  ]
+}

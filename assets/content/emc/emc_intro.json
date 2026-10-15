@@ -1,0 +1,1029 @@
+{
+  "id": "emc-intro",
+  "title": "EMC Basics",
+  "description": "Noise versus interference, how noise couples, EMC regulations and test limits, and the dB units used to express them.",
+  "reference": "Ott ch. 1",
+  "study": [
+    {
+      "title": "Noise, interference and EMC",
+      "body": "**Noise** is any electrical signal in a circuit other than the wanted one; **interference** is the undesirable effect it causes. Noise can only be reduced, but interference can be eliminated. **EMC** is the ability of equipment to work properly in its electromagnetic environment (**immunity**, the opposite of susceptibility) without polluting that environment (**emission**). Designing EMC in from the start is far cheaper than add-on fixes after a failed test.",
+      "formula": "\\text{EMC} = \\text{emission} + \\text{immunity}"
+    },
+    {
+      "title": "Source, coupling path, receptor",
+      "body": "Interference needs three things: a noise **source**, a **coupling path** and a susceptible **receptor**. Remove any one and the problem is gone: change the source (lower amplitude, slower edges, other frequency), harden the receptor, or break the path. The noise must also match the receptor in **F**requency, **A**mplitude and **T**ime (FAT).",
+      "circuit": {
+        "elements": [
+          {
+            "type": "block",
+            "at": [
+              0.9,
+              0
+            ],
+            "label": "Source",
+            "size": [
+              1.6,
+              0.9
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.5,
+              0
+            ],
+            "label": "Coupling path",
+            "size": [
+              2.2,
+              0.9
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              6.1,
+              0
+            ],
+            "label": "Receptor",
+            "size": [
+              1.6,
+              0.9
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.7,
+                0
+              ],
+              [
+                2.4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.6,
+                0
+              ],
+              [
+                5.3,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "at": [
+              0.9,
+              1.0
+            ],
+            "label": "clock, motor"
+          },
+          {
+            "type": "text",
+            "at": [
+              3.5,
+              1.0
+            ],
+            "label": "wire, field, ground"
+          },
+          {
+            "type": "text",
+            "at": [
+              6.1,
+              1.0
+            ],
+            "label": "amplifier, radio"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Five coupling mechanisms",
+      "body": "- **Conducted**: noise travels along wires (mains leads, signal cables).\n- **Common impedance**: two circuits share an impedance, usually a ground or supply conductor.\n- **Electric (capacitive) near field**: a changing voltage injects current through stray capacitance, $i = C\\,dv/dt$.\n- **Magnetic (inductive) near field**: a changing current induces a voltage in a loop, $v = M\\,di/dt$.\n- **Radiated**: a combined E/H wave, far from the source (far field)."
+    },
+    {
+      "title": "Common-impedance coupling",
+      "body": "When the currents of two circuits flow through a shared impedance $Z_G$ (a ground return or supply lead), each circuit sees the other's current as an extra voltage: the load of circuit 1 gets its source voltage $V_{S1}$ plus $Z_G(I_1+I_2)$, and the part $I_2 Z_G$ is noise from circuit 2. It is the simplest coupling to calculate: Ohm's law. Cures: give noisy circuits their own return path, or make the shared impedance very small (wide copper, a ground plane).",
+      "formula": "V_{L1} = V_{S1} + Z_G(I_1 + I_2)",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              2
+            ],
+            "label": "V_{S1}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "R_{L1}"
+          },
+          {
+            "type": "vsource",
+            "from": [
+              6,
+              4
+            ],
+            "to": [
+              6,
+              2
+            ],
+            "label": "V_{S2}",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6,
+                2
+              ],
+              [
+                6,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "R_{L2}",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                2
+              ],
+              [
+                4,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              2
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              2
+            ],
+            "to": [
+              3,
+              4
+            ],
+            "label": "Z_G",
+            "flip": true
+          },
+          {
+            "type": "text",
+            "at": [
+              3.9,
+              3.0
+            ],
+            "label": "I_1 + I_2"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                6,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "EMC regulations",
+      "body": "In the EU, the **EMC Directive** (2014/30/EU) requires every electrical product to limit its emission and to be sufficiently immune. The usual route: test to **harmonised standards** (e.g. EN 55032 = CISPR 32 for emission of multimedia/IT equipment, EN 55035 for its immunity, or the generic EN 61000-6-x series), sign a Declaration of Conformity and affix the **CE mark**. The US FCC Part 15 limits only the emission of digital devices: **Class A** (commercial/industrial) and **Class B** (residential, about 10 dB stricter). CISPR limits use the same two classes."
+    },
+    {
+      "title": "Explore: emission tests and distance",
+      "body": "**Conducted** emission: noise voltage on the mains lead, 150 kHz–30 MHz, measured through a 50 Ω/50 µH **LISN**. **Radiated** emission: field strength from 30 MHz upward, antenna at **3 m or 10 m**. In the far field $E \\propto 1/d$, so a level moves by 20 log of the distance ratio: Class B 40 dBµV/m at 3 m is 29.5 dBµV/m at 10 m. Drag the 3 m level.",
+      "formula": "E_2 = E_1 + 20\\log_{10}\\frac{d_1}{d_2}",
+      "plot": {
+        "x": {
+          "min": 1,
+          "max": 30,
+          "label": "d",
+          "unit": "m",
+          "log": true
+        },
+        "y": {
+          "min": 0,
+          "max": 80,
+          "label": "E (dBµV/m)"
+        },
+        "sliders": [
+          {
+            "name": "E3",
+            "label": "$E$ at 3 m (dBµV/m)",
+            "min": 20,
+            "max": 70,
+            "step": 0.5,
+            "value": 40
+          }
+        ],
+        "curves": [
+          {
+            "f": "E3 + 20*log10(3/x)",
+            "label": "E ∝ 1/d",
+            "labelAt": 0.85
+          }
+        ],
+        "points": [
+          {
+            "x": 3,
+            "y": "E3",
+            "label": "3 m"
+          },
+          {
+            "x": 10,
+            "y": "E3 - 20*log10(10/3)",
+            "label": "10 m"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$E$ at 10 m (dBµV/m)",
+            "value": "E3 - 20*log10(10/3)"
+          },
+          {
+            "label": "$E$ at 30 m (dBµV/m)",
+            "value": "E3 - 20"
+          }
+        ]
+      }
+    },
+    {
+      "title": "dB units in EMC",
+      "body": "EMC levels span many decades, so they are given in dB relative to a reference: **dBµV** (1 µV), **dBµA** (1 µA), **dBµV/m** (1 µV/m) and **dBm** (1 mW). Voltage, current and field use 20 log; power uses 10 log. In a 50 Ω system 0 dBm = 0.224 V = 107 dBµV, so dBµV = dBm + 107. Each ×2 in voltage adds 6 dB, each ×10 adds 20 dB.",
+      "formula": "\\text{dB}\\mu\\text{V} = 20\\log_{10}\\frac{V}{1\\ \\mu\\text{V}}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "emc-intro-1",
+      "title": "Noise, interference and EMC",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Noise versus interference",
+          "body": "**Noise** is any electrical signal in a circuit other than the wanted signal: thermal noise, a neighbouring clock, mains hum, a radio transmitter. **Interference** is the undesirable effect of that noise: a wrong reading, a reset, a buzzing speaker. Noise can only be reduced; interference disappears once the noise is reduced far enough."
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "The goal of EMC design is a circuit with no noise at all.",
+          "answer": false,
+          "explanation": "Noise can never be removed completely (thermal noise alone guarantees that). The goal is to reduce it, at the source, in the coupling path or at the receptor, until it no longer causes **interference**, with some safety margin."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "EMC has two sides",
+          "body": "**Electromagnetic compatibility** means a product works properly in its intended electromagnetic environment **and** does not pollute that environment. So EMC has two sides: **emission** (what the product sends out, conducted or radiated) and **immunity** (how well it tolerates disturbances; the opposite is **susceptibility**). EMC designed in from the start costs little; fixes added after a failed test are expensive add-ons."
+        },
+        {
+          "id": "q2",
+          "type": "matchPairs",
+          "prompt": "Match each term to its meaning",
+          "pairs": [
+            [
+              "Emission",
+              "Noise a product sends out"
+            ],
+            [
+              "Immunity",
+              "Works despite disturbances"
+            ],
+            [
+              "Susceptibility",
+              "Malfunctions due to noise"
+            ],
+            [
+              "Interference",
+              "Undesired effect of noise"
+            ]
+          ],
+          "explanation": "Emission and immunity are the two sides of EMC. Susceptibility is the opposite of immunity, and interference is what noise does when it is strong enough to upset a receptor."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Source, coupling path, receptor",
+          "body": "Every interference problem has three parts: a noise **source**, a **coupling path** and a susceptible **receptor**. You can act on any of them: change the source (lower amplitude, slower edges, another frequency), make the receptor less sensitive, or break the coupling path. Often only the path can be changed.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "block",
+                "at": [
+                  0.9,
+                  0
+                ],
+                "label": "Source",
+                "size": [
+                  1.6,
+                  0.9
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.5,
+                  0
+                ],
+                "label": "Coupling path",
+                "size": [
+                  2.2,
+                  0.9
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  6.1,
+                  0
+                ],
+                "label": "Receptor",
+                "size": [
+                  1.6,
+                  0.9
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.7,
+                    0
+                  ],
+                  [
+                    2.4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.6,
+                    0
+                  ],
+                  [
+                    5.3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  0.9,
+                  1.0
+                ],
+                "label": "clock, motor"
+              },
+              {
+                "type": "text",
+                "at": [
+                  3.5,
+                  1.0
+                ],
+                "label": "wire, field, ground"
+              },
+              {
+                "type": "text",
+                "at": [
+                  6.1,
+                  1.0
+                ],
+                "label": "amplifier, radio"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "Brush arcing in a DC motor disturbs a nearby low-level sensor amplifier: the noise is conducted out on the motor leads, which radiate inside the cabinet. What is the **receptor**?",
+          "options": [
+            "The sensor amplifier",
+            "The brush arcs",
+            "The motor leads",
+            "The cabinet"
+          ],
+          "answer": 0,
+          "explanation": "The **source** is the arcing between brushes and commutator, the **coupling path** is conduction along the motor leads plus radiation from them, and the **receptor** is the low-level amplifier. Here the source and receptor are hard to change, so the fix is to break the path (filter the leads where they leave the motor)."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "How noise couples",
+          "body": "- **Conducted**: along wires (mains leads, signal cables).\n- **Common impedance**: two circuits share an impedance, usually a ground or supply conductor.\n- **Capacitive (electric near field)**: a changing voltage injects current through stray capacitance.\n- **Inductive (magnetic near field)**: a changing current induces a voltage in a nearby loop.\n- **Radiated (far field)**: an electromagnetic wave from a distant source."
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each situation to its coupling mechanism",
+          "pairs": [
+            [
+              "Shared ground wire",
+              "Common impedance"
+            ],
+            [
+              "230 V wire beside a high-Z input",
+              "Capacitive"
+            ],
+            [
+              "Hum near a mains transformer",
+              "Inductive"
+            ],
+            [
+              "Walkie-talkie 5 m away",
+              "Radiated"
+            ],
+            [
+              "SMPS noise on the mains lead",
+              "Conducted"
+            ]
+          ],
+          "explanation": "A shared conductor couples through its impedance; a nearby **voltage** couples capacitively (worst into high impedances); a nearby **current** (a transformer's stray flux) couples inductively; a distant transmitter couples by radiation; and noise riding along a wire is conducted."
+        },
+        {
+          "id": "i5",
+          "type": "info",
+          "title": "Other noise sources",
+          "body": "- **Galvanic action**: two dissimilar metals plus moisture form a small battery (and corrode). Combine metals that are close in the galvanic series.\n- **Triboelectric effect**: bending a cable rubs charge onto its dielectric. Use low-noise cable and avoid cable movement.\n- **Conductor motion**: a wire vibrating in a stray magnetic field generates a voltage. Clamp the cables."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A low-level strain-gauge cable on a vibrating machine shows noise that follows the vibration and disappears when the cable is clamped down. What is the most likely cause?",
+          "options": [
+            "Triboelectric effect and conductor motion",
+            "Galvanic action between the connector metals",
+            "Common-impedance coupling in the ground",
+            "Thermal noise of the cable"
+          ],
+          "answer": 0,
+          "explanation": "Noise that tracks the cable's movement points to the **triboelectric effect** (charge generated as the dielectric flexes) and **conductor motion** in stray magnetic fields. Clamping the cable removes both. Galvanic and thermal noise do not depend on vibration."
+        }
+      ]
+    },
+    {
+      "id": "emc-intro-2",
+      "title": "Regulations and dB units",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "EU: EMC Directive and CE marking",
+          "body": "In the EU every electrical or electronic product must meet the essential requirements of the **EMC Directive** (2014/30/EU): limited emission **and** adequate immunity. The usual route: test to the **harmonised standards** (e.g. EN 55032/CISPR 32 for emission of multimedia equipment, EN 55035 for its immunity, or the generic EN 61000-6-x series), sign a **Declaration of Conformity** and affix the **CE mark**."
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "What does the CE mark on a product mean?",
+          "options": [
+            "The manufacturer declares it meets all applicable EU directives",
+            "An independent EU lab has certified the product",
+            "The product meets the US FCC Part 15 rules",
+            "The product is exempt from EMC testing"
+          ],
+          "answer": 0,
+          "explanation": "CE marking is a **self-declaration** by the manufacturer (or importer): the product meets **all** directives that apply to it, e.g. the EMC Directive and the Low Voltage Directive. Testing to harmonised standards gives a presumption of conformity, but no certificate from an EU lab is required."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "US: FCC Part 15",
+          "body": "In the US the FCC limits the **emission** of digital devices (anything using clocks above 9 kHz) in Part 15; there are no immunity requirements. **Class A** is for commercial and industrial use. **Class B** is for residential use and about **10 dB stricter**, because radio and TV receivers are close by. CISPR (EU) emission limits use the same A/B classes."
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "A product marketed for use at home must meet the Class A limits, because those are the stricter ones.",
+          "answer": false,
+          "explanation": "Home use means **Class B**, and Class B is the stricter class (about 10 dB lower limits), since the product will sit close to radio and TV receivers. Class A applies to commercial and industrial environments."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Conducted and radiated emission tests",
+          "body": "**Conducted emission**: the noise voltage a product puts on its mains lead, **150 kHz–30 MHz**, measured through a **LISN** (line impedance stabilisation network, 50 Ω/50 µH) so every lab sees the same mains impedance. **Radiated emission**: field strength from **30 MHz** upward, with an antenna at **3 m or 10 m**. Below 30 MHz most products are too small to radiate well, but noise pushed into the long building wiring radiates from there, so it is limited as a voltage on the mains lead."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "f": [
+              400000.0,
+              2000000.0,
+              8000000.0,
+              24000000.0,
+              48000000.0,
+              120000000.0,
+              300000000.0,
+              800000000.0
+            ]
+          },
+          "prompt": "An emission scan of a mains-powered product shows a peak at {{f|Hz}}. Which test and limit apply to it?",
+          "options": [
+            "Conducted emission on the mains lead (via a LISN)",
+            "Radiated emission (antenna at 3 m or 10 m)"
+          ],
+          "answer": "if(f - 30e6, 1, 0)",
+          "explanation": "The boundary is **30 MHz**. Conducted emission is limited from 150 kHz to 30 MHz (voltage on the mains lead, measured with a LISN); radiated emission from 30 MHz upward (field strength at 3 m or 10 m)."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "dB units",
+          "body": "EMC levels span many decades, so they are expressed in dB relative to a reference: dBµV (1 µV), dBµA (1 µA), dBµV/m (1 µV/m) and dBm (1 mW). Voltage, current and field use 20 log; power uses 10 log. In a 50 Ω system, 1 mW corresponds to $\\sqrt{1\\ \\text{mW} \\cdot 50\\ \\Omega}$ = 0.224 V = 107 dBµV.",
+          "formula": "\\text{dB}\\mu\\text{V} = 20\\log_{10}\\frac{V}{1\\ \\mu\\text{V}}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vu": [
+              3,
+              20,
+              50,
+              250,
+              800,
+              2000,
+              15000
+            ]
+          },
+          "derived": {
+            "V": "Vu*1e-6"
+          },
+          "prompt": "A spectrum analyser measures {{V|V}} at one frequency. Express this level in dBµV.",
+          "answer": "20*log10(Vu)",
+          "unit": "dB",
+          "absTolerance": 0.3,
+          "explanation": "$20\\log_{10}\\frac{V}{1\\ \\mu V}$ = 20 log({{Vu}}) = **{{20*log10(Vu)||4}} dBµV**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "P": [
+              -90,
+              -73,
+              -60,
+              -47,
+              -30,
+              -20
+            ]
+          },
+          "prompt": "A 50 Ω EMI receiver shows {{P}} dBm. What is this level in dBµV?",
+          "answer": "P + 20*log10(sqrt(0.05)/1e-6)",
+          "unit": "dB",
+          "absTolerance": 0.3,
+          "explanation": "In 50 Ω, 0 dBm = $\\sqrt{10^{-3}\\cdot 50}$ = 0.224 V = 106.99 ≈ 107 dBµV, so dBµV = dBm + 107 = {{P}} + 107 = **{{P+107||4}} dBµV**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "E": [
+              30,
+              34,
+              40,
+              46.5,
+              54
+            ]
+          },
+          "prompt": "A radiated emission limit is {{E}} dBµV/m. What field strength is that in V/m?",
+          "answer": "10^(E/20)*1e-6",
+          "unit": "V/m",
+          "explanation": "Field strength uses 20 log: $E = 10^{E_{dB}/20}$ µV/m = $10^{{{E}}/20}$ µV/m = **{{10^(E/20)*1e-6|V/m}}**."
+        }
+      ]
+    },
+    {
+      "id": "emc-intro-3",
+      "title": "Emission numbers",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "L3": [
+              40,
+              43.5,
+              46,
+              54
+            ]
+          },
+          "prompt": "An FCC Class B limit is {{L3}} dBµV/m at 3 m. What is the equivalent limit at 10 m, assuming the far-field $1/d$ decay? (in dBµV/m)",
+          "answer": "L3 - 20*log10(10/3)",
+          "unit": "dB",
+          "absTolerance": 0.2,
+          "explanation": "$E_{10} = E_3 + 20\\log_{10}\\frac{3}{10}$ = {{L3}} − 10.46 = **{{L3-20*log10(10/3)||4}} dBµV/m**. That is why limits quoted at different distances must be converted before you compare them."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "E1": {
+              "min": 40,
+              "max": 70,
+              "step": 1
+            },
+            "d1": [
+              1,
+              3
+            ],
+            "d2": [
+              3,
+              10,
+              30
+            ]
+          },
+          "require": "d2 - d1",
+          "prompt": "A pre-compliance scan measures {{E1}} dBµV/m at {{d1}} m. Estimate the field at {{d2}} m, assuming far-field $1/d$ decay. (in dBµV/m)",
+          "answer": "E1 - 20*log10(d2/d1)",
+          "unit": "dB",
+          "absTolerance": 0.2,
+          "explanation": "$E_2 = E_1 + 20\\log_{10}\\frac{d_1}{d_2}$ = {{E1}} + 20 log({{d1}}/{{d2}}) = {{E1}} − {{20*log10(d2/d1)||4}} = **{{E1-20*log10(d2/d1)||4}} dBµV/m**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Eu": [
+              12,
+              20,
+              25,
+              40,
+              60
+            ]
+          },
+          "prompt": "At 10 m a product produces {{Eu}} µV/m at 150 MHz. The CISPR Class B limit there is 30 dBµV/m. What is the margin (limit minus measured) in dB? A negative margin means it fails.",
+          "answer": "30 - 20*log10(Eu)",
+          "unit": "dB",
+          "absTolerance": 0.3,
+          "explanation": "Measured: $20\\log_{10}({{Eu}})$ = {{20*log10(Eu)||4}} dBµV/m. Margin = 30 − {{20*log10(Eu)||4}} = **{{30-20*log10(Eu)||4}} dB**. Labs usually want a few dB of margin to cover measurement uncertainty and production spread."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Iu": [
+              2,
+              5,
+              10,
+              20,
+              40
+            ]
+          },
+          "prompt": "A noise current of {{Iu}} µA at 1 MHz flows into the 50 Ω measuring port of a LISN.",
+          "ask": [
+            {
+              "prompt": "What does the receiver read, in dBµV?",
+              "answer": "20*log10(50*Iu)",
+              "unit": "dB",
+              "absTolerance": 0.3,
+              "explanation": "$V = I \\cdot 50\\ \\Omega$ = {{Iu}} µA × 50 Ω = {{50*Iu}} µV, so $20\\log_{10}({{50*Iu}})$ = **{{20*log10(50*Iu)||4}} dBµV**."
+            },
+            {
+              "prompt": "The Class B quasi-peak limit at 1 MHz is 56 dBµV. What is the margin (limit minus reading) in dB? Negative means fail.",
+              "answer": "56 - 20*log10(50*Iu)",
+              "unit": "dB",
+              "absTolerance": 0.3,
+              "explanation": "Reading: $V$ = {{Iu}} µA × 50 Ω = {{50*Iu}} µV = {{20*log10(50*Iu)||4}} dBµV. Margin = 56 − {{20*log10(50*Iu)||4}} = **{{56-20*log10(50*Iu)||4}} dB**."
+            },
+            {
+              "prompt": "Express the noise current in dBµA.",
+              "answer": "20*log10(Iu)",
+              "unit": "dB",
+              "absTolerance": 0.3,
+              "explanation": "$20\\log_{10}\\frac{I}{1\\ \\mu A}$ = 20 log({{Iu}}) = **{{20*log10(Iu)||4}} dBµA**. Across 50 Ω the voltage in dBµV is 20 log 50 = 34 dB higher."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "I2": [
+              0.2,
+              0.5,
+              1,
+              2
+            ],
+            "Rm": [
+              5,
+              10,
+              20,
+              50
+            ]
+          },
+          "derived": {
+            "R": "Rm*1e-3"
+          },
+          "prompt": "A relay driver drawing {{I2|A}} and a sensor amplifier share a ground return with resistance {{R|Ω}}. What noise voltage does the relay current add to the amplifier's ground reference?",
+          "answer": "I2*R",
+          "unit": "V",
+          "explanation": "Common-impedance coupling is just Ohm's law: $V = I_2 R_G$ = {{I2|A}} × {{R|Ω}} = **{{I2*R|V}}**. Against a millivolt sensor signal that is huge; give the relay its own return to the supply."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "f": [
+              1000000.0,
+              5000000.0,
+              10000000.0,
+              50000000.0
+            ],
+            "Ln": [
+              10,
+              20,
+              50
+            ],
+            "Im": [
+              10,
+              20,
+              50
+            ]
+          },
+          "derived": {
+            "L": "Ln*1e-9",
+            "I": "Im*1e-3"
+          },
+          "prompt": "A {{I|A}} clock current at {{f|Hz}} returns through a ground connection shared with an analogue circuit. The connection has {{L|H}} of inductance; its resistance is negligible. What noise voltage appears across it?",
+          "answer": "2*pi*f*L*I",
+          "unit": "V",
+          "explanation": "$V = \\omega L I = 2\\pi f L I$ = 2π × {{f|Hz}} × {{L|H}} × {{I|A}} = **{{2*pi*f*L*I|V}}**. At high frequency a few nanohenries of shared ground matter more than its resistance."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "params": {
+            "P": [
+              -80,
+              -60,
+              -40,
+              -25
+            ]
+          },
+          "prompt": "Convert {{P}} dBm (50 Ω system) to dBµV.",
+          "options": [
+            "{{P+107||4}} dBµV",
+            "{{P+120||4}} dBµV",
+            "{{P+47||4}} dBµV",
+            "{{P-107||4}} dBµV"
+          ],
+          "answer": 0,
+          "explanation": "0 dBm in 50 Ω is $\\sqrt{10^{-3}\\cdot 50}$ = 0.224 V = 107 dBµV, so add 107 dB: {{P}} + 107 = **{{P+107||4}} dBµV**. Adding 120 converts dBV (not dBm) to dBµV; +47 gives dBmV with the wrong reference."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "D": [
+              6,
+              9.5,
+              10,
+              10.5,
+              11
+            ]
+          },
+          "prompt": "At some frequency the Class B limit is {{D}} dB below the Class A limit. By what factor must the emitted field strength of a Class A design be reduced to meet Class B?",
+          "answer": "10^(D/20)",
+          "unit": "",
+          "explanation": "Field strength is a 'voltage-like' quantity, so use 20 log: factor = $10^{D/20}$ = $10^{{{D}}/20}$ = **{{10^(D/20)||4}}**."
+        }
+      ]
+    },
+    {
+      "id": "emc-intro-4",
+      "title": "Pre-compliance check",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "From receiver reading to field strength",
+          "body": "A receiving antenna turns a field into a voltage. Its **antenna factor** AF (dB/m) is the field strength per volt at its terminals, and the cable to the receiver loses CL dB. So the field in dBµV/m is the receiver reading in dBµV plus AF plus CL. Then scale to the distance of the standard with 20 log($d_1/d_2$) and compare with the limit.",
+          "formula": "E = V_{rx} + \\mathrm{AF} + \\mathrm{CL}"
+        },
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "V": {
+              "min": 18,
+              "max": 34,
+              "step": 1
+            },
+            "AF": [
+              10,
+              12,
+              15,
+              18
+            ],
+            "CL": [
+              1,
+              1.5,
+              2
+            ]
+          },
+          "prompt": "In a pre-compliance scan at 3 m, a 120 MHz clock harmonic reads {{V}} dBµV on the receiver. The antenna factor is {{AF}} dB/m and the cable loss {{CL}} dB. What is the field strength at 3 m, in dBµV/m?",
+          "answer": "V + AF + CL",
+          "unit": "dB",
+          "absTolerance": 0.2,
+          "explanation": "$E = V_{rx} + \\mathrm{AF} + \\mathrm{CL}$ = {{V}} + {{AF}} + {{CL}} = **{{V+AF+CL||4}} dBµV/m**."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "V": {
+              "min": 18,
+              "max": 34,
+              "step": 1
+            },
+            "AF": [
+              10,
+              12,
+              15,
+              18
+            ],
+            "CL": [
+              1,
+              1.5,
+              2
+            ]
+          },
+          "prompt": "A 3 m scan gives a receiver reading of {{V}} dBµV at 120 MHz, with antenna factor {{AF}} dB/m and cable loss {{CL}} dB.",
+          "ask": [
+            {
+              "prompt": "Estimate the field strength at 10 m, in dBµV/m.",
+              "answer": "V + AF + CL - 20*log10(10/3)",
+              "unit": "dB",
+              "absTolerance": 0.3,
+              "explanation": "At 3 m: $E_3$ = {{V}} + {{AF}} + {{CL}} = {{V+AF+CL||4}} dBµV/m. At 10 m: $E_{10} = E_3 - 20\\log_{10}(10/3)$ = {{V+AF+CL||4}} − 10.46 = **{{V+AF+CL-20*log10(10/3)||4}} dBµV/m**."
+            },
+            {
+              "prompt": "The CISPR Class B limit at 10 m is 30 dBµV/m. What is the margin (limit minus estimated field at 10 m), in dB? Negative means fail.",
+              "answer": "30 - (V + AF + CL - 20*log10(10/3))",
+              "unit": "dB",
+              "absTolerance": 0.3,
+              "explanation": "$E_3$ = {{V}} + {{AF}} + {{CL}} = {{V+AF+CL||4}} dBµV/m, so $E_{10}$ = {{V+AF+CL||4}} − 10.46 = {{V+AF+CL-20*log10(10/3)||4}} dBµV/m. Margin = 30 − {{V+AF+CL-20*log10(10/3)||4}} = **{{30-(V+AF+CL-20*log10(10/3))||4}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "Rm": [
+              5,
+              10,
+              20
+            ],
+            "Ln": [
+              10,
+              20,
+              50
+            ],
+            "f": [
+              1000000.0,
+              10000000.0,
+              30000000.0
+            ],
+            "Im": [
+              20,
+              50,
+              100
+            ]
+          },
+          "derived": {
+            "R": "Rm*1e-3",
+            "L": "Ln*1e-9",
+            "I": "Im*1e-3"
+          },
+          "prompt": "Two circuits share a ground trace with $R$ = {{R|Ω}} and $L$ = {{L|H}}. A {{I|A}} current at {{f|Hz}} from one circuit flows through it.",
+          "ask": [
+            {
+              "prompt": "Find the magnitude of the noise voltage across the shared trace.",
+              "answer": "I*sqrt(R^2 + (2*pi*f*L)^2)",
+              "unit": "V",
+              "explanation": "$X_L = 2\\pi f L$ = 2π × {{f|Hz}} × {{L|H}} = {{2*pi*f*L|Ω}}, while $R$ is only {{R|Ω}}. $|Z| = \\sqrt{R^2 + X_L^2}$ = {{sqrt(R^2+(2*pi*f*L)^2)|Ω}}. $V = I|Z|$ = {{I|A}} × {{sqrt(R^2+(2*pi*f*L)^2)|Ω}} = **{{I*sqrt(R^2+(2*pi*f*L)^2)|V}}**. The inductive part dominates."
+            },
+            {
+              "prompt": "Above which frequency does the trace's inductive reactance exceed its resistance?",
+              "answer": "R/(2*pi*L)",
+              "unit": "Hz",
+              "explanation": "$X_L = R$ at $f = \\frac{R}{2\\pi L}$ = {{R|Ω}} / (2π × {{L|H}}) = **{{R/(2*pi*L)|Hz}}**. Above this, making the trace thicker hardly helps; only a shorter, wider path or a plane lowers the inductance."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "multipleChoice",
+          "prompt": "A product is 6 dB over the radiated limit at one harmonic. The field is proportional to the harmonic current on its cable. By what factor must that current be reduced (at least)?",
+          "options": [
+            "2",
+            "4",
+            "6",
+            "1.41"
+          ],
+          "answer": 0,
+          "explanation": "Field and current are field quantities: 6 dB = $10^{6/20}$ = **2**, so the current must at least halve. A factor 4 would be 12 dB; 1.41 is 3 dB. In practice aim for extra margin."
+        },
+        {
+          "id": "c5",
+          "type": "orderSteps",
+          "prompt": "Put the steps of tackling an interference problem in a sensible order",
+          "items": [
+            "Define the problem: source, coupling path, receptor and the noise's FAT",
+            "Choose where to act: source, path or receptor",
+            "Apply the fix",
+            "Re-measure to check the margin"
+          ],
+          "explanation": "First define the problem: what is the source, what is the receptor, what is the coupling path, and what are the frequency, amplitude and timing (FAT) of the noise. Only then choose the cheapest place to act, apply the fix, and verify with a new measurement that the margin is real."
+        }
+      ]
+    }
+  ]
+}

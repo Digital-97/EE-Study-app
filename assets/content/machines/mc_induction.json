@@ -1,0 +1,1744 @@
+{
+ "id": "mc-induction",
+ "title": "Induction Motors",
+ "description": "Rotating fields, slip, the per-phase equivalent circuit, power flow and the torque–speed curve.",
+ "reference": "Hambley §17.1–17.2",
+ "study": [
+  {
+   "title": "Rotating magnetic field",
+   "body": "Three stator windings, displaced 120° around the air gap and fed with balanced three-phase currents, produce a field of **constant strength that rotates** at synchronous speed. $P$ is the number of poles (always even). At 50 Hz: 3000, 1500, 1000, 750 rpm; at 60 Hz: 3600, 1800, 1200, 900 rpm. Swapping two supply lines reverses the rotation.",
+   "formula": "\\omega_s = \\frac{2\\omega}{P},\\qquad n_s = \\frac{120f}{P}"
+  },
+  {
+   "title": "Slip and rotor frequency",
+   "body": "The rotor (squirrel cage or wound) is not connected to anything: its currents are **induced** by the field sliding past it. That needs relative motion, so the rotor always turns slower than $n_s$. The **slip** $s$ is the relative speed difference; full-load slip is typically 1–5 %. Rotor currents have the slip frequency $sf$.",
+   "formula": "s = \\frac{n_s - n_m}{n_s},\\qquad n_m = (1-s)\\,n_s,\\qquad f_r = sf"
+  },
+  {
+   "title": "Per-phase equivalent circuit",
+   "body": "Like a transformer with a shorted, moving secondary: $R_s$, $X_s$ for the stator, $X_m$ for magnetizing, and the rotor referred to the stator as $jX_r$ and $R_r/s$. Splitting $R_r/s = R_r + R_r(1-s)/s$ separates rotor copper loss from the power converted to mechanical form.",
+   "formula": "Z_s = R_s + jX_s + jX_m \\parallel \\left(\\frac{R_r}{s} + jX_r\\right)",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_s",
+      "value": "",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       0.1,
+       0
+      ],
+      "to": [
+       0.9,
+       0
+      ],
+      "label": "I_s"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "R_s",
+      "value": ""
+     },
+     {
+      "type": "inductor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "jX_s",
+      "value": ""
+     },
+     {
+      "type": "inductor",
+      "from": [
+       5,
+       0
+      ],
+      "to": [
+       5,
+       2
+      ],
+      "label": "jX_m",
+      "value": ""
+     },
+     {
+      "type": "inductor",
+      "from": [
+       5,
+       0
+      ],
+      "to": [
+       7,
+       0
+      ],
+      "label": "jX_r",
+      "value": ""
+     },
+     {
+      "type": "resistor",
+      "from": [
+       7,
+       0
+      ],
+      "to": [
+       7,
+       2
+      ],
+      "label": "R_r/s",
+      "value": ""
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        7,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       5,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       5,
+       2
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Power flow",
+   "body": "- $P_{in} = 3V_sI_s\\cos\\theta$; minus stator copper loss $3I_s^2R_s$ gives the **air-gap power** $P_{ag} = 3I_r^2R_r/s$.\n- Rotor copper loss is $sP_{ag}$; the rest is developed: $P_{dev} = (1-s)P_{ag}$.\n- $P_{out} = P_{dev} - P_{rot}$ (friction, windage, core).\nHigh slip means poor efficiency: $\\eta < 1 - s$.",
+   "formula": "T_{dev} = \\frac{P_{dev}}{\\omega_m} = \\frac{P_{ag}}{\\omega_s}"
+  },
+  {
+   "title": "Torque–speed curve",
+   "body": "Starting at $s = 1$, torque rises to a maximum, the **breakdown (pull-out) torque**, then falls steeply to zero at $n_s$. Normal operation is on the steep part near $n_s$. Neglecting the stator impedance, the peak is at $s_{max} = R_r/X$ ($X = X_s + X_r$) with $T_{max} = 3V_s^2/(2\\omega_sX)$, which does **not** depend on $R_r$. More rotor resistance moves the peak to lower speed and raises the starting torque. Drag $R_r$ and the load torque $T_L$ (dashed): the motor runs where its curve meets the load, on the steep right-hand side. More rotor resistance lowers that speed, and once $R_r > X$ the peak would lie below standstill. If the load is then above the whole curve (above $T_{start}$), there is no operating point: the dot sits at 0 rpm, the motor stalls.",
+   "formula": "T_{dev} \\approx \\frac{3V_s^2}{\\omega_s}\\cdot\\frac{R_r/s}{(R_r/s)^2 + X^2}",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 1600,
+     "label": "n_m (rpm)"
+    },
+    "y": {
+     "min": 0,
+     "max": 290,
+     "label": "T (N·m)"
+    },
+    "sliders": [
+     {
+      "name": "Rr",
+      "label": "$R_r$",
+      "min": 0.1,
+      "max": 3,
+      "step": 0.05,
+      "value": 0.4,
+      "unit": "Ω"
+     },
+     {
+      "name": "TL",
+      "label": "load $T_L$",
+      "min": 10,
+      "max": 250,
+      "step": 5,
+      "value": 100,
+      "unit": "N·m"
+     }
+    ],
+    "let": {
+     "uu": "((3*230^2/(2*pi*25)) + sqrt((3*230^2/(2*pi*25))^2 - 4*TL^2*4))/(2*TL)",
+     "sop": "Rr/uu",
+     "nop": "1500*(1 - sop)"
+    },
+    "curves": [
+     {
+      "f": "(3*230^2/(2*pi*25))*(Rr/((1500-x)/1500))/((Rr/((1500-x)/1500))^2 + 2^2)",
+      "color": "blue"
+     },
+     {
+      "f": "TL",
+      "color": "orange",
+      "dash": true,
+      "label": "load",
+      "labelAt": 0.08
+     }
+    ],
+    "vlines": [
+     {
+      "x": 1500,
+      "label": "n_s"
+     }
+    ],
+    "points": [
+     {
+      "x": "max(0, nop)",
+      "y": "TL",
+      "label": "operating point",
+      "guides": false
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$s_{max} = R_r/X$",
+      "value": "Rr/2"
+     },
+     {
+      "label": "$T_{start}$",
+      "value": "(3*230^2/(2*pi*25))*Rr/(Rr^2 + 4)",
+      "unit": "N·m"
+     },
+     {
+      "label": "speed (rpm)",
+      "value": "max(0, nop)",
+      "sig": 4
+     }
+    ]
+   }
+  },
+  {
+   "title": "Starting",
+   "body": "At standstill $s = 1$ and $R_r/s$ is small, so the motor draws 5–8 times rated current at a poor power factor. Remedies: reduced-voltage starting (wye–delta, autotransformer, soft starter; torque drops with $V^2$), extra rotor resistance in wound-rotor motors, or a variable-frequency drive, which also controls speed because $n_s \\propto f$."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "mc-induction-1",
+   "title": "Rotating fields and slip",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "A field that rotates",
+     "body": "The stator has three windings spaced 120° apart around the air gap. Fed with balanced three-phase currents, their fields add up to one field of constant strength that **rotates** around the gap at the synchronous speed. A machine with $P$ poles needs $P/2$ electrical cycles per revolution.",
+     "formula": "n_s = \\frac{120f}{P}\\ \\text{rpm}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "prompt": "Find the synchronous speed (in rpm) of a {{P}}-pole induction motor on a {{f}}-Hz supply.",
+     "answer": "120*f/P",
+     "unit": "",
+     "explanation": "$n_s = 120f/P$ = 120 × {{f}} / {{P}} = {{120*f/P||4}} rpm.",
+     "params": {
+      "P": [
+       2,
+       4,
+       6,
+       8,
+       10,
+       12
+      ],
+      "f": [
+       50,
+       60
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "An induction motor's nameplate says {{f}} Hz, {{nm||4}} rpm at full load. How many poles does it have?",
+     "options": [
+      "2",
+      "4",
+      "6",
+      "8"
+     ],
+     "answer": "P/2 - 1",
+     "explanation": "Full-load speed is a little below synchronous speed. The synchronous speeds at {{f}} Hz are {{120*f/2||4}}, {{120*f/4||4}}, {{120*f/6||4}} and {{120*f/8||4}} rpm for 2, 4, 6 and 8 poles. The nearest one above {{nm||4}} rpm is {{120*f/P||4}} rpm, so $P$ = {{P}}.",
+     "params": {
+      "f": [
+       50,
+       60
+      ],
+      "P": [
+       2,
+       4,
+       6,
+       8
+      ],
+      "s": [
+       0.02,
+       0.03,
+       0.04,
+       0.05
+      ]
+     },
+     "derived": {
+      "nm": "round(120*f/P*(1-s)/5)*5"
+     },
+     "shuffle": false
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Slip",
+     "body": "The rotor currents are induced by the field sweeping past the rotor bars. If the rotor turned at $n_s$, nothing would sweep past it: no induced current, no torque. So the rotor always lags behind. The **slip** measures by how much, and sets the frequency of the rotor currents.",
+     "formula": "s = \\frac{n_s - n_m}{n_s},\\qquad f_r = s\\,f"
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "prompt": "A {{P}}-pole, {{f}}-Hz induction motor runs at {{nm||4}} rpm. Find the slip in %.",
+     "answer": "100*(120*f/P - nm)/(120*f/P)",
+     "unit": "%",
+     "explanation": "$n_s$ = 120 × {{f}}/{{P}} = {{120*f/P||4}} rpm. $s = (n_s - n_m)/n_s$ = ({{120*f/P||4}} − {{nm||4}})/{{120*f/P||4}} = {{100*(120*f/P - nm)/(120*f/P)|%}}.",
+     "params": {
+      "f": [
+       50,
+       60
+      ],
+      "P": [
+       2,
+       4,
+       6
+      ],
+      "d": [
+       0.015,
+       0.02,
+       0.03,
+       0.04,
+       0.05
+      ]
+     },
+     "derived": {
+      "nm": "round(120*f/P*(1-d)/5)*5"
+     }
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "prompt": "A {{f}}-Hz induction motor runs with a slip of {{100*s|%}}. Find the frequency of the currents in its rotor.",
+     "answer": "s*f",
+     "unit": "Hz",
+     "explanation": "$f_r = sf$ = {{s}} × {{f}} Hz = {{s*f|Hz}}. The rotor currents alternate slowly because the field sweeps past the rotor at only the slip speed.",
+     "params": {
+      "f": [
+       50,
+       60
+      ],
+      "s": [
+       0.02,
+       0.025,
+       0.03,
+       0.04,
+       0.05,
+       0.06
+      ]
+     }
+    },
+    {
+     "id": "q5",
+     "type": "trueFalse",
+     "prompt": "An induction motor can drive a load while turning at exactly synchronous speed.",
+     "answer": false,
+     "explanation": "At $n_m = n_s$ the slip is zero: the field does not move relative to the rotor, no voltage is induced in the rotor bars, no rotor current flows and the torque is zero. Any load (even friction) makes it run slightly slower."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "The torque–speed curve",
+     "body": "From standstill ($s = 1$) the torque first rises with speed, peaks at the **breakdown torque**, and then falls steeply to zero at $n_s$. The motor normally runs on the steep right-hand part, where the speed changes little with load. Here: 4 poles, 50 Hz.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 1600,
+       "label": "n_m (rpm)"
+      },
+      "y": {
+       "min": 0,
+       "max": 290,
+       "label": "T (N·m)"
+      },
+      "curves": [
+       {
+        "f": "3*230^2*0.4*((1500-x)/1500)/((2*pi*1500/60)*(0.4^2 + (((1500-x)/1500)*2)^2))",
+        "color": "blue"
+       }
+      ],
+      "points": [
+       {
+        "x": 0,
+        "y": 97,
+        "label": "T_{start}",
+        "guides": false
+       },
+       {
+        "x": 1200,
+        "y": 252.6,
+        "label": "T_{max}",
+        "guides": false
+       }
+      ],
+      "vlines": [
+       {
+        "x": 1500,
+        "label": "n_s"
+       }
+      ],
+      "height": 200
+     }
+    },
+    {
+     "id": "i4",
+     "type": "info",
+     "title": "Try it: load and slip",
+     "body": "Same motor (4 poles, 50 Hz, $n_s$ = 1500 rpm). Drag the load torque: the operating point slides down the steep part of the curve. The speed drops only a little and the slip, and with it the rotor frequency $sf$, grows roughly in proportion to the load. Beyond the breakdown torque (about 253 N·m) there is no operating point: the motor stalls.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 1600,
+       "label": "n_m (rpm)"
+      },
+      "y": {
+       "min": 0,
+       "max": 290,
+       "label": "T (N·m)"
+      },
+      "sliders": [
+       {
+        "name": "TL",
+        "label": "load $T_L$",
+        "min": 10,
+        "max": 250,
+        "step": 5,
+        "value": 60,
+        "unit": "N·m"
+       }
+      ],
+      "let": {
+       "uu": "((3*230^2/(2*pi*25)) + sqrt((3*230^2/(2*pi*25))^2 - 4*TL^2*4))/(2*TL)",
+       "sop": "0.4/uu"
+      },
+      "curves": [
+       {
+        "f": "(3*230^2/(2*pi*25))*(0.4/((1500-x)/1500))/((0.4/((1500-x)/1500))^2 + 2^2)",
+        "color": "blue"
+       },
+       {
+        "f": "TL",
+        "color": "orange",
+        "dash": true,
+        "label": "load",
+        "labelAt": 0.08
+       }
+      ],
+      "vlines": [
+       {
+        "x": 1500,
+        "label": "n_s"
+       }
+      ],
+      "points": [
+       {
+        "x": "1500*(1-sop)",
+        "y": "TL"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "slip",
+        "value": "100*sop",
+        "unit": "%"
+       },
+       {
+        "label": "speed (rpm)",
+        "value": "1500*(1-sop)",
+        "sig": 4
+       },
+       {
+        "label": "rotor frequency",
+        "value": "50*sop",
+        "unit": "Hz"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q6",
+     "type": "matchPairs",
+     "prompt": "Match each slip to its operating condition.",
+     "pairs": [
+      [
+       "$s = 1$",
+       "Rotor at standstill (starting)"
+      ],
+      [
+       "$s = 0$",
+       "Synchronous speed, zero torque"
+      ],
+      [
+       "$0 < s < 0.05$",
+       "Normal running at load"
+      ],
+      [
+       "$s < 0$",
+       "Driven above $n_s$: generator"
+      ]
+     ],
+     "explanation": "Slip is $(n_s - n_m)/n_s$. At standstill $n_m = 0$ gives $s = 1$. Normal running is a few percent. If a prime mover drives the rotor faster than $n_s$, the slip turns negative and the machine generates."
+    }
+   ]
+  },
+  {
+   "id": "mc-induction-2",
+   "title": "Speed, power and torque",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "prompt": "A {{P}}-pole induction motor on {{f}} Hz runs at a slip of {{100*s|%}}. Find its speed in rpm.",
+     "answer": "120*f/P*(1-s)",
+     "unit": "",
+     "explanation": "$n_s$ = 120 × {{f}}/{{P}} = {{120*f/P||4}} rpm. $n_m = (1-s)n_s$ = {{1-s}} × {{120*f/P||4}} = {{120*f/P*(1-s)||4}} rpm.",
+     "params": {
+      "P": [
+       2,
+       4,
+       6,
+       8
+      ],
+      "f": [
+       50,
+       60
+      ],
+      "s": [
+       0.02,
+       0.025,
+       0.03,
+       0.04,
+       0.05
+      ]
+     },
+     "tolerance": 0.005
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "prompt": "An induction motor delivers {{Po|W}} at {{nm||4}} rpm. Find its output torque.",
+     "answer": "Po/(2*pi*nm/60)",
+     "unit": "N·m",
+     "explanation": "$\\omega_m$ = {{nm||4}} × 2π/60 = {{2*pi*nm/60|rad/s}}. $T = P_{out}/\\omega_m$ = {{Po}} / {{2*pi*nm/60}} = {{Po/(2*pi*nm/60)}} N·m.",
+     "params": {
+      "Po": [
+       2200,
+       4000,
+       5500,
+       7500,
+       11000,
+       15000
+      ],
+      "nm": [
+       1440,
+       1455,
+       1460,
+       1740,
+       1750,
+       960,
+       1165
+      ]
+     }
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "prompt": "The air-gap power of a three-phase induction motor is {{Pag|W}} and the slip is {{100*s|%}}. The machine has {{P}} poles and runs on {{f}} Hz.",
+     "answer": "s*Pag",
+     "unit": "W",
+     "explanation": "",
+     "params": {
+      "Pag": {
+       "min": 5000,
+       "max": 40000,
+       "step": 1000
+      },
+      "s": [
+       0.02,
+       0.03,
+       0.04,
+       0.05
+      ],
+      "P": [
+       4,
+       6
+      ],
+      "f": [
+       50,
+       60
+      ]
+     },
+     "ask": [
+      {
+       "prompt": "Find the rotor copper loss.",
+       "answer": "s*Pag",
+       "unit": "W",
+       "explanation": "Rotor copper loss $= sP_{ag}$ = {{s}} × {{Pag|W}} = {{s*Pag|W}}."
+      },
+      {
+       "prompt": "Find the developed mechanical power.",
+       "answer": "(1-s)*Pag",
+       "unit": "W",
+       "explanation": "$P_{dev} = (1-s)P_{ag}$ = {{1-s}} × {{Pag|W}} = {{(1-s)*Pag|W}}. The remaining $sP_{ag}$ heats the rotor."
+      },
+      {
+       "prompt": "Find the developed torque.",
+       "answer": "Pag/(4*pi*f/P)",
+       "unit": "N·m",
+       "explanation": "$\\omega_s = 2\\omega/P$ = 2 × 2π × {{f}} / {{P}} = {{4*pi*f/P|rad/s}}. $T_{dev} = P_{ag}/\\omega_s$ = {{Pag}} / {{4*pi*f/P}} = {{Pag/(4*pi*f/P)}} N·m. (Same as $P_{dev}/\\omega_m$.)"
+      }
+     ]
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "prompt": "An induction motor takes {{Pin|W}} from the supply. Stator copper loss is {{Pscu|W}}, the slip is {{100*s|%}} and rotational losses are {{Prot|W}}. Find the efficiency in %.",
+     "answer": "100*((1-s)*(Pin-Pscu) - Prot)/Pin",
+     "unit": "%",
+     "explanation": "$P_{ag} = P_{in} - P_{s,cu}$ = {{Pin-Pscu|W}}. $P_{dev} = (1-s)P_{ag}$ = {{(1-s)*(Pin-Pscu)|W}}. $P_{out} = P_{dev} - P_{rot}$ = {{(1-s)*(Pin-Pscu) - Prot|W}}. $\\eta$ = {{100*((1-s)*(Pin-Pscu) - Prot)/Pin|%}}.",
+     "params": {
+      "Pin": {
+       "min": 10000,
+       "max": 50000,
+       "step": 2000
+      },
+      "fcu": [
+       0.02,
+       0.03,
+       0.04
+      ],
+      "s": [
+       0.02,
+       0.03,
+       0.04,
+       0.05
+      ],
+      "Prot": [
+       200,
+       300,
+       400,
+       600
+      ]
+     },
+     "derived": {
+      "Pscu": "round(fcu*Pin/10)*10"
+     }
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "prompt": "The graph shows the torque–speed curve of a 4-pole, 50-Hz induction motor. Read its breakdown (maximum) torque.",
+     "answer": "3*V^2/(2*(2*pi*1500/60)*X)",
+     "unit": "N·m",
+     "explanation": "The peak of the curve is at about {{3*V^2/(2*(2*pi*1500/60)*X)}} N·m, reached at $s = R_r/X$ = {{Rr/X}}, i.e. about {{1500*(1-Rr/X)||3}} rpm. If the load torque ever exceeds this, the motor stalls.",
+     "params": {
+      "V": [
+       220,
+       230,
+       240
+      ],
+      "X": [
+       1.5,
+       2,
+       2.5,
+       3
+      ],
+      "Rr": [
+       0.3,
+       0.4,
+       0.5
+      ]
+     },
+     "tolerance": 0.06,
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 1600,
+       "label": "n_m (rpm)"
+      },
+      "y": {
+       "min": 0,
+       "max": "1.2*3*V^2/(2*(2*pi*1500/60)*X)",
+       "label": "T (N·m)"
+      },
+      "curves": [
+       {
+        "f": "3*V^2*Rr*((1500-x)/1500)/((2*pi*1500/60)*(Rr^2 + (((1500-x)/1500)*X)^2))",
+        "color": "blue"
+       }
+      ],
+      "height": 200
+     }
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "prompt": "A {{P}}-pole, {{f}}-Hz induction motor has $R_r$ = {{Rr|Ω}} and $X_s + X_r$ = {{X|Ω}}. Neglecting stator resistance and magnetizing current, at what speed (in rpm) does it develop its maximum torque?",
+     "answer": "120*f/P*(1 - Rr/X)",
+     "unit": "",
+     "explanation": "Maximum torque is at $s_{max} = R_r/X$ = {{Rr}}/{{X}} = {{Rr/X}}. $n_s$ = {{120*f/P||4}} rpm, so $n = (1 - s_{max})n_s$ = {{120*f/P*(1 - Rr/X)||4}} rpm.",
+     "params": {
+      "P": [
+       4,
+       6
+      ],
+      "f": [
+       50,
+       60
+      ],
+      "Rr": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ],
+      "X": [
+       1.5,
+       2,
+       2.5,
+       3
+      ]
+     },
+     "tolerance": 0.01
+    },
+    {
+     "id": "p7",
+     "type": "multipleChoice",
+     "prompt": "The dashed curve is the original torque–speed curve. Which solid curve shows the same motor with a **larger rotor resistance**?",
+     "answer": 0,
+     "explanation": "With the stator impedance neglected, $T_{max} = 3V^2/(2\\omega_sX)$ does not depend on $R_r$, but its slip $s_{max} = R_r/X$ grows with $R_r$. So the peak keeps its height and moves to lower speed, and the starting torque rises. A lower peak at the same place would mean lower voltage.",
+     "optionPlots": [
+      {
+       "x": {
+        "min": 0,
+        "max": 1600,
+        "label": "n"
+       },
+       "y": {
+        "min": 0,
+        "max": 290,
+        "label": "T"
+       },
+       "curves": [
+        {
+         "f": "3*230^2*0.4*((1500-x)/1500)/((2*pi*1500/60)*(0.4^2 + (((1500-x)/1500)*2)^2))",
+         "color": "grey",
+         "dash": true
+        },
+        {
+         "f": "3*230^2*0.8*((1500-x)/1500)/((2*pi*1500/60)*(0.8^2 + (((1500-x)/1500)*2)^2))",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1600,
+        "label": "n"
+       },
+       "y": {
+        "min": 0,
+        "max": 290,
+        "label": "T"
+       },
+       "curves": [
+        {
+         "f": "3*230^2*0.4*((1500-x)/1500)/((2*pi*1500/60)*(0.4^2 + (((1500-x)/1500)*2)^2))",
+         "color": "grey",
+         "dash": true
+        },
+        {
+         "f": "3*200^2*0.4*((1500-x)/1500)/((2*pi*1500/60)*(0.4^2 + (((1500-x)/1500)*2)^2))",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1600,
+        "label": "n"
+       },
+       "y": {
+        "min": 0,
+        "max": 290,
+        "label": "T"
+       },
+       "curves": [
+        {
+         "f": "3*230^2*0.4*((1500-x)/1500)/((2*pi*1500/60)*(0.4^2 + (((1500-x)/1500)*2)^2))",
+         "color": "grey",
+         "dash": true
+        },
+        {
+         "f": "3*230^2*0.2*((1500-x)/1500)/((2*pi*1500/60)*(0.2^2 + (((1500-x)/1500)*2)^2))",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      }
+     ]
+    },
+    {
+     "id": "p8",
+     "type": "numeric",
+     "prompt": "A wye-connected induction motor on a {{VL|V}} line has $R_s$ = {{Rs|Ω}}, $R_r$ = {{Rr|Ω}}, $X_s$ = {{Xs|Ω}} and $X_r$ = {{Xr|Ω}}. Neglecting $X_m$, estimate the line current at starting ($s = 1$).",
+     "answer": "VL/sqrt(3)/sqrt((Rs+Rr)^2 + (Xs+Xr)^2)",
+     "unit": "A",
+     "explanation": "At $s = 1$ the rotor branch is $R_r + jX_r$. $V_s = V_L/\\sqrt3$ = {{VL/sqrt(3)|V}}. $|Z| = |({{Rs+Rr}}) + j({{Xs+Xr}})|$ = {{sqrt((Rs+Rr)^2 + (Xs+Xr)^2)|Ω}}. $I_{start}$ = {{VL/sqrt(3)/sqrt((Rs+Rr)^2 + (Xs+Xr)^2)|A}}.",
+     "params": {
+      "VL": [
+       380,
+       400,
+       415
+      ],
+      "Rs": [
+       0.2,
+       0.3,
+       0.5
+      ],
+      "Rr": [
+       0.2,
+       0.3,
+       0.4
+      ],
+      "Xs": [
+       0.5,
+       0.8,
+       1.0
+      ],
+      "Xr": [
+       0.5,
+       0.8,
+       1.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "mc-induction-3",
+   "title": "Using the equivalent circuit",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Solving the equivalent circuit",
+     "body": "For a given slip, the circuit is an ordinary AC network. Combine $R_r/s + jX_r$ in parallel with $jX_m$, add $R_s + jX_s$, and divide the phase voltage by the total impedance. All power reaching the parallel combination is the air-gap power, because $X_m$ absorbs no real power.",
+     "formula": "P_{ag} = 3I_s^2\\,\\mathrm{Re}(Z_p)",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.1,
+         0
+        ],
+        "to": [
+         0.9,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_s",
+        "value": ""
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "jX_s",
+        "value": ""
+       },
+       {
+        "type": "inductor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         5,
+         2
+        ],
+        "label": "jX_m",
+        "value": ""
+       },
+       {
+        "type": "inductor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "jX_r",
+        "value": ""
+       },
+       {
+        "type": "resistor",
+        "from": [
+         7,
+         0
+        ],
+        "to": [
+         7,
+         2
+        ],
+        "label": "R_r/s",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          7,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c1",
+     "type": "numeric",
+     "prompt": "A 4-pole, 50-Hz, wye-connected induction motor runs from {{VL|V}} at slip $s$ = {{s}}. Per phase: $R_s$ = {{Rs}} Ω, $X_s$ = {{Xs}} Ω, $X_m$ = {{Xm}} Ω, $R_r$ = {{Rr}} Ω, $X_r$ = {{Xr}} Ω.",
+     "answer": "Is",
+     "unit": "A",
+     "explanation": "",
+     "params": {
+      "VL": [
+       380,
+       400,
+       415
+      ],
+      "Rs": [
+       0.2,
+       0.3,
+       0.4
+      ],
+      "Xs": [
+       0.5,
+       0.8,
+       1.0
+      ],
+      "Xm": [
+       20,
+       25,
+       30
+      ],
+      "Rr": [
+       0.15,
+       0.2,
+       0.25,
+       0.3
+      ],
+      "Xr": [
+       0.5,
+       0.8,
+       1.0
+      ],
+      "s": [
+       0.02,
+       0.03,
+       0.04,
+       0.05
+      ]
+     },
+     "derived": {
+      "Vp": "VL/sqrt(3)",
+      "a": "Rr/s",
+      "D": "(Rr/s)^2 + (Xr+Xm)^2",
+      "Rp": "Xm^2*(Rr/s)/D",
+      "Xp": "Xm*((Rr/s)^2 + Xr^2 + Xr*Xm)/D",
+      "Rt": "Rs + Rp",
+      "Xt": "Xs + Xp",
+      "Z": "sqrt(Rt^2 + Xt^2)",
+      "Is": "Vp/Z",
+      "Pin": "3*Is^2*Rt",
+      "Pag": "3*Is^2*Rp",
+      "ws": "2*pi*1500/60"
+     },
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vp|V}}",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.1,
+         0
+        ],
+        "to": [
+         0.9,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_s",
+        "value": "{{Rs}} Ω"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "jX_s",
+        "value": "{{Xs}} Ω"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         5,
+         2
+        ],
+        "label": "jX_m",
+        "value": "{{Xm}} Ω"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "jX_r",
+        "value": "{{Xr}} Ω"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         7,
+         0
+        ],
+        "to": [
+         7,
+         2
+        ],
+        "label": "R_r/s",
+        "value": "{{a}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          7,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         2
+        ]
+       }
+      ]
+     },
+     "ask": [
+      {
+       "prompt": "Find the stator (line) current.",
+       "answer": "Is",
+       "unit": "A",
+       "explanation": "$V_s = V_L/\\sqrt3$ = {{Vp|V}}. Rotor branch $R_r/s + jX_r$ = {{a}} + j{{Xr}} Ω. In parallel with $jX_m$: $Z_p$ = {{Rp}} + j{{Xp}} Ω. Add the stator: $Z = R_s + jX_s + Z_p$ = {{Rt}} + j{{Xt}} Ω, $|Z|$ = {{Z|Ω}}, so $I_s$ = {{Is|A}}."
+      },
+      {
+       "prompt": "Find the power factor.",
+       "answer": "Rt/Z",
+       "unit": "",
+       "tolerance": 0.01,
+       "explanation": "$V_s = V_L/\\sqrt3$ = {{Vp|V}}. Rotor branch $R_r/s + jX_r$ = {{a}} + j{{Xr}} Ω. In parallel with $jX_m$: $Z_p$ = {{Rp}} + j{{Xp}} Ω. Add the stator: $Z = R_s + jX_s + Z_p$ = {{Rt}} + j{{Xt}} Ω, $|Z|$ = {{Z|Ω}}, so $I_s$ = {{Is|A}}. Power factor $= R/|Z|$ = {{Rt}}/{{Z}} = {{Rt/Z||3}} lagging."
+      },
+      {
+       "prompt": "Find the total input power.",
+       "answer": "Pin",
+       "unit": "W",
+       "explanation": "$V_s = V_L/\\sqrt3$ = {{Vp|V}}. Rotor branch $R_r/s + jX_r$ = {{a}} + j{{Xr}} Ω. In parallel with $jX_m$: $Z_p$ = {{Rp}} + j{{Xp}} Ω. Add the stator: $Z = R_s + jX_s + Z_p$ = {{Rt}} + j{{Xt}} Ω, $|Z|$ = {{Z|Ω}}, so $I_s$ = {{Is|A}}. $P_{in} = 3I_s^2\\,\\mathrm{Re}(Z)$ = 3 × {{Is}}² × {{Rt}} = {{Pin|W}}."
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "prompt": "Same type of motor (4-pole, 50 Hz, wye, {{VL|V}}, slip {{s}}; $R_s$ = {{Rs}}, $X_s$ = {{Xs}}, $X_m$ = {{Xm}}, $R_r$ = {{Rr}}, $X_r$ = {{Xr}} Ω per phase), with rotational losses of {{Prot|W}}.",
+     "answer": "Pag/ws",
+     "unit": "N·m",
+     "explanation": "",
+     "params": {
+      "VL": [
+       380,
+       400,
+       415
+      ],
+      "Rs": [
+       0.2,
+       0.3,
+       0.4
+      ],
+      "Xs": [
+       0.5,
+       0.8,
+       1.0
+      ],
+      "Xm": [
+       20,
+       25,
+       30
+      ],
+      "Rr": [
+       0.15,
+       0.2,
+       0.25,
+       0.3
+      ],
+      "Xr": [
+       0.5,
+       0.8,
+       1.0
+      ],
+      "s": [
+       0.02,
+       0.03,
+       0.04,
+       0.05
+      ],
+      "Prot": [
+       200,
+       300,
+       400,
+       500
+      ]
+     },
+     "derived": {
+      "Vp": "VL/sqrt(3)",
+      "a": "Rr/s",
+      "D": "(Rr/s)^2 + (Xr+Xm)^2",
+      "Rp": "Xm^2*(Rr/s)/D",
+      "Xp": "Xm*((Rr/s)^2 + Xr^2 + Xr*Xm)/D",
+      "Rt": "Rs + Rp",
+      "Xt": "Xs + Xp",
+      "Z": "sqrt(Rt^2 + Xt^2)",
+      "Is": "Vp/Z",
+      "Pin": "3*Is^2*Rt",
+      "Pag": "3*Is^2*Rp",
+      "ws": "2*pi*1500/60"
+     },
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vp|V}}",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.1,
+         0
+        ],
+        "to": [
+         0.9,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_s",
+        "value": "{{Rs}} Ω"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "jX_s",
+        "value": "{{Xs}} Ω"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         5,
+         2
+        ],
+        "label": "jX_m",
+        "value": "{{Xm}} Ω"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "jX_r",
+        "value": "{{Xr}} Ω"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         7,
+         0
+        ],
+        "to": [
+         7,
+         2
+        ],
+        "label": "R_r/s",
+        "value": "{{a}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          7,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         2
+        ]
+       }
+      ]
+     },
+     "ask": [
+      {
+       "prompt": "Find the developed torque.",
+       "answer": "Pag/ws",
+       "unit": "N·m",
+       "explanation": "$V_s = V_L/\\sqrt3$ = {{Vp|V}}. Rotor branch $R_r/s + jX_r$ = {{a}} + j{{Xr}} Ω. In parallel with $jX_m$: $Z_p$ = {{Rp}} + j{{Xp}} Ω. Add the stator: $Z = R_s + jX_s + Z_p$ = {{Rt}} + j{{Xt}} Ω, $|Z|$ = {{Z|Ω}}, so $I_s$ = {{Is|A}}. $P_{ag} = 3I_s^2\\,\\mathrm{Re}(Z_p)$ = {{Pag|W}}. $\\omega_s$ = 2π × 1500/60 = {{ws|rad/s}}, $T_{dev} = P_{ag}/\\omega_s$ = {{Pag/ws}} N·m."
+      },
+      {
+       "prompt": "Find the output power.",
+       "answer": "(1-s)*Pag - Prot",
+       "unit": "W",
+       "explanation": "$V_s = V_L/\\sqrt3$ = {{Vp|V}}. Rotor branch $R_r/s + jX_r$ = {{a}} + j{{Xr}} Ω. In parallel with $jX_m$: $Z_p$ = {{Rp}} + j{{Xp}} Ω. Add the stator: $Z = R_s + jX_s + Z_p$ = {{Rt}} + j{{Xt}} Ω, $|Z|$ = {{Z|Ω}}, so $I_s$ = {{Is|A}}. $P_{ag}$ = 3 × {{Is}}² × {{Rp}} = {{Pag|W}}. $P_{dev} = (1-s)P_{ag}$ = {{(1-s)*Pag|W}}, minus rotational losses: $P_{out}$ = {{(1-s)*Pag - Prot|W}}."
+      },
+      {
+       "prompt": "Find the efficiency in %.",
+       "answer": "100*((1-s)*Pag - Prot)/Pin",
+       "unit": "%",
+       "explanation": "$V_s = V_L/\\sqrt3$ = {{Vp|V}}. Rotor branch $R_r/s + jX_r$ = {{a}} + j{{Xr}} Ω. In parallel with $jX_m$: $Z_p$ = {{Rp}} + j{{Xp}} Ω. Add the stator: $Z = R_s + jX_s + Z_p$ = {{Rt}} + j{{Xt}} Ω, $|Z|$ = {{Z|Ω}}, so $I_s$ = {{Is|A}}. $P_{in} = 3I_s^2\\,\\mathrm{Re}(Z)$ = {{Pin|W}}; $P_{ag} = 3I_s^2\\,\\mathrm{Re}(Z_p)$ = {{Pag|W}}; $P_{out} = (1-s)P_{ag} - P_{rot}$ = {{(1-s)*Pag - Prot|W}}. $\\eta$ = {{100*((1-s)*Pag - Prot)/Pin|%}}."
+      }
+     ]
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "prompt": "An induction motor has $R_r$ = {{Rr|Ω}} and $X = X_s + X_r$ = {{X|Ω}} (stator resistance and $X_m$ neglected). Its full-load slip is {{s}}. Find the ratio of starting torque to full-load torque.",
+     "answer": "(Rr^2 + (s*X)^2)/(s*(Rr^2 + X^2))",
+     "unit": "",
+     "explanation": "With the approximation $T \\propto \\dfrac{R_r/s}{(R_r/s)^2 + X^2} = \\dfrac{sR_r}{R_r^2 + (sX)^2}$: at $s = 1$, $T \\propto$ {{Rr/(Rr^2+X^2)}}; at $s$ = {{s}}, $T \\propto$ {{s*Rr/(Rr^2+(s*X)^2)}}. Ratio = {{(Rr^2 + (s*X)^2)/(s*(Rr^2 + X^2))}}.",
+     "params": {
+      "Rr": [
+       0.2,
+       0.3,
+       0.4,
+       0.5
+      ],
+      "X": [
+       1.5,
+       2,
+       3
+      ],
+      "s": [
+       0.02,
+       0.03,
+       0.04,
+       0.05
+      ]
+     },
+     "derived": {
+      "r": "(Rr^2 + (s*X)^2)/(s*(Rr^2 + X^2))"
+     },
+     "require": "min(r - 0.5, 3 - r)"
+    },
+    {
+     "id": "s1",
+     "type": "slider",
+     "params": {
+      "X": [
+       1.2,
+       1.6,
+       2.0,
+       2.4
+      ],
+      "k": [
+       0.5,
+       0.6,
+       0.8
+      ]
+     },
+     "derived": {
+      "Rt": "X*(1 - sqrt(1 - k^2))/k",
+      "Tm": "(3*230^2/(2*pi*25))/(2*X)"
+     },
+     "prompt": "A 4-pole, 50 Hz motor (230 V per phase, $X = X_s + X_r$ = {{X}} Ω, stator resistance neglected) must start a heavy load. Set the rotor resistance so that the starting torque is {{100*k}} % of the breakdown torque (orange line), with the peak still at a positive speed.",
+     "hint": "$T \\propto \\frac{R_r/s}{(R_r/s)^2 + X^2}$ and $T_{max}$ does not depend on $R_r$. Compare $s = 1$ with the peak.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 1600,
+       "label": "n_m (rpm)"
+      },
+      "y": {
+       "min": 0,
+       "max": "1.15*Tm",
+       "label": "T (N·m)"
+      },
+      "sliders": [
+       {
+        "name": "Rr",
+        "label": "$R_r$",
+        "min": 0.05,
+        "max": "1.5*X",
+        "step": 0.01,
+        "value": "X/10",
+        "unit": "Ω"
+       }
+      ],
+      "curves": [
+       {
+        "f": "(3*230^2/(2*pi*25))*(Rr/((1500-x)/1500))/((Rr/((1500-x)/1500))^2 + X^2)",
+        "color": "blue"
+       },
+       {
+        "f": "k*Tm",
+        "color": "orange",
+        "dash": true,
+        "label": "target T_start",
+        "labelAt": 0.25
+       }
+      ],
+      "hlines": [
+       {
+        "y": "Tm",
+        "label": "T_max"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$T_{start}/T_{max}$",
+        "value": "2*Rr*X/(Rr^2 + X^2)",
+        "reveal": true
+       }
+      ]
+     },
+     "answer": {
+      "Rr": "Rt"
+     },
+     "tolerance": 0.05,
+     "explanation": "At $s = 1$: $T_{start} \\propto \\frac{R_r}{R_r^2 + X^2}$; at the peak ($R_r/s = X$): $T_{max} \\propto \\frac{1}{2X}$. So $\\frac{T_{start}}{T_{max}} = \\frac{2R_rX}{R_r^2 + X^2}$ = {{k}}, a quadratic ${{k}}R_r^2 - {{2*X}}R_r + {{k*X^2}} = 0$. Its smaller root is $R_r = X\\frac{1 - \\sqrt{1 - k^2}}{k}$ = {{Rt}} Ω, with $s_{max} = R_r/X$ = {{Rt/X}} (peak at {{1500*(1-Rt/X)||4}} rpm). The larger root, {{X*(1+sqrt(1-k^2))/k}} Ω, would put the peak below standstill. $T_{max}$ = {{Tm}} N·m stays the same: rotor resistance only moves the peak."
+    },
+    {
+     "id": "c4",
+     "type": "orderSteps",
+     "prompt": "Order the power flow through an induction motor, from the supply to the shaft.",
+     "items": [
+      "Electrical input $3V_sI_s\\cos\\theta$",
+      "Stator copper loss removed",
+      "Air-gap power $P_{ag}$ crosses to the rotor",
+      "Rotor copper loss $sP_{ag}$ removed",
+      "Developed power $(1-s)P_{ag}$",
+      "Rotational losses removed: shaft output"
+     ],
+     "explanation": "Power enters the stator, loses $3I_s^2R_s$, crosses the air gap, loses $sP_{ag}$ in the rotor bars, and the remaining $(1-s)P_{ag}$ becomes mechanical. Friction, windage and core losses come off last."
+    },
+    {
+     "id": "c5",
+     "type": "tapCircuit",
+     "prompt": "In this equivalent circuit $R_r/s$ has been split into two parts. Tap the element whose power (times 3) equals the **developed mechanical power**.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "polarity": "-+"
+       },
+       {
+        "type": "resistor",
+        "name": "Rs",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_s"
+       },
+       {
+        "type": "inductor",
+        "name": "Xs",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "jX_s"
+       },
+       {
+        "type": "inductor",
+        "name": "Xm",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         3
+        ],
+        "label": "jX_m"
+       },
+       {
+        "type": "inductor",
+        "name": "Xr",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "jX_r"
+       },
+       {
+        "type": "resistor",
+        "name": "Rr",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         1
+        ],
+        "label": "R_r"
+       },
+       {
+        "type": "resistor",
+        "name": "RL",
+        "from": [
+         6,
+         1
+        ],
+        "to": [
+         6,
+         3
+        ],
+        "label": "R_r(1-s)/s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          3
+         ],
+         [
+          0,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         3
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "Rs",
+      "Xs",
+      "Xm",
+      "Xr",
+      "Rr",
+      "RL"
+     ],
+     "answer": [
+      "RL"
+     ],
+     "explanation": "$R_r/s = R_r + R_r(1-s)/s$. The power in $R_r$ is the rotor copper loss $3I_r^2R_r = sP_{ag}$; the power in $R_r(1-s)/s$ is $(1-s)P_{ag} = P_{dev}$, the power converted to mechanical form. Reactances absorb no real power."
+    },
+    {
+     "id": "c6",
+     "type": "multipleChoice",
+     "prompt": "A variable-frequency drive lowers the supply frequency of a 4-pole motor from 50 Hz to {{f2}} Hz while keeping $V/f$ constant. Roughly what happens?",
+     "options": [
+      "Synchronous speed drops to {{120*f2/4||4}} rpm and the motor runs just below it",
+      "The speed stays near 1500 rpm but the torque drops",
+      "The motor stops, because induction motors need the rated frequency"
+     ],
+     "answer": 0,
+     "explanation": "$n_s = 120f/P$ = 120 × {{f2}}/4 = {{120*f2/4||4}} rpm. Keeping $V/f$ constant keeps the flux, and therefore the torque capability, roughly constant. The whole torque–speed curve shifts to the new $n_s$, and the motor runs at a small slip below it.",
+     "params": {
+      "f2": [
+       20,
+       25,
+       30,
+       35,
+       40
+      ]
+     },
+     "shuffle": false
+    }
+   ]
+  }
+ ]
+}

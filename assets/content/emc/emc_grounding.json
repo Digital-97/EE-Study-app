@@ -1,0 +1,2514 @@
+{
+  "id": "emc-grounding",
+  "title": "Grounding",
+  "description": "Safety and signal grounds, grounding topologies, ground impedance, and how to avoid, tolerate or break ground loops.",
+  "reference": "Ott §3.1–3.7",
+  "study": [
+    {
+      "title": "What is a ground?",
+      "body": "There are two kinds. **Safety grounds** (protective earth, PE) carry current only during a fault. **Signal grounds** are really **returns** and carry current all the time. A signal ground is best defined as a **low-impedance path for current to return to its source**, not as an equipotential. Any current through a ground conductor produces a voltage, and at high frequency its inductance dominates.",
+      "formula": "V_g = I_g Z_g,\\quad Z_g = R_g + j\\omega L_g"
+    },
+    {
+      "title": "Mains safety grounding (EU)",
+      "body": "In a TN-S system the transformer star point is earthed and a separate green/yellow **PE** conductor bonds every exposed metal part (TN-C-S: a combined PEN conductor up to the building, split into N and PE there). A line-to-enclosure fault drives a large current through the low-impedance fault loop $Z_s$, so the fuse or MCB disconnects within 0.4 s. An **RCD** also trips when line and neutral currents differ by 30 mA or more. Never break PE to cure hum: isolate the signal path instead.",
+      "formula": "I_f = \\frac{U_0}{Z_s}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "acsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "U_0",
+            "value": "230 V"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              3,
+              0
+            ],
+            "label": "R_{line}",
+            "value": "line conductor"
+          },
+          {
+            "type": "switch",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "fault",
+            "value": "to enclosure",
+            "closed": true
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              2
+            ],
+            "to": [
+              0,
+              2
+            ],
+            "label": "R_{PE}",
+            "value": "PE conductor",
+            "flip": true
+          }
+        ]
+      }
+    },
+    {
+      "title": "Single-point grounds: series and parallel",
+      "body": "In a **daisy chain** (series single-point ground) each circuit's current flows through all ground conductors closer to the ground point, so a quiet circuit sees the drops of noisy ones. A **star** (parallel) ground gives each circuit its own conductor: $V_A = I_1Z_1$, but needs more wiring. In a daisy chain, put the most sensitive circuit closest to the ground point and never chain circuits with very different currents.",
+      "formula": "V_B = (I_1{+}I_2{+}I_3)Z_1 + (I_2{+}I_3)Z_2",
+      "circuit": {
+        "elements": [
+          {
+            "type": "block",
+            "at": [
+              2,
+              1
+            ],
+            "label": "Circuit 1",
+            "size": [
+              1.6,
+              0.8
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4,
+              1
+            ],
+            "label": "Circuit 2",
+            "size": [
+              1.6,
+              0.8
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              6,
+              1
+            ],
+            "label": "Circuit 3",
+            "size": [
+              1.6,
+              0.8
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              3
+            ],
+            "to": [
+              2,
+              3
+            ],
+            "label": "Z_1",
+            "value": ""
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              3
+            ],
+            "to": [
+              4,
+              3
+            ],
+            "label": "Z_2",
+            "value": ""
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              3
+            ],
+            "to": [
+              6,
+              3
+            ],
+            "label": "Z_3",
+            "value": ""
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1.4
+              ],
+              [
+                2,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                1.4
+              ],
+              [
+                4,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6,
+                1.4
+              ],
+              [
+                6,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "arrow",
+            "from": [
+              2,
+              1.7
+            ],
+            "to": [
+              2,
+              2.5
+            ],
+            "label": "I_1"
+          },
+          {
+            "type": "arrow",
+            "from": [
+              4,
+              1.7
+            ],
+            "to": [
+              4,
+              2.5
+            ],
+            "label": "I_2"
+          },
+          {
+            "type": "arrow",
+            "from": [
+              6,
+              1.7
+            ],
+            "to": [
+              6,
+              2.5
+            ],
+            "label": "I_3"
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              3
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              3
+            ]
+          },
+          {
+            "type": "text",
+            "at": [
+              2,
+              3.5
+            ],
+            "label": "A"
+          },
+          {
+            "type": "text",
+            "at": [
+              4,
+              3.5
+            ],
+            "label": "B"
+          },
+          {
+            "type": "text",
+            "at": [
+              6,
+              3.5
+            ],
+            "label": "C"
+          },
+          {
+            "type": "ground",
+            "at": [
+              0,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Multipoint and hybrid grounds",
+      "body": "Single-point grounds suit low frequencies (dc to ~100 kHz, sometimes pushed to ~1 MHz), where you can steer the ground current. Above ~100 kHz, and with digital circuits, long ground leads are inductive, stray capacitance closes the loops anyway and leads longer than λ/20 become antennas: use a **multipoint** ground, many short connections to a plane. A **hybrid** ground, e.g. a capacitor in one ground connection, is single-point at low and multipoint at high frequency.",
+      "formula": "\\ell_{ground} < \\lambda/20"
+    },
+    {
+      "title": "Explore: ground conductor impedance",
+      "body": "A straight wire has roughly 1 nH per mm; 24 AWG copper has about 84 mΩ/m. Above $f = R/(2\\pi L)$ (here ≈ 13 kHz, whatever the length) the reactance dominates, so a thicker wire hardly helps; a shorter, wider strap (length:width ≤ 3:1) or a plane does. Drag the length and read $|Z|$ at 10 MHz.",
+      "formula": "X_L = 2\\pi f L,\\quad L \\approx 1\\ \\text{nH/mm}",
+      "plot": {
+        "x": {
+          "min": 100,
+          "max": 100000000.0,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": 0.0001,
+          "max": 1000.0,
+          "label": "|Z|",
+          "unit": "Ω",
+          "log": true
+        },
+        "sliders": [
+          {
+            "name": "len",
+            "label": "length (cm)",
+            "min": 1,
+            "max": 100,
+            "step": 1,
+            "value": 30
+          }
+        ],
+        "let": {
+          "R": "len*0.84e-3",
+          "L": "len*1e-8"
+        },
+        "curves": [
+          {
+            "f": "sqrt(R^2 + (2*pi*x*L)^2)",
+            "label": "|Z|",
+            "labelAt": 0.8
+          },
+          {
+            "f": "R",
+            "dash": true,
+            "color": "grey",
+            "label": "R",
+            "labelAt": 0.15
+          }
+        ],
+        "vlines": [
+          {
+            "x": "R/(2*pi*L)",
+            "label": "X_L = R"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$R$",
+            "value": "R",
+            "unit": "Ω"
+          },
+          {
+            "label": "$L$",
+            "value": "L",
+            "unit": "H"
+          },
+          {
+            "label": "$|Z|$ at 10 MHz",
+            "value": "sqrt(R^2 + (2*pi*1e7*L)^2)",
+            "unit": "Ω"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Ground loops",
+      "body": "Grounding a circuit at both ends forms a loop. A ground voltage $V_G$ (from other currents in the ground) divides over the ground impedance $R_G$ and the signal return $R_{C2}$; the part across $R_{C2}$ ends up in series with the signal, reduced only by the divider $R_L/(R_L+R_S+R_{C1})$. A magnetic field through the loop adds more. Ground-loop trouble is mostly below 100 kHz in sensitive analogue circuits: 50 Hz hum.",
+      "formula": "V_N \\approx V_G\\,\\frac{R_{C2}}{R_{C2}+R_G}\\,\\frac{R_L}{R_L+R_S}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_S"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "R_S"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "label": "R_{C1}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                5,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              5,
+              0
+            ],
+            "to": [
+              5,
+              2
+            ],
+            "label": "R_L",
+            "polarity": "+-"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                2
+              ],
+              [
+                4,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              2
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "R_{C2}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              2,
+              4
+            ],
+            "label": "R_G",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                4
+              ],
+              [
+                3,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "vsource",
+            "from": [
+              3,
+              4
+            ],
+            "to": [
+              5,
+              4
+            ],
+            "label": "V_G",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                4
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              2
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "text",
+            "at": [
+              2.5,
+              3
+            ],
+            "label": "ground loop"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: breaking ground loops",
+      "body": "**Avoid** loops (single-point or hybrid ground), **tolerate** them (low ground impedance, balanced/differential receivers), or **break** them with an isolation transformer, an optocoupler or a **common-mode choke**. The choke passes dc and the differential signal (for $\\omega > 5R_{C2}/L$) but blocks ground-loop current above the break frequency $\\omega = R_{C2}/L$. Drag $L$ ($R_{C2}$ = 50 mΩ). And give every system **one** reference ground plane.",
+      "formula": "\\frac{V_N}{V_G} = \\frac{R_{C2}/L}{j\\omega + R_{C2}/L}",
+      "plot": {
+        "x": {
+          "min": 0.1,
+          "max": 10000.0,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": -80,
+          "max": 5,
+          "label": "|V_N/V_G| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "L",
+            "label": "$L$",
+            "min": 0.0001,
+            "max": 0.1,
+            "log": true,
+            "value": 0.001,
+            "unit": "H"
+          }
+        ],
+        "curves": [
+          {
+            "f": "-10*log10(1+(2*pi*x*L/0.05)^2)",
+            "label": "with choke",
+            "labelAt": 0.15
+          }
+        ],
+        "vlines": [
+          {
+            "x": 50,
+            "label": "50 Hz"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "break $R_{C2}/(2\\pi L)$",
+            "value": "0.05/(2*pi*L)",
+            "unit": "Hz"
+          },
+          {
+            "label": "hum reduction at 50 Hz",
+            "value": "10*log10(1+(2*pi*50*L/0.05)^2)",
+            "unit": "dB"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "emc-grounding-1",
+      "title": "Safety and signal grounds",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Two kinds of ground",
+          "body": "**Safety grounds** (protective earth, PE) connect exposed metal to earth and carry current only during a fault. **Signal grounds** are the return conductors of circuits and carry current all the time. Calling both 'ground' causes much confusion: a good safety ground is not automatically a good signal ground, and vice versa."
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "In normal operation the protective earth (PE) conductor carries the return current of the equipment.",
+          "answer": false,
+          "explanation": "The load current returns through the **neutral**. PE carries current only during a fault (plus small leakage currents, e.g. from EMC filter capacitors). That is why PE and N may only be joined at one point."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Fault protection in a TN system",
+          "body": "If a line conductor touches an earthed enclosure, current flows round the **fault loop**: line conductor, fault, PE conductor and back to the transformer star point. Its low impedance $Z_s$ makes the current large enough to blow the fuse or trip the MCB quickly. An RCD adds protection: it trips when line and neutral currents differ by 30 mA or more.",
+          "formula": "I_f = \\frac{U_0}{Z_s}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "U_0",
+                "value": "230 V"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R_{line}",
+                "value": "line conductor"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "fault",
+                "value": "to enclosure",
+                "closed": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  2
+                ],
+                "to": [
+                  0,
+                  2
+                ],
+                "label": "R_{PE}",
+                "value": "PE conductor",
+                "flip": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Zs": [
+              0.4,
+              0.8,
+              1.2,
+              2.0
+            ]
+          },
+          "prompt": "In a 230 V TN-S installation the fault-loop impedance to an appliance is $Z_s$ = {{Zs|Ω}}. A line conductor shorts to the appliance's metal case. What fault current flows?",
+          "answer": "230/Zs",
+          "unit": "A",
+          "explanation": "$I_f = U_0/Z_s$ = 230 V / {{Zs|Ω}} = **{{230/Zs|A}}**. A B16 MCB trips magnetically at 3–5 × 16 A, at most 80 A, so it disconnects almost instantly."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "A rack hums because of a ground loop. Why must you never cure it by cutting the PE wire in its mains plug?",
+          "options": [
+            "A fault would leave the metal case at mains voltage",
+            "The hum would get louder",
+            "The RCD would trip permanently",
+            "The 50 Hz mains frequency would shift"
+          ],
+          "answer": 0,
+          "explanation": "Without PE, a line-to-case fault has no low-impedance return, so no fuse blows and the case stays live: lethal. Break ground loops in the **signal** path (transformer, optocoupler, common-mode choke, balanced input) instead."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Signal ground: a return path",
+          "body": "A signal ground is better defined as a **low-impedance path for current to return to its source** than as an equipotential. Current through a ground conductor always produces a voltage $V_g = I_gZ_g$, so two separate ground points are never at exactly the same potential. At low frequency the return current takes the path of least **resistance**; at high frequency the path of least **inductance**.",
+          "formula": "Z_g = R_g + j\\omega L_g"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "len": [
+              5,
+              10,
+              20,
+              50
+            ],
+            "f": [
+              1000000.0,
+              10000000.0,
+              100000000.0
+            ]
+          },
+          "prompt": "A {{len}} cm long ground wire (≈ 1 nH/mm) connects a circuit board to the chassis. What is its reactance at {{f|Hz}}?",
+          "answer": "2*pi*f*len*1e-8",
+          "unit": "Ω",
+          "explanation": "$L$ ≈ {{len*10}} mm × 1 nH/mm = {{len*1e-8|H}}. $X_L = 2\\pi f L$ = 2π × {{f|Hz}} × {{len*1e-8|H}} = **{{2*pi*f*len*1e-8|Ω}}**: far from a 'short' at high frequency."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Connecting equipment to its own isolated 'quiet' earth rod reduces noise and is good practice.",
+          "answer": false,
+          "explanation": "The earth is not a low-impedance conductor (an earth rod often has 10–15 Ω or more) and it is not an equipotential. With a separate rod, a fault current must flow through the soil and may be far too small to trip the fuse or MCB, so the case can stay live. More noise problems are solved by **removing** earth connections from signal circuits than by adding them."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A trace on top of a PCB returns through a solid ground plane on the bottom. At 100 MHz, where does the return current flow in the plane?",
+          "options": [
+            "Directly under the trace",
+            "Along the straight line between the two end vias",
+            "Spread evenly over the whole plane",
+            "Mostly through the chassis"
+          ],
+          "answer": 0,
+          "explanation": "At high frequency current takes the path of least **inductance**, which is the smallest loop: right under the trace. At low frequency (below a few hundred kHz) it takes the least-resistance path between the vias, which can enclose a large loop."
+        }
+      ]
+    },
+    {
+      "id": "emc-grounding-2",
+      "title": "Grounding topologies",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Daisy chain versus star",
+          "body": "In a **daisy chain** all circuits hang on one ground conductor in series. Each segment carries the currents of all circuits further along, so point A is at $(I_1+I_2+I_3)Z_1$. Simple wiring, but noisy circuits shift the ground of quiet ones. In a **star** each circuit has its own conductor to the single ground point.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "block",
+                "at": [
+                  2,
+                  1
+                ],
+                "label": "Circuit 1",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  4,
+                  1
+                ],
+                "label": "Circuit 2",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  6,
+                  1
+                ],
+                "label": "Circuit 3",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "Z_1",
+                "value": ""
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "Z_2",
+                "value": ""
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  3
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "Z_3",
+                "value": ""
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.4
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    1.4
+                  ],
+                  [
+                    4,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    1.4
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  2,
+                  1.7
+                ],
+                "to": [
+                  2,
+                  2.5
+                ],
+                "label": "I_1"
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  4,
+                  1.7
+                ],
+                "to": [
+                  4,
+                  2.5
+                ],
+                "label": "I_2"
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  6,
+                  1.7
+                ],
+                "to": [
+                  6,
+                  2.5
+                ],
+                "label": "I_3"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  2,
+                  3.5
+                ],
+                "label": "A"
+              },
+              {
+                "type": "text",
+                "at": [
+                  4,
+                  3.5
+                ],
+                "label": "B"
+              },
+              {
+                "type": "text",
+                "at": [
+                  6,
+                  3.5
+                ],
+                "label": "C"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  3
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "I1": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "I2": [
+              0.1,
+              0.2,
+              0.5
+            ],
+            "I3": [
+              1,
+              2,
+              5
+            ],
+            "Z1": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "Z2": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "Z3": [
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "In the daisy chain shown, $I_1$ = {{I1|A}}, $I_2$ = {{I2|A}}, $I_3$ = {{I3|A}}, $Z_1$ = {{Z1|Ω}}, $Z_2$ = {{Z2|Ω}} and $Z_3$ = {{Z3|Ω}} (resistive).",
+          "circuit": {
+            "elements": [
+              {
+                "type": "block",
+                "at": [
+                  2,
+                  1
+                ],
+                "label": "Circuit 1",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  4,
+                  1
+                ],
+                "label": "Circuit 2",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  6,
+                  1
+                ],
+                "label": "Circuit 3",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "Z_1",
+                "value": ""
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "Z_2",
+                "value": ""
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  3
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "Z_3",
+                "value": ""
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.4
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    1.4
+                  ],
+                  [
+                    4,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    1.4
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  2,
+                  1.7
+                ],
+                "to": [
+                  2,
+                  2.5
+                ],
+                "label": "I_1"
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  4,
+                  1.7
+                ],
+                "to": [
+                  4,
+                  2.5
+                ],
+                "label": "I_2"
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  6,
+                  1.7
+                ],
+                "to": [
+                  6,
+                  2.5
+                ],
+                "label": "I_3"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  2,
+                  3.5
+                ],
+                "label": "A"
+              },
+              {
+                "type": "text",
+                "at": [
+                  4,
+                  3.5
+                ],
+                "label": "B"
+              },
+              {
+                "type": "text",
+                "at": [
+                  6,
+                  3.5
+                ],
+                "label": "C"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  3
+                ]
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "What is the ground potential of circuit 1 (point A)?",
+              "answer": "(I1+I2+I3)*Z1",
+              "unit": "V",
+              "explanation": "All three currents flow through $Z_1$: $V_A = (I_1+I_2+I_3)Z_1$ = {{I1+I2+I3|A}} × {{Z1|Ω}} = **{{(I1+I2+I3)*Z1|V}}**."
+            },
+            {
+              "prompt": "What is the ground potential of circuit 2 (point B)?",
+              "answer": "(I1+I2+I3)*Z1 + (I2+I3)*Z2",
+              "unit": "V",
+              "explanation": "$V_B = (I_1+I_2+I_3)Z_1 + (I_2+I_3)Z_2$ = {{(I1+I2+I3)*Z1|V}} + {{(I2+I3)*Z2|V}} = **{{(I1+I2+I3)*Z1+(I2+I3)*Z2|V}}**."
+            },
+            {
+              "prompt": "What is the ground potential of circuit 3 (point C)?",
+              "answer": "(I1+I2+I3)*Z1 + (I2+I3)*Z2 + I3*Z3",
+              "unit": "V",
+              "explanation": "$V_C = (I_1+I_2+I_3)Z_1 + (I_2+I_3)Z_2 + I_3Z_3$ = {{(I1+I2+I3)*Z1|V}} + {{(I2+I3)*Z2|V}} + {{I3*Z3|V}} = **{{(I1+I2+I3)*Z1+(I2+I3)*Z2+I3*Z3|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "Tap every ground conductor whose voltage drop shifts the ground potential of **circuit 2** (point B).",
+          "circuit": {
+            "elements": [
+              {
+                "type": "block",
+                "at": [
+                  2,
+                  1
+                ],
+                "label": "Circuit 1",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  4,
+                  1
+                ],
+                "label": "Circuit 2",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  6,
+                  1
+                ],
+                "label": "Circuit 3",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "Z_1",
+                "value": "",
+                "name": "Z1"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "Z_2",
+                "value": "",
+                "name": "Z2"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  3
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "Z_3",
+                "value": "",
+                "name": "Z3"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.4
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    1.4
+                  ],
+                  [
+                    4,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    1.4
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  2,
+                  1.7
+                ],
+                "to": [
+                  2,
+                  2.5
+                ],
+                "label": "I_1"
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  4,
+                  1.7
+                ],
+                "to": [
+                  4,
+                  2.5
+                ],
+                "label": "I_2"
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  6,
+                  1.7
+                ],
+                "to": [
+                  6,
+                  2.5
+                ],
+                "label": "I_3"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  2,
+                  3.5
+                ],
+                "label": "A"
+              },
+              {
+                "type": "text",
+                "at": [
+                  4,
+                  3.5
+                ],
+                "label": "B"
+              },
+              {
+                "type": "text",
+                "at": [
+                  6,
+                  3.5
+                ],
+                "label": "C"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  3
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "Z1",
+            "Z2",
+            "Z3"
+          ],
+          "answer": [
+            "Z1",
+            "Z2"
+          ],
+          "explanation": "Point B is connected to the ground point through $Z_2$ and $Z_1$, so $V_B = (I_1+I_2+I_3)Z_1 + (I_2+I_3)Z_2$. The drop across $Z_3$ only lifts circuit 3."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "I1": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "I2": [
+              0.1,
+              0.2,
+              0.5
+            ],
+            "I3": [
+              1,
+              2,
+              5
+            ],
+            "Z": [
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "The same three circuits ($I_1$ = {{I1|A}}, $I_2$ = {{I2|A}}, $I_3$ = {{I3|A}}) are now wired as a **star**, each with its own ground conductor of {{Z|Ω}}. What is the ground potential of circuit 1?",
+          "answer": "I1*Z",
+          "unit": "V",
+          "circuit": {
+            "elements": [
+              {
+                "type": "block",
+                "at": [
+                  1,
+                  0
+                ],
+                "label": "Circuit 1",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3,
+                  0
+                ],
+                "label": "Circuit 2",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  5,
+                  0
+                ],
+                "label": "Circuit 3",
+                "size": [
+                  1.6,
+                  0.8
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    0.4
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0.4
+                  ],
+                  [
+                    3,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    0.4
+                  ],
+                  [
+                    5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  1,
+                  1
+                ],
+                "to": [
+                  1,
+                  3
+                ],
+                "label": "Z_1"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  1
+                ],
+                "to": [
+                  3,
+                  3
+                ],
+                "label": "Z_2"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  1
+                ],
+                "to": [
+                  5,
+                  3
+                ],
+                "label": "Z_3"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    3
+                  ],
+                  [
+                    1,
+                    4
+                  ],
+                  [
+                    5,
+                    4
+                  ],
+                  [
+                    5,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    3
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  4
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  4
+                ]
+              }
+            ]
+          },
+          "explanation": "In a star only circuit 1's own current flows in its conductor: $V_A = I_1Z_1$ = {{I1|A}} × {{Z|Ω}} = **{{I1*Z|V}}**. In a daisy chain with the same {{Z|Ω}} first segment it would be {{(I1+I2+I3)*Z|V}}, {{(I1+I2+I3)/I1||3}} times more."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Multipoint and hybrid grounds",
+          "body": "At high frequency single-point grounding fails: long ground leads are inductive (and antennas once longer than λ/20), and stray capacitance closes the loops anyway. Then use a **multipoint** ground: many short connections to a ground plane, which keeps $L_g$ small. Rule of thumb (Ott): single-point below ~100 kHz (sometimes up to ~1 MHz), multipoint above ~100 kHz and for digital circuits. A **hybrid** ground, e.g. a capacitor in one ground connection, is single-point at low and multipoint at high frequency."
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each application to the most suitable grounding scheme",
+          "pairs": [
+            [
+              "Audio mixer, 20 Hz–20 kHz",
+              "Single-point (star)"
+            ],
+            [
+              "100 MHz digital board",
+              "Multipoint to a plane"
+            ],
+            [
+              "Video, 30 Hz–10 MHz",
+              "Hybrid (capacitor)"
+            ],
+            [
+              "Non-critical, similar currents, simplest wiring",
+              "Daisy chain"
+            ]
+          ],
+          "explanation": "Low-frequency analogue circuits benefit from steering ground currents (star). High-frequency and digital circuits need the lowest ground inductance (plane, multipoint). Wideband signals get a hybrid ground. A daisy chain is acceptable when the circuits are non-critical and draw similar currents."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "C": [
+              1e-08,
+              4.7e-08,
+              1e-07
+            ]
+          },
+          "prompt": "A cable shield is grounded at one end directly and at the other end through a {{C|F}} capacitor (a hybrid ground). Ignore the capacitor's inductance.",
+          "ask": [
+            {
+              "prompt": "What is the capacitor's reactance at 50 Hz?",
+              "answer": "1/(2*pi*50*C)",
+              "unit": "Ω",
+              "explanation": "$X_C = \\frac{1}{2\\pi f C}$ = 1 / (2π × 50 Hz × {{C|F}}) = **{{1/(2*pi*50*C)|Ω}}**: practically open, so there is no 50 Hz ground loop."
+            },
+            {
+              "prompt": "What is the capacitor's reactance at 10 MHz?",
+              "answer": "1/(2*pi*1e7*C)",
+              "unit": "Ω",
+              "explanation": "$X_C = \\frac{1}{2\\pi f C}$ = 1 / (2π × 10 MHz × {{C|F}}) = **{{1/(2*pi*1e7*C)|Ω}}**: the shield is effectively grounded at both ends for RF (if the capacitor's lead inductance is small)."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Making a ground plane twice as thick significantly lowers its impedance at 100 MHz.",
+          "answer": false,
+          "explanation": "At high frequency the plane's impedance is set by its **inductance**, not its resistance, and skin effect keeps the current on the surface anyway. Thickness hardly matters; short, multiple connections do."
+        }
+      ]
+    },
+    {
+      "id": "emc-grounding-3",
+      "title": "Ground impedance and ground loops",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Rm": [
+              10,
+              25,
+              50
+            ],
+            "L": [
+              1e-07,
+              3e-07,
+              5e-07
+            ]
+          },
+          "derived": {
+            "R": "Rm*1e-3"
+          },
+          "prompt": "A ground conductor has $R$ = {{R|Ω}} and $L$ = {{L|H}}. Above which frequency does its inductive reactance exceed its resistance?",
+          "answer": "R/(2*pi*L)",
+          "unit": "Hz",
+          "explanation": "$X_L = R$ at $f = \\frac{R}{2\\pi L}$ = {{R|Ω}} / (2π × {{L|H}}) = **{{R/(2*pi*L)|Hz}}**. Above this, the conductor's inductance sets its impedance."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "I": [
+              0.1,
+              0.5,
+              1
+            ],
+            "f": [
+              100000.0,
+              1000000.0,
+              10000000.0
+            ],
+            "Rm": [
+              10,
+              25,
+              50
+            ],
+            "L": [
+              1e-07,
+              3e-07,
+              5e-07
+            ]
+          },
+          "derived": {
+            "R": "Rm*1e-3"
+          },
+          "prompt": "A noise current of {{I|A}} at {{f|Hz}} flows through a ground conductor with $R$ = {{R|Ω}} and $L$ = {{L|H}}. What ground noise voltage does it produce?",
+          "answer": "I*sqrt(R^2+(2*pi*f*L)^2)",
+          "unit": "V",
+          "explanation": "$X_L = 2\\pi f L$ = {{2*pi*f*L|Ω}} and $R$ = {{R|Ω}}, so $|Z_g| = \\sqrt{R^2+X_L^2}$ = {{sqrt(R^2+(2*pi*f*L)^2)|Ω}}. $V_g = I_g|Z_g|$ = {{I|A}} × {{sqrt(R^2+(2*pi*f*L)^2)|Ω}} = **{{I*sqrt(R^2+(2*pi*f*L)^2)|V}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "VG": [
+              0.02,
+              0.05,
+              0.1
+            ],
+            "RG": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "RC2": [
+              0.02,
+              0.05,
+              0.1
+            ],
+            "RS": [
+              50,
+              600
+            ],
+            "RC1": [
+              0.5,
+              1
+            ],
+            "RL": [
+              10000.0,
+              100000.0
+            ]
+          },
+          "prompt": "In the ground-loop circuit shown, $V_G$ = {{VG|V}} (50 Hz), $R_G$ = {{RG|Ω}}, $R_{C2}$ = {{RC2|Ω}}, $R_S$ = {{RS|Ω}}, $R_{C1}$ = {{RC1|Ω}} and $R_L$ = {{RL|Ω}}. Take $V_S$ = 0.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_S"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_S"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R_{C1}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  0
+                ],
+                "to": [
+                  5,
+                  2
+                ],
+                "label": "R_L",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_{C2}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "R_G",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    4
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "vsource",
+                "from": [
+                  3,
+                  4
+                ],
+                "to": [
+                  5,
+                  4
+                ],
+                "label": "V_G",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    4
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  2.5,
+                  3
+                ],
+                "label": "ground loop"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "What hum voltage appears across the load $R_L$?",
+              "answer": "VG*(1/RG)/(1/RC2+1/RG+1/(RS+RC1+RL))*RL/(RS+RC1+RL)",
+              "unit": "V",
+              "explanation": "$V_G$ divides over $R_G$ and $R_{C2}$: $V_G\\frac{R_{C2}}{R_{C2}+R_G}$ = {{VG*RC2/(RC2+RG)|V}} appears across the return conductor. That voltage drives the signal loop, and the load gets the fraction $\\frac{R_L}{R_L+R_S+R_{C1}}$ = {{RL/(RL+RS+RC1)||3}}: $V_N$ ≈ **{{VG*(1/RG)/(1/RC2+1/RG+1/(RS+RC1+RL))*RL/(RS+RC1+RL)|V}}**."
+            },
+            {
+              "prompt": "What fraction of $V_G$ (in %) appears across the return conductor $R_{C2}$?",
+              "answer": "100*(1/RG)/(1/RC2+1/RG+1/(RS+RC1+RL))",
+              "unit": "%",
+              "explanation": "$R_{C2}$ and $R_G$ form a divider (the signal path in parallel with $R_{C2}$ is negligible): $\\frac{R_{C2}}{R_{C2}+R_G}$ = {{RC2|Ω}} / {{RC2+RG|Ω}} = **{{100*RC2/(RC2+RG)|%}}**. A low-resistance return (thick shield) or a high ground-loop impedance reduces it."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "L": [
+              0.001,
+              0.005,
+              0.01,
+              0.05
+            ],
+            "RC2": [
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "A common-mode choke with $L$ = {{L|H}} is inserted in a cable whose return conductor has $R_{C2}$ = {{RC2|Ω}}. Above which frequency does it start to suppress ground-loop noise (its break frequency)?",
+          "answer": "RC2/(2*pi*L)",
+          "unit": "Hz",
+          "explanation": "$\\omega = R_{C2}/L$, so $f = \\frac{R_{C2}}{2\\pi L}$ = {{RC2|Ω}} / (2π × {{L|H}}) = **{{RC2/(2*pi*L)|Hz}}**. Above this the noise falls by 20 dB per decade."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "fmin": [
+              10,
+              20,
+              50
+            ],
+            "RC2": [
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "A dc-coupled sensor signal must pass a common-mode choke undisturbed down to {{fmin|Hz}}. The return conductor has $R_{C2}$ = {{RC2|Ω}}. What is the minimum choke inductance (signal frequency above $5R_{C2}/L$)?",
+          "answer": "5*RC2/(2*pi*fmin)",
+          "unit": "H",
+          "explanation": "The signal current returns on the cable (not via ground) when $\\omega > 5R_{C2}/L$, so $L \\ge \\frac{5R_{C2}}{2\\pi f_{min}}$ = 5 × {{RC2|Ω}} / (2π × {{fmin|Hz}}) = **{{5*RC2/(2*pi*fmin)|H}}**. (DC passes anyway: the choke has no effect on differential current.)"
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "A": [
+              20,
+              26,
+              30,
+              40
+            ],
+            "RC2": [
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "derived": {
+            "Lt": "RC2*sqrt(10^(A/10)-1)/(2*pi*50)"
+          },
+          "prompt": "The return conductor has $R_{C2}$ = {{RC2|Ω}}. Choose the common-mode choke inductance that reduces 50 Hz ground-loop hum by {{A}} dB.",
+          "plot": {
+            "x": {
+              "min": 0.1,
+              "max": 10000.0,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": -80,
+              "max": 5,
+              "label": "|V_N/V_G| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "L",
+                "label": "$L$",
+                "min": 1e-05,
+                "max": 0.1,
+                "log": true,
+                "value": 1e-05,
+                "unit": "H"
+              }
+            ],
+            "curves": [
+              {
+                "f": "-10*log10(1+(2*pi*x*L/RC2)^2)",
+                "label": "with choke",
+                "labelAt": 0.1
+              }
+            ],
+            "hlines": [
+              {
+                "y": "-A",
+                "label": "target",
+                "color": "orange"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 50,
+                "label": "50 Hz"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "hum reduction at 50 Hz",
+                "value": "10*log10(1+(2*pi*50*L/RC2)^2)",
+                "unit": "dB",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "L": "Lt"
+          },
+          "tolerance": 0.05,
+          "explanation": "$|V_N/V_G| = 1/\\sqrt{1+(\\omega L/R_{C2})^2}$. For {{A}} dB: $\\omega L/R_{C2} = \\sqrt{10^{A/10}-1}$ = {{sqrt(10^(A/10)-1)||3}}, so $L$ = {{RC2|Ω}} × {{sqrt(10^(A/10)-1)||3}} / (2π × 50 Hz) = **{{Lt|H}}**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "L": [
+              0.001,
+              0.005,
+              0.01
+            ],
+            "RC2": [
+              0.02,
+              0.05,
+              0.1
+            ],
+            "f": [
+              50,
+              150,
+              1000
+            ]
+          },
+          "prompt": "A common-mode choke of {{L|H}} sits in a line whose return conductor has $R_{C2}$ = {{RC2|Ω}}. By how many dB does it reduce ground-loop noise at {{f|Hz}}?",
+          "answer": "10*log10(1+(2*pi*f*L/RC2)^2)",
+          "unit": "dB",
+          "absTolerance": 0.2,
+          "explanation": "$\\omega L/R_{C2}$ = 2π × {{f|Hz}} × {{L|H}} / {{RC2|Ω}} = {{2*pi*f*L/RC2||3}}. Reduction = $20\\log_{10}\\sqrt{1+(\\omega L/R_{C2})^2}$ = **{{10*log10(1+(2*pi*f*L/RC2)^2)||3}} dB**."
+        }
+      ]
+    },
+    {
+      "id": "emc-grounding-4",
+      "title": "Fix the hum",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The problem",
+          "body": "A sensor in one rack ($R_S$ = 600 Ω) drives an amplifier input ($R_L$ = 10 kΩ) in another rack over a 20 m coax. Both racks are grounded through their PE conductors, and 50 Hz currents in the building ground create a voltage $V_G$ between them. The coax shield is the signal return $R_{C2}$; its centre conductor has $R_{C1}$ = 1 Ω.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_S"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_S"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R_{C1}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  0
+                ],
+                "to": [
+                  5,
+                  2
+                ],
+                "label": "R_L",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_{C2}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    0,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "R_G",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    4
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "vsource",
+                "from": [
+                  3,
+                  4
+                ],
+                "to": [
+                  5,
+                  4
+                ],
+                "label": "V_G",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    4
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  2.5,
+                  3
+                ],
+                "label": "ground loop"
+              }
+            ]
+          }
+        },
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "VG": [
+              0.02,
+              0.05,
+              0.1
+            ],
+            "RG": [
+              0.01,
+              0.02
+            ],
+            "RC2": [
+              0.02,
+              0.04,
+              0.08
+            ],
+            "Vs": [
+              0.01,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "$V_G$ = {{VG|V}} at 50 Hz, $R_G$ = {{RG|Ω}}, shield resistance $R_{C2}$ = {{RC2|Ω}}, $R_S$ = 600 Ω, $R_{C1}$ = 1 Ω, $R_L$ = 10 kΩ. The sensor signal is {{Vs|V}}.",
+          "ask": [
+            {
+              "prompt": "What hum voltage reaches the amplifier input?",
+              "answer": "VG*(1/RG)/(1/RC2+1/RG+1/10601)*10000/10601",
+              "unit": "V",
+              "explanation": "Across the shield: $V_G\\frac{R_{C2}}{R_{C2}+R_G}$ = {{VG*RC2/(RC2+RG)|V}}. At the load: × $\\frac{10\\ k\\Omega}{10.601\\ k\\Omega}$ = **{{VG*(1/RG)/(1/RC2+1/RG+1/10601)*10000/10601|V}}**."
+            },
+            {
+              "prompt": "What is the signal-to-hum ratio at the amplifier input, in dB?",
+              "answer": "20*log10((Vs*10000/10601)/(VG*(1/RG)/(1/RC2+1/RG+1/10601)*10000/10601))",
+              "unit": "dB",
+              "absTolerance": 0.3,
+              "explanation": "Signal at the load: {{Vs|V}} × 10/10.601 = {{Vs*10000/10601|V}}. Hum: {{VG*(1/RG)/(1/RC2+1/RG+1/10601)*10000/10601|V}}. SNR = 20 log(signal/hum) = **{{20*log10((Vs*10000/10601)/(VG*(1/RG)/(1/RC2+1/RG+1/10601)*10000/10601))||3}} dB**: far too low for a precision measurement."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "L": [
+              0.002,
+              0.005,
+              0.01,
+              0.02
+            ],
+            "RC2": [
+              0.02,
+              0.04,
+              0.08
+            ]
+          },
+          "prompt": "To break the loop, the coax is wound through a ferrite core as a common-mode choke with $L$ = {{L|H}}; the shield resistance is $R_{C2}$ = {{RC2|Ω}}. Using $|V_N/V_G| = 1/\\sqrt{1+(\\omega L/R_{C2})^2}$, by how many dB is the 50 Hz hum reduced?",
+          "answer": "10*log10(1+(2*pi*50*L/RC2)^2)",
+          "unit": "dB",
+          "absTolerance": 0.2,
+          "explanation": "$\\omega L/R_{C2}$ = 2π × 50 × {{L|H}} / {{RC2|Ω}} = {{2*pi*50*L/RC2||3}}. Reduction = $20\\log_{10}\\sqrt{1+({{2*pi*50*L/RC2||3}})^2}$ = **{{10*log10(1+(2*pi*50*L/RC2)^2)||3}} dB**. A lower shield resistance makes the choke more effective."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "L": [
+              0.002,
+              0.005,
+              0.01,
+              0.02
+            ],
+            "RC2": [
+              0.02,
+              0.04,
+              0.08
+            ]
+          },
+          "prompt": "With a common-mode choke of $L$ = {{L|H}} and shield resistance $R_{C2}$ = {{RC2|Ω}}, down to which frequency is the sensor signal still transmitted normally (signal frequency $> 5R_{C2}/L$)?",
+          "answer": "5*RC2/(2*pi*L)",
+          "unit": "Hz",
+          "explanation": "$f_{min} = \\frac{5R_{C2}}{2\\pi L}$ = 5 × {{RC2|Ω}} / (2π × {{L|H}}) = **{{5*RC2/(2*pi*L)|Hz}}**. Below this some signal current returns via the ground instead of the shield, but dc still passes: the choke has no effect on dc."
+        },
+        {
+          "id": "c4",
+          "type": "matchPairs",
+          "prompt": "Match each situation to the best way of dealing with the ground loop",
+          "pairs": [
+            [
+              "Signal must pass dc",
+              "Common-mode choke"
+            ],
+            [
+              "Hundreds of volts between grounds",
+              "Optocoupler or fibre"
+            ],
+            [
+              "AC audio, galvanic isolation",
+              "Isolation transformer"
+            ],
+            [
+              "Tolerate the loop, high CMRR",
+              "Differential receiver"
+            ]
+          ],
+          "explanation": "A common-mode choke passes dc and the differential signal. Optical isolation copes with very large ground differences (ideal for digital data). An isolation transformer breaks the loop for ac signals (no dc). A balanced, differential receiver rejects the ground voltage as common mode without breaking the loop."
+        },
+        {
+          "id": "c5",
+          "type": "trueFalse",
+          "prompt": "Lifting the PE connection of one rack is an acceptable way to break the ground loop.",
+          "answer": false,
+          "explanation": "It may remove the hum, but a line-to-case fault would then leave that rack live. Isolation must be applied to the **signal** interconnection, never by breaking the safety ground."
+        },
+        {
+          "id": "c6",
+          "type": "multipleChoice",
+          "prompt": "A design has separate analogue and digital ground planes, joined only at the power supply. What is the main EMC risk?",
+          "options": [
+            "An RF voltage between the planes makes them a dipole antenna",
+            "The planes have too much capacitance to the chassis",
+            "The ADC gets a dc offset",
+            "The supply ripple doubles"
+          ],
+          "answer": 0,
+          "explanation": "Two pieces of metal with an RF potential between them form an efficient antenna, and signals crossing between the planes have no nearby return path. A system almost always works better, functionally and for EMC, with **one** reference plane and careful partitioning."
+        }
+      ]
+    }
+  ]
+}

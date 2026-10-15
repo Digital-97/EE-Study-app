@@ -1,0 +1,1038 @@
+{
+  "id": "pr-lti",
+  "title": "Random Signals through LTI Systems",
+  "description": "What filters do to noise: output mean and PSD, output power and noise-equivalent bandwidth, thermal and kT/C noise, and better SNR by filtering.",
+  "reference": "Leon-Garcia ch. 10",
+  "study": [
+    {
+      "title": "The mean at the output",
+      "body": "When a WSS process $X(t)$ drives a stable LTI system with impulse response $h(t)$ and frequency response $H(f)$, the output $Y(t)$ is WSS too. Its mean is the input mean times the DC gain: a DC level passes like any DC signal, and a high-pass or band-pass filter ($H(0) = 0$) removes it completely.",
+      "formula": "m_Y = H(0)\\,m_X"
+    },
+    {
+      "title": "Output PSD and power",
+      "body": "The output PSD is the input PSD shaped by the **power gain** $|H(f)|^2$; the phase of $H$ plays no role. The output power is the area under $S_Y$, and the output autocorrelation is the inverse Fourier transform of $S_Y$. A Gaussian input gives a Gaussian output, and white input noise comes out 'coloured': correlated over roughly the length of the impulse response.",
+      "formula": "S_Y(f) = |H(f)|^2\\,S_X(f)"
+    },
+    {
+      "title": "Noise-equivalent bandwidth",
+      "body": "For white input noise, $P_Y = \\frac{N_0}{2}\\int_{-\\infty}^{\\infty}|H(f)|^2df$. Write this as $N_0|H(0)|^2B_N$: the **noise-equivalent bandwidth** $B_N$ is the width of the ideal low-pass filter (same peak gain) that passes the same noise power. A first-order RC low-pass with $f_c = 1/(2\\pi RC)$ has $B_N = \\frac{\\pi}{2}f_c = \\frac{1}{4RC}$, 57 % more than $f_c$; a second-order Butterworth has $1.11f_c$.",
+      "formula": "B_N = \\frac{1}{|H(0)|^2}\\int_0^{\\infty}|H(f)|^2\\,df",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "f / f_c",
+          "ticks": [
+            0,
+            1,
+            1.57,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 1.2,
+          "label": "|H|²"
+        },
+        "curves": [
+          {
+            "f": "1/(1 + x^2)",
+            "label": "RC low-pass",
+            "labelAt": 0.5
+          },
+          {
+            "f": "step(pi/2 - x)",
+            "dash": true,
+            "color": "orange",
+            "label": "B_N",
+            "labelAt": 0.25
+          }
+        ],
+        "height": 150
+      }
+    },
+    {
+      "title": "White noise through an RC low-pass",
+      "body": "White noise with $N_0/2 = 10^{-15}$ V²/Hz (two-sided) drives an RC low-pass. The output PSD follows the input up to $f_c$ and then falls at 20 dB/decade. The output power $N_0B_N = \\frac{N_0}{2}\\pi f_c$ is proportional to $f_c$, so the rms noise grows with $\\sqrt{f_c}$. Drag $f_c$.",
+      "formula": "P_Y = N_0B_N = \\frac{N_0}{2}\\,\\pi f_c",
+      "plot": {
+        "x": {
+          "min": 10,
+          "max": 1000000,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": 1e-05,
+          "max": 3,
+          "label": "S_Y / S_X",
+          "log": true
+        },
+        "sliders": [
+          {
+            "name": "fc",
+            "label": "$f_c$",
+            "min": 10,
+            "max": 1000000,
+            "log": true,
+            "value": 1000,
+            "unit": "Hz"
+          }
+        ],
+        "curves": [
+          {
+            "f": "1",
+            "color": "grey",
+            "dash": true,
+            "label": "input",
+            "labelAt": 0.85
+          },
+          {
+            "f": "1/(1 + (x/fc)^2)",
+            "label": "output",
+            "labelAt": 0.6
+          }
+        ],
+        "vlines": [
+          {
+            "x": "fc",
+            "label": "f_c"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$B_N = \\pi f_c/2$",
+            "value": "pi/2*fc",
+            "unit": "Hz"
+          },
+          {
+            "label": "output rms",
+            "value": "sqrt(1e-15*pi*fc)",
+            "unit": "V"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Thermal noise and kT/C",
+      "body": "A resistor at temperature $T$ has an open-circuit noise voltage with one-sided PSD $4kTR$ (two-sided $2kTR$), so a bandwidth $B$ holds $\\sqrt{4kTRB}$ rms, with $k = 1.38\\times10^{-23}$ J/K. With a capacitor across it, the RC low-pass limits the noise bandwidth to $B_N = 1/(4RC)$, so $\\overline{v_C^2} = 4kTR\\cdot\\frac{1}{4RC} = kT/C$, independent of $R$: a larger $R$ is noisier but narrows the band by the same factor. This sets the noise floor of every sample-and-hold and switched-capacitor circuit (300 K below).",
+      "formula": "\\overline{v_C^2} = \\frac{kT}{C}",
+      "plot": {
+        "x": {
+          "min": 1e-12,
+          "max": 1e-08,
+          "label": "C",
+          "unit": "F",
+          "log": true
+        },
+        "y": {
+          "min": 1e-07,
+          "max": 0.0001,
+          "label": "rms noise",
+          "unit": "V",
+          "log": true
+        },
+        "curves": [
+          {
+            "f": "sqrt(1.38e-23*300/x)",
+            "label": "√(kT/C)",
+            "labelAt": 0.5
+          }
+        ],
+        "height": 160
+      }
+    },
+    {
+      "title": "Filtering improves the SNR",
+      "body": "A slowly varying signal sits in white noise. A low-pass filter passes the signal almost unchanged, but the noise power is proportional to the noise bandwidth. Cutting $B_N$ from $B_1$ to $B_2$ (still wider than the signal band) improves the SNR by the factor $B_1/B_2$, i.e. $10\\log(B_1/B_2)$ dB. The best filter for a known pulse shape, the matched filter, follows in the next unit.",
+      "formula": "\\frac{\\mathrm{SNR}_2}{\\mathrm{SNR}_1} = \\frac{B_1}{B_2}"
+    },
+    {
+      "title": "Worked example: output autocorrelation of an RC filter",
+      "body": "White noise $N_0/2$ through an RC low-pass gives $S_Y(f) = \\frac{N_0/2}{1 + (2\\pi fRC)^2}$, whose inverse transform is $R_Y(\\tau)$ below. Check: $R_Y(0) = N_0/(4RC) = N_0B_N$. Samples more than a few $RC$ apart are nearly uncorrelated: the filter's memory sets the correlation time. Example: $R$ = 10 kΩ and $C$ = 10 nF give $RC$ = 100 µs and $B_N$ = 2.5 kHz; samples 230 µs apart still have a correlation coefficient of $e^{-2.3}$ = 0.1.",
+      "formula": "R_Y(\\tau) = \\frac{N_0}{4RC}\\,e^{-|\\tau|/RC}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pr-lti-1",
+      "title": "Mean, PSD and power at the output",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "What a filter does to a random signal",
+          "body": "A stable LTI system turns a WSS input into a WSS output. The mean is multiplied by the DC gain $H(0)$, and the PSD by the power gain $|H(f)|^2$.",
+          "formula": "\\begin{aligned} m_Y &= H(0)\\,m_X \\\\ S_Y(f) &= |H(f)|^2\\,S_X(f) \\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {
+            "mu": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "A noisy DC voltage with mean {{mu|V}} passes through a coupling capacitor, i.e. a high-pass filter $H(f) = \\frac{jf/f_c}{1 + jf/f_c}$. What is the mean of the output?",
+          "options": [
+            "0 V",
+            "{{mu|V}}",
+            "{{mu/2|V}}",
+            "{{mu/sqrt(2)|V}}"
+          ],
+          "answer": 0,
+          "explanation": "$m_Y = H(0)\\,m_X$, and a high-pass has $H(0) = 0$: the capacitor blocks DC, and only the fluctuations (above $f_c$) pass."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "m": [
+              1,
+              4
+            ],
+            "mu": [
+              0.01,
+              0.1
+            ],
+            "K": [
+              10,
+              100
+            ],
+            "fc": [
+              1000,
+              10000
+            ],
+            "f": [
+              500,
+              2000,
+              20000
+            ]
+          },
+          "derived": {
+            "S": "m*1e-11"
+          },
+          "prompt": "White noise with a two-sided PSD of ${{m}}\\times10^{-11}$ V²/Hz plus a DC level of {{mu|V}} drives an amplifier with $H(f) = \\frac{K}{1 + jf/f_c}$, $K$ = {{K}}, $f_c$ = {{fc|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is the mean of the output?",
+              "answer": "K*mu",
+              "unit": "V",
+              "explanation": "$m_Y = H(0)\\,m_X$ with $H(0) = K$: {{K}} × {{mu|V}} = **{{K*mu|V}}**."
+            },
+            {
+              "prompt": "What is the output PSD at $f$ = {{f|Hz}}, in V²/Hz?",
+              "answer": "K^2*S/(1 + (f/fc)^2)",
+              "unit": "",
+              "explanation": "$S_Y = |H|^2S_X$ with $|H(f)|^2 = \\frac{K^2}{1 + (f/f_c)^2}$ = {{K^2}}/(1 + {{(f/fc)^2}}) = {{K^2/(1+(f/fc)^2)}}. So $S_Y$ = {{K^2/(1+(f/fc)^2)}} × ${{m}}\\times10^{-11}$ = **{{K^2*S/(1+(f/fc)^2)}}** V²/Hz. (The DC level only adds an impulse at $f = 0$.)"
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Noise-equivalent bandwidth",
+          "body": "For white input noise ($N_0/2$, two-sided), the output power is $N_0|H(0)|^2B_N$, where $B_N$ is the width of the brick-wall low-pass that passes the same noise power (equal areas under $|H|^2$). A first-order RC low-pass has $B_N = \\frac{\\pi}{2}f_c = \\frac{1}{4RC}$.",
+          "formula": "P_Y = N_0\\,|H(0)|^2\\,B_N",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 5,
+              "label": "f / f_c",
+              "ticks": [
+                0,
+                1,
+                1.57,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 1.2,
+              "label": "|H|²"
+            },
+            "curves": [
+              {
+                "f": "1/(1 + x^2)",
+                "label": "RC low-pass",
+                "labelAt": 0.5
+              },
+              {
+                "f": "step(pi/2 - x)",
+                "dash": true,
+                "color": "orange",
+                "label": "B_N",
+                "labelAt": 0.25
+              }
+            ],
+            "height": 150
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "m": [
+              1,
+              2,
+              5
+            ],
+            "fc": [
+              1000,
+              10000,
+              100000
+            ]
+          },
+          "derived": {
+            "S": "m*1e-15"
+          },
+          "prompt": "White noise with a two-sided PSD of ${{m}}\\times10^{-15}$ V²/Hz drives an RC low-pass filter with $f_c$ = {{fc|Hz}}. What is the rms output noise voltage?",
+          "answer": "sqrt(S*pi*fc)",
+          "unit": "V",
+          "explanation": "$B_N = \\frac{\\pi}{2}f_c$ = {{pi/2*fc|Hz}}. $P_Y = N_0B_N = 2\\cdot{{m}}\\times10^{-15}\\cdot{{pi/2*fc||4}} = {{m*pi*fc/1000||3}}\\times10^{-12}$ V², so $V_{rms}$ = **{{sqrt(S*pi*fc)|V}}**."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "fc": [
+              1000,
+              2000,
+              5000,
+              10000
+            ]
+          },
+          "prompt": "What is the noise-equivalent bandwidth of a first-order RC low-pass filter with $f_c$ = {{fc|Hz}}?",
+          "options": [
+            "{{pi/2*fc|Hz}}",
+            "{{fc|Hz}}",
+            "{{2*pi*fc|Hz}}",
+            "{{pi*fc|Hz}}"
+          ],
+          "answer": 0,
+          "explanation": "$B_N = \\int_0^\\infty\\frac{df}{1 + (f/f_c)^2} = f_c\\arctan(\\infty) = \\frac{\\pi}{2}f_c$ = **{{pi/2*fc|Hz}}**: the slow 20 dB/decade roll-off lets noise above $f_c$ through. $\\pi f_c$ would integrate over negative frequencies too, and $2\\pi f_c$ mixes up Hz and rad/s."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Thermal noise and kT/C",
+          "body": "A resistor's open-circuit noise voltage has a one-sided PSD of $4kTR$, so a bandwidth $B$ holds $\\sqrt{4kTRB}$ rms ($k = 1.38\\times10^{-23}$ J/K). Across a capacitor, the RC low-pass limits the noise bandwidth to $B_N = 1/(4RC)$, which gives $kT/C$, independent of $R$.",
+          "formula": "\\begin{aligned} V_n &= \\sqrt{4kTRB} \\\\ \\overline{v_C^2} &= kT/C \\end{aligned}"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "C": [
+              1e-12,
+              1e-11,
+              1e-10,
+              1e-09
+            ]
+          },
+          "prompt": "A {{C|F}} sampling capacitor at 300 K is charged through a switch with some on-resistance. What is the rms kT/C noise voltage on the capacitor?",
+          "answer": "sqrt(1.38e-23*300/C)",
+          "unit": "V",
+          "explanation": "$V_n = \\sqrt{kT/C}$ with $kT = 1.38\\times10^{-23}\\cdot300 = 4.14\\times10^{-21}$ J and $C$ = {{C|F}}: **{{sqrt(1.38e-23*300/C)|V}}**, whatever the switch resistance."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "A resistor $R$ has a capacitor $C$ across it, and the resistor's thermal noise is the only noise source. Increasing $R$ increases the rms noise voltage across the capacitor.",
+          "answer": false,
+          "explanation": "The noise PSD $4kTR$ grows with $R$, but the noise bandwidth $1/(4RC)$ shrinks by the same factor: $\\overline{v^2} = 4kTR \\cdot \\frac{1}{4RC} = kT/C$. Only a larger capacitor (or a lower temperature) reduces it."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "R": [
+              1000,
+              10000,
+              100000,
+              1000000
+            ],
+            "B": [
+              1000,
+              10000,
+              100000
+            ],
+            "T": [
+              290,
+              300
+            ]
+          },
+          "prompt": "What is the rms thermal noise voltage of a {{R|Ω}} resistor at {{T}} K, measured in a brick-wall bandwidth of {{B|Hz}}?",
+          "answer": "sqrt(4*1.38e-23*T*R*B)",
+          "unit": "V",
+          "explanation": "$V_n = \\sqrt{4kTRB}$ with $k = 1.38\\times10^{-23}$ J/K, $T$ = {{T}} K, $R$ = {{R|Ω}} and $B$ = {{B|Hz}}: **{{sqrt(4*1.38e-23*T*R*B)|V}}**."
+        }
+      ]
+    },
+    {
+      "id": "pr-lti-2",
+      "title": "Filtering for a better SNR",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Filtering improves the SNR",
+          "body": "A slowly varying signal passes a low-pass filter almost unchanged, but the white-noise power at the output is proportional to the noise bandwidth $B_N$. Reducing $B_N$ from $B_1$ to $B_2$ (still wider than the signal) therefore improves the SNR by $B_1/B_2$.",
+          "formula": "\\Delta\\mathrm{SNR} = 10\\log_{10}\\frac{B_1}{B_2}\\ \\text{dB}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Bw": [
+              100000,
+              1000000
+            ],
+            "B": [
+              100,
+              1000
+            ],
+            "SNR0": [
+              -10,
+              0,
+              6
+            ]
+          },
+          "prompt": "A sensor signal with all its content below 50 Hz is measured in white noise with a noise bandwidth of {{Bw|Hz}}, giving an SNR of {{SNR0}} dB. A low-pass filter reduces the noise bandwidth to {{B|Hz}} without affecting the signal.",
+          "ask": [
+            {
+              "prompt": "By how many dB does the SNR improve?",
+              "answer": "10*log10(Bw/B)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "The noise power drops by $B_1/B_2$ = {{Bw/B}}; the signal is unchanged. Improvement: 10 log({{Bw/B}}) = **{{10*log10(Bw/B)||3}} dB**."
+            },
+            {
+              "prompt": "What is the new SNR, in dB?",
+              "answer": "SNR0 + 10*log10(Bw/B)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "{{SNR0}} dB + 10 log({{Bw/B}}) = {{SNR0}} + {{10*log10(Bw/B)||3}} = **{{SNR0+10*log10(Bw/B)||3}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "White noise through an RC low-pass",
+          "body": "White noise with $N_0/2 = 10^{-15}$ V²/Hz (two-sided) drives an RC low-pass. The output PSD equals the input PSD up to $f_c$ and then falls at 20 dB/decade; the output power is $\\frac{N_0}{2}\\pi f_c$. Drag $f_c$ and watch the rms noise grow with $\\sqrt{f_c}$.",
+          "formula": "P_Y = \\frac{N_0}{2}\\,\\pi f_c",
+          "plot": {
+            "x": {
+              "min": 10,
+              "max": 1000000,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": 1e-05,
+              "max": 3,
+              "label": "S_Y / S_X",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "fc",
+                "label": "$f_c$",
+                "min": 10,
+                "max": 1000000,
+                "log": true,
+                "value": 1000,
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "1",
+                "color": "grey",
+                "dash": true,
+                "label": "input",
+                "labelAt": 0.85
+              },
+              {
+                "f": "1/(1 + (x/fc)^2)",
+                "label": "output",
+                "labelAt": 0.6
+              }
+            ],
+            "vlines": [
+              {
+                "x": "fc",
+                "label": "f_c"
+              }
+            ],
+            "height": 170,
+            "readouts": [
+              {
+                "label": "output rms",
+                "value": "sqrt(1e-15*pi*fc)",
+                "unit": "V"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "slider",
+          "params": {
+            "m": [
+              1,
+              5
+            ],
+            "Vt": [
+              1e-06,
+              2e-06,
+              5e-06,
+              1e-05
+            ]
+          },
+          "derived": {
+            "S": "m*1e-15",
+            "ft": "Vt^2/(S*pi)"
+          },
+          "require": "min(ft - 100, 50000 - ft)",
+          "prompt": "White noise with a two-sided PSD of ${{m}}\\times10^{-15}$ V²/Hz drives an RC low-pass. Set $f_c$ so that the rms output noise is {{Vt|V}}.",
+          "plot": {
+            "x": {
+              "min": 10,
+              "max": 1000000,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": 1e-05,
+              "max": 3,
+              "label": "S_Y / S_X",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "fc",
+                "label": "$f_c$",
+                "min": 10,
+                "max": 1000000,
+                "log": true,
+                "value": 100000,
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "1",
+                "color": "grey",
+                "dash": true,
+                "label": "input",
+                "labelAt": 0.85
+              },
+              {
+                "f": "1/(1 + (x/fc)^2)",
+                "label": "output",
+                "labelAt": 0.6
+              }
+            ],
+            "vlines": [
+              {
+                "x": "fc",
+                "label": "f_c"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "output rms",
+                "value": "sqrt(S*pi*fc)",
+                "unit": "V",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "fc": "ft"
+          },
+          "tolerance": 0.05,
+          "explanation": "$V_{rms}^2 = \\frac{N_0}{2}\\pi f_c$ ⇒ $f_c = \\frac{V_{rms}^2}{\\pi\\cdot N_0/2} = \\frac{({{Vt*1e6}}\\ \\mu\\text{V})^2}{\\pi\\cdot{{m}}\\times10^{-15}}$ = **{{ft|Hz}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "m": [
+              1,
+              5
+            ],
+            "R": [
+              1000,
+              10000
+            ],
+            "C": [
+              1e-09,
+              1e-08
+            ],
+            "k": [
+              0.5,
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "S": "m*1e-14"
+          },
+          "prompt": "White noise with a two-sided PSD of ${{m}}\\times10^{-14}$ V²/Hz drives an RC low-pass with $R$ = {{R|Ω}} and $C$ = {{C|F}}. The output autocorrelation is $R_Y(\\tau) = \\frac{N_0}{4RC}e^{-|\\tau|/RC}$.",
+          "ask": [
+            {
+              "prompt": "What is the output power $R_Y(0)$, in V²?",
+              "answer": "2*S/(4*R*C)",
+              "unit": "",
+              "explanation": "$N_0 = 2\\cdot{{m}}\\times10^{-14}$ V²/Hz and $RC$ = {{R*C|s}}: $R_Y(0) = \\frac{N_0}{4RC}$ = **{{2*S/(4*R*C)}}** V², the same as $N_0B_N$ with $B_N = 1/(4RC)$ = {{1/(4*R*C)|Hz}}."
+            },
+            {
+              "prompt": "What is the correlation coefficient of output samples taken {{k*R*C|s}} apart?",
+              "answer": "exp(-k)",
+              "unit": "",
+              "explanation": "$\\rho(\\tau) = R_Y(\\tau)/R_Y(0) = e^{-\\tau/RC}$ = $e^{-{{k}}}$ = **{{exp(-k)}}**: the filter's time constant {{R*C|s}} sets the correlation time."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Three low-pass filters have the same peak gain and the same 3 dB frequency $f_c$. White noise drives each of them. Which output contains the most noise power?",
+          "options": [
+            "The first-order RC low-pass",
+            "The second-order Butterworth low-pass",
+            "The ideal brick-wall low-pass"
+          ],
+          "answer": 0,
+          "explanation": "Their noise-equivalent bandwidths are $1.571f_c$ (RC), $1.111f_c$ (second-order Butterworth) and exactly $f_c$ (brick wall). The gentle 20 dB/decade roll-off of the RC filter lets the most noise through above $f_c$; steeper filters approach $B_N = f_c$."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Halving the noise-equivalent bandwidth (without touching the signal) improves the SNR of a slowly varying signal in white noise by 3 dB.",
+          "answer": true,
+          "explanation": "The noise power $N_0B_N$ halves while the signal power stays: SNR × 2, i.e. +3.01 dB. The rms noise voltage drops by only $\\sqrt2$."
+        }
+      ]
+    },
+    {
+      "id": "pr-lti-3",
+      "title": "Noise through filters",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "N": [
+              4,
+              8,
+              16
+            ],
+            "mu": [
+              0.5,
+              1
+            ],
+            "sig": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "prompt": "A digital filter averages the last {{N}} samples: $y[n] = \\frac{1}{N}\\sum_{k=0}^{N-1}x[n-k]$. The input samples are independent with mean {{mu|V}} and standard deviation {{sig|V}}.",
+          "ask": [
+            {
+              "prompt": "What is the mean of the output?",
+              "answer": "mu",
+              "unit": "V",
+              "explanation": "The DC gain is $H(0) = \\sum_k h[k] = N \\cdot \\frac1N = 1$, so $m_Y = m_X$ = **{{mu|V}}**."
+            },
+            {
+              "prompt": "What is the standard deviation of the output?",
+              "answer": "sig/sqrt(N)",
+              "unit": "V",
+              "explanation": "For white input, $\\sigma_Y^2 = \\sigma_X^2\\sum_k h[k]^2 = \\sigma_X^2 \\cdot N \\cdot \\frac{1}{N^2} = \\sigma_X^2/N$. So $\\sigma_Y$ = {{sig|V}}/√{{N}} = **{{sig/sqrt(N)|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "N": [
+              12,
+              14,
+              16
+            ],
+            "V": [
+              1,
+              2
+            ]
+          },
+          "prompt": "A {{N}}-bit ADC has a full-scale range of {{V|V}}. Its sample-and-hold capacitor must keep the kT/C noise at 300 K below half an LSB rms. What is the smallest allowed capacitance?",
+          "answer": "1.38e-23*300/(V/2^N/2)^2",
+          "unit": "F",
+          "explanation": "LSB = $V_{FS}/2^{{{N}}}$ = {{V/2^N|V}}, so the limit is {{V/2^N/2|V}}. $\\sqrt{kT/C} \\le$ {{V/2^N/2|V}} ⇒ $C \\ge \\frac{kT}{(\\text{LSB}/2)^2} = \\frac{4.14\\times10^{-21}}{({{V/2^N/2*1e6}}\\ \\mu\\text{V})^2}$ = **{{1.38e-23*300/(V/2^N/2)^2*1e12}} pF**. Each extra bit needs 4× the capacitance."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "mu": [
+              0.001,
+              0.01
+            ],
+            "m": [
+              1,
+              5
+            ],
+            "K": [
+              10,
+              100
+            ],
+            "fc": [
+              1000,
+              10000
+            ]
+          },
+          "derived": {
+            "S": "m*1e-16"
+          },
+          "prompt": "A sensor delivers a DC level of {{mu|V}} plus white noise with a two-sided PSD of ${{m}}\\times10^{-16}$ V²/Hz to an amplifier with $H(f) = \\frac{K}{1 + jf/f_c}$, $K$ = {{K}}, $f_c$ = {{fc|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is the rms noise at the output?",
+              "answer": "K*sqrt(S*pi*fc)",
+              "unit": "V",
+              "explanation": "$P_n = N_0|H(0)|^2B_N = 2S \\cdot K^2 \\cdot \\frac{\\pi}{2}f_c$ = {{K^2*S*pi*fc}} V², so the rms noise is **{{K*sqrt(S*pi*fc)|V}}**."
+            },
+            {
+              "prompt": "What is the output signal-to-noise ratio (DC power over noise power), in dB?",
+              "answer": "10*log10(mu^2/(S*pi*fc))",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "DC power: $(Km_X)^2$ = ({{K*mu|V}})² = {{(K*mu)^2}} V². Noise power: $K^2\\cdot2S\\cdot\\frac{\\pi}{2}f_c$ = {{K^2*S*pi*fc}} V². SNR = 10 log({{(K*mu)^2}}/{{K^2*S*pi*fc}}) = **{{10*log10(mu^2/(S*pi*fc))||3}} dB**. The power gain $K^2$ multiplies signal and noise alike, so it cancels: the SNR is set by the input level, the noise density and the noise bandwidth."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "f0": [
+              455000,
+              10700000
+            ],
+            "BW": [
+              1000,
+              10000
+            ],
+            "m": [
+              1,
+              5
+            ]
+          },
+          "derived": {
+            "S": "m*1e-16"
+          },
+          "prompt": "A single-tuned LC band-pass with centre frequency {{f0|Hz}} and 3 dB bandwidth $BW$ = {{BW|Hz}} has $|H(f)|^2 \\approx \\frac{1}{1 + [2(f - f_0)/BW]^2}$ near $f_0$ (peak gain 1). White noise with a two-sided PSD of ${{m}}\\times10^{-16}$ V²/Hz drives it.",
+          "ask": [
+            {
+              "prompt": "What is its noise-equivalent bandwidth?",
+              "answer": "pi/2*BW",
+              "unit": "Hz",
+              "explanation": "The resonance curve has the same shape as an RC low-pass with $f_c = BW/2$ on each side of $f_0$: $B_N = \\int\\frac{df}{1 + [2(f - f_0)/BW]^2} = \\frac{\\pi}{2}BW$ = **{{pi/2*BW|Hz}}**."
+            },
+            {
+              "prompt": "What is the rms output noise voltage?",
+              "answer": "sqrt(S*pi*BW)",
+              "unit": "V",
+              "explanation": "$P = N_0B_N = 2S\\cdot\\frac{\\pi}{2}BW = {{m*pi*BW/10000||3}}\\times10^{-12}$ V² (the passbands at $\\pm f_0$ together), so $V_{rms}$ = **{{sqrt(S*pi*BW)|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Bw": [
+              100000,
+              1000000
+            ],
+            "fc": [
+              100,
+              1000
+            ]
+          },
+          "prompt": "Noise is white up to {{Bw|Hz}} (a brick-wall limit). Adding an RC low-pass with $f_c$ = {{fc|Hz}} (well below {{Bw|Hz}}) leaves the slow signal unaffected. By how many dB does the SNR improve?",
+          "answer": "10*log10(Bw/(pi/2*fc))",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.2,
+          "explanation": "Noise bandwidth before: {{Bw|Hz}}; after: $B_N \\approx \\frac{\\pi}{2}f_c$ = {{pi/2*fc|Hz}} (since $f_c \\ll$ {{Bw|Hz}}). Improvement: 10 log({{Bw|Hz}} / {{pi/2*fc|Hz}}) = **{{10*log10(Bw/(pi/2*fc))||3}} dB**."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "White Gaussian noise passed through an LTI filter is still Gaussian, but no longer white.",
+          "answer": true,
+          "explanation": "Each output value is a weighted sum (integral) of Gaussian input values, so it is Gaussian. The PSD, however, is reshaped to $|H(f)|^2N_0/2$, and the output samples are correlated over roughly the length of the impulse response."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "R": [
+              1000,
+              100000
+            ],
+            "C": [
+              1e-12,
+              1e-11,
+              1e-10
+            ]
+          },
+          "prompt": "A {{R|Ω}} resistor at 300 K has a capacitor $C$ = {{C|F}} across it. What is the rms noise voltage across $C$ in the band from 0 up to the corner frequency $f_c = 1/(2\\pi RC)$ only?",
+          "answer": "sqrt(1.38e-23*300/(2*C))",
+          "unit": "V",
+          "explanation": "$\\int_0^{f_c}\\frac{4kTR}{1 + (f/f_c)^2}df = 4kTRf_c\\arctan(1) = \\pi kTRf_c = \\frac{kT}{2C}$: exactly half of the total $kT/C$ lies below the corner. With $kT = 4.14\\times10^{-21}$ J and $C$ = {{C|F}}: $V = \\sqrt{kT/2C}$ = **{{sqrt(1.38e-23*300/(2*C))|V}}**."
+        }
+      ]
+    },
+    {
+      "id": "pr-lti-4",
+      "title": "Designing for low noise",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R": [
+              1000,
+              10000
+            ],
+            "C": [
+              1e-09,
+              1e-08,
+              1e-07
+            ],
+            "c": [
+              0.1,
+              0.01
+            ]
+          },
+          "prompt": "White noise is filtered by an RC low-pass with $R$ = {{R|Ω}} and $C$ = {{C|F}}. How far apart must output samples be for their correlation coefficient to drop to {{c}}?",
+          "answer": "R*C*ln(1/c)",
+          "unit": "s",
+          "explanation": "$\\rho(\\tau) = e^{-\\tau/RC}$ = {{c}} ⇒ $\\tau = RC\\ln(1/{{c}})$ = {{R*C|s}} × {{ln(1/c)}} = **{{R*C*ln(1/c)|s}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "P": [
+              1,
+              4
+            ],
+            "a": [
+              1000,
+              5000
+            ],
+            "fc": [
+              100,
+              500,
+              1000
+            ]
+          },
+          "prompt": "A noise voltage with $R_X(\\tau) = {{P}}\\,e^{-{{a}}|\\tau|}$ V² drives an RC low-pass with $f_c$ = {{fc|Hz}}. What is the output power, in V²?",
+          "answer": "P*2*pi*fc/(a + 2*pi*fc)",
+          "unit": "",
+          "explanation": "With $\\omega_c = 2\\pi f_c$ = {{2*pi*fc}} rad/s: $P_Y = \\int\\frac{2aP}{a^2+\\omega^2}\\cdot\\frac{\\omega_c^2}{\\omega_c^2+\\omega^2}\\frac{d\\omega}{2\\pi} = P\\,\\frac{\\omega_c}{a + \\omega_c}$ = {{P}} × {{2*pi*fc}}/({{a}} + {{2*pi*fc}}) = **{{P*2*pi*fc/(a+2*pi*fc)}}** V². A filter much wider than the noise ($\\omega_c \\gg a$) passes nearly all of it."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "m": [
+              1,
+              5
+            ],
+            "BN": [
+              1000,
+              10000
+            ],
+            "SNRdB": [
+              10,
+              20
+            ]
+          },
+          "derived": {
+            "S": "m*1e-16"
+          },
+          "prompt": "A sinusoid is received in white noise with a two-sided PSD of ${{m}}\\times10^{-16}$ V²/Hz. The receiver's band-pass filter has a noise bandwidth of {{BN|Hz}}. What sinusoid amplitude gives an output SNR of {{SNRdB}} dB?",
+          "answer": "sqrt(2*10^(SNRdB/10)*2*S*BN)",
+          "unit": "V",
+          "explanation": "Noise power $N_0B_N = 2\\cdot{{m}}\\times10^{-16}\\cdot{{BN}} = {{2*m*BN/10000||3}}\\times10^{-12}$ V². Required signal power $A^2/2$ = {{10^(SNRdB/10)}} times that, so $A = \\sqrt{2 \\cdot \\mathrm{SNR} \\cdot N_0B_N}$ = **{{sqrt(2*10^(SNRdB/10)*2*S*BN)|V}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "T": [
+              1e-06,
+              0.001
+            ],
+            "S": [
+              1e-12,
+              1e-10
+            ]
+          },
+          "prompt": "An integrate-and-dump circuit outputs the average of its input over the last $T$ = {{T|s}}: $h(t) = 1/T$ for $0 \\le t \\le T$, so $|H(f)|^2 = \\mathrm{sinc}^2(fT)$. The input is white noise with a two-sided PSD of {{S}} V²/Hz.",
+          "ask": [
+            {
+              "prompt": "What is its noise-equivalent bandwidth?",
+              "answer": "1/(2*T)",
+              "unit": "Hz",
+              "explanation": "$B_N = \\int_0^\\infty\\mathrm{sinc}^2(fT)\\,df = \\frac{1}{2T}$ = **{{1/(2*T)|Hz}}** (half the first null at $1/T$)."
+            },
+            {
+              "prompt": "What is the rms output noise?",
+              "answer": "sqrt(S/T)",
+              "unit": "V",
+              "explanation": "$P = N_0B_N = 2S\\cdot\\frac{1}{2T} = S/T$ = {{S/T}} V², so $V_{rms}$ = **{{sqrt(S/T)|V}}**. Averaging longer reduces the noise as $1/\\sqrt{T}$."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "mu": [
+              0.0001,
+              0.001
+            ],
+            "SNRdB": [
+              20,
+              30,
+              40
+            ]
+          },
+          "derived": {
+            "ft": "mu^2/(1e-14*pi*10^(SNRdB/10))"
+          },
+          "prompt": "A sensor delivers a DC level of {{mu|V}} in white noise with a two-sided PSD of $10^{-14}$ V²/Hz. An RC low-pass passes the DC unchanged. Set $f_c$ for an output SNR ($\\mu^2$ over noise power) of {{SNRdB}} dB.",
+          "plot": {
+            "x": {
+              "min": 10,
+              "max": 1000000,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": 1e-05,
+              "max": 3,
+              "label": "S_Y / S_X",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "fc",
+                "label": "$f_c$",
+                "min": 10,
+                "max": 1000000,
+                "log": true,
+                "value": 1000000,
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "1",
+                "color": "grey",
+                "dash": true,
+                "label": "input",
+                "labelAt": 0.85
+              },
+              {
+                "f": "1/(1 + (x/fc)^2)",
+                "label": "output",
+                "labelAt": 0.6
+              }
+            ],
+            "vlines": [
+              {
+                "x": "fc",
+                "label": "f_c"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "output SNR",
+                "value": "10*log10(mu^2/(1e-14*pi*fc))",
+                "unit": "dB",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "fc": "ft"
+          },
+          "tolerance": 0.05,
+          "explanation": "Noise power $\\frac{N_0}{2}\\pi f_c$, so $\\mathrm{SNR} = \\frac{\\mu^2}{\\pi f_c N_0/2}$ ⇒ $f_c = \\frac{\\mu^2}{\\pi\\cdot10^{-14}\\cdot\\mathrm{SNR}}$ with $\\mu$ = {{mu|V}} and SNR = {{10^(SNRdB/10)}}: **{{ft|Hz}}**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              0.1,
+              0.5,
+              1
+            ],
+            "C": [
+              1e-12,
+              1e-11,
+              1e-10
+            ]
+          },
+          "prompt": "A sample-and-hold stores a signal of {{Vs|V}} rms on a {{C|F}} capacitor at 300 K. What is the signal-to-noise ratio set by the kT/C noise, in dB?",
+          "answer": "10*log10(Vs^2/(1.38e-23*300/C))",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.2,
+          "explanation": "Noise power $kT/C$ with $kT = 4.14\\times10^{-21}$ J: {{1.38e-23*300/C}} V² ({{sqrt(1.38e-23*300/C)|V}} rms). SNR = 10 log(({{Vs|V}})² / {{1.38e-23*300/C}} V²) = **{{10*log10(Vs^2/(1.38e-23*300/C))||3}} dB**."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "For white input noise, the output noise power of a filter depends only on the magnitude response $|H(f)|$, not on its phase response.",
+          "answer": true,
+          "explanation": "$S_Y(f) = |H(f)|^2S_X(f)$ contains only the magnitude. An all-pass filter changes the waveform of the noise, not its power; this holds for any input PSD, not just white noise."
+        }
+      ]
+    }
+  ]
+}

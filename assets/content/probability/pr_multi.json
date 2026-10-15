@@ -1,0 +1,1106 @@
+{
+  "id": "pr-multi",
+  "title": "Multiple Random Variables",
+  "description": "Joint and marginal distributions, independence, covariance and correlation, sums of random variables, the central limit theorem and jointly Gaussian pairs.",
+  "reference": "Leon-Garcia ch. 5–7",
+  "study": [
+    {
+      "title": "Joint and marginal distributions",
+      "body": "Two RVs defined on the same experiment, e.g. the bit sent $X$ and the bit received $Y$, are described by their **joint** PMF $p_{XY}(x, y) = P(X = x, Y = y)$ or joint PDF $f_{XY}(x, y)$. The distribution of one of them alone, the **marginal**, follows by summing (or integrating) over the other. Conditional distributions are ratios: $p_{Y|X}(y|x) = p_{XY}(x, y)/p_X(x)$.",
+      "formula": "p_X(x) = \\sum_y p_{XY}(x, y)"
+    },
+    {
+      "title": "Independence",
+      "body": "$X$ and $Y$ are **independent** when the joint distribution factors for **every** pair of values: $p_{XY}(x, y) = p_X(x)\\,p_Y(y)$, or $f_{XY} = f_X f_Y$. Then $E[XY] = E[X]E[Y]$, and any functions $g(X)$ and $h(Y)$ are independent too. The thermal noise of two different resistors is independent; the noise at the input and the output of a filter is not.",
+      "formula": "f_{XY}(x, y) = f_X(x)\\,f_Y(y)"
+    },
+    {
+      "title": "Covariance and correlation coefficient",
+      "body": "The **covariance** measures how $X$ and $Y$ vary together; normalizing it gives the dimensionless **correlation coefficient** $\\rho$, between −1 and +1. $\\rho = \\pm1$ means $Y$ is an exact linear function of $X$; $\\rho = 0$ means uncorrelated. Independent implies uncorrelated, but not the other way round (except for jointly Gaussian RVs). The ellipses are contours of constant density of a jointly Gaussian pair with $\\sigma_X = \\sigma_Y$ = 1 (1σ and 2σ); the dashed line is the best estimate $E[Y|X] = \\rho X$. Drag $\\rho$.",
+      "formula": "\\begin{aligned} \\mathrm{Cov}(X,Y) &= E[XY] - \\mu_X\\mu_Y \\\\ \\rho &= \\frac{\\mathrm{Cov}(X,Y)}{\\sigma_X\\,\\sigma_Y} \\end{aligned}",
+      "plot": {
+        "x": {
+          "min": -3,
+          "max": 3,
+          "label": "x"
+        },
+        "y": {
+          "min": -3,
+          "max": 3,
+          "label": "y"
+        },
+        "equal": true,
+        "sliders": [
+          {
+            "name": "rho",
+            "label": "$\\rho$",
+            "min": -1,
+            "max": 1,
+            "step": 0.05,
+            "value": 0.6
+          }
+        ],
+        "curves": [
+          {
+            "x": "1*1*cos(t)",
+            "y": "1*1*((rho)*cos(t) + sqrt(1 - (rho)^2)*sin(t))",
+            "t": [
+              0,
+              "2*pi"
+            ]
+          },
+          {
+            "x": "2*1*cos(t)",
+            "y": "2*1*((rho)*cos(t) + sqrt(1 - (rho)^2)*sin(t))",
+            "t": [
+              0,
+              "2*pi"
+            ],
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "rho*x",
+            "color": "orange",
+            "dash": true,
+            "label": "E[Y|X]",
+            "labelAt": 0.85
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$\\mathrm{Cov}(X, Y)$",
+            "value": "rho"
+          },
+          {
+            "label": "$\\sigma_{X-Y} = \\sqrt{2(1-\\rho)}$",
+            "value": "sqrt(2*(1 - rho))"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Sums of random variables",
+      "body": "Means always add: $E[X+Y] = E[X] + E[Y]$. Variances add only for **uncorrelated** RVs; in general the covariance enters twice. So independent noise sources add as root-sum-square: 3 µV and 4 µV rms give 5 µV rms. The average of $N$ independent readings, each with standard deviation $\\sigma$, has standard deviation $\\sigma/\\sqrt{N}$: averaging 100 readings gains a factor 10. The PDF of a sum of independent RVs is the convolution of their PDFs.",
+      "formula": "\\sigma_{X+Y}^2 = \\sigma_X^2 + \\sigma_Y^2 + 2\\rho\\,\\sigma_X\\sigma_Y"
+    },
+    {
+      "title": "The central limit theorem",
+      "body": "The sum of many independent RVs with finite variances tends to a Gaussian, whatever their own distribution: standardize the sum, $Z = (S_N - N\\mu)/(\\sigma\\sqrt{N})$, and its PDF approaches the standard Gaussian. That is why thermal noise (countless electrons) and stacked tolerance errors are so close to Gaussian. Drag $N$: the standardized sum of $N$ uniform RVs is already nearly Gaussian for $N$ = 4 (solid: the sum; dashed: the Gaussian).",
+      "formula": "Z = \\frac{S_N - N\\mu}{\\sigma\\sqrt{N}} \\to \\mathcal{N}(0, 1)",
+      "plot": {
+        "x": {
+          "min": -4,
+          "max": 4,
+          "label": "z"
+        },
+        "y": {
+          "min": 0,
+          "max": 0.5,
+          "label": "PDF of Z"
+        },
+        "sliders": [
+          {
+            "name": "N",
+            "label": "$N$",
+            "min": 1,
+            "max": 12,
+            "step": 1,
+            "value": 1
+          }
+        ],
+        "curves": [
+          {
+            "f": "exp(-((x - 0)/(1))^2/2)/(sqrt(2*pi)*(1))",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "sqrt(N/12)*sum(k, 0, floor(min(N/2 + x*sqrt(N/12), N/2 - x*sqrt(N/12))), (-1)^k*choose(N, k)*(min(N/2 + x*sqrt(N/12), N/2 - x*sqrt(N/12)) - k)^(N - 1))/fact(N - 1)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Jointly Gaussian random variables",
+      "body": "Jointly Gaussian RVs are fully described by their means, variances and $\\rho$. Special properties: every linear combination $aX + bY$ is Gaussian; uncorrelated means independent; and the best estimate of $Y$ from $X$ is a straight line. Given $X = x$, $Y$ is Gaussian with the conditional mean and standard deviation below: observing $X$ shrinks the uncertainty in $Y$ by the factor $\\sqrt{1-\\rho^2}$.",
+      "formula": "\\begin{aligned} E[Y|x] &= \\mu_Y + \\rho\\frac{\\sigma_Y}{\\sigma_X}(x - \\mu_X) \\\\ \\sigma_{Y|x} &= \\sigma_Y\\sqrt{1-\\rho^2} \\end{aligned}"
+    },
+    {
+      "title": "Worked example: differential sensing",
+      "body": "Two wires pick up noise voltages with $\\sigma$ = 10 mV each. A differential amplifier measures $V_1 - V_2$. Independent noise ($\\rho$ = 0) gives $\\sqrt2 \\times$ 10 = 14.1 mV, but interference picked up equally by both wires is strongly correlated: with $\\rho$ = 0.98 the difference is only $10\\sqrt{2(1 - 0.98)}$ = 2 mV. This is why twisted pairs and differential inputs reject common-mode noise.",
+      "formula": "\\sigma_{X-Y}^2 = \\sigma_X^2 + \\sigma_Y^2 - 2\\rho\\,\\sigma_X\\sigma_Y"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pr-multi-1",
+      "title": "Joint distributions and correlation",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Joint and marginal PMFs",
+          "body": "For two discrete RVs, the **joint PMF** $P(X = x, Y = y)$ gives the probability of every pair of values. Example: $X$ = error in a packet's header (0 or 1) and $Y$ = error in its payload (0 or 1). The **marginal** PMF of $X$ follows by summing the joint PMF over all values of $Y$.",
+          "formula": "P(X = x) = \\sum_y P(X = x, Y = y)"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.6,
+              0.65,
+              0.7
+            ],
+            "b": [
+              0.1,
+              0.15
+            ],
+            "c": [
+              0.05,
+              0.1
+            ]
+          },
+          "derived": {
+            "d": "1 - a - b - c"
+          },
+          "prompt": "Errors in a packet's header ($X$) and payload ($Y$), each 0 (no error) or 1 (error), have the joint PMF $P(0,0)$ = {{a}}, $P(0,1)$ = {{b}}, $P(1,0)$ = {{c}} and $P(1,1)$ = {{d}}.",
+          "ask": [
+            {
+              "prompt": "What is the marginal probability that the header has an error, $P(X = 1)$?",
+              "answer": "c + d",
+              "unit": "",
+              "explanation": "Sum over $Y$: $P(X = 1) = P(1,0) + P(1,1)$ = {{c}} + {{d}} = **{{c+d}}**."
+            },
+            {
+              "prompt": "Given that the header has an error, what is the probability that the payload has one too? (probability, 0–1)",
+              "answer": "d/(c + d)",
+              "unit": "",
+              "explanation": "$P(Y = 1|X = 1) = \\frac{P(1,1)}{P(X = 1)}$ = {{d}}/{{c+d}} = **{{d/(c+d)}}**, much more than the unconditional $P(Y = 1)$ = {{b+d}}: errors come in bursts."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "params": {
+            "px": [
+              0.2,
+              0.3,
+              0.4
+            ],
+            "py": [
+              0.2,
+              0.3,
+              0.5
+            ],
+            "dep": [
+              0,
+              1
+            ]
+          },
+          "derived": {
+            "q00": "(1 - px)*(1 - py) + 0.02*dep",
+            "q01": "(1 - px)*py - 0.02*dep",
+            "q10": "px*(1 - py) - 0.02*dep",
+            "q11": "px*py + 0.02*dep"
+          },
+          "prompt": "Two binary RVs have the joint PMF $P(0,0)$ = {{q00}}, $P(0,1)$ = {{q01}}, $P(1,0)$ = {{q10}} and $P(1,1)$ = {{q11}}. $X$ and $Y$ are independent.",
+          "answer": "0.5 - dep",
+          "explanation": "Marginals: $P(X = 1)$ = {{q10}} + {{q11}} = {{px}} and $P(Y = 1)$ = {{q01}} + {{q11}} = {{py}}. Independence requires $P(1,1) = P(X = 1)\\,P(Y = 1)$ = {{px}} × {{py}} = {{px*py}}. The table has $P(1,1)$ = {{q11}}. For two binary RVs this one check decides it: if it holds, the other three cells factor as well."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Covariance and correlation",
+          "body": "The **covariance** is positive when $X$ and $Y$ tend to be large together and negative when one tends to be large while the other is small. The **correlation coefficient** $\\rho$ normalizes it to the range −1 … +1, independent of the units.",
+          "formula": "\\rho = \\frac{E[XY] - \\mu_X\\mu_Y}{\\sigma_X\\,\\sigma_Y}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "sx": [
+              1,
+              2,
+              3
+            ],
+            "sy": [
+              1,
+              2,
+              4
+            ],
+            "rho": [
+              -0.5,
+              0.2,
+              0.5,
+              0.8
+            ],
+            "mx": [
+              1,
+              2,
+              -1
+            ],
+            "my": [
+              1,
+              3,
+              -2
+            ]
+          },
+          "derived": {
+            "Exy": "rho*sx*sy + mx*my"
+          },
+          "prompt": "Two voltages have means $\\mu_X$ = {{mx}} V and $\\mu_Y$ = {{my}} V, standard deviations $\\sigma_X$ = {{sx}} V and $\\sigma_Y$ = {{sy}} V, and $E[XY]$ = {{Exy}} V².",
+          "ask": [
+            {
+              "prompt": "What is $\\mathrm{Cov}(X, Y)$, in V²?",
+              "answer": "Exy - mx*my",
+              "unit": "",
+              "absTolerance": 0.01,
+              "explanation": "$\\mathrm{Cov}(X,Y) = E[XY] - \\mu_X\\mu_Y$ = {{Exy}} − ({{mx}})({{my}}) = **{{Exy-mx*my}}** V²."
+            },
+            {
+              "prompt": "What is the correlation coefficient $\\rho$?",
+              "answer": "(Exy - mx*my)/(sx*sy)",
+              "unit": "",
+              "absTolerance": 0.01,
+              "explanation": "$\\mathrm{Cov}$ = {{Exy}} − ({{mx}})({{my}}) = {{Exy-mx*my}} V², so $\\rho = \\mathrm{Cov}/(\\sigma_X\\sigma_Y)$ = {{Exy-mx*my}}/({{sx}} × {{sy}}) = **{{(Exy-mx*my)/(sx*sy)}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "If $\\mathrm{Cov}(X, Y) = 0$, then $X$ and $Y$ are independent.",
+          "answer": false,
+          "explanation": "Uncorrelated only rules out a **linear** relation. Example: $X$ uniform on (−1, 1) and $Y = X^2$. $Y$ is completely determined by $X$, yet $\\mathrm{Cov}(X, Y) = E[X^3] - E[X]E[X^2] = 0$. (For jointly Gaussian RVs, uncorrelated does imply independent.)"
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Sums of random variables",
+          "body": "Means always add. For variances the covariance enters: $\\mathrm{Var}(X+Y) = \\sigma_X^2 + \\sigma_Y^2 + 2\\,\\mathrm{Cov}(X,Y)$. Uncorrelated (in particular independent) noise voltages therefore add as root-sum-square.",
+          "formula": "\\sigma_{X+Y} = \\sqrt{\\sigma_X^2 + \\sigma_Y^2 + 2\\rho\\,\\sigma_X\\sigma_Y}"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "s1": [
+              3e-06,
+              5e-06,
+              8e-06
+            ],
+            "s2": [
+              4e-06,
+              6e-06,
+              1.2e-05
+            ],
+            "rho": [
+              0.3,
+              0.5,
+              -0.4
+            ]
+          },
+          "prompt": "Two noise voltages with rms values (standard deviations) {{s1|V}} and {{s2|V}} add in series.",
+          "ask": [
+            {
+              "prompt": "They are independent. What is the total rms noise?",
+              "answer": "sqrt(s1^2 + s2^2)",
+              "unit": "V",
+              "explanation": "Independent, so the variances add: $\\sqrt{\\sigma_1^2 + \\sigma_2^2}$ = √(({{s1|V}})² + ({{s2|V}})²) = **{{sqrt(s1^2+s2^2)|V}}**, less than the linear sum {{s1+s2|V}}."
+            },
+            {
+              "prompt": "They are correlated with $\\rho$ = {{rho}}. What is the total rms noise?",
+              "answer": "sqrt(s1^2 + s2^2 + 2*rho*s1*s2)",
+              "unit": "V",
+              "explanation": "$\\sigma = \\sqrt{\\sigma_1^2 + \\sigma_2^2 + 2\\rho\\sigma_1\\sigma_2}$ = √({{s1^2*1e12}} + {{s2^2*1e12}} + 2 × ({{rho}}) × {{s1*1e6}} × {{s2*1e6}}) µV = **{{sqrt(s1^2+s2^2+2*rho*s1*s2)|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "s": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "N": [
+              4,
+              16,
+              25,
+              100
+            ]
+          },
+          "prompt": "A DC level is measured with Gaussian noise of $\\sigma$ = {{s|V}} per reading, independent from reading to reading. What is the standard deviation of the average of {{N}} readings?",
+          "options": [
+            "{{s/sqrt(N)|V}}",
+            "{{s/N|V}}",
+            "{{s*sqrt(N)|V}}",
+            "{{s|V}}"
+          ],
+          "answer": 0,
+          "explanation": "The sum of $N$ independent readings has variance $N\\sigma^2$; dividing by $N$ leaves $\\sigma^2/N$, so $\\sigma_{avg} = \\sigma/\\sqrt{N}$ = {{s|V}}/√{{N}} = **{{s/sqrt(N)|V}}**. Averaging $N$ readings gains a factor $\\sqrt{N}$, not $N$."
+        }
+      ]
+    },
+    {
+      "id": "pr-multi-2",
+      "title": "Sums and the central limit theorem",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The PDF of a sum",
+          "body": "If $X$ and $Y$ are independent, the PDF of $S = X + Y$ is the **convolution** of their PDFs. Two uniform RVs on (0, 1) give a triangle on (0, 2); adding more terms makes the result smoother and more bell-shaped.",
+          "formula": "f_{X+Y}(s) = \\int_{-\\infty}^{\\infty} f_X(x)\\,f_Y(s-x)\\,dx"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "$X$ and $Y$ are independent and uniform on (0, 1). Which graph is the PDF of $S = X + Y$?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -0.5,
+                "max": 2.5,
+                "label": "s"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "f_S"
+              },
+              "curves": [
+                {
+                  "f": "max(0, 1 - abs(x - 1))"
+                }
+              ],
+              "height": 130
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 2.5,
+                "label": "s"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "f_S"
+              },
+              "curves": [
+                {
+                  "f": "0.5*step(x)*step(2 - x)"
+                }
+              ],
+              "height": 130
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 2.5,
+                "label": "s"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "f_S"
+              },
+              "curves": [
+                {
+                  "f": "step(x)*step(1 - x)"
+                }
+              ],
+              "height": 130
+            },
+            {
+              "x": {
+                "min": -0.5,
+                "max": 2.5,
+                "label": "s"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "f_S"
+              },
+              "curves": [
+                {
+                  "f": "exp(-((x - 1)/(0.5))^2/2)/(sqrt(2*pi)*(0.5))"
+                }
+              ],
+              "height": 130
+            }
+          ],
+          "answer": 0,
+          "explanation": "$f_S = f_X * f_Y$: sliding one unit box over the other gives an overlap that grows linearly from 0 at $s$ = 0 to 1 at $s$ = 1 and falls back to 0 at $s$ = 2, a **triangle**. Sums near 1 are more likely than sums near 0 or 2, so it is not uniform; and it is not Gaussian either, since it is exactly zero outside (0, 2)."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The central limit theorem",
+          "body": "Standardize the sum of $N$ independent, identically distributed RVs. As $N$ grows its PDF approaches the standard Gaussian, whatever the distribution of the terms (as long as their variance is finite). Drag $N$ to add uniform RVs (solid) and compare with the Gaussian (dashed).",
+          "formula": "Z = \\frac{S_N - N\\mu}{\\sigma\\sqrt{N}} \\to \\mathcal{N}(0, 1)",
+          "plot": {
+            "x": {
+              "min": -4,
+              "max": 4,
+              "label": "z"
+            },
+            "y": {
+              "min": 0,
+              "max": 0.5,
+              "label": "PDF of Z"
+            },
+            "sliders": [
+              {
+                "name": "N",
+                "label": "$N$",
+                "min": 1,
+                "max": 12,
+                "step": 1,
+                "value": 2
+              }
+            ],
+            "curves": [
+              {
+                "f": "exp(-((x - 0)/(1))^2/2)/(sqrt(2*pi)*(1))",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "sqrt(N/12)*sum(k, 0, floor(min(N/2 + x*sqrt(N/12), N/2 - x*sqrt(N/12))), (-1)^k*choose(N, k)*(min(N/2 + x*sqrt(N/12), N/2 - x*sqrt(N/12)) - k)^(N - 1))/fact(N - 1)"
+              }
+            ],
+            "height": 160
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "n": [
+              10,
+              25,
+              50
+            ],
+            "R": [
+              100,
+              220,
+              1000
+            ],
+            "s": [
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "{{n}} resistors, each with mean {{R|Ω}} and standard deviation {{s*R|Ω}} (independent), are connected in series.",
+          "ask": [
+            {
+              "prompt": "What is the standard deviation of the total resistance?",
+              "answer": "s*R*sqrt(n)",
+              "unit": "Ω",
+              "explanation": "Variances add: $\\sigma_{tot} = \\sqrt{n}\\,\\sigma$ = √{{n}} × {{s*R|Ω}} = **{{s*R*sqrt(n)|Ω}}**. The mean is {{n*R|Ω}}."
+            },
+            {
+              "prompt": "By what factor is the relative spread (σ divided by the mean) of the total smaller than that of one resistor?",
+              "answer": "sqrt(n)",
+              "unit": "",
+              "explanation": "The mean grows by $n$ but $\\sigma$ only by $\\sqrt{n}$, so the relative spread drops by $\\sqrt{n}$ = **{{sqrt(n)}}**: from {{100*s}} % to {{100*s/sqrt(n)}} %."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "n": [
+              25,
+              100,
+              400
+            ],
+            "m": [
+              400,
+              500,
+              800
+            ],
+            "s": [
+              200,
+              300
+            ],
+            "z": [
+              1,
+              1.5,
+              2,
+              2.5
+            ]
+          },
+          "derived": {
+            "B": "n*m + z*s*sqrt(n)"
+          },
+          "prompt": "Packets have independent random lengths with mean {{m}} bytes and standard deviation {{s}} bytes. A buffer holds {{B||6}} bytes. Using the central limit theorem, what is the probability that {{n}} packets do not fit (total length above {{B||6}} bytes)? (probability, 0–1)",
+          "answer": "Q((B - n*m)/(s*sqrt(n)))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "The total $S$ has mean $n\\mu$ = {{n*m||6}} bytes and standard deviation $\\sigma\\sqrt{n}$ = {{s*sqrt(n)}} bytes, and by the CLT it is nearly Gaussian. $P(S > B) = Q\\!\\left(\\frac{B - n\\mu}{\\sigma\\sqrt{n}}\\right)$ = Q({{(B-n*m)/(s*sqrt(n))}}) = **{{Q((B-n*m)/(s*sqrt(n)))}}**."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "By the central limit theorem, the sum of many independent random variables is approximately Gaussian even when each of them is far from Gaussian (provided their variances are finite).",
+          "answer": true,
+          "explanation": "That is the point of the CLT: only the mean and variance of the terms survive in the limit. It explains why thermal noise, the sum of the motions of countless electrons, is Gaussian, and why the total error of many stacked tolerances is close to Gaussian."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "t": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "require": "s/t - 1.9",
+          "prompt": "Each reading of a DC voltage has independent noise with $\\sigma$ = {{s|V}}. How many readings must be averaged for the average to have a standard deviation of at most {{t|V}}?",
+          "answer": "ceil(s^2/t^2 - 1e-9)",
+          "unit": "",
+          "explanation": "$\\sigma/\\sqrt{N} \\le t$ ⟺ $N \\ge (\\sigma/t)^2$ = ({{s|V}} / {{t|V}})² = {{s^2/t^2}}, so **N = {{ceil(s^2/t^2-1e-9)}}** readings."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "m1": [
+              1,
+              2,
+              3
+            ],
+            "m2": [
+              1,
+              4
+            ],
+            "v1": [
+              1,
+              4
+            ],
+            "v2": [
+              4,
+              9
+            ]
+          },
+          "prompt": "$X$ is Gaussian with mean {{m1}} and variance {{v1}}; $Y$ is Gaussian with mean {{m2}} and variance {{v2}}; they are independent. What is the distribution of $X - Y$?",
+          "options": [
+            "Gaussian, mean {{m1-m2}}, variance {{v1+v2}}",
+            "Gaussian, mean {{m1-m2}}, variance {{v1-v2}}",
+            "Gaussian, mean {{m1+m2}}, variance {{v1+v2}}",
+            "Not Gaussian: a difference of Gaussians is not Gaussian"
+          ],
+          "answer": 0,
+          "explanation": "A linear combination of independent Gaussians is Gaussian. The means subtract: {{m1}} − {{m2}} = {{m1-m2}}. The variances **add**, even for a difference: $\\mathrm{Var}(X - Y) = \\mathrm{Var}(X) + (-1)^2\\,\\mathrm{Var}(Y)$ = {{v1}} + {{v2}} = **{{v1+v2}}**."
+        }
+      ]
+    },
+    {
+      "id": "pr-multi-3",
+      "title": "Correlation and sums in practice",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "c": [
+              -3,
+              2,
+              4.5
+            ],
+            "sx": [
+              2,
+              3
+            ],
+            "sy": [
+              3,
+              5
+            ]
+          },
+          "prompt": "Two sensor errors have $\\mathrm{Cov}(X, Y)$ = {{c}} mV², $\\sigma_X$ = {{sx}} mV and $\\sigma_Y$ = {{sy}} mV. What is their correlation coefficient $\\rho$?",
+          "answer": "c/(sx*sy)",
+          "unit": "",
+          "absTolerance": 0.01,
+          "explanation": "$\\rho = \\frac{\\mathrm{Cov}(X,Y)}{\\sigma_X\\sigma_Y}$ = {{c}}/({{sx}} × {{sy}}) = **{{c/(sx*sy)}}**. It must lie between −1 and +1."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "rho": [
+              0,
+              0.5,
+              0.9,
+              0.98
+            ]
+          },
+          "prompt": "Two wires pick up noise voltages $V_1$ and $V_2$, each with $\\sigma$ = {{s|V}}, with correlation coefficient $\\rho$ = {{rho}}.",
+          "ask": [
+            {
+              "prompt": "A differential amplifier (gain 1) outputs $V_1 - V_2$. What is the rms noise at its output?",
+              "answer": "s*sqrt(2*(1 - rho))",
+              "unit": "V",
+              "explanation": "$\\sigma^2_{V_1-V_2} = \\sigma^2 + \\sigma^2 - 2\\rho\\sigma^2 = 2\\sigma^2(1-\\rho)$, so $\\sigma$ = {{s|V}} × √(2 × (1 − {{rho}})) = **{{s*sqrt(2*(1-rho))|V}}**. Correlated (common-mode) noise cancels in the difference."
+            },
+            {
+              "prompt": "A summing amplifier (gain 1) outputs $V_1 + V_2$. What is the rms noise at its output?",
+              "answer": "s*sqrt(2*(1 + rho))",
+              "unit": "V",
+              "explanation": "$\\sigma^2_{V_1+V_2} = 2\\sigma^2(1+\\rho)$, so $\\sigma$ = {{s|V}} × √(2 × (1 + {{rho}})) = **{{s*sqrt(2*(1+rho))|V}}**. Here correlated noise adds up almost linearly."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "m": [
+              100,
+              150,
+              200
+            ],
+            "sC": [
+              20,
+              30
+            ],
+            "sD": [
+              30,
+              40,
+              50
+            ]
+          },
+          "require": "5.5 - m/sqrt(sC^2 + sD^2)",
+          "prompt": "In a synchronous circuit the data arrives on average {{m}} ps before the clock edge. The data arrival time has a jitter of σ = {{sD}} ps and the clock edge σ = {{sC}} ps (independent and Gaussian). What is the probability that the data arrives after the clock edge? (probability, 0–1)",
+          "answer": "Q(m/sqrt(sC^2 + sD^2))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "The difference $T_D - T_C$ is Gaussian with mean −{{m}} ps and $\\sigma = \\sqrt{\\sigma_C^2 + \\sigma_D^2}$ = {{sqrt(sC^2+sD^2)}} ps (variances add). $P(T_D - T_C > 0) = Q\\!\\left(\\frac{m}{\\sigma}\\right)$ = Q({{m/sqrt(sC^2+sD^2)}}) = **{{Q(m/sqrt(sC^2+sD^2))}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "m1": [
+              50000,
+              100000
+            ],
+            "m2": [
+              20000,
+              40000,
+              80000
+            ]
+          },
+          "prompt": "A power supply contains two independent parts with exponential lifetimes, MTTF {{m1|h}} and {{m2|h}}. The supply fails as soon as either part fails.",
+          "ask": [
+            {
+              "prompt": "What is the MTTF of the supply?",
+              "answer": "1/(1/m1 + 1/m2)",
+              "unit": "h",
+              "explanation": "The supply survives past $t$ only if both parts do: $e^{-\\lambda_1t}e^{-\\lambda_2t} = e^{-(\\lambda_1+\\lambda_2)t}$. So its lifetime is exponential with rate $\\lambda_1 + \\lambda_2$ and MTTF $\\frac{1}{1/m_1 + 1/m_2}$ = **{{1/(1/m1+1/m2)|h}}**."
+            },
+            {
+              "prompt": "What is the probability that part 1 fails first? (probability, 0–1)",
+              "answer": "(1/m1)/(1/m1 + 1/m2)",
+              "unit": "",
+              "explanation": "For independent exponential lifetimes, $P(T_1 < T_2) = \\frac{\\lambda_1}{\\lambda_1 + \\lambda_2}$ with $\\lambda = 1/\\text{MTTF}$: (1/{{m1}})/(1/{{m1}} + 1/{{m2}}) = **{{(1/m1)/(1/m1+1/m2)}}**. The part with the shorter MTTF usually fails first."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "rho": [
+              -0.8,
+              -0.5,
+              0.5,
+              0.8
+            ]
+          },
+          "prompt": "Which curve is a contour of constant probability density for jointly Gaussian $X$ and $Y$ with equal variances and $\\rho$ = {{rho}}?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -2,
+                "max": 2,
+                "label": "x"
+              },
+              "y": {
+                "min": -2,
+                "max": 2,
+                "label": "y"
+              },
+              "equal": true,
+              "curves": [
+                {
+                  "x": "1.5*1*cos(t)",
+                  "y": "1.5*1*((rho)*cos(t) + sqrt(1 - (rho)^2)*sin(t))",
+                  "t": [
+                    0,
+                    "2*pi"
+                  ]
+                }
+              ],
+              "height": 150
+            },
+            {
+              "x": {
+                "min": -2,
+                "max": 2,
+                "label": "x"
+              },
+              "y": {
+                "min": -2,
+                "max": 2,
+                "label": "y"
+              },
+              "equal": true,
+              "curves": [
+                {
+                  "x": "1.5*1*cos(t)",
+                  "y": "1.5*1*((-rho)*cos(t) + sqrt(1 - (-rho)^2)*sin(t))",
+                  "t": [
+                    0,
+                    "2*pi"
+                  ]
+                }
+              ],
+              "height": 150
+            },
+            {
+              "x": {
+                "min": -2,
+                "max": 2,
+                "label": "x"
+              },
+              "y": {
+                "min": -2,
+                "max": 2,
+                "label": "y"
+              },
+              "equal": true,
+              "curves": [
+                {
+                  "x": "1.5*1*cos(t)",
+                  "y": "1.5*1*((0)*cos(t) + sqrt(1 - (0)^2)*sin(t))",
+                  "t": [
+                    0,
+                    "2*pi"
+                  ]
+                }
+              ],
+              "height": 150
+            }
+          ],
+          "answer": 0,
+          "explanation": "For $\\rho > 0$, $X$ and $Y$ tend to have the same sign, so the ellipse is stretched along the line $y = x$; for $\\rho < 0$ along $y = -x$; for $\\rho = 0$ (equal variances) it is a circle. The closer $|\\rho|$ is to 1, the thinner the ellipse."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0.002,
+              0.005,
+              0.01
+            ],
+            "d": [
+              0.0005,
+              0.001,
+              0.002
+            ]
+          },
+          "require": "s/d - 1.4",
+          "prompt": "A voltage is measured repeatedly with independent noise of $\\sigma$ = {{s|V}} per reading. How many readings must be averaged so that the average lies within ±{{d|V}} of the true value with 95 % probability? (95 % of a Gaussian lies within ±1.96 σ.)",
+          "answer": "ceil((1.96*s/d)^2 - 1e-9)",
+          "unit": "",
+          "explanation": "Need $1.96\\,\\sigma/\\sqrt{N} \\le d$ ⟺ $N \\ge (1.96\\,\\sigma/d)^2$ = (1.96 × {{s|V}} / {{d|V}})² = {{(1.96*s/d)^2}}, so **N = {{ceil((1.96*s/d)^2-1e-9)}}**. By the CLT the average is close to Gaussian even if a single reading is not."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "For independent $X$ and $Y$, $\\mathrm{Var}(X - Y) = \\mathrm{Var}(X) - \\mathrm{Var}(Y)$.",
+          "answer": false,
+          "explanation": "$\\mathrm{Var}(X - Y) = \\mathrm{Var}(X) + (-1)^2\\,\\mathrm{Var}(Y) = \\mathrm{Var}(X) + \\mathrm{Var}(Y)$. Subtracting an independent noise adds its power, just like adding it; otherwise a variance could even become negative."
+        }
+      ]
+    },
+    {
+      "id": "pr-multi-4",
+      "title": "Jitter, bit-error counts and estimation",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "s1": [
+              2,
+              3
+            ],
+            "s2": [
+              4,
+              5
+            ],
+            "s3": [
+              1,
+              2
+            ],
+            "t": [
+              10,
+              12,
+              15
+            ]
+          },
+          "prompt": "A clock path has three independent, Gaussian jitter sources with rms values {{s1}} ps, {{s2}} ps and {{s3}} ps.",
+          "ask": [
+            {
+              "prompt": "What is the total rms jitter, in ps?",
+              "answer": "sqrt(s1^2 + s2^2 + s3^2)",
+              "unit": "",
+              "explanation": "Independent, so the variances add: $\\sqrt{\\sigma_1^2 + \\sigma_2^2 + \\sigma_3^2}$ = √({{s1^2}} + {{s2^2}} + {{s3^2}}) = **{{sqrt(s1^2+s2^2+s3^2)}} ps**."
+            },
+            {
+              "prompt": "What is the probability that the magnitude of the total jitter exceeds {{t}} ps? (probability, 0–1)",
+              "answer": "2*Q(t/sqrt(s1^2 + s2^2 + s3^2))",
+              "unit": "",
+              "tolerance": 0.03,
+              "explanation": "The total is Gaussian with $\\sigma$ = {{sqrt(s1^2+s2^2+s3^2)}} ps. Both tails count: $2Q(t/\\sigma)$ = 2Q({{t/sqrt(s1^2+s2^2+s3^2)}}) = **{{2*Q(t/sqrt(s1^2+s2^2+s3^2))}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "n": [
+              1000000
+            ],
+            "p": [
+              0.0001,
+              0.001
+            ],
+            "dK": [
+              20,
+              30,
+              60,
+              100
+            ]
+          },
+          "require": "min(dK/sqrt(n*p*(1 - p)) - 1, 4.5 - dK/sqrt(n*p*(1 - p)))",
+          "prompt": "A link sends $10^6$ bits with a bit-error probability of {{p}}. Using the Gaussian (CLT) approximation without continuity correction, what is the probability that more than {{n*p+dK||6}} bit errors occur? (probability, 0–1)",
+          "answer": "Q(dK/sqrt(n*p*(1 - p)))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "The error count is binomial with mean $np$ = {{n*p}} and $\\sigma = \\sqrt{np(1-p)}$ = {{sqrt(n*p*(1-p))}}. For large $n$ it is nearly Gaussian: $P(K > k) \\approx Q\\!\\left(\\frac{k - np}{\\sigma}\\right)$ = Q({{dK/sqrt(n*p*(1-p))}}) = **{{Q(dK/sqrt(n*p*(1-p)))}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "mx": [
+              1,
+              2
+            ],
+            "sx": [
+              0.1,
+              0.2
+            ],
+            "my": [
+              3,
+              5
+            ],
+            "sy": [
+              0.3,
+              0.5
+            ],
+            "rho": [
+              0.6,
+              0.8,
+              -0.5
+            ],
+            "dx": [
+              -1.5,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "x": "mx + dx*sx"
+          },
+          "prompt": "The voltages at two nodes of a noisy circuit, $X$ and $Y$, are jointly Gaussian with $\\mu_X$ = {{mx|V}}, $\\sigma_X$ = {{sx|V}}, $\\mu_Y$ = {{my|V}}, $\\sigma_Y$ = {{sy|V}} and $\\rho$ = {{rho}}. You measure $X$ = {{x|V}}.",
+          "ask": [
+            {
+              "prompt": "What is the conditional mean $E[Y \\mid X = x]$?",
+              "answer": "my + rho*sy/sx*(x - mx)",
+              "unit": "V",
+              "explanation": "$E[Y|x] = \\mu_Y + \\rho\\frac{\\sigma_Y}{\\sigma_X}(x - \\mu_X)$ = {{my|V}} + ({{rho}}) × ({{sy|V}}/{{sx|V}}) × ({{x-mx|V}}) = **{{my+rho*sy/sx*(x-mx)|V}}**."
+            },
+            {
+              "prompt": "What is the standard deviation of $Y$ given $X = x$?",
+              "answer": "sy*sqrt(1 - rho^2)",
+              "unit": "V",
+              "explanation": "$\\sigma_{Y|x} = \\sigma_Y\\sqrt{1-\\rho^2}$ = {{sy|V}} × √(1 − {{rho^2}}) = **{{sy*sqrt(1-rho^2)|V}}**, smaller than {{sy|V}}: the measurement of $X$ removed part of the uncertainty. It does not depend on the measured value."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "s0": [
+              -10,
+              0,
+              5
+            ],
+            "g": [
+              6,
+              10,
+              13,
+              20
+            ]
+          },
+          "prompt": "A repetitive signal is buried in independent noise. Averaging $N$ synchronized records keeps the signal and divides the noise power by $N$. How many records are needed to raise the SNR from {{s0}} dB to {{s0+g}} dB?",
+          "answer": "ceil(10^(g/10) - 1e-9)",
+          "unit": "",
+          "explanation": "The SNR (a power ratio) improves by the factor $N$: $10\\log_{10}N \\ge$ {{g}} dB ⟺ $N \\ge 10^{{{g}}/10}$ = {{10^(g/10)}}, so **N = {{ceil(10^(g/10)-1e-9)}}** records."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "s1": [
+              0.001,
+              0.002
+            ],
+            "s2": [
+              0.001,
+              0.003
+            ],
+            "rho": [
+              -0.5,
+              0.3,
+              0.7
+            ],
+            "t": [
+              0.004,
+              0.006
+            ]
+          },
+          "require": "4.5 - t/sqrt(s1^2 + s2^2 + 2*rho*s1*s2)",
+          "prompt": "Two noise voltages with $\\sigma_1$ = {{s1|V}} and $\\sigma_2$ = {{s2|V}} are jointly Gaussian with $\\rho$ = {{rho}}. What is the probability that their sum exceeds {{t|V}}? (probability, 0–1)",
+          "answer": "Q(t/sqrt(s1^2 + s2^2 + 2*rho*s1*s2))",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "The sum is Gaussian with mean 0 and $\\sigma = \\sqrt{\\sigma_1^2 + \\sigma_2^2 + 2\\rho\\sigma_1\\sigma_2}$ = {{sqrt(s1^2+s2^2+2*rho*s1*s2)|V}}. $P(S > t) = Q(t/\\sigma)$ = Q({{t/sqrt(s1^2+s2^2+2*rho*s1*s2)}}) = **{{Q(t/sqrt(s1^2+s2^2+2*rho*s1*s2))}}**."
+        },
+        {
+          "id": "q6",
+          "type": "slider",
+          "params": {
+            "s": [
+              0.001,
+              0.002
+            ],
+            "rt": [
+              -0.5,
+              0.25,
+              0.5,
+              0.8
+            ]
+          },
+          "derived": {
+            "sd": "s*sqrt(2*(1 - rt))"
+          },
+          "prompt": "Two noise voltages each have $\\sigma$ = {{s|V}}. Set their correlation coefficient so that their difference $X - Y$ has a standard deviation of {{sd|V}}.",
+          "plot": {
+            "x": {
+              "min": "-3*s",
+              "max": "3*s",
+              "label": "x",
+              "unit": "V"
+            },
+            "y": {
+              "min": "-3*s",
+              "max": "3*s",
+              "label": "y",
+              "unit": "V"
+            },
+            "equal": true,
+            "sliders": [
+              {
+                "name": "rho",
+                "label": "$\\rho$",
+                "min": -1,
+                "max": 1,
+                "step": 0.01,
+                "value": 0
+              }
+            ],
+            "curves": [
+              {
+                "x": "1.5*s*cos(t)",
+                "y": "1.5*s*((rho)*cos(t) + sqrt(1 - (rho)^2)*sin(t))",
+                "t": [
+                  0,
+                  "2*pi"
+                ]
+              },
+              {
+                "f": "x",
+                "color": "grey",
+                "dash": true,
+                "label": "x = y",
+                "labelAt": 0.9
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$\\sigma_{X-Y}$",
+                "value": "s*sqrt(2*(1 - rho))",
+                "unit": "V",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "rho": "rt"
+          },
+          "tolerance": 0.05,
+          "absTolerance": 0.03,
+          "explanation": "$\\sigma_{X-Y}^2 = 2\\sigma^2(1-\\rho)$ ⇒ $\\rho = 1 - \\frac{\\sigma_{X-Y}^2}{2\\sigma^2}$ = 1 − ({{sd|V}})²/(2 × ({{s|V}})²) = **{{rt}}**. The more the pair hugs the line $x = y$, the smaller the difference."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Uncorrelated jointly Gaussian random variables are independent.",
+          "answer": true,
+          "explanation": "With $\\rho$ = 0 the joint Gaussian PDF factors into $f_X(x)\\,f_Y(y)$, so the variables are independent. This is special to jointly Gaussian RVs; in general, uncorrelated does not imply independent."
+        }
+      ]
+    }
+  ]
+}

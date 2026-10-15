@@ -1,0 +1,998 @@
+{
+  "id": "cs-frequency",
+  "title": "Frequency Response & PID",
+  "description": "Read gain and phase margins from Bode plots and see how P, I and D actions shape a loop.",
+  "reference": "",
+  "study": [
+    {
+      "title": "Bode plot of the loop",
+      "body": "Stability margins are read from the **open-loop** frequency response $L(j\\omega) = G(j\\omega)H(j\\omega)$. Example: $L(s) = \\frac{10}{s(s+1)(s+10)}$. Each factor adds up on a log scale:\n- an integrator: −20 dB/decade and a constant −90°\n- each real pole $a$: an extra −20 dB/decade and −90° of phase above $\\omega = a$.\nThe phase plot is shown; the magnitude plot is on the next card.",
+      "plot": {
+        "x": {
+          "min": 0.01,
+          "max": 100,
+          "label": "ω (rad/s)",
+          "log": true
+        },
+        "y": {
+          "min": -270,
+          "max": -90,
+          "label": "phase of L (°)",
+          "ticks": [
+            -270,
+            -225,
+            -180,
+            -135,
+            -90
+          ]
+        },
+        "curves": [
+          {
+            "f": "-90-deg(atan(x))-deg(atan(x/10))"
+          }
+        ],
+        "hlines": [
+          {
+            "y": -180,
+            "label": "−180°"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0.784,
+            "label": "ω_gc"
+          },
+          {
+            "x": 3.162,
+            "label": "ω_pc"
+          }
+        ],
+        "points": [
+          {
+            "x": 0.784,
+            "y": -132.6,
+            "label": "PM = 47°",
+            "guides": false
+          }
+        ]
+      }
+    },
+    {
+      "title": "Gain and phase margin",
+      "body": "- **Gain crossover** $\\omega_{gc}$: where $|L| = 0$ dB. **Phase margin** $PM = 180^\\circ + \\angle L(j\\omega_{gc})$.\n- **Phase crossover** $\\omega_{pc}$: where $\\angle L = -180^\\circ$. **Gain margin** $GM = -|L(j\\omega_{pc})|_{dB}$: how many dB the gain can rise before instability.\nFor a stable open loop (minimum phase), the closed loop is stable when both margins are positive. Typical targets: PM 45–60°, GM > 6 dB.",
+      "formula": "PM = 180^\\circ + \\angle L(j\\omega_{gc}), \\qquad GM = -20\\log_{10}|L(j\\omega_{pc})|",
+      "plot": {
+        "x": {
+          "min": 0.01,
+          "max": 100,
+          "label": "ω (rad/s)",
+          "log": true
+        },
+        "y": {
+          "min": -80,
+          "max": 60,
+          "label": "|L| (dB)"
+        },
+        "curves": [
+          {
+            "f": "20*log10(10/10)-20*log10(x)-10*log10(1+x^2)-10*log10(1+x^2/100)"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0,
+            "label": "0 dB"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0.784,
+            "label": "ω_gc"
+          },
+          {
+            "x": 3.162,
+            "label": "ω_pc"
+          }
+        ],
+        "points": [
+          {
+            "x": 3.162,
+            "y": -20.8,
+            "label": "GM = 20.8 dB",
+            "guides": false
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: gain and margins",
+      "body": "Magnitude plot of $L(s) = \\frac{K}{s(s+1)(s+10)}$. The phase does not depend on $K$; it is −180° at $\\omega_{pc} = \\sqrt{10}$ = 3.16 rad/s. Drag $K$: the magnitude curve moves up, so the gain crossover moves right, to where the phase lag is larger. The phase margin shrinks, and at $K = 110$ both margins reach zero: the closed loop is on the edge of instability (check with Routh: $s^3 + 11s^2 + 10s + K$).",
+      "plot": {
+        "x": {
+          "min": 0.01,
+          "max": 100,
+          "label": "ω (rad/s)",
+          "log": true
+        },
+        "y": {
+          "min": -80,
+          "max": 60,
+          "label": "|L| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "K",
+            "label": "$K$",
+            "min": 1,
+            "max": 300,
+            "log": true,
+            "value": 10
+          }
+        ],
+        "let": {
+          "u0": "ln(min(K/10, K^(1/3)))",
+          "u1": "u0 - (u0 + 0.5*ln(1+exp(2*u0)) + 0.5*ln(100+exp(2*u0)) - ln(K))/(1 + exp(2*u0)/(1+exp(2*u0)) + exp(2*u0)/(100+exp(2*u0)))",
+          "u2": "u1 - (u1 + 0.5*ln(1+exp(2*u1)) + 0.5*ln(100+exp(2*u1)) - ln(K))/(1 + exp(2*u1)/(1+exp(2*u1)) + exp(2*u1)/(100+exp(2*u1)))",
+          "u3": "u2 - (u2 + 0.5*ln(1+exp(2*u2)) + 0.5*ln(100+exp(2*u2)) - ln(K))/(1 + exp(2*u2)/(1+exp(2*u2)) + exp(2*u2)/(100+exp(2*u2)))",
+          "u4": "u3 - (u3 + 0.5*ln(1+exp(2*u3)) + 0.5*ln(100+exp(2*u3)) - ln(K))/(1 + exp(2*u3)/(1+exp(2*u3)) + exp(2*u3)/(100+exp(2*u3)))",
+          "u5": "u4 - (u4 + 0.5*ln(1+exp(2*u4)) + 0.5*ln(100+exp(2*u4)) - ln(K))/(1 + exp(2*u4)/(1+exp(2*u4)) + exp(2*u4)/(100+exp(2*u4)))",
+          "wgc": "exp(u5)",
+          "PM": "90 - deg(atan(wgc)) - deg(atan(wgc/10))"
+        },
+        "curves": [
+          {
+            "f": "20*log10(K/10) - 20*log10(x) - 10*log10(1+x^2) - 10*log10(1+x^2/100)"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0,
+            "label": "0 dB"
+          }
+        ],
+        "vlines": [
+          {
+            "x": "wgc",
+            "label": "ω_gc"
+          },
+          {
+            "x": 3.162,
+            "label": "ω_pc"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$\\omega_{gc}$ (rad/s)",
+            "value": "wgc"
+          },
+          {
+            "label": "PM",
+            "value": "PM",
+            "unit": "°"
+          },
+          {
+            "label": "GM",
+            "value": "20*log10(110/K)",
+            "unit": "dB"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The Nyquist idea",
+      "body": "The Nyquist plot draws $L(j\\omega)$ as a curve in the complex plane for $\\omega$ from $-\\infty$ to $\\infty$. The closed-loop poles are zeros of $1 + L$, so what matters is how the curve goes around the **critical point −1**: $Z = N + P$ (closed-loop RHP poles = clockwise encirclements of −1 + open-loop RHP poles). For a stable open loop: **no encirclement of −1** means a stable closed loop. GM and PM measure how far the curve stays from −1.",
+      "formula": "Z = N + P"
+    },
+    {
+      "title": "P, I and D actions",
+      "body": "- **P** ($K_P$): reacts to the present error. Higher $K_P$: faster, smaller steady-state error, more overshoot.\n- **I** ($K_I$): reacts to accumulated error; removes steady-state error, adds phase lag (less margin).\n- **D** ($K_D$): reacts to the rate of change; adds phase lead and damping, less overshoot, but amplifies high-frequency noise.",
+      "formula": "G_c(s) = K_P + \\frac{K_I}{s} + K_Ds = K_P\\left(1 + \\frac{1}{T_is} + T_ds\\right)"
+    },
+    {
+      "title": "Tuning intuition",
+      "body": "Raise $K_P$ until the response is fast enough, add I to remove the remaining error, add D if overshoot or oscillation is too large. **Ziegler–Nichols** (ultimate-gain method): with P control only, raise the gain to $K_u$ where the loop just oscillates with period $P_u$, then set\n- P: $K_P = 0.5K_u$\n- PI: $K_P = 0.45K_u$, $T_i = P_u/1.2$\n- PID: $K_P = 0.6K_u$, $T_i = P_u/2$, $T_d = P_u/8$\nThis gives a lively loop (often 10–60 % overshoot) as a starting point for fine-tuning."
+    },
+    {
+      "title": "Margins and the time response",
+      "body": "For a loop that behaves like a second-order system, the phase margin sets the damping: $\\zeta \\approx PM/100$ (for PM up to about 70°). A small PM means large overshoot and ringing. A time delay $T$ adds phase $-\\omega T$ without changing the magnitude, so it eats phase margin: the loop goes unstable when $\\omega_{gc}T$ reaches the PM (in radians).",
+      "formula": "\\zeta \\approx \\frac{PM}{100^\\circ}, \\qquad T_{max} = \\frac{PM\\,[\\text{rad}]}{\\omega_{gc}}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "cs-frequency-1",
+      "title": "Margins and PID",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Margins from the open loop",
+          "body": "Instability happens when the loop gain $L = GH$ equals −1: magnitude 1 (0 dB) **and** phase −180° at the same frequency. The **margins** measure how far a loop is from that point, using the Bode plot of the **open loop** $L(j\\omega)$.",
+          "plot": {
+            "x": {
+              "min": 0.01,
+              "max": 100,
+              "label": "ω (rad/s)",
+              "log": true
+            },
+            "y": {
+              "min": -80,
+              "max": 60,
+              "label": "|L| (dB)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(10/10)-20*log10(x)-10*log10(1+x^2)-10*log10(1+x^2/100)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0,
+                "label": "0 dB"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0.784,
+                "label": "ω_gc"
+              },
+              {
+                "x": 3.162,
+                "label": "ω_pc"
+              }
+            ],
+            "points": [
+              {
+                "x": 3.162,
+                "y": -20.8,
+                "label": "GM = 20.8 dB",
+                "guides": false
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "How is the **phase margin** defined?",
+          "options": [
+            "$180^\\circ + \\angle L$ at the frequency where $|L| = 0$ dB",
+            "$-|L|_{dB}$ at the frequency where $\\angle L = -180^\\circ$",
+            "$\\angle L$ at the frequency where $|L| = 0$ dB",
+            "$180^\\circ + \\angle L$ at the frequency where $\\angle L = -90^\\circ$"
+          ],
+          "answer": 0,
+          "explanation": "At the gain crossover ($|L| = 1$) the phase margin is how much extra lag would bring the phase to −180°: $PM = 180^\\circ + \\angle L(j\\omega_{gc})$. The option with $-|L|_{dB}$ at the $-180^\\circ$ frequency is the gain margin, measured at the phase crossover."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Reading the margins",
+          "body": "Find $\\omega_{gc}$ on the magnitude plot (0 dB crossing) and read the phase there: $PM = 180^\\circ + \\angle L$. Find $\\omega_{pc}$ on the phase plot (−180° crossing) and read the magnitude there: $GM = -|L|_{dB}$.",
+          "plot": {
+            "x": {
+              "min": 0.01,
+              "max": 100,
+              "label": "ω (rad/s)",
+              "log": true
+            },
+            "y": {
+              "min": -270,
+              "max": -90,
+              "label": "phase of L (°)",
+              "ticks": [
+                -270,
+                -225,
+                -180,
+                -135,
+                -90
+              ]
+            },
+            "curves": [
+              {
+                "f": "-90-deg(atan(x))-deg(atan(x/10))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": -180,
+                "label": "−180°"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0.784,
+                "label": "ω_gc"
+              },
+              {
+                "x": 3.162,
+                "label": "ω_pc"
+              }
+            ],
+            "points": [
+              {
+                "x": 0.784,
+                "y": -132.6,
+                "label": "PM = 47°",
+                "guides": false
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "w": [
+              0.5,
+              0.8,
+              1,
+              1.5,
+              2
+            ]
+          },
+          "derived": {
+            "K": "w*sqrt(1+w^2)*sqrt(100+w^2)"
+          },
+          "prompt": "The phase plot of $L(s) = \\frac{K}{s(s+1)(s+10)}$ is shown. Its gain crossover is at $\\omega_{gc}$ = {{w}} rad/s (marked). Read the phase margin.",
+          "plot": {
+            "x": {
+              "min": 0.01,
+              "max": 100,
+              "label": "ω (rad/s)",
+              "log": true
+            },
+            "y": {
+              "min": -270,
+              "max": -90,
+              "label": "phase of L (°)",
+              "ticks": [
+                -270,
+                -225,
+                -180,
+                -135,
+                -90
+              ]
+            },
+            "curves": [
+              {
+                "f": "-90-deg(atan(x))-deg(atan(x/10))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": -180
+              }
+            ],
+            "vlines": [
+              {
+                "x": "w",
+                "label": "ω_gc"
+              }
+            ]
+          },
+          "answer": "90-deg(atan(w))-deg(atan(w/10))",
+          "unit": "°",
+          "tolerance": 0.1,
+          "absTolerance": 5,
+          "explanation": "At $\\omega_{gc}$ = {{w}} rad/s the phase is about {{-90-deg(atan(w))-deg(atan(w/10))}}°. $PM = 180^\\circ + \\angle L$ = {{90-deg(atan(w))-deg(atan(w/10))}}°. (Exactly: $\\angle L = -90^\\circ - \\arctan\\omega - \\arctan(\\omega/10)$.)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              5,
+              10,
+              20,
+              40
+            ]
+          },
+          "prompt": "The magnitude plot of $L(s) = \\frac{K}{s(s+1)(s+10)}$ is shown. Its phase is −180° at $\\omega_{pc} = \\sqrt{10}$ ≈ 3.16 rad/s (marked). Read the gain margin.",
+          "plot": {
+            "x": {
+              "min": 0.01,
+              "max": 100,
+              "label": "ω (rad/s)",
+              "log": true
+            },
+            "y": {
+              "min": -80,
+              "max": 80,
+              "label": "|L| (dB)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(K/10)-20*log10(x)-10*log10(1+x^2)-10*log10(1+x^2/100)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "vlines": [
+              {
+                "x": 3.162,
+                "label": "ω_pc"
+              }
+            ]
+          },
+          "answer": "20*log10(110/K)",
+          "unit": "dB",
+          "tolerance": 0.15,
+          "absTolerance": 3,
+          "explanation": "At $\\omega_{pc}$ the curve is at about {{-20*log10(110/K)}} dB, so $GM = -|L|_{dB}$ = {{20*log10(110/K)|dB}}. Exactly: $|L(j\\sqrt{10})| = \\frac{K}{\\sqrt{10}\\sqrt{11}\\sqrt{110}} = K/110$; this plot has $K$ = {{K}}, so $GM = 20\\log_{10}(110/{{K}})$."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The Nyquist idea",
+          "body": "The Nyquist plot draws $L(j\\omega)$ as a curve in the complex plane. Closed-loop poles are roots of $1 + L(s) = 0$, so the **point −1** is critical. If the open loop is stable, the closed loop is stable when the curve does **not encircle −1**. The gain margin says by which factor the curve can grow before it hits −1; the phase margin, by which angle it can rotate.",
+          "formula": "Z = N + P"
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "For a stable open loop $L(s)$, the closed loop is stable if the Nyquist plot of $L(j\\omega)$ does not encircle the point −1.",
+          "answer": true,
+          "explanation": "Nyquist: $Z = N + P$. With $P = 0$ open-loop RHP poles and $N = 0$ encirclements of −1, there are $Z = 0$ closed-loop RHP poles: stable."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "PID control",
+          "body": "The most common controller combines three actions on the error $e$: **P** (proportional to $e$), **I** (proportional to its integral) and **D** (proportional to its derivative).",
+          "formula": "G_c(s) = K_P + \\frac{K_I}{s} + K_Ds"
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each controller action to its main effect.",
+          "pairs": [
+            [
+              "P only",
+              "Faster, but some steady-state error remains"
+            ],
+            [
+              "Adding I",
+              "Removes steady-state error"
+            ],
+            [
+              "Adding D",
+              "More damping, but amplifies noise"
+            ],
+            [
+              "Higher $K_P$",
+              "Smaller error, more overshoot"
+            ]
+          ],
+          "explanation": "P alone leaves an error in a type-0 loop (it needs an error to produce an output). The integrator keeps acting until the error is zero. The derivative reacts to the slope of the error, damping oscillations, but it also boosts high-frequency noise. Raising $K_P$ reduces the error and speeds up the loop at the cost of damping."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A temperature loop with a P controller settles 2 °C below the setpoint. Which change removes this offset?",
+          "options": [
+            "Add integral action (PI)",
+            "Add derivative action (PD)",
+            "Lower $K_P$",
+            "Add a filter to the sensor"
+          ],
+          "answer": 0,
+          "explanation": "The offset is a steady-state error of a type-0 loop. Integral action adds a pole at $s = 0$ (type 1), so the step error becomes zero. D action only affects the transient; lowering $K_P$ makes the offset larger."
+        }
+      ]
+    },
+    {
+      "id": "cs-frequency-2",
+      "title": "Computing margins",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              5
+            ],
+            "K": [
+              2,
+              5,
+              10,
+              20,
+              50
+            ]
+          },
+          "derived": {
+            "w": "sqrt((-a^2+sqrt(a^4+4*K^2))/2)"
+          },
+          "prompt": "Find the phase margin of $L(s) = \\frac{{{K}}}{s(s+{{a}})}$.",
+          "answer": "90-deg(atan(w/a))",
+          "unit": "°",
+          "explanation": "Gain crossover: $\\frac{{{K}}}{\\omega\\sqrt{\\omega^2 + {{a^2}}}} = 1$, so $\\omega^4 + {{a^2}}\\omega^2 - {{K^2}} = 0$ and $\\omega_{gc}$ = {{w}} rad/s. Phase there: $-90^\\circ - \\arctan(\\omega_{gc}/{{a}})$ = {{-90-deg(atan(w/a))}}°. $PM = 180^\\circ + \\angle L$ = {{90-deg(atan(w/a))}}°."
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "d": [
+              1,
+              2,
+              3
+            ],
+            "f": [
+              0.1,
+              0.2,
+              0.25,
+              0.5
+            ]
+          },
+          "derived": {
+            "b": "a+d",
+            "K": "f*a*b*(a+b)"
+          },
+          "prompt": "Find the gain margin of $L(s) = \\frac{{{K}}}{s(s+{{a}})(s+{{b}})}$.",
+          "answer": "20*log10(a*b*(a+b)/K)",
+          "unit": "dB",
+          "explanation": "Phase −180° when $\\arctan(\\omega/{{a}}) + \\arctan(\\omega/{{b}}) = 90^\\circ$, i.e. $\\omega_{pc} = \\sqrt{{{a}}\\cdot{{b}}}$ = {{sqrt(a*b)}} rad/s. There $|L| = \\frac{{{K}}}{\\omega\\sqrt{\\omega^2+{{a^2}}}\\sqrt{\\omega^2+{{b^2}}}} = \\frac{{{K}}}{{{a*b*(a+b)}}}$ = {{f}}. $GM = -20\\log_{10}({{f}})$ = {{20*log10(a*b*(a+b)/K)|dB}}. (Same as $K_{crit}/K$ from Routh.)"
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "w": [
+              0.3,
+              0.5,
+              0.8,
+              1.5,
+              2
+            ]
+          },
+          "derived": {
+            "K": "w*sqrt(1+w^2)*sqrt(100+w^2)"
+          },
+          "prompt": "The graph is the magnitude plot of $L(s) = \\frac{{{K}}}{s(s+1)(s+10)}$. Read the gain crossover frequency $\\omega_{gc}$.",
+          "plot": {
+            "x": {
+              "min": 0.01,
+              "max": 100,
+              "label": "ω (rad/s)",
+              "log": true
+            },
+            "y": {
+              "min": -80,
+              "max": 80,
+              "label": "|L| (dB)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(K/10)-20*log10(x)-10*log10(1+x^2)-10*log10(1+x^2/100)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0,
+                "label": "0 dB"
+              }
+            ]
+          },
+          "answer": "w",
+          "unit": "rad/s",
+          "tolerance": 0.12,
+          "explanation": "The magnitude crosses 0 dB at about {{w}} rad/s. Check: $|L(j{{w}})| = \\frac{{{K}}}{{{w}}\\sqrt{1+{{w^2}}}\\sqrt{100+{{w^2}}}}$ ≈ 1. The phase margin is then $90^\\circ - \\arctan({{w}}) - \\arctan({{w/10}})$ = {{90-deg(atan(w))-deg(atan(w/10))}}°."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "PMt": [
+              30,
+              40,
+              45,
+              50,
+              60
+            ]
+          },
+          "derived": {
+            "c": "1/tan(rad(PMt))",
+            "wt": "(-1.1 + sqrt(1.21 + 0.4*c^2))/(0.2*c)",
+            "Kt": "wt*sqrt(1+wt^2)*sqrt(100+wt^2)"
+          },
+          "prompt": "For $L(s) = \\frac{K}{s(s+1)(s+10)}$ the phase is $-180^\\circ + {{PMt}}^\\circ$ at $\\omega$ = {{wt}} rad/s (orange point). Set $K$ to give a phase margin of {{PMt}}°.",
+          "hint": "PM is measured at the gain crossover, where $|L| = 1$ (0 dB).",
+          "plot": {
+            "x": {
+              "min": 0.01,
+              "max": 100,
+              "label": "ω (rad/s)",
+              "log": true
+            },
+            "y": {
+              "min": -80,
+              "max": 60,
+              "label": "|L| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "K",
+                "label": "$K$",
+                "min": 1,
+                "max": 100,
+                "log": true,
+                "value": 50
+              }
+            ],
+            "let": {
+              "u0": "ln(min(K/10, K^(1/3)))",
+              "u1": "u0 - (u0 + 0.5*ln(1+exp(2*u0)) + 0.5*ln(100+exp(2*u0)) - ln(K))/(1 + exp(2*u0)/(1+exp(2*u0)) + exp(2*u0)/(100+exp(2*u0)))",
+              "u2": "u1 - (u1 + 0.5*ln(1+exp(2*u1)) + 0.5*ln(100+exp(2*u1)) - ln(K))/(1 + exp(2*u1)/(1+exp(2*u1)) + exp(2*u1)/(100+exp(2*u1)))",
+              "u3": "u2 - (u2 + 0.5*ln(1+exp(2*u2)) + 0.5*ln(100+exp(2*u2)) - ln(K))/(1 + exp(2*u2)/(1+exp(2*u2)) + exp(2*u2)/(100+exp(2*u2)))",
+              "u4": "u3 - (u3 + 0.5*ln(1+exp(2*u3)) + 0.5*ln(100+exp(2*u3)) - ln(K))/(1 + exp(2*u3)/(1+exp(2*u3)) + exp(2*u3)/(100+exp(2*u3)))",
+              "u5": "u4 - (u4 + 0.5*ln(1+exp(2*u4)) + 0.5*ln(100+exp(2*u4)) - ln(K))/(1 + exp(2*u4)/(1+exp(2*u4)) + exp(2*u4)/(100+exp(2*u4)))",
+              "wgc": "exp(u5)",
+              "PM": "90 - deg(atan(wgc)) - deg(atan(wgc/10))"
+            },
+            "curves": [
+              {
+                "f": "20*log10(K/10) - 20*log10(x) - 10*log10(1+x^2) - 10*log10(1+x^2/100)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0,
+                "label": "0 dB"
+              }
+            ],
+            "points": [
+              {
+                "x": "wt",
+                "y": 0,
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$\\omega_{gc}$ (rad/s)",
+                "value": "wgc"
+              },
+              {
+                "label": "PM",
+                "value": "PM",
+                "unit": "°",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "K": "Kt"
+          },
+          "tolerance": 0.05,
+          "explanation": "$PM = 180^\\circ + \\angle L(j\\omega_{gc})$, so the gain crossover must sit where the phase is $-180^\\circ + {{PMt}}^\\circ$: $\\omega$ = {{wt}} rad/s. There $|L| = 1$ requires $K = \\omega\\sqrt{1+\\omega^2}\\sqrt{100+\\omega^2}$ = {{wt}} × {{sqrt(1+wt^2)}} × {{sqrt(100+wt^2)}} = {{Kt}}. A larger $K$ moves the crossover right, into more phase lag: less margin."
+        },
+        {
+          "id": "p4",
+          "type": "trueFalse",
+          "params": {
+            "sg": [
+              -1,
+              1,
+              1
+            ],
+            "G": [
+              3,
+              6,
+              10,
+              15
+            ],
+            "P": [
+              10,
+              20,
+              35,
+              50
+            ]
+          },
+          "derived": {
+            "g": "sg*G",
+            "p": "sg*P"
+          },
+          "prompt": "A loop with a stable, minimum-phase open loop has GM = {{g|dB}} and PM = {{p}}°. The closed loop is stable.",
+          "answer": "sg",
+          "explanation": "For a stable, minimum-phase open loop the closed loop is stable exactly when the margins are positive. Here GM = {{g|dB}} and PM = {{p}}°. Positive margins: stable (although small margins mean a poorly damped, ringing response). Negative margins: the gain is already above the critical value (or the lag too large), so the closed loop is unstable."
+        },
+        {
+          "id": "p5",
+          "type": "numeric",
+          "params": {
+            "Ku": [
+              4,
+              8,
+              10,
+              20,
+              60
+            ],
+            "Pu": [
+              0.5,
+              1,
+              2,
+              4,
+              10
+            ]
+          },
+          "prompt": "In a Ziegler–Nichols test, the loop oscillates steadily at $K_u$ = {{Ku}} with period $P_u$ = {{Pu|s}}. Find the PID settings.",
+          "ask": [
+            {
+              "prompt": "Give $K_P$.",
+              "answer": "0.6*Ku",
+              "unit": "",
+              "explanation": "$K_P = 0.6K_u = 0.6\\cdot{{Ku}}$ = {{0.6*Ku}}."
+            },
+            {
+              "prompt": "Give the integral time $T_i$.",
+              "answer": "Pu/2",
+              "unit": "s",
+              "explanation": "$T_i = P_u/2$ = {{Pu/2|s}} (so $K_I = K_P/T_i$ = {{1.2*Ku/Pu}} $\\mathrm{s^{-1}}$)."
+            },
+            {
+              "prompt": "Give the derivative time $T_d$.",
+              "answer": "Pu/8",
+              "unit": "s",
+              "explanation": "$T_d = P_u/8$ = {{Pu/8|s}} (so $K_D = K_PT_d$ = {{0.075*Ku*Pu}} s)."
+            }
+          ]
+        },
+        {
+          "id": "p6",
+          "type": "orderSteps",
+          "prompt": "Put the steps for reading the phase margin from a Bode plot in order.",
+          "items": [
+            "Find where the magnitude curve crosses 0 dB",
+            "Read that frequency $\\omega_{gc}$",
+            "Read the phase at $\\omega_{gc}$ on the phase plot",
+            "Add 180° to that phase"
+          ],
+          "explanation": "PM is defined at the gain crossover: locate it on the magnitude plot, go straight down to the phase plot at the same frequency, and compute $PM = 180^\\circ + \\angle L(j\\omega_{gc})$."
+        },
+        {
+          "id": "p7",
+          "type": "numeric",
+          "params": {
+            "PM": [
+              30,
+              40,
+              45,
+              50,
+              60
+            ]
+          },
+          "prompt": "A unity-feedback loop has a phase margin of {{PM}}°. Estimate the damping ratio and from it the percent overshoot of the closed-loop step response.",
+          "answer": "100*exp(-(PM/100)*pi/sqrt(1-(PM/100)^2))",
+          "unit": "%",
+          "tolerance": 0.05,
+          "explanation": "Rule of thumb $\\zeta \\approx PM/100$ = {{PM/100}}. Then $\\%OS = 100e^{-\\zeta\\pi/\\sqrt{1-\\zeta^2}}$ ≈ {{100*exp(-(PM/100)*pi/sqrt(1-(PM/100)^2))}} %. Smaller margins mean much more overshoot."
+        },
+        {
+          "id": "p8",
+          "type": "trueFalse",
+          "prompt": "Derivative action amplifies high-frequency measurement noise.",
+          "answer": true,
+          "explanation": "The D term $K_Ds$ has a gain that grows with frequency ($|K_Dj\\omega| = K_D\\omega$), so fast noise on the sensor signal is amplified. In practice the derivative is filtered: $\\frac{K_Ds}{1 + sT_f}$."
+        }
+      ]
+    },
+    {
+      "id": "cs-frequency-3",
+      "title": "Tuning the loop",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "multipleChoice",
+          "prompt": "A type-0 plant is controlled first with P and then with PI. Which graph shows the step response with **PI** control?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 10,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.4,
+                "label": ""
+              },
+              "hlines": [
+                {
+                  "y": 1
+                }
+              ],
+              "curves": [
+                {
+                  "f": "1-exp(-0.6*x)*(cos(1.2*x)+0.3*sin(1.2*x))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 10,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.4,
+                "label": ""
+              },
+              "hlines": [
+                {
+                  "y": 1
+                }
+              ],
+              "curves": [
+                {
+                  "f": "0.8*(1-exp(-1.5*x))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 10,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.4,
+                "label": ""
+              },
+              "hlines": [
+                {
+                  "y": 1
+                }
+              ],
+              "curves": [
+                {
+                  "f": "0.9*(1-exp(-0.9*x)*(cos(2*x)+0.45*sin(2*x)))"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "Integral action removes the steady-state error: the PI response must settle exactly at the setpoint 1. The other two settle below 1 (at 0.8 and 0.9), which is typical for P control; a higher $K_P$ reduces the offset but adds overshoot."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              4,
+              5
+            ],
+            "PM": [
+              45,
+              50,
+              60,
+              65
+            ]
+          },
+          "derived": {
+            "w": "a*tan(rad(90-PM))"
+          },
+          "prompt": "Choose $K$ in $L(s) = \\frac{K}{s(s+{{a}})}$ so that the phase margin is {{PM}}°.",
+          "answer": "w*sqrt(w^2+a^2)",
+          "unit": "",
+          "explanation": "$PM = 180^\\circ - 90^\\circ - \\arctan(\\omega_{gc}/{{a}})$, so $\\arctan(\\omega_{gc}/{{a}}) = {{90-PM}}^\\circ$ and $\\omega_{gc} = {{a}}\\tan({{90-PM}}^\\circ)$ = {{w}} rad/s. Make this the 0 dB point: $K = \\omega_{gc}\\sqrt{\\omega_{gc}^2 + {{a^2}}}$ = {{w*sqrt(w^2+a^2)}}."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "d": [
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "b": "a+d",
+            "Ku": "a*b*(a+b)",
+            "Pu": "2*pi/sqrt(a*b)"
+          },
+          "prompt": "Plant $\\frac{1}{s(s+{{a}})(s+{{b}})}$ with unity feedback. Use the Ziegler–Nichols ultimate-gain rules for a PID controller.",
+          "ask": [
+            {
+              "prompt": "Find $K_P$.",
+              "answer": "0.6*Ku",
+              "unit": "",
+              "explanation": "Routh on $s^3 + {{a+b}}s^2 + {{a*b}}s + K$: $K_u = {{a+b}}\\cdot{{a*b}}$ = {{Ku}}. $K_P = 0.6K_u$ = {{0.6*Ku}}."
+            },
+            {
+              "prompt": "Find $T_i$.",
+              "answer": "Pu/2",
+              "unit": "s",
+              "explanation": "At $K_u$ the loop oscillates at $\\omega_u = \\sqrt{{{a*b}}}$ = {{sqrt(a*b)}} rad/s, so $P_u = 2\\pi/\\omega_u$ = {{Pu|s}}. $T_i = P_u/2$ = {{Pu/2|s}}."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "w": [
+              0.5,
+              0.8,
+              1,
+              1.5
+            ]
+          },
+          "derived": {
+            "K": "w*sqrt(1+w^2)*sqrt(100+w^2)",
+            "PM": "90-deg(atan(w))-deg(atan(w/10))"
+          },
+          "prompt": "$L(s) = \\frac{{{K}}}{s(s+1)(s+10)}$ has $\\omega_{gc}$ = {{w}} rad/s and PM = {{PM}}°. What is the largest time delay $T$ the loop can tolerate before it becomes unstable?",
+          "answer": "rad(PM)/w",
+          "unit": "s",
+          "explanation": "A delay $e^{-sT}$ keeps $|L|$ (so $\\omega_{gc}$ stays {{w}} rad/s) and adds phase $-\\omega T$. Instability when $\\omega_{gc}T$ = PM = {{PM}}° = {{rad(PM)}} rad: $T_{max}$ = {{rad(PM)}}/{{w}} = {{rad(PM)/w|s}}."
+        },
+        {
+          "id": "c5",
+          "type": "multipleChoice",
+          "prompt": "A PID loop has too much overshoot and rings. Which single change is most likely to help?",
+          "options": [
+            "Increase $K_D$",
+            "Increase $K_I$",
+            "Increase $K_P$",
+            "Remove the derivative term"
+          ],
+          "answer": 0,
+          "explanation": "More derivative action adds phase lead near crossover (more phase margin) and damps the oscillation. Increasing $K_I$ or $K_P$ usually reduces the margins further and makes the ringing worse."
+        },
+        {
+          "id": "c6",
+          "type": "trueFalse",
+          "prompt": "Raising the loop gain $K$ shifts the Bode magnitude curve up without changing the phase curve, so for a typical loop the phase margin decreases.",
+          "answer": true,
+          "explanation": "$20\\log_{10}K$ adds a constant to the magnitude; the phase does not depend on $K$. The 0 dB crossing moves to a higher frequency where the phase is more negative, so PM shrinks. The gain margin shrinks by exactly the added dB."
+        },
+        {
+          "id": "c7",
+          "type": "matchPairs",
+          "prompt": "Match each observation to what it tells you.",
+          "pairs": [
+            [
+              "PM ≈ 60°",
+              "Well damped, little overshoot"
+            ],
+            [
+              "PM ≈ 10°",
+              "Strong ringing, near instability"
+            ],
+            [
+              "Negative GM",
+              "Unstable closed loop"
+            ],
+            [
+              "Nyquist plot encircles −1",
+              "Closed-loop RHP poles"
+            ]
+          ],
+          "explanation": "$\\zeta \\approx PM/100$: 60° gives $\\zeta \\approx 0.6$ (about 10 % overshoot), 10° gives $\\zeta \\approx 0.1$ (heavy ringing). A negative gain margin means the gain is already above the critical value. For a stable open loop, any encirclement of −1 means unstable closed-loop poles."
+        }
+      ]
+    }
+  ]
+}

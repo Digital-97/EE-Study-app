@@ -1,0 +1,508 @@
+{
+  "id": "dl-numbers",
+  "title": "Number Systems",
+  "description": "Represent numbers in binary, octal, hexadecimal, BCD and Gray code, and convert between them.",
+  "reference": "Hambley §7.1–7.2",
+  "study": [
+    {
+      "title": "Positional number systems",
+      "body": "A number in base $r$ is a weighted sum of its digits: digit $d_i$ has weight $r^i$, and digits right of the radix point have negative powers. Binary ($r=2$) uses only the bits 0 and 1, so the value is simply the sum of the weights where a 1 appears.\nExample: $1011.01_2 = 8 + 2 + 1 + 0.25 = 11.25_{10}$.\nWith $n$ bits you can form $2^n$ different words, which represent the unsigned integers $0$ to $2^n-1$. A byte has 8 bits, a nibble 4.",
+      "formula": "N = \\sum_i d_i\\, r^{\\,i}"
+    },
+    {
+      "title": "Decimal to binary",
+      "body": "**Integer part:** divide by 2 repeatedly until the quotient is 0. The remainders, read from the **last** to the first, are the bits (the first remainder is the LSB).\n**Fraction part:** multiply the fraction by 2 repeatedly. The integer parts (0 or 1), read from the **first** to the last, are the bits after the point. Stop when the fraction is 0 or you have enough bits; many decimal fractions (like 0.1) never terminate.\nExample: $45 = 101101_2$ and $0.6875 = 0.1011_2$, so $45.6875 = 101101.1011_2$."
+    },
+    {
+      "title": "Octal and hexadecimal",
+      "body": "Octal (base 8) and hexadecimal (base 16) are compact ways to write binary. Starting at the binary point, group the bits in **threes** (octal) or **fours** (hex), working outward and padding with zeros. Then replace each group by one digit. Hex uses A–F for 10–15.\nExample: $1101011.11_2 = 001\\,101\\,011.110_2 = 153.6_8$ and $= 0110\\,1011.1100_2 = \\mathrm{6B.C}_{16}$ (all equal 107.75). To go back, expand every digit into 3 or 4 bits.",
+      "formula": "\\mathrm{A}=1010,\\ \\mathrm{B}=1011,\\ \\mathrm{C}=1100,\\ \\mathrm{D}=1101,\\ \\mathrm{E}=1110,\\ \\mathrm{F}=1111"
+    },
+    {
+      "title": "BCD",
+      "body": "In binary-coded decimal (BCD) every **decimal digit** is replaced by its own 4-bit code, e.g. $58 = 0101\\,1000_{BCD}$, while in plain binary $58 = 111010_2$. The codes 1010–1111 never occur in valid BCD. BCD is handy for displays and calculators but wastes some bit patterns."
+    },
+    {
+      "title": "Gray code",
+      "body": "In a Gray code, neighbouring code words differ in exactly **one** bit, so a position sensor never shows a wildly wrong value while bits switch. Build an $n$-bit code from the $(n-1)$-bit code: list it, then list it again in reverse order; prefix the first half with 0 and the second half with 1.\n3-bit Gray sequence: 000, 001, 011, 010, 110, 111, 101, 100. Binary to Gray: keep the MSB, then each Gray bit is the XOR of neighbouring binary bits.",
+      "formula": "g_{n-1} = b_{n-1},\\qquad g_i = b_{i+1} \\oplus b_i"
+    },
+    {
+      "title": "Common pitfalls",
+      "body": "- Reading division remainders in the wrong order (the first remainder is the least significant bit).\n- Grouping bits for octal/hex from the left instead of from the binary point.\n- Confusing BCD with binary: $0001\\,0010_{BCD}$ is 12, but $00010010_2$ is 18.\n- Forgetting that fraction bits weigh 0.5, 0.25, 0.125, … not 0.1, 0.01."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dl-numbers-1",
+      "title": "Counting in binary",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Counting with two symbols",
+          "body": "Digital circuits store numbers as words of bits. In binary, each position is worth twice the position to its right: 1, 2, 4, 8, 16, 32, …\nSo $10110_2 = 16 + 4 + 2 = 22$. A subscript shows the base when it could be confused.",
+          "formula": "10110_2 = 1\\cdot 2^4 + 0\\cdot 2^3 + 1\\cdot 2^2 + 1\\cdot 2^1 + 0\\cdot 2^0 = 22"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "prompt": "Convert ${{b5}}{{b4}}{{b3}}{{b2}}{{b1}}{{b0}}_2$ to decimal.",
+          "answer": "n",
+          "unit": "",
+          "explanation": "Add the weights of the 1 bits: ${{b5}}\\cdot 32 + {{b4}}\\cdot 16 + {{b3}}\\cdot 8 + {{b2}}\\cdot 4 + {{b1}}\\cdot 2 + {{b0}}\\cdot 1 = {{n}}$.",
+          "tolerance": 0.001,
+          "params": {
+            "n": {
+              "min": 32,
+              "max": 63,
+              "step": 1
+            }
+          },
+          "derived": {
+            "b0": "floor((n)/1) - 2*floor((n)/2)",
+            "b1": "floor((n)/2) - 2*floor((n)/4)",
+            "b2": "floor((n)/4) - 2*floor((n)/8)",
+            "b3": "floor((n)/8) - 2*floor((n)/16)",
+            "b4": "floor((n)/16) - 2*floor((n)/32)",
+            "b5": "floor((n)/32) - 2*floor((n)/64)"
+          }
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "What is the largest unsigned integer that a word of {{n}} bits can hold?",
+          "options": [
+            "{{2^n-1}}",
+            "{{2^n}}",
+            "{{2^(n-1)}}",
+            "{{2^(n-1)-1}}"
+          ],
+          "answer": 0,
+          "explanation": "{{n}} bits give $2^{ {{n}} } = {{2^n}}$ different words. Counting starts at 0, so the largest value is $2^{ {{n}} } - 1 = {{2^n-1}}$ (all bits 1).",
+          "params": {
+            "n": [
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          }
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Decimal → binary",
+          "body": "Divide by 2 again and again, writing down each remainder, until the quotient is 0. The **first** remainder is the least significant bit, so read the remainders **from the bottom up**.\nExample: 13 → 6 r 1 → 3 r 0 → 1 r 1 → 0 r 1, giving $1101_2$."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "Convert {{n}} to binary.",
+          "options": [
+            "${{b5}}{{b4}}{{b3}}{{b2}}{{b1}}{{b0}}_2$",
+            "${{b0}}{{b1}}{{b2}}{{b3}}{{b4}}{{b5}}_2$",
+            "${{b5}}{{b4}}{{b3}}{{b2}}{{1-b1}}{{b0}}_2$",
+            "${{b5}}{{b4}}{{1-b3}}{{b2}}{{b1}}{{b0}}_2$"
+          ],
+          "answer": 0,
+          "explanation": "Repeated division by 2: {{n}} → {{floor(n/2)}} r {{b0}} → {{floor(n/4)}} r {{b1}} → {{floor(n/8)}} r {{b2}} → {{floor(n/16)}} r {{b3}} → {{floor(n/32)}} r {{b4}} → 0 r {{b5}}. Reading the remainders from last to first gives ${{b5}}{{b4}}{{b3}}{{b2}}{{b1}}{{b0}}_2$. Check: ${{32*b5}} + {{16*b4}} + {{8*b3}} + {{4*b2}} + {{2*b1}} + {{b0}} = {{n}}$.",
+          "params": {
+            "n": {
+              "min": 32,
+              "max": 63,
+              "step": 1
+            }
+          },
+          "derived": {
+            "b0": "floor((n)/1) - 2*floor((n)/2)",
+            "b1": "floor((n)/2) - 2*floor((n)/4)",
+            "b2": "floor((n)/4) - 2*floor((n)/8)",
+            "b3": "floor((n)/8) - 2*floor((n)/16)",
+            "b4": "floor((n)/16) - 2*floor((n)/32)",
+            "b5": "floor((n)/32) - 2*floor((n)/64)",
+            "r": "b0*32+b1*16+b2*8+b3*4+b4*2+b5",
+            "f2": "n+2-4*b1",
+            "f8": "n+8-16*b3"
+          },
+          "require": "abs(n-r)*abs(r-f2)*abs(r-f8)",
+          "hint": "The first remainder you get is the least significant bit."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Bits after the binary point",
+          "body": "Positions right of the point weigh $2^{-1} = 0.5$, $2^{-2} = 0.25$, $2^{-3} = 0.125$, … For example $10.11_2 = 2 + 0.5 + 0.25 = 2.75$.\nTo convert a decimal fraction, multiply by 2 repeatedly; each integer part that pops out is the next bit."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "Convert ${{i2}}{{i1}}{{i0}}.{{f1}}{{f0}}_2$ to decimal.",
+          "answer": "i+f/4",
+          "unit": "",
+          "explanation": "Integer bits: ${{i2}}\\cdot 4 + {{i1}}\\cdot 2 + {{i0}}\\cdot 1 = {{i}}$. Fraction bits: ${{f1}}\\cdot 0.5 + {{f0}}\\cdot 0.25 = {{f/4}}$. Total: {{i+f/4}}.",
+          "tolerance": 0.001,
+          "params": {
+            "i": {
+              "min": 4,
+              "max": 7,
+              "step": 1
+            },
+            "f": {
+              "min": 1,
+              "max": 3,
+              "step": 1
+            }
+          },
+          "derived": {
+            "i0": "floor((i)/1) - 2*floor((i)/2)",
+            "i1": "floor((i)/2) - 2*floor((i)/4)",
+            "i2": "floor((i)/4) - 2*floor((i)/8)",
+            "f0": "floor((f)/1) - 2*floor((f)/2)",
+            "f1": "floor((f)/2) - 2*floor((f)/4)"
+          }
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "The decimal number 0.1 can be written exactly with a finite number of binary fraction bits.",
+          "answer": false,
+          "explanation": "Multiplying by 2: 0.1 → 0.2 (0) → 0.4 (0) → 0.8 (0) → 1.6 (1) → 1.2 (1) → 0.4 (0) → … The fraction 0.4 repeats, so $0.1 = 0.0\\,0011\\,0011\\ldots_2$ never terminates. Only fractions of the form $k/2^m$ terminate."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps for converting 0.375 to binary in order.",
+          "items": [
+            "$2 \\times 0.375 = 0.75$ → bit 0",
+            "$2 \\times 0.75 = 1.5$ → bit 1, keep 0.5",
+            "$2 \\times 0.5 = 1.0$ → bit 1, fraction is now 0",
+            "Read the bits top to bottom: $0.011_2$"
+          ],
+          "explanation": "Each multiplication by 2 shifts the next bit into the integer position. The bits come out MSB first: $0.375 = 0\\cdot 0.5 + 1\\cdot 0.25 + 1\\cdot 0.125 = 0.011_2$."
+        }
+      ]
+    },
+    {
+      "id": "dl-numbers-2",
+      "title": "Octal, hex and BCD",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "prompt": "Convert ${{h1}}{{h0}}_{16}$ to decimal.",
+          "answer": "16*h1+h0",
+          "unit": "",
+          "explanation": "Hex digits have weights $16^1 = 16$ and $16^0 = 1$: ${{h1}}\\cdot 16 + {{h0}} = {{16*h1+h0}}$.",
+          "tolerance": 0.001,
+          "params": {
+            "h1": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            },
+            "h0": {
+              "min": 0,
+              "max": 9,
+              "step": 1
+            }
+          }
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Convert $11010110_2$ to hexadecimal.",
+          "options": [
+            "$\\mathrm{D6}_{16}$",
+            "$\\mathrm{6D}_{16}$",
+            "$\\mathrm{C6}_{16}$",
+            "$326_{16}$"
+          ],
+          "answer": 0,
+          "explanation": "Group in fours from the right: $1101\\,0110$. $1101 = 13 = \\mathrm{D}$ and $0110 = 6$, so the result is $\\mathrm{D6}_{16}$ (= 214). Writing the nibbles in reverse gives 6D, and 326 comes from grouping in threes (that is the octal form, $326_8$)."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "Convert ${{d2}}{{d1}}{{d0}}_8$ to decimal.",
+          "answer": "64*d2+8*d1+d0",
+          "unit": "",
+          "explanation": "Octal weights are $8^2 = 64$, $8^1 = 8$, $8^0 = 1$: ${{d2}}\\cdot 64 + {{d1}}\\cdot 8 + {{d0}} = {{64*d2+8*d1+d0}}$.",
+          "tolerance": 0.001,
+          "params": {
+            "d2": {
+              "min": 1,
+              "max": 7,
+              "step": 1
+            },
+            "d1": {
+              "min": 0,
+              "max": 7,
+              "step": 1
+            },
+            "d0": {
+              "min": 0,
+              "max": 7,
+              "step": 1
+            }
+          }
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Convert the decimal number {{n}} to octal.",
+          "options": [
+            "${{o2}}{{o1}}{{o0}}_8$",
+            "${{o0}}{{o1}}{{o2}}_8$",
+            "${{n}}_8$"
+          ],
+          "answer": 0,
+          "explanation": "Divide by 8 repeatedly: {{n}} → {{floor(n/8)}} r {{o0}} → {{o2}} r {{o1}} → 0 r {{o2}}. Read the remainders from last to first: ${{o2}}{{o1}}{{o0}}_8$. Check: ${{o2}}\\cdot 64 + {{o1}}\\cdot 8 + {{o0}} = {{n}}$.",
+          "params": {
+            "n": {
+              "min": 64,
+              "max": 511,
+              "step": 1
+            }
+          },
+          "derived": {
+            "o2": "floor(n/64)",
+            "o1": "floor(n/8)-8*floor(n/64)",
+            "o0": "n-8*floor(n/8)"
+          },
+          "require": "abs(o2-o0)"
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Convert $\\mathrm{3A7}_{16}$ to binary.",
+          "options": [
+            "$0011\\,1010\\,0111_2$",
+            "$0011\\,1011\\,0111_2$",
+            "$0111\\,1010\\,0011_2$",
+            "$0011\\,0001\\,0000\\,0111_2$"
+          ],
+          "answer": 0,
+          "explanation": "Replace every hex digit by 4 bits: $3 = 0011$, $\\mathrm{A} = 1010$, $7 = 0111$, giving $0011\\,1010\\,0111_2$. A is 10, not 11, and the digit order is kept. Writing A as the decimal digits 1 and 0 is the BCD mistake."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Write the decimal number {{n}} in BCD.",
+          "options": [
+            "${{p3}}{{p2}}{{p1}}{{p0}}\\,{{q3}}{{q2}}{{q1}}{{q0}}_{BCD}$",
+            "${{m7}}{{m6}}{{m5}}{{m4}}\\,{{m3}}{{m2}}{{m1}}{{m0}}_2$",
+            "${{q3}}{{q2}}{{q1}}{{q0}}\\,{{p3}}{{p2}}{{p1}}{{p0}}_{BCD}$"
+          ],
+          "answer": 0,
+          "explanation": "BCD codes each decimal digit separately: {{d1}} → ${{p3}}{{p2}}{{p1}}{{p0}}$ and {{d0}} → ${{q3}}{{q2}}{{q1}}{{q0}}$. The pure binary form of {{n}} would be ${{m7}}{{m6}}{{m5}}{{m4}}\\,{{m3}}{{m2}}{{m1}}{{m0}}_2$, which is a different bit pattern.",
+          "params": {
+            "d1": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            },
+            "d0": {
+              "min": 0,
+              "max": 9,
+              "step": 1
+            }
+          },
+          "derived": {
+            "n": "10*d1+d0",
+            "p0": "floor((d1)/1) - 2*floor((d1)/2)",
+            "p1": "floor((d1)/2) - 2*floor((d1)/4)",
+            "p2": "floor((d1)/4) - 2*floor((d1)/8)",
+            "p3": "floor((d1)/8) - 2*floor((d1)/16)",
+            "q0": "floor((d0)/1) - 2*floor((d0)/2)",
+            "q1": "floor((d0)/2) - 2*floor((d0)/4)",
+            "q2": "floor((d0)/4) - 2*floor((d0)/8)",
+            "q3": "floor((d0)/8) - 2*floor((d0)/16)",
+            "m0": "floor((n)/1) - 2*floor((n)/2)",
+            "m1": "floor((n)/2) - 2*floor((n)/4)",
+            "m2": "floor((n)/4) - 2*floor((n)/8)",
+            "m3": "floor((n)/8) - 2*floor((n)/16)",
+            "m4": "floor((n)/16) - 2*floor((n)/32)",
+            "m5": "floor((n)/32) - 2*floor((n)/64)",
+            "m6": "floor((n)/64) - 2*floor((n)/128)",
+            "m7": "floor((n)/128) - 2*floor((n)/256)"
+          },
+          "require": "abs(d1-d0)"
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each number system to its representation of decimal 13.",
+          "pairs": [
+            [
+              "Binary",
+              "$1101$"
+            ],
+            [
+              "Octal",
+              "$15$"
+            ],
+            [
+              "Hexadecimal",
+              "$\\mathrm{D}$"
+            ],
+            [
+              "BCD",
+              "$0001\\,0011$"
+            ]
+          ],
+          "explanation": "$13 = 8+4+1 = 1101_2$. Octal: $001\\,101 = 15_8$ ($8 + 5$). Hex: $1101 = \\mathrm{D}$. BCD codes the digits 1 and 3 separately: $0001\\,0011$."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "$1011\\,0110$ is a valid BCD code word.",
+          "answer": false,
+          "explanation": "The left nibble $1011$ equals 11, which is not a decimal digit. Valid BCD nibbles are only $0000$ to $1001$ (0–9)."
+        }
+      ]
+    },
+    {
+      "id": "dl-numbers-3",
+      "title": "Gray code and conversions",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Gray code",
+          "body": "Gray code orders the $2^n$ words so that neighbours differ in **one** bit. For a 2-bit code: 00, 01, 11, 10.\nTo convert binary to Gray, keep the MSB and XOR each pair of neighbouring bits: $g_i = b_{i+1} \\oplus b_i$ (XOR gives 1 when the two bits differ).",
+          "formula": "1011_2 \\;\\to\\; 1\\;(1\\oplus 0)\\;(0\\oplus 1)\\;(1\\oplus 1) = 1110_{\\text{Gray}}"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "In the 3-bit Gray code sequence 000, 001, 011, …, which word comes next?",
+          "options": [
+            "$010$",
+            "$100$",
+            "$111$",
+            "$110$"
+          ],
+          "answer": 0,
+          "explanation": "The 3-bit Gray sequence is 000, 001, 011, **010**, 110, 111, 101, 100. From 011 only one bit may change, and the reflected construction changes the last bit: 010. Note 100 is the next *binary* number, which would change three bits at once."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Convert ${{b3}}{{b2}}{{b1}}{{b0}}_2$ to Gray code.",
+          "options": [
+            "$1{{g2}}{{g1}}{{g0}}$",
+            "${{h3}}{{h2}}{{h1}}{{b0}}$",
+            "${{1-b3}}{{1-b2}}{{1-b1}}{{1-b0}}$"
+          ],
+          "answer": 0,
+          "explanation": "Keep the MSB: $g_3 = 1$. Then $g_2 = b_3 \\oplus b_2 = {{g2}}$, $g_1 = b_2 \\oplus b_1 = {{g1}}$, $g_0 = b_1 \\oplus b_0 = {{g0}}$. Gray code: $1{{g2}}{{g1}}{{g0}}$. (Inverting all bits gives the one's complement, which is unrelated.)",
+          "params": {
+            "n": {
+              "min": 8,
+              "max": 15,
+              "step": 1
+            }
+          },
+          "derived": {
+            "b0": "floor((n)/1) - 2*floor((n)/2)",
+            "b1": "floor((n)/2) - 2*floor((n)/4)",
+            "b2": "floor((n)/4) - 2*floor((n)/8)",
+            "b3": "floor((n)/8) - 2*floor((n)/16)",
+            "g2": "abs(b3-b2)",
+            "g1": "abs(b2-b1)",
+            "g0": "abs(b1-b0)",
+            "h3": "abs(b3-b2)",
+            "h2": "abs(b2-b1)",
+            "h1": "abs(b1-b0)",
+            "G": "8+4*g2+2*g1+g0",
+            "H": "8*h3+4*h2+2*h1+b0",
+            "C": "15-n"
+          },
+          "require": "abs(G-H)*abs(G-C)*abs(H-C)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "A sensor must distinguish {{N}} different levels. What is the minimum number of bits in its output code?",
+          "answer": "ceil(log10(N)/log10(2))",
+          "unit": "",
+          "explanation": "$n$ bits give $2^n$ codes, so we need $2^n \\ge {{N}}$. $2^{ {{ceil(log10(N)/log10(2))-1}} } = {{2^(ceil(log10(N)/log10(2))-1)}}$ is too few, while $2^{ {{ceil(log10(N)/log10(2))}} } = {{2^ceil(log10(N)/log10(2))||4}}$ is enough: {{ceil(log10(N)/log10(2))}} bits.",
+          "tolerance": 0.001,
+          "params": {
+            "N": [
+              10,
+              20,
+              50,
+              100,
+              200,
+              300,
+              500,
+              1000
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "Convert $\\mathrm{2E.8}_{16}$ to decimal.",
+          "answer": "46.5",
+          "unit": "",
+          "explanation": "$2\\cdot 16 + \\mathrm{E}\\cdot 1 + 8\\cdot 16^{-1} = 32 + 14 + 0.5 = 46.5$.",
+          "tolerance": 0.001
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Convert {{k/16||4}} to binary, using 4 bits after the point.",
+          "options": [
+            "$0.{{c1}}{{c2}}{{c3}}{{c4}}_2$",
+            "$0.{{c4}}{{c3}}{{c2}}{{c1}}_2$",
+            "$0.0{{c1}}{{c2}}{{c3}}_2$"
+          ],
+          "answer": 0,
+          "explanation": "Multiply the fraction by 2 and take the integer parts in order: $2\\times{{k/16||4}} = {{k/8||4}}$ → bit {{c1}}; $2\\times{{k/8-c1||4}} = {{k/4-2*c1||4}}$ → bit {{c2}}; $2\\times{{k/4-2*c1-c2||4}} = {{k/2-4*c1-2*c2||4}}$ → bit {{c3}}; $2\\times{{k/2-4*c1-2*c2-c3||4}} = {{c4}}$ → bit {{c4}}. Result $0.{{c1}}{{c2}}{{c3}}{{c4}}_2$. Check: ${{c1}}\\cdot 0.5 + {{c2}}\\cdot 0.25 + {{c3}}\\cdot 0.125 + {{c4}}\\cdot 0.0625 = {{k/16||4}}$.",
+          "params": {
+            "k": {
+              "min": 1,
+              "max": 15,
+              "step": 1
+            }
+          },
+          "derived": {
+            "c1": "floor(k/8)",
+            "c2": "floor(k/4)-2*floor(k/8)",
+            "c3": "floor(k/2)-2*floor(k/4)",
+            "c4": "k-2*floor(k/2)",
+            "rv": "c4*8+c3*4+c2*2+c1",
+            "s": "c1*4+c2*2+c3"
+          },
+          "require": "abs(k-rv)*abs(rv-s)"
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps for converting $10110111.01_2$ to octal in order.",
+          "items": [
+            "Start at the binary point and form groups of three bits outward",
+            "Pad with zeros: $010\\,110\\,111.010$",
+            "Replace each group by its octal digit: 2, 6, 7 . 2",
+            "Result: $267.2_8$"
+          ],
+          "explanation": "Grouping must start at the binary point; leading and trailing zeros complete the groups. Check: $267_8 = 128 + 48 + 7 = 183 = 10110111_2$ and $0.2_8 = 2/8 = 0.25 = 0.01_2$."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "The easiest way to convert a hexadecimal number to octal is to go through binary.",
+          "answer": true,
+          "explanation": "Expand each hex digit into 4 bits, then regroup the bits in threes from the binary point. Example: $\\mathrm{5C}_{16} = 0101\\,1100_2 = 001\\,011\\,100_2 = 134_8$ (= 92)."
+        }
+      ]
+    }
+  ]
+}

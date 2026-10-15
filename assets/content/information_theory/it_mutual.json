@@ -1,0 +1,887 @@
+{
+  "id": "it-mutual",
+  "title": "Mutual Information",
+  "description": "Relate two random variables through joint and conditional entropy, mutual information and relative entropy.",
+  "reference": "C&T §2.2–2.5, §2.8",
+  "study": [
+    {
+      "title": "Joint entropy",
+      "body": "Treat a pair of random variables $(X, Y)$ as one combined symbol: its entropy is the **joint entropy**, the average information in learning both. If $X$ and $Y$ are independent it is simply $H(X) + H(Y)$; any dependence makes it smaller, because part of what $Y$ says was already said by $X$.",
+      "formula": "H(X,Y) = -\\sum_x\\sum_y p(x,y)\\log_2 p(x,y)"
+    },
+    {
+      "title": "Conditional entropy and the chain rule",
+      "body": "$H(Y|X)$ is the uncertainty left about $Y$ once $X$ is known, averaged over the values of $X$. The **chain rule** splits a joint entropy into 'first $X$, then what is new in $Y$'. Knowing something never increases the uncertainty on average: $H(Y|X) \\le H(Y)$, with equality only for independent variables.",
+      "formula": "\\begin{aligned} H(Y|X) &= \\sum_x p(x)\\,H(Y|X=x)\\\\ H(X,Y) &= H(X) + H(Y|X)\\\\ &= H(Y) + H(X|Y)\\end{aligned}"
+    },
+    {
+      "title": "Mutual information",
+      "body": "$I(X;Y)$ is how much knowing $Y$ reduces the uncertainty about $X$, in bits. It is **symmetric** ($Y$ tells as much about $X$ as $X$ about $Y$), never negative, zero only for independent variables, and at most $\\min(H(X), H(Y))$. $I(X;X) = H(X)$: a variable tells everything about itself. For a communication channel it is the information that gets through.",
+      "formula": "\\begin{aligned} I(X;Y) &= H(X) - H(X|Y)\\\\ &= H(Y) - H(Y|X)\\\\ &= H(X) + H(Y)\\\\ &\\quad {}- H(X,Y)\\end{aligned}"
+    },
+    {
+      "title": "The information diagram",
+      "body": "Draw $H(X)$ and $H(Y)$ as two overlapping circles. The overlap is $I(X;Y)$, the parts outside the overlap are $H(X|Y)$ and $H(Y|X)$, and the whole area is $H(X,Y)$. Every identity of this unit can be read off the picture, such as the one below. Independent variables give two separate circles.",
+      "formula": "\\begin{aligned} H(X,Y) = \\ &H(X|Y) + I(X;Y)\\\\ &{}+ H(Y|X)\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3.8,
+          "label": "",
+          "ticks": []
+        },
+        "y": {
+          "min": 0,
+          "max": 2.7,
+          "label": "",
+          "ticks": []
+        },
+        "equal": true,
+        "grid": false,
+        "height": 190,
+        "curves": [
+          {
+            "x": "1.35 + cos(t)",
+            "y": "1.2 + sin(t)",
+            "t": [
+              0,
+              "2*pi"
+            ],
+            "color": "blue"
+          },
+          {
+            "x": "2.45 + cos(t)",
+            "y": "1.2 + sin(t)",
+            "t": [
+              0,
+              "2*pi"
+            ],
+            "color": "red"
+          }
+        ],
+        "labels": [
+          {
+            "x": 0.62,
+            "y": 1.2,
+            "text": "H(X|Y)",
+            "color": "blue"
+          },
+          {
+            "x": 1.65,
+            "y": 1.2,
+            "text": "I(X;Y)",
+            "color": "primary"
+          },
+          {
+            "x": 2.64,
+            "y": 1.2,
+            "text": "H(Y|X)",
+            "color": "red"
+          },
+          {
+            "x": 0.85,
+            "y": 2.45,
+            "text": "H(X)",
+            "color": "blue"
+          },
+          {
+            "x": 2.4,
+            "y": 2.45,
+            "text": "H(Y)",
+            "color": "red"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Worked example: a noisy bit",
+      "body": "$X$ is a fair bit and $Y$ equals $X$ with probability 0.8: $p(0,0) = p(1,1) = 0.4$ and $p(0,1) = p(1,0) = 0.1$.\n- Marginals: $p(x) = p(y) = (0.5, 0.5)$, so $H(X) = H(Y)$ = 1 bit.\n- Joint: $H(X,Y)$ = 2·0.4·1.322 + 2·0.1·3.322 = 1.722 bits.\n- $H(Y|X)$ = 1.722 − 1 = 0.722 bit (= $H(0.2)$).\n- $I(X;Y)$ = 1 + 1 − 1.722 = **0.278 bit**: each received bit tells only about a quarter of a bit about the sent one.",
+      "formula": "\\begin{array}{c|cc} p(x,y) & Y=0 & Y=1\\\\ \\hline X=0 & 0.4 & 0.1\\\\ X=1 & 0.1 & 0.4\\end{array}"
+    },
+    {
+      "title": "Explore: relative entropy",
+      "body": "The **relative entropy** or Kullback–Leibler divergence $D(p\\|q)$ measures how different a distribution $q$ is from the true distribution $p$. It is the extra number of bits per symbol you pay when you code data from $p$ with a code designed for $q$. It is never negative, zero only for $q = p$, and **not symmetric**. Mutual information is the divergence between the joint distribution and the product of the marginals. Drag $p$ and $q$ (binary distributions).",
+      "formula": "\\begin{aligned} D(p\\|q) &= \\sum_x p(x)\\log_2\\frac{p(x)}{q(x)} \\ge 0\\\\ I(X;Y) &= D\\big(p(x,y)\\,\\|\\,p(x)p(y)\\big)\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "q"
+        },
+        "y": {
+          "min": 0,
+          "max": 2.5,
+          "label": "D(p||q) (bits)"
+        },
+        "sliders": [
+          {
+            "name": "P",
+            "label": "$p$",
+            "min": 0.05,
+            "max": 0.95,
+            "step": 0.05,
+            "value": 0.3
+          },
+          {
+            "name": "Q",
+            "label": "$q$",
+            "min": 0.05,
+            "max": 0.95,
+            "step": 0.05,
+            "value": 0.6
+          }
+        ],
+        "curves": [
+          {
+            "f": "P*log2(P/x) + (1-P)*log2((1-P)/(1-x))",
+            "from": 0.01,
+            "to": 0.99,
+            "label": "D(p||q)",
+            "labelAt": 0.85
+          }
+        ],
+        "points": [
+          {
+            "x": "Q",
+            "y": "P*log2(P/Q) + (1-P)*log2((1-P)/(1-Q))"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$D(p\\|q)$ (bits)",
+            "value": "P*log2(P/Q) + (1-P)*log2((1-P)/(1-Q))"
+          },
+          {
+            "label": "$D(q\\|p)$ (bits)",
+            "value": "Q*log2(Q/P) + (1-Q)*log2((1-Q)/(1-P))"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Data-processing inequality",
+      "body": "If $Z$ is computed from $Y$ alone (filtering, rounding, decoding, any processing), the chain $X \\to Y \\to Z$ is a **Markov chain** and $Z$ cannot know more about $X$ than $Y$ does. Processing can make information easier to use, but it can never create information about the source. Each noisy stage of a relay chain can only lose information.",
+      "formula": "X \\to Y \\to Z\\ \\Rightarrow\\ I(X;Z) \\le I(X;Y)"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "it-mutual-1",
+      "title": "Joint and conditional entropy",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Two variables at once",
+          "body": "A pair $(X, Y)$ can be treated as one symbol with probabilities $p(x, y)$. Its entropy, the **joint entropy**, is the average information in learning both values. Fill in all entries of the joint table, then sum $-p\\log_2 p$ over every cell.",
+          "formula": "H(X,Y) = -\\sum_x\\sum_y p(x,y)\\log_2 p(x,y)"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "c": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "HXY": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)",
+            "HX": "-(a+b)*log2(a+b) - (c+d)*log2(c+d)",
+            "HY": "-(a+c)*log2(a+c) - (b+d)*log2(b+d)",
+            "I": "HX + HY - HXY"
+          },
+          "require": "min(d - 0.049, I - 0.08)",
+          "prompt": "The joint distribution of $X$ and $Y$ is:\n$$\\begin{array}{c|cc} p(x,y) & Y=0 & Y=1\\\\ \\hline X=0 & {{a}} & {{b}}\\\\ X=1 & {{c}} & {{d}}\\end{array}$$\nWhat is the joint entropy $H(X,Y)$?",
+          "answer": "HXY",
+          "unit": "bits",
+          "explanation": "Sum $-p\\log_2 p$ over all four cells: {{a}} × {{-log2(a)}} + {{b}} × {{-log2(b)}} + {{c}} × {{-log2(c)}} + {{d}} × {{-log2(d)}} = **{{HXY||4}} bits**. The maximum for four cells is 2 bits (all 0.25)."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "What is left to learn",
+          "body": "The **conditional entropy** $H(Y|X)$ is the uncertainty about $Y$ that remains once $X$ is known. The **chain rule** says: learning the pair = learning $X$, then learning what is new in $Y$. So you can find $H(Y|X)$ as $H(X,Y) - H(X)$, with $H(X)$ from the row sums of the table.",
+          "formula": "H(X,Y) = H(X) + H(Y|X)"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "c": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "HXY": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)",
+            "HX": "-(a+b)*log2(a+b) - (c+d)*log2(c+d)",
+            "HY": "-(a+c)*log2(a+c) - (b+d)*log2(b+d)",
+            "I": "HX + HY - HXY"
+          },
+          "require": "min(d - 0.049, I - 0.08)",
+          "prompt": "For the joint distribution below, find $H(Y|X)$.\n$$\\begin{array}{c|cc} p(x,y) & Y=0 & Y=1\\\\ \\hline X=0 & {{a}} & {{b}}\\\\ X=1 & {{c}} & {{d}}\\end{array}$$",
+          "answer": "HXY - HX",
+          "unit": "bits",
+          "explanation": "Row sums: $p_X$ = ({{a+b}}, {{c+d}}), so $H(X)$ = {{HX||4}} bit. Joint: $H(X,Y)$ = {{HXY||4}} bits. Chain rule: $H(Y|X) = H(X,Y) - H(X)$ = {{HXY||4}} − {{HX||4}} = **{{HXY-HX||3}} bit**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "M": [
+              4,
+              8,
+              16,
+              32,
+              64
+            ]
+          },
+          "prompt": "$X$ is uniformly distributed over the integers 0 … {{M-1}}, and $Y$ tells whether $X$ is even or odd.",
+          "ask": [
+            {
+              "prompt": "What is $H(X|Y)$?",
+              "answer": "log2(M) - 1",
+              "unit": "bits",
+              "explanation": "$H(X) = \\log_2 {{M}}$ = {{log2(M)}} bits and $H(Y)$ = 1 bit. $Y$ is a function of $X$, so $H(X,Y) = H(X)$ and $H(X|Y) = H(X,Y) - H(Y)$ = {{log2(M)}} − 1 = **{{log2(M)-1}} bits**: knowing the parity leaves {{M/2}} equally likely values."
+            },
+            {
+              "prompt": "What is $H(Y|X)$?",
+              "answer": "0",
+              "unit": "bits",
+              "absTolerance": 0.01,
+              "explanation": "Once $X$ is known its parity is certain, so $H(Y|X)$ = **0 bits**. Check with the chain rule: $H(Y|X) = H(X,Y) - H(X)$ = {{log2(M)}} − {{log2(M)}} = 0."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "$H(X|Y) = H(Y|X)$ for any two random variables.",
+          "answer": false,
+          "explanation": "False. In general $H(X|Y) - H(Y|X) = H(X) - H(Y)$. Example: $X$ uniform over 0 … 7 and $Y$ its parity give $H(X|Y)$ = 2 bits but $H(Y|X)$ = 0. They are equal only when $H(X) = H(Y)$."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "$X$ and $Y$ are **independent**. Then $H(X,Y)$ equals:",
+          "options": [
+            "$H(X) + H(Y)$",
+            "$H(X)\\cdot H(Y)$",
+            "$\\max\\big(H(X), H(Y)\\big)$",
+            "$H(X) + H(Y) - 1$"
+          ],
+          "answer": 0,
+          "explanation": "Independence means $p(x,y) = p(x)p(y)$, so $H(Y|X) = H(Y)$ and the chain rule gives $H(X,Y) = H(X) + H(Y)$. Entropies of independent parts **add**, just like the information of independent events."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "M": [
+              4,
+              6,
+              8,
+              10,
+              16
+            ],
+            "p": [
+              0.05,
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "prompt": "A sensor reports one of {{M}} equally likely states, and independently a binary alarm flag that is 1 with probability {{p}}. What is the joint entropy of (state, flag)?",
+          "answer": "log2(M) - p*log2(p) - (1-p)*log2(1-p)",
+          "unit": "bits",
+          "explanation": "Independent, so the entropies add: $H$ = $\\log_2 {{M}}$ + $H({{p}})$ = {{log2(M)}} + {{-p*log2(p) - (1-p)*log2(1-p)}} = **{{log2(M) - p*log2(p) - (1-p)*log2(1-p)}} bits**."
+        }
+      ]
+    },
+    {
+      "id": "it-mutual-2",
+      "title": "Mutual information",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "What does Y tell about X?",
+          "body": "Before observing $Y$, the uncertainty about $X$ is $H(X)$; after observing it, $H(X|Y)$ remains. The reduction is the **mutual information** $I(X;Y)$. It is symmetric, and it is the quantity that matters in communication: how much the received signal tells about the sent one.",
+          "formula": "I(X;Y) = H(X) - H(X|Y) = H(X) + H(Y) - H(X,Y)"
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The information diagram",
+          "body": "Picture $H(X)$ and $H(Y)$ as overlapping circles. The overlap is $I(X;Y)$; the rest of each circle is the conditional entropy; the total area is $H(X,Y)$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3.8,
+              "label": "",
+              "ticks": []
+            },
+            "y": {
+              "min": 0,
+              "max": 2.7,
+              "label": "",
+              "ticks": []
+            },
+            "equal": true,
+            "grid": false,
+            "height": 190,
+            "curves": [
+              {
+                "x": "1.35 + cos(t)",
+                "y": "1.2 + sin(t)",
+                "t": [
+                  0,
+                  "2*pi"
+                ],
+                "color": "blue"
+              },
+              {
+                "x": "2.45 + cos(t)",
+                "y": "1.2 + sin(t)",
+                "t": [
+                  0,
+                  "2*pi"
+                ],
+                "color": "red"
+              }
+            ],
+            "labels": [
+              {
+                "x": 0.62,
+                "y": 1.2,
+                "text": "H(X|Y)",
+                "color": "blue"
+              },
+              {
+                "x": 1.65,
+                "y": 1.2,
+                "text": "I(X;Y)",
+                "color": "primary"
+              },
+              {
+                "x": 2.64,
+                "y": 1.2,
+                "text": "H(Y|X)",
+                "color": "red"
+              },
+              {
+                "x": 0.85,
+                "y": 2.45,
+                "text": "H(X)",
+                "color": "blue"
+              },
+              {
+                "x": 2.4,
+                "y": 2.45,
+                "text": "H(Y)",
+                "color": "red"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each region of the information diagram to its quantity.",
+          "pairs": [
+            [
+              "Circle of $X$",
+              "$H(X)$"
+            ],
+            [
+              "Overlap of the circles",
+              "$I(X;Y)$"
+            ],
+            [
+              "Circle of $X$ outside the overlap",
+              "$H(X|Y)$"
+            ],
+            [
+              "Circle of $Y$ outside the overlap",
+              "$H(Y|X)$"
+            ],
+            [
+              "Both circles together",
+              "$H(X,Y)$"
+            ]
+          ],
+          "explanation": "The overlap is what $X$ and $Y$ have in common: $I(X;Y)$. What is left of $X$'s circle after removing the overlap is what $Y$ cannot tell about $X$: $H(X|Y)$. The union counts everything once: $H(X,Y) = H(X|Y) + I(X;Y) + H(Y|X)$."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "c": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "HXY": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)",
+            "HX": "-(a+b)*log2(a+b) - (c+d)*log2(c+d)",
+            "HY": "-(a+c)*log2(a+c) - (b+d)*log2(b+d)",
+            "I": "HX + HY - HXY"
+          },
+          "require": "min(d - 0.049, I - 0.08)",
+          "prompt": "For the joint distribution below, find the mutual information $I(X;Y)$.\n$$\\begin{array}{c|cc} p(x,y) & Y=0 & Y=1\\\\ \\hline X=0 & {{a}} & {{b}}\\\\ X=1 & {{c}} & {{d}}\\end{array}$$",
+          "answer": "I",
+          "unit": "bits",
+          "tolerance": 0.03,
+          "absTolerance": 0.005,
+          "explanation": "Row sums ({{a+b}}, {{c+d}}) give $H(X)$ = {{HX||4}}; column sums ({{a+c}}, {{b+d}}) give $H(Y)$ = {{HY||4}}; all cells give $H(X,Y)$ = {{HXY||4}}. $I = H(X) + H(Y) - H(X,Y)$ = **{{I||3}} bit**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.01,
+              0.02,
+              0.05,
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "prompt": "$X$ is a fair random bit. $Y$ equals $X$, except that it is flipped with probability {{p}}. How much information does $Y$ give about $X$?",
+          "answer": "1 + p*log2(p) + (1-p)*log2(1-p)",
+          "unit": "bits",
+          "explanation": "$Y$ is also a fair bit, so $H(Y)$ = 1. Given $X$, the only uncertainty is whether a flip happened: $H(Y|X) = H({{p}})$ = {{-p*log2(p) - (1-p)*log2(1-p)}}. $I = H(Y) - H(Y|X)$ = 1 − {{-p*log2(p) - (1-p)*log2(1-p)}} = **{{1 + p*log2(p) + (1-p)*log2(1-p)}} bit**."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "Mutual information becomes negative when $Y$ is misleading, e.g. when it is usually the inverse of $X$.",
+          "answer": false,
+          "explanation": "False. $I(X;Y) \\ge 0$ always. A $Y$ that is usually inverted is actually very informative: invert it back. With a flip probability of 0.9, $I = 1 - H(0.9) = 1 - H(0.1)$ = 0.53 bit, the same as with 0.1. Only $p$ = 0.5 makes $Y$ useless."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "HX": [
+              1,
+              1.5,
+              2,
+              2.5
+            ],
+            "HY": [
+              0.8,
+              1,
+              1.2,
+              1.6
+            ],
+            "I": [
+              0.2,
+              0.3,
+              0.5,
+              0.7
+            ]
+          },
+          "derived": {
+            "HXY": "HX + HY - I"
+          },
+          "require": "min(min(abs(HY - 2*I), abs(HX - 2*I)), min(abs(HX - HY), min(HX, HY) - I)) - 0.05",
+          "prompt": "Two variables have $H(X)$ = {{HX||4}} bits, $H(Y)$ = {{HY||4}} bits and $H(X,Y)$ = {{HXY||4}} bits. What is $I(X;Y)$?",
+          "options": [
+            "{{I}} bits",
+            "{{HXY-HX}} bits",
+            "{{HXY-HY}} bits",
+            "{{HX+HY}} bits"
+          ],
+          "answer": 0,
+          "explanation": "$I(X;Y) = H(X) + H(Y) - H(X,Y)$ = {{HX||4}} + {{HY||4}} − {{HXY||4}} = **{{I}} bits**. {{HXY-HX}} is $H(Y|X)$ and {{HXY-HY}} is $H(X|Y)$; {{HX+HY}} would be the joint entropy if they were independent."
+        }
+      ]
+    },
+    {
+      "id": "it-mutual-3",
+      "title": "Relative entropy",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Paying for the wrong model",
+          "body": "Code data from a source $p$ with a code designed for a different distribution $q$, and you need on average $H(p) + D(p\\|q)$ bits per symbol instead of $H(p)$. The **relative entropy** $D(p\\|q)$ is never negative and is zero only when $q = p$. It is not symmetric: $D(p\\|q) \\ne D(q\\|p)$ in general.",
+          "formula": "D(p\\|q) = \\sum_x p(x)\\log_2\\frac{p(x)}{q(x)}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.1,
+              0.2,
+              0.3
+            ],
+            "q": [
+              0.5,
+              0.6,
+              0.7
+            ]
+          },
+          "prompt": "A bit is 1 with probability $p$ = {{p}}, but a designer assumes $q$ = {{q}}. Find $D(p\\|q)$.",
+          "answer": "p*log2(p/q) + (1-p)*log2((1-p)/(1-q))",
+          "unit": "bits",
+          "absTolerance": 0.003,
+          "explanation": "$D(p\\|q) = p\\log_2\\frac{p}{q} + (1-p)\\log_2\\frac{1-p}{1-q}$ = {{p}} × $\\log_2$({{p/q||3}}) + {{1-p}} × $\\log_2$({{(1-p)/(1-q)||3}}) = **{{p*log2(p/q) + (1-p)*log2((1-p)/(1-q))}} bit**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.5,
+              "max": 0.8,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.1,
+              "max": 0.4,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "c": "round((1 - a - b)*100)/100"
+          },
+          "require": "c - 0.049",
+          "prompt": "A source emits A, B and C with probabilities {{a}}, {{b}} and {{c}}, but it is coded with ideal code lengths for three equally likely symbols ($\\log_2 3$ bits each). How many bits per symbol does this mismatch cost, compared with the entropy?",
+          "answer": "log2(3) + a*log2(a) + b*log2(b) + c*log2(c)",
+          "unit": "bits",
+          "absTolerance": 0.005,
+          "explanation": "With $q$ uniform, $D(p\\|q) = \\sum p_i\\log_2(3p_i) = \\log_2 3 - H(p)$. $H(p)$ = {{-a*log2(a) - b*log2(b) - c*log2(c)}} bits, so $D$ = 1.585 − {{-a*log2(a) - b*log2(b) - c*log2(c)}} = **{{log2(3) + a*log2(a) + b*log2(b) + c*log2(c)}} bit/symbol**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.25,
+              0.3,
+              0.4
+            ],
+            "b": [
+              0.25,
+              0.3
+            ],
+            "c": [
+              0.15,
+              0.2,
+              0.25
+            ]
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "L": "a + 2*b + 3*c + 3*d",
+            "Hp": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)"
+          },
+          "require": "d - 0.049",
+          "prompt": "A code with codeword lengths 1, 2, 3 and 3 bits was designed for symbol probabilities 1/2, 1/4, 1/8, 1/8. The real probabilities are {{a}}, {{b}}, {{c}} and {{d}}.",
+          "ask": [
+            {
+              "prompt": "What is the average codeword length?",
+              "answer": "L",
+              "unit": "bits",
+              "explanation": "$\\bar L = \\sum p_i l_i$ = {{a}}·1 + {{b}}·2 + {{c}}·3 + {{d}}·3 = **{{L||3}} bits/symbol**."
+            },
+            {
+              "prompt": "By how much does it exceed the entropy of the real source?",
+              "answer": "L - Hp",
+              "unit": "bits",
+              "tolerance": 0.03,
+              "absTolerance": 0.005,
+              "explanation": "$\\bar L$ = {{L||3}} and $H(p)$ = {{Hp||4}} bits, so the excess is {{L-Hp||3}} bit. That is exactly $D(p\\|q)$ with $q$ = (1/2, 1/4, 1/8, 1/8): lengths $-\\log_2 q_i$ give $\\bar L = H(p) + D(p\\|q)$."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Which statement about the relative entropy $D(p\\|q)$ is true?",
+          "options": [
+            "$D(p\\|q) \\ge 0$, with equality only when $p = q$",
+            "$D(p\\|q) = D(q\\|p)$ for all $p$, $q$",
+            "$D(p\\|q)$ is negative when $q$ is closer to uniform than $p$",
+            "$D(p\\|q) = H(p) - H(q)$"
+          ],
+          "answer": 0,
+          "explanation": "Gibbs' inequality gives $D(p\\|q) \\ge 0$ with equality only for identical distributions. It is not symmetric, so it is not a true distance, and it is not the difference of two entropies: two different distributions with the same entropy still have $D > 0$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0.3,
+              0.5,
+              0.7
+            ],
+            "e0": [
+              0.05,
+              0.1,
+              0.2
+            ],
+            "e1": [
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "derived": {
+            "y1": "(1-s)*e0 + s*(1-e1)"
+          },
+          "prompt": "Binary input $X$ has $P(X=1)$ = {{s}}. A channel turns a 0 into a 1 with probability {{e0}} and a 1 into a 0 with probability {{e1}}. Find $I(X;Y)$.",
+          "answer": "-y1*log2(y1) - (1-y1)*log2(1-y1) - (1-s)*(-e0*log2(e0) - (1-e0)*log2(1-e0)) - s*(-e1*log2(e1) - (1-e1)*log2(1-e1))",
+          "unit": "bits",
+          "absTolerance": 0.005,
+          "hint": "Use $I = H(Y) - H(Y|X)$: first find $P(Y=1)$.",
+          "explanation": "$P(Y=1) = (1-s)e_0 + s(1-e_1)$ = {{y1||3}}, so $H(Y)$ = {{-y1*log2(y1) - (1-y1)*log2(1-y1)}}. $H(Y|X) = (1-s)H(e_0) + sH(e_1)$ = {{1-s}} × {{-e0*log2(e0) - (1-e0)*log2(1-e0)}} + {{s}} × {{-e1*log2(e1) - (1-e1)*log2(1-e1)}} = {{(1-s)*(-e0*log2(e0) - (1-e0)*log2(1-e0)) + s*(-e1*log2(e1) - (1-e1)*log2(1-e1))}}. $I = H(Y) - H(Y|X)$ = **{{-y1*log2(y1) - (1-y1)*log2(1-y1) - (1-s)*(-e0*log2(e0) - (1-e0)*log2(1-e0)) - s*(-e1*log2(e1) - (1-e1)*log2(1-e1))}} bit**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "c": {
+              "min": 0.05,
+              "max": 0.5,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100",
+            "HXY": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)",
+            "HX": "-(a+b)*log2(a+b) - (c+d)*log2(c+d)",
+            "HY": "-(a+c)*log2(a+c) - (b+d)*log2(b+d)",
+            "I": "HX + HY - HXY"
+          },
+          "require": "min(d - 0.049, I - 0.08)",
+          "prompt": "For the joint distribution below, find $H(X|Y)$.\n$$\\begin{array}{c|cc} p(x,y) & Y=0 & Y=1\\\\ \\hline X=0 & {{a}} & {{b}}\\\\ X=1 & {{c}} & {{d}}\\end{array}$$",
+          "answer": "HXY - HY",
+          "unit": "bits",
+          "explanation": "Column sums ({{a+c}}, {{b+d}}) give $H(Y)$ = {{HY||4}} bit, all cells give $H(X,Y)$ = {{HXY||4}} bits. $H(X|Y) = H(X,Y) - H(Y)$ = **{{HXY-HY||3}} bit**."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each expression to the quantity it equals.",
+          "pairs": [
+            [
+              "$H(X) - H(X|Y)$",
+              "$I(X;Y)$"
+            ],
+            [
+              "$H(X) + H(Y|X)$",
+              "$H(X,Y)$"
+            ],
+            [
+              "$H(X,Y) - H(Y)$",
+              "$H(X|Y)$"
+            ],
+            [
+              "$\\sum p\\log_2(p/q)$",
+              "$D(p\\|q)$"
+            ]
+          ],
+          "explanation": "Chain rule: $H(X,Y) = H(X) + H(Y|X)$, so $H(X,Y) - H(Y) = H(X|Y)$. Mutual information is the reduction in uncertainty, $H(X) - H(X|Y)$. The sum of $p\\log(p/q)$ is the relative entropy."
+        }
+      ]
+    },
+    {
+      "id": "it-mutual-4",
+      "title": "Processing and chains",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Processing cannot create information",
+          "body": "Suppose $X$ is sent, $Y$ is received, and $Z$ is computed from $Y$ only (a decoder, a quantiser, a filter). Then $X \\to Y \\to Z$ is a Markov chain and $I(X;Z) \\le I(X;Y)$. Each extra noisy hop in a relay chain can only lose information.",
+          "formula": "I(X;Z) \\le I(X;Y)"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.01,
+              0.05,
+              0.1
+            ],
+            "p2": [
+              0.02,
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "derived": {
+            "pe": "p1*(1-p2) + p2*(1-p1)"
+          },
+          "prompt": "A fair bit $X$ passes a link that flips it with probability {{p1}}, giving $Y$; a second link flips $Y$ with probability {{p2}}, giving $Z$.",
+          "ask": [
+            {
+              "prompt": "What is $I(X;Y)$?",
+              "answer": "1 + p1*log2(p1) + (1-p1)*log2(1-p1)",
+              "unit": "bits",
+              "explanation": "$I(X;Y) = 1 - H({{p1}})$ = 1 − {{-p1*log2(p1) - (1-p1)*log2(1-p1)}} = **{{1 + p1*log2(p1) + (1-p1)*log2(1-p1)}} bit**."
+            },
+            {
+              "prompt": "What is $I(X;Z)$?",
+              "answer": "1 + pe*log2(pe) + (1-pe)*log2(1-pe)",
+              "unit": "bits",
+              "explanation": "$Z \\ne X$ when exactly one link flips: $p = p_1(1-p_2) + p_2(1-p_1)$ = {{pe||3}}. $I(X;Z) = 1 - H({{pe||3}})$ = **{{1 + pe*log2(pe) + (1-pe)*log2(1-pe)}} bit**, less than $I(X;Y)$ = {{1 + p1*log2(p1) + (1-p1)*log2(1-p1)}}, as the data-processing inequality demands."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "A clever enough decoder can extract more information about the transmitted message $X$ from its output $Z$ than the received signal $Y$ contained.",
+          "answer": false,
+          "explanation": "False. The decoder output is computed from $Y$ alone, so $X \\to Y \\to Z$ and $I(X;Z) \\le I(X;Y)$. Decoding makes the information easier to use (fewer bit errors), but it cannot add any."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "q": [
+              0.5,
+              0.4,
+              0.3,
+              0.2,
+              0.1
+            ]
+          },
+          "prompt": "$X$ is a fair bit. A key bit $K$, independent of $X$, is 1 with probability {{q}}. The ciphertext is $Z = X \\oplus K$.",
+          "ask": [
+            {
+              "prompt": "How much does the ciphertext reveal about the message, $I(X;Z)$?",
+              "answer": "1 + q*log2(q) + (1-q)*log2(1-q)",
+              "unit": "bits",
+              "absTolerance": 0.002,
+              "explanation": "$Z$ is a fair bit (a fair $X$ XOR anything independent), so $H(Z)$ = 1. Given $X$, $Z$ is as uncertain as $K$: $H(Z|X) = H({{q}})$. $I(X;Z) = 1 - H({{q}})$ = **{{1 + q*log2(q) + (1-q)*log2(1-q)}} bit**. Only a uniform key ($q$ = 0.5, the one-time pad) reveals nothing."
+            },
+            {
+              "prompt": "How much does the ciphertext reveal about the message to someone who also knows the key, $I(X;Z|K)$?",
+              "answer": "1",
+              "unit": "bits",
+              "explanation": "Given $K$, the receiver computes $X = Z \\oplus K$ exactly, so $H(X|Z,K)$ = 0 and $I(X;Z|K) = H(X|K) - H(X|Z,K)$ = 1 − 0 = **1 bit**. Conditioning can **increase** mutual information."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "orderSteps",
+          "prompt": "Put the steps for computing $I(X;Y)$ from a joint probability table in order.",
+          "items": [
+            "Add each row and each column to get $p(x)$ and $p(y)$",
+            "Compute $H(X)$ and $H(Y)$ from the marginals",
+            "Compute $H(X,Y)$ from all cells of the table",
+            "Take $I(X;Y) = H(X) + H(Y) - H(X,Y)$"
+          ],
+          "explanation": "Marginals first, then their entropies, then the joint entropy from the cells. The identity $I = H(X) + H(Y) - H(X,Y)$ avoids computing conditional distributions."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0.2,
+              0.3,
+              0.5
+            ],
+            "eps": [
+              0.1,
+              0.2,
+              0.25,
+              0.4
+            ]
+          },
+          "prompt": "A binary input with $P(X=1)$ = {{s}} enters an erasure channel: each symbol arrives intact with probability {{1-eps}} and is replaced by an erasure symbol 'e' with probability {{eps}}, independent of $X$.",
+          "ask": [
+            {
+              "prompt": "What is $H(X|Y)$?",
+              "answer": "eps*(-s*log2(s) - (1-s)*log2(1-s))",
+              "unit": "bits",
+              "explanation": "If $Y$ is 0 or 1, $X$ is known exactly. If $Y$ = e (probability {{eps}}), nothing was learned and $X$ keeps its full uncertainty $H(X) = H({{s}})$ = {{-s*log2(s) - (1-s)*log2(1-s)}}. So $H(X|Y)$ = {{eps}} × {{-s*log2(s) - (1-s)*log2(1-s)}} = **{{eps*(-s*log2(s) - (1-s)*log2(1-s))}} bit**."
+            },
+            {
+              "prompt": "What is $I(X;Y)$?",
+              "answer": "(1-eps)*(-s*log2(s) - (1-s)*log2(1-s))",
+              "unit": "bits",
+              "explanation": "$I = H(X) - H(X|Y) = (1-\\varepsilon)H(X)$ = {{1-eps}} × {{-s*log2(s) - (1-s)*log2(1-s)}} = **{{(1-eps)*(-s*log2(s) - (1-s)*log2(1-s))}} bit**. A fair input ($s$ = 0.5) would give the maximum, $1 - \\varepsilon$: that is the capacity of this channel."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which inequality holds for **every** pair of random variables?",
+          "options": [
+            "$I(X;Y) \\le \\min\\big(H(X), H(Y)\\big)$",
+            "$H(X,Y) \\ge H(X) + H(Y)$",
+            "$H(X|Y) \\ge H(X)$",
+            "$I(X;Y) \\ge H(X|Y)$"
+          ],
+          "answer": 0,
+          "explanation": "$I(X;Y) = H(X) - H(X|Y) \\le H(X)$ and likewise $\\le H(Y)$. The others are reversed or false: $H(X,Y) \\le H(X) + H(Y)$, conditioning reduces entropy ($H(X|Y) \\le H(X)$), and for nearly independent variables $I$ is small while $H(X|Y)$ is large."
+        }
+      ]
+    }
+  ]
+}

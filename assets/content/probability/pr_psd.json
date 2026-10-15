@@ -1,0 +1,1059 @@
+{
+  "id": "pr-psd",
+  "title": "Power Spectral Density",
+  "description": "The Wiener–Khinchin theorem, white and band-limited noise, one-sided versus two-sided PSDs, and power in a band as the area under the PSD.",
+  "reference": "Leon-Garcia ch. 10",
+  "study": [
+    {
+      "title": "Power spectral density",
+      "body": "The **power spectral density** $S_X(f)$ of a WSS process shows how its average power is distributed over frequency, in W/Hz (or V²/Hz for a voltage across 1 Ω). It is real, even and never negative, and the total area under it is the average power. In this subject $S_X(f)$ is **two-sided**: it is defined for negative and positive $f$, and half of the power sits at negative frequencies.",
+      "formula": "P_X = R_X(0) = \\int_{-\\infty}^{\\infty} S_X(f)\\,df"
+    },
+    {
+      "title": "The Wiener–Khinchin theorem",
+      "body": "The PSD is the Fourier transform of the autocorrelation function. A process that decorrelates quickly (narrow $R_X$) has a wide spectrum. Pairs to know:\n- $\\sigma^2e^{-a|\\tau|}$ ↔ $\\frac{2a\\sigma^2}{a^2 + (2\\pi f)^2}$ (telegraph signal, RC-filtered noise)\n- $\\frac{A^2}{2}\\cos(2\\pi f_0\\tau)$ ↔ impulses of $\\frac{A^2}{4}$ at $\\pm f_0$\n- $A^2(1 - |\\tau|/T)$ for $|\\tau| < T$ ↔ $A^2T\\,\\mathrm{sinc}^2(fT)$\n- $\\frac{N_0}{2}\\delta(\\tau)$ ↔ $\\frac{N_0}{2}$ (white noise)\nDrag the decay rate $a$ of $R_X(\\tau) = e^{-a|\\tau|}$ V²: a faster decay lowers and widens the spectrum, keeping its area (1 V²).",
+      "formula": "S_X(f) = \\int_{-\\infty}^{\\infty} R_X(\\tau)\\,e^{-j2\\pi f\\tau}\\,d\\tau",
+      "plot": {
+        "x": {
+          "min": -5000,
+          "max": 5000,
+          "label": "f",
+          "unit": "Hz"
+        },
+        "y": {
+          "min": 0,
+          "max": 10.5,
+          "label": "S_X(f) (×1e-4 V²/Hz)"
+        },
+        "sliders": [
+          {
+            "name": "a",
+            "label": "$a$ (1/s)",
+            "min": 2000,
+            "max": 20000,
+            "step": 500,
+            "value": 6000
+          }
+        ],
+        "curves": [
+          {
+            "f": "1e4*2*a/(a^2 + (2*pi*x)^2)"
+          }
+        ],
+        "vlines": [
+          {
+            "x": "a/(2*pi)",
+            "label": "a/2π"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$S_X(0) = 2/a$ (V²/Hz)",
+            "value": "2/a"
+          },
+          {
+            "label": "half-power frequency $a/2\\pi$",
+            "value": "a/(2*pi)",
+            "unit": "Hz"
+          }
+        ]
+      }
+    },
+    {
+      "title": "White noise",
+      "body": "**White noise** has the same PSD at every frequency, $S_N(f) = N_0/2$, so its autocorrelation is an impulse: samples at different times, however close, are uncorrelated. Its total power would be infinite, so white noise is an idealization; it is a good model whenever the noise is flat over a band much wider than the system that observes it. Thermal noise is white up to the terahertz range: the open-circuit noise voltage of a resistor has $S(f) = 2kTR$ (two-sided).",
+      "formula": "S_N(f) = \\frac{N_0}{2}\\ \\leftrightarrow\\ R_N(\\tau) = \\frac{N_0}{2}\\,\\delta(\\tau)"
+    },
+    {
+      "title": "One-sided versus two-sided PSDs",
+      "body": "Spectrum analyzers and datasheets use a **one-sided** PSD $G_X(f)$, defined for $f \\ge 0$ only and holding all the power: $G_X(f) = 2S_X(f)$. Amplitude densities in nV/√Hz are $\\sqrt{G_X}$. The power in a band from $f_1$ to $f_2$ is the area under $S_X$ over that band **and** its mirror image at negative frequencies. So white noise of $N_0/2$ two-sided is $N_0$ one-sided, and a bandwidth $B$ holds $N_0B$.",
+      "formula": "P_{[f_1,f_2]} = 2\\int_{f_1}^{f_2} S_X\\,df = \\int_{f_1}^{f_2} G_X\\,df"
+    },
+    {
+      "title": "Band-limited noise",
+      "body": "White noise passed through an ideal low-pass filter of bandwidth $B$ has $S_X(f) = N_0/2$ for $|f| < B$: power $N_0B$ and the autocorrelation below. It is zero at $\\tau = k/(2B)$, so samples taken at the Nyquist rate $2B$ are uncorrelated (and for Gaussian noise, independent). Ideal band-pass noise of width $B$ around $f_0$ also has power $N_0B$.",
+      "formula": "R_X(\\tau) = N_0B\\,\\mathrm{sinc}(2B\\tau)",
+      "plot": {
+        "x": {
+          "min": -3,
+          "max": 3,
+          "label": "τB",
+          "ticks": [
+            -3,
+            -2,
+            -1,
+            -0.5,
+            0,
+            0.5,
+            1,
+            2,
+            3
+          ]
+        },
+        "y": {
+          "min": -0.3,
+          "max": 1.1,
+          "label": "R_X / N_{0}B"
+        },
+        "curves": [
+          {
+            "f": "sinc(2*x)"
+          }
+        ],
+        "height": 140
+      }
+    },
+    {
+      "title": "Power in a band is an area",
+      "body": "To find the power in a band, integrate the PSD over it, counting the mirrored negative-frequency band too. For $R_X(\\tau) = \\sigma^2e^{-a|\\tau|}$ the power below $f$ is the fraction $\\frac{2}{\\pi}\\arctan(f/f_c)$ of the total, with corner $f_c = a/2\\pi$. Half the power lies below $f_c$, but 90 % takes $6.3f_c$: the PSD falls only as $1/f^2$. Drag the band edges (one-sided view, $f_c$ = 1 kHz; orange = band).",
+      "formula": "P_{|f| < f_1} = \\sigma^2\\,\\frac{2}{\\pi}\\arctan\\frac{f_1}{f_c}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 10000,
+          "label": "f",
+          "unit": "Hz"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "G(f)/G(0)"
+        },
+        "sliders": [
+          {
+            "name": "f1",
+            "label": "$f_1$",
+            "min": 0,
+            "max": 10000,
+            "step": 100,
+            "value": 1000,
+            "unit": "Hz"
+          },
+          {
+            "name": "f2",
+            "label": "$f_2$",
+            "min": 0,
+            "max": 10000,
+            "step": 100,
+            "value": 3000,
+            "unit": "Hz"
+          }
+        ],
+        "let": {
+          "lo": "min(f1, f2)",
+          "hi": "max(f1, f2)"
+        },
+        "curves": [
+          {
+            "f": "1/(1 + (x/1000)^2)",
+            "color": "grey"
+          },
+          {
+            "f": "1/(1 + (x/1000)^2)",
+            "from": "lo",
+            "to": "hi",
+            "color": "orange"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 1000,
+            "label": "f_c"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "share of the total power in the band",
+            "value": "100*2/pi*(atan(hi/1000) - atan(lo/1000))",
+            "unit": "%"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Worked example: the PSD of a random binary wave",
+      "body": "A ±A random binary wave at $R_b = 1/T$ bit/s has the triangular autocorrelation $A^2(1 - |\\tau|/T)$, so its PSD is $A^2T\\,\\mathrm{sinc}^2(fT)$: largest at DC, with nulls at every multiple of $R_b$. About 90 % of the power lies in the main lobe $|f| < R_b$. For a 1 Mbit/s NRZ signal with $A$ = 1 V: $S(0) = A^2T = 10^{-6}$ V²/Hz and the first null is at 1 MHz.",
+      "formula": "S_X(f) = A^2T\\,\\mathrm{sinc}^2(fT)",
+      "plot": {
+        "x": {
+          "min": -3,
+          "max": 3,
+          "label": "f T"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "S_X / A²T"
+        },
+        "curves": [
+          {
+            "f": "sinc(x)^2"
+          }
+        ],
+        "height": 140
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pr-psd-1",
+      "title": "From autocorrelation to PSD",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Power spectral density",
+          "body": "The PSD $S_X(f)$ shows how the average power of a WSS process is spread over frequency. It is real, even and never negative, and its total area is the average power $R_X(0)$. We use the **two-sided** PSD: the power is split equally between positive and negative frequencies.",
+          "formula": "P_X = \\int_{-\\infty}^{\\infty} S_X(f)\\,df"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "m": [
+              1,
+              2,
+              5
+            ],
+            "e": [
+              -9,
+              -10,
+              -11
+            ],
+            "B": [
+              1000,
+              10000,
+              100000
+            ]
+          },
+          "derived": {
+            "S0": "m*10^e"
+          },
+          "prompt": "A noise voltage has a two-sided PSD of $S_N(f) = {{m}}\\times10^{{{e}}}$ V²/Hz for $|f| < {{B/1000}}$ kHz and zero elsewhere.",
+          "ask": [
+            {
+              "prompt": "What is its average power, in V² (across 1 Ω)?",
+              "answer": "2*S0*B",
+              "unit": "",
+              "explanation": "The PSD is flat at {{S0}} V²/Hz from −{{B|Hz}} to +{{B|Hz}}, a width of $2B$. Area: $P$ = {{S0}} × 2 × {{B}} = **{{2*S0*B}}** V²."
+            },
+            {
+              "prompt": "What is its rms value?",
+              "answer": "sqrt(2*S0*B)",
+              "unit": "V",
+              "explanation": "$P = S_N \\cdot 2B$ = {{2*S0*B}} V², so $V_{rms} = \\sqrt{P}$ = **{{sqrt(2*S0*B)|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The Wiener–Khinchin theorem",
+          "body": "The PSD is the Fourier transform of the autocorrelation function, and $R_X$ is the inverse transform of $S_X$. A process that decorrelates quickly (narrow $R_X$) has a wide spectrum. Key pair: an exponential autocorrelation gives a 'Lorentzian' PSD.",
+          "formula": "\\sigma^2e^{-a|\\tau|}\\ \\leftrightarrow\\ \\frac{2a\\sigma^2}{a^2 + (2\\pi f)^2}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "s2": [
+              1,
+              4
+            ],
+            "a": [
+              1000,
+              5000,
+              10000
+            ],
+            "f": [
+              100,
+              500,
+              1000
+            ]
+          },
+          "prompt": "A WSS noise voltage has $R_X(\\tau) = {{s2}}\\,e^{-{{a}}|\\tau|}$ V² (τ in s).",
+          "ask": [
+            {
+              "prompt": "What is $S_X(0)$, in V²/Hz?",
+              "answer": "2*s2/a",
+              "unit": "",
+              "explanation": "$S_X(f) = \\frac{2a\\sigma^2}{a^2 + (2\\pi f)^2}$, so $S_X(0) = 2\\sigma^2/a$ = 2 × {{s2}}/{{a}} = **{{2*s2/a}}** V²/Hz."
+            },
+            {
+              "prompt": "What is $S_X(f)$ at $f$ = {{f|Hz}}, in V²/Hz?",
+              "answer": "2*a*s2/(a^2 + (2*pi*f)^2)",
+              "unit": "",
+              "explanation": "$S_X(f) = \\frac{2a\\sigma^2}{a^2 + (2\\pi f)^2}$ = 2 × {{a}} × {{s2}} / ({{a^2}} + {{(2*pi*f)^2}}) = **{{2*a*s2/(a^2+(2*pi*f)^2)}}** V²/Hz."
+            },
+            {
+              "prompt": "At what frequency has the PSD dropped to half its value at DC?",
+              "answer": "a/(2*pi)",
+              "unit": "Hz",
+              "explanation": "$S_X(f) = S_X(0)/2$ when $(2\\pi f)^2 = a^2$: $f = a/2\\pi$ = {{a}}/(2π) = **{{a/(2*pi)|Hz}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "A noise process has $R_X(\\tau) = \\sigma^2e^{-|\\tau|/\\tau_c}$. If its correlation time $\\tau_c$ is made shorter (faster fluctuations, same power $\\sigma^2$), its PSD becomes …",
+          "options": [
+            "wider and lower",
+            "narrower and higher",
+            "wider and higher",
+            "unchanged"
+          ],
+          "answer": 0,
+          "explanation": "With $a = 1/\\tau_c$: $S_X(f) = \\frac{2\\sigma^2\\tau_c}{1 + (2\\pi f\\tau_c)^2}$. A shorter $\\tau_c$ lowers $S_X(0) = 2\\sigma^2\\tau_c$ and raises the half-power frequency $1/(2\\pi\\tau_c)$, while the area stays $\\sigma^2$: the same power spread over a wider band."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "White noise",
+          "body": "White noise has a flat PSD $S_N(f) = N_0/2$ at all frequencies and an impulse as autocorrelation: samples at different times are uncorrelated. Its total power is infinite, so it is an idealization, valid when the noise is flat far beyond the bandwidth of the system that observes it.",
+          "formula": "S_N(f) = \\frac{N_0}{2}\\ \\leftrightarrow\\ R_N(\\tau) = \\frac{N_0}{2}\\,\\delta(\\tau)"
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "White noise with a two-sided PSD of $N_0/2$ has a finite average power.",
+          "answer": false,
+          "explanation": "Its power would be $\\int_{-\\infty}^{\\infty}\\frac{N_0}{2}\\,df = \\infty$ (equivalently $R_N(0) = \\frac{N_0}{2}\\delta(0)$). Real noise is only white up to some very high frequency. Every real system has a finite bandwidth, and after filtering the noise power is finite: $N_0B$ for an ideal filter of bandwidth $B$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "en": [
+              4,
+              10,
+              20
+            ]
+          },
+          "prompt": "An amplifier datasheet specifies a white input noise density of {{en}} nV/√Hz. Datasheet densities are one-sided: $e_n^2 = G(f)$ for $f \\ge 0$. What is the corresponding two-sided PSD $S(f)$, in V²/Hz? (Type it in scientific notation, e.g. 2.5e-17.)",
+          "answer": "(en*1e-9)^2/2",
+          "unit": "",
+          "explanation": "One-sided: $G = e_n^2 = ({{en}}\\times10^{-9})^2 = {{en^2}}\\times10^{-18}$ V²/Hz for $f \\ge 0$. The two-sided PSD spreads the same power over positive and negative frequencies: $S = G/2$ = **${{en^2/2}}\\times10^{-18}$ V²/Hz**."
+        }
+      ]
+    },
+    {
+      "id": "pr-psd-2",
+      "title": "Bands, bandwidths and conventions",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Power in a band",
+          "body": "The power between $f_1$ and $f_2$ is the area under the two-sided PSD over **both** bands, $[f_1, f_2]$ and $[-f_2, -f_1]$. Equivalently, integrate the one-sided PSD $G_X(f) = 2S_X(f)$ over $[f_1, f_2]$ only. White noise of $N_0/2$ two-sided is $N_0$ one-sided.",
+          "formula": "P_{[f_1,f_2]} = 2\\int_{f_1}^{f_2} S_X(f)\\,df"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {
+            "m": [
+              1,
+              2,
+              5
+            ],
+            "f1": [
+              1000,
+              2000
+            ],
+            "f2": [
+              5000,
+              10000
+            ]
+          },
+          "derived": {
+            "S": "m*1e-12"
+          },
+          "prompt": "White noise has a two-sided PSD $N_0/2 = {{m}}\\times10^{-12}$ V²/Hz. What is its power in the band from {{f1|Hz}} to {{f2|Hz}}, in V²?",
+          "options": [
+            "{{2*S*(f2-f1)}}",
+            "{{S*(f2-f1)}}",
+            "{{2*S*f2}}",
+            "{{S*f2}}"
+          ],
+          "answer": 0,
+          "explanation": "Count the band and its mirror at negative frequencies: $P = 2\\cdot\\frac{N_0}{2}(f_2 - f_1) = N_0(f_2 - f_1)$ = 2 × {{S}} × {{f2-f1}} = **{{2*S*(f2-f1)}}** V². Forgetting the negative frequencies halves the result; using $f_2$ instead of $f_2 - f_1$ includes the band below $f_1$ as well."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "en": [
+              5,
+              10,
+              20
+            ],
+            "f1": [
+              10,
+              100
+            ],
+            "f2": [
+              10000,
+              20000,
+              100000
+            ]
+          },
+          "prompt": "An amplifier has a white input noise density of {{en}} nV/√Hz (one-sided). What is the rms input noise in the band from {{f1|Hz}} to {{f2|Hz}}?",
+          "answer": "en*1e-9*sqrt(f2 - f1)",
+          "unit": "V",
+          "explanation": "A one-sided density is integrated over positive frequencies only: $V_{rms} = e_n\\sqrt{f_2 - f_1}$ = {{en}} nV/√Hz × √{{f2-f1}} Hz = **{{en*1e-9*sqrt(f2-f1)|V}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Band-limited white noise",
+          "body": "Ideal low-pass white noise ($S = N_0/2$ for $|f| < B$) has power $N_0B$ and a sinc-shaped autocorrelation, which is zero at $\\tau = k/(2B)$: samples taken at the Nyquist rate $2B$ are uncorrelated.",
+          "formula": "R_X(\\tau) = N_0B\\,\\mathrm{sinc}(2B\\tau)",
+          "plot": {
+            "x": {
+              "min": -3,
+              "max": 3,
+              "label": "τB",
+              "ticks": [
+                -3,
+                -2,
+                -1,
+                -0.5,
+                0,
+                0.5,
+                1,
+                2,
+                3
+              ]
+            },
+            "y": {
+              "min": -0.3,
+              "max": 1.1,
+              "label": "R_X / N_{0}B"
+            },
+            "curves": [
+              {
+                "f": "sinc(2*x)"
+              }
+            ],
+            "height": 130
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "m": [
+              1,
+              2,
+              5
+            ],
+            "B": [
+              1000,
+              5000,
+              20000
+            ]
+          },
+          "prompt": "White noise with $N_0/2 = {{m}}\\times10^{-9}$ V²/Hz passes an ideal low-pass filter with bandwidth $B$ = {{B|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is $R_X(0)$ of the output, in V²?",
+              "answer": "2*m*1e-9*B",
+              "unit": "",
+              "explanation": "$R_X(0) = N_0B = 2\\cdot{{m}}\\times10^{-9}\\cdot{{B}}$ = **{{2*m*1e-9*B}}** V², the output power."
+            },
+            {
+              "prompt": "What is the smallest $\\tau > 0$ at which output samples are uncorrelated?",
+              "answer": "1/(2*B)",
+              "unit": "s",
+              "explanation": "$R_X(\\tau) = N_0B\\,\\mathrm{sinc}(2B\\tau)$ first reaches zero at $2B\\tau = 1$: $\\tau = 1/(2B)$ = **{{1/(2*B)|s}}**, the Nyquist sampling interval."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "slider",
+          "params": {
+            "fc": [
+              500,
+              1000,
+              2000
+            ],
+            "frac": [
+              0.5,
+              0.8,
+              0.9
+            ]
+          },
+          "derived": {
+            "ft": "fc*tan(pi/2*frac)"
+          },
+          "prompt": "Noise with $R_X(\\tau) = \\sigma^2e^{-a|\\tau|}$ has its PSD corner at $f_c = a/2\\pi$ = {{fc|Hz}}. The power in $|f| < f_2$ is the fraction $\\frac{2}{\\pi}\\arctan(f_2/f_c)$ of the total. Set $f_2$ so that this band holds {{100*frac}} % of the power.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "15*fc",
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "G(f)/G(0)"
+            },
+            "sliders": [
+              {
+                "name": "f2",
+                "label": "$f_2$",
+                "min": "fc/10",
+                "max": "15*fc",
+                "log": true,
+                "value": "fc/5",
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "1/(1 + (x/fc)^2)",
+                "color": "grey"
+              },
+              {
+                "f": "1/(1 + (x/fc)^2)",
+                "to": "f2",
+                "color": "orange"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "fc",
+                "label": "f_c"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "share of the power in $|f| < f_2$",
+                "value": "100*2/pi*atan(f2/fc)",
+                "unit": "%",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "f2": "ft"
+          },
+          "tolerance": 0.04,
+          "explanation": "$\\frac{2}{\\pi}\\arctan(f_2/f_c)$ = {{frac}} ⇒ $f_2 = f_c\\tan\\left(\\frac{\\pi}{2}\\cdot{{frac}}\\right)$ = {{fc|Hz}} × {{tan(pi/2*frac)}} = **{{ft|Hz}}**. The $1/f^2$ tail holds a lot of power: 90 % needs more than six times the corner frequency."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Doubling the bandwidth of a white-noise measurement doubles the rms noise voltage.",
+          "answer": false,
+          "explanation": "The noise **power** $N_0B$ doubles, so the rms voltage grows by $\\sqrt2$ only (+3 dB). Conversely, halving the bandwidth improves the signal-to-noise ratio of a narrowband signal by 3 dB."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each autocorrelation to its power spectral density",
+          "pairs": [
+            [
+              "$\\frac{N_0}{2}\\delta(\\tau)$",
+              "$\\frac{N_0}{2}$ at all $f$"
+            ],
+            [
+              "$\\sigma^2e^{-a|\\tau|}$",
+              "$\\frac{2a\\sigma^2}{a^2 + (2\\pi f)^2}$"
+            ],
+            [
+              "$\\frac{A^2}{2}\\cos(2\\pi f_0\\tau)$",
+              "Impulses $\\frac{A^2}{4}$ at $\\pm f_0$"
+            ],
+            [
+              "$A^2(1 - |\\tau|/T)$, $|\\tau| < T$",
+              "$A^2T\\,\\mathrm{sinc}^2(fT)$"
+            ]
+          ],
+          "explanation": "Each pair is a Fourier transform pair. An impulse transforms to a constant (white noise); a two-sided exponential to a Lorentzian; a cosine to two impulses, each with half of the power $A^2/2$; a triangle to sinc². In every case $\\int S_X\\,df = R_X(0)$."
+        }
+      ]
+    },
+    {
+      "id": "pr-psd-3",
+      "title": "PSD calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2,
+              5
+            ],
+            "Rb": [
+              1000,
+              10000,
+              100000,
+              1000000
+            ],
+            "fr": [
+              0.25,
+              0.5,
+              1.5
+            ]
+          },
+          "prompt": "A ±{{A|V}} random binary wave carries {{Rb/1000}} kbit/s, so $S_X(f) = A^2T\\,\\mathrm{sinc}^2(fT)$ with $T = 1/R_b$.",
+          "ask": [
+            {
+              "prompt": "What is $S_X(0)$, in V²/Hz?",
+              "answer": "A^2/Rb",
+              "unit": "",
+              "explanation": "$S_X(0) = A^2T = A^2/R_b$ = {{A^2}}/{{Rb}} = **{{A^2/Rb}}** V²/Hz."
+            },
+            {
+              "prompt": "What is $S_X(f)$ at $f$ = {{fr*Rb|Hz}}, in V²/Hz?",
+              "answer": "A^2/Rb*sinc(fr)^2",
+              "unit": "",
+              "explanation": "$fT$ = {{fr}}, and $\\mathrm{sinc}({{fr}}) = \\frac{\\sin({{fr}}\\pi)}{{{fr}}\\pi}$ = {{sinc(fr)}}. $S_X$ = {{A^2/Rb}} × {{sinc(fr)^2}} = **{{A^2/Rb*sinc(fr)^2}}** V²/Hz."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "A": [
+              0.1,
+              0.5,
+              1
+            ],
+            "S": [
+              1e-06,
+              5e-06,
+              2e-05
+            ],
+            "B": [
+              2000,
+              5000,
+              10000
+            ]
+          },
+          "prompt": "A 1 kHz sinusoid with amplitude {{A|V}} plus white noise with a two-sided PSD of {{S}} V²/Hz passes an ideal low-pass filter with bandwidth {{B|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is the total output power, in V²?",
+              "answer": "A^2/2 + 2*S*B",
+              "unit": "",
+              "explanation": "The sinusoid lies inside the band and keeps its power $A^2/2$ = {{A^2/2}} V². The noise contributes $N_0B = 2SB$ = {{2*S*B}} V². Total: **{{A^2/2+2*S*B}}** V²."
+            },
+            {
+              "prompt": "What is the output signal-to-noise ratio in dB?",
+              "answer": "10*log10(A^2/2/(2*S*B))",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "SNR = 10 log($\\frac{A^2/2}{2SB}$) = 10 log({{A^2/2}}/{{2*S*B}}) = **{{10*log10(A^2/2/(2*S*B))||3}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "s2": [
+              1,
+              4
+            ],
+            "fc": [
+              1000,
+              5000
+            ],
+            "k": [
+              0.5,
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "Noise with $R_X(\\tau) = {{s2}}\\,e^{-a|\\tau|}$ V² has its PSD corner at $f_c = a/2\\pi$ = {{fc|Hz}}. An ideal low-pass filter passes $|f| <$ {{k*fc|Hz}}. What is the output power, in V²?",
+          "answer": "s2*2/pi*atan(k)",
+          "unit": "",
+          "explanation": "$P = \\int_{-f_1}^{f_1}\\frac{2a\\sigma^2}{a^2 + (2\\pi f)^2}\\,df = \\sigma^2\\,\\frac{2}{\\pi}\\arctan\\frac{f_1}{f_c}$ = {{s2}} × 0.637 × arctan({{k}}) = **{{s2*2/pi*atan(k)}}** V², i.e. {{200/pi*atan(k)}} % of the total."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "ew": [
+              5,
+              10
+            ],
+            "fcn": [
+              10,
+              100,
+              1000
+            ],
+            "f1": [
+              0.1,
+              1,
+              10
+            ],
+            "f2": [
+              1000,
+              10000,
+              100000
+            ]
+          },
+          "prompt": "An op amp has a one-sided input noise PSD $e_n^2(f) = e_w^2\\,(1 + f_c/f)$ with white level $e_w$ = {{ew}} nV/√Hz and 1/f corner $f_c$ = {{fcn|Hz}}. What is the rms input noise from {{f1|Hz}} to {{f2|Hz}}?",
+          "answer": "ew*1e-9*sqrt(fcn*ln(f2/f1) + f2 - f1)",
+          "unit": "V",
+          "explanation": "Integrate the one-sided PSD: $\\int_{f_1}^{f_2}e_w^2\\left(1 + \\frac{f_c}{f}\\right)df = e_w^2\\left[f_c\\ln\\frac{f_2}{f_1} + (f_2 - f_1)\\right]$. The 1/f part counts as {{fcn*ln(f2/f1)}} Hz, the white part as {{f2-f1}} Hz. $V_{rms}$ = {{ew}} nV/√Hz × √({{fcn*ln(f2/f1)+f2-f1}} Hz) = **{{ew*1e-9*sqrt(fcn*ln(f2/f1)+f2-f1)|V}}**."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "c": [
+              4,
+              9
+            ],
+            "a": [
+              2,
+              6
+            ],
+            "f0": [
+              1000,
+              5000
+            ]
+          },
+          "prompt": "A WSS process has $R_X(\\tau) = {{c}} + {{a}}\\cos(2\\pi\\cdot{{f0/1000}}\\text{ kHz}\\cdot\\tau)$ (in V²). What is its PSD?",
+          "options": [
+            "An impulse of {{c}} at $f = 0$ and impulses of {{a/2}} at $\\pm${{f0|Hz}}",
+            "An impulse of {{c}} at $f = 0$ and impulses of {{a}} at $\\pm${{f0|Hz}}",
+            "An impulse of {{sqrt(c)}} at $f = 0$ and impulses of {{a/2}} at $\\pm${{f0|Hz}}",
+            "A flat PSD of {{c+a}} V²/Hz"
+          ],
+          "answer": 0,
+          "explanation": "The constant $c$ (the DC power $m_X^2$) transforms into an impulse $c\\,\\delta(f)$; $a\\cos(2\\pi f_0\\tau)$ transforms into $\\frac{a}{2}[\\delta(f - f_0) + \\delta(f + f_0)]$. Check: the impulse weights add up to $R_X(0)$ = {{c}} + {{a/2}} + {{a/2}} = {{c+a}} V²."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "S0": [
+              1e-06,
+              2e-06,
+              5e-06
+            ],
+            "W": [
+              1000,
+              10000
+            ]
+          },
+          "prompt": "A noise voltage has a triangular two-sided PSD: $S(f) = S_0(1 - |f|/W)$ for $|f| < W$ and 0 elsewhere, with $S_0$ = {{S0}} V²/Hz and $W$ = {{W|Hz}}. What is its rms value?",
+          "answer": "sqrt(S0*W)",
+          "unit": "V",
+          "explanation": "The power is the area of the triangle from −W to +W with height $S_0$: $P = \\frac12 \\cdot 2W \\cdot S_0 = S_0W$ = {{S0*W}} V², so $V_{rms}$ = **{{sqrt(S0*W)|V}}**."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "A PSD can be negative at some frequencies if the autocorrelation function takes negative values.",
+          "answer": false,
+          "explanation": "$R_X(\\tau)$ may well go negative (a cosine does), but $S_X(f) \\ge 0$ always: it is a power density. Otherwise a narrow filter around such a frequency would deliver negative output power."
+        }
+      ]
+    },
+    {
+      "id": "pr-psd-4",
+      "title": "Spectra of real signals",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "S": [
+              1e-12,
+              4e-12,
+              1e-11
+            ],
+            "f0": [
+              455000,
+              10700000
+            ],
+            "B": [
+              10000,
+              200000
+            ]
+          },
+          "prompt": "White noise with a two-sided PSD of {{S}} V²/Hz passes an ideal band-pass filter centred on {{f0|Hz}} with a bandwidth of {{B|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is the output power, in V²?",
+              "answer": "2*S*B",
+              "unit": "",
+              "explanation": "The filter passes $f_0 \\pm B/2$ and the mirrored band at $-f_0$, each of width $B$: $P = 2 \\cdot S \\cdot B = N_0B$ = **{{2*S*B}}** V². The centre frequency does not matter for white noise."
+            },
+            {
+              "prompt": "What is the output rms voltage?",
+              "answer": "sqrt(2*S*B)",
+              "unit": "V",
+              "explanation": "$P = 2SB$ = {{2*S*B}} V², so $V_{rms}$ = **{{sqrt(2*S*B)|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "P": [
+              -90,
+              -100,
+              -110
+            ],
+            "RBW": [
+              1000,
+              10000,
+              100000
+            ]
+          },
+          "prompt": "A spectrum analyzer shows a flat noise floor of {{P}} dBm with a resolution bandwidth of {{RBW|Hz}}. Assume the RBW equals the noise bandwidth of its filter.",
+          "ask": [
+            {
+              "prompt": "What is the (one-sided) noise density, in dBm/Hz?",
+              "answer": "P - 10*log10(RBW)",
+              "unit": "dBm/Hz",
+              "tolerance": 0.005,
+              "absTolerance": 0.2,
+              "explanation": "The analyzer integrates the one-sided PSD over the RBW: $P = G \\cdot \\text{RBW}$. In dB: $G$ = {{P}} dBm − 10 log({{RBW}}) = **{{P-10*log10(RBW)||4}} dBm/Hz**."
+            },
+            {
+              "prompt": "What reading (in dBm) would the same noise give with a ten times wider RBW?",
+              "answer": "P + 10",
+              "unit": "dBm",
+              "tolerance": 0.005,
+              "absTolerance": 0.2,
+              "explanation": "Ten times the bandwidth collects ten times the noise power: +10 dB, so **{{P+10}} dBm**. A sinusoid would read the same at any RBW, which is how the analyzer tells signals from noise."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "params": {
+            "B": [
+              1000,
+              10000
+            ],
+            "kk": [
+              1,
+              2,
+              0.75,
+              1.5
+            ]
+          },
+          "derived": {
+            "Ts": "kk/(2*B)"
+          },
+          "prompt": "Ideal low-pass white noise with bandwidth $B$ = {{B|Hz}} is sampled every {{Ts|s}}. Successive samples are uncorrelated.",
+          "answer": "0.01 - abs(sinc(kk))",
+          "explanation": "$R_X(\\tau) = N_0B\\,\\mathrm{sinc}(2B\\tau)$ is zero only at $\\tau = k/(2B)$, multiples of {{1/(2*B)|s}}. Here $2BT_s$ = {{kk}}, so the correlation coefficient of successive samples is sinc({{kk}}) = {{sinc(kk)}}."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "A": [
+              0.001,
+              0.01
+            ],
+            "S": [
+              1e-12,
+              1e-10
+            ],
+            "B": [
+              1000,
+              100000
+            ]
+          },
+          "prompt": "A sinusoid with amplitude {{A|V}} is received with white noise of two-sided PSD {{S}} V²/Hz; the receiver filter is an ideal band-pass of bandwidth $B$ around the sinusoid.",
+          "ask": [
+            {
+              "prompt": "What is the SNR in dB for $B$ = {{B|Hz}}?",
+              "answer": "10*log10(A^2/2/(2*S*B))",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "Signal power $A^2/2$ = {{A^2/2}} V²; noise power $N_0B = 2SB$ = {{2*S*B}} V². SNR = 10 log({{A^2/2}}/{{2*S*B}}) = **{{10*log10(A^2/2/(2*S*B))||3}} dB**."
+            },
+            {
+              "prompt": "What is the largest bandwidth that still gives an SNR of 20 dB?",
+              "answer": "A^2/2/(2*S*100)",
+              "unit": "Hz",
+              "explanation": "Need $\\frac{A^2/2}{2SB} \\ge 100$ ⇒ $B \\le \\frac{A^2/2}{200S}$ = {{A^2/2}}/(200 × {{S}}) = **{{A^2/2/(2*S*100)|Hz}}**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "fh": [
+              200,
+              500,
+              1000,
+              2000
+            ]
+          },
+          "prompt": "Noise with $R_X(\\tau) = \\sigma^2e^{-|\\tau|/\\tau_c}$: set the correlation time $\\tau_c$ so that its PSD falls to half its DC value at {{fh|Hz}} (orange line).",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "5*fh",
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "S_X(f)/S_X(0)"
+            },
+            "sliders": [
+              {
+                "name": "tc",
+                "label": "$\\tau_c$",
+                "min": 1e-05,
+                "max": 0.01,
+                "log": true,
+                "value": 0.005,
+                "unit": "s"
+              }
+            ],
+            "curves": [
+              {
+                "f": "1/(1 + (2*pi*x*tc)^2)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0.5,
+                "label": "½"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "fh",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "half-power frequency $1/(2\\pi\\tau_c)$",
+                "value": "1/(2*pi*tc)",
+                "unit": "Hz",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "tc": "1/(2*pi*fh)"
+          },
+          "tolerance": 0.05,
+          "explanation": "$S_X(f) = \\frac{2\\sigma^2\\tau_c}{1 + (2\\pi f\\tau_c)^2}$ halves where $2\\pi f\\tau_c = 1$: $\\tau_c = \\frac{1}{2\\pi f_h}$ = 1/(2π × {{fh|Hz}}) = **{{1/(2*pi*fh)|s}}**. A shorter correlation time means a wider spectrum."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows the PSD of a ±A random binary wave at $R_b$ bit/s? (Horizontal axis: $f/R_b$.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -3,
+                "max": 3,
+                "label": "f / R_b"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "S(f)"
+              },
+              "curves": [
+                {
+                  "f": "sinc(x)^2"
+                }
+              ],
+              "height": 120
+            },
+            {
+              "x": {
+                "min": -3,
+                "max": 3,
+                "label": "f / R_b"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "S(f)"
+              },
+              "curves": [
+                {
+                  "f": "1/(1 + (2*x)^2)"
+                }
+              ],
+              "height": 120
+            },
+            {
+              "x": {
+                "min": -3,
+                "max": 3,
+                "label": "f / R_b"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "S(f)"
+              },
+              "curves": [
+                {
+                  "f": "0.5"
+                }
+              ],
+              "height": 120
+            },
+            {
+              "x": {
+                "min": -3,
+                "max": 3,
+                "label": "f / R_b"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "S(f)"
+              },
+              "curves": [
+                {
+                  "f": "step(1 - abs(x))*0.8"
+                }
+              ],
+              "height": 120
+            }
+          ],
+          "answer": 0,
+          "explanation": "The triangular autocorrelation of the binary wave gives $S_X(f) = A^2T\\,\\mathrm{sinc}^2(fT)$, with nulls at every multiple of $R_b$. The Lorentzian belongs to a telegraph signal (exponential $R_X$), the flat line to white noise, and the rectangle to ideal low-pass noise."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "If two zero-mean WSS processes are independent, the PSD of their sum is the sum of their PSDs.",
+          "answer": true,
+          "explanation": "$R_{X+Y}(\\tau) = R_X(\\tau) + R_Y(\\tau) + R_{XY}(\\tau) + R_{YX}(\\tau)$, and for independent zero-mean processes the cross terms are $E[X]E[Y] = 0$. Fourier-transforming term by term: $S_{X+Y} = S_X + S_Y$. That is why noise powers (and PSDs) of independent sources simply add."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1974 @@
+{
+  "id": "ae-power",
+  "title": "Regulators & Power Supplies",
+  "description": "Design unregulated supplies, linear and three-terminal regulators with heat sinks and protection, and buck, boost and inverting switching converters.",
+  "reference": "H&H ch. 6",
+  "study": [
+    {
+      "title": "Explore: the unregulated supply",
+      "body": "Transformer, bridge rectifier and reservoir capacitor give a DC voltage that peaks at $\\sqrt2V_{rms}$ minus **two** diode drops. Between peaks the capacitor alone feeds the load, so it sags by $\\Delta V \\approx I/(f_rC)$, with $f_r$ = 100 Hz for full-wave rectification of 50 Hz mains. The diodes recharge $C$ in short, high current pulses, so pick a transformer VA rating of about 1.5–2× the DC power. Drag $C$ (load 1 A).",
+      "formula": "\\Delta V \\approx \\frac{I}{f_r C}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 0.04,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 18,
+          "label": "v (V)"
+        },
+        "sliders": [
+          {
+            "name": "C",
+            "label": "$C$",
+            "min": 0.001,
+            "max": 0.01,
+            "log": true,
+            "value": 0.0022,
+            "unit": "F"
+          }
+        ],
+        "let": {
+          "Vp": "15.6",
+          "I": "1"
+        },
+        "curves": [
+          {
+            "f": "Vp*abs(sin(2*pi*50*x))",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "max(Vp*abs(sin(2*pi*50*x)), Vp - I/C*mod(x - 0.005, 0.01))",
+            "label": "v_C",
+            "labelAt": 0.55
+          }
+        ],
+        "readouts": [
+          {
+            "label": "Ripple $\\Delta V$",
+            "value": "I/(100*C)",
+            "unit": "V"
+          },
+          {
+            "label": "Valley",
+            "value": "Vp - I/(100*C)",
+            "unit": "V"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Linear regulator and dropout",
+      "body": "A linear regulator compares a fraction of $V_{out}$ with a stable reference; the error amplifier drives a series **pass transistor** that drops the excess voltage. The loop holds $V_{out} = V_{ref}(1 + R_2/R_1)$. It only works while $V_{in}$ exceeds $V_{out}$ by the **dropout voltage**: about 2–2.5 V for an npn-Darlington pass device (78xx, LM317), 0.1–0.5 V for a **low-dropout (LDO)** regulator with a pnp or PMOS pass device. Check the dropout at the bottom of the ripple valley at low mains.",
+      "formula": "V_{in,min} = V_{out} + V_{DO}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              0
+            ],
+            "label": "V_{in}",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                5,
+                0
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "npn",
+            "at": [
+              5,
+              2
+            ],
+            "name": "Q1"
+          },
+          {
+            "type": "opamp",
+            "at": [
+              3,
+              2
+            ],
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1.5
+              ],
+              [
+                0.5,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "vsource",
+            "from": [
+              0.5,
+              3.5
+            ],
+            "to": [
+              0.5,
+              1.5
+            ],
+            "label": "V_{ref}",
+            "flip": true
+          },
+          {
+            "type": "ground",
+            "at": [
+              0.5,
+              3.5
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              7,
+              3
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              7,
+              3
+            ],
+            "to": [
+              7,
+              5
+            ],
+            "label": "R_2",
+            "name": "R2"
+          },
+          {
+            "type": "node",
+            "at": [
+              7,
+              5
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              7,
+              5
+            ],
+            "to": [
+              7,
+              7
+            ],
+            "label": "R_1",
+            "name": "R1"
+          },
+          {
+            "type": "ground",
+            "at": [
+              7,
+              7
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                7,
+                5
+              ],
+              [
+                2,
+                5
+              ],
+              [
+                2,
+                2.5
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                3
+              ],
+              [
+                7,
+                3
+              ],
+              [
+                9,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              9,
+              3
+            ],
+            "label": "V_{out}"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Three-terminal regulators",
+      "body": "The 78xx (positive) and 79xx (negative) give fixed outputs (7805: +5 V, 1 A) with built-in current limit and thermal shutdown. The adjustable LM317 keeps 1.25 V between out and adj; $R_1$ (typically 240 Ω) sets a current through $R_2$. The small adj-pin current ($I_{adj} \\approx$ 50 µA) adds $I_{adj}R_2$ to the output. Put 0.1–1 µF capacitors close to the input and output pins.",
+      "formula": "V_{out} = 1.25\\,\\text{V}\\left(1 + \\frac{R_2}{R_1}\\right)",
+      "circuit": {
+        "elements": [
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              0
+            ],
+            "label": "V_{in}",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3,
+              0
+            ],
+            "label": "LM317",
+            "value": "in      out"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              0
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              5,
+              0
+            ],
+            "to": [
+              5,
+              2
+            ],
+            "label": "R_1",
+            "value": "1.25 V"
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                0.5
+              ],
+              [
+                3,
+                2
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "text",
+            "at": [
+              2.4,
+              1.2
+            ],
+            "label": "adj"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              5,
+              2
+            ],
+            "to": [
+              5,
+              4
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "ground",
+            "at": [
+              5,
+              4
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              6,
+              0
+            ],
+            "label": "V_{out}"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Dissipation and heat sinking",
+      "body": "All the excess voltage turns into heat in the pass transistor, $P = (V_{in} - V_{out})I$, so the efficiency is at most $V_{out}/V_{in}$. Heat flows from junction to case to heat sink to air through thermal resistances (°C/W) that add like resistors in series. Keep $T_J$ below the maximum (typ. 125–150 °C) at the **highest** input voltage, load current and ambient temperature.",
+      "formula": "T_J = T_A + P(\\theta_{JC} + \\theta_{CS} + \\theta_{SA})"
+    },
+    {
+      "title": "Protection and references",
+      "body": "- **Current limiting**: a sense resistor $R_{sc}$ turns on a transistor at $I_{lim} \\approx 0.6\\,\\text{V}/R_{sc}$.\n- **Foldback**: the limit falls as $V_{out}$ collapses, so a short dissipates far less.\n- **Crowbar**: an SCR shorts the output when it exceeds a threshold, blowing the fuse.\n- **References**: a bandgap reference gives ≈1.23 V with low drift; zeners around 5–6 V have nearly zero temperature coefficient.",
+      "formula": "I_{lim} \\approx \\frac{0.6\\ \\text{V}}{R_{sc}}"
+    },
+    {
+      "title": "Switching converters",
+      "body": "A switcher chops the input with a transistor at duty cycle $D$ and filters it with an inductor and capacitor. An ideal switch and inductor waste no power, so efficiencies of 80–95 % are normal. The **buck** steps down, the **boost** steps up, and the **inverting buck-boost** gives $V_{out} = -V_{in}\\frac{D}{1-D}$, a negative output of either size (all for continuous inductor current).",
+      "formula": "V_{buck} = DV_{in},\\qquad V_{boost} = \\frac{V_{in}}{1-D}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 0.9,
+          "label": "duty cycle D"
+        },
+        "y": {
+          "min": 0,
+          "max": 5,
+          "label": "|V_out| / V_in"
+        },
+        "curves": [
+          {
+            "f": "x"
+          },
+          {
+            "f": "1/(1-x)",
+            "color": "red"
+          },
+          {
+            "f": "x/(1-x)",
+            "color": "blue"
+          }
+        ],
+        "labels": [
+          {
+            "x": 0.38,
+            "y": 2.3,
+            "text": "boost",
+            "color": "red"
+          },
+          {
+            "x": 0.62,
+            "y": 1.2,
+            "text": "inverting",
+            "color": "blue"
+          },
+          {
+            "x": 0.72,
+            "y": 0.4,
+            "text": "buck",
+            "color": "primary"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1
+          }
+        ]
+      }
+    },
+    {
+      "title": "Switcher practicalities",
+      "body": "In a buck the inductor current ripples by $\\Delta I_L$ each cycle; a common choice is 20–40 % of $I_{out}$. By power balance the input current is only $I_{in} = V_{out}I_{out}/(\\eta V_{in})$. Fast switching edges and pulsed currents make switchers **noisy** (conducted and radiated EMI at $f_{sw}$ and its harmonics), so sensitive analog circuits often get an LDO after the switcher. **Charge pumps** use switched capacitors instead of an inductor to invert or double a voltage at low currents.",
+      "formula": "\\Delta I_L = \\frac{(V_{in} - V_{out})D}{f_{sw}L}\\quad\\text{(buck)}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ae-power-1",
+      "title": "From mains to regulated DC",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The unregulated supply",
+          "body": "A transformer, a bridge rectifier and a big reservoir capacitor turn mains into rough DC. The capacitor charges to $V_{pk} = \\sqrt2V_{rms} - 2V_D$ (in a bridge, two diodes conduct in series) and sags between peaks while it feeds the load. With full-wave rectification the ripple frequency is 2 × 50 Hz = 100 Hz.",
+          "formula": "\\Delta V \\approx \\frac{I}{f_rC}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.04,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 18,
+              "label": "v (V)"
+            },
+            "let": {
+              "Vp": "15.6",
+              "I": "1",
+              "C": "2.2e-3"
+            },
+            "curves": [
+              {
+                "f": "Vp*abs(sin(2*pi*50*x))",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "max(Vp*abs(sin(2*pi*50*x)), Vp - I/C*mod(x - 0.005, 0.01))",
+                "label": "v_C",
+                "labelAt": 0.55
+              }
+            ],
+            "height": 170
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vr": [
+              9,
+              12,
+              15,
+              18,
+              24
+            ]
+          },
+          "prompt": "A transformer secondary of {{Vr}} V rms feeds a bridge rectifier (0.7 V per diode) and a reservoir capacitor. What is the peak DC voltage with a light load?",
+          "answer": "sqrt(2)*Vr - 1.4",
+          "unit": "V",
+          "explanation": "$V_{pk} = \\sqrt2 V_{rms} - 2V_D$ = 1.414 × {{Vr}} V − 2 × 0.7 V = {{sqrt(2)*Vr|V|4}} − 1.4 V = **{{sqrt(2)*Vr-1.4|V}}**. Two diodes are in the current path in a bridge."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "I": [
+              0.5,
+              1,
+              2
+            ],
+            "C": [
+              0.0022,
+              0.0047,
+              0.01
+            ]
+          },
+          "prompt": "A bridge rectifier on 50 Hz mains feeds a {{C|F}} reservoir capacitor; the load draws {{I|A}}. Estimate the peak-to-peak ripple.",
+          "answer": "I/(100*C)",
+          "unit": "V",
+          "explanation": "Full wave: $f_r$ = 100 Hz. $\\Delta V \\approx \\frac{I}{f_rC}$ = {{I|A}} / (100 Hz × {{C|F}}) = **{{I/(100*C)|V}}**. (A rule of thumb: about 1 V of ripple per amp per 10 000 µF.)"
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The linear regulator",
+          "body": "The op amp compares the divided output $V_{out}R_1/(R_1+R_2)$ with $V_{ref}$ and drives the pass transistor's base until they are equal. The transistor acts as a variable resistor in series with the load, burning off the excess voltage.",
+          "formula": "V_{out} = V_{ref}\\left(1 + \\frac{R_2}{R_1}\\right)",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0
+                ],
+                "label": "V_{in}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ],
+                  [
+                    5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "npn",
+                "at": [
+                  5,
+                  2
+                ],
+                "name": "Q1"
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  3,
+                  2
+                ],
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    0.5,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "vsource",
+                "from": [
+                  0.5,
+                  3.5
+                ],
+                "to": [
+                  0.5,
+                  1.5
+                ],
+                "label": "V_{ref}",
+                "flip": true
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0.5,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  7,
+                  3
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  7,
+                  3
+                ],
+                "to": [
+                  7,
+                  5
+                ],
+                "label": "R_2",
+                "name": "R2"
+              },
+              {
+                "type": "node",
+                "at": [
+                  7,
+                  5
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  7,
+                  5
+                ],
+                "to": [
+                  7,
+                  7
+                ],
+                "label": "R_1",
+                "name": "R1"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  7,
+                  7
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    5
+                  ],
+                  [
+                    2,
+                    5
+                  ],
+                  [
+                    2,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    3
+                  ],
+                  [
+                    7,
+                    3
+                  ],
+                  [
+                    9,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  9,
+                  3
+                ],
+                "label": "V_{out}"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vref": [
+              1.23,
+              2.5
+            ],
+            "R1": [
+              1000,
+              2200,
+              4700,
+              10000
+            ],
+            "R2": [
+              2200,
+              4700,
+              10000,
+              22000
+            ]
+          },
+          "require": "min(Vref*(1+R2/R1) - 2, 30 - Vref*(1+R2/R1))",
+          "prompt": "In the series regulator, $V_{ref}$ = {{Vref|V}}, $R_1$ = {{R1|Ω}} (to ground) and $R_2$ = {{R2|Ω}}. Find $V_{out}$.",
+          "answer": "Vref*(1+R2/R1)",
+          "unit": "V",
+          "explanation": "The loop forces $V_{out}\\frac{R_1}{R_1+R_2} = V_{ref}$, so $V_{out} = V_{ref}(1 + R_2/R_1)$ = {{Vref|V}} × (1 + {{R2/R1||3}}) = **{{Vref*(1+R2/R1)|V}}**."
+        },
+        {
+          "id": "q4",
+          "type": "tapCircuit",
+          "prompt": "Tap the resistors whose ratio sets the output voltage of this regulator.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0
+                ],
+                "label": "V_{in}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ],
+                  [
+                    5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "npn",
+                "at": [
+                  5,
+                  2
+                ],
+                "name": "Q1"
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  3,
+                  2
+                ],
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    0.5,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "vsource",
+                "from": [
+                  0.5,
+                  3.5
+                ],
+                "to": [
+                  0.5,
+                  1.5
+                ],
+                "label": "V_{ref}",
+                "flip": true
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0.5,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  7,
+                  3
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  7,
+                  3
+                ],
+                "to": [
+                  7,
+                  5
+                ],
+                "label": "R_2",
+                "name": "R2"
+              },
+              {
+                "type": "node",
+                "at": [
+                  7,
+                  5
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  7,
+                  5
+                ],
+                "to": [
+                  7,
+                  7
+                ],
+                "label": "R_1",
+                "name": "R1"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  7,
+                  7
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    5
+                  ],
+                  [
+                    2,
+                    5
+                  ],
+                  [
+                    2,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  3
+                ],
+                "to": [
+                  7,
+                  3
+                ],
+                "label": "R_{sc}",
+                "name": "Rsc"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    3
+                  ],
+                  [
+                    9,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  9,
+                  3
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  9,
+                  3
+                ],
+                "to": [
+                  9,
+                  7
+                ],
+                "label": "R_L",
+                "name": "RL"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  9,
+                  7
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    9,
+                    3
+                  ],
+                  [
+                    10,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  10,
+                  3
+                ],
+                "label": "V_{out}"
+              }
+            ]
+          },
+          "selectable": [
+            "R1",
+            "R2",
+            "Rsc",
+            "RL"
+          ],
+          "answer": [
+            "R1",
+            "R2"
+          ],
+          "explanation": "$R_1$ and $R_2$ divide $V_{out}$ down to $V_{ref}$, so $V_{out} = V_{ref}(1 + R_2/R_1)$. $R_{sc}$ is the current-sense resistor for current limiting (inside the loop, so it does not change $V_{out}$), and $R_L$ is the load."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Where does the power go?",
+          "body": "The load current flows through the pass transistor, which has $V_{in} - V_{out}$ across it. That power is heat. Since input and output currents are (almost) equal, a linear regulator's efficiency is simply $V_{out}/V_{in}$.",
+          "formula": "P_{pass} = (V_{in} - V_{out})I,\\qquad \\eta \\approx \\frac{V_{out}}{V_{in}}"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              9,
+              12,
+              15,
+              24
+            ],
+            "Vo": [
+              3.3,
+              5
+            ],
+            "I": [
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "A linear regulator makes {{Vo|V}} at {{I|A}} from a {{Vin|V}} input.",
+          "ask": [
+            {
+              "prompt": "How much power does the regulator dissipate?",
+              "answer": "(Vin-Vo)*I",
+              "unit": "W",
+              "explanation": "$P = (V_{in} - V_{out})I$ = ({{Vin}} − {{Vo}}) V × {{I|A}} = **{{(Vin-Vo)*I|W}}**."
+            },
+            {
+              "prompt": "What is its efficiency in %?",
+              "answer": "100*Vo/Vin",
+              "unit": "%",
+              "explanation": "$\\eta = \\frac{V_{out}I}{V_{in}I} = \\frac{V_{out}}{V_{in}}$ = {{Vo}} / {{Vin}} = **{{100*Vo/Vin|%}}**. The load gets {{Vo*I|W}}, the regulator burns {{(Vin-Vo)*I|W}}."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "With a clever enough design, a linear regulator that drops 12 V to 5 V can reach 80 % efficiency.",
+          "answer": false,
+          "explanation": "The pass device carries the full load current with 7 V across it, so the efficiency can never exceed $V_{out}/V_{in}$ = 5/12 = 42 %. Only a switching regulator, which stores energy in an inductor instead of burning it, can do better."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "A circuit needs a clean 3.3 V from a single Li-ion cell (4.2 V full, 3.6 V most of the time). Which regulator works?",
+          "options": [
+            "An LDO with 0.2 V dropout",
+            "A standard regulator with 2 V dropout",
+            "A 7805 with its output divided down",
+            "No regulator: just a series resistor"
+          ],
+          "answer": 0,
+          "explanation": "Headroom is only 0.3–0.9 V. A standard npn-pass regulator needs about 2 V and would drop out; an LDO with a PMOS or pnp pass transistor regulates down to ~0.2 V headroom. A resistor does not regulate at all."
+        }
+      ]
+    },
+    {
+      "id": "ae-power-2",
+      "title": "Linear regulator design",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R2": [
+              390,
+              680,
+              1000,
+              1500,
+              2200,
+              2700
+            ]
+          },
+          "prompt": "An LM317 has $R_1$ = 240 Ω and $R_2$ = {{R2|Ω}}; $I_{adj}$ = 50 µA.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0
+                ],
+                "label": "V_{in}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3,
+                  0
+                ],
+                "label": "LM317",
+                "value": "in      out"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  0
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  0
+                ],
+                "to": [
+                  5,
+                  2
+                ],
+                "label": "R_1",
+                "value": "1.25 V"
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0.5
+                  ],
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  2.4,
+                  1.2
+                ],
+                "label": "adj"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  2
+                ],
+                "to": [
+                  5,
+                  4
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  5,
+                  4
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6,
+                  0
+                ],
+                "label": "V_{out}"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find $V_{out}$.",
+              "answer": "1.25*(1+R2/240) + 50e-6*R2",
+              "unit": "V",
+              "explanation": "$V_{out} = 1.25\\,\\text{V}(1 + R_2/R_1) + I_{adj}R_2$ = 1.25 × (1 + {{R2/240||3}}) + 50 µA × {{R2|Ω}} = {{1.25*(1+R2/240)|V}} + {{50e-6*R2|V}} = **{{1.25*(1+R2/240)+50e-6*R2|V}}**."
+            },
+            {
+              "prompt": "How large is the output-voltage error due to $I_{adj}$ alone?",
+              "answer": "50e-6*R2",
+              "unit": "V",
+              "explanation": "$I_{adj}$ flows through $R_2$ only: $I_{adj}R_2$ = 50 µA × {{R2|Ω}} = **{{50e-6*R2|V}}**, small next to the {{1.25*(1+R2/240)|V}} from the main term. That's why $R_1$ is kept small (it sets ≈5 mA through the divider)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vo": [
+              3.3,
+              5,
+              9,
+              12,
+              15
+            ],
+            "R1": [
+              120,
+              240
+            ]
+          },
+          "prompt": "An LM317 must deliver {{Vo|V}} with $R_1$ = {{R1|Ω}}. Ignoring $I_{adj}$, what value must $R_2$ have?",
+          "answer": "R1*(Vo/1.25 - 1)",
+          "unit": "Ω",
+          "explanation": "$V_{out} = 1.25(1 + R_2/R_1)$ → $R_2 = R_1\\left(\\frac{V_{out}}{1.25} - 1\\right)$ = {{R1|Ω}} × ({{Vo/1.25||3}} − 1) = **{{R1*(Vo/1.25-1)|Ω}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vpk": [
+              8.5,
+              9.5,
+              10.5,
+              12
+            ],
+            "I": [
+              0.5,
+              1
+            ]
+          },
+          "prompt": "A 7805 (5 V, needs 2 V headroom) is fed from a full-wave rectifier whose capacitor voltage peaks at {{Vpk|V}}. The load draws {{I|A}} (50 Hz mains).",
+          "ask": [
+            {
+              "prompt": "What is the largest ripple (peak-to-peak) you can allow?",
+              "answer": "Vpk - 7",
+              "unit": "V",
+              "explanation": "The ripple valley must stay at or above $V_{out} + V_{DO}$ = 5 + 2 = 7 V. So $\\Delta V_{max}$ = {{Vpk}} − 7 = **{{Vpk-7|V}}**."
+            },
+            {
+              "prompt": "What is the smallest reservoir capacitor?",
+              "answer": "I/(100*(Vpk-7))",
+              "unit": "F",
+              "explanation": "Allowed ripple: {{Vpk}} − (5 + 2) = {{Vpk-7|V}}. $C = \\frac{I}{f_r\\Delta V}$ = {{I|A}} / (100 Hz × {{Vpk-7|V}}) = **{{I/(100*(Vpk-7))|F}}**. Add margin for low mains and capacitor tolerance (−20 %)."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              12,
+              15,
+              18
+            ],
+            "I": [
+              0.5,
+              1
+            ],
+            "tjc": [
+              1.5,
+              3,
+              5
+            ],
+            "tsa": [
+              2,
+              5,
+              8
+            ],
+            "TA": [
+              25,
+              40
+            ]
+          },
+          "derived": {
+            "P": "(Vin-5)*I",
+            "TJ": "TA + P*(tjc + 0.5 + tsa)"
+          },
+          "require": "160 - TJ",
+          "prompt": "A 5 V regulator delivers {{I|A}} from {{Vin|V}}. $\\theta_{JC}$ = {{tjc}} °C/W, $\\theta_{CS}$ = 0.5 °C/W (thermal pad), heat sink $\\theta_{SA}$ = {{tsa}} °C/W, ambient {{TA}} °C. Find the junction temperature in °C.",
+          "answer": "TJ",
+          "unit": "",
+          "tolerance": 0.02,
+          "explanation": "$P = (V_{in} - V_{out})I$ = ({{Vin}} − 5) × {{I}} = {{P|W}}. $T_J = T_A + P(\\theta_{JC} + \\theta_{CS} + \\theta_{SA})$ = {{TA}} + {{P||3}} × ({{tjc}} + 0.5 + {{tsa}}) = **{{TJ||3}} °C**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "TA": [
+              30,
+              40,
+              50
+            ],
+            "P": [
+              5,
+              8,
+              10,
+              15
+            ],
+            "tjc": [
+              1.5,
+              2
+            ]
+          },
+          "derived": {
+            "tsa": "(125-TA)/P - tjc - 0.5"
+          },
+          "require": "tsa - 0.3",
+          "prompt": "A regulator dissipates {{P|W}}. $T_{J,max}$ = 125 °C, $\\theta_{JC}$ = {{tjc}} °C/W, $\\theta_{CS}$ = 0.5 °C/W, ambient up to {{TA}} °C. What is the largest heat-sink thermal resistance $\\theta_{SA}$ (in °C/W) you can use?",
+          "answer": "tsa",
+          "unit": "",
+          "tolerance": 0.02,
+          "explanation": "Total allowed: $\\theta_{JA} = \\frac{T_{J,max} - T_A}{P}$ = (125 − {{TA}}) / {{P}} = {{(125-TA)/P||3}} °C/W. Subtract the rest of the chain: $\\theta_{SA}$ = {{(125-TA)/P||3}} − {{tjc}} − 0.5 = **{{tsa||3}} °C/W**. Choose a heat sink with a lower value."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Il": [
+              0.5,
+              1,
+              1.5,
+              2,
+              3
+            ]
+          },
+          "prompt": "A discrete regulator limits its current with a sense resistor and a transistor whose $V_{BE}$ turns on at 0.6 V.",
+          "ask": [
+            {
+              "prompt": "Which $R_{sc}$ gives a limit of {{Il|A}}?",
+              "answer": "0.6/Il",
+              "unit": "Ω",
+              "explanation": "The limiter starts conducting when $I R_{sc}$ = 0.6 V: $R_{sc}$ = 0.6 V / {{Il|A}} = **{{0.6/Il|Ω}}**."
+            },
+            {
+              "prompt": "How much power does $R_{sc}$ dissipate at the {{Il|A}} limit?",
+              "answer": "0.6*Il",
+              "unit": "W",
+              "explanation": "At the limit it has 0.6 V across it: $P$ = 0.6 V × {{Il|A}} = **{{0.6*Il|W}}**. This is also why a simple limiter costs ~0.6 V of extra headroom."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              15,
+              20,
+              25
+            ],
+            "Il": [
+              1,
+              2
+            ],
+            "f": [
+              0.2,
+              0.25,
+              0.3
+            ]
+          },
+          "prompt": "A regulator with a {{Vin|V}} input has its output shorted to ground.",
+          "ask": [
+            {
+              "prompt": "With a simple current limit at {{Il|A}}, how much does the pass transistor dissipate?",
+              "answer": "Vin*Il",
+              "unit": "W",
+              "explanation": "With $V_{out}$ = 0 the whole input voltage is across the pass transistor: $P = V_{in}I_{lim}$ = {{Vin}} V × {{Il|A}} = **{{Vin*Il|W}}**, much more than in normal use."
+            },
+            {
+              "prompt": "With foldback limiting the short-circuit current drops to {{f*100}} % of {{Il|A}}. How much does it dissipate now?",
+              "answer": "Vin*Il*f",
+              "unit": "W",
+              "explanation": "$I_{sc}$ = {{f}} × {{Il|A}} = {{f*Il|A}}, so $P$ = {{Vin}} V × {{f*Il|A}} = **{{Vin*Il*f|W}}** instead of {{Vin*Il|W}}. Foldback protects the transistor; the catch is that some loads (e.g. lamps, motors) may fail to start (latch-up)."
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "type": "matchPairs",
+          "prompt": "Match each circuit to what it does",
+          "pairs": [
+            [
+              "Current limiting",
+              "Caps the output current at a set value"
+            ],
+            [
+              "Foldback",
+              "Lowers the current limit as V_out collapses"
+            ],
+            [
+              "Crowbar (SCR)",
+              "Shorts the output on overvoltage"
+            ],
+            [
+              "Bandgap reference",
+              "Stable ≈1.23 V from two V_BE's"
+            ]
+          ],
+          "explanation": "Current limiting and foldback protect the regulator itself; a crowbar protects the **load** against an overvoltage (e.g. a shorted pass transistor) by firing an SCR and blowing the fuse; the bandgap reference combines a $V_{BE}$ (−2 mV/°C) with a PTAT voltage to get ≈1.23 V with almost zero drift."
+        },
+        {
+          "id": "q9",
+          "type": "multipleChoice",
+          "prompt": "Which zener diode has the lowest temperature coefficient of its breakdown voltage?",
+          "options": [
+            "5.6 V",
+            "2.7 V",
+            "12 V",
+            "33 V"
+          ],
+          "answer": 0,
+          "explanation": "Below ≈5 V the zener effect dominates (negative TC), above ≈6 V avalanche breakdown dominates (positive TC, growing with voltage). Around 5–6 V the two cancel, so a 5.6 V zener drifts least. Precision references use bandgap circuits or temperature-compensated zeners."
+        }
+      ]
+    },
+    {
+      "id": "ae-power-3",
+      "title": "Switching converters",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Buck, boost, inverting",
+          "body": "A switching converter only switches the transistor fully on or off, so it wastes little power. In steady state the inductor's average voltage is zero, which fixes the voltage ratio as a function of the duty cycle $D$ (fraction of the period the switch is on). The inverting buck-boost gives $V_{out} = -V_{in}\\frac{D}{1-D}$.",
+          "formula": "V_{buck} = DV_{in},\\qquad V_{boost} = \\frac{V_{in}}{1-D}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.9,
+              "label": "duty cycle D"
+            },
+            "y": {
+              "min": 0,
+              "max": 5,
+              "label": "|V_out| / V_in"
+            },
+            "curves": [
+              {
+                "f": "x"
+              },
+              {
+                "f": "1/(1-x)",
+                "color": "red"
+              },
+              {
+                "f": "x/(1-x)",
+                "color": "blue"
+              }
+            ],
+            "labels": [
+              {
+                "x": 0.38,
+                "y": 2.3,
+                "text": "boost",
+                "color": "red"
+              },
+              {
+                "x": 0.62,
+                "y": 1.2,
+                "text": "inverting",
+                "color": "blue"
+              },
+              {
+                "x": 0.72,
+                "y": 0.4,
+                "text": "buck",
+                "color": "primary"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1
+              }
+            ],
+            "height": 170
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              12,
+              24,
+              48
+            ],
+            "Vo": [
+              3.3,
+              5,
+              9
+            ]
+          },
+          "require": "0.8*Vin - Vo",
+          "prompt": "A buck converter makes {{Vo|V}} from {{Vin|V}}. What duty cycle does it run at (in %, ideal)?",
+          "answer": "100*Vo/Vin",
+          "unit": "%",
+          "explanation": "$V_{out} = DV_{in}$ → $D = V_{out}/V_{in}$ = {{Vo}} / {{Vin}} = **{{100*Vo/Vin|%}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              3.3,
+              5,
+              12
+            ],
+            "D": [
+              0.3,
+              0.4,
+              0.5,
+              0.6,
+              0.75
+            ]
+          },
+          "prompt": "A boost converter runs from {{Vin|V}} at a duty cycle of {{D*100}} %. What is its output voltage (ideal)?",
+          "answer": "Vin/(1-D)",
+          "unit": "V",
+          "explanation": "$V_{out} = \\frac{V_{in}}{1-D}$ = {{Vin}} / (1 − {{D}}) = **{{Vin/(1-D)|V}}**. The output is always higher than the input."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              5,
+              12
+            ],
+            "D": [
+              0.3,
+              0.4,
+              0.6,
+              0.7
+            ]
+          },
+          "prompt": "An inverting buck-boost converter runs from {{Vin|V}} at $D$ = {{D}}. What is $V_{out}$ (with sign)?",
+          "answer": "-Vin*D/(1-D)",
+          "unit": "V",
+          "explanation": "$V_{out} = -V_{in}\\frac{D}{1-D}$ = −{{Vin}} × {{D}}/{{1-D||2}} = **{{-Vin*D/(1-D)|V}}**. Below $D$ = 0.5 the magnitude is smaller than $V_{in}$, above it larger."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              12,
+              24
+            ],
+            "Vo": [
+              3.3,
+              5
+            ],
+            "f": [
+              100000,
+              250000,
+              500000
+            ],
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ]
+          },
+          "derived": {
+            "D": "Vo/Vin",
+            "dI": "(Vin-Vo)*D/(f*L)"
+          },
+          "prompt": "A buck converter: {{Vin|V}} in, {{Vo|V}} out, $f_{sw}$ = {{f|Hz}}, $L$ = {{L|H}}. Find the peak-to-peak inductor ripple current.",
+          "answer": "dI",
+          "unit": "A",
+          "explanation": "$D = V_{out}/V_{in}$ = {{D||3}}. During the on-time $DT$ the inductor sees $V_{in} - V_{out}$: $\\Delta I = \\frac{(V_{in} - V_{out})D}{f_{sw}L}$ = {{Vin-Vo||3}} V × {{D||3}} / ({{f|Hz}} × {{L|H}}) = **{{dI|A}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              12,
+              24,
+              48
+            ],
+            "Vo": [
+              3.3,
+              5
+            ],
+            "Io": [
+              1,
+              2,
+              3
+            ],
+            "eta": [
+              0.85,
+              0.9
+            ]
+          },
+          "prompt": "A buck converter delivers {{Vo|V}} at {{Io|A}} from {{Vin|V}} with an efficiency of {{eta*100}} %. What average current does it draw from the input?",
+          "answer": "Vo*Io/(eta*Vin)",
+          "unit": "A",
+          "explanation": "Power balance: $P_{in} = P_{out}/\\eta$ = {{Vo*Io|W}} / {{eta}} = {{Vo*Io/eta|W}}. $I_{in} = P_{in}/V_{in}$ = {{Vo*Io/eta|W}} / {{Vin|V}} = **{{Vo*Io/(eta*Vin)|A}}**, less than the output current. A linear regulator would draw the full {{Io|A}}."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              12,
+              24
+            ],
+            "Io": [
+              1,
+              2
+            ],
+            "eta": [
+              0.85,
+              0.9
+            ]
+          },
+          "prompt": "You need 5 V at {{Io|A}} from {{Vin|V}}.",
+          "ask": [
+            {
+              "prompt": "How much heat does a linear regulator produce?",
+              "answer": "(Vin-5)*Io",
+              "unit": "W",
+              "explanation": "$P = (V_{in} - V_{out})I$ = ({{Vin}} − 5) × {{Io}} = **{{(Vin-5)*Io|W}}**."
+            },
+            {
+              "prompt": "How much heat does a buck converter with {{eta*100}} % efficiency produce?",
+              "answer": "5*Io*(1/eta - 1)",
+              "unit": "W",
+              "explanation": "$P_{loss} = P_{out}(1/\\eta - 1)$ = {{5*Io|W}} × (1/{{eta}} − 1) = **{{5*Io*(1/eta-1)|W}}**, versus {{(Vin-5)*Io|W}} for a linear regulator."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "slider",
+          "params": {
+            "Vin": [
+              12,
+              24
+            ],
+            "Vo": [
+              3.3,
+              5,
+              9
+            ]
+          },
+          "require": "0.8*Vin - Vo",
+          "prompt": "The graph shows the switch-node voltage of a buck converter ({{Vin|V}} input) and its average, which the LC filter passes to the output. Set the duty cycle for $V_{out}$ = {{Vo|V}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t / T"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.15*Vin",
+              "label": "v_sw",
+              "unit": "V"
+            },
+            "sliders": [
+              {
+                "name": "D",
+                "label": "$D$",
+                "min": 0.05,
+                "max": 0.95,
+                "step": 0.01,
+                "value": 0.5
+              }
+            ],
+            "curves": [
+              {
+                "f": "Vin*step(D - mod(x, 1))",
+                "color": "grey"
+              },
+              {
+                "f": "D*Vin",
+                "color": "orange",
+                "label": "average",
+                "labelAt": 0.9
+              }
+            ],
+            "hlines": [
+              {
+                "y": "Vo",
+                "label": "{{Vo|V}}",
+                "reveal": true
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$V_{out}$",
+                "value": "D*Vin",
+                "unit": "V"
+              }
+            ]
+          },
+          "answer": {
+            "D": "Vo/Vin"
+          },
+          "tolerance": 0.03,
+          "explanation": "The LC filter passes the average of the switch-node square wave: $V_{out} = DV_{in}$, so $D$ = {{Vo}} / {{Vin}} = **{{Vo/Vin||2}}**. In a real converter the control loop adjusts $D$ continuously to hold $V_{out}$ against input and load changes."
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "prompt": "What is the main reason switching regulators are 'noisy' compared to linear regulators?",
+          "options": [
+            "Fast voltage and current edges at the switching frequency and its harmonics",
+            "The thermal noise of the inductor's winding resistance",
+            "The shot noise of the reference diode",
+            "The 100 Hz ripple of the rectifier"
+          ],
+          "answer": 0,
+          "explanation": "The switch slams the node between 0 and $V_{in}$ in nanoseconds, and pulsed input/output currents flow through loops and capacitor ESR. This produces output ripple at $f_{sw}$, spikes at every edge, and conducted and radiated EMI up to high harmonics. Good layout, filtering and an LDO post-regulator tame it."
+        },
+        {
+          "id": "q9",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              3.3,
+              5
+            ],
+            "I": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "Ro": [
+              20,
+              50
+            ]
+          },
+          "prompt": "A charge-pump inverter runs from {{Vin|V}}. It behaves like an ideal $-V_{in}$ source with an output resistance of {{Ro|Ω}}. What is $V_{out}$ (with sign) at a load current of {{I|A}}?",
+          "answer": "-(Vin - I*Ro)",
+          "unit": "V",
+          "explanation": "$V_{out} = -(V_{in} - I R_{out})$ = −({{Vin}} − {{I|A}} × {{Ro|Ω}}) = −({{Vin}} − {{I*Ro}}) = **{{-(Vin-I*Ro)|V}}**. Charge pumps are simple and inductor-free but only suit small currents."
+        }
+      ]
+    },
+    {
+      "id": "ae-power-4",
+      "title": "Power supply design",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vo": [
+              5,
+              9,
+              12,
+              15
+            ],
+            "dV": [
+              1,
+              2,
+              3
+            ],
+            "I": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "Vpk": "Vo + 2.5 + dV",
+            "Vr": "(Vo + 2.5 + dV + 1.4)/(0.9*sqrt(2))"
+          },
+          "prompt": "Design a supply: an LM317 (needs 2.5 V headroom) delivers {{Vo|V}} at {{I|A}}. You allow {{dV|V}} ripple on the bridge-rectified (0.7 V diodes) reservoir capacitor, and the mains can be 10 % low.",
+          "ask": [
+            {
+              "prompt": "What reservoir capacitance do you need (50 Hz mains)?",
+              "answer": "I/(100*dV)",
+              "unit": "F",
+              "explanation": "$C = \\frac{I}{f_r\\Delta V}$ = {{I|A}} / (100 Hz × {{dV|V}}) = **{{I/(100*dV)|F}}**."
+            },
+            {
+              "prompt": "What is the minimum transformer secondary voltage (rms, at nominal mains)?",
+              "answer": "Vr",
+              "unit": "V",
+              "explanation": "The valley must stay above {{Vo}} + 2.5 = {{Vo+2.5|V}}, so the peak must be {{Vpk|V}}, plus 1.4 V for the bridge: {{Vpk+1.4|V}} at low mains. At nominal mains: $V_{rms} = \\frac{ {{Vpk+1.4}} }{0.9\\sqrt2}$ = **{{Vr|V}}**. Then choose the next standard value up."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vr": [
+              12,
+              15,
+              18
+            ],
+            "dV": [
+              1,
+              2
+            ],
+            "I": [
+              0.5,
+              1
+            ]
+          },
+          "derived": {
+            "Vav": "1.1*sqrt(2)*Vr - 1.4 - dV/2",
+            "P": "(Vav - 5)*I"
+          },
+          "prompt": "A 5 V linear regulator at {{I|A}} is fed from a {{Vr}} V rms secondary with a bridge (0.7 V diodes) and {{dV|V}} ripple. Mains can be 10 % high.",
+          "ask": [
+            {
+              "prompt": "Estimate the average input voltage at high mains.",
+              "answer": "Vav",
+              "unit": "V",
+              "explanation": "Peak: 1.1 × √2 × {{Vr}} − 1.4 = {{1.1*sqrt(2)*Vr-1.4|V}}. The average sits about half the ripple below: {{1.1*sqrt(2)*Vr-1.4|V}} − {{dV/2|V}} = **{{Vav|V}}**."
+            },
+            {
+              "prompt": "Estimate the regulator's worst-case dissipation.",
+              "answer": "P",
+              "unit": "W",
+              "explanation": "Average input at high mains ≈ 1.1 × √2 × {{Vr}} − 1.4 − {{dV/2}} = {{Vav|V}}. $P = (V_{in} - V_{out})I$ = ({{Vav||3}} − 5) × {{I}} = **{{P|W}}**. Size the heat sink for this, not for nominal mains."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Q": [
+              2,
+              5,
+              7
+            ],
+            "I": [
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "prompt": "A 12 V, {{Q}} Ah battery powers a 3.3 V load drawing {{I|A}}.",
+          "ask": [
+            {
+              "prompt": "How many hours does it last with a linear regulator?",
+              "answer": "Q/I",
+              "unit": "h",
+              "explanation": "A linear regulator draws the load current from the battery: $t = Q/I$ = {{Q}} Ah / {{I|A}} = **{{Q/I}} h**."
+            },
+            {
+              "prompt": "How many hours does it last with a 90 %-efficient buck converter?",
+              "answer": "Q/(3.3*I/(0.9*12))",
+              "unit": "h",
+              "explanation": "Input current $I_{in} = \\frac{V_{out}I}{\\eta V_{in}}$ = 3.3 × {{I}} / (0.9 × 12) = {{3.3*I/10.8|A}}. $t = Q/I_{in}$ = {{Q}} Ah / {{3.3*I/10.8|A}} = **{{Q*10.8/(3.3*I)||3}} h**, {{10.8/3.3||3}}× longer than with the linear regulator."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              5,
+              12
+            ],
+            "k": [
+              2,
+              3
+            ],
+            "Io": [
+              0.2,
+              0.5,
+              1
+            ],
+            "f": [
+              200000,
+              500000
+            ],
+            "L": [
+              1e-05,
+              2.2e-05
+            ]
+          },
+          "derived": {
+            "Vo": "k*Vin",
+            "D": "1 - 1/k",
+            "Iin": "k*Io",
+            "dI": "Vin*(1-1/k)/(f*L)"
+          },
+          "prompt": "A lossless boost converter (continuous inductor current) makes {{Vo|V}} at {{Io|A}} from {{Vin|V}}; $f_{sw}$ = {{f|Hz}}, $L$ = {{L|H}}.",
+          "ask": [
+            {
+              "prompt": "What is the duty cycle (in %)?",
+              "answer": "100*D",
+              "unit": "%",
+              "explanation": "$V_{out} = \\frac{V_{in}}{1-D}$ → $D = 1 - \\frac{V_{in}}{V_{out}}$ = 1 − {{Vin}}/{{Vo}} = **{{100*D|%}}**."
+            },
+            {
+              "prompt": "What is the average inductor (= input) current?",
+              "answer": "Iin",
+              "unit": "A",
+              "explanation": "Lossless: $V_{in}I_{in} = V_{out}I_{out}$ → $I_{in}$ = {{Vo}} × {{Io}} / {{Vin}} = **{{Iin|A}}**."
+            },
+            {
+              "prompt": "What is the peak inductor current (average plus half the ripple)?",
+              "answer": "Iin + dI/2",
+              "unit": "A",
+              "explanation": "$D$ = 1 − {{Vin}}/{{Vo}} = {{D||3}}. Average $I_L$ = {{Vo}} × {{Io}} / {{Vin}} = {{Iin|A}}. Ripple: $\\Delta I = \\frac{V_{in}D}{f_{sw}L}$ = {{Vin}} × {{D||3}} / ({{f|Hz}} × {{L|H}}) = {{dI|A}}. Peak = {{Iin|A}} + {{dI/2|A}} = **{{Iin+dI/2|A}}**. The switch and inductor must handle this without saturating."
+            }
+          ],
+          "require": "Iin - 0.6*dI"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vin": [
+              12,
+              24
+            ],
+            "Vo": [
+              3.3,
+              5
+            ],
+            "Io": [
+              1,
+              2,
+              4
+            ],
+            "f": [
+              200000,
+              500000
+            ]
+          },
+          "derived": {
+            "D": "Vo/Vin",
+            "L": "(Vin-Vo)*D/(f*0.3*Io)"
+          },
+          "prompt": "Choose the inductor of a {{Vin|V}} to {{Vo|V}} buck converter ({{Io|A}}, $f_{sw}$ = {{f|Hz}}) so the ripple current is 30 % of the output current.",
+          "answer": "L",
+          "unit": "H",
+          "explanation": "$\\Delta I$ = 0.3 × {{Io|A}} = {{0.3*Io|A}}, $D$ = {{Vo}}/{{Vin}} = {{D||3}}. $L = \\frac{(V_{in} - V_{out})D}{f_{sw}\\Delta I}$ = {{Vin-Vo||3}} × {{D||3}} / ({{f|Hz}} × {{0.3*Io|A}}) = **{{L|H}}**. Higher $f_{sw}$ allows a smaller inductor (at the cost of switching losses)."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps of designing a linear bench supply in order",
+          "items": [
+            "Fix output voltage, current and the regulator's dropout",
+            "Choose the allowed ripple and calculate the reservoir capacitor",
+            "Calculate the transformer voltage (low mains, diode drops)",
+            "Calculate worst-case dissipation (high mains)",
+            "Choose the heat sink from the thermal resistance chain"
+          ],
+          "explanation": "Work backwards from the load: output and dropout set the minimum input; ripple sets $C$; the valley requirement at low mains sets the transformer; then high mains gives the worst-case dissipation, which sizes the heat sink."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each requirement to the best supply solution",
+          "pairs": [
+            [
+              "Low-noise ±15 V rails for an audio preamp, from mains",
+              "Transformer, bridge and linear regulators"
+            ],
+            [
+              "3.3 V at 10 mA from a 5 V USB supply",
+              "Simple LDO"
+            ],
+            [
+              "3.3 V at 3 A from a 48 V bus",
+              "Buck converter"
+            ],
+            [
+              "−5 V at 10 mA from a +5 V rail",
+              "Charge-pump inverter"
+            ]
+          ],
+          "explanation": "- A classic linear supply has no switching noise at all, and at preamp currents its dissipation is small.\n- 5 V to 3.3 V at 10 mA: an LDO wastes only 17 mW; a switcher would be overkill.\n- 48 V to 3.3 V at 3 A: a linear regulator would burn 134 W; only a buck converter makes sense.\n- A small negative rail at low current: a charge pump needs no inductor."
+        }
+      ]
+    }
+  ]
+}

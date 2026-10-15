@@ -1,0 +1,824 @@
+{
+  "id": "it-blockcodes",
+  "title": "Linear Block Codes",
+  "description": "Encode with generator matrices, decode with syndromes, and see what minimum distance buys in error probability.",
+  "reference": "Lin & Costello §3.1–3.5; ch. 1, 4",
+  "study": [
+    {
+      "title": "Linear block codes",
+      "body": "An $(n, k)$ block code turns every $k$-bit message into an $n$-bit codeword; the $n - k$ extra bits are redundancy and the **code rate** is $R = k/n$. The code is **linear** when the XOR (bitwise modulo-2 sum) of any two codewords is again a codeword. Then the all-zero word is a codeword, there are $2^k$ codewords, and the whole code is described by a small matrix instead of a table.",
+      "formula": "R = \\frac{k}{n}"
+    },
+    {
+      "title": "Generator matrix and systematic form",
+      "body": "Codewords are $\\mathbf c = \\mathbf m G$ (modulo 2). In **systematic** form $G = [I_k \\mid P]$: the codeword is the message followed by $n - k$ parity bits. The (7,4) Hamming code used in this unit sends $m_1m_2m_3m_4\\,p_1p_2p_3$ with $p_1 = m_1\\oplus m_2\\oplus m_3$, $p_2 = m_2\\oplus m_3\\oplus m_4$, $p_3 = m_1\\oplus m_2\\oplus m_4$. (Lin & Costello put the parity bits first; the idea is the same.)",
+      "formula": "G = \\begin{bmatrix} 1&0&0&0&1&0&1\\\\ 0&1&0&0&1&1&1\\\\ 0&0&1&0&1&1&0\\\\ 0&0&0&1&0&1&1\\end{bmatrix}"
+    },
+    {
+      "title": "Parity-check matrix and syndrome",
+      "body": "The parity-check matrix $H = [P^T \\mid I_{n-k}]$ has one row per parity equation, and $\\mathbf cH^T = \\mathbf 0$ for every codeword. For a received word $\\mathbf r = \\mathbf c \\oplus \\mathbf e$ the **syndrome** $\\mathbf s = \\mathbf rH^T = \\mathbf eH^T$ depends only on the error pattern. A single error in position $j$ gives the $j$-th column of $H$; in a Hamming code all columns are different and non-zero, so the syndrome points straight at the wrong bit.",
+      "formula": "H = \\begin{bmatrix} 1&1&1&0&1&0&0\\\\ 0&1&1&1&0&1&0\\\\ 1&1&0&1&0&0&1\\end{bmatrix}"
+    },
+    {
+      "title": "Worked example: (7,4) Hamming code",
+      "body": "Message 1101: $p_1$ = 1⊕1⊕0 = 0, $p_2$ = 1⊕0⊕1 = 0, $p_3$ = 1⊕1⊕1 = 1, so $\\mathbf c$ = 1101001.\n- Bit 3 is flipped on the way: $\\mathbf r$ = 1111001.\n- Syndrome: $s_1 = r_1\\oplus r_2\\oplus r_3\\oplus r_5$ = 1, $s_2 = r_2\\oplus r_3\\oplus r_4\\oplus r_6$ = 1, $s_3 = r_1\\oplus r_2\\oplus r_4\\oplus r_7$ = 0.\n- $\\mathbf s$ = 110 is column 3 of $H$: flip bit 3 to get 1101001 back, message 1101."
+    },
+    {
+      "title": "Minimum distance and error control",
+      "body": "The **Hamming distance** between two words is the number of positions where they differ; the **weight** of a word is its number of 1s. For a linear code the minimum distance $d_{min}$ equals the smallest weight of a non-zero codeword. A code can **detect** any $d_{min} - 1$ errors, or **correct** any $t = \\lfloor (d_{min}-1)/2\\rfloor$ errors. The (7,4) Hamming code has $d_{min}$ = 3: it detects 2 errors or corrects 1.",
+      "formula": "t = \\Big\\lfloor \\frac{d_{min} - 1}{2}\\Big\\rfloor"
+    },
+    {
+      "title": "Block error probability",
+      "body": "On a BSC with bit error probability $p$, a code that corrects $t$ errors fails only if more than $t$ of the $n$ bits are wrong. Example at $p$ = 0.01: four uncoded bits contain an error with probability $1 - 0.99^4$ = 3.9 %, but a (7,4) Hamming codeword fails with only $1 - 0.99^7 - 7\\cdot 0.01\\cdot 0.99^6$ = 0.20 %. The price: 7 channel bits for 4 data bits.",
+      "formula": "P_E = 1 - \\sum_{i=0}^{t}\\binom{n}{i}p^i(1-p)^{n-i}"
+    },
+    {
+      "title": "Explore: coding gain",
+      "body": "Coding costs energy too: at the same energy per **information** bit $E_b$, each channel bit only gets $E_c = RE_b$, so it arrives wrong more often. The code wins only once it corrects more than that loss. For the (7,4) Hamming code with hard decisions the curves cross near 2.4 dB, and the gain at BER $10^{-5}$ is about 0.6 dB. Soft-decision decoding gains more; the asymptotic gain is $10\\log_{10}(Rd_{min})$ = 2.3 dB for soft and about $10\\log_{10}(R(t+1))$ = 0.6 dB for hard decisions. Drag $E_b/N_0$ (coded curve: approximate bit error rate after decoding).",
+      "formula": "\\begin{aligned} E_c &= R\\,E_b\\\\ G_{soft} &\\approx 10\\log_{10}(R\\,d_{min})\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 12,
+          "label": "E_b/N_0 (dB)"
+        },
+        "y": {
+          "min": 1e-08,
+          "max": 0.5,
+          "label": "bit error rate",
+          "log": true
+        },
+        "height": 230,
+        "sliders": [
+          {
+            "name": "g",
+            "label": "$E_b/N_0$",
+            "min": 0,
+            "max": 12,
+            "step": 0.1,
+            "value": 9,
+            "unit": "dB"
+          }
+        ],
+        "curves": [
+          {
+            "f": "Q(sqrt(2*10^(x/10)))"
+          },
+          {
+            "f": "sum(i, 2, 7, i/7*choose(7, i)*Q(sqrt(8/7*10^(x/10)))^i*(1 - Q(sqrt(8/7*10^(x/10))))^(7-i))",
+            "color": "blue"
+          }
+        ],
+        "points": [
+          {
+            "x": "g",
+            "y": "Q(sqrt(2*10^(g/10)))",
+            "guides": false
+          },
+          {
+            "x": "g",
+            "y": "sum(i, 2, 7, i/7*choose(7, i)*Q(sqrt(8/7*10^(g/10)))^i*(1 - Q(sqrt(8/7*10^(g/10))))^(7-i))",
+            "color": "blue",
+            "guides": false
+          }
+        ],
+        "readouts": [
+          {
+            "label": "uncoded BER",
+            "value": "Q(sqrt(2*10^(g/10)))"
+          },
+          {
+            "label": "Hamming (7,4), hard decisions",
+            "value": "sum(i, 2, 7, i/7*choose(7, i)*Q(sqrt(8/7*10^(g/10)))^i*(1 - Q(sqrt(8/7*10^(g/10))))^(7-i))"
+          }
+        ],
+        "labels": [
+          {
+            "x": 9.3,
+            "y": 0.001,
+            "text": "uncoded",
+            "color": "primary"
+          },
+          {
+            "x": 2.4,
+            "y": 0.0001,
+            "text": "Hamming (7,4)",
+            "color": "blue"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "it-blockcodes-1",
+      "title": "Generator and parity-check matrices",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Adding redundancy",
+          "body": "A block code maps each block of $k$ message bits to a codeword of $n > k$ bits. The extra $n - k$ bits let the receiver detect or correct errors. The **code rate** $R = k/n$ is the fraction of transmitted bits that carry information.",
+          "formula": "R = \\frac{k}{n}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "i": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "derived": {
+            "n": "if(0.5 - i, 7, if(1.5 - i, 15, if(2.5 - i, 31, if(3.5 - i, 63, if(4.5 - i, 23, 24)))))",
+            "k": "if(0.5 - i, 4, if(1.5 - i, 11, if(2.5 - i, 26, if(3.5 - i, 57, 12))))"
+          },
+          "prompt": "A ({{n}}, {{k}}) block code is used.",
+          "ask": [
+            {
+              "prompt": "What is its code rate?",
+              "answer": "k/n",
+              "unit": "",
+              "explanation": "$R = k/n$ = {{k}}/{{n}} = **{{k/n||3}}**: {{100*k/n||3}} % of the transmitted bits are message bits."
+            },
+            {
+              "prompt": "By what percentage does coding increase the number of transmitted bits?",
+              "answer": "100*(n - k)/k",
+              "unit": "%",
+              "explanation": "{{n-k}} parity bits for every {{k}} message bits: ({{n}} − {{k}})/{{k}} = **{{100*(n - k)/k||3}} %** more bits on the channel."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Encoding with a generator matrix",
+          "body": "The (7,4) Hamming code appends three parity bits to the message $m_1m_2m_3m_4$; each is the XOR of three message bits. In matrix form $\\mathbf c = \\mathbf mG$ with $G = [I_4 \\mid P]$, all arithmetic modulo 2.",
+          "formula": "p_1 = m_1\\oplus m_2\\oplus m_3,\\ p_2 = m_2\\oplus m_3\\oplus m_4,\\ p_3 = m_1\\oplus m_2\\oplus m_4"
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "m": {
+              "min": 0,
+              "max": 15,
+              "step": 1
+            }
+          },
+          "derived": {
+            "p1": "mod(bit(m,3) + bit(m,2) + bit(m,1), 2)",
+            "p2": "mod(bit(m,2) + bit(m,1) + bit(m,0), 2)",
+            "p3": "mod(bit(m,3) + bit(m,2) + bit(m,0), 2)",
+            "c": "8*m + 4*p1 + 2*p2 + p3"
+          },
+          "require": "abs(bit(m,1) - bit(m,0))",
+          "prompt": "Encode the message **{{m|bin|4}}** with the (7,4) Hamming code $p_1 = m_1\\oplus m_2\\oplus m_3$, $p_2 = m_2\\oplus m_3\\oplus m_4$, $p_3 = m_1\\oplus m_2\\oplus m_4$ (codeword $m_1m_2m_3m_4p_1p_2p_3$).",
+          "options": [
+            "{{c|bin|7}}",
+            "{{8*m + 4*p3 + 2*p2 + p1|bin|7}}",
+            "{{8*m + 7 - (4*p1 + 2*p2 + p3)|bin|7}}",
+            "{{8*m + 4*p1 + 2*p2 + 1 - p3|bin|7}}"
+          ],
+          "answer": 0,
+          "explanation": "$p_1$ = {{bit(m,3)}}⊕{{bit(m,2)}}⊕{{bit(m,1)}} = {{p1}}, $p_2$ = {{bit(m,2)}}⊕{{bit(m,1)}}⊕{{bit(m,0)}} = {{p2}}, $p_3$ = {{bit(m,3)}}⊕{{bit(m,2)}}⊕{{bit(m,0)}} = {{p3}}. Codeword: **{{c|bin|7}}**, the message followed by the parity bits."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Checking with the parity-check matrix",
+          "body": "Each row of $H$ is one parity equation, e.g. row 1: $m_1\\oplus m_2\\oplus m_3\\oplus p_1 = 0$. Every codeword satisfies all of them: $\\mathbf cH^T = \\mathbf 0$. For a received word, $\\mathbf s = \\mathbf rH^T$ is the **syndrome**; a non-zero syndrome means errors.",
+          "formula": "H = \\begin{bmatrix} 1&1&1&0&1&0&0\\\\ 0&1&1&1&0&1&0\\\\ 1&1&0&1&0&0&1\\end{bmatrix}"
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "params": {
+            "m": {
+              "min": 0,
+              "max": 15,
+              "step": 1
+            },
+            "f": [
+              0,
+              1
+            ],
+            "j": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          },
+          "derived": {
+            "p1": "mod(bit(m,3) + bit(m,2) + bit(m,1), 2)",
+            "p2": "mod(bit(m,2) + bit(m,1) + bit(m,0), 2)",
+            "p3": "mod(bit(m,3) + bit(m,2) + bit(m,0), 2)",
+            "c": "8*m + 4*p1 + 2*p2 + p3",
+            "r": "xor(c, f*2^(7-j))",
+            "s1": "mod(bit(r,6) + bit(r,5) + bit(r,4) + bit(r,2), 2)",
+            "s2": "mod(bit(r,5) + bit(r,4) + bit(r,3) + bit(r,1), 2)",
+            "s3": "mod(bit(r,6) + bit(r,5) + bit(r,3) + bit(r,0), 2)",
+            "s": "4*s1 + 2*s2 + s3"
+          },
+          "prompt": "The received word **{{r|bin|7}}** is a valid codeword of the (7,4) Hamming code with $p_1 = m_1\\oplus m_2\\oplus m_3$, $p_2 = m_2\\oplus m_3\\oplus m_4$, $p_3 = m_1\\oplus m_2\\oplus m_4$.",
+          "answer": "0.5 - s",
+          "explanation": "Syndrome: $s_1 = r_1\\oplus r_2\\oplus r_3\\oplus r_5$ = {{s1}}, $s_2 = r_2\\oplus r_3\\oplus r_4\\oplus r_6$ = {{s2}}, $s_3 = r_1\\oplus r_2\\oplus r_4\\oplus r_7$ = {{s3}}. $\\mathbf s$ = {{s|bin|3}}: all-zero means a valid codeword, anything else means at least one bit is wrong."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "i": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "n": "if(0.5 - i, 6, if(1.5 - i, 7, if(2.5 - i, 8, 15)))",
+            "k": "if(0.5 - i, 3, if(1.5 - i, 4, if(2.5 - i, 4, 11)))"
+          },
+          "prompt": "How many different codewords does a ({{n}}, {{k}}) linear block code have?",
+          "answer": "2^k",
+          "unit": "",
+          "explanation": "One codeword per message: $2^k = 2^{ {{k}} }$ = **{{2^k||6}}**, out of $2^{ {{n}} }$ = {{2^n||6}} possible {{n}}-bit words. The other words are what errors can turn a codeword into."
+        }
+      ]
+    },
+    {
+      "id": "it-blockcodes-2",
+      "title": "Distance and error control",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Hamming distance and weight",
+          "body": "The **Hamming distance** $d(\\mathbf a, \\mathbf b)$ counts the positions where two words differ: XOR them and count the 1s. The **weight** $w(\\mathbf a)$ is the number of 1s, i.e. the distance to the all-zero word.",
+          "formula": "d(\\mathbf a, \\mathbf b) = w(\\mathbf a\\oplus\\mathbf b)"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0,
+              "max": 255,
+              "step": 1
+            },
+            "b": {
+              "min": 0,
+              "max": 255,
+              "step": 1
+            }
+          },
+          "require": "abs(a - b)",
+          "prompt": "What is the Hamming distance between **{{a|bin|8}}** and **{{b|bin|8}}**?",
+          "answer": "popcount(xor(a, b))",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "XOR: {{a|bin|8}} ⊕ {{b|bin|8}} = {{xor(a, b)|bin|8}}, which contains **{{popcount(xor(a, b))}}** ones: the words differ in {{popcount(xor(a, b))}} positions."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "What the minimum distance buys",
+          "body": "If all codewords differ in at least $d_{min}$ positions, then up to $d_{min} - 1$ errors can never turn one codeword into another, so they are **detected**. If at most $t = \\lfloor(d_{min}-1)/2\\rfloor$ errors occur, the received word is still closer to the sent codeword than to any other, so the decoder can **correct** them. For a linear code, $d_{min}$ is the smallest weight of a non-zero codeword.",
+          "formula": "\\text{detect } d_{min}-1,\\qquad \\text{correct } \\Big\\lfloor\\frac{d_{min}-1}{2}\\Big\\rfloor"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "d": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              11
+            ]
+          },
+          "prompt": "A block code has a minimum distance of {{d}}.",
+          "ask": [
+            {
+              "prompt": "How many bit errors per codeword can it always detect?",
+              "answer": "d - 1",
+              "unit": "",
+              "tolerance": 0,
+              "absTolerance": 0.4,
+              "explanation": "Fewer than $d_{min}$ errors can never produce another codeword: it detects **{{d - 1}}** errors."
+            },
+            {
+              "prompt": "How many bit errors per codeword can it always correct?",
+              "answer": "floor((d - 1)/2)",
+              "unit": "",
+              "tolerance": 0,
+              "absTolerance": 0.4,
+              "explanation": "$t = \\lfloor({{d}} - 1)/2\\rfloor$ = **{{floor((d - 1)/2)}}**: the received word must stay closer to the right codeword than to any other."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "w1": {
+              "min": 1,
+              "max": 63,
+              "step": 1
+            },
+            "w2": {
+              "min": 1,
+              "max": 63,
+              "step": 1
+            }
+          },
+          "require": "min(abs(w1 - w2), min(popcount(w1), popcount(w2)) - 1.5)",
+          "prompt": "A linear code has the four codewords 000000, {{w1|bin|6}}, {{w2|bin|6}} and {{xor(w1, w2)|bin|6}}. What is its minimum distance?",
+          "answer": "min(min(popcount(w1), popcount(w2)), popcount(xor(w1, w2)))",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "For a linear code $d_{min}$ is the smallest weight of a non-zero codeword: the weights are {{popcount(w1)}}, {{popcount(w2)}} and {{popcount(xor(w1, w2))}}, so $d_{min}$ = **{{min(min(popcount(w1), popcount(w2)), popcount(xor(w1, w2)))}}**. (Checking all pairs of codewords gives the same answer, because the distance between two codewords is the weight of their XOR, another codeword.)"
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each code to its minimum distance.",
+          "pairs": [
+            [
+              "Uncoded data",
+              "1"
+            ],
+            [
+              "Single parity bit",
+              "2"
+            ],
+            [
+              "Hamming (7,4)",
+              "3"
+            ],
+            [
+              "Extended Hamming (8,4)",
+              "4"
+            ],
+            [
+              "Repetition code (5,1)",
+              "5"
+            ]
+          ],
+          "explanation": "Without coding, flipping one bit gives another valid word ($d$ = 1). A parity bit makes every two valid words differ in at least 2 bits; the Hamming code reaches 3, one extra overall parity bit makes it 4, and repeating a bit 5 times gives 5."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "What can a code with $d_{min}$ = 4 guarantee?",
+          "options": [
+            "Correct any single error, or detect up to 3 errors",
+            "Correct any 2 errors",
+            "Detect up to 4 errors",
+            "Correct any 3 errors"
+          ],
+          "answer": 0,
+          "explanation": "$t = \\lfloor 3/2\\rfloor$ = 1 correctable error, or $d_{min} - 1$ = 3 detectable errors. Two errors may land exactly halfway between two codewords (distance 2 from both), so they can be detected but not corrected."
+        }
+      ]
+    },
+    {
+      "id": "it-blockcodes-3",
+      "title": "Syndrome decoding",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Decoding a Hamming code",
+          "body": "Compute the syndrome of the received word. If it is zero, accept the word. Otherwise find the column of $H$ equal to the syndrome: that is the position of the (single) error. Flip that bit and read off the message.",
+          "formula": "H = \\begin{bmatrix} 1&1&1&0&1&0&0\\\\ 0&1&1&1&0&1&0\\\\ 1&1&0&1&0&0&1\\end{bmatrix}"
+        },
+        {
+          "id": "q1",
+          "type": "orderSteps",
+          "prompt": "Put the steps of syndrome decoding for the (7,4) Hamming code in order.",
+          "items": [
+            "Compute the syndrome $\\mathbf s = \\mathbf rH^T$",
+            "If $\\mathbf s = \\mathbf 0$, accept the word as it is",
+            "Otherwise find the column of $H$ that equals $\\mathbf s$",
+            "Flip the bit in that position",
+            "Take the first four bits as the message"
+          ],
+          "explanation": "The syndrome depends only on the error pattern. For one error it equals the column of $H$ at the error position, so a lookup replaces a search through all 16 codewords."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "m": {
+              "min": 0,
+              "max": 15,
+              "step": 1
+            },
+            "j": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          },
+          "derived": {
+            "p1": "mod(bit(m,3) + bit(m,2) + bit(m,1), 2)",
+            "p2": "mod(bit(m,2) + bit(m,1) + bit(m,0), 2)",
+            "p3": "mod(bit(m,3) + bit(m,2) + bit(m,0), 2)",
+            "c": "8*m + 4*p1 + 2*p2 + p3",
+            "r": "xor(c, 2^(7-j))",
+            "s1": "mod(bit(r,6) + bit(r,5) + bit(r,4) + bit(r,2), 2)",
+            "s2": "mod(bit(r,5) + bit(r,4) + bit(r,3) + bit(r,1), 2)",
+            "s3": "mod(bit(r,6) + bit(r,5) + bit(r,3) + bit(r,0), 2)",
+            "s": "4*s1 + 2*s2 + s3"
+          },
+          "prompt": "With the (7,4) Hamming code below, the word **{{r|bin|7}}** is received (at most one bit is wrong). Which position (1 = leftmost) is in error?\n$$H = \\begin{bmatrix} 1&1&1&0&1&0&0\\\\ 0&1&1&1&0&1&0\\\\ 1&1&0&1&0&0&1\\end{bmatrix}$$",
+          "answer": "j",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "$s_1 = r_1\\oplus r_2\\oplus r_3\\oplus r_5$ = {{s1}}, $s_2 = r_2\\oplus r_3\\oplus r_4\\oplus r_6$ = {{s2}}, $s_3 = r_1\\oplus r_2\\oplus r_4\\oplus r_7$ = {{s3}}. The syndrome {{s|bin|3}} equals column **{{j}}** of $H$, so bit {{j}} is wrong; the corrected word is {{c|bin|7}}."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "m": {
+              "min": 0,
+              "max": 15,
+              "step": 1
+            },
+            "j": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          },
+          "derived": {
+            "p1": "mod(bit(m,3) + bit(m,2) + bit(m,1), 2)",
+            "p2": "mod(bit(m,2) + bit(m,1) + bit(m,0), 2)",
+            "p3": "mod(bit(m,3) + bit(m,2) + bit(m,0), 2)",
+            "c": "8*m + 4*p1 + 2*p2 + p3",
+            "r": "xor(c, 2^(7-j))",
+            "s1": "mod(bit(r,6) + bit(r,5) + bit(r,4) + bit(r,2), 2)",
+            "s2": "mod(bit(r,5) + bit(r,4) + bit(r,3) + bit(r,1), 2)",
+            "s3": "mod(bit(r,6) + bit(r,5) + bit(r,3) + bit(r,0), 2)",
+            "s": "4*s1 + 2*s2 + s3"
+          },
+          "prompt": "The word **{{r|bin|7}}** is received. What is its syndrome $(s_1s_2s_3)$ for the (7,4) Hamming code ($p_1 = m_1\\oplus m_2\\oplus m_3$, $p_2 = m_2\\oplus m_3\\oplus m_4$, $p_3 = m_1\\oplus m_2\\oplus m_4$)?",
+          "options": [
+            "{{s|bin|3}}",
+            "{{(4*bit(116, 7-(mod(j, 7) + 1)) + 2*bit(58, 7-(mod(j, 7) + 1)) + bit(105, 7-(mod(j, 7) + 1)))|bin|3}}",
+            "{{(4*bit(116, 7-(mod(j + 1, 7) + 1)) + 2*bit(58, 7-(mod(j + 1, 7) + 1)) + bit(105, 7-(mod(j + 1, 7) + 1)))|bin|3}}",
+            "000"
+          ],
+          "answer": 0,
+          "explanation": "Recompute each parity check including the received parity bit: $s_1 = r_1\\oplus r_2\\oplus r_3\\oplus r_5$ = {{s1}}, $s_2 = r_2\\oplus r_3\\oplus r_4\\oplus r_6$ = {{s2}}, $s_3 = r_1\\oplus r_2\\oplus r_4\\oplus r_7$ = {{s3}}: **{{s|bin|3}}**. It is non-zero, so the word contains an error (in position {{j}})."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "m": {
+              "min": 0,
+              "max": 15,
+              "step": 1
+            },
+            "j": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          },
+          "derived": {
+            "p1": "mod(bit(m,3) + bit(m,2) + bit(m,1), 2)",
+            "p2": "mod(bit(m,2) + bit(m,1) + bit(m,0), 2)",
+            "p3": "mod(bit(m,3) + bit(m,2) + bit(m,0), 2)",
+            "c": "8*m + 4*p1 + 2*p2 + p3",
+            "r": "xor(c, 2^(7-j))",
+            "s1": "mod(bit(r,6) + bit(r,5) + bit(r,4) + bit(r,2), 2)",
+            "s2": "mod(bit(r,5) + bit(r,4) + bit(r,3) + bit(r,1), 2)",
+            "s3": "mod(bit(r,6) + bit(r,5) + bit(r,3) + bit(r,0), 2)",
+            "s": "4*s1 + 2*s2 + s3"
+          },
+          "prompt": "The (7,4) Hamming code word **{{r|bin|7}}** is received with one bit error. What is the corrected codeword?",
+          "options": [
+            "{{c|bin|7}}",
+            "{{r|bin|7}}",
+            "{{xor(r, 2^(7 - (mod(j, 7) + 1)))|bin|7}}",
+            "{{xor(c, 2^(7 - (mod(j + 1, 7) + 1)))|bin|7}}"
+          ],
+          "answer": 0,
+          "explanation": "Syndrome: {{s1}}{{s2}}{{s3}}, which is column {{j}} of $H$. Flipping bit {{j}} gives **{{c|bin|7}}**. Check: its syndrome is 000."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "m": {
+              "min": 0,
+              "max": 15,
+              "step": 1
+            },
+            "j": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "p1": "mod(bit(m,3) + bit(m,2) + bit(m,1), 2)",
+            "p2": "mod(bit(m,2) + bit(m,1) + bit(m,0), 2)",
+            "p3": "mod(bit(m,3) + bit(m,2) + bit(m,0), 2)",
+            "c": "8*m + 4*p1 + 2*p2 + p3",
+            "r": "xor(c, 2^(7-j))",
+            "s1": "mod(bit(r,6) + bit(r,5) + bit(r,4) + bit(r,2), 2)",
+            "s2": "mod(bit(r,5) + bit(r,4) + bit(r,3) + bit(r,1), 2)",
+            "s3": "mod(bit(r,6) + bit(r,5) + bit(r,3) + bit(r,0), 2)",
+            "s": "4*s1 + 2*s2 + s3",
+            "j2": "mod(j, 4) + 1"
+          },
+          "prompt": "The (7,4) Hamming code word **{{r|bin|7}}** is received with one bit error. Which 4-bit message was sent?",
+          "options": [
+            "{{m|bin|4}}",
+            "{{xor(m, 2^(4 - j))|bin|4}}",
+            "{{xor(m, 2^(4 - j2))|bin|4}}"
+          ],
+          "answer": 0,
+          "explanation": "Syndrome {{s|bin|3}} = column {{j}} of $H$: bit {{j}} is wrong. Corrected word {{c|bin|7}}; the message is its first four bits, **{{m|bin|4}}**. Simply reading the first four received bits ({{xor(m, 2^(4 - j))|bin|4}}) would keep the error."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Syndrome decoding of the (7,4) Hamming code corrects every pattern of two bit errors.",
+          "answer": false,
+          "explanation": "False. $d_{min}$ = 3, so $t$ = 1. Two errors give the XOR of two columns of $H$, which is a third column: the decoder 'corrects' a bit that was right and ends with three errors. It cannot tell a double error from a single one."
+        }
+      ]
+    },
+    {
+      "id": "it-blockcodes-4",
+      "title": "Error probability and coding gain",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.001,
+              0.005,
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "Bits cross a BSC with error probability $p$ = {{p}}.",
+          "ask": [
+            {
+              "prompt": "What is the probability that a (7,4) Hamming codeword is decoded wrongly?",
+              "answer": "1 - sum(i, 0, 1, choose(7, i)*p^i*(1-p)^(7-i))",
+              "unit": "",
+              "explanation": "Decoding fails with 2 or more errors: $P_E = 1 - (1-p)^7 - 7p(1-p)^6$ = 1 − {{(1-p)^7||5}} − {{7*p*(1-p)^6||4}} = **{{1 - sum(i, 0, 1, choose(7, i)*p^i*(1-p)^(7-i))||3}}**."
+            },
+            {
+              "prompt": "For comparison: what is the probability that 4 uncoded bits contain an error?",
+              "answer": "1 - (1-p)^4",
+              "unit": "",
+              "explanation": "$1 - (1-p)^4$ = 1 − {{(1-p)^4||5}} = **{{1 - (1-p)^4||3}}**, against {{1 - sum(i, 0, 1, choose(7, i)*p^i*(1-p)^(7-i))||3}} for the Hamming codeword carrying the same 4 bits."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "n": [
+              3,
+              5,
+              7
+            ],
+            "p": [
+              0.01,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "Each bit is sent {{n}} times and the receiver takes a majority vote. The channel is a BSC with $p$ = {{p}}. What is the bit error probability after the vote?",
+          "answer": "sum(i, (n+1)/2, n, choose(n, i)*p^i*(1-p)^(n-i))",
+          "unit": "",
+          "explanation": "The vote fails when at least {{(n+1)/2}} of the {{n}} copies are wrong: $P_b = \\sum_{i={{(n+1)/2}}}^{ {{n}} }\\binom{ {{n}} }{i}p^i(1-p)^{ {{n}}-i}$ = **{{sum(i, (n+1)/2, n, choose(n, i)*p^i*(1-p)^(n-i))||3}}** (vs {{p}} uncoded), at a rate of only 1/{{n}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "n": [
+              7,
+              10,
+              15,
+              20,
+              31,
+              50
+            ]
+          },
+          "prompt": "Codewords have $n$ = {{n}} bits. Use the Hamming bound $2^{n-k} \\ge \\sum_{i=0}^{t}\\binom{n}{i}$: every correctable error pattern needs its own syndrome.",
+          "ask": [
+            {
+              "prompt": "How many message bits $k$ can a single-error-correcting code carry at most?",
+              "answer": "n - ceil(log2(n + 1))",
+              "unit": "",
+              "tolerance": 0,
+              "absTolerance": 0.4,
+              "explanation": "$t$ = 1: $2^{n-k} \\ge 1 + n$ = {{n + 1}}, so $n - k \\ge \\lceil\\log_2 {{n + 1}}\\rceil$ = {{ceil(log2(n + 1))}} and $k \\le$ **{{n - ceil(log2(n + 1))}}**. (Shortened) Hamming codes reach this bound."
+            },
+            {
+              "prompt": "What upper limit does the bound give for a double-error-correcting code?",
+              "answer": "n - ceil(log2(1 + n + n*(n-1)/2))",
+              "unit": "",
+              "tolerance": 0,
+              "absTolerance": 0.4,
+              "explanation": "$t$ = 2: $2^{n-k} \\ge 1 + n + \\binom{n}{2}$ = {{1 + n + n*(n-1)/2||5}}, so at least {{ceil(log2(1 + n + n*(n-1)/2))}} parity bits and $k \\le$ **{{n - ceil(log2(1 + n + n*(n-1)/2))}}**. Real double-error-correcting codes usually need a few more parity bits than this bound."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "j1": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "j2": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          },
+          "require": "j2 - j1",
+          "prompt": "A (7,4) Hamming codeword suffers **two** bit errors, in positions {{j1}} and {{j2}}. The decoder flips the bit that the syndrome points to. Which position does it flip?\n$$H = \\begin{bmatrix} 1&1&1&0&1&0&0\\\\ 0&1&1&1&0&1&0\\\\ 1&1&0&1&0&0&1\\end{bmatrix}$$",
+          "answer": "sum(k, 1, 7, k*if(0.5 - abs((4*bit(116, 7-(k)) + 2*bit(58, 7-(k)) + bit(105, 7-(k))) - (xor((4*bit(116, 7-(j1)) + 2*bit(58, 7-(j1)) + bit(105, 7-(j1))), (4*bit(116, 7-(j2)) + 2*bit(58, 7-(j2)) + bit(105, 7-(j2)))))), 1, 0))",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "The syndrome is the XOR of columns {{j1}} and {{j2}}: {{(4*bit(116, 7-(j1)) + 2*bit(58, 7-(j1)) + bit(105, 7-(j1)))|bin|3}} ⊕ {{(4*bit(116, 7-(j2)) + 2*bit(58, 7-(j2)) + bit(105, 7-(j2)))|bin|3}} = {{xor((4*bit(116, 7-(j1)) + 2*bit(58, 7-(j1)) + bit(105, 7-(j1))), (4*bit(116, 7-(j2)) + 2*bit(58, 7-(j2)) + bit(105, 7-(j2))))|bin|3}}, which is column **{{sum(k, 1, 7, k*if(0.5 - abs((4*bit(116, 7-(k)) + 2*bit(58, 7-(k)) + bit(105, 7-(k))) - (xor((4*bit(116, 7-(j1)) + 2*bit(58, 7-(j1)) + bit(105, 7-(j1))), (4*bit(116, 7-(j2)) + 2*bit(58, 7-(j2)) + bit(105, 7-(j2)))))), 1, 0))}}**. The decoder flips that correct bit and outputs a word with three errors."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "prompt": "The asymptotic coding gain with soft-decision decoding is about $10\\log_{10}(Rd_{min})$ dB.",
+          "ask": [
+            {
+              "prompt": "What is it for the (7,4) Hamming code ($d_{min}$ = 3)?",
+              "answer": "10*log10(4/7*3)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.05,
+              "explanation": "$R d_{min}$ = 4/7 × 3 = 1.714 → **{{10*log10(4/7*3)||3}} dB**."
+            },
+            {
+              "prompt": "What is it for the extended (8,4) Hamming code ($d_{min}$ = 4)?",
+              "answer": "10*log10(4/8*4)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.05,
+              "explanation": "$R d_{min}$ = 1/2 × 4 = 2 → **{{10*log10(2)||3}} dB**: the extra parity bit raises $d_{min}$ by more than it lowers the rate."
+            },
+            {
+              "prompt": "What is it for the (23,12) Golay code ($d_{min}$ = 7)?",
+              "answer": "10*log10(12/23*7)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.05,
+              "explanation": "$R d_{min}$ = 12/23 × 7 = 3.65 → **{{10*log10(12/23*7)||3}} dB**. Longer codes with larger $d_{min}$ give more gain."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "The graph shows the bit error rate of uncoded BPSK and of the (7,4) Hamming code with hard decisions, at the same energy per information bit. Below about 2.4 dB the coded curve lies slightly **above** the uncoded one. Why?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 7,
+              "label": "E_b/N_0 (dB)",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ]
+            },
+            "y": {
+              "min": 0.0001,
+              "max": 0.2,
+              "label": "bit error rate",
+              "log": true
+            },
+            "height": 230,
+            "curves": [
+              {
+                "f": "Q(sqrt(2*10^(x/10)))"
+              },
+              {
+                "f": "sum(i, 2, 7, i/7*choose(7, i)*Q(sqrt(8/7*10^(x/10)))^i*(1 - Q(sqrt(8/7*10^(x/10))))^(7-i))",
+                "color": "blue"
+              }
+            ],
+            "labels": [
+              {
+                "x": 3.6,
+                "y": 0.04,
+                "text": "uncoded",
+                "color": "primary"
+              },
+              {
+                "x": 2.6,
+                "y": 0.0025,
+                "text": "Hamming (7,4)",
+                "color": "blue"
+              }
+            ]
+          },
+          "options": [
+            "Each channel bit gets only 4/7 of $E_b$, so more channel bits are wrong than the code can correct",
+            "The decoder introduces errors even when the channel is error-free",
+            "Hamming codes only work above the Shannon limit of 0 dB",
+            "Parity bits are sent with less power than message bits"
+          ],
+          "answer": 0,
+          "explanation": "With $E_c = RE_b$ the raw error rate $Q(\\sqrt{2RE_b/N_0})$ is higher than uncoded. At low $E_b/N_0$ many codewords get 2 or more errors, which the code cannot fix (and may make worse). Only at higher $E_b/N_0$, where double errors are rare, does correction win: here beyond about 2.4 dB."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "params": {
+            "d": [
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "e": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "A block code with $d_{min}$ = {{d}} can correct every pattern of {{e}} bit error(s).",
+          "answer": "floor((d - 1)/2) - e + 0.5",
+          "explanation": "It corrects every pattern of up to $t = \\lfloor(d_{min} - 1)/2\\rfloor = \\lfloor({{d}} - 1)/2\\rfloor$ = **{{floor((d - 1)/2)}}** errors, and here the question is about {{e}}. Beyond $t$ errors the received word can be closer to another codeword."
+        }
+      ]
+    }
+  ]
+}

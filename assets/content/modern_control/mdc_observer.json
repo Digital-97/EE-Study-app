@@ -1,0 +1,1180 @@
+{
+  "id": "mdc-observer",
+  "title": "Observers & Compensators",
+  "description": "Estimate the states you cannot measure, then combine the estimator with state feedback into one compensator.",
+  "reference": "FPE §7.7–7.9",
+  "study": [
+    {
+      "title": "Why an estimator?",
+      "body": "State feedback needs every state, but sensors usually measure only $y$. Differentiating $y$ to get velocities amplifies noise. Instead, run a copy of the model in the computer, driven by the same $u$. On its own that copy is an **open-loop** estimator: its error obeys $\\dot{\\tilde{\\mathbf{x}}} = \\mathbf{A}\\tilde{\\mathbf{x}}$, so it converges only as fast as the plant, and never for an unstable plant. The fix: correct the copy with the measured output error.",
+      "formula": "\\tilde{\\mathbf{x}} = \\mathbf{x} - \\hat{\\mathbf{x}}"
+    },
+    {
+      "title": "The full-order estimator",
+      "body": "The model copy is corrected by $\\mathbf{L}$ times the output error $y - \\mathbf{C}\\hat{\\mathbf{x}}$. Subtracting from the plant equation, $u$ cancels and the error obeys $\\dot{\\tilde{\\mathbf{x}}} = (\\mathbf{A} - \\mathbf{L}\\mathbf{C})\\tilde{\\mathbf{x}}$. Choose $\\mathbf{L}$ so that $\\mathbf{A} - \\mathbf{L}\\mathbf{C}$ has fast, stable eigenvalues and $\\hat{\\mathbf{x}}$ locks onto $\\mathbf{x}$ from any starting guess.",
+      "formula": "\\dot{\\hat{\\mathbf{x}}} = \\mathbf{A}\\hat{\\mathbf{x}} + \\mathbf{B}u + \\mathbf{L}(y - \\mathbf{C}\\hat{\\mathbf{x}})",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0.75
+              ],
+              [
+                1,
+                0.75
+              ]
+            ],
+            "label": "u"
+          },
+          {
+            "type": "node",
+            "at": [
+              1,
+              0.75
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                0.75
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.2,
+              0
+            ],
+            "size": [
+              2.4,
+              0.8
+            ],
+            "label": "plant"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.4,
+                0
+              ],
+              [
+                8,
+                0
+              ]
+            ],
+            "label": "y"
+          },
+          {
+            "type": "node",
+            "at": [
+              6.4,
+              0
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.4,
+                0
+              ],
+              [
+                6.4,
+                1.2
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                0.75
+              ],
+              [
+                1,
+                1.5
+              ],
+              [
+                2,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.2,
+              1.5
+            ],
+            "size": [
+              2.4,
+              0.8
+            ],
+            "label": "model A, B, C"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.4,
+                1.5
+              ],
+              [
+                6.1,
+                1.5
+              ]
+            ],
+            "label": "ŷ"
+          },
+          {
+            "type": "sum",
+            "at": [
+              6.4,
+              1.5
+            ],
+            "kind": "- +"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.7,
+                1.5
+              ],
+              [
+                7.3,
+                1.5
+              ],
+              [
+                7.3,
+                2.7
+              ],
+              [
+                5.5,
+                2.7
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              5,
+              2.7
+            ],
+            "size": [
+              1,
+              0.7
+            ],
+            "label": "L"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.5,
+                2.7
+              ],
+              [
+                3.2,
+                2.7
+              ],
+              [
+                3.2,
+                1.9
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Choosing L",
+      "body": "Match $\\det(s\\mathbf{I} - \\mathbf{A} + \\mathbf{L}\\mathbf{C})$ with the desired estimator polynomial $\\alpha_e(s)$.\n**Example:** double integrator with position sensor, $\\mathbf{C} = [1 \\;\\; 0]$: $\\mathbf{A} - \\mathbf{L}\\mathbf{C} = \\begin{bmatrix} -l_1 & 1 \\\\ -l_2 & 0 \\end{bmatrix}$ with polynomial $s^2 + l_1s + l_2$. Estimator poles at $-10 \\pm 10j$: $s^2 + 20s + 200$, so $\\mathbf{L} = [20 \\;\\; 200]^T$.",
+      "formula": "\\det(s\\mathbf{I} - \\mathbf{A} + \\mathbf{L}\\mathbf{C}) = \\alpha_e(s)"
+    },
+    {
+      "title": "Duality",
+      "body": "$\\mathbf{A} - \\mathbf{L}\\mathbf{C}$ has the same eigenvalues as its transpose $\\mathbf{A}^T - \\mathbf{C}^T\\mathbf{L}^T$: a pole-placement problem for the pair $(\\mathbf{A}^T, \\mathbf{C}^T)$ with gain $\\mathbf{L}^T$. So everything from unit 4 carries over: $\\mathbf{L}$ exists for any poles exactly when $(\\mathbf{A}, \\mathbf{C})$ is observable. In observer canonical form each gain is simply $l_i = \\alpha_i - a_i$, and Ackermann's formula becomes the one below.",
+      "formula": "\\mathbf{L} = \\alpha_e(\\mathbf{A})\\,\\mathcal{O}^{-1}[0 \\;\\; \\cdots \\;\\; 0 \\;\\; 1]^T"
+    },
+    {
+      "title": "How fast should the estimator be?",
+      "body": "The estimation error should die out before it disturbs the controlled response, so a common rule (FPE) puts the estimator poles about **2 to 6 times further from the origin** than the controller poles. Much faster needs a large $\\mathbf{L}$, which feeds sensor noise straight into $\\hat{\\mathbf{x}}$ and into $u$. Slower poles make the estimate lag. With a noisy sensor, choose the slower end; with a clean sensor and a fast actuator, the faster end."
+    },
+    {
+      "title": "Explore: estimator speed",
+      "body": "A first-order plant $\\dot x = -x + u$, $y = x$, with estimator gain $\\ell$. The estimate starts 1 off; the error decays as $e^{-(1+\\ell)t}$ whatever the input does. With $\\ell = 0$ (open-loop copy) it only decays at the plant's own rate.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": -0.6,
+          "max": 1.6,
+          "label": "state"
+        },
+        "sliders": [
+          {
+            "name": "l",
+            "label": "$\\ell$",
+            "min": 0,
+            "max": 15,
+            "step": 0.1,
+            "value": 0.5
+          }
+        ],
+        "curves": [
+          {
+            "f": "1 - 0.5*cos(3*x)",
+            "color": "grey",
+            "dash": true,
+            "label": "true x",
+            "labelAt": 0.85
+          },
+          {
+            "f": "1 - 0.5*cos(3*x) - exp(-(1 + l)*x)",
+            "label": "estimate",
+            "labelAt": 0.35
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "readouts": [
+          {
+            "label": "estimator pole",
+            "value": "-(1 + l)"
+          },
+          {
+            "label": "2 % time $4/(1+\\ell)$",
+            "value": "4/(1 + l)",
+            "unit": "s"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Separation principle",
+      "body": "Now feed back the estimate: $u = -\\mathbf{K}\\hat{\\mathbf{x}} + \\bar Nr$. In the coordinates $(\\mathbf{x}, \\tilde{\\mathbf{x}})$ the closed-loop matrix is block triangular, so its eigenvalues are those of $\\mathbf{A} - \\mathbf{B}\\mathbf{K}$ (controller) together with those of $\\mathbf{A} - \\mathbf{L}\\mathbf{C}$ (estimator). Design $\\mathbf{K}$ and $\\mathbf{L}$ separately; the combination works. If $r$ enters plant and estimator through the same $u$, the estimator poles cancel from $Y(s)/R(s)$.",
+      "formula": "\\det(s\\mathbf{I} - \\mathbf{A}_{cl}) = \\alpha_c(s)\\,\\alpha_e(s)"
+    },
+    {
+      "title": "The compensator",
+      "body": "Estimator plus state feedback together form a dynamic controller from $y$ to $u$, with the transfer function below ($r = 0$, $U = -D_c(s)Y$). Its poles are the eigenvalues of $\\mathbf{A} - \\mathbf{B}\\mathbf{K} - \\mathbf{L}\\mathbf{C}$, not the closed-loop poles. For the double integrator it comes out as a lead compensator: state-space design rediscovers lead compensation.",
+      "formula": "D_c(s) = \\mathbf{K}(s\\mathbf{I} - \\mathbf{A} + \\mathbf{B}\\mathbf{K} + \\mathbf{L}\\mathbf{C})^{-1}\\mathbf{L}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "mdc-observer-1",
+      "title": "Estimators",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Why estimate the state?",
+          "body": "Pole placement needs every state, but a typical plant has one sensor. The idea: simulate the plant in the controller with the same input $u$ and use the simulated states $\\hat{\\mathbf{x}}$. A pure copy has error dynamics $\\dot{\\tilde{\\mathbf{x}}} = \\mathbf{A}\\tilde{\\mathbf{x}}$, which is as slow as the plant, or unstable.",
+          "formula": "\\dot{\\hat{\\mathbf{x}}} = \\mathbf{A}\\hat{\\mathbf{x}} + \\mathbf{B}u"
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "An open-loop estimator (a model copy driven by $u$, without output correction) works for an unstable plant, as long as the model is exact.",
+          "answer": false,
+          "explanation": "With an exact model the error still obeys $\\dot{\\tilde{\\mathbf{x}}} = \\mathbf{A}\\tilde{\\mathbf{x}}$. Any initial guess error $\\tilde{\\mathbf{x}}(0) \\ne \\mathbf{0}$ (and in practice you never know $\\mathbf{x}(0)$ exactly) grows with the unstable mode. Only feedback from the measurement, $\\mathbf{L}(y - \\mathbf{C}\\hat{\\mathbf{x}})$, can move the error dynamics."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The closed-loop estimator",
+          "body": "Correct the copy with the output error: $\\dot{\\hat{\\mathbf{x}}} = \\mathbf{A}\\hat{\\mathbf{x}} + \\mathbf{B}u + \\mathbf{L}(y - \\mathbf{C}\\hat{\\mathbf{x}})$. Subtract it from $\\dot{\\mathbf{x}} = \\mathbf{A}\\mathbf{x} + \\mathbf{B}u$: the input cancels and the error obeys the equation below. $\\mathbf{L}$ sets the estimator poles, just as $\\mathbf{K}$ set the controller poles.",
+          "formula": "\\dot{\\tilde{\\mathbf{x}}} = (\\mathbf{A} - \\mathbf{L}\\mathbf{C})\\tilde{\\mathbf{x}}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0.75
+                  ],
+                  [
+                    1,
+                    0.75
+                  ]
+                ],
+                "label": "u"
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  0.75
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    0.75
+                  ],
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.2,
+                  0
+                ],
+                "size": [
+                  2.4,
+                  0.8
+                ],
+                "label": "plant"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.4,
+                    0
+                  ],
+                  [
+                    8,
+                    0
+                  ]
+                ],
+                "label": "y"
+              },
+              {
+                "type": "node",
+                "at": [
+                  6.4,
+                  0
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.4,
+                    0
+                  ],
+                  [
+                    6.4,
+                    1.2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    0.75
+                  ],
+                  [
+                    1,
+                    1.5
+                  ],
+                  [
+                    2,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.2,
+                  1.5
+                ],
+                "size": [
+                  2.4,
+                  0.8
+                ],
+                "label": "model A, B, C"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.4,
+                    1.5
+                  ],
+                  [
+                    6.1,
+                    1.5
+                  ]
+                ],
+                "label": "ŷ"
+              },
+              {
+                "type": "sum",
+                "at": [
+                  6.4,
+                  1.5
+                ],
+                "kind": "- +"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.7,
+                    1.5
+                  ],
+                  [
+                    7.3,
+                    1.5
+                  ],
+                  [
+                    7.3,
+                    2.7
+                  ],
+                  [
+                    5.5,
+                    2.7
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  5,
+                  2.7
+                ],
+                "size": [
+                  1,
+                  0.7
+                ],
+                "label": "L"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.5,
+                    2.7
+                  ],
+                  [
+                    3.2,
+                    2.7
+                  ],
+                  [
+                    3.2,
+                    1.9
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              -2,
+              -1,
+              1,
+              2
+            ],
+            "b": [
+              1,
+              2,
+              5
+            ],
+            "c": [
+              0.5,
+              1,
+              2
+            ],
+            "p": [
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "A first-order plant $\\dot x = ax + bu$ with $a$ = {{a}}, $b$ = {{b}} has sensor $y = cx$ with $c$ = {{c}}. Which estimator gain $\\ell$ puts the estimator pole at $s = -{{p}}$?",
+          "answer": "(a + p)/c",
+          "unit": "",
+          "explanation": "Error dynamics: $\\dot{\\tilde x} = (a - \\ell c)\\tilde x$, pole at ${{a}} - {{c}}\\ell$. Set it to −{{p}}: $\\ell = \\frac{a + p}{c} = \\frac{ {{a}} + {{p}} }{ {{c}} }$ = {{(a + p)/c}}. The input gain $b$ plays no role: $u$ cancels from the error equation."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Two states, one sensor",
+          "body": "For $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -a_0 & -a_1 \\end{bmatrix}$ and a position sensor $\\mathbf{C} = [1 \\;\\; 0]$, $\\mathbf{L}\\mathbf{C}$ only fills the first column: $\\mathbf{A} - \\mathbf{L}\\mathbf{C} = \\begin{bmatrix} -l_1 & 1 \\\\ -a_0 - l_2 & -a_1 \\end{bmatrix}$. Its polynomial is below; match it with $\\alpha_e(s)$, first $l_1$, then $l_2$.",
+          "formula": "s^2 + (a_1 + l_1)s + (a_0 + a_1l_1 + l_2)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a0": [
+              0,
+              2,
+              4
+            ],
+            "a1": [
+              0,
+              1,
+              2
+            ],
+            "p1": [
+              8,
+              10
+            ],
+            "p2": [
+              12,
+              15
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ {{-a0}} & {{-a1}} \\end{bmatrix}$, $\\mathbf{C} = [1 \\;\\; 0]$. Place the estimator poles at $-{{p1}}$ and $-{{p2}}$.",
+          "ask": [
+            {
+              "prompt": "Find $l_1$.",
+              "answer": "p1 + p2 - a1",
+              "unit": "",
+              "explanation": "Desired $\\alpha_e(s) = (s + {{p1}})(s + {{p2}}) = s^2 + {{p1+p2}}s + {{p1*p2}}$. Match the $s$ terms: {{a1}} + $l_1$ = {{p1+p2}}, so $l_1$ = {{p1 + p2 - a1}}."
+            },
+            {
+              "prompt": "Find $l_2$.",
+              "answer": "p1*p2 - a0 - a1*(p1 + p2 - a1)",
+              "unit": "",
+              "explanation": "$l_1 = \\alpha_1 - a_1$ = {{p1 + p2 - a1}}. Constant terms: $a_0 + a_1l_1 + l_2 = \\alpha_0$: {{a0}} + {{a1}}·{{p1 + p2 - a1}} + $l_2$ = {{p1*p2}}, so $l_2$ = {{p1*p2 - a0 - a1*(p1 + p2 - a1)}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Duality: match each controller quantity to its estimator counterpart.",
+          "pairs": [
+            [
+              "$\\mathbf{A} - \\mathbf{B}\\mathbf{K}$",
+              "$\\mathbf{A} - \\mathbf{L}\\mathbf{C}$"
+            ],
+            [
+              "Controllability matrix $\\mathcal{C}$",
+              "Observability matrix $\\mathcal{O}$"
+            ],
+            [
+              "Gain $\\mathbf{K}$",
+              "$\\mathbf{L}^T$"
+            ],
+            [
+              "Input matrix $\\mathbf{B}$",
+              "$\\mathbf{C}^T$"
+            ]
+          ],
+          "explanation": "Transpose $\\mathbf{A} - \\mathbf{L}\\mathbf{C}$ to get $\\mathbf{A}^T - \\mathbf{C}^T\\mathbf{L}^T$, which has the same eigenvalues. That is state feedback for the plant $(\\mathbf{A}^T, \\mathbf{C}^T)$ with gain $\\mathbf{L}^T$; its controllability matrix is $\\mathcal{O}^T$. Every pole-placement tool works for estimators after this swap."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "The controller poles are at $-2 \\pm 2j$. Which estimator poles follow the usual design rule?",
+          "options": [
+            "$-8 \\pm 8j$",
+            "$-1 \\pm 1j$",
+            "$-2 \\pm 2j$",
+            "$-200 \\pm 200j$"
+          ],
+          "answer": 0,
+          "explanation": "Put the estimator poles roughly 2 to 6 times further from the origin than the controller poles: $-8 \\pm 8j$ is 4 times. Slower poles ($-1 \\pm j$) make the estimate lag behind and spoil the response; equal ones barely help; 100 times faster needs a huge $\\mathbf{L}$ that feeds sensor noise into $u$."
+        },
+        {
+          "id": "q6",
+          "type": "slider",
+          "params": {
+            "T": [
+              0.5,
+              0.8,
+              1
+            ]
+          },
+          "prompt": "Plant $\\dot x = -x + u$ with sensor $y = x$. Set the estimator gain $\\ell$ so that the estimation error has dropped to about 2 % after {{T|s}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": -0.6,
+              "max": 1.6,
+              "label": "state"
+            },
+            "sliders": [
+              {
+                "name": "l",
+                "label": "$\\ell$",
+                "min": 0,
+                "max": 15,
+                "step": 0.1,
+                "value": 0.5
+              }
+            ],
+            "curves": [
+              {
+                "f": "1 - 0.5*cos(3*x)",
+                "color": "grey",
+                "dash": true,
+                "label": "true x",
+                "labelAt": 0.85
+              },
+              {
+                "f": "1 - 0.5*cos(3*x) - exp(-(1 + l)*x)",
+                "label": "estimate",
+                "labelAt": 0.35
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "readouts": [
+              {
+                "label": "estimator pole",
+                "value": "-(1 + l)",
+                "reveal": true
+              },
+              {
+                "label": "2 % time",
+                "value": "4/(1 + l)",
+                "unit": "s",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "l": "4/T - 1"
+          },
+          "tolerance": 0.04,
+          "explanation": "The error obeys $\\dot{\\tilde x} = -(1 + \\ell)\\tilde x$, so it falls to $e^{-4} \\approx$ 2 % at $t = 4/(1 + \\ell)$. Setting this to {{T|s}}: $1 + \\ell$ = {{4/T}}, so $\\ell$ = {{4/T - 1}}. The open-loop copy ($\\ell = 0$) would need 4 s."
+        }
+      ]
+    },
+    {
+      "id": "mdc-observer-2",
+      "title": "Separation and compensators",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Separation principle",
+          "body": "Use the estimate for feedback: $u = -\\mathbf{K}\\hat{\\mathbf{x}} + \\bar Nr$. Write the closed loop in $\\mathbf{x}$ and $\\tilde{\\mathbf{x}}$: the matrix is block triangular with $\\mathbf{A} - \\mathbf{B}\\mathbf{K}$ and $\\mathbf{A} - \\mathbf{L}\\mathbf{C}$ on the diagonal. So the $2n$ closed-loop poles are simply the controller poles plus the estimator poles.",
+          "formula": "\\frac{d}{dt}\\begin{bmatrix} \\mathbf{x} \\\\ \\tilde{\\mathbf{x}} \\end{bmatrix} = \\begin{bmatrix} \\mathbf{A} - \\mathbf{B}\\mathbf{K} & \\mathbf{B}\\mathbf{K} \\\\ \\mathbf{0} & \\mathbf{A} - \\mathbf{L}\\mathbf{C} \\end{bmatrix}\\begin{bmatrix} \\mathbf{x} \\\\ \\tilde{\\mathbf{x}} \\end{bmatrix}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "c1": [
+              2,
+              4,
+              6
+            ],
+            "c0": [
+              5,
+              8,
+              13
+            ],
+            "e1": [
+              16,
+              20,
+              24
+            ],
+            "e0": [
+              100,
+              128,
+              200
+            ]
+          },
+          "prompt": "A second-order plant gets a controller with $\\alpha_c(s) = s^2 + {{c1}}s + {{c0}}$ and a full-order estimator with $\\alpha_e(s) = s^2 + {{e1}}s + {{e0}}$. The closed loop is fourth order: $s^4 + \\beta_3s^3 + \\beta_2s^2 + \\beta_1s + \\beta_0$.",
+          "ask": [
+            {
+              "prompt": "Find $\\beta_3$.",
+              "answer": "c1 + e1",
+              "unit": "",
+              "explanation": "By the separation principle the closed-loop polynomial is $\\alpha_c(s)\\alpha_e(s)$. The $s^3$ terms come from $s^2\\cdot{{e1}}s + {{c1}}s\\cdot s^2$: $\\beta_3$ = {{c1}} + {{e1}} = {{c1 + e1}}."
+            },
+            {
+              "prompt": "Find $\\beta_0$.",
+              "answer": "c0*e0",
+              "unit": "",
+              "explanation": "Closed-loop polynomial $\\alpha_c(s)\\alpha_e(s)$; its constant term is the product of the constant terms: {{c0}} × {{e0}} = {{c0*e0}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "With $u = -\\mathbf{K}\\hat{\\mathbf{x}} + \\bar Nr$ and the estimator driven by that same $u$, the estimator poles appear as poles of the transfer function from $r$ to $y$.",
+          "answer": false,
+          "explanation": "The estimation error obeys $\\dot{\\tilde{\\mathbf{x}}} = (\\mathbf{A} - \\mathbf{L}\\mathbf{C})\\tilde{\\mathbf{x}}$ with no $r$ in it: the error modes are **uncontrollable from** $r$. Uncontrollable modes cancel from the transfer function, so $Y(s)/R(s) = \\bar N\\frac{N(s)}{\\alpha_c(s)}$, exactly as with full-state feedback. The estimator poles still matter for disturbances, noise and initial errors."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The compensator",
+          "body": "Seen from outside, the estimator plus the gain $\\mathbf{K}$ is just a dynamic controller that takes $y$ and produces $u$: $\\dot{\\hat{\\mathbf{x}}} = (\\mathbf{A} - \\mathbf{B}\\mathbf{K} - \\mathbf{L}\\mathbf{C})\\hat{\\mathbf{x}} + \\mathbf{L}y$, $u = -\\mathbf{K}\\hat{\\mathbf{x}}$ (for $r = 0$). Its own poles are the eigenvalues of $\\mathbf{A} - \\mathbf{B}\\mathbf{K} - \\mathbf{L}\\mathbf{C}$; they need not even be stable. In transfer-function form $U(s) = -D_c(s)Y(s)$ with $D_c(s)$ below.",
+          "formula": "D_c(s) = \\mathbf{K}(s\\mathbf{I} - \\mathbf{A} + \\mathbf{B}\\mathbf{K} + \\mathbf{L}\\mathbf{C})^{-1}\\mathbf{L}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              -1,
+              1,
+              2
+            ],
+            "b": [
+              1,
+              2
+            ],
+            "k": [
+              3,
+              5,
+              6
+            ],
+            "l": [
+              8,
+              10,
+              15
+            ]
+          },
+          "prompt": "First-order plant $\\dot x = ax + bu$ ($a$ = {{a}}, $b$ = {{b}}), $y = x$, with state-feedback gain $k$ = {{k}} and estimator gain $\\ell$ = {{l}}. The compensator is $\\dot{\\hat x} = (a - bk - \\ell)\\hat x + \\ell y$, $u = -k\\hat x$.",
+          "ask": [
+            {
+              "prompt": "Find the pole of the compensator.",
+              "answer": "a - b*k - l",
+              "unit": "",
+              "explanation": "The compensator state $\\hat x$ has the dynamics $a - bk - \\ell$ = {{a}} − {{b}}·{{k}} − {{l}} = {{a - b*k - l}}. Compare: the closed-loop poles are $a - bk$ = {{a - b*k}} (controller) and $a - \\ell$ = {{a - l}} (estimator). The compensator pole is neither."
+            },
+            {
+              "prompt": "Find the DC gain of $U(s)/Y(s)$.",
+              "answer": "-k*l/(-(a - b*k - l))",
+              "unit": "",
+              "explanation": "$\\frac{U}{Y} = \\frac{-k\\ell}{s - (a - bk - \\ell)}$. At $s = 0$: $\\frac{-{{k}}\\cdot{{l}}}{ {{-(a - b*k - l)}} }$ = {{-k*l/(-(a - b*k - l))}}. The minus sign is the negative feedback: $u$ opposes $y$."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "orderSteps",
+          "prompt": "Put the steps of an observer-based (compensator) design in order.",
+          "items": [
+            "Check controllability and observability",
+            "Choose controller poles from the specs and compute $\\mathbf{K}$",
+            "Choose estimator poles 2–6× faster and compute $\\mathbf{L}$",
+            "Combine: $u = -\\mathbf{K}\\hat{\\mathbf{x}} + \\bar Nr$ and compute $\\bar N$",
+            "Check robustness and noise in simulation"
+          ],
+          "explanation": "Controllability is needed for $\\mathbf{K}$, observability for $\\mathbf{L}$. By the separation principle $\\mathbf{K}$ and $\\mathbf{L}$ can be designed one after the other; the estimator poles are chosen relative to the controller poles, so $\\mathbf{K}$ comes first. $\\bar N$ follows from the final loop. Separation guarantees the poles, not robustness, so always check margins and noise."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "a1": [
+              2,
+              3,
+              4
+            ],
+            "a2": [
+              2,
+              5,
+              10
+            ],
+            "sg": [
+              8,
+              10,
+              12
+            ],
+            "w": [
+              6,
+              8,
+              10
+            ]
+          },
+          "prompt": "$G(s) = \\frac{b_1s + b_2}{s^2 + {{a1}}s + {{a2}}}$ is realized in observer canonical form ($\\mathbf{A}_o = \\begin{bmatrix} -{{a1}} & 1 \\\\ -{{a2}} & 0 \\end{bmatrix}$, $\\mathbf{C}_o = [1 \\;\\; 0]$). Place the estimator poles at $-{{sg}} \\pm j{{w}}$.",
+          "ask": [
+            {
+              "prompt": "Find $l_1$.",
+              "answer": "2*sg - a1",
+              "unit": "",
+              "explanation": "$\\mathbf{A}_o - \\mathbf{L}\\mathbf{C}_o = \\begin{bmatrix} -{{a1}} - l_1 & 1 \\\\ -{{a2}} - l_2 & 0 \\end{bmatrix}$ has polynomial $s^2 + ({{a1}} + l_1)s + ({{a2}} + l_2)$, so $l_i = \\alpha_i - a_i$. Desired $(s + {{sg}})^2 + {{w}}^2 = s^2 + {{2*sg}}s + {{sg^2 + w^2}}$: $l_1$ = {{2*sg}} − {{a1}} = {{2*sg - a1}}."
+            },
+            {
+              "prompt": "Find $l_2$.",
+              "answer": "sg^2 + w^2 - a2",
+              "unit": "",
+              "explanation": "In observer canonical form $l_i = \\alpha_i - a_i$. $\\alpha_2 = \\sigma^2 + \\omega^2$ = {{sg^2 + w^2}}, so $l_2$ = {{sg^2 + w^2}} − {{a2}} = {{sg^2 + w^2 - a2}}."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "The estimator needs the plant input $u$ as well as the measurement $y$.",
+          "answer": true,
+          "explanation": "The model copy contains $\\mathbf{B}u$. That term is what makes $u$ cancel in the error equation $\\dot{\\tilde{\\mathbf{x}}} = (\\mathbf{A} - \\mathbf{L}\\mathbf{C})\\tilde{\\mathbf{x}}$. Without it, every change in $u$ would show up as estimation error. In a compensator the controller knows $u$ anyway, because it computes it."
+        }
+      ]
+    },
+    {
+      "id": "mdc-observer-3",
+      "title": "Designing L",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "zt": [
+              0.5,
+              0.7,
+              1
+            ],
+            "wn": [
+              10,
+              20,
+              40
+            ]
+          },
+          "prompt": "Double integrator with position sensor: $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix}$, $\\mathbf{C} = [1 \\;\\; 0]$. Place the estimator poles at $\\zeta$ = {{zt}}, $\\omega_n$ = {{wn}} rad/s.",
+          "ask": [
+            {
+              "prompt": "Find $l_1$.",
+              "answer": "2*zt*wn",
+              "unit": "",
+              "explanation": "$\\mathbf{A} - \\mathbf{L}\\mathbf{C} = \\begin{bmatrix} -l_1 & 1 \\\\ -l_2 & 0 \\end{bmatrix}$, polynomial $s^2 + l_1s + l_2$. Match $s^2 + 2\\zeta\\omega_ns + \\omega_n^2$: $l_1 = 2\\zeta\\omega_n$ = {{2*zt*wn}}."
+            },
+            {
+              "prompt": "Find $l_2$.",
+              "answer": "wn^2",
+              "unit": "",
+              "explanation": "Polynomial $s^2 + l_1s + l_2$; match the constant term: $l_2 = \\omega_n^2$ = {{wn^2}}. It is large because a fast estimator needs a strong correction of the velocity estimate."
+            }
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "a11": [
+              -1,
+              0,
+              1
+            ],
+            "a12": [
+              1,
+              2
+            ],
+            "a21": [
+              -1,
+              0,
+              2
+            ],
+            "a22": [
+              -2,
+              -1,
+              0
+            ],
+            "p1": [
+              5,
+              6
+            ],
+            "p2": [
+              8,
+              10
+            ]
+          },
+          "derived": {
+            "ll1": "p1 + p2 + a11 + a22",
+            "ll2": "(p1*p2 - a11*a22 + ll1*a22 + a12*a21)/a12"
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} {{a11}} & {{a12}} \\\\ {{a21}} & {{a22}} \\end{bmatrix}$, $\\mathbf{C} = [1 \\;\\; 0]$. Place the estimator poles at $-{{p1}}$ and $-{{p2}}$.",
+          "ask": [
+            {
+              "prompt": "Find $l_1$.",
+              "answer": "ll1",
+              "unit": "",
+              "explanation": "$\\mathbf{A} - \\mathbf{L}\\mathbf{C} = \\begin{bmatrix} {{a11}} - l_1 & {{a12}} \\\\ {{a21}} - l_2 & {{a22}} \\end{bmatrix}$. Trace: {{a11}} − $l_1$ + ({{a22}}) = $-\\alpha_1$ = −{{p1+p2}}, so $l_1$ = {{ll1}}."
+            },
+            {
+              "prompt": "Find $l_2$.",
+              "answer": "ll2",
+              "unit": "",
+              "explanation": "With $l_1$ = {{ll1}}, the determinant ({{a11}} − {{ll1}})({{a22}}) − ({{a12}})({{a21}} − $l_2$) must equal $\\alpha_0$ = {{p1*p2}}: ({{(a11 - ll1)*a22}}) − ({{a12*a21}}) + {{a12}}$l_2$ = {{p1*p2}}, so $l_2$ = {{ll2}}."
+            }
+          ]
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "wnc": [
+              2,
+              3,
+              5
+            ],
+            "c": [
+              2,
+              4,
+              6
+            ]
+          },
+          "prompt": "A double-integrator controller has its poles at $\\zeta = 0.7$, $\\omega_n$ = {{wnc}} rad/s. The estimator ($\\mathbf{C} = [1 \\;\\; 0]$) gets $\\zeta = 0.7$ and an $\\omega_n$ {{c}} times larger. Find $l_2$.",
+          "answer": "(c*wnc)^2",
+          "unit": "",
+          "explanation": "Estimator: $\\omega_n$ = {{c}} × {{wnc}} = {{c*wnc}} rad/s. For the double integrator $s^2 + l_1s + l_2$ must equal $s^2 + 2\\zeta\\omega_ns + \\omega_n^2$, so $l_2 = \\omega_n^2$ = {{(c*wnc)^2}} (and $l_1$ = {{1.4*c*wnc}}). Doubling the speed factor quadruples $l_2$: more noise reaches the velocity estimate."
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              -2,
+              -1,
+              1
+            ],
+            "d": [
+              -3,
+              -1,
+              0,
+              2
+            ],
+            "p1": [
+              4,
+              5
+            ],
+            "p2": [
+              6,
+              8
+            ]
+          },
+          "prompt": "Use the estimator version of Ackermann's formula, $\\mathbf{L} = \\alpha_e(\\mathbf{A})\\mathcal{O}^{-1}[0 \\;\\; 1]^T$, for $\\mathbf{A} = \\begin{bmatrix} {{a}} & 1 \\\\ 0 & {{d}} \\end{bmatrix}$, $\\mathbf{C} = [1 \\;\\; 0]$ and estimator poles $-{{p1}}$, $-{{p2}}$. Find $l_2$.",
+          "answer": "d^2 + (p1 + p2)*d + p1*p2",
+          "unit": "",
+          "explanation": "$\\mathcal{O} = \\begin{bmatrix} 1 & 0 \\\\ {{a}} & 1 \\end{bmatrix}$, $\\mathcal{O}^{-1} = \\begin{bmatrix} 1 & 0 \\\\ {{-a}} & 1 \\end{bmatrix}$, so $\\mathcal{O}^{-1}[0 \\;\\; 1]^T = [0 \\;\\; 1]^T$ and $\\mathbf{L}$ is the **second column** of $\\alpha_e(\\mathbf{A}) = \\mathbf{A}^2 + {{p1+p2}}\\mathbf{A} + {{p1*p2}}\\mathbf{I}$.\nSecond column of $\\mathbf{A}^2$: $[{{a + d}} \\;\\; {{d^2}}]^T$, of $\\mathbf{A}$: $[1 \\;\\; {{d}}]^T$. Bottom entry: $l_2$ = {{d^2}} + {{p1+p2}}·({{d}}) + {{p1*p2}} = {{d^2 + (p1 + p2)*d + p1*p2}} (and $l_1$ = {{a + d + p1 + p2}})."
+        },
+        {
+          "id": "p5",
+          "type": "multipleChoice",
+          "prompt": "The estimator poles are moved much further left (larger $\\mathbf{L}$). What is the main price?",
+          "options": [
+            "Sensor noise is amplified into $\\hat{\\mathbf{x}}$ and the control signal",
+            "The controller poles move as well",
+            "The steady-state error to a step grows",
+            "The plant becomes unobservable"
+          ],
+          "answer": 0,
+          "explanation": "$\\mathbf{L}$ multiplies the measured $y$, including its noise, so a large $\\mathbf{L}$ injects that noise into $\\hat{\\mathbf{x}}$ and through $\\mathbf{K}$ into $u$. The controller poles do not move (separation principle), the reference response is unchanged (the estimator poles cancel from $Y/R$), and observability is a property of the plant, not of $\\mathbf{L}$."
+        },
+        {
+          "id": "p6",
+          "type": "trueFalse",
+          "prompt": "An estimator can be designed for an unstable plant, as long as $(\\mathbf{A}, \\mathbf{C})$ is observable.",
+          "answer": true,
+          "explanation": "Observability guarantees that $\\mathbf{L}$ can place all eigenvalues of $\\mathbf{A} - \\mathbf{L}\\mathbf{C}$ anywhere, including in the left half-plane, whatever $\\mathbf{A}$ itself does. The output correction pulls $\\hat{\\mathbf{x}}$ along with the diverging state. That is exactly why the open-loop copy fails and the closed-loop estimator works."
+        }
+      ]
+    },
+    {
+      "id": "mdc-observer-4",
+      "title": "Compensator design",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "k1": [
+              4,
+              8,
+              9
+            ],
+            "k2": [
+              3,
+              4
+            ],
+            "l1": [
+              16,
+              20
+            ],
+            "l2": [
+              100,
+              150,
+              200
+            ]
+          },
+          "prompt": "Double integrator $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix}$, $\\mathbf{B} = [0 \\;\\; 1]^T$, $\\mathbf{C} = [1 \\;\\; 0]$ with $\\mathbf{K} = [{{k1}} \\;\\; {{k2}}]$ and $\\mathbf{L} = [{{l1}} \\;\\; {{l2}}]^T$. Working out $D_c(s)$ from the study card gives $D_c(s) = \\frac{(k_1l_1 + k_2l_2)s + k_1l_2}{s^2 + (l_1 + k_2)s + l_1k_2 + k_1 + l_2}$.",
+          "ask": [
+            {
+              "prompt": "Find the zero of $D_c(s)$.",
+              "answer": "-k1*l2/(k1*l1 + k2*l2)",
+              "unit": "",
+              "explanation": "Numerator $({{k1}}\\cdot{{l1}} + {{k2}}\\cdot{{l2}})s + {{k1}}\\cdot{{l2}}$ = ${{k1*l1 + k2*l2}}s + {{k1*l2}}$, zero at $s$ = −{{k1*l2}}/{{k1*l1 + k2*l2}} = {{-k1*l2/(k1*l1 + k2*l2)}}. The two compensator poles, roots of $s^2 + {{l1 + k2}}s + {{l1*k2 + k1 + l2}}$, lie much further from the origin (magnitude $\\sqrt{ {{l1*k2 + k1 + l2}} }$ = {{sqrt(l1*k2 + k1 + l2)}}): the compensator acts like a lead network."
+            },
+            {
+              "prompt": "Find the DC gain $D_c(0)$.",
+              "answer": "k1*l2/(l1*k2 + k1 + l2)",
+              "unit": "",
+              "explanation": "$D_c(0) = \\frac{k_1l_2}{l_1k_2 + k_1 + l_2}$ = {{k1*l2}}/({{l1*k2}} + {{k1}} + {{l2}}) = {{k1*l2/(l1*k2 + k1 + l2)}}."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "k1": [
+              4,
+              8,
+              9
+            ],
+            "k2": [
+              3,
+              4
+            ],
+            "l1": [
+              16,
+              20
+            ],
+            "l2": [
+              100,
+              150,
+              200
+            ]
+          },
+          "prompt": "For the same double integrator with $\\mathbf{K} = [{{k1}} \\;\\; {{k2}}]$ and $\\mathbf{L} = [{{l1}} \\;\\; {{l2}}]^T$, the closed loop with states $(\\mathbf{x}, \\hat{\\mathbf{x}})$ is fourth order: $s^4 + \\beta_3s^3 + \\beta_2s^2 + \\beta_1s + \\beta_0$.",
+          "ask": [
+            {
+              "prompt": "Find $\\beta_3$.",
+              "answer": "k2 + l1",
+              "unit": "",
+              "explanation": "Separation: the polynomial is $\\alpha_c(s)\\alpha_e(s) = (s^2 + {{k2}}s + {{k1}})(s^2 + {{l1}}s + {{l2}})$. $\\beta_3$ = {{k2}} + {{l1}} = {{k2 + l1}}."
+            },
+            {
+              "prompt": "Find $\\beta_0$.",
+              "answer": "k1*l2",
+              "unit": "",
+              "explanation": "$\\alpha_c(s)\\alpha_e(s) = (s^2 + {{k2}}s + {{k1}})(s^2 + {{l1}}s + {{l2}})$: constant term {{k1}} × {{l2}} = {{k1*l2}}."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "W": [
+              2,
+              3,
+              4
+            ],
+            "p1": [
+              10,
+              15
+            ],
+            "p2": [
+              20,
+              25
+            ]
+          },
+          "prompt": "The balancing robot $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ {{W^2}} & 0 \\end{bmatrix}$ measures only its tilt, $\\mathbf{C} = [1 \\;\\; 0]$. Place the estimator poles at $-{{p1}}$ and $-{{p2}}$. Find $l_2$.",
+          "answer": "p1*p2 + W^2",
+          "unit": "",
+          "explanation": "$\\mathbf{A} - \\mathbf{L}\\mathbf{C} = \\begin{bmatrix} -l_1 & 1 \\\\ {{W^2}} - l_2 & 0 \\end{bmatrix}$, polynomial $s^2 + l_1s + (l_2 - {{W^2}})$. Match $(s + {{p1}})(s + {{p2}}) = s^2 + {{p1+p2}}s + {{p1*p2}}$: $l_2$ = {{p1*p2}} + {{W^2}} = {{p1*p2 + W^2}}. Part of $l_2$ cancels the unstable term, as in the controller design."
+        },
+        {
+          "id": "c4",
+          "type": "multipleChoice",
+          "prompt": "The reference enters as $u = -\\mathbf{K}\\hat{\\mathbf{x}} + \\bar Nr$ and the estimator is driven by that $u$. Which poles appear in $Y(s)/R(s)$?",
+          "options": [
+            "Only the controller poles, the eigenvalues of $\\mathbf{A} - \\mathbf{B}\\mathbf{K}$",
+            "Only the estimator poles, the eigenvalues of $\\mathbf{A} - \\mathbf{L}\\mathbf{C}$",
+            "Both the controller and the estimator poles",
+            "The compensator poles, the eigenvalues of $\\mathbf{A} - \\mathbf{B}\\mathbf{K} - \\mathbf{L}\\mathbf{C}$"
+          ],
+          "answer": 0,
+          "explanation": "The error $\\tilde{\\mathbf{x}}$ obeys $\\dot{\\tilde{\\mathbf{x}}} = (\\mathbf{A} - \\mathbf{L}\\mathbf{C})\\tilde{\\mathbf{x}}$ without any $r$, so a reference step never excites it: those modes are uncontrollable from $r$ and cancel. $Y/R = \\bar N\\frac{N(s)}{\\alpha_c(s)}$, the same as with measured states. (If instead $r$ entered as an error $r - y$ into the compensator, the estimator poles would in general show up.)"
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "a1": [
+              2,
+              3,
+              6
+            ],
+            "a2": [
+              2,
+              4,
+              11
+            ],
+            "a3": [
+              1,
+              2,
+              6
+            ],
+            "p": [
+              5,
+              8,
+              10
+            ]
+          },
+          "prompt": "$G(s) = \\frac{1}{s^3 + {{a1}}s^2 + {{a2}}s + {{a3}}}$ is realized in observer canonical form. Put all three estimator poles at $s = -{{p}}$. Find $l_3$.",
+          "answer": "p^3 - a3",
+          "unit": "",
+          "explanation": "In observer canonical form $l_i = \\alpha_i - a_i$. $\\alpha_e(s) = (s + {{p}})^3 = s^3 + {{3*p}}s^2 + {{3*p^2}}s + {{p^3}}$, so $l_3 = \\alpha_3 - a_3$ = {{p^3}} − {{a3}} = {{p^3 - a3}} (and $l_1$ = {{3*p - a1}}, $l_2$ = {{3*p^2 - a2}})."
+        },
+        {
+          "id": "c6",
+          "type": "trueFalse",
+          "prompt": "If $(\\mathbf{A}, \\mathbf{C})$ is not observable, no estimator gain $\\mathbf{L}$ can make the estimation error go to zero.",
+          "answer": false,
+          "explanation": "The unobservable modes are eigenvalues of $\\mathbf{A} - \\mathbf{L}\\mathbf{C}$ for every $\\mathbf{L}$: they cannot be moved. If they are **stable** (the system is detectable), the error in those directions still decays, just at the plant's own rate, and the estimate converges. Only an unstable unobservable mode makes estimation impossible."
+        }
+      ]
+    }
+  ]
+}

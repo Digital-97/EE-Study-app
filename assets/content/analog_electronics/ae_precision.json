@@ -1,0 +1,1234 @@
+{
+  "id": "ae-precision",
+  "title": "Precision & Low-Noise Design",
+  "description": "Build error budgets for precision op-amp circuits, choose difference and instrumentation amplifiers, and calculate op-amp noise and grounding errors.",
+  "reference": "H&H ch. 7",
+  "study": [
+    {
+      "title": "The error budget",
+      "body": "List every error source, express each as an equivalent voltage at the **input** (RTI), and add them: worst case (straight sum) for a guarantee, root-sum-square for a typical value. Compare the total with the smallest signal change you must resolve. Input-referred errors reach the output multiplied by the noise gain $1 + R_2/R_1$; resistor tolerances add gain errors on top.",
+      "formula": "V_{err,out} = \\left(1 + \\frac{R_2}{R_1}\\right)V_{err,in}"
+    },
+    {
+      "title": "Offset, bias current and drift",
+      "body": "$V_{os}$ is about 1 mV for general-purpose op amps and 10–50 µV for precision types; its drift is 0.1–5 µV/°C. Bias current $I_B$ flows through the source resistance $R_S$ (bipolar inputs: nA; FET inputs: pA, doubling every 10 °C). Equal DC resistance at both inputs ($R_{comp} = R_1 \\parallel R_2$) cancels $I_B$, leaving only the much smaller offset current $I_{os}$.",
+      "formula": "V_{err,in} = V_{os} + I_BR_S + \\frac{dV_{os}}{dT}\\Delta T"
+    },
+    {
+      "title": "CMRR, PSRR and auto-zero",
+      "body": "A finite CMRR acts like an extra input voltage $V_{cm}/\\text{CMRR}$; PSRR does the same for supply ripple. Trimming nulls the initial offset at one temperature, but not the drift (and drift often gets worse). **Chopper / auto-zero** amplifiers measure and cancel their own offset continuously: ≈1 µV offset and 0.01 µV/°C drift, at the cost of switching artifacts and limited bandwidth.",
+      "formula": "e_{cm} = \\frac{V_{cm}}{10^{\\,\\text{CMRR}/20}}"
+    },
+    {
+      "title": "Difference amp and in-amp",
+      "body": "The four-resistor difference amplifier only rejects common mode if $R_2/R_1 = R_4/R_3$ exactly. With resistor tolerance $t$ the worst-case CMRR is about $(1+G)/(4t)$: 1 % resistors at $G$ = 1 give only 34 dB. The three-op-amp **instrumentation amplifier** adds buffers with differential gain $G = 1 + 2R/R_G$ and common-mode gain 1, so its CMRR improves by the front-end gain.",
+      "formula": "\\text{CMRR} \\approx \\frac{1 + G}{4t}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              1
+            ],
+            "label": "v_2",
+            "flip": true
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              1
+            ],
+            "to": [
+              2,
+              1
+            ],
+            "label": "R_1"
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              1
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1
+              ],
+              [
+                3,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              2
+            ],
+            "label": "v_1",
+            "flip": true
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "R_3",
+            "flip": true
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              2,
+              4
+            ],
+            "label": "R_4"
+          },
+          {
+            "type": "ground",
+            "at": [
+              2,
+              4
+            ]
+          },
+          {
+            "type": "opamp",
+            "at": [
+              4,
+              1.5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              5,
+              0
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                0
+              ],
+              [
+                5,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5,
+              1.5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                1.5
+              ],
+              [
+                6,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              6,
+              1.5
+            ],
+            "label": "v_o"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Op-amp noise model",
+      "body": "A noisy op amp is a noiseless one with a voltage noise source $e_n$ (nV/√Hz) and a current noise source $i_n$ (pA/√Hz) at its input. $i_n$ flows through the source resistance, which adds its own thermal noise $\\sqrt{4kTR_s}$ (4.07 nV/√Hz for 1 kΩ at 300 K). Uncorrelated sources add in quadrature; multiply by $\\sqrt B$ for the rms value and by the noise gain to refer it to the output. Below the **1/f corner** $e_n$ rises as $1/\\sqrt f$.",
+      "formula": "v_n = \\sqrt{e_n^2 + (i_nR_s)^2 + 4kTR_s}\\,\\sqrt{B}"
+    },
+    {
+      "title": "Explore: BJT or FET input?",
+      "body": "Bipolar inputs have low $e_n$ (1–5 nV/√Hz) but large $i_n$ (0.3–3 pA/√Hz); FET inputs have higher $e_n$ (5–20 nV/√Hz) but tiny $i_n$ (fA). The op amp contributes least relative to the source near $R_{s,opt} = e_n/i_n$. Rule: low source resistance → bipolar, high (> ~100 kΩ) → FET. Drag $e_n$ and $i_n$.",
+      "formula": "R_{s,opt} = \\frac{e_n}{i_n}",
+      "plot": {
+        "x": {
+          "min": 10,
+          "max": 10000000.0,
+          "label": "R_s",
+          "unit": "Ω",
+          "log": true
+        },
+        "y": {
+          "min": 1e-10,
+          "max": 1e-05,
+          "label": "noise density (V/√Hz)",
+          "log": true
+        },
+        "curves": [
+          {
+            "f": "en + 0*x",
+            "color": "blue",
+            "dash": true
+          },
+          {
+            "f": "in*x",
+            "color": "red",
+            "dash": true
+          },
+          {
+            "f": "sqrt(1.656e-20*x)",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "sqrt(en^2 + (in*x)^2 + 1.656e-20*x)"
+          }
+        ],
+        "labels": [
+          {
+            "x": 14,
+            "y": 3e-06,
+            "text": "total",
+            "color": "primary"
+          },
+          {
+            "x": 14,
+            "y": 1e-06,
+            "text": "e_n",
+            "color": "blue"
+          },
+          {
+            "x": 14,
+            "y": 3.3e-07,
+            "text": "i_n R_s",
+            "color": "red"
+          },
+          {
+            "x": 14,
+            "y": 1.1e-07,
+            "text": "√(4kTR_s)",
+            "color": "grey"
+          }
+        ],
+        "sliders": [
+          {
+            "name": "en",
+            "label": "$e_n$",
+            "min": 1e-09,
+            "max": 3e-08,
+            "log": true,
+            "value": 3e-09,
+            "unit": "V/√Hz"
+          },
+          {
+            "name": "inp",
+            "label": "$i_n$ (pA/√Hz)",
+            "min": 0.001,
+            "max": 3,
+            "log": true,
+            "value": 1
+          }
+        ],
+        "let": {
+          "in": "inp*1e-12"
+        },
+        "vlines": [
+          {
+            "x": "en/in",
+            "label": "R_opt"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$R_{s,opt}$",
+            "value": "en/in",
+            "unit": "Ω"
+          }
+        ],
+        "height": 250
+      }
+    },
+    {
+      "title": "Grounds and interference",
+      "body": "A **ground loop** lets a stray current flow through the signal ground wire; its drop $I_{gnd}R_{wire}$ adds directly to the signal. Cures: a **star ground** (one common point), differential inputs, or breaking the loop. A **guard** ring driven at the input's own potential stops leakage currents into high-impedance nodes. **Kelvin (4-wire) sensing** measures voltage with separate wires that carry no current, so lead resistance drops out.",
+      "formula": "V_{err} = I_{gnd}R_{wire}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ae-precision-1",
+      "title": "Error sources",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Thinking in error budgets",
+          "body": "A precision amplifier is only as good as its largest error. Convert each error into an equivalent voltage at the input (referred to input, RTI), add them up, and compare with the smallest signal you need to resolve. At the output every RTI error is multiplied by the noise gain.",
+          "formula": "V_{err,out} = \\left(1 + \\frac{R_2}{R_1}\\right)V_{err,in}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vos": [
+              5e-05,
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "G": [
+              10,
+              20,
+              50,
+              100
+            ]
+          },
+          "prompt": "A non-inverting amplifier with gain {{G}} uses an op amp with $V_{os}$ = {{Vos|V}}. How large is the output offset (input grounded)?",
+          "answer": "Vos*G",
+          "unit": "V",
+          "explanation": "The offset sits in series with the + input, so it is amplified by the noise gain $1 + R_2/R_1$ = {{G}}: {{Vos|V}} × {{G}} = **{{Vos*G|V}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "IB": [
+              5e-12,
+              2e-08,
+              1e-07
+            ],
+            "Rs": [
+              10000,
+              100000,
+              1000000
+            ]
+          },
+          "prompt": "An op amp with input bias current {{IB|A}} reads a sensor with {{Rs|Ω}} source resistance. What input error voltage does the bias current cause?",
+          "answer": "IB*Rs",
+          "unit": "V",
+          "explanation": "The bias current flows through the source: $e = I_BR_S$ = {{IB|A}} × {{Rs|Ω}} = **{{IB*Rs|V}}**. With high source resistances, pA-level FET inputs are a must."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "TC": [
+              1e-07,
+              5e-07,
+              2e-06,
+              5e-06
+            ],
+            "dT": [
+              20,
+              40,
+              60
+            ]
+          },
+          "prompt": "An op amp's offset drifts by {{TC*1e6}} µV/°C. The offset is trimmed to zero at 25 °C. How large is the offset after a temperature change of {{dT}} °C?",
+          "answer": "TC*dT",
+          "unit": "V",
+          "explanation": "$\\Delta V_{os} = \\frac{dV_{os}}{dT}\\Delta T$ = {{TC*1e6}} µV/°C × {{dT}} °C = **{{TC*dT|V}}**. Trimming does nothing against this."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "CMRR and PSRR as input errors",
+          "body": "A common-mode voltage $V_{cm}$ on both inputs leaks through as if a differential input of $V_{cm}/\\text{CMRR}$ were present. Likewise, a supply change $\\Delta V_S$ acts like an input of $\\Delta V_S/\\text{PSRR}$. Convert the dB figure first: 100 dB = 10$^5$.",
+          "formula": "e_{cm} = \\frac{V_{cm}}{10^{\\,\\text{CMRR}/20}}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vcm": [
+              1,
+              2.5,
+              5,
+              10
+            ],
+            "C": [
+              80,
+              90,
+              100,
+              110,
+              120
+            ]
+          },
+          "prompt": "An amplifier with CMRR = {{C}} dB sees a common-mode voltage of {{Vcm|V}}. What is the equivalent input error?",
+          "answer": "Vcm*10^(-C/20)",
+          "unit": "V",
+          "explanation": "CMRR = 10$^{ {{C}}/20 }$ = {{10^(C/20)||3}}. $e_{cm}$ = {{Vcm|V}} / {{10^(C/20)||3}} = **{{Vcm*10^(-C/20)|V}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "dV": [
+              0.01,
+              0.05,
+              0.1,
+              0.5
+            ],
+            "P": [
+              70,
+              80,
+              90,
+              100
+            ]
+          },
+          "prompt": "The op amp's supply carries {{dV|V}} of ripple. Its PSRR is {{P}} dB. How large is the equivalent ripple at the input?",
+          "answer": "dV*10^(-P/20)",
+          "unit": "V",
+          "explanation": "PSRR = 10$^{ {{P}}/20 }$ = {{10^(P/20)||3}}, so $e_{ps}$ = {{dV|V}} / {{10^(P/20)||3}} = **{{dV*10^(-P/20)|V}}**. PSRR falls at higher frequencies, so switching-regulator ripple gets through more easily."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Trim or auto-zero?",
+          "body": "An offset trim (potentiometer or a trimmed IC) zeroes $V_{os}$ at one temperature, but the drift remains. A **chopper** or **auto-zero** amplifier repeatedly measures its own offset and subtracts it, reaching ≈1 µV offset and ≈10 nV/°C drift. The price: switching spikes, residual ripple at the chopping frequency, and modest bandwidth."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Trimming an op amp's offset to zero at room temperature also removes its offset drift.",
+          "answer": false,
+          "explanation": "False. Trimming only cancels the offset at the trim temperature. The drift (µV/°C) remains, and the imbalance added by an offset-adjust trimmer often makes it worse. For low drift choose a low-drift or auto-zero part."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each error source to a good remedy",
+          "pairs": [
+            [
+              "Offset drift over temperature",
+              "Auto-zero (chopper) amplifier"
+            ],
+            [
+              "Bias current × source resistance",
+              "FET input or equal input resistances"
+            ],
+            [
+              "Common-mode voltage",
+              "Instrumentation amplifier"
+            ],
+            [
+              "Supply ripple",
+              "Better decoupling, high PSRR"
+            ]
+          ],
+          "explanation": "Each error has its own cure: auto-zero for drift, FET inputs (or $R_{comp}$ with only $I_{os}$ left) for bias currents, a high-CMRR in-amp for common mode, and clean, well-decoupled supplies (PSRR drops with frequency) for supply ripple."
+        }
+      ]
+    },
+    {
+      "id": "ae-precision-2",
+      "title": "Error budgets and difference amps",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vos": [
+              2.5e-05,
+              5e-05,
+              0.0001
+            ],
+            "IB": [
+              1e-09,
+              5e-09
+            ],
+            "Rs": [
+              1000,
+              10000
+            ],
+            "TC": [
+              5e-07,
+              1e-06,
+              2e-06
+            ],
+            "dT": [
+              25,
+              50
+            ],
+            "C": [
+              100,
+              110
+            ],
+            "G": [
+              100,
+              200
+            ]
+          },
+          "derived": {
+            "e1": "IB*Rs",
+            "e2": "TC*dT",
+            "e3": "2.5*10^(-C/20)",
+            "tot": "Vos + IB*Rs + TC*dT + 2.5*10^(-C/20)"
+          },
+          "prompt": "A precision amplifier (gain {{G}}) has $V_{os}$ = {{Vos|V}} (untrimmed), $I_B$ = {{IB|A}} through $R_S$ = {{Rs|Ω}}, drift {{TC*1e6}} µV/°C over a {{dT}} °C range, and CMRR = {{C}} dB with 2.5 V common mode.",
+          "ask": [
+            {
+              "prompt": "Find the worst-case total error referred to the input.",
+              "answer": "tot",
+              "unit": "V",
+              "explanation": "Add all terms (worst case):\n- $V_{os}$ = {{Vos|V}}\n- $I_BR_S$ = {{e1|V}}\n- drift: {{TC*1e6}} µV/°C × {{dT}} °C = {{e2|V}}\n- CMRR: 2.5 V / 10$^{ {{C}}/20 }$ = {{e3|V}}\nTotal = **{{tot|V}}**."
+            },
+            {
+              "prompt": "Find the worst-case error at the output.",
+              "answer": "tot*G",
+              "unit": "V",
+              "explanation": "RTI total: {{Vos|V}} + {{e1|V}} + {{e2|V}} + {{e3|V}} = {{tot|V}}. Times the gain {{G}}: **{{tot*G|V}}** at the output."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "R1": [
+              1000,
+              10000
+            ],
+            "k": [
+              10,
+              50,
+              100
+            ],
+            "IB": [
+              5e-08,
+              1e-07,
+              2e-07
+            ],
+            "f": [
+              0.1,
+              0.2
+            ]
+          },
+          "derived": {
+            "R2": "k*R1",
+            "Ios": "f*IB"
+          },
+          "prompt": "A non-inverting amplifier has $R_1$ = {{R1|Ω}} and $R_2$ = {{R2|Ω}}. The op amp has $I_B$ = {{IB|A}} and $I_{os}$ = {{Ios|A}}; ignore $V_{os}$.",
+          "ask": [
+            {
+              "prompt": "The + input is grounded directly. What output error does the bias current cause?",
+              "answer": "IB*R2",
+              "unit": "V",
+              "explanation": "With $v_o$ = 0 V ideally, the − input bias current must come through $R_2$, so $v_o = I_BR_2$ = {{IB|A}} × {{R2|Ω}} = **{{IB*R2|V}}**."
+            },
+            {
+              "prompt": "A resistor $R_1 \\parallel R_2$ is put in series with the + input. What is the worst-case output error now?",
+              "answer": "Ios*R2",
+              "unit": "V",
+              "explanation": "Both inputs now see the same DC resistance, so the bias-current drops cancel except for the difference $I_{os}$: $v_o = I_{os}R_2$ = {{Ios|A}} × {{R2|Ω}} = **{{Ios*R2|V}}**, instead of {{IB*R2|V}}. $R_{comp}$ = {{par(R1,R2)|Ω}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "G": [
+              1,
+              10,
+              100
+            ],
+            "t": [
+              0.0001,
+              0.001,
+              0.01
+            ]
+          },
+          "prompt": "A four-resistor difference amplifier with gain {{G}} uses resistors with tolerance ±{{t*100}} %. Estimate its worst-case CMRR in dB.",
+          "answer": "20*log10((1+G)/(4*t))",
+          "unit": "dB",
+          "explanation": "$\\text{CMRR} \\approx \\frac{1+G}{4t}$ = (1 + {{G}}) / (4 × {{t}}) = {{(1+G)/(4*t)||3}}, which is 20 log$_{10}$ = **{{20*log10((1+G)/(4*t))|dB}}**. Higher gain helps; so do tighter (or matched) resistors."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "C": [
+              60,
+              70,
+              80
+            ],
+            "G": [
+              1,
+              10
+            ]
+          },
+          "prompt": "A difference amplifier with gain {{G}} must reach at least {{C}} dB CMRR (worst case). What resistor tolerance (in %) is needed?",
+          "answer": "100*(1+G)/(4*10^(C/20))",
+          "unit": "%",
+          "explanation": "CMRR = 10$^{ {{C}}/20 }$ = {{10^(C/20)||3}}. From $\\text{CMRR} = \\frac{1+G}{4t}$: $t = \\frac{1+G}{4\\,\\text{CMRR}}$ = {{1+G}} / (4 × {{10^(C/20)||3}}) = {{(1+G)/(4*10^(C/20))||3}} = **{{100*(1+G)/(4*10^(C/20))||3}} %**. That's why integrated difference amps use laser-trimmed resistor networks."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "G": [
+              10,
+              50,
+              100,
+              500,
+              1000
+            ]
+          },
+          "prompt": "A three-op-amp instrumentation amplifier has $R$ = 25 kΩ in each buffer's feedback path and a unity-gain difference stage, so $G = 1 + 2R/R_G$. What $R_G$ gives a gain of {{G}}?",
+          "answer": "50000/(G-1)",
+          "unit": "Ω",
+          "explanation": "$R_G = \\frac{2R}{G - 1}$ = 50 kΩ / ({{G}} − 1) = **{{50000/(G-1)|Ω}}**. Only this one resistor sets the gain; the matched resistors that set the CMRR stay untouched."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "C0": [
+              40,
+              50,
+              60
+            ],
+            "G1": [
+              10,
+              100,
+              1000
+            ]
+          },
+          "prompt": "In an in-amp, the difference stage alone has {{C0}} dB CMRR. The buffer stage has differential gain {{G1}} and common-mode gain 1. Estimate the in-amp's total CMRR.",
+          "answer": "C0 + 20*log10(G1)",
+          "unit": "dB",
+          "explanation": "The buffers boost the differential signal {{G1}}× while passing common mode at gain 1, so CMRR improves by 20 log$_{10}$({{G1}}) = {{20*log10(G1)|dB}}: total ≈ {{C0}} + {{20*log10(G1)}} = **{{C0+20*log10(G1)|dB}}**. In-amps therefore have more CMRR at high gain."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "You must amplify a thermocouple signal (≈40 µV/°C) to 0.1 °C accuracy over a 0–70 °C ambient range. Which op amp is the natural choice?",
+          "options": [
+            "Auto-zero (chopper) op amp: 1 µV offset, 0.01 µV/°C",
+            "General-purpose JFET op amp: 3 mV offset, 10 µV/°C",
+            "Bipolar op amp with trimmed offset, 5 µV/°C drift",
+            "Fast current-feedback amplifier, 2 mV offset"
+          ],
+          "answer": 0,
+          "explanation": "0.1 °C is 4 µV. Across the 70 °C ambient range a 5 µV/°C drift moves the offset by up to 350 µV (≈9 °C); 10 µV/°C is worse. Only the auto-zero amplifier (0.01 µV/°C × 70 = 0.7 µV) stays well inside the budget, and the signal is slow enough for its limited bandwidth."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "E": [
+              0.0005,
+              0.001,
+              0.002,
+              0.005
+            ],
+            "n": [
+              12,
+              14,
+              16
+            ]
+          },
+          "prompt": "The worst-case error at an amplifier's output is {{E|V}}. It drives a {{n}}-bit ADC with a 5 V range. How many LSBs is that?",
+          "answer": "E/(5/2^n)",
+          "unit": "",
+          "explanation": "1 LSB = 5 V / 2$^{ {{n}} }$ = {{5/2^n|V}}. Error = {{E|V}} / {{5/2^n|V}} = **{{E/(5/2^n)||3}} LSB**. If it is more than about 1 LSB, the extra ADC bits are wasted unless you calibrate."
+        }
+      ]
+    },
+    {
+      "id": "ae-precision-3",
+      "title": "Op-amp noise",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Adding up noise",
+          "body": "Noise sources are uncorrelated, so their **powers** add: square the densities, add, take the root. Use $4kT$ = 1.66 × 10$^{-20}$ J at 300 K. Multiply the density (V/√Hz) by $\\sqrt B$ to get the rms noise in a bandwidth $B$.",
+          "formula": "v_n = \\sqrt{e_n^2 + (i_nR_s)^2 + 4kTR_s}\\,\\sqrt{B}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R": [
+              100,
+              1000,
+              10000,
+              100000,
+              1000000
+            ]
+          },
+          "prompt": "What is the thermal (Johnson) noise density of a {{R|Ω}} resistor at 300 K?",
+          "answer": "sqrt(1.656e-20*R)",
+          "unit": "V/√Hz",
+          "explanation": "$e_R = \\sqrt{4kTR}$ = √(1.66 × 10$^{-20}$ × {{R|Ω}}) = **{{sqrt(1.656e-20*R)|V/√Hz}}**. Handy anchor: 1 kΩ ≈ 4 nV/√Hz, scaling with $\\sqrt R$."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "en": [
+              1e-09,
+              4e-09,
+              1e-08
+            ],
+            "in": [
+              5e-13,
+              1e-12,
+              2e-12
+            ],
+            "Rs": [
+              100,
+              1000,
+              10000
+            ]
+          },
+          "derived": {
+            "et": "sqrt(en^2 + (in*Rs)^2 + 1.656e-20*Rs)"
+          },
+          "prompt": "An op amp with $e_n$ = {{en|V/√Hz}} and $i_n$ = {{in*1e12||3}} pA/√Hz is driven from a {{Rs|Ω}} source. Find the total input noise density.",
+          "answer": "et",
+          "unit": "V/√Hz",
+          "explanation": "Three terms: $e_n$ = {{en|V/√Hz}}, $i_nR_s$ = {{in*Rs|V/√Hz}}, $\\sqrt{4kTR_s}$ = {{sqrt(1.656e-20*Rs)|V/√Hz}}. Add in quadrature: $\\sqrt{ {{en*1e9||3}}^2 + {{in*Rs*1e9||3}}^2 + {{sqrt(1.656e-20*Rs)*1e9||3}}^2 }$ nV/√Hz = **{{et|V/√Hz}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "e": [
+              5e-09,
+              1e-08,
+              2e-08
+            ],
+            "B": [
+              1000,
+              10000,
+              20000,
+              100000
+            ],
+            "G": [
+              10,
+              100
+            ]
+          },
+          "prompt": "An amplifier with gain {{G}} has a total input noise density of {{e|V/√Hz}} (white) over a bandwidth of {{B|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is the rms noise referred to the input?",
+              "answer": "e*sqrt(B)",
+              "unit": "V",
+              "explanation": "$v_n = e\\sqrt B$ = {{e|V/√Hz}} × $\\sqrt{ {{B}} }$ = {{e|V/√Hz}} × {{sqrt(B)||3}} = **{{e*sqrt(B)|V}}** rms."
+            },
+            {
+              "prompt": "What is the rms noise at the output?",
+              "answer": "G*e*sqrt(B)",
+              "unit": "V",
+              "explanation": "Input: {{e|V/√Hz}} × $\\sqrt{ {{B}} }$ = {{e*sqrt(B)|V}}. Output: × {{G}} = **{{G*e*sqrt(B)|V}}** rms (peak-to-peak is about 6× that)."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "en": [
+              1e-09,
+              3e-09,
+              1e-08,
+              2e-08
+            ],
+            "in": [
+              1e-14,
+              1e-13,
+              5e-13,
+              2e-12
+            ]
+          },
+          "prompt": "An op amp has $e_n$ = {{en|V/√Hz}} and $i_n$ = {{in*1e12||3}} pA/√Hz. At what source resistance are its voltage and current noise contributions equal?",
+          "answer": "en/in",
+          "unit": "Ω",
+          "explanation": "$i_nR_s = e_n$ → $R_s = e_n/i_n$ = {{en|V/√Hz}} / {{in*1e12||3}} pA/√Hz = **{{en/in|Ω}}**. Near this value the op amp adds the least noise relative to the source's own thermal noise."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "Rs": [
+              50,
+              100,
+              10000,
+              100000,
+              1000000
+            ]
+          },
+          "derived": {
+            "nA": "sqrt(1.1e-9^2 + (1.7e-12*Rs)^2)",
+            "nB": "sqrt(8e-9^2 + (1e-14*Rs)^2)"
+          },
+          "prompt": "The source resistance is {{Rs|Ω}}. Which op amp adds less noise? A: bipolar, $e_n$ = 1.1 nV/√Hz, $i_n$ = 1.7 pA/√Hz. B: JFET, $e_n$ = 8 nV/√Hz, $i_n$ = 0.01 pA/√Hz.",
+          "options": [
+            "A (bipolar)",
+            "B (JFET)"
+          ],
+          "answer": "if(nA - nB, 1, 0)",
+          "explanation": "Compare $\\sqrt{e_n^2 + (i_nR_s)^2}$:\n- A: $\\sqrt{1.1^2 + ({{1.7e-3*Rs||3}})^2}$ = {{nA|V/√Hz}}\n- B: $\\sqrt{8^2 + ({{1e-5*Rs||3}})^2}$ = {{nB|V/√Hz}}\nThe op amp with the smaller value wins. $R_{opt}$ is 650 Ω for A and 800 kΩ for B: bipolar for low, FET for high source resistance."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              1e-06,
+              1e-05,
+              0.0001
+            ],
+            "e": [
+              4e-09,
+              1e-08
+            ],
+            "B": [
+              1000,
+              10000
+            ]
+          },
+          "prompt": "A {{Vs|V}} rms signal is measured with a total input noise density of {{e|V/√Hz}} in a {{B|Hz}} bandwidth. What is the signal-to-noise ratio in dB?",
+          "answer": "20*log10(Vs/(e*sqrt(B)))",
+          "unit": "dB",
+          "absTolerance": 0.3,
+          "explanation": "Noise: {{e|V/√Hz}} × $\\sqrt{ {{B}} }$ = {{e*sqrt(B)|V}} rms. SNR = 20 log$_{10}$({{Vs|V}} / {{e*sqrt(B)|V}}) = **{{20*log10(Vs/(e*sqrt(B)))|dB}}**. Narrowing the bandwidth is often the cheapest way to win SNR."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Below the 1/f corner frequency, an op amp's voltage noise density rises as $1/\\sqrt f$ (its noise power density as $1/f$).",
+          "answer": true,
+          "explanation": "True. Above the corner $e_n$ is flat (white); below it the power density grows as $1/f$, so the density in V/√Hz grows as $1/\\sqrt f$. Bipolar and JFET corners are typically 1–100 Hz, CMOS often 1 kHz or more; auto-zero amplifiers have no 1/f region."
+        },
+        {
+          "id": "q8",
+          "type": "slider",
+          "params": {
+            "en": [
+              2e-09,
+              4e-09,
+              1e-08
+            ],
+            "in": [
+              4e-13,
+              1e-12,
+              2e-12
+            ]
+          },
+          "prompt": "This op amp has $e_n$ = {{en|V/√Hz}} and $i_n$ = {{in*1e12||3}} pA/√Hz. Move $R_s$ to the point where its current-noise contribution $i_nR_s$ equals $e_n$.",
+          "plot": {
+            "x": {
+              "min": 10,
+              "max": 10000000.0,
+              "label": "R_s",
+              "unit": "Ω",
+              "log": true
+            },
+            "y": {
+              "min": 1e-10,
+              "max": 1e-05,
+              "label": "noise density (V/√Hz)",
+              "log": true
+            },
+            "curves": [
+              {
+                "f": "en + 0*x",
+                "color": "blue",
+                "dash": true
+              },
+              {
+                "f": "in*x",
+                "color": "red",
+                "dash": true
+              },
+              {
+                "f": "sqrt(1.656e-20*x)",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "sqrt(en^2 + (in*x)^2 + 1.656e-20*x)"
+              }
+            ],
+            "labels": [
+              {
+                "x": 14,
+                "y": 3e-06,
+                "text": "total",
+                "color": "primary"
+              },
+              {
+                "x": 14,
+                "y": 1e-06,
+                "text": "e_n",
+                "color": "blue"
+              },
+              {
+                "x": 14,
+                "y": 3.3e-07,
+                "text": "i_n R_s",
+                "color": "red"
+              },
+              {
+                "x": 14,
+                "y": 1.1e-07,
+                "text": "√(4kTR_s)",
+                "color": "grey"
+              }
+            ],
+            "sliders": [
+              {
+                "name": "Rs",
+                "label": "$R_s$",
+                "min": 10,
+                "max": 10000000.0,
+                "log": true,
+                "value": 1000000,
+                "unit": "Ω"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "Rs",
+                "label": "R_s"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$i_nR_s$",
+                "value": "in*Rs",
+                "unit": "V/√Hz"
+              },
+              {
+                "label": "$e_n$",
+                "value": "en",
+                "unit": "V/√Hz"
+              }
+            ],
+            "height": 250
+          },
+          "answer": {
+            "Rs": "en/in"
+          },
+          "tolerance": 0.05,
+          "explanation": "The red line $i_nR_s$ crosses the flat blue $e_n$ line at $R_s = e_n/i_n$ = {{en|V/√Hz}} / {{in*1e12||3}} pA/√Hz = **{{en/in|Ω}}**. Left of it the voltage noise dominates, right of it the current noise."
+        },
+        {
+          "id": "q9",
+          "type": "numeric",
+          "params": {
+            "en": [
+              3e-09,
+              5e-09,
+              1e-08
+            ],
+            "k": [
+              9,
+              10,
+              20,
+              47,
+              100
+            ]
+          },
+          "prompt": "An **inverting** amplifier has $R_2/R_1$ = {{k}} (gain −{{k}}). The op amp has $e_n$ = {{en|V/√Hz}}. Considering only $e_n$, what is the noise density at the output?",
+          "answer": "en*(1+k)",
+          "unit": "V/√Hz",
+          "explanation": "$e_n$ sits in series with the + input, so it sees the **noise gain** $1 + R_2/R_1$ = {{1+k}}, not the signal gain {{k}}: {{en|V/√Hz}} × {{1+k}} = **{{en*(1+k)|V/√Hz}}**."
+        }
+      ]
+    },
+    {
+      "id": "ae-precision-4",
+      "title": "Precision front-end design",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vfs": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "Vos": [
+              2.5e-05,
+              5e-05
+            ],
+            "TC": [
+              2.5e-07,
+              5e-07
+            ],
+            "dT": [
+              30,
+              50
+            ],
+            "C": [
+              100,
+              110
+            ]
+          },
+          "derived": {
+            "err": "Vos + TC*dT + 2.5*10^(-C/20)",
+            "G": "5/Vfs"
+          },
+          "prompt": "A bridge sensor gives {{Vfs|V}} full scale on a 2.5 V common-mode level. An in-amp ($G = 1 + 49.4\\,\\text{kΩ}/R_G$) has $V_{os}$ = {{Vos|V}}, drift {{TC*1e6}} µV/°C over {{dT}} °C, and CMRR = {{C}} dB.",
+          "ask": [
+            {
+              "prompt": "Which $R_G$ scales full scale to 5 V?",
+              "answer": "49400/(G-1)",
+              "unit": "Ω",
+              "explanation": "$G$ = 5 V / {{Vfs|V}} = {{G}}. $R_G = \\frac{49.4\\,\\text{kΩ}}{G-1}$ = 49.4 kΩ / {{G-1}} = **{{49400/(G-1)|Ω}}**."
+            },
+            {
+              "prompt": "Find the worst-case input-referred error as a percentage of full scale.",
+              "answer": "100*err/Vfs",
+              "unit": "%",
+              "explanation": "$V_{os}$ = {{Vos|V}}, drift {{TC*1e6}} × {{dT}} = {{TC*dT|V}}, CMRR: 2.5 V / 10$^{ {{C}}/20 }$ = {{2.5*10^(-C/20)|V}}. Total {{err|V}}; relative to {{Vfs|V}}: **{{100*err/Vfs||3}} %**. A one-time calibration could remove the $V_{os}$ part."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Rs": [
+              100,
+              1000
+            ],
+            "R1": [
+              100,
+              1000
+            ],
+            "k": [
+              10,
+              100
+            ],
+            "en": [
+              1e-09,
+              3e-09
+            ],
+            "in": [
+              1e-12,
+              2e-12
+            ],
+            "B": [
+              10000,
+              20000
+            ]
+          },
+          "derived": {
+            "R2": "(k-1)*R1",
+            "Rp": "R1*(k-1)/k",
+            "et": "sqrt(en^2 + in^2*(Rs^2 + Rp^2) + 1.656e-20*(Rs + Rp))"
+          },
+          "prompt": "A non-inverting amplifier with gain {{k}} ($R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}}) amplifies a source with $R_s$ = {{Rs|Ω}}. Op amp: $e_n$ = {{en|V/√Hz}}, $i_n$ = {{in*1e12||3}} pA/√Hz. The input noise is $\\sqrt{e_n^2 + i_n^2(R_s^2 + R_p^2) + 4kT(R_s + R_p)}$ with $R_p = R_1 \\parallel R_2$.",
+          "ask": [
+            {
+              "prompt": "Find the total input noise density.",
+              "answer": "et",
+              "unit": "V/√Hz",
+              "explanation": "$R_p$ = {{Rp|Ω}}. Terms: $e_n$ = {{en|V/√Hz}}; $i_n\\sqrt{R_s^2 + R_p^2}$ = {{in*sqrt(Rs^2+Rp^2)|V/√Hz}}; $\\sqrt{4kT(R_s+R_p)}$ = {{sqrt(1.656e-20*(Rs+Rp))|V/√Hz}}. Quadrature sum: **{{et|V/√Hz}}**."
+            },
+            {
+              "prompt": "Find the rms output noise in a {{B|Hz}} bandwidth.",
+              "answer": "et*k*sqrt(B)",
+              "unit": "V",
+              "explanation": "$R_p$ = {{Rp|Ω}}, input density $\\sqrt{e_n^2 + i_n^2(R_s^2+R_p^2) + 4kT(R_s+R_p)}$ = {{et|V/√Hz}}. Output: × gain {{k}} × $\\sqrt{ {{B}} }$ = **{{et*k*sqrt(B)|V}}** rms."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.5,
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "A Pt100 sensor (100 Ω at 0 °C, 0.385 Ω/°C) is measured with a 2-wire connection. Each lead has {{r|Ω}} of resistance.",
+          "ask": [
+            {
+              "prompt": "What temperature error (in °C) do the leads cause?",
+              "answer": "2*r/0.385",
+              "unit": "",
+              "explanation": "The meter measures sensor plus both leads: 2 × {{r|Ω}} = {{2*r|Ω}} extra. That looks like {{2*r}} / 0.385 = **{{2*r/0.385||3}} °C** too warm."
+            },
+            {
+              "prompt": "With 4-wire (Kelvin) sensing and a voltmeter input current of 1 nA, what error voltage do the {{r|Ω}} sense leads add?",
+              "answer": "2*r*1e-9",
+              "unit": "V",
+              "absTolerance": 1e-11,
+              "explanation": "The sense leads carry only the meter's input current: 1 nA × 2 × {{r|Ω}} = **{{2*r*1e-9|V}}**, utterly negligible next to the ≈0.385 mV/°C signal at 1 mA excitation. The current flows in separate force leads whose drop is not measured."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "I": [
+              0.01,
+              0.1,
+              1
+            ],
+            "R": [
+              0.01,
+              0.05,
+              0.1
+            ],
+            "C": [
+              60,
+              80
+            ]
+          },
+          "prompt": "A sensor and a DAQ are both grounded; {{I|A}} of stray current flows through the {{R|Ω}} ground wire between them.",
+          "ask": [
+            {
+              "prompt": "What error appears with a single-ended input?",
+              "answer": "I*R",
+              "unit": "V",
+              "explanation": "The ground drop $V = I_{gnd}R_{wire}$ = {{I|A}} × {{R|Ω}} = **{{I*R|V}}** sits in series with the signal."
+            },
+            {
+              "prompt": "With a differential input of {{C}} dB CMRR, how large is the remaining error?",
+              "answer": "I*R*10^(-C/20)",
+              "unit": "V",
+              "explanation": "The ground drop {{I*R|V}} is now common mode: error = {{I*R|V}} / 10$^{ {{C}}/20 }$ = **{{I*R*10^(-C/20)|V}}**. Breaking the loop (isolation, single-point ground) removes it entirely."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "v": [
+              1e-06,
+              2e-06,
+              5e-06
+            ],
+            "e": [
+              5e-09,
+              1e-08,
+              2e-08
+            ]
+          },
+          "prompt": "The input noise density of a measurement amplifier is {{e|V/√Hz}} (white). What is the largest bandwidth that keeps the input rms noise below {{v|V}}?",
+          "answer": "(v/e)^2",
+          "unit": "Hz",
+          "explanation": "$v_n = e\\sqrt B \\le v$ → $B \\le (v/e)^2$ = ({{v|V}} / {{e|V/√Hz}})$^2$ = {{v/e||3}}$^2$ = **{{(v/e)^2|Hz}}**. Halving the noise needs a 4× smaller bandwidth."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each interference problem to its cure",
+          "pairs": [
+            [
+              "Ground loop between two instruments",
+              "Star ground or differential input"
+            ],
+            [
+              "Leakage into a high-impedance input",
+              "Guard ring at input potential"
+            ],
+            [
+              "Lead resistance in a sensor",
+              "Kelvin (4-wire) connection"
+            ],
+            [
+              "Magnetic pickup on long leads",
+              "Twisted pair, small loop area"
+            ]
+          ],
+          "explanation": "Each mechanism has its own fix: a ground loop is broken or rejected as common mode; a guard ring at the same potential as the input means no voltage across the leakage path, hence no current; Kelvin leads carry no current, so no drop; a twisted pair cancels the induced voltage of successive loops."
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the steps of making a precision error budget in order",
+          "items": [
+            "Define the required accuracy at the input (smallest signal step)",
+            "List each error source (offset, bias, drift, CMRR, PSRR, noise, gain)",
+            "Refer every error to the input in volts",
+            "Add them (worst case or RSS) and compare with the requirement",
+            "Attack the largest term first (better part, trim, auto-zero)"
+          ],
+          "explanation": "Start from the requirement, put every error in the same units at the same point (RTI), add them, and spend money only on the dominant term: improving a small term barely changes the total."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1446 @@
+{
+  "id": "sx-frequency-response",
+  "title": "Frequency Response",
+  "description": "How LTI systems scale and shift sinusoids, from ideal filters to distortionless transmission and group delay.",
+  "reference": "Phillips §5.4, §6.1–6.2",
+  "study": [
+    {
+      "title": "Frequency response",
+      "body": "For an LTI system with impulse response $h(t)$, the frequency response $H(j\\omega)$ is the Fourier transform of $h(t)$, or the transfer function $H(s)$ evaluated at $s = j\\omega$. A sinusoid passes through unchanged in shape and frequency: its amplitude is multiplied by $|H(j\\omega)|$ and its phase shifted by $\\angle H(j\\omega)$.",
+      "formula": "y(t) = A|H|\\cos(\\omega t + \\phi + \\angle H)",
+      "circuit": {
+        "elements": [
+          {
+            "type": "acsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "v_{in}"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              3,
+              0
+            ],
+            "label": "R"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                0
+              ],
+              [
+                5,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              2
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              0
+            ],
+            "label": "+"
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              2
+            ],
+            "label": "−"
+          },
+          {
+            "type": "text",
+            "at": [
+              5,
+              1
+            ],
+            "label": "v_{out}"
+          }
+        ]
+      }
+    },
+    {
+      "title": "First-order low-pass",
+      "body": "The RC low-pass has $H(j\\omega) = \\frac{1}{1 + j\\omega/\\omega_c}$ with $\\omega_c = 1/RC$. At $\\omega = \\omega_c$: $|H| = 1/\\sqrt{2}$ (−3 dB) and $\\angle H = -45°$. Far above $\\omega_c$ the gain falls 20 dB per decade and the phase $-\\arctan(\\omega/\\omega_c)$ approaches $-90°$. Bode plots use a logarithmic frequency axis and $|H|$ in dB.",
+      "formula": "|H(j\\omega)| = \\frac{1}{\\sqrt{1 + (\\omega/\\omega_c)^2}}",
+      "plot": {
+        "x": {
+          "min": 0.01,
+          "max": 100,
+          "label": "ω/ω_c",
+          "log": true
+        },
+        "y": {
+          "min": -45,
+          "max": 5,
+          "label": "|H| (dB)"
+        },
+        "curves": [
+          {
+            "f": "-10*log10(1+x^2)",
+            "label": "|H|",
+            "labelAt": 0.3
+          },
+          {
+            "f": "min(0,-20*log10(x))",
+            "label": "asymptotes",
+            "color": "grey",
+            "dash": true,
+            "labelAt": 0.85
+          }
+        ],
+        "hlines": [
+          {
+            "y": -3,
+            "label": "−3 dB"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Second-order low-pass",
+      "body": "$H(s) = \\frac{\\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}$. At $\\omega = \\omega_n$ the gain is exactly $\\frac{1}{2\\zeta}$ and the phase $-90°$. For $\\zeta < 0.707$ the response has a **resonant peak**; well above $\\omega_n$ it falls at 40 dB per decade.",
+      "formula": "|H(j\\omega_n)| = \\frac{1}{2\\zeta}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "ω/ω_n"
+        },
+        "y": {
+          "min": 0,
+          "max": 2.8,
+          "label": "|H|"
+        },
+        "curves": [
+          {
+            "f": "1/sqrt((1-x^2)^2+(2*0.2*x)^2)",
+            "label": "ζ = 0.2",
+            "labelAt": 0.38
+          },
+          {
+            "f": "1/sqrt((1-x^2)^2+(2*0.5*x)^2)",
+            "label": "ζ = 0.5",
+            "color": "blue",
+            "labelAt": 0.16
+          },
+          {
+            "f": "1/sqrt((1-x^2)^2+(2*1*x)^2)",
+            "label": "ζ = 1",
+            "color": "orange",
+            "labelAt": 0.75
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: ζ and the resonant peak",
+      "body": "Bode magnitude of $\\frac{\\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}$. Drag $\\zeta$: at $\\omega_n$ the gain is $1/2\\zeta$, so a light damping gives a tall resonant peak. Above $\\zeta = 0.707$ the peak disappears and the curve only rolls off, always at −40 dB/decade far above $\\omega_n$.",
+      "formula": "M_r = \\frac{1}{2\\zeta\\sqrt{1-\\zeta^2}} \\quad (\\zeta < 0.707)",
+      "plot": {
+        "x": {
+          "min": 0.1,
+          "max": 10,
+          "label": "ω/ω_n",
+          "log": true
+        },
+        "y": {
+          "min": -40,
+          "max": 25,
+          "label": "|H| (dB)",
+          "ticks": [
+            -40,
+            -20,
+            0,
+            20
+          ]
+        },
+        "sliders": [
+          {
+            "name": "z",
+            "label": "$\\zeta$",
+            "min": 0.05,
+            "max": 1.5,
+            "step": 0.01,
+            "value": 0.2
+          }
+        ],
+        "curves": [
+          {
+            "f": "-10*log10((1-x^2)^2 + (2*z*x)^2)"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 1,
+            "label": "ω_n"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "readouts": [
+          {
+            "label": "gain at $\\omega_n$",
+            "value": "20*log10(1/(2*z))",
+            "unit": "dB"
+          },
+          {
+            "label": "peak $M_r$",
+            "value": "if(0.7071 - z, 20*log10(1/(2*z*sqrt(1-z^2))), 0)",
+            "unit": "dB"
+          },
+          {
+            "label": "$\\omega_r/\\omega_n$",
+            "value": "if(0.7071 - z, sqrt(1-2*z^2), 0)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Ideal filters",
+      "body": "An ideal filter passes its pass band with gain 1 and blocks everything else: low-pass, high-pass, band-pass and band-stop. The ideal low-pass has a sinc impulse response that starts at $t = -\\infty$, so it is **non-causal** and cannot be built. Real filters approximate it with a transition band; a higher order gives a steeper edge.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "ω/ω_c"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.2,
+          "label": "|H|"
+        },
+        "curves": [
+          {
+            "f": "step(1-x)",
+            "label": "ideal",
+            "labelAt": 0.2
+          },
+          {
+            "f": "1/sqrt(1+x^8)",
+            "label": "4th-order Butterworth",
+            "color": "blue",
+            "labelAt": 0.45
+          }
+        ]
+      }
+    },
+    {
+      "title": "Distortionless transmission",
+      "body": "The output is an exact copy of the input if it is only scaled and delayed: $y(t) = Kx(t - t_0)$. That requires a **constant gain** ($|H| = K$) and a **linear phase** ($\\angle H = -\\omega t_0$) over the band of the signal. A gain that varies with frequency gives amplitude distortion; a phase that is not proportional to $\\omega$ gives phase (delay) distortion.",
+      "formula": "H(j\\omega) = K e^{-j\\omega t_0}"
+    },
+    {
+      "title": "Group delay",
+      "body": "The group delay is the delay of the envelope of a narrow-band signal around $\\omega$. For a linear phase $-\\omega t_0$ it is the constant $t_0$: all frequencies are delayed equally. For the first-order low-pass, $\\tau_g = \\frac{\\tau}{1 + (\\omega\\tau)^2}$ with $\\tau = RC$: about $\\tau$ at low frequencies, falling off above $\\omega_c$.",
+      "formula": "\\tau_g(\\omega) = -\\frac{d\\angle H(j\\omega)}{d\\omega}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sx-frequency-response-1",
+      "title": "Sinusoids through systems",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Sinusoid in, sinusoid out",
+          "body": "Complex exponentials $e^{j\\omega t}$ are eigenfunctions of LTI systems: the output is the same exponential times the number $H(j\\omega)$. So a sinusoid comes out as a sinusoid of the **same frequency**, with its amplitude multiplied by $|H(j\\omega)|$ and its phase shifted by $\\angle H(j\\omega)$.",
+          "formula": "y(t) = A|H|\\cos(\\omega t + \\angle H)"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2,
+              5,
+              10
+            ],
+            "M": [
+              0.2,
+              0.5,
+              0.8,
+              1.5,
+              2
+            ],
+            "ph": [
+              -60,
+              -45,
+              -30,
+              20
+            ]
+          },
+          "prompt": "The input $x(t)$ = {{A}} cos(1000t) V is applied to an LTI system with $H(j1000)$ = {{M}} ∠ {{ph}}°.",
+          "ask": [
+            {
+              "prompt": "Find the amplitude of the output sinusoid.",
+              "answer": "A*M",
+              "unit": "V",
+              "explanation": "The amplitude is multiplied by $|H|$: {{A}} V × {{M}} = {{A*M|V}}."
+            },
+            {
+              "prompt": "Find the phase of the output sinusoid in degrees.",
+              "answer": "ph",
+              "unit": "°",
+              "explanation": "The input phase is 0°, and the system adds $\\angle H$ = {{ph}}°. So $y(t)$ = {{A*M}} cos(1000t + ({{ph}}°)) V, phase {{ph}}°."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The RC low-pass",
+          "body": "Treat the circuit as a voltage divider with impedances $R$ and $\\frac{1}{j\\omega C}$. Multiplying top and bottom by $j\\omega C$ gives the frequency response below. Low frequencies pass ($|H| \\approx 1$), high frequencies are attenuated.",
+          "formula": "H(j\\omega) = \\frac{V_{out}}{V_{in}} = \\frac{1}{1 + j\\omega RC}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  0
+                ],
+                "label": "+"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "−"
+              },
+              {
+                "type": "text",
+                "at": [
+                  5,
+                  1
+                ],
+                "label": "v_{out}"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "R": [
+              1000,
+              2200,
+              4700,
+              10000
+            ],
+            "C": [
+              1e-07,
+              4.7e-08,
+              1e-06
+            ],
+            "k": [
+              0.5,
+              1,
+              2,
+              5
+            ]
+          },
+          "derived": {
+            "w": "k/(R*C)"
+          },
+          "prompt": "An RC low-pass has $R$ = {{R|Ω}} and $C$ = {{C|F}}. Find $|H(j\\omega)|$ at $\\omega$ = {{w|rad/s}}.",
+          "answer": "1/sqrt(1+k^2)",
+          "unit": "",
+          "explanation": "$\\omega RC$ = {{w}} × {{R}} × {{C}} = {{k}}.\n$|H| = \\frac{1}{\\sqrt{1 + (\\omega RC)^2}}$ = 1/√(1 + {{k^2}}) = {{1/sqrt(1+k^2)}}.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "C",
+                "value": "{{C|F}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  0
+                ],
+                "label": "+"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "−"
+              },
+              {
+                "type": "text",
+                "at": [
+                  5,
+                  1
+                ],
+                "label": "v_{out}"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "What is the phase of the RC low-pass $H(j\\omega) = \\frac{1}{1 + j\\omega RC}$ at $\\omega = 1/RC$?",
+          "options": [
+            "−45°",
+            "−90°",
+            "0°",
+            "+45°"
+          ],
+          "answer": 0,
+          "explanation": "At $\\omega = 1/RC$ the denominator is $1 + j$, whose angle is +45°. Dividing by it gives $\\angle H = -45°$ (and $|H| = 1/\\sqrt{2}$). The phase goes from 0° at DC to −90° at very high frequencies."
+        },
+        {
+          "id": "i5",
+          "type": "info",
+          "title": "Try it: a sinusoid through the RC low-pass",
+          "body": "Grey: the input $\\cos\\omega t$; green: the output in steady state. Drag the input frequency. The output keeps the **same frequency** but is scaled by $|H|$ and delayed by the phase $\\angle H = -\\arctan(\\omega/\\omega_c)$: at $\\omega_c$ it is 0.707 times as large and lags by 45°; far above $\\omega_c$ it is small and lags by almost 90°.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 2,
+              "label": "t / T",
+              "ticks": [
+                0,
+                0.5,
+                1,
+                1.5,
+                2
+              ]
+            },
+            "y": {
+              "min": -1.3,
+              "max": 1.3,
+              "label": "",
+              "ticks": [
+                -1,
+                0,
+                1
+              ]
+            },
+            "sliders": [
+              {
+                "name": "k",
+                "label": "$\\omega/\\omega_c$",
+                "min": 0.1,
+                "max": 10,
+                "log": true,
+                "value": 1
+              }
+            ],
+            "let": {
+              "M": "1/sqrt(1+k^2)",
+              "ph": "-atan(k)"
+            },
+            "curves": [
+              {
+                "f": "cos(2*pi*x)",
+                "color": "grey"
+              },
+              {
+                "f": "M*cos(2*pi*x + ph)"
+              }
+            ],
+            "points": [
+              {
+                "x": 1,
+                "y": 1,
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": "1 - ph/(2*pi)",
+                "y": "M",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$|H|$",
+                "value": "M"
+              },
+              {
+                "label": "$\\angle H$",
+                "value": "deg(ph)",
+                "unit": "°"
+              }
+            ]
+          }
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Ideal filters",
+          "body": "An **ideal** filter has gain 1 in its pass band and 0 in its stop band, with a vertical edge at the cutoff $\\omega_c$. There are four basic types: low-pass, high-pass, band-pass and band-stop. The graph shows an ideal low-pass.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "ω/ω_c"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.3,
+              "label": "|H|"
+            },
+            "curves": [
+              {
+                "f": "step(1-x)",
+                "label": "ideal low-pass",
+                "labelAt": 0.03
+              }
+            ],
+            "labels": [
+              {
+                "x": 0.25,
+                "y": 0.5,
+                "text": "pass band"
+              },
+              {
+                "x": 1.7,
+                "y": 0.5,
+                "text": "stop band"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows the magnitude response of an ideal **band-pass** filter?",
+          "answer": 0,
+          "explanation": "A band-pass filter passes only a band between two cutoff frequencies and blocks both low and high frequencies. The others are a low-pass (passes up to the cutoff), a high-pass (passes above it) and a band-stop or notch filter (blocks only a band).",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "ω"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.3,
+                "label": "|H|"
+              },
+              "curves": [
+                {
+                  "f": "step(x-1)*step(2-x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "ω"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.3,
+                "label": "|H|"
+              },
+              "curves": [
+                {
+                  "f": "step(1.5-x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "ω"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.3,
+                "label": "|H|"
+              },
+              "curves": [
+                {
+                  "f": "step(x-1.5)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "ω"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.3,
+                "label": "|H|"
+              },
+              "curves": [
+                {
+                  "f": "1-step(x-1)*step(2-x)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "An ideal low-pass filter can be built exactly if enough components are used.",
+          "answer": false,
+          "explanation": "The impulse response of an ideal low-pass filter is a sinc function, which is nonzero for $t < 0$: the filter would have to respond **before** the impulse arrives. Such a non-causal system cannot be built. Real filters (Butterworth, Chebyshev, …) only approximate the brick-wall shape, with a transition band that gets narrower as the order increases."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Distortionless transmission",
+          "body": "A system does not distort a signal if the output is a scaled, delayed copy: $y(t) = Kx(t - t_0)$. Transforming gives the condition: constant gain $K$ and a phase that is **proportional to frequency**, so that every component is delayed by the same $t_0$.",
+          "formula": "H(j\\omega) = K e^{-j\\omega t_0}"
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which frequency response is distortionless?",
+          "options": [
+            "$H(j\\omega) = 4e^{-j0.002\\omega}$",
+            "$H(j\\omega) = \\frac{1}{1 + j\\omega/100}$",
+            "$H(j\\omega) = 4e^{-j0.002\\omega^2}$",
+            "$H(j\\omega) = 4 + j0.002\\omega$"
+          ],
+          "answer": 0,
+          "explanation": "$4e^{-j0.002\\omega}$ has constant magnitude 4 and linear phase $-0.002\\omega$: every component is amplified 4 times and delayed by 2 ms, so $y(t) = 4x(t - 0.002)$. The low-pass has a gain that varies with frequency, the $\\omega^2$ phase is not linear (different delays), and $4 + j0.002\\omega$ has both a varying gain and a non-linear phase."
+        }
+      ]
+    },
+    {
+      "id": "sx-frequency-response-2",
+      "title": "Gain, phase and delay",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R": [
+              1000,
+              2200,
+              4700
+            ],
+            "C": [
+              1e-07,
+              2.2e-07,
+              4.7e-07,
+              1e-06
+            ],
+            "A": [
+              2,
+              5,
+              10
+            ],
+            "w": [
+              500,
+              1000,
+              2000,
+              5000
+            ]
+          },
+          "derived": {
+            "x": "w*R*C",
+            "M": "1/sqrt(1+x^2)",
+            "ph": "-deg(atan(x))"
+          },
+          "prompt": "An RC low-pass with $R$ = {{R|Ω}} and $C$ = {{C|F}} has input $v_{in}(t)$ = {{A}} cos({{w}}t) V. In steady state $v_{out}(t) = V_m\\cos(\\omega t + \\theta)$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "C",
+                "value": "{{C|F}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  0
+                ],
+                "label": "+"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "−"
+              },
+              {
+                "type": "text",
+                "at": [
+                  5,
+                  1
+                ],
+                "label": "v_{out}"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find $V_m$.",
+              "answer": "A*M",
+              "unit": "V",
+              "explanation": "$\\omega RC$ = {{w}} × {{R*C|s}} = {{x}}. $|H| = 1/\\sqrt{1 + (\\omega RC)^2}$ = {{M}}.\n$V_m$ = {{A}} V × {{M}} = {{A*M|V}}."
+            },
+            {
+              "prompt": "Find $\\theta$ in degrees.",
+              "answer": "ph",
+              "unit": "°",
+              "explanation": "$\\omega RC$ = {{w}} × {{R*C|s}} = {{x}}. $\\theta = \\angle H = -\\arctan(\\omega RC)$ = −arctan({{x}}) = {{ph|°}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "f": [
+              100,
+              200,
+              500,
+              1000
+            ],
+            "th": [
+              36,
+              45,
+              72,
+              90,
+              180
+            ]
+          },
+          "prompt": "A distortionless channel has a phase of −{{th}}° at {{f|Hz}}. What is its delay $t_0$?",
+          "answer": "th/(360*f)",
+          "unit": "s",
+          "explanation": "Linear phase: $\\angle H = -\\omega t_0 = -360° \\cdot f t_0$. So $t_0 = \\frac{\\theta}{360° f}$ = {{th}}° / (360° × {{f|Hz}}) = {{th/(360*f)|s}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "tms": [
+              0.1,
+              0.2,
+              0.5,
+              1
+            ],
+            "k": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "tau": "tms/1000",
+            "w": "k/tau"
+          },
+          "prompt": "A first-order low-pass $H(j\\omega) = \\frac{1}{1 + j\\omega\\tau}$ has $\\tau$ = {{tau|s}}. Find its group delay at $\\omega$ = {{w|rad/s}}.",
+          "answer": "tau/(1+k^2)",
+          "unit": "s",
+          "explanation": "$\\angle H = -\\arctan(\\omega\\tau)$, so $\\tau_g = -\\frac{d\\angle H}{d\\omega} = \\frac{\\tau}{1 + (\\omega\\tau)^2}$.\n$\\omega\\tau$ = {{k}}, so $\\tau_g$ = {{tau|s}} / (1 + {{k^2}}) = {{tau/(1+k^2)|s}}."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "z": [
+              0.05,
+              0.1,
+              0.2,
+              0.25,
+              0.4
+            ]
+          },
+          "prompt": "A second-order low-pass $H(s) = \\frac{\\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}$ has $\\zeta$ = {{z}}.",
+          "ask": [
+            {
+              "prompt": "Find $|H(j\\omega_n)|$.",
+              "answer": "1/(2*z)",
+              "unit": "",
+              "explanation": "At $s = j\\omega_n$: $-\\omega_n^2 + j2\\zeta\\omega_n^2 + \\omega_n^2 = j2\\zeta\\omega_n^2$, so $H(j\\omega_n) = \\frac{1}{j2\\zeta}$ and $|H| = \\frac{1}{2\\zeta}$ = 1/(2 × {{z}}) = {{1/(2*z)}}."
+            },
+            {
+              "prompt": "Find $|H(j\\omega_n)|$ in dB.",
+              "answer": "20*log10(1/(2*z))",
+              "unit": "dB",
+              "explanation": "$|H(j\\omega_n)| = \\frac{1}{2\\zeta}$ = {{1/(2*z)}} (the $\\omega_n^2$ terms cancel at $s = j\\omega_n$). In dB: 20 log₁₀({{1/(2*z)}}) = {{20*log10(1/(2*z))|dB}}."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "For which damping ratios does $H(s) = \\frac{\\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}$ have **no** resonant peak in $|H(j\\omega)|$?",
+          "options": [
+            "$\\zeta \\geq 0.707$",
+            "$\\zeta \\geq 1$",
+            "$\\zeta \\geq 0.5$",
+            "$\\zeta \\leq 0.707$"
+          ],
+          "answer": 0,
+          "explanation": "$|H|^2 = 1/[(1 - u^2)^2 + (2\\zeta u)^2]$ with $u = \\omega/\\omega_n$. Its maximum lies at $u = \\sqrt{1 - 2\\zeta^2}$, which exists only when $1 - 2\\zeta^2 > 0$, i.e. $\\zeta < 1/\\sqrt{2} = 0.707$. For $\\zeta \\geq 0.707$ the gain falls monotonically. ($\\zeta \\geq 1$ is the condition for no **overshoot** in the step response, a different property.)"
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each transfer function to its filter type.",
+          "pairs": [
+            [
+              "$\\dfrac{\\omega_c}{s + \\omega_c}$",
+              "low-pass"
+            ],
+            [
+              "$\\dfrac{s}{s + \\omega_c}$",
+              "high-pass"
+            ],
+            [
+              "$\\dfrac{2\\zeta\\omega_n s}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}$",
+              "band-pass"
+            ],
+            [
+              "$\\dfrac{s^2 + \\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}$",
+              "band-stop"
+            ]
+          ],
+          "explanation": "Check the gain at $s = 0$ (DC) and $s \\to \\infty$:\n- $\\frac{\\omega_c}{s + \\omega_c}$: 1 at DC, 0 at ∞ (low-pass).\n- $\\frac{s}{s + \\omega_c}$: 0 at DC, 1 at ∞ (high-pass).\n- band-pass: 0 at both ends, 1 at $\\omega_n$.\n- band-stop: 1 at both ends, 0 at $\\omega_n$ (zero on the $j\\omega$ axis)."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "If $|H(j\\omega)|$ is constant but the phase is **not** proportional to $\\omega$, a signal with several frequency components can change shape.",
+          "answer": true,
+          "explanation": "Each component is delayed by its own amount ($-\\angle H/\\omega$), so the components shift relative to each other and the waveform changes: **phase distortion**. Example: a square wave through an all-pass filter keeps every harmonic's amplitude but comes out looking different. The ear hardly notices this, but data pulses and video do."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "k": [
+              0.5,
+              2,
+              3,
+              5,
+              10
+            ]
+          },
+          "prompt": "Find the gain in dB of a first-order low-pass at $\\omega$ = {{k}}$\\omega_c$.",
+          "answer": "-10*log10(1+k^2)",
+          "unit": "dB",
+          "explanation": "$|H| = 1/\\sqrt{1 + (\\omega/\\omega_c)^2}$, so in dB: $-10\\log_{10}(1 + (\\omega/\\omega_c)^2)$ = −10 log₁₀(1 + {{k^2}}) = {{-10*log10(1+k^2)|dB}}. (At high frequencies this approaches $-20\\log_{10}(\\omega/\\omega_c)$: −20 dB per decade.)"
+        }
+      ]
+    },
+    {
+      "id": "sx-frequency-response-3",
+      "title": "Reading responses",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "wc": [
+              100,
+              200,
+              500,
+              1000,
+              2000
+            ],
+            "C": [
+              1e-07,
+              1e-06
+            ]
+          },
+          "prompt": "The Bode magnitude plot of an RC low-pass filter is shown.",
+          "tolerance": 0.1,
+          "plot": {
+            "x": {
+              "min": "wc/100",
+              "max": "wc*100",
+              "label": "ω",
+              "unit": "rad/s",
+              "log": true
+            },
+            "y": {
+              "min": -45,
+              "max": 5,
+              "label": "|H| (dB)"
+            },
+            "curves": [
+              {
+                "f": "-10*log10(1+(x/(wc))^2)",
+                "label": "|H(jω)|",
+                "labelAt": 0.85
+              }
+            ],
+            "hlines": [
+              {
+                "y": -3,
+                "label": "−3 dB"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Read the corner frequency $\\omega_c$.",
+              "answer": "wc",
+              "unit": "rad/s",
+              "explanation": "The corner frequency is where the gain is −3 dB (and where the two asymptotes meet). On the graph that is at $\\omega_c$ = {{wc|rad/s}}."
+            },
+            {
+              "prompt": "The capacitor is {{C|F}}. Find $R$.",
+              "answer": "1/(wc*C)",
+              "unit": "Ω",
+              "explanation": "Read $\\omega_c$ where the gain is −3 dB: {{wc|rad/s}}. Then $R = \\frac{1}{\\omega_c C}$ = 1 / ({{wc}} × {{C|F}}) = {{1/(wc*C)|Ω}}."
+            }
+          ]
+        },
+        {
+          "id": "g2",
+          "type": "numeric",
+          "params": {
+            "z": [
+              0.1,
+              0.125,
+              0.2,
+              0.25
+            ],
+            "wn": [
+              100,
+              500,
+              1000
+            ]
+          },
+          "prompt": "The graph shows $|H(j\\omega)|$ of $H(s) = \\frac{\\omega_n^2}{s^2 + 2\\zeta\\omega_n s + \\omega_n^2}$. Read the gain at $\\omega_n$ and find the damping ratio $\\zeta$.",
+          "answer": "z",
+          "unit": "",
+          "explanation": "At $\\omega = \\omega_n$ the gain is exactly $\\frac{1}{2\\zeta}$. The graph gives $|H(j\\omega_n)|$ ≈ {{1/(2*z)}}, so $\\zeta = \\frac{1}{2|H(j\\omega_n)|}$ = 1/(2 × {{1/(2*z)}}) = {{z}}. (The peak itself is slightly higher and slightly below $\\omega_n$.)",
+          "tolerance": 0.08,
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "3*wn",
+              "label": "ω",
+              "unit": "rad/s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.15/(2*z*sqrt(1-z^2))",
+              "label": "|H|"
+            },
+            "curves": [
+              {
+                "f": "1/sqrt((1-(x/wn)^2)^2+(2*z*x/wn)^2)",
+                "label": "|H(jω)|",
+                "labelAt": 0.6
+              }
+            ],
+            "vlines": [
+              {
+                "x": "wn",
+                "label": "ω_n"
+              }
+            ]
+          }
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "f": [
+              200,
+              500,
+              1000,
+              2000,
+              5000
+            ],
+            "A": [
+              3,
+              6,
+              10,
+              20
+            ]
+          },
+          "derived": {
+            "fct": "f/sqrt(10^(A/10) - 1)"
+          },
+          "prompt": "Set the cutoff $f_c$ of a first-order low-pass $H = \\frac{1}{1 + jf/f_c}$ so that a {{f|Hz}} tone is attenuated by exactly {{A}} dB (the curve must pass through the orange point).",
+          "plot": {
+            "x": {
+              "min": 10,
+              "max": 100000,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": -50,
+              "max": 5,
+              "label": "|H| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "fc",
+                "label": "$f_c$",
+                "min": 10,
+                "max": 100000,
+                "log": true,
+                "value": "5*f",
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "-10*log10(1 + (x/fc)^2)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": -3,
+                "label": "−3 dB"
+              }
+            ],
+            "points": [
+              {
+                "x": "f",
+                "y": "-A",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "attenuation at {{f|Hz}}",
+                "value": "10*log10(1 + (f/fc)^2)",
+                "unit": "dB",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "fc": "fct"
+          },
+          "tolerance": 0.05,
+          "explanation": "$|H|_{dB} = -10\\log_{10}(1 + (f/f_c)^2) = -{{A}}$ gives $(f/f_c)^2 = 10^{ {{A/10}} } - 1$ = {{10^(A/10)-1}}, so $f_c = f/\\sqrt{ {{10^(A/10)-1}} }$ = {{fct|Hz}}. Check: 3 dB means $f_c \\approx f$; every extra 20 dB (above the corner) needs the cutoff a decade lower."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "wc": [
+              1000,
+              2000
+            ],
+            "k1": [
+              0.1,
+              0.2,
+              0.5
+            ],
+            "k2": [
+              2,
+              5,
+              10
+            ]
+          },
+          "derived": {
+            "w1": "k1*wc",
+            "w2": "k2*wc"
+          },
+          "prompt": "The input of a first-order low-pass with $\\omega_c$ = {{wc|rad/s}} is $\\cos({{w1}}t) + \\cos({{w2}}t)$. By how many dB is the output amplitude of the {{w2|rad/s}} component **below** that of the {{w1|rad/s}} component?",
+          "answer": "10*log10((1+(w2/wc)^2)/(1+(w1/wc)^2))",
+          "unit": "dB",
+          "explanation": "Gain in dB: $-10\\log_{10}(1 + (\\omega/\\omega_c)^2)$.\n- At {{w1|rad/s}}: {{-10*log10(1+(w1/wc)^2)|dB}}\n- At {{w2|rad/s}}: {{-10*log10(1+(w2/wc)^2)|dB}}\nDifference: {{10*log10((1+(w2/wc)^2)/(1+(w1/wc)^2))|dB}}. The filter changes the balance between the tones: amplitude distortion."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              5,
+              10
+            ],
+            "V0": [
+              1,
+              2,
+              3
+            ],
+            "Vm": [
+              0.5,
+              1
+            ],
+            "wc": [
+              100,
+              1000
+            ],
+            "k": [
+              1,
+              2,
+              5
+            ]
+          },
+          "derived": {
+            "w": "k*wc"
+          },
+          "prompt": "A system $H(s) = \\frac{K\\omega_c}{s + \\omega_c}$ with $K$ = {{K}} and $\\omega_c$ = {{wc|rad/s}} has input $x(t)$ = {{V0}} + {{Vm}} cos({{w}}t) V.",
+          "ask": [
+            {
+              "prompt": "Find the DC (average) value of the output.",
+              "answer": "K*V0",
+              "unit": "V",
+              "explanation": "DC is the frequency $\\omega = 0$: $H(0) = K$ = {{K}}. So the DC output is {{K}} × {{V0}} V = {{K*V0|V}}. Superposition lets us treat each input component separately."
+            },
+            {
+              "prompt": "Find the amplitude of the sinusoidal part of the output.",
+              "answer": "K*Vm/sqrt(1+k^2)",
+              "unit": "V",
+              "explanation": "At $\\omega$ = {{w|rad/s}}: $\\omega/\\omega_c$ = {{k}}, $|H| = \\frac{K}{\\sqrt{1 + (\\omega/\\omega_c)^2}}$ = {{K}}/√(1 + {{k^2}}) = {{K/sqrt(1+k^2)}}.\nAmplitude = {{K/sqrt(1+k^2)}} × {{Vm}} V = {{K*Vm/sqrt(1+k^2)|V}}."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Put the steps in order to find the sinusoidal steady-state output of a circuit.",
+          "items": [
+            "Write $H(s)$ with impedances $R$, $sL$, $\\frac{1}{sC}$",
+            "Substitute $s = j\\omega$ at the input frequency",
+            "Compute $|H(j\\omega)|$ and $\\angle H(j\\omega)$",
+            "Scale the input amplitude by $|H|$ and add $\\angle H$ to its phase"
+          ],
+          "explanation": "The frequency response is the transfer function on the $j\\omega$ axis. One complex number $H(j\\omega)$ contains everything: the gain $|H|$ and the phase shift $\\angle H$ for that frequency."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "f1": [
+              1000,
+              2000
+            ],
+            "df": [
+              100,
+              200,
+              500
+            ],
+            "dth": [
+              9,
+              18,
+              36,
+              45
+            ],
+            "th1": [
+              30,
+              45,
+              60
+            ]
+          },
+          "prompt": "A filter's phase is measured as −{{th1}}° at {{f1|Hz}} and −{{th1+dth}}° at {{f1+df|Hz}}. Estimate the group delay in this band.",
+          "answer": "dth/(360*df)",
+          "unit": "s",
+          "explanation": "$\\tau_g = -\\frac{d\\theta}{d\\omega} \\approx -\\frac{\\Delta\\theta}{\\Delta\\omega}$. The phase drops by {{dth}}° = {{rad(dth)}} rad over $\\Delta\\omega = 2\\pi \\times$ {{df|Hz}} = {{2*pi*df}} rad/s.\n$\\tau_g$ ≈ {{rad(dth)}} / {{2*pi*df}} = {{dth/(360*df)|s}}."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "The first-order low-pass $H(j\\omega) = \\frac{1}{1 + j\\omega\\tau}$ has the same group delay at all frequencies.",
+          "answer": false,
+          "explanation": "$\\tau_g = \\frac{\\tau}{1 + (\\omega\\tau)^2}$: equal to $\\tau$ at DC, $\\tau/2$ at $\\omega_c$, and falling towards zero above it. Only well inside the pass band ($\\omega \\ll \\omega_c$) is it nearly constant, which is why signals in the pass band come out almost undistorted, just delayed by about $\\tau$."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1516 @@
+{
+  "id": "dsp-multirate",
+  "title": "Multirate Signal Processing",
+  "description": "Change sampling rates digitally: downsampling and upsampling in frequency, decimation and interpolation filters, L/M conversion, polyphase structures and multistage designs.",
+  "reference": "O&S ch. 4",
+  "study": [
+    {
+      "title": "Downsampling",
+      "body": "A **compressor** (downsampler) keeps every $M$th sample, $x_d[n] = x[nM]$, lowering the rate to $f_s/M$. In frequency the spectrum is **stretched** by $M$ and $M - 1$ shifted copies are added; they overlap (alias) unless $X(e^{j\\omega})$ is zero for $\\pi/M \\le |\\omega| \\le \\pi$. A sinusoid at $\\omega_0$ moves to $M\\omega_0$, folded back into $0 \\ldots \\pi$. Drag $M$ and the band edge: aliasing starts when $M\\omega_N > \\pi$. (Rate changes are discrete-time versions of the sampling theorem from Signals & Systems II.)",
+      "formula": "X_d(e^{j\\omega}) = \\frac{1}{M}\\sum_{i=0}^{M-1} X\\!\\left(e^{j(\\omega - 2\\pi i)/M}\\right)",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "ω/π"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "spectrum"
+        },
+        "sliders": [
+          {
+            "name": "bw",
+            "label": "band edge $\\omega_N/\\pi$ of $x[n]$",
+            "min": 0.1,
+            "max": 1,
+            "step": 0.05,
+            "value": 0.3
+          },
+          {
+            "name": "Md",
+            "label": "factor $M$",
+            "min": 1,
+            "max": 6,
+            "step": 1,
+            "value": 2
+          }
+        ],
+        "curves": [
+          {
+            "f": "max(0, 1 - abs(mod(pi*x + pi, 2*pi) - pi)/(pi*bw))",
+            "color": "grey",
+            "dash": true,
+            "label": "X",
+            "labelAt": 0.01
+          },
+          {
+            "f": "sum(i, 0, Md - 1, max(0, 1 - abs(mod((pi*x - 2*pi*i)/Md + pi, 2*pi) - pi)/(pi*bw)))/Md",
+            "label": "X_d",
+            "labelAt": 0.5
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$M\\omega_N/\\pi$ (aliasing above 1)",
+            "value": "Md*bw"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Decimation",
+      "body": "To downsample a signal that is not band-limited, first remove everything above $\\pi/M$ with a low-pass **decimation filter** (gain 1), then compress. The result is the signal that would have been obtained by sampling the band-limited analog signal at $f_s/M$ directly. In practice the pass band ends a little below $\\pi/M$, and the transition band is what sets the filter length.",
+      "formula": "H_d(e^{j\\omega}) = \\begin{cases} 1 & |\\omega| < \\pi/M \\\\ 0 & \\pi/M \\le |\\omega| \\le \\pi \\end{cases}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            "label": "x[n]"
+          },
+          {
+            "type": "block",
+            "at": [
+              1.9,
+              0
+            ],
+            "size": [
+              1.4,
+              0.9
+            ],
+            "label": "H_d(z)",
+            "value": "LPF π/M"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.6,
+                0
+              ],
+              [
+                3.4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4.1,
+              0
+            ],
+            "size": [
+              1.2,
+              0.9
+            ],
+            "label": "↓M"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.7,
+                0
+              ],
+              [
+                5.8,
+                0
+              ]
+            ],
+            "label": "y[n]"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: upsampling and images",
+      "body": "An **expander** (upsampler) inserts $L - 1$ zeros between the samples: $x_e[n] = x[n/L]$ when $n$ is a multiple of $L$, else 0. Its spectrum is **compressed** by $L$: $X_e(e^{j\\omega}) = X(e^{j\\omega L})$, which also brings $L - 1$ **images** into $0 \\ldots 2\\pi$. An **interpolation filter** with cutoff $\\pi/L$ (orange line) and gain $L$ removes the images and fills in the zeros. Drag $L$.",
+      "formula": "X_e(e^{j\\omega}) = X(e^{j\\omega L})",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "ω/π"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "spectrum"
+        },
+        "sliders": [
+          {
+            "name": "Le",
+            "label": "factor $L$",
+            "min": 1,
+            "max": 5,
+            "step": 1,
+            "value": 3
+          }
+        ],
+        "curves": [
+          {
+            "f": "max(0, 1 - abs(mod(pi*x + pi, 2*pi) - pi)/(pi*0.6))",
+            "color": "grey",
+            "dash": true,
+            "label": "X",
+            "labelAt": 0.3
+          },
+          {
+            "f": "max(0, 1 - abs(mod(pi*x*Le + pi, 2*pi) - pi)/(pi*0.6))",
+            "label": "X_e"
+          }
+        ],
+        "vlines": [
+          {
+            "x": "1/Le",
+            "label": "π/L",
+            "color": "orange"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Interpolation",
+      "body": "The ideal interpolation filter is a low-pass with cutoff $\\pi/L$ and gain $L$. The gain makes up for the zeros: the expander keeps the spectrum's height but spreads the samples $L$ times thinner. Its impulse response $h_i[n] = \\frac{\\sin(\\pi n/L)}{\\pi n/L}$ is 1 at $n = 0$ and 0 at all other multiples of $L$, so the original samples pass unchanged and the new ones are sinc-interpolated. Linear interpolation is the cheap approximation $h[n] = 1 - |n|/L$ for $|n| \\le L$.",
+      "formula": "h_i[n] = \\frac{\\sin(\\pi n/L)}{\\pi n/L}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            "label": "x[n]"
+          },
+          {
+            "type": "block",
+            "at": [
+              1.6,
+              0
+            ],
+            "size": [
+              1.2,
+              0.9
+            ],
+            "label": "↑L"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.2,
+                0
+              ],
+              [
+                3.0,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.9,
+              0
+            ],
+            "size": [
+              1.4,
+              0.9
+            ],
+            "label": "H_i(z)",
+            "value": "gain L, π/L"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.6,
+                0
+              ],
+              [
+                5.8,
+                0
+              ]
+            ],
+            "label": "y[n]"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Changing the rate by L/M",
+      "body": "A rational factor $L/M$ is an interpolator followed by a decimator. The two low-pass filters in the middle merge into one with cutoff $\\min(\\pi/L, \\pi/M)$ and gain $L$. Upsample first, or the downsampler would destroy information. Example: 48 kHz to 44.1 kHz is $L/M = 147/160$ (divide both rates by their greatest common divisor, 300).",
+      "formula": "\\begin{aligned} f_{out} &= \\frac{L}{M}f_{in} \\\\ \\omega_c &= \\min\\left(\\frac{\\pi}{L}, \\frac{\\pi}{M}\\right) \\end{aligned}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                0.8,
+                0
+              ]
+            ],
+            "label": "x[n]"
+          },
+          {
+            "type": "block",
+            "at": [
+              1.4,
+              0
+            ],
+            "size": [
+              1.2,
+              0.9
+            ],
+            "label": "↑L"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.0,
+                0
+              ],
+              [
+                2.6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.5,
+              0
+            ],
+            "size": [
+              1.4,
+              0.9
+            ],
+            "label": "H(z)",
+            "value": "min(π/L, π/M)"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.2,
+                0
+              ],
+              [
+                4.8,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              5.4,
+              0
+            ],
+            "size": [
+              1.2,
+              0.9
+            ],
+            "label": "↓M"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.0,
+                0
+              ],
+              [
+                6.8,
+                0
+              ]
+            ],
+            "label": "y[n]"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Polyphase implementation",
+      "body": "Computing all outputs of the decimation filter and then throwing $M - 1$ of every $M$ away wastes $M - 1$ of every $M$ multiplications. Split $h[n]$ into $M$ **polyphase components** $e_k[n] = h[nM + k]$; with the **noble identity** (filtering by $E(z^M)$ and then downsampling equals downsampling and then filtering by $E(z)$) the compressors move in front of the filters. Every branch now runs at the low rate: $N$ multiplications per **output** sample, $N/M$ per input sample. The diagram shows $M = 2$; interpolators use the dual structure.",
+      "formula": "\\begin{aligned} H(z) &= \\sum_{k=0}^{M-1} z^{-k}E_k(z^M) \\\\ e_k[n] &= h[nM + k] \\end{aligned}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                0.8,
+                0
+              ]
+            ],
+            "label": "x[n]"
+          },
+          {
+            "type": "node",
+            "at": [
+              0.8,
+              0
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                0.8,
+                0
+              ],
+              [
+                2.1,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              2.7,
+              0
+            ],
+            "size": [
+              1.2,
+              0.8
+            ],
+            "label": "↓2"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3.3,
+                0
+              ],
+              [
+                3.9,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4.6,
+              0
+            ],
+            "size": [
+              1.4,
+              0.8
+            ],
+            "label": "E_0(z)"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                5.3,
+                0
+              ],
+              [
+                6.2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0.8,
+                0
+              ],
+              [
+                0.8,
+                0.9
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              0.8,
+              1.4
+            ],
+            "size": [
+              0.7,
+              0.7
+            ],
+            "label": "D"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0.8,
+                1.75
+              ],
+              [
+                0.8,
+                2.2
+              ]
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                0.8,
+                2.2
+              ],
+              [
+                2.1,
+                2.2
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              2.7,
+              2.2
+            ],
+            "size": [
+              1.2,
+              0.8
+            ],
+            "label": "↓2"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3.3,
+                2.2
+              ],
+              [
+                3.9,
+                2.2
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              4.6,
+              2.2
+            ],
+            "size": [
+              1.4,
+              0.8
+            ],
+            "label": "E_1(z)"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                5.3,
+                2.2
+              ],
+              [
+                6.5,
+                2.2
+              ],
+              [
+                6.5,
+                0.3
+              ]
+            ]
+          },
+          {
+            "type": "sum",
+            "at": [
+              6.5,
+              0
+            ],
+            "kind": ""
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.8,
+                0
+              ],
+              [
+                7.8,
+                0
+              ]
+            ],
+            "label": "y[n]"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Multistage decimation",
+      "body": "A filter's length grows with $f_s/\\Delta f$. A rule of thumb from Kaiser's formula: $N \\approx \\frac{A - 8}{14.36}\\frac{f_s}{\\Delta f}$, about $3.6f_s/\\Delta f$ for 60 dB. A large factor $M$ needs a very narrow transition at a high rate. Split $M = M_1M_2$: the first stage may have a **wide** transition band. A common design rule lets its stop band start only where components would alias into the final band, at $f_1 - f_{out}/2$ ($f_1$ is its output rate); the next stage removes the rest, and the sharp filter runs at the reduced rate. The pass-band ripple budget is shared between the stages. Example with these estimates, 48 kHz to 1 kHz with a pass band to 450 Hz: one stage needs about 3500 taps (3.5 million multiplications/s with polyphase); stages of 8 and 6 need about 34 and 430 taps, together about 0.64 million/s.",
+      "formula": "N \\approx 3.6\\,\\frac{f_s}{\\Delta f}\\quad (60\\ \\text{dB})"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dsp-multirate-1",
+      "title": "Downsampling and decimation",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The compressor",
+          "body": "Downsampling by $M$ keeps samples $0, M, 2M, \\ldots$ and drops the rest. The new sampling rate is $f_s/M$, so every discrete frequency is multiplied by $M$: what was at $\\omega_0$ now sits at $M\\omega_0$ (folded back into $0 \\ldots \\pi$ if it passes $\\pi$).",
+          "formula": "x_d[n] = x[nM]"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.05,
+              0.1,
+              0.15,
+              0.3,
+              0.35
+            ],
+            "M": [
+              2,
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "fm": "mod(M*p, 2)",
+            "fo": "if(mod(M*p, 2) - 1, 2 - mod(M*p, 2), mod(M*p, 2))"
+          },
+          "require": "abs(fo - 1) - 0.01",
+          "prompt": "$x[n] = \\cos({{p}}\\pi n)$ is downsampled by $M$ = {{M}}. At which frequency in $0 \\ldots \\pi$ is the resulting sinusoid? Give $\\omega/\\pi$.",
+          "answer": "fo",
+          "unit": "",
+          "absTolerance": 0.005,
+          "explanation": "$x_d[n] = x[nM] = \\cos({{p}}\\pi \\cdot {{M}}n) = \\cos({{M*p}}\\pi n)$. Frequencies are only unique modulo $2\\pi$ and up to sign: {{M*p}}π reduced to $0 \\ldots 2\\pi$ is {{fm}}π, and folding $2\\pi - \\omega$ for values above π gives $\\omega$ = {{fo}}π."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Downsampling in frequency",
+          "body": "The spectrum is stretched by $M$, and $M - 1$ shifted copies are added. They do not overlap only if the signal has no energy above $\\pi/M$. Drag $M$ and the band edge.",
+          "formula": "X_d(e^{j\\omega}) = \\frac{1}{M}\\sum_{i=0}^{M-1} X\\!\\left(e^{j(\\omega - 2\\pi i)/M}\\right)",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "spectrum"
+            },
+            "sliders": [
+              {
+                "name": "bw",
+                "label": "band edge $\\omega_N/\\pi$ of $x[n]$",
+                "min": 0.1,
+                "max": 1,
+                "step": 0.05,
+                "value": 0.3
+              },
+              {
+                "name": "Md",
+                "label": "factor $M$",
+                "min": 1,
+                "max": 6,
+                "step": 1,
+                "value": 2
+              }
+            ],
+            "curves": [
+              {
+                "f": "max(0, 1 - abs(mod(pi*x + pi, 2*pi) - pi)/(pi*bw))",
+                "color": "grey",
+                "dash": true,
+                "label": "X",
+                "labelAt": 0.01
+              },
+              {
+                "f": "sum(i, 0, Md - 1, max(0, 1 - abs(mod((pi*x - 2*pi*i)/Md + pi, 2*pi) - pi)/(pi*bw)))/Md",
+                "label": "X_d",
+                "labelAt": 0.5
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$M\\omega_N/\\pi$ (aliasing above 1)",
+                "value": "Md*bw"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "params": {
+            "p": [
+              0.1,
+              0.2,
+              0.3,
+              0.4
+            ],
+            "M": [
+              2,
+              3,
+              4
+            ]
+          },
+          "require": "abs(M*p - 1) - 0.01",
+          "prompt": "A signal with $X(e^{j\\omega}) = 0$ for {{p}}$\\pi < |\\omega| \\le \\pi$ can be downsampled by $M$ = {{M}} without aliasing.",
+          "answer": "1 - M*p",
+          "explanation": "After downsampling the band edge moves to $M\\omega_N$ = {{M}} × {{p}}π = {{M*p}}π. Without aliasing it must stay at or below π, i.e. $\\omega_N \\le \\pi/M$ = {{1/M||3}}π."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The decimation filter",
+          "body": "When the signal has energy above $\\pi/M$, a low-pass filter with cutoff $\\pi/M$ and gain 1 must remove it before the compressor. Filter plus compressor is a **decimator**.",
+          "formula": "\\omega_c = \\frac{\\pi}{M} \\;\\Leftrightarrow\\; f_c = \\frac{f_s}{2M}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ],
+                "label": "x[n]"
+              },
+              {
+                "type": "block",
+                "at": [
+                  1.9,
+                  0
+                ],
+                "size": [
+                  1.4,
+                  0.9
+                ],
+                "label": "H_d(z)",
+                "value": "LPF π/M"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.6,
+                    0
+                  ],
+                  [
+                    3.4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  4.1,
+                  0
+                ],
+                "size": [
+                  1.2,
+                  0.9
+                ],
+                "label": "↓M"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.7,
+                    0
+                  ],
+                  [
+                    5.8,
+                    0
+                  ]
+                ],
+                "label": "y[n]"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              48000,
+              44100,
+              96000
+            ],
+            "M": [
+              2,
+              3,
+              4,
+              6
+            ]
+          },
+          "prompt": "A signal at $f_s$ = {{fs|Hz}} is decimated by $M$ = {{M}}.",
+          "ask": [
+            {
+              "prompt": "What is the cutoff of the ideal decimation filter, in rad/sample?",
+              "answer": "pi/M",
+              "unit": "rad",
+              "explanation": "$\\omega_c = \\pi/M$ = π/{{M}} = {{pi/M|rad}}."
+            },
+            {
+              "prompt": "What is that cutoff in Hz?",
+              "answer": "fs/(2*M)",
+              "unit": "Hz",
+              "explanation": "$\\pi/M$ at the input rate is $f_s/(2M)$ = {{fs|Hz}} / {{2*M}} = {{fs/(2*M)|Hz}}: the Nyquist frequency of the new rate {{fs/M|Hz}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "slider",
+          "params": {
+            "p": [
+              0.15,
+              0.22,
+              0.3,
+              0.45
+            ]
+          },
+          "prompt": "$x[n]$ is band-limited to {{p}}$\\pi$ (grey). Set the largest downsampling factor $M$ that causes no aliasing.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "spectrum"
+            },
+            "sliders": [
+              {
+                "name": "Md",
+                "label": "factor $M$",
+                "min": 1,
+                "max": 8,
+                "step": 1,
+                "value": 1
+              }
+            ],
+            "curves": [
+              {
+                "f": "max(0, 1 - abs(mod(pi*x + pi, 2*pi) - pi)/(pi*p))",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "sum(i, 0, Md - 1, max(0, 1 - abs(mod((pi*x - 2*pi*i)/Md + pi, 2*pi) - pi)/(pi*p)))/Md"
+              }
+            ]
+          },
+          "answer": {
+            "Md": "floor(1/p)"
+          },
+          "tolerance": 0.001,
+          "absTolerance": 0.4,
+          "explanation": "No aliasing needs $M\\omega_N \\le \\pi$: $M \\le 1/{{p}}$ = {{1/p||3}}, so $M$ = {{floor(1/p)}}. One more and the stretched copies overlap."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "In a decimator, the low-pass filter's output is only needed at every $M$th sample. What does that allow?",
+          "options": [
+            "Computing only those outputs: $M$ times fewer multiplications (polyphase)",
+            "Using a filter $M$ times shorter",
+            "Skipping the filter for $M - 1$ of every $M$ input samples",
+            "Nothing: every output must be computed for the filter to work"
+          ],
+          "answer": 0,
+          "explanation": "An FIR filter output depends only on input samples, so outputs that will be discarded need not be computed at all. Organised as polyphase branches this costs $N$ multiplications per kept output, i.e. $N/M$ per input sample. The filter itself (length, response) is unchanged, and every input sample is still used."
+        }
+      ]
+    },
+    {
+      "id": "dsp-multirate-2",
+      "title": "Upsampling and interpolation",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The expander",
+          "body": "Upsampling by $L$ inserts $L - 1$ zeros after every sample, raising the rate to $Lf_s$. The spectrum is compressed by $L$, and $L - 1$ images appear between 0 and $2\\pi$. Drag $L$.",
+          "formula": "X_e(e^{j\\omega}) = X(e^{j\\omega L})",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "spectrum"
+            },
+            "sliders": [
+              {
+                "name": "Le",
+                "label": "factor $L$",
+                "min": 1,
+                "max": 5,
+                "step": 1,
+                "value": 3
+              }
+            ],
+            "curves": [
+              {
+                "f": "max(0, 1 - abs(mod(pi*x + pi, 2*pi) - pi)/(pi*0.6))",
+                "color": "grey",
+                "dash": true,
+                "label": "X",
+                "labelAt": 0.3
+              },
+              {
+                "f": "max(0, 1 - abs(mod(pi*x*Le + pi, 2*pi) - pi)/(pi*0.6))",
+                "label": "X_e"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "1/Le",
+                "label": "π/L",
+                "color": "orange"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.2,
+              0.3,
+              0.5,
+              0.6
+            ],
+            "L": [
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "$x[n] = \\cos({{p}}\\pi n)$ is upsampled by $L$ = {{L}} (zeros inserted, no filter).",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "Where is the original component now? Give $\\omega/\\pi$.",
+              "answer": "p/L",
+              "explanation": "$X_e(e^{j\\omega}) = X(e^{j\\omega L})$: the line at $\\omega L$ = {{p}}π appears at $\\omega$ = {{p}}π / {{L}} = {{p/L||3}}π."
+            },
+            {
+              "prompt": "Where is the lowest image? Give $\\omega/\\pi$.",
+              "answer": "(2 - p)/L",
+              "explanation": "The input spectrum also has lines at $2\\pi \\pm$ {{p}}π. The lowest of those, $2\\pi -$ {{p}}π, lands at $\\omega$ = ({{2-p}}π) / {{L}} = {{(2-p)/L||3}}π. The interpolation filter (cutoff π/{{L}}) must remove it."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000,
+              44100,
+              48000
+            ],
+            "f0": [
+              1000,
+              3000
+            ],
+            "L": [
+              2,
+              4
+            ]
+          },
+          "prompt": "A {{f0|Hz}} tone sampled at {{fs|Hz}} is upsampled by {{L}} without filtering. At which frequency (in Hz, at the new rate) is the lowest image?",
+          "answer": "fs - f0",
+          "unit": "Hz",
+          "explanation": "In hertz nothing moves: the inserted zeros only reveal the spectral copies of the original sampling, at $kf_s \\pm f_0$. The new Nyquist frequency is {{L*fs/2|Hz}}, so the copies below it become visible: the lowest image is at $f_s - f_0$ = {{fs-f0|Hz}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The interpolation filter",
+          "body": "A low-pass filter with cutoff $\\pi/L$ removes the images. Its gain is $L$: inserting zeros keeps the spectral height but makes the time signal $L$ times 'thinner', and the gain restores the amplitude. The ideal impulse response is a sinc that is zero at every nonzero multiple of $L$.",
+          "formula": "h_i[n] = \\frac{\\sin(\\pi n/L)}{\\pi n/L}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ],
+                "label": "x[n]"
+              },
+              {
+                "type": "block",
+                "at": [
+                  1.6,
+                  0
+                ],
+                "size": [
+                  1.2,
+                  0.9
+                ],
+                "label": "↑L"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.2,
+                    0
+                  ],
+                  [
+                    3.0,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.9,
+                  0
+                ],
+                "size": [
+                  1.4,
+                  0.9
+                ],
+                "label": "H_i(z)",
+                "value": "gain L, π/L"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.6,
+                    0
+                  ],
+                  [
+                    5.8,
+                    0
+                  ]
+                ],
+                "label": "y[n]"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "L": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "n": [
+              1,
+              2
+            ]
+          },
+          "require": "abs(n - L)",
+          "prompt": "Find $h_i[{{n}}]$ of the ideal interpolation filter for $L$ = {{L}}.",
+          "answer": "sin(pi*n/L)/(pi*n/L)",
+          "unit": "",
+          "absTolerance": 0.002,
+          "explanation": "$h_i[{{n}}] = \\frac{\\sin(\\pi \\cdot {{n}}/{{L}})}{\\pi \\cdot {{n}}/{{L}}}$ = {{sin(pi*n/L)||4}} / {{pi*n/L||4}} = {{sin(pi*n/L)/(pi*n/L)||4}}. This is the weight with which the nearest original sample contributes to the new sample {{n}} positions away."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "After ideal interpolation by $L$, every $L$th output sample equals an original input sample.",
+          "answer": true,
+          "explanation": "$h_i[0] = 1$ and $h_i[kL] = 0$ for $k \\ne 0$. At $n = kL$ only the original sample $x[k]$ contributes, with weight 1. The filter only fills in the zeros in between."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "To change the rate by a rational factor $L/M$, in which order are the operations done?",
+          "options": [
+            "Upsample by $L$, low-pass filter, downsample by $M$",
+            "Downsample by $M$, low-pass filter, upsample by $L$",
+            "Low-pass filter, downsample by $M$, upsample by $L$",
+            "Upsample by $L$, downsample by $M$, low-pass filter"
+          ],
+          "answer": 0,
+          "explanation": "Upsampling first keeps all information; one low-pass filter with cutoff $\\min(\\pi/L, \\pi/M)$ and gain $L$ then removes the images and anything that would alias; the compressor comes last. Downsampling first would alias (or require throwing away bandwidth), and filtering after the compressor is too late."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each operation to its effect.",
+          "pairs": [
+            [
+              "Downsampling by $M$",
+              "spectrum stretched, copies may alias"
+            ],
+            [
+              "Upsampling by $L$",
+              "spectrum compressed, images appear"
+            ],
+            [
+              "Decimation filter",
+              "cutoff $\\pi/M$, gain 1"
+            ],
+            [
+              "Interpolation filter",
+              "cutoff $\\pi/L$, gain $L$"
+            ]
+          ],
+          "explanation": "The compressor and expander are each other's mirror images, and so are their filters: the decimation filter acts **before** the compressor to prevent aliasing, the interpolation filter **after** the expander to remove images."
+        }
+      ]
+    },
+    {
+      "id": "dsp-multirate-3",
+      "title": "Rate changes and polyphase",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "j": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "fi": "if(0.5 - j, 48000, if(1.5 - j, 44100, if(2.5 - j, 32000, if(3.5 - j, 48000, 8000))))",
+            "fo": "if(0.5 - j, 44100, if(1.5 - j, 48000, if(2.5 - j, 48000, if(3.5 - j, 16000, 11025))))",
+            "Lr": "if(0.5 - j, 147, if(1.5 - j, 160, if(2.5 - j, 3, if(3.5 - j, 1, 441))))",
+            "Mr": "if(0.5 - j, 160, if(1.5 - j, 147, if(2.5 - j, 2, if(3.5 - j, 3, 320))))"
+          },
+          "prompt": "A sample-rate converter changes {{fi|Hz}} into {{fo|Hz}} with the smallest possible integers $L$ and $M$.",
+          "unit": "",
+          "tolerance": 0.001,
+          "ask": [
+            {
+              "prompt": "Find $L$.",
+              "answer": "Lr",
+              "explanation": "$L/M = f_{out}/f_{in}$ = {{fo||5}} / {{fi||5}}. Dividing both by their greatest common divisor {{fi/Mr||4}} gives $L/M$ = {{Lr}}/{{Mr}}, so $L$ = {{Lr}}."
+            },
+            {
+              "prompt": "Find $M$.",
+              "answer": "Mr",
+              "explanation": "{{fo||5}} / {{fi||5}} reduced by the greatest common divisor {{fi/Mr||4}} is {{Lr}}/{{Mr}}, so $M$ = {{Mr}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "j": [
+              0,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "Lr": "if(0.5 - j, 147, if(1.5 - j, 160, if(2.5 - j, 3, if(3.5 - j, 1, 441))))",
+            "Mr": "if(0.5 - j, 160, if(1.5 - j, 147, if(2.5 - j, 2, if(3.5 - j, 3, 320))))"
+          },
+          "prompt": "A rational converter uses $L$ = {{Lr}} and $M$ = {{Mr}} with one low-pass filter between expander and compressor.",
+          "ask": [
+            {
+              "prompt": "What is the filter's cutoff in rad/sample (at the intermediate rate)?",
+              "answer": "pi/max(Lr, Mr)",
+              "unit": "rad",
+              "explanation": "It must remove the images ($\\pi/L$) and prevent aliasing ($\\pi/M$): $\\omega_c = \\min(\\pi/{{Lr}}, \\pi/{{Mr}})$ = π/{{max(Lr,Mr)}} = {{pi/max(Lr,Mr)|rad}}."
+            },
+            {
+              "prompt": "What is its pass-band gain?",
+              "answer": "Lr",
+              "unit": "",
+              "tolerance": 0.001,
+              "explanation": "The gain $L$ = {{Lr}} compensates the zeros inserted by the expander; the compressor needs no gain."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "N": [
+              60,
+              120,
+              240
+            ],
+            "M": [
+              4,
+              6,
+              8
+            ],
+            "fs": [
+              48000,
+              96000
+            ]
+          },
+          "prompt": "A decimator by $M$ = {{M}} uses an FIR filter with {{N}} taps at an input rate of {{fs|Hz}}.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "How many multiplications per second if every filter output is computed and $M - 1$ of $M$ are discarded?",
+              "answer": "N*fs",
+              "explanation": "{{N}} multiplications for each of the {{fs||5}} outputs per second: {{N*fs||4}}."
+            },
+            {
+              "prompt": "How many with a polyphase implementation?",
+              "answer": "N*fs/M",
+              "explanation": "Only the {{fs/M||4}} kept outputs per second are computed, {{N}} multiplications each: {{N*fs/M||4}}, a factor {{M}} less."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "M": [
+              3,
+              4,
+              5
+            ],
+            "k": [
+              1,
+              2
+            ],
+            "m": [
+              2,
+              3,
+              4
+            ]
+          },
+          "require": "M - k",
+          "prompt": "The polyphase components of a decimation filter for $M$ = {{M}} are $e_k[n] = h[nM + k]$. Which coefficient of $h$ is $e_{ {{k}} }[{{m}}]$? Give its index.",
+          "answer": "m*M + k",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "$e_{ {{k}} }[{{m}}] = h[{{m}} \\cdot {{M}} + {{k}}]$ = $h[{{m*M+k}}]$. Branch $k$ holds every {{M}}th coefficient starting at $h[{{k}}]$."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "$X(e^{j\\omega})$ is a triangle from $-0.5\\pi$ to $0.5\\pi$. Which graph ($0 \\le \\omega \\le \\pi$) is the spectrum after upsampling by 2, before any filtering?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "max(0, 1 - abs(mod(2*pi*x + pi, 2*pi) - pi)/(pi*0.5))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "if(0.5 - x, max(0, 1 - abs(mod(2*pi*x + pi, 2*pi) - pi)/(pi*0.5)), 0)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "(max(0, 1 - abs(mod(pi*x/2 + pi, 2*pi) - pi)/(pi*0.5)) + max(0, 1 - abs(mod((pi*x - 2*pi)/2 + pi, 2*pi) - pi)/(pi*0.5)))/2"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "max(0, 1 - abs(mod(pi*x + pi, 2*pi) - pi)/(pi*0.5))"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "$X_e(e^{j\\omega}) = X(e^{j2\\omega})$: the triangle shrinks to $\\pm0.25\\pi$, and the copy that was at $2\\pi$ moves to $\\pi$, giving an image at $0.75\\pi \\ldots \\pi$. The graph without the image is what the interpolation filter leaves (apart from its gain $L$); the wide, half-height triangle is downsampling by 2."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Filtering with $H(z^M)$ and then downsampling by $M$ gives the same output as downsampling by $M$ and then filtering with $H(z)$.",
+          "answer": true,
+          "explanation": "This is a **noble identity**. $H(z^M)$ only combines samples that are $M$ apart, exactly the samples the compressor keeps. It is what lets polyphase structures move the compressors in front of the filter branches, so all branches run at the low rate."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "N": [
+              48,
+              96,
+              120
+            ],
+            "L": [
+              2,
+              3,
+              4
+            ],
+            "fs": [
+              8000,
+              48000
+            ]
+          },
+          "prompt": "An interpolator by $L$ = {{L}} uses an FIR filter with {{N}} taps; the input rate is {{fs|Hz}}. With a polyphase implementation (skipping the inserted zeros), how many multiplications are needed per **output** sample?",
+          "answer": "N/L",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "Of the {{N}} taps, only every {{L}}th one meets a nonzero input sample at any time: {{N}} / {{L}} = {{N/L}} multiplications per output sample ({{N*fs||4}} per second at the output rate {{L*fs|Hz}})."
+        }
+      ]
+    },
+    {
+      "id": "dsp-multirate-4",
+      "title": "Multistage design",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "M": [
+              24,
+              48
+            ]
+          },
+          "derived": {
+            "fout": "48000/M",
+            "fp": "0.45*48000/M",
+            "df": "0.05*48000/M",
+            "N1": "3.6*48000/(0.05*48000/M)"
+          },
+          "prompt": "A 48 kHz signal is decimated by $M$ = {{M}} in one stage. The output must be clean up to {{fp|Hz}}, with the stop band from {{fout/2|Hz}} (60 dB). Estimate the filter length with $N \\approx 3.6\\,f_s/\\Delta f$.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "How many taps?",
+              "answer": "N1",
+              "tolerance": 0.03,
+              "explanation": "$\\Delta f$ = {{fout/2|Hz}} − {{fp|Hz}} = {{df|Hz}} at $f_s$ = 48 kHz: $N \\approx 3.6 \\times 48000/{{df||3}}$ = {{N1||4}} taps."
+            },
+            {
+              "prompt": "How many multiplications per second with a polyphase implementation?",
+              "answer": "N1*fout",
+              "tolerance": 0.03,
+              "explanation": "{{N1||4}} multiplications per output sample × {{fout|Hz}} = {{N1*fout||3}} per second."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "M1": [
+              4,
+              6,
+              8,
+              12
+            ]
+          },
+          "derived": {
+            "M2": "48/M1",
+            "f1": "48000/M1",
+            "df1": "48000/M1 - 500 - 450",
+            "N1": "3.6*48000/(48000/M1 - 950)",
+            "N2": "3.6*(48000/M1)/50"
+          },
+          "prompt": "The same task, 48 kHz → 1 kHz with a clean band 0 to 450 Hz, is split into two stages: $M_1$ = {{M1}} then $M_2$ = {{M2}}. Design rule: stage 1 only has to remove what would alias into 0 to 500 Hz when its output is sampled at {{f1|Hz}}, so its stop band starts at {{f1|Hz}} − 500 Hz; stage 2 has the narrow 450–500 Hz transition. Use $N \\approx 3.6\\,f_s/\\Delta f$ at each stage's input rate.",
+          "unit": "",
+          "tolerance": 0.03,
+          "ask": [
+            {
+              "prompt": "How many taps does stage 1 need?",
+              "answer": "N1",
+              "explanation": "Stage 1 runs at 48 kHz with $\\Delta f_1$ = ({{f1|Hz}} − 500 Hz) − 450 Hz = {{df1|Hz}}: $N_1 \\approx 3.6 \\times 48000/{{df1||4}}$ = {{N1||3}} taps."
+            },
+            {
+              "prompt": "How many taps does stage 2 need?",
+              "answer": "N2",
+              "explanation": "Stage 2 runs at {{f1|Hz}} with $\\Delta f_2$ = 50 Hz: $N_2 \\approx 3.6 \\times {{f1||4}}/50$ = {{N2||3}} taps, {{M1}} times fewer than one stage at 48 kHz."
+            },
+            {
+              "prompt": "How many multiplications per second do both stages need together (polyphase)?",
+              "answer": "N1*48000/M1 + N2*1000",
+              "explanation": "Stage 1: {{N1||3}} × {{f1|Hz}} = {{N1*f1||3}}/s. Stage 2: {{N2||3}} × 1000 = {{N2*1000||3}}/s. Total {{N1*f1 + N2*1000||3}}/s, against about 3.5 million/s for a single stage."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "d": [
+              0.01,
+              0.02,
+              0.002
+            ]
+          },
+          "prompt": "A two-stage decimator must keep the overall pass-band ripple within $\\pm${{d}}. The ripples of cascaded stages add (in the worst case). Which ripple $\\delta_1$ should each stage be designed for?",
+          "answer": "d/2",
+          "unit": "",
+          "explanation": "$(1 + \\delta)(1 + \\delta) \\approx 1 + 2\\delta$, so a simple (slightly conservative) rule gives each stage half the budget: {{d}}/2 = {{d/2}}. The stop-band requirement does not need to be split, because a component is attenuated by the stage that is responsible for it."
+        },
+        {
+          "id": "c4",
+          "type": "trueFalse",
+          "prompt": "In a multistage decimator, the first stage (at the highest rate) needs the sharpest filter.",
+          "answer": false,
+          "explanation": "The opposite: the first stage only has to protect what will alias into the final band, so its transition band is wide and its filter short, even though it runs fast. The sharp filter goes in the last stage, where the rate (and so the cost per tap) is lowest."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              48000,
+              96000
+            ],
+            "f0": [
+              5000,
+              7000,
+              9000
+            ],
+            "M": [
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "fo": "fs/M",
+            "fa": "abs(f0 - fo*round(f0/fo))"
+          },
+          "require": "f0 - fo/2",
+          "prompt": "A {{f0|Hz}} interference tone at $f_s$ = {{fs|Hz}} is downsampled by {{M}} without a decimation filter. At which frequency does it appear in the output (sampled at {{fs/M|Hz}})?",
+          "answer": "fa",
+          "unit": "Hz",
+          "absTolerance": 1,
+          "explanation": "The new rate is {{fo|Hz}}, so {{f0|Hz}} aliases to $|f_0 - kf_s'|$ with the nearest multiple of {{fo|Hz}}: |{{f0||5}} − {{fo*round(f0/fo)||5}}| = {{fa|Hz}}. A decimation filter with cutoff {{fo/2|Hz}} would have removed it first."
+        },
+        {
+          "id": "c6",
+          "type": "orderSteps",
+          "prompt": "Put the steps of designing a 48 kHz → 44.1 kHz converter in order.",
+          "items": [
+            "Reduce $f_{out}/f_{in}$ to $L/M$ = 147/160",
+            "Conceptually upsample by $L$ = 147",
+            "Design one low-pass filter with cutoff $\\min(\\pi/L, \\pi/M)$ and gain $L$",
+            "Conceptually downsample by $M$ = 160",
+            "Implement it in polyphase form, computing only the outputs that are kept"
+          ],
+          "explanation": "The ratio fixes $L$ and $M$; the cascade expander → filter → compressor defines the system; the filter is designed at the (huge) intermediate rate $Lf_{in}$ = 7.056 MHz. Nobody runs it that way: a polyphase structure computes each output from the few nonzero inputs, so the cost is set by the output rate."
+        }
+      ]
+    }
+  ]
+}

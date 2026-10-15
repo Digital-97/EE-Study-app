@@ -1,0 +1,886 @@
+{
+  "id": "in-conversion",
+  "title": "AD & DA Conversion",
+  "description": "Sampling, aliasing and quantization, ADC resolution and SNR, the main ADC architectures and how a DAC builds a voltage from a code.",
+  "reference": "Hambley §9.3; H&H §9.15–9.23; Frenzel §7-3",
+  "study": [
+    {
+      "title": "Sampling and aliasing",
+      "body": "A signal with no components above $f_H$ is fully described by samples taken at $f_s > 2f_H$ (Nyquist). A component above $f_s/2$ shows up at a lower **alias** frequency: the distance to the nearest multiple $kf_s$ ($k$ = nearest integer to $f/f_s$). Aliases cannot be removed after sampling, so an analog **anti-alias low-pass filter** comes before the ADC; because real filters roll off gradually, $f_s$ is usually chosen at least 2.5–3 × $f_H$.",
+      "formula": "f_a = \\left|\\,f - k f_s\\right|",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 2,
+          "label": "f / f_s",
+          "ticks": [
+            0,
+            0.5,
+            1,
+            1.5,
+            2
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "f_a / f_s",
+          "ticks": [
+            0,
+            0.5,
+            1
+          ]
+        },
+        "curves": [
+          {
+            "f": "abs(x - round(x))"
+          }
+        ],
+        "height": 140
+      }
+    },
+    {
+      "title": "Quantization and resolution",
+      "body": "An $N$-bit ADC divides its input range $V_{FS}$ into $2^N$ zones of width $\\Delta$ (1 LSB). Every voltage within one zone gets the same code, so the quantization error is up to $\\Delta/2$ (rounding) or $\\Delta$ (truncating). The plot shows a 3-bit, 8 V converter: 8 codes, $\\Delta$ = 1 V.\nTo get a required resolution $\\Delta_{req}$: $N \\ge \\log_2(V_{FS}/\\Delta_{req})$, rounded **up**.",
+      "formula": "\\Delta = \\frac{V_{FS}}{2^N}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 8,
+          "label": "v_{in} (V)",
+          "ticks": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 7.5,
+          "label": "code",
+          "ticks": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        "curves": [
+          {
+            "f": "min(7, floor(x))"
+          },
+          {
+            "f": "x - 0.5",
+            "color": "grey",
+            "dash": true,
+            "from": 0.5,
+            "to": 7.5
+          }
+        ],
+        "height": 170
+      }
+    },
+    {
+      "title": "Quantization noise and SNR",
+      "body": "The quantization error behaves like noise uniformly spread over one LSB, with rms value $\\Delta/\\sqrt{12}$ ($= \\Delta/2\\sqrt3$). For a full-scale sine wave this gives the ideal signal-to-noise ratio below: about **6 dB per bit**. A 16-bit converter gives ≈ 98 dB. A signal that uses only part of the range loses SNR: $20\\log_{10}(V_p/V_{p,FS})$.",
+      "formula": "\\text{SNR} \\approx 6.02N + 1.76\\ \\text{dB}"
+    },
+    {
+      "title": "Explore: bits and quantization error",
+      "body": "A sine wave (dashed) almost filling an 8 V range, converted with $N$ bits and played back at the middle of each code's zone. Drag $N$: every extra bit halves $\\Delta$ and the staircase error, which is worth about 6 dB of SNR. With 1 or 2 bits the output is only a crude copy of the signal and the error clearly follows the signal instead of looking like noise; with 8 bits the steps are too small to see.",
+      "formula": "\\Delta = \\frac{V_{FS}}{2^N}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "t / T",
+          "ticks": [
+            0,
+            0.25,
+            0.5,
+            0.75,
+            1
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 8,
+          "label": "v (V)",
+          "ticks": [
+            0,
+            2,
+            4,
+            6,
+            8
+          ]
+        },
+        "sliders": [
+          {
+            "name": "N",
+            "label": "bits $N$",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "value": 3
+          }
+        ],
+        "let": {
+          "D": "8/2^N"
+        },
+        "curves": [
+          {
+            "f": "(4 + 3.8*sin(2*pi*x))",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "D*(min(2^N - 1, floor((4 + 3.8*sin(2*pi*x))/D)) + 0.5)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$\\Delta$",
+            "value": "D",
+            "unit": "V"
+          },
+          {
+            "label": "max error $\\Delta/2$",
+            "value": "D/2",
+            "unit": "V"
+          },
+          {
+            "label": "rms $\\Delta/\\sqrt{12}$",
+            "value": "D/sqrt(12)",
+            "unit": "V"
+          },
+          {
+            "label": "SNR (full-scale sine)",
+            "value": "6.02*N + 1.76",
+            "unit": "dB"
+          }
+        ]
+      }
+    },
+    {
+      "title": "ADC architectures",
+      "body": "- **Flash**: $2^N - 1$ comparators compare the input with all levels at once. Fastest (GS/s), but large and power-hungry; usually $\\le$ 8 bits.\n- **Successive approximation (SAR)**: a binary search with one comparator and a DAC, one bit per clock, so $N$ clocks per conversion. The workhorse for 8–18 bits up to a few MS/s.\n- **Sigma-delta (ΔΣ)**: a 1-bit converter running at a very high oversampling rate plus a digital filter; noise shaping gives 16–24 bits at low to moderate rates.\n- **Dual-slope (integrating)**: slow, but averages the input and can reject mains hum; used in multimeters."
+    },
+    {
+      "title": "DAC and the R-2R ladder",
+      "body": "A DAC turns code $D$ into a voltage proportional to it. In an **R-2R ladder** each bit switches a 2R branch between ground and the virtual ground of an op amp; every section halves the current, so the bits carry binary-weighted currents $I/2, I/4, \\dots$ while only two resistor values are needed. An op amp converts the summed current to a voltage.\nExample: 4 bits, $V_{ref}$ = 5 V, $D = (1011)_2$ = 11: $v_o$ = 5 × 11/16 = 3.44 V.",
+      "formula": "v_o = V_{ref}\\,\\frac{D}{2^N}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "in-conversion-1",
+      "title": "Sampling and quantizing",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Sampling recap",
+          "body": "An ADC first **samples** the signal at rate $f_s$, then **quantizes** each sample to a code. Sampling loses nothing if $f_s > 2f_H$. A component at $f > f_s/2$ produces exactly the same samples as a lower **alias** frequency $f_a = |f - kf_s|$, with $k$ the nearest integer to $f/f_s$.",
+          "formula": "f_s > 2 f_H"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "f": [
+              6000,
+              7000,
+              8000,
+              9000,
+              12000,
+              13000,
+              17000,
+              23000
+            ],
+            "fs": [
+              10000,
+              20000
+            ]
+          },
+          "require": "f - fs/2",
+          "prompt": "A {{f|Hz}} sinusoid is sampled at {{fs|Hz}}. At what (alias) frequency do the samples appear?",
+          "answer": "abs(f - fs*round(f/fs))",
+          "unit": "Hz",
+          "explanation": "$f$ = {{f|Hz}} is above $f_s/2$ = {{fs/2|Hz}}, so it aliases. Nearest multiple of $f_s$: {{round(f/fs)}} × {{fs|Hz}} = {{fs*round(f/fs)|Hz}}. $f_a$ = |{{f|Hz}} − {{fs*round(f/fs)|Hz}}| = **{{abs(f-fs*round(f/fs))|Hz}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Quantization",
+          "body": "An $N$-bit ADC has $2^N$ codes. Its full-scale range $V_{FS}$ is split into $2^N$ steps of width $\\Delta$, the **LSB** (least significant bit). That step is the resolution of the converter.",
+          "formula": "\\Delta = \\frac{V_{FS}}{2^N}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "N": [
+              8,
+              10,
+              12,
+              16
+            ],
+            "VFS": [
+              2.5,
+              3.3,
+              5,
+              10
+            ]
+          },
+          "prompt": "Find the LSB size of a {{N}}-bit ADC with a {{VFS|V}} input range.",
+          "answer": "VFS/2^N",
+          "unit": "V",
+          "explanation": "$\\Delta = V_{FS}/2^N$ = {{VFS|V}} / {{2^N||5}} = **{{VFS/2^N|V}}**. (Dividing by $2^N - 1$ is a common slip that gives a slightly different number.)"
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "How many different output codes does a 12-bit ADC have?",
+          "options": [
+            "4096",
+            "4095",
+            "2048",
+            "12"
+          ],
+          "answer": 0,
+          "explanation": "$2^{12}$ = 4096 codes (0 to 4095). 4095 is the **largest** code, 2048 is $2^{11}$, and 12 is just the number of bits."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Quantization noise",
+          "body": "The rounding error is spread evenly over ±Δ/2, so it acts like noise with rms value $\\Delta/\\sqrt{12}$. For a full-scale sine wave the resulting signal-to-noise ratio grows by about 6 dB for every extra bit.",
+          "formula": "\\text{SNR} \\approx 6.02N + 1.76\\ \\text{dB}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "N": [
+              8,
+              10,
+              12,
+              14,
+              16,
+              24
+            ]
+          },
+          "prompt": "Find the ideal SNR of a {{N}}-bit ADC for a full-scale sinusoidal input.",
+          "answer": "6.02*N + 1.76",
+          "unit": "dB",
+          "explanation": "SNR ≈ 6.02 × {{N}} + 1.76 = **{{6.02*N+1.76|dB|4}}**. Real converters fall a few dB short; their 'effective number of bits' is lower than $N$."
+        },
+        {
+          "id": "i5",
+          "type": "info",
+          "title": "Try it: add bits",
+          "body": "An 8 V range, a sine input (dashed) and the quantized output. Drag the number of bits: $\\Delta = V_{FS}/2^N$ halves with each bit, the error never exceeds $\\Delta/2$, and its rms value $\\Delta/\\sqrt{12}$ sets the SNR, about 6 dB per bit.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "t / T",
+              "ticks": [
+                0,
+                0.25,
+                0.5,
+                0.75,
+                1
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 8,
+              "label": "v (V)",
+              "ticks": [
+                0,
+                2,
+                4,
+                6,
+                8
+              ]
+            },
+            "sliders": [
+              {
+                "name": "N",
+                "label": "bits $N$",
+                "min": 1,
+                "max": 8,
+                "step": 1,
+                "value": 3
+              }
+            ],
+            "let": {
+              "D": "8/2^N"
+            },
+            "curves": [
+              {
+                "f": "(4 + 3.8*sin(2*pi*x))",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "D*(min(2^N - 1, floor((4 + 3.8*sin(2*pi*x))/D)) + 0.5)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$\\Delta$",
+                "value": "D",
+                "unit": "V"
+              },
+              {
+                "label": "max error $\\Delta/2$",
+                "value": "D/2",
+                "unit": "V"
+              },
+              {
+                "label": "rms $\\Delta/\\sqrt{12}$",
+                "value": "D/sqrt(12)",
+                "unit": "V"
+              },
+              {
+                "label": "SNR (full-scale sine)",
+                "value": "6.02*N + 1.76",
+                "unit": "dB"
+              }
+            ]
+          }
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "ADC types",
+          "body": "- **Flash**: one comparator per level, all at once: fastest, but $2^N - 1$ comparators.\n- **SAR**: binary search, one bit per clock cycle.\n- **Sigma-delta**: heavy oversampling with a 1-bit quantizer and digital filtering: highest resolution, lower speed.\n- **Dual-slope**: integrates the input: slow but rejects noise, used in multimeters."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each ADC type to its key property",
+          "pairs": [
+            [
+              "Flash",
+              "Fastest; $2^N - 1$ comparators"
+            ],
+            [
+              "SAR",
+              "Binary search, one bit per clock"
+            ],
+            [
+              "Sigma-delta",
+              "Oversampling; highest resolution"
+            ],
+            [
+              "Dual-slope",
+              "Integrates; rejects mains hum"
+            ]
+          ],
+          "explanation": "Speed versus resolution: flash converters are fastest but limited to few bits; SAR converters are the general-purpose middle; sigma-delta and integrating converters trade speed for resolution and noise rejection."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "A flash ADC with $N$ bits needs $2^N - 1$ comparators, so going from 8 to 10 bits multiplies the number of comparators by about 4.",
+          "answer": true,
+          "explanation": "8 bits: 255 comparators; 10 bits: 1023. Each extra bit doubles the count, which is why flash converters rarely go beyond 8 bits, while a SAR converter needs only one comparator for any $N$."
+        }
+      ]
+    },
+    {
+      "id": "in-conversion-2",
+      "title": "Converter calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "N": [
+              6,
+              8
+            ],
+            "VFS": [
+              2.5,
+              5,
+              10
+            ],
+            "f": {
+              "min": 0.05,
+              "max": 0.95,
+              "step": 0.0001
+            }
+          },
+          "derived": {
+            "v": "round(f*VFS*1000)/1000",
+            "D": "VFS/2^N"
+          },
+          "require": "0.4 - abs(v/D - floor(v/D) - 0.5)",
+          "prompt": "A unipolar {{N}}-bit ADC with range 0 to {{VFS|V}} **truncates**: code = $\\lfloor v_{in}/\\Delta \\rfloor$. Which code (in decimal) does it give for $v_{in}$ = {{v||4}} V?",
+          "answer": "floor(v/D)",
+          "unit": "",
+          "tolerance": 0.0001,
+          "absTolerance": 0.5,
+          "explanation": "$\\Delta$ = {{VFS|V}} / {{2^N||5}} = {{D|V|4}}. $v_{in}/\\Delta$ = {{v||4}} / {{D||4}} = {{v/D||6}}, truncated to **{{floor(v/D)||6}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "N": [
+              8,
+              10,
+              12
+            ],
+            "Vr": [
+              2.5,
+              4.096,
+              5
+            ],
+            "f": {
+              "min": 0.05,
+              "max": 0.95,
+              "step": 0.01
+            }
+          },
+          "derived": {
+            "D": "round(f*(2^N - 1))"
+          },
+          "prompt": "A {{N}}-bit DAC with reference $V_{ref}$ = {{Vr||4}} V receives code $D$ = {{D||5}} (decimal). Find its output voltage, $v_o = V_{ref}D/2^N$.",
+          "answer": "Vr*D/2^N",
+          "unit": "V",
+          "tolerance": 0.005,
+          "explanation": "$v_o = V_{ref}\\frac{D}{2^N}$ = {{Vr||4}} V × {{D||5}} / {{2^N||5}} = **{{Vr*D/2^N|V|4}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "V": [
+              1,
+              5,
+              10
+            ],
+            "N": [
+              8,
+              10,
+              12,
+              16
+            ]
+          },
+          "prompt": "A {{N}}-bit ADC accepts inputs from −{{V|V}} to +{{V|V}}. Find the rms value of its quantization noise.",
+          "answer": "2*V/2^N/sqrt(12)",
+          "unit": "V",
+          "explanation": "The range is {{2*V|V}}, so $\\Delta$ = {{2*V|V}} / {{2^N||5}} = {{2*V/2^N|V}}. $N_{q,rms} = \\Delta/\\sqrt{12}$ = **{{2*V/2^N/sqrt(12)|V}}**. (Using only {{V|V}} as the range is the usual mistake.)"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "VFS": [
+              1,
+              5,
+              10
+            ],
+            "r": [
+              0.001,
+              0.0005,
+              0.0001,
+              1e-05
+            ]
+          },
+          "prompt": "An ADC with a {{VFS|V}} input range must resolve steps of {{r|V}} or smaller. What is the minimum number of bits?",
+          "answer": "ceil(ln(VFS/r)/ln(2))",
+          "unit": "",
+          "tolerance": 0.0001,
+          "absTolerance": 0.5,
+          "explanation": "Need $2^N \\ge V_{FS}/\\Delta_{req}$ = {{VFS|V}} / {{r|V}} = {{VFS/r||5}} levels. $\\log_2$({{VFS/r||5}}) = {{ln(VFS/r)/ln(2)||4}}, rounded up: **{{ceil(ln(VFS/r)/ln(2))}} bits**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "S": [
+              60,
+              70,
+              80,
+              90,
+              100
+            ]
+          },
+          "prompt": "An application needs an SNR of at least {{S}} dB for a full-scale sine wave. What is the minimum number of ADC bits (ideal converter)?",
+          "answer": "ceil((S - 1.76)/6.02)",
+          "unit": "",
+          "tolerance": 0.0001,
+          "absTolerance": 0.5,
+          "explanation": "$6.02N + 1.76 \\ge$ {{S}} gives $N \\ge$ ({{S}} − 1.76) / 6.02 = {{(S-1.76)/6.02||4}}, so **{{ceil((S-1.76)/6.02)}} bits**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "VFS": [
+              4,
+              5,
+              8,
+              10
+            ]
+          },
+          "prompt": "The graph shows the transfer characteristic of a 3-bit ADC. Find its LSB size $\\Delta$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "VFS",
+              "label": "v_{in}",
+              "unit": "V"
+            },
+            "y": {
+              "min": 0,
+              "max": 7.5,
+              "label": "code",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ]
+            },
+            "curves": [
+              {
+                "f": "min(7, floor(x*8/VFS))"
+              }
+            ],
+            "height": 180
+          },
+          "answer": "VFS/8",
+          "unit": "V",
+          "tolerance": 0.05,
+          "explanation": "Each step of the staircase is one LSB wide. The 8 codes cover 0 to {{VFS|V}}, so $\\Delta$ = {{VFS|V}} / 8 = **{{VFS/8|V}}**. Check: $V_{FS}/2^N$ with $N$ = 3."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "A sinusoid of frequency $f$ is sampled at $f_s$. Which graph shows the apparent (alias) frequency of the samples as $f$ is swept from 0 to $2f_s$?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 2,
+                "label": "f / f_s",
+                "ticks": [
+                  0,
+                  0.5,
+                  1,
+                  1.5,
+                  2
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "f_a / f_s",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "abs(x - round(x))"
+                }
+              ],
+              "height": 140
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 2,
+                "label": "f / f_s",
+                "ticks": [
+                  0,
+                  0.5,
+                  1,
+                  1.5,
+                  2
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "f_a / f_s",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "x"
+                }
+              ],
+              "height": 140
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 2,
+                "label": "f / f_s",
+                "ticks": [
+                  0,
+                  0.5,
+                  1,
+                  1.5,
+                  2
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "f_a / f_s",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "mod(x, 1)"
+                }
+              ],
+              "height": 140
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 2,
+                "label": "f / f_s",
+                "ticks": [
+                  0,
+                  0.5,
+                  1,
+                  1.5,
+                  2
+                ]
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "f_a / f_s",
+                "ticks": [
+                  0,
+                  0.5,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "min(x, 0.5)"
+                }
+              ],
+              "height": 140
+            }
+          ],
+          "answer": 0,
+          "explanation": "Up to $f_s/2$ the samples show the true frequency. Beyond it the apparent frequency **folds back**: $f_a = |f - kf_s|$, falling to 0 at $f = f_s$, rising again to $f_s/2$ at $1.5f_s$, and so on: a triangle. It never exceeds $f_s/2$."
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "prompt": "A vibration signal of interest contains frequencies up to 5 kHz, plus noise at higher frequencies. With a good anti-alias filter in front of the ADC, which sampling rate is the sensible choice?",
+          "options": [
+            "15 kHz",
+            "5 kHz",
+            "8 kHz",
+            "10 kHz"
+          ],
+          "answer": 0,
+          "explanation": "Nyquist demands **more** than 2 × 5 kHz = 10 kHz. A real anti-alias filter cannot cut off sharply at 5 kHz, so a margin is needed: about 3 × $f_H$ = 15 kHz. 5 kHz and 8 kHz alias the signal itself; exactly 10 kHz leaves no room for the filter."
+        }
+      ]
+    },
+    {
+      "id": "in-conversion-3",
+      "title": "Converter design problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "N": [
+              10,
+              12,
+              16
+            ],
+            "Vf": [
+              5,
+              10
+            ],
+            "Vp": [
+              0.5,
+              1,
+              2.5
+            ]
+          },
+          "prompt": "An ideal {{N}}-bit ADC has range ±{{Vf|V}}, but the sine wave it digitizes has a peak of only {{Vp|V}}. Estimate the SNR.",
+          "answer": "6.02*N + 1.76 + 20*log10(Vp/Vf)",
+          "unit": "dB",
+          "explanation": "The quantization noise stays the same; the signal is {{Vp/Vf||3}} of full scale, i.e. 20 $\\log_{10}$({{Vp/Vf||3}}) = {{20*log10(Vp/Vf)|dB}}. SNR ≈ 6.02 × {{N}} + 1.76 + ({{20*log10(Vp/Vf)||3}}) = **{{6.02*N+1.76+20*log10(Vp/Vf)|dB}}**. Amplify the signal to fill the range!"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "N": [
+              10,
+              12,
+              16
+            ],
+            "fc": [
+              1000000.0,
+              2000000.0,
+              10000000.0,
+              20000000.0
+            ]
+          },
+          "prompt": "A {{N}}-bit SAR ADC decides one bit per clock cycle of a {{fc|Hz}} clock. Ignoring any other overhead:",
+          "ask": [
+            {
+              "prompt": "How long does one conversion take?",
+              "answer": "N/fc",
+              "unit": "s",
+              "explanation": "$N$ comparisons of one clock period each: $T = N/f_{clk}$ = {{N}} / {{fc|Hz}} = **{{N/fc|s}}**."
+            },
+            {
+              "prompt": "What is the maximum sampling rate (samples per second)?",
+              "answer": "fc/N",
+              "unit": "S/s",
+              "explanation": "One conversion takes $N/f_{clk}$, so at most $f_{clk}/N$ = {{fc|Hz}} / {{N}} = **{{fc/N|S/s}}** conversions per second."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "v": {
+              "min": 0.3,
+              "max": 15.7,
+              "step": 0.1
+            }
+          },
+          "derived": {
+            "b3": "step(v - 8)",
+            "b2": "step(v - 8*b3 - 4)"
+          },
+          "require": "0.45 - abs(v - floor(v) - 0.5)",
+          "prompt": "A 4-bit SAR ADC with $V_{ref}$ = 16 V (so 1 LSB = 1 V) converts $v_{in}$ = {{v||3}} V. It first tries 1000 (8 V). What DAC voltage does it try in its **third** comparison?",
+          "answer": "8*b3 + 4*b2 + 2",
+          "unit": "V",
+          "tolerance": 0.001,
+          "explanation": "1st trial: {{v||3}} V compared with 8 V $\\to$ MSB = {{b3}}. 2nd trial: {{8*b3}} + 4 = {{8*b3+4}} V $\\to$ next bit = {{b2}}. 3rd trial: {{8*b3}} + {{4*b2}} + 2 = **{{8*b3+4*b2+2}} V**. A bit is kept when $v_{in}$ is at least the trial voltage."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "k": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "Oversampling by a factor $M$ (then averaging/filtering down to the original rate) improves the SNR by $10\\log_{10}M$ dB if the quantization noise is white. By what factor must you oversample to gain {{k}} extra bit(s) of resolution?",
+          "answer": "4^k",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "One bit is 6.02 dB, so you need {{6.02*k||3}} dB: $10\\log_{10}M$ = {{6.02*k||3}} $\\to$ $M$ = 10^({{0.602*k||3}}) ≈ **{{4^k}}**, i.e. $4^k$. Plain oversampling is expensive; sigma-delta converters add noise shaping to do much better."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "D": {
+              "min": 1,
+              "max": 15,
+              "step": 1
+            },
+            "Vr": [
+              5,
+              8,
+              10
+            ]
+          },
+          "prompt": "A 4-bit R-2R DAC with $V_{ref}$ = {{Vr|V}} receives the binary code {{mod(floor(D/8),2)}}{{mod(floor(D/4),2)}}{{mod(floor(D/2),2)}}{{mod(floor(D/1),2)}}. Find the output voltage magnitude $V_{ref}D/2^N$.",
+          "answer": "Vr*D/16",
+          "unit": "V",
+          "explanation": "Binary {{mod(floor(D/8),2)}}{{mod(floor(D/4),2)}}{{mod(floor(D/2),2)}}{{mod(floor(D/1),2)}} in decimal: $D$ = 8·{{mod(floor(D/8),2)}} + 4·{{mod(floor(D/4),2)}} + 2·{{mod(floor(D/2),2)}} + {{mod(D,2)}} = {{D}}. Each bit contributes a binary-weighted share ($V_{ref}/2$, $/4$, $/8$, $/16$). $v_o$ = {{Vr|V}} × {{D}} / 16 = **{{Vr*D/16|V}}**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vp": [
+              0.025,
+              0.05,
+              0.1,
+              0.25
+            ],
+            "r": [
+              2e-06,
+              5e-06,
+              1e-05
+            ]
+          },
+          "prompt": "A sensor gives at most ±{{Vp|V}}. It is amplified to fill an ADC range of ±5 V, and the system must resolve {{r|V}} at the **sensor**.",
+          "ask": [
+            {
+              "prompt": "What amplifier gain is needed?",
+              "answer": "5/Vp",
+              "unit": "",
+              "explanation": "Gain = 5 V / {{Vp|V}} = **{{5/Vp||4}}**, so the sensor's full range maps onto the ADC's full range."
+            },
+            {
+              "prompt": "What is the minimum number of ADC bits?",
+              "answer": "ceil(ln(2*Vp/r)/ln(2))",
+              "unit": "",
+              "tolerance": 0.0001,
+              "absTolerance": 0.5,
+              "explanation": "The sensor span {{2*Vp|V}} must be split into steps of {{r|V}}: {{2*Vp/r||5}} levels. $\\log_2$({{2*Vp/r||5}}) = {{ln(2*Vp/r)/ln(2)||4}} $\\to$ **{{ceil(ln(2*Vp/r)/ln(2))}} bits** (choose the next standard size for margin). The gain does not change this: it scales signal and LSB alike."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "A sigma-delta ADC uses a very coarse (often 1-bit) quantizer at a high oversampling rate, and gets its high resolution from noise shaping and digital filtering.",
+          "answer": true,
+          "explanation": "The modulator pushes quantization noise to high frequencies (noise shaping); the digital decimation filter removes it and lowers the rate. That is how 1-bit hardware achieves 16–24-bit resolution at audio and measurement rates."
+        }
+      ]
+    }
+  ]
+}

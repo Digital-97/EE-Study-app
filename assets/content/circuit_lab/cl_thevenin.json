@@ -1,0 +1,3247 @@
+{
+ "id": "cl-thevenin",
+ "title": "Thévenin Workshop",
+ "description": "Find the Thévenin and Norton equivalents of randomized networks, then use them for loads and maximum power transfer.",
+ "reference": "Hambley §2.6",
+ "study": [
+  {
+   "title": "Three numbers, two needed",
+   "body": "Any linear two-terminal network acts like a source $V_t$ in series with $R_t$ (Thévenin) or a source $I_n$ in parallel with $R_t$ (Norton). $V_t$ is the open-circuit voltage $v_{oc}$ (a relative to b), $I_n$ is the short-circuit current $i_{sc}$ (a to b through the short). Any two give the third.",
+   "formula": "V_t = v_{oc} \\qquad I_n = i_{sc} \\qquad R_t = \\frac{v_{oc}}{i_{sc}}"
+  },
+  {
+   "title": "Finding the Thévenin resistance",
+   "body": "With only independent sources, turn them all off (voltage source → short, current source → open) and reduce the remaining resistors as seen from a–b. Here: $R_t = R_3 + R_1\\parallel R_2$. Start the reduction at the side **far from the terminals**.",
+   "formula": "R_t = R_3 + R_1 \\parallel R_2",
+   "circuit": {
+    "elements": [
+     {
+      "type": "vsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_s"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       2,
+       0
+      ],
+      "label": "R_1"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       2,
+       2
+      ],
+      "label": "R_2"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       4.5,
+       0
+      ],
+      "label": "R_3"
+     },
+     {
+      "type": "terminal",
+      "at": [
+       4.5,
+       0
+      ],
+      "label": "a"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        4.5,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       4.5,
+       2
+      ],
+      "label": "b"
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       2
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Loads and maximum power",
+   "body": "Once you have $V_t$ and $R_t$, any load is a one-loop problem. The load receives maximum power when $R_L = R_t$; then $v_L = V_t/2$ and only half of the power produced inside the equivalent reaches the load.",
+   "formula": "i_L = \\frac{V_t}{R_t+R_L} \\qquad P_{max} = \\frac{V_t^2}{4R_t}"
+  },
+  {
+   "title": "Common mistakes",
+   "body": "- Computing $v_{oc}$ with the load still connected: remove it first.\n- Replacing a current source by a short when finding $R_t$: it must become an **open**.\n- Losing the sign: $v_{oc} = v_a - v_b$, and $i_{sc}$ flows from a to b through the short. $V_t$ and $I_n$ always have the same sign.\n- Assuming terminal b is ground: if a resistor sits in the return path, b floats."
+  }
+ ],
+ "lessons": [
+  {
+   "title": "Equivalents and loads",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "t1",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Find the Thévenin/Norton equivalent at terminals a–b.",
+     "ask": [
+      {
+       "prompt": "Find the Thévenin resistance $R_t$ seen from a–b.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "Short $V_s$: $R_1\\parallel R_2$ = {{par(R1,R2)|Ω}}, in series with $R_3$: $R_t$ = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find the Thévenin voltage $V_t = v_{ab}$ (open circuit).",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "Open terminals: no current in $R_3$, so $v_{ab}$ equals the divider voltage $V_s\\frac{R_2}{R_1+R_2}$ = **{{Voc|V}}**."
+      },
+      {
+       "prompt": "Find the Norton current $I_n$ (short-circuit current from a to b).",
+       "answer": "Isc",
+       "unit": "A",
+       "explanation": "$V_t = V_s\\frac{R_2}{R_1+R_2}$ = {{Voc|V}} and $R_t = R_3 + R_1\\parallel R_2$ = {{Req|Ω}}, so $I_n = V_t/R_t$ = **{{Isc|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "t2",
+     "type": "trueFalse",
+     "prompt": "To find $R_t$ of a network with an independent current source, you replace the current source by a short circuit.",
+     "answer": false,
+     "explanation": "A zeroed current source carries zero current: that is an **open** circuit. Only voltage sources become shorts."
+    },
+    {
+     "id": "tp1",
+     "type": "tapCircuit",
+     "prompt": "Nothing is connected to a–b. Tap every resistor that has **no effect** on $v_{oc}$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "answer": [
+      "R1",
+      "R4"
+     ],
+     "explanation": "- $R_1$ is directly across the ideal source, so the voltage on the rest of the circuit is $V_s$ whatever $R_1$ is.\n- With a–b open, no current flows through $R_4$, so it has no voltage drop.\nThat leaves a plain divider: $v_{oc} = V_s\\,\\frac{R_3}{R_2 + R_3}$.\nCareful: $R_4$ **does** matter for $R_t = R_4 + R_2 \\parallel R_3$. Only $R_1$ affects neither."
+    },
+    {
+     "id": "t3",
+     "type": "numeric",
+     "params": {
+      "Is": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Find the Thévenin/Norton equivalent at terminals a–b.",
+     "ask": [
+      {
+       "prompt": "Find the Thévenin resistance $R_t$ seen from a–b.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "Open $I_s$: $R_1 + R_2$ = {{R1+R2|Ω}} in parallel with $R_3$: $R_t$ = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find the Thévenin voltage $V_t = v_{ab}$ (open circuit).",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "Current divider: $R_3$ gets $I_s\\frac{R_1}{R_1+R_2+R_3}$, so $v_{ab} = I_s\\frac{R_1R_3}{R_1+R_2+R_3}$ = **{{Voc|V}}**."
+      },
+      {
+       "prompt": "Find the Norton current $I_n$ (short-circuit current from a to b).",
+       "answer": "Isc",
+       "unit": "A",
+       "explanation": "Short a–b: $R_3$ is bypassed and $I_s$ splits between $R_1$ and $R_2$: $I_n = I_s\\frac{R_1}{R_1+R_2}$ = **{{Isc|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          5.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          5.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "t4",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "RL": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "A load $R_L$ = {{RL|Ω}} is connected across a–b (not drawn).",
+     "ask": [
+      {
+       "prompt": "Find the load current $i_L$.",
+       "answer": "Voc/(Req+RL)",
+       "unit": "A",
+       "explanation": "Thévenin: $R_t = R_4\\parallel(R_3 + R_1\\parallel R_2)$ = {{Req|Ω}}, $V_t$ = {{Voc|V}} (open-circuit divider). Then $i_L = \\frac{V_t}{R_t+R_L}$ = **{{Voc/(Req+RL)|A}}**."
+      },
+      {
+       "prompt": "Find the load voltage $v_L$.",
+       "answer": "Voc*RL/(Req+RL)",
+       "unit": "V",
+       "explanation": "$V_t$ = {{Voc|V}}, $R_t = R_4\\parallel(R_3 + R_1\\parallel R_2)$ = {{Req|Ω}}. Divider: $v_L = V_t\\frac{R_L}{R_t+R_L}$ = **{{Voc*RL/(Req+RL)|V}}**."
+      },
+      {
+       "prompt": "Find the power delivered to the load.",
+       "answer": "Voc^2*RL/(Req+RL)^2",
+       "unit": "W",
+       "explanation": "$i_L = V_t/(R_t+R_L)$ = {{Voc/(Req+RL)|A}} with $V_t$ = {{Voc|V}}, $R_t$ = {{Req|Ω}}. $P_L = i_L^2R_L$ = **{{Voc^2*RL/(Req+RL)^2|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          5.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          5.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "t5",
+     "type": "multipleChoice",
+     "prompt": "Which load resistance draws the maximum power from a network with Thévenin resistance $R_t$?",
+     "options": [
+      "$R_L = R_t$",
+      "$R_L = 0$",
+      "$R_L \\to \\infty$",
+      "$R_L = 2R_t$"
+     ],
+     "answer": 0,
+     "explanation": "$P_L = V_t^2R_L/(R_t+R_L)^2$ is zero for $R_L = 0$ (no voltage) and for $R_L\\to\\infty$ (no current); setting $dP_L/dR_L = 0$ gives $R_L = R_t$."
+    },
+    {
+     "id": "t6",
+     "type": "numeric",
+     "params": {
+      "Is": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Maximum power transfer at terminals a–b.",
+     "ask": [
+      {
+       "prompt": "Which load resistance $R_L$ receives maximum power?",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "$R_L = R_t = (R_1+R_2)\\parallel R_3$ = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find the maximum power that can be delivered to a load.",
+       "answer": "Voc^2/(4*Req)",
+       "unit": "W",
+       "explanation": "$V_t = I_s\\frac{R_1R_3}{R_1+R_2+R_3}$ = {{Voc|V}}, $R_t$ = {{Req|Ω}}. $P_{max} = \\frac{V_t^2}{4R_t}$ = **{{Voc^2/(4*Req)|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          5.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          5.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-thevenin-1"
+  },
+  {
+   "title": "Two sources, floating terminals, bridges",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "V1": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "Is": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Two sources. Find the equivalent at a–b.",
+     "ask": [
+      {
+       "prompt": "Find the Thévenin resistance $R_t$ seen from a–b.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "Short $V_1$, open $I_s$: $R_1\\parallel R_2$ = {{par(R1,R2)|Ω}}, plus $R_3$: $R_t$ = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find the Thévenin voltage $V_t = v_{ab}$ (open circuit).",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "Open terminals, so $R_3$ carries no current and $v_{ab} = v_x$. KCL (or superposition): $v_x = \\left(\\frac{V_1}{R_1} + I_s\\right)(R_1\\parallel R_2)$ = ({{V1/R1|A}} + {{Is|A}}) · {{par(R1,R2)|Ω}} = **{{Voc|V}}**."
+      },
+      {
+       "prompt": "Find the Norton current $I_n$ (short-circuit current from a to b).",
+       "answer": "Isc",
+       "unit": "A",
+       "explanation": "$V_t$ = {{Voc|V}}, $R_t$ = {{Req|Ω}}, so $I_n = V_t/R_t$ = **{{Isc|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "V1",
+        "val": "V1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Terminal b is **not** grounded: $R_3$ sits in the return path.",
+     "ask": [
+      {
+       "prompt": "Find the Norton current $I_n$ (short-circuit current from a to b).",
+       "answer": "Isc",
+       "unit": "A",
+       "explanation": "Shorting a–b bypasses $R_2$, leaving $R_1$ and $R_3$ in series with $V_s$: $I_n = \\frac{V_s}{R_1+R_3}$ = **{{Isc|A}}**."
+      },
+      {
+       "prompt": "Find $R_t$ seen from a–b.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "Short $V_s$: from a, one path is $R_2$ directly to b, the other $R_1$ → ground → $R_3$ → b. $R_t = R_2\\parallel(R_1+R_3)$ = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find $V_t = v_{ab}$.",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "Open terminals: $R_1$, $R_2$, $R_3$ form one series loop with $V_s$, and $v_{ab}$ is the voltage across $R_2$: $V_s\\frac{R_2}{R_1+R_2+R_3}$ = **{{Voc|V}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2.5,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2.5,
+         0
+        ],
+        "to": [
+         2.5,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2.5,
+          0
+         ],
+         [
+          4.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2.5,
+         2
+        ],
+        "to": [
+         0,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2.5,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2.5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p3",
+     "type": "multipleChoice",
+     "prompt": "A network has Norton equivalent $I_n$ = 2 mA with $R_t$ = 4.7 kΩ. What is its Thévenin voltage?",
+     "options": [
+      "9.4 V",
+      "0.43 V",
+      "2.35 V",
+      "4.7 V"
+     ],
+     "answer": 0,
+     "explanation": "Source transformation: $V_t = I_nR_t$ = 2 mA × 4.7 kΩ = 9.4 V. The resistance is the same in both equivalents; only the source changes."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "RL": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ]
+     },
+     "require": "abs(Voc) - 0.1",
+     "prompt": "Thévenin equivalent of a bridge at terminals a–b.",
+     "ask": [
+      {
+       "prompt": "Find $R_t$ seen from a–b.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "Short $V_s$: the top and bottom rails become one node, so a sees $R_1\\parallel R_2$ and b sees $R_3\\parallel R_4$, in series: {{par(R1,R2)|Ω}} + {{par(R3,R4)|Ω}} = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find $V_t = v_a - v_b$ (sign matters).",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "$v_a = V_s\\frac{R_2}{R_1+R_2}$ = {{Vs*R2/(R1+R2)|V}}, $v_b = V_s\\frac{R_4}{R_3+R_4}$ = {{Vs*R4/(R3+R4)|V}}, so $V_t$ = **{{Voc|V}}**.",
+       "absTolerance": 0.01
+      },
+      {
+       "prompt": "A detector $R_L$ = {{RL|Ω}} is connected from a to b. Find its current from a to b (negative if it flows from b to a).",
+       "answer": "Voc/(Req+RL)",
+       "unit": "A",
+       "explanation": "$V_t = V_s\\left(\\frac{R_2}{R_1+R_2}-\\frac{R_4}{R_3+R_4}\\right)$ = {{Voc|V}}, $R_t = R_1\\parallel R_2 + R_3\\parallel R_4$ = {{Req|Ω}}. $i = \\frac{V_t}{R_t+R_L}$ = **{{Voc/(Req+RL)|A}}**.",
+       "absTolerance": 2e-06
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          3,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         3,
+         2
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p5",
+     "type": "trueFalse",
+     "prompt": "$R_t = v_{oc}/i_{sc}$ gives the Thévenin resistance even when you cannot simply zero the sources and reduce.",
+     "answer": true,
+     "explanation": "The Thévenin model must reproduce both the open-circuit and short-circuit behaviour, so $R_t = v_{oc}/i_{sc}$ always holds (as long as both are finite and nonzero). It is the standard route for circuits with dependent sources."
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "params": {
+      "V1": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "Is": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Maximum power transfer from this two-source network.",
+     "ask": [
+      {
+       "prompt": "Which load resistance $R_L$ receives maximum power?",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "$R_L = R_t = R_3 + R_1\\parallel R_2$ = **{{Req|Ω}}** (sources zeroed)."
+      },
+      {
+       "prompt": "Find the maximum power that can be delivered to a load.",
+       "answer": "Voc^2/(4*Req)",
+       "unit": "W",
+       "explanation": "$V_t = \\left(\\frac{V_1}{R_1}+I_s\\right)(R_1\\parallel R_2)$ = {{Voc|V}}, $R_t$ = {{Req|Ω}}. $P_{max} = \\frac{V_t^2}{4R_t}$ = **{{Voc^2/(4*Req)|W}}**."
+      },
+      {
+       "prompt": "Find the load voltage when $R_L = R_t$.",
+       "answer": "Voc/2",
+       "unit": "V",
+       "explanation": "With $R_L = R_t$ the Thévenin circuit is a 1:1 divider: $v_L = V_t/2$ = {{Voc|V}} / 2 = **{{Voc/2|V}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "V1",
+        "val": "V1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-thevenin-2"
+  },
+  {
+   "title": "Thévenin challenge",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "V1": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "Is": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R4": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R5": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "derived": {
+      "Rleft": "R3+par(R1,R2)",
+      "va1": "V1*par(R2,R3+R4+R5)/(R1+par(R2,R3+R4+R5))*R5/(R3+R4+R5)",
+      "vy2": "Is*par(R3+par(R1,R2),R4+R5)",
+      "va2": "vy2*R5/(R4+R5)"
+     },
+     "prompt": "Two sources, five resistors. Find the equivalent at a–b.",
+     "ask": [
+      {
+       "prompt": "Find the Thévenin resistance $R_t$ seen from a–b.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "Short $V_1$, open $I_s$. From a: $R_5$ in parallel with $R_4 + R_3 + R_1\\parallel R_2$ = {{R4+Rleft|Ω}}: $R_t$ = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find the Thévenin voltage $V_t = v_{ab}$ (open circuit).",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "Superposition. $V_1$ alone: $v_{ab}'$ = {{va1|V}} (loaded dividers). $I_s$ alone: it sees $(R_3 + R_1\\parallel R_2)\\parallel(R_4+R_5)$, so $v_y''$ = {{vy2|V}} and $v_{ab}'' = v_y''\\frac{R_5}{R_4+R_5}$ = {{va2|V}}. $V_t$ = **{{Voc|V}}**."
+      },
+      {
+       "prompt": "Find the Norton current $I_n$ (short-circuit current from a to b).",
+       "answer": "Isc",
+       "unit": "A",
+       "explanation": "$V_t$ = {{Voc|V}} (superposition) and $R_t$ = {{Req|Ω}}, so $I_n = V_t/R_t$ = **{{Isc|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "V1",
+        "val": "V1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          7.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "k": [
+       0.2,
+       0.25,
+       0.3,
+       0.4,
+       0.5,
+       0.6,
+       0.75
+      ]
+     },
+     "computed": {
+      "It": "k*Isc"
+     },
+     "prompt": "A load resistor $R_L$ will be connected to a–b.",
+     "ask": [
+      {
+       "prompt": "Which $R_L$ makes the load current {{It|A}}?",
+       "answer": "Voc/It - Req",
+       "unit": "Ω",
+       "explanation": "$V_t = V_s\\frac{R_2}{R_1+R_2}$ = {{Voc|V}}, $R_t = R_3 + R_1\\parallel R_2$ = {{Req|Ω}}. From $i_L = \\frac{V_t}{R_t+R_L}$: $R_L = \\frac{V_t}{i_L} - R_t$ = {{Voc/It|Ω}} − {{Req|Ω}} = **{{Voc/It-Req|Ω}}**."
+      },
+      {
+       "prompt": "What is the largest power any load could draw from a–b?",
+       "answer": "Voc^2/(4*Req)",
+       "unit": "W",
+       "explanation": "$P_{max} = \\frac{V_t^2}{4R_t}$ with $V_t$ = {{Voc|V}} and $R_t$ = {{Req|Ω}}: **{{Voc^2/(4*Req)|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         4.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c3",
+     "type": "multipleChoice",
+     "prompt": "A load is matched for maximum power ($R_L = R_t$). What fraction of the power produced by the Thévenin source $V_t$ reaches the load?",
+     "options": [
+      "50 %",
+      "100 %",
+      "25 %",
+      "75 %"
+     ],
+     "answer": 0,
+     "explanation": "$R_t$ and $R_L$ carry the same current and are equal, so they dissipate equal power: half goes to the load, half is lost in $R_t$. That is why power systems are **not** designed for maximum power transfer."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Thévenin equivalent of a two-rung ladder at a–b.",
+     "ask": [
+      {
+       "prompt": "Find $R_t$.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "Short $V_s$ and reduce from the **source** side: $R_1\\parallel R_2$ = {{par(R1,R2)|Ω}}, + $R_3$ = {{R3+par(R1,R2)|Ω}}, ∥ $R_4$: $R_t$ = **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find $V_t$.",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "Open circuit: the ladder output. $v_x = V_s\\frac{R_2\\parallel(R_3+R_4)}{R_1+R_2\\parallel(R_3+R_4)}$ = {{Vs*par(R2,R3+R4)/(R1+par(R2,R3+R4))|V}}, then $V_t = v_x\\frac{R_4}{R_3+R_4}$ = **{{Voc|V}}**."
+      },
+      {
+       "prompt": "Find the maximum power any load can draw from a–b.",
+       "answer": "Voc^2/(4*Req)",
+       "unit": "W",
+       "explanation": "$V_t$ = {{Voc|V}}, $R_t$ = {{Req|Ω}}: $P_{max} = \\frac{V_t^2}{4R_t}$ = **{{Voc^2/(4*Req)|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          5.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          5.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "abs(Voc) - 0.2",
+     "prompt": "Norton equivalent of the bridge at a–b.",
+     "ask": [
+      {
+       "prompt": "Find the Norton current $I_n$ (from a to b through a short; sign matters).",
+       "answer": "Isc",
+       "unit": "A",
+       "explanation": "$I_n = V_t/R_t$ with $V_t = V_s\\left(\\frac{R_2}{R_1+R_2}-\\frac{R_4}{R_3+R_4}\\right)$ = {{Voc|V}} and $R_t = R_1\\parallel R_2 + R_3\\parallel R_4$ = {{Req|Ω}}: **{{Isc|A}}**.",
+       "absTolerance": 2e-06
+      },
+      {
+       "prompt": "Find the maximum power a detector across a–b could absorb.",
+       "answer": "Voc^2/(4*Req)",
+       "unit": "W",
+       "explanation": "$V_t$ = {{Voc|V}}, $R_t$ = {{Req|Ω}}: $P_{max} = \\frac{V_t^2}{4R_t}$ = **{{Voc^2/(4*Req)|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          3,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         3,
+         2
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c6",
+     "type": "orderSteps",
+     "prompt": "Order the steps to find the current in a load $R_L$ with Thévenin's theorem.",
+     "items": [
+      "Remove $R_L$ and mark terminals a and b",
+      "Find $v_{oc}$ across a–b",
+      "Zero the independent sources and find $R_t$ (or use $v_{oc}/i_{sc}$)",
+      "Reconnect $R_L$ to the equivalent: $i_L = V_t/(R_t+R_L)$"
+     ],
+     "explanation": "The load is removed first so that $v_{oc}$ and $R_t$ describe only the network. Steps 2 and 3 can be swapped; the final step is a single loop."
+    }
+   ],
+   "id": "cl-thevenin-3"
+  }
+ ]
+}

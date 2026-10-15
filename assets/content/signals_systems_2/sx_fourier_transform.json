@@ -1,0 +1,784 @@
+{
+  "id": "sx-fourier-transform",
+  "title": "Fourier Transform",
+  "description": "Describe non-periodic signals by their continuous spectrum and use transform pairs and properties to find it.",
+  "reference": "Phillips §5.1–5.3, §6.3",
+  "study": [
+    {
+      "title": "The Fourier transform",
+      "body": "The Fourier transform extends the Fourier series to signals that are **not periodic**: instead of discrete harmonics, $X(f)$ is a continuous spectrum. $X(f)$ is complex: $|X(f)|$ is the magnitude spectrum and $\\angle X(f)$ the phase spectrum. For a real signal $|X(-f)| = |X(f)|$, so the magnitude spectrum is even. The inverse transform is $x(t) = \\int X(f)e^{j2\\pi f t}df$. With $\\omega = 2\\pi f$ the pair is often written as $X(\\omega)$, with a factor $\\frac{1}{2\\pi}$ in the inverse.",
+      "formula": "X(f) = \\int_{-\\infty}^{\\infty} x(t)\\,e^{-j2\\pi f t}\\,dt"
+    },
+    {
+      "title": "Rectangular pulse and sinc",
+      "body": "A pulse of height $A$ and width $T$ centred on $t = 0$ has a sinc spectrum, with $\\mathrm{sinc}(u) = \\frac{\\sin \\pi u}{\\pi u}$. The peak $X(0) = AT$ is the **area** of the pulse. The zeros lie at $f = \\pm 1/T, \\pm 2/T, \\dots$ and the side lobes shrink as $1/f$. Drag $T$ (here $A$ = 1 V): a longer pulse gives a taller but **narrower** spectrum, a short pulse a wide one.",
+      "formula": "A\\,\\mathrm{rect}(t/T) \\;\\leftrightarrow\\; AT\\,\\mathrm{sinc}(fT)",
+      "plot": {
+        "x": {
+          "min": -4000,
+          "max": 4000,
+          "label": "f",
+          "unit": "Hz"
+        },
+        "y": {
+          "min": 0,
+          "max": 4.4,
+          "label": "|X(f)| (V·ms)"
+        },
+        "sliders": [
+          {
+            "name": "T",
+            "label": "pulse width $T$",
+            "min": 0.00025,
+            "max": 0.004,
+            "step": 0.00025,
+            "value": 0.002,
+            "unit": "s"
+          }
+        ],
+        "curves": [
+          {
+            "f": "1000*T*abs(sinc(x*T))",
+            "label": "|X(f)|",
+            "labelAt": 0.3
+          }
+        ],
+        "points": [
+          {
+            "x": "1/T",
+            "y": 0,
+            "label": "1/T",
+            "guides": false
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$X(0) = AT$ (V·ms)",
+            "value": "1000*T"
+          },
+          {
+            "label": "first zero $1/T$",
+            "value": "1/T",
+            "unit": "Hz"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Common transform pairs",
+      "body": "- $\\delta(t) \\leftrightarrow 1$: an impulse contains all frequencies equally.\n- $1 \\leftrightarrow \\delta(f)$: a constant is pure DC.\n- $e^{-at}u(t) \\leftrightarrow \\frac{1}{a + j2\\pi f}$ for $a > 0$.\n- $\\cos(2\\pi f_0 t) \\leftrightarrow \\frac{1}{2}[\\delta(f - f_0) + \\delta(f + f_0)]$.\n- $e^{j2\\pi f_0 t} \\leftrightarrow \\delta(f - f_0)$.\nPeriodic signals have impulses (spectral lines) in their transform.",
+      "formula": "|X(f)| = \\frac{1}{\\sqrt{a^2 + (2\\pi f)^2}}"
+    },
+    {
+      "title": "Properties",
+      "body": "- Linearity: $a x_1 + b x_2 \\leftrightarrow a X_1 + b X_2$.\n- Time shift: $x(t - t_0) \\leftrightarrow X(f)e^{-j2\\pi f t_0}$ (magnitude unchanged, phase $-2\\pi f t_0$).\n- Scaling: $x(at) \\leftrightarrow \\frac{1}{|a|}X(f/a)$: compress in time, stretch in frequency.\n- Modulation: $x(t)\\cos(2\\pi f_0 t) \\leftrightarrow \\frac{1}{2}[X(f - f_0) + X(f + f_0)]$.\n- Duality: if $x(t) \\leftrightarrow X(f)$, then $X(t) \\leftrightarrow x(-f)$.\n- Convolution ↔ multiplication (below), and multiplication in time ↔ convolution in frequency.",
+      "formula": "x(t) * h(t) \\;\\leftrightarrow\\; X(f)\\,H(f)"
+    },
+    {
+      "title": "Bandwidth",
+      "body": "Bandwidth measures how far the spectrum extends. For a pulse of width $T$ the first-null bandwidth is $1/T$; for $e^{-at}u(t)$ the 3-dB bandwidth (where $|X|$ drops to $1/\\sqrt{2}$ of $X(0)$) is $a/2\\pi$. Duration × bandwidth is roughly constant: **shorter signals need wider bandwidths**. A signal cannot be both time-limited and strictly band-limited.",
+      "formula": "f_{3dB} = \\frac{a}{2\\pi}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5000,
+          "label": "f",
+          "unit": "Hz"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "|X(f)| / X(0)"
+        },
+        "curves": [
+          {
+            "f": "1/sqrt(1+(x/1000)^2)",
+            "label": "a = 2π·1000 s⁻¹"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0.707,
+            "label": "0.707"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 1000,
+            "label": "f_{3dB}"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sx-fourier-transform-1",
+      "title": "Spectra of pulses",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "From series to transform",
+          "body": "A periodic signal has a **line spectrum** (its Fourier series). Let the period grow to infinity: the lines move closer and closer and merge into a continuous spectrum $X(f)$, the **Fourier transform**. It tells how strongly each frequency $f$ is present in the signal.",
+          "formula": "X(f) = \\int_{-\\infty}^{\\infty} x(t)\\,e^{-j2\\pi f t}\\,dt"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2,
+              3,
+              5
+            ],
+            "Tms": [
+              0.5,
+              1,
+              2,
+              4
+            ]
+          },
+          "derived": {
+            "T": "Tms/1000"
+          },
+          "prompt": "A rectangular voltage pulse has height {{A|V}} and duration $T$ = {{T|s}}. Use the definition to find $X(0)$, the value of its Fourier transform at $f = 0$.",
+          "answer": "A*T",
+          "unit": "V·s",
+          "explanation": "At $f = 0$ the exponential is $e^{0} = 1$, so $X(0) = \\int x(t)\\,dt$: the **area** under the signal. For the pulse: $X(0) = AT$ = {{A}} V × {{T|s}} = {{A*T|V·s}}.",
+          "hint": "Set f = 0 in the integral."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Pulse and sinc",
+          "body": "For a pulse of height $A$ and width $T$ centred on $t = 0$ the integral gives a **sinc** function: a main lobe of height $AT$ at $f = 0$, zeros at $f = \\pm 1/T, \\pm 2/T, \\dots$ and decaying side lobes. Here $\\mathrm{sinc}(u) = \\frac{\\sin \\pi u}{\\pi u}$. The graph shows $X(f)$ for $T$ = 1 ms.",
+          "formula": "A\\,\\mathrm{rect}(t/T) \\;\\leftrightarrow\\; AT\\,\\mathrm{sinc}(fT)",
+          "plot": {
+            "x": {
+              "min": -4000,
+              "max": 4000,
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": -0.3,
+              "max": 1.15,
+              "label": "X(f) / AT"
+            },
+            "curves": [
+              {
+                "f": "sin(pi*(x*0.001)+1e-9)/(pi*(x*0.001)+1e-9)",
+                "label": "X(f)",
+                "labelAt": 0.56
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Tus": [
+              10,
+              20,
+              50,
+              100,
+              250,
+              500
+            ]
+          },
+          "derived": {
+            "T": "Tus*1e-6"
+          },
+          "prompt": "A rectangular pulse lasts $T$ = {{T|s}}. At what positive frequency is its spectrum zero for the first time?",
+          "answer": "1/T",
+          "unit": "Hz",
+          "explanation": "$X(f) = AT\\,\\mathrm{sinc}(fT)$ is zero when $fT$ is a nonzero integer. The first zero is at $fT = 1$: $f = 1/T$ = 1 / {{T|s}} = {{1/T|Hz}}."
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "If a pulse is made **shorter**, its spectrum becomes **narrower**.",
+          "answer": false,
+          "explanation": "The first zero of the spectrum is at $1/T$, so halving $T$ doubles the width of the main lobe. Short events and sharp edges need **high** frequencies: time duration and bandwidth are inversely related (scaling property)."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Exponential pulse",
+          "body": "The decaying exponential $x(t) = e^{-at}u(t)$ (with $a > 0$) has a complex spectrum. Its magnitude is largest at $f = 0$ (value $1/a$) and falls off smoothly; the phase goes from 0 to $-90°$: $|X(f)| = 1/\\sqrt{a^2 + (2\\pi f)^2}$.",
+          "formula": "e^{-at}u(t) \\;\\leftrightarrow\\; \\frac{1}{a + j2\\pi f}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              100,
+              200,
+              500,
+              1000,
+              2000
+            ],
+            "f": [
+              50,
+              100,
+              200,
+              500
+            ]
+          },
+          "prompt": "The voltage $x(t) = e^{-at}u(t)$ V has $a$ = {{a}} s⁻¹. Find $|X(f)|$ at $f$ = {{f|Hz}}.",
+          "answer": "1/sqrt(a^2+(2*pi*f)^2)",
+          "unit": "V/Hz",
+          "explanation": "$|X(f)| = \\frac{1}{\\sqrt{a^2 + (2\\pi f)^2}}$ with $2\\pi f$ = {{2*pi*f}} rad/s:\n$|X|$ = 1 / √({{a}}² + {{2*pi*f}}²) = {{1/sqrt(a^2+(2*pi*f)^2)|V/Hz}}."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each signal to its Fourier transform.",
+          "pairs": [
+            [
+              "$\\delta(t)$",
+              "$1$"
+            ],
+            [
+              "constant $1$",
+              "$\\delta(f)$"
+            ],
+            [
+              "$e^{-at}u(t)$",
+              "$\\dfrac{1}{a + j2\\pi f}$"
+            ],
+            [
+              "$\\cos(2\\pi f_0 t)$",
+              "$\\frac{1}{2}[\\delta(f - f_0) + \\delta(f + f_0)]$"
+            ],
+            [
+              "$\\mathrm{rect}(t/T)$",
+              "$T\\,\\mathrm{sinc}(fT)$"
+            ]
+          ],
+          "explanation": "An impulse is infinitely short, so its spectrum is flat (all frequencies). A constant is pure DC: one impulse at $f = 0$. A cosine has two spectral lines at $\\pm f_0$, each with weight $\\frac{1}{2}$. The exponential and the pulse have continuous spectra."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows the magnitude spectrum $|X(f)|$ of a single rectangular pulse?",
+          "answer": 0,
+          "explanation": "$|X(f)| = AT\\,|\\mathrm{sinc}(fT)|$: a main lobe at $f = 0$ with regularly spaced zeros at multiples of $1/T$ and decaying side lobes. The flat band is the spectrum of a **sinc** pulse (duality), the smooth decay belongs to $e^{-at}u(t)$, and a constant spectrum is that of an impulse.",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -3,
+                "max": 3,
+                "label": "f"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "abs(sin(pi*(x)+1e-9)/(pi*(x)+1e-9))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -3,
+                "max": 3,
+                "label": "f"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "step(1-abs(x))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -3,
+                "max": 3,
+                "label": "f"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "1/sqrt(1+(2*x)^2)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -3,
+                "max": 3,
+                "label": "f"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "0.8"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sx-fourier-transform-2",
+      "title": "Transform properties",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "$x(t)$ has Fourier transform $X(f)$. What is the transform of the delayed signal $x(t - t_0)$?",
+          "options": [
+            "$X(f)\\,e^{-j2\\pi f t_0}$",
+            "$X(f)\\,e^{+j2\\pi f t_0}$",
+            "$X(f - t_0)$",
+            "$X(f)\\,t_0$"
+          ],
+          "answer": 0,
+          "explanation": "Substitute $\\tau = t - t_0$ in the integral: $\\int x(\\tau)e^{-j2\\pi f(\\tau + t_0)}d\\tau = X(f)e^{-j2\\pi f t_0}$. A delay keeps $|X(f)|$ unchanged and adds a phase $-2\\pi f t_0$ that grows linearly with frequency. ($X(f - t_0)$ would be a shift in frequency, which comes from multiplying by $e^{j2\\pi f_0 t}$.)"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "f": [
+              100,
+              200,
+              250,
+              400,
+              500
+            ],
+            "t0us": [
+              100,
+              200,
+              250,
+              500
+            ]
+          },
+          "derived": {
+            "t0": "t0us*1e-6"
+          },
+          "prompt": "A signal is delayed by $t_0$ = {{t0|s}}. By how many degrees does the phase of its spectrum change at $f$ = {{f|Hz}}? (Give a phase lag as a negative number.)",
+          "answer": "-360*f*t0",
+          "unit": "°",
+          "explanation": "Time shift: $X(f) \\to X(f)e^{-j2\\pi f t_0}$, so the phase changes by $-2\\pi f t_0$ rad $= -360° \\cdot f t_0$.\n$\\Delta\\phi$ = −360° × {{f}} Hz × {{t0|s}} = {{-360*f*t0|°}}. The magnitude spectrum does not change."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Bk": [
+              2,
+              3,
+              4,
+              5,
+              8
+            ],
+            "a": [
+              0.5,
+              2,
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "B": "Bk*1000"
+          },
+          "prompt": "A signal $x(t)$ has bandwidth {{B|Hz}}. What is the bandwidth of $y(t) = x({{a}}t)$?",
+          "answer": "a*B",
+          "unit": "Hz",
+          "explanation": "Scaling property: $x(at) \\leftrightarrow \\frac{1}{|a|}X(f/a)$. The spectrum is scaled along the frequency axis by the factor $a$ = {{a}}, so every frequency, including the band edge, is multiplied by {{a}}: bandwidth = {{a}} × {{B|Hz}} = {{a*B|Hz}}. (Playing a recording faster raises all its frequencies.)"
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "Bk": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "f0k": [
+              50,
+              100,
+              200
+            ]
+          },
+          "derived": {
+            "B": "Bk*1000",
+            "f0": "f0k*1000"
+          },
+          "prompt": "A message $m(t)$ with bandwidth {{B|Hz}} is multiplied by a carrier $\\cos(2\\pi f_0 t)$ with $f_0$ = {{f0|Hz}}. Which range of positive frequencies does the product occupy?",
+          "options": [
+            "{{f0-B|Hz}} to {{f0+B|Hz}}",
+            "{{f0|Hz}} to {{f0+B|Hz}}",
+            "0 to {{f0+B|Hz}}",
+            "0 to {{B|Hz}}"
+          ],
+          "answer": 0,
+          "explanation": "Modulation property: $m(t)\\cos(2\\pi f_0 t) \\leftrightarrow \\frac{1}{2}[M(f - f_0) + M(f + f_0)]$. The whole spectrum of $m$, which runs from $-B$ to $+B$, is shifted to be centred on $f_0$. So it covers $f_0 - B$ to $f_0 + B$ = {{f0-B|Hz}} to {{f0+B|Hz}}: a bandwidth of $2B$. The negative-frequency half of $M(f)$ becomes the lower sideband."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2,
+              4,
+              5
+            ],
+            "Tms": [
+              0.1,
+              0.2,
+              0.5,
+              1
+            ],
+            "f0k": [
+              100,
+              200
+            ]
+          },
+          "derived": {
+            "T": "Tms/1000",
+            "f0": "f0k*1000"
+          },
+          "prompt": "The pulse $x(t) = A\\,\\mathrm{rect}(t/T)$ with $A$ = {{A|V}} and $T$ = {{T|s}} is multiplied by $\\cos(2\\pi f_0 t)$ with $f_0$ = {{f0|Hz}}. Find the spectrum of the product at $f = f_0$.",
+          "answer": "A*T/2",
+          "unit": "V/Hz",
+          "explanation": "$X(f) = AT\\,\\mathrm{sinc}(fT)$, and modulation gives $Y(f) = \\frac{1}{2}[X(f - f_0) + X(f + f_0)]$.\nAt $f = f_0$: $Y(f_0) = \\frac{1}{2}[X(0) + X(2f_0)]$. $X(0) = AT$ = {{A*T|V/Hz}}, and $X(2f_0) = AT\\,\\mathrm{sinc}(2f_0T) = 0$ because $2f_0T$ = {{2*f0*T}} is an integer.\nSo $Y(f_0) = AT/2$ = {{A*T/2|V/Hz}}."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "The output of an LTI system is $y(t) = x(t) * h(t)$. Which relation holds between the spectra?",
+          "options": [
+            "$Y(f) = X(f)\\,H(f)$",
+            "$Y(f) = X(f) * H(f)$",
+            "$Y(f) = X(f) + H(f)$",
+            "$Y(f) = X(f)/H(f)$"
+          ],
+          "answer": 0,
+          "explanation": "**Convolution in time becomes multiplication in frequency.** This is why the frequency response $H(f)$ (the transform of $h(t)$) is so useful: each frequency component of the input is simply scaled by $H(f)$. The dual property says that multiplication in time (e.g. modulation) becomes convolution in frequency."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2,
+              5
+            ],
+            "Tms": [
+              1,
+              2,
+              5
+            ],
+            "K": [
+              2,
+              3,
+              5,
+              10
+            ],
+            "t0ms": [
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "T": "Tms/1000",
+            "t0": "t0ms/1000"
+          },
+          "prompt": "The pulse $x(t) = A\\,\\mathrm{rect}(t/T)$ with $A$ = {{A|V}} and $T$ = {{T|s}} passes through a system with $h(t) = K\\,\\delta(t - t_0)$, $K$ = {{K}}, $t_0$ = {{t0|s}}. Find $|Y(f)|$ at $f = 1/(2T)$.",
+          "answer": "K*A*T*2/pi",
+          "unit": "V/Hz",
+          "explanation": "$H(f) = K e^{-j2\\pi f t_0}$, so $|H(f)| = K$ at every frequency (gain and delay only).\n$|X(f)| = AT\\,|\\mathrm{sinc}(fT)|$; at $fT = 0.5$: $\\mathrm{sinc}(0.5) = \\frac{\\sin(\\pi/2)}{\\pi/2} = 2/\\pi$ = 0.637.\n$|Y| = K\\,|X|$ = {{K}} × {{A*T|V/Hz}} × 0.637 = {{K*A*T*2/pi|V/Hz}}."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "Because a rectangular pulse has a sinc spectrum, a sinc-shaped pulse in time has a rectangular (strictly band-limited) spectrum.",
+          "answer": true,
+          "explanation": "This is **duality**: if $x(t) \\leftrightarrow X(f)$ then $X(t) \\leftrightarrow x(-f)$. So $\\mathrm{sinc}(t/T)$ has a flat spectrum from $-\\frac{1}{2T}$ to $\\frac{1}{2T}$ and nothing outside. It is the impulse response of an ideal low-pass filter, and the pulse shape used for ideal reconstruction of sampled signals."
+        }
+      ]
+    },
+    {
+      "id": "sx-fourier-transform-3",
+      "title": "Reading spectra",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2,
+              4,
+              5
+            ],
+            "Tms": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "T": "Tms/1000"
+          },
+          "prompt": "The graph shows the magnitude spectrum of a rectangular voltage pulse $x(t) = A\\,\\mathrm{rect}(t/T)$.",
+          "tolerance": 0.06,
+          "plot": {
+            "x": {
+              "min": "-3/T",
+              "max": "3/T",
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": 0,
+              "max": "1150*A*T",
+              "label": "|X(f)| (mV/Hz)"
+            },
+            "curves": [
+              {
+                "f": "1000*A*T*abs(sin(pi*(x*T)+1e-9)/(pi*(x*T)+1e-9))",
+                "label": "|X(f)|",
+                "labelAt": 0.72
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Read the pulse duration $T$ from the graph.",
+              "answer": "T",
+              "unit": "s",
+              "explanation": "The spectrum $AT\\,|\\mathrm{sinc}(fT)|$ has its first zero at $f = 1/T$. On the graph it is at {{1/T|Hz}}, so $T$ = 1 / {{1/T|Hz}} = {{T|s}}."
+            },
+            {
+              "prompt": "Find the pulse height $A$.",
+              "answer": "A",
+              "unit": "V",
+              "explanation": "The first zero is at $1/T$ = {{1/T|Hz}}, so $T$ = {{T|s}}. The peak is $X(0) = AT$ = {{1000*A*T}} mV/Hz (the pulse area). So $A = X(0)/T$ = {{A*T|V·s}} / {{T|s}} = {{A|V}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1000,
+              2000,
+              5000,
+              10000,
+              20000
+            ]
+          },
+          "prompt": "Find the 3-dB bandwidth of $x(t) = e^{-at}u(t)$ with $a$ = {{a}} s⁻¹: the frequency where $|X(f)|$ has dropped to $1/\\sqrt{2}$ of $X(0)$.",
+          "answer": "a/(2*pi)",
+          "unit": "Hz",
+          "explanation": "$|X(f)|^2 = \\frac{1}{a^2 + (2\\pi f)^2}$ is half of $|X(0)|^2 = 1/a^2$ when $(2\\pi f)^2 = a^2$, so $f_{3dB} = \\frac{a}{2\\pi}$ = {{a}} / 2π = {{a/(2*pi)|Hz}}. A faster decay (larger $a$) means a wider spectrum."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Tus": [
+              1,
+              2,
+              5,
+              10
+            ],
+            "f0M": [
+              10,
+              20,
+              50
+            ]
+          },
+          "derived": {
+            "T": "Tus*1e-6",
+            "f0": "f0M*1e6"
+          },
+          "prompt": "A radar transmits a burst $\\mathrm{rect}(t/T)\\cos(2\\pi f_0 t)$ with $T$ = {{T|s}} and $f_0$ = {{f0|Hz}}. What is the null-to-null bandwidth of the main spectral lobe around $f_0$?",
+          "answer": "2/T",
+          "unit": "Hz",
+          "explanation": "The pulse alone has $T\\,\\mathrm{sinc}(fT)$ with zeros at $\\pm 1/T$, so its main lobe is $2/T$ wide. Modulation shifts this lobe to $f_0$ without changing its width: it runs from $f_0 - 1/T$ to $f_0 + 1/T$.\nBandwidth = $2/T$ = 2 / {{T|s}} = {{2/T|Hz}}. The carrier frequency does not matter."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1,
+              2,
+              5
+            ],
+            "a": [
+              1000,
+              2000,
+              5000
+            ],
+            "f": [
+              100,
+              200,
+              500
+            ],
+            "t0ms": [
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "derived": {
+            "t0": "t0ms/1000",
+            "w": "2*pi*f"
+          },
+          "prompt": "The voltage $x(t) = A\\,e^{-a(t - t_0)}u(t - t_0)$ has $A$ = {{A|V}}, $a$ = {{a}} s⁻¹ and $t_0$ = {{t0|s}}. Consider its spectrum at $f$ = {{f|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Find $|X(f)|$.",
+              "answer": "A/sqrt(a^2+w^2)",
+              "unit": "V/Hz",
+              "explanation": "$X(f) = \\frac{A\\,e^{-j2\\pi f t_0}}{a + j2\\pi f}$ (exponential pair + time shift). The delay factor has magnitude 1, so $|X| = \\frac{A}{\\sqrt{a^2 + (2\\pi f)^2}}$ = {{A}} / √({{a}}² + {{w}}²) = {{A/sqrt(a^2+w^2)|V/Hz}}."
+            },
+            {
+              "prompt": "Find the phase $\\angle X(f)$ in degrees.",
+              "answer": "-deg(atan(w/a))-360*f*t0",
+              "unit": "°",
+              "explanation": "$X(f) = \\frac{A\\,e^{-j2\\pi f t_0}}{a + j2\\pi f}$. Phase = $-\\arctan\\frac{2\\pi f}{a} - 360°\\,f t_0$ = −arctan({{w}}/{{a}}) − 360° × {{f}} × {{t0|s}} = {{-deg(atan(w/a))}}° + ({{-360*f*t0}}°) = {{-deg(atan(w/a))-360*f*t0|°}}."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Put the steps in order to find the transform of $x(t) = \\mathrm{rect}\\left(\\frac{t - t_0}{T}\\right)$.",
+          "items": [
+            "Start from the basic pair $\\mathrm{rect}(t) \\leftrightarrow \\mathrm{sinc}(f)$",
+            "Scale time by $T$: $\\mathrm{rect}(t/T) \\leftrightarrow T\\,\\mathrm{sinc}(fT)$",
+            "Delay by $t_0$: multiply by $e^{-j2\\pi f t_0}$",
+            "Conclude $|X(f)| = T\\,|\\mathrm{sinc}(fT)|$: the delay only changes the phase"
+          ],
+          "explanation": "Build complicated pairs from simple ones with the properties. Scaling $x(t/T)$ gives $|T|X(fT)$; the delay $t_0$ adds the linear phase $e^{-j2\\pi f t_0}$, so $X(f) = T\\,\\mathrm{sinc}(fT)\\,e^{-j2\\pi f t_0}$."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "The tone burst $x(t) = \\mathrm{rect}(t/T)\\cos(2\\pi f_0 t)$ has $f_0 = 5/T$. Which graph shows $|X(f)|$ (frequency axis in units of $1/T$, magnitude in units of $T$; vertical grid lines every $5/T$, horizontal every $0.2T$)?",
+          "answer": 0,
+          "explanation": "$\\mathrm{rect}(t/T) \\leftrightarrow T\\,\\mathrm{sinc}(fT)$. Multiplying by the cosine (modulation) gives $\\frac{1}{2}T[\\mathrm{sinc}((f - f_0)T) + \\mathrm{sinc}((f + f_0)T)]$: two sinc lobes centred at $\\pm f_0 = \\pm 5/T$, each with **half** the height. The lobe width stays $2/T$. A single lobe at 0 is the unmodulated pulse; full-height lobes forget the factor $\\frac{1}{2}$; lobes at $\\pm 10/T$ use the wrong carrier.",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -12,
+                "max": 12,
+                "label": "fT"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "|X|/T"
+              },
+              "curves": [
+                {
+                  "f": "abs(0.5*sin(pi*(x-5)+1e-9)/(pi*(x-5)+1e-9)+0.5*sin(pi*(x+5)+1e-9)/(pi*(x+5)+1e-9))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -12,
+                "max": 12,
+                "label": "fT"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "|X|/T"
+              },
+              "curves": [
+                {
+                  "f": "abs(sin(pi*(x)+1e-9)/(pi*(x)+1e-9))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -12,
+                "max": 12,
+                "label": "fT"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "|X|/T"
+              },
+              "curves": [
+                {
+                  "f": "abs(sin(pi*(x-5)+1e-9)/(pi*(x-5)+1e-9)+sin(pi*(x+5)+1e-9)/(pi*(x+5)+1e-9))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -12,
+                "max": 12,
+                "label": "fT"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.1,
+                "label": "|X|/T"
+              },
+              "curves": [
+                {
+                  "f": "abs(0.5*sin(pi*(x-10)+1e-9)/(pi*(x-10)+1e-9)+0.5*sin(pi*(x+10)+1e-9)/(pi*(x+10)+1e-9))"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "A signal that is exactly zero outside a finite time interval can also be strictly band-limited (exactly zero above some frequency).",
+          "answer": false,
+          "explanation": "Time-limited and band-limited exclude each other (apart from the zero signal). A rectangular pulse is time-limited, but its sinc spectrum never ends. A sinc pulse is band-limited but lasts forever. Real signals are time-limited, so they are only **approximately** band-limited; this is why anti-aliasing filters are needed before sampling."
+        }
+      ]
+    }
+  ]
+}

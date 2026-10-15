@@ -1,0 +1,1047 @@
+{
+  "id": "dsp-optimal",
+  "title": "Optimal FIR Design",
+  "description": "Frequency sampling and minimax (equiripple) design: weighting, the alternation theorem, Parks–McClellan and order estimates.",
+  "reference": "O&S ch. 7",
+  "study": [
+    {
+      "title": "Frequency sampling",
+      "body": "Instead of windowing, specify the amplitude $A_k$ at $N = M + 1$ equally spaced frequencies $\\omega_k = 2\\pi k/N$ and take the inverse DFT. For a type I filter ($N$ odd, $\\alpha = M/2$, $A_{N-k} = A_k$) that gives the real, symmetric $h[n]$ below. The response passes **exactly** through the samples and interpolates smoothly between them; an abrupt jump from 1 to 0 gives large ripples, as when a sinc is truncated: about 12 % overshoot in the pass band and a first stop-band lobe of only about −16 dB.",
+      "formula": "\\begin{aligned} h[n] = \\frac{1}{N}\\Big[&A_0 + 2\\sum_{k=1}^{(N-1)/2} A_k \\\\ &\\cdot\\cos\\frac{2\\pi k(n - \\alpha)}{N}\\Big] \\end{aligned}"
+    },
+    {
+      "title": "Explore: a transition sample",
+      "body": "The fix is to soften the jump: give the first sample after the pass band an intermediate value $T$. Here $N = 33$ with $A_k = 1$ for $k \\le 5$ (pass band to about $0.3\\pi$), the transition sample at $k = 6$ (line T) and zeros from $k = 7$ on (line $\\omega_s$). Drag $T$: with $T = 0$ the highest lobe beyond $\\omega_s$ is about −21 dB; around $T \\approx 0.4$ it drops to about −42 dB. The price is a transition band one sample spacing wider: without a transition sample the stop band would start at $k = 6$, with a first lobe of about −16 dB. Two or three transition samples, optimised numerically, go further.",
+      "formula": "\\omega_k = \\frac{2\\pi k}{N}, \\qquad A(\\omega_k) = A_k",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "ω/π"
+        },
+        "y": {
+          "min": -80,
+          "max": 5,
+          "label": "|H| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "Tt",
+            "label": "transition sample $T$",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "value": 0
+          }
+        ],
+        "curves": [
+          {
+            "f": "max(-110, 20*log10(abs(sum(k, -5, 5, sin(33*(pi*x - 2*pi*k/33 + 1e-7)/2)/(33*sin((pi*x - 2*pi*k/33 + 1e-7)/2))) + (Tt)*(sin(33*(pi*x - 2*pi*6/33 + 1e-7)/2)/(33*sin((pi*x - 2*pi*6/33 + 1e-7)/2)) + sin(33*(pi*x - 2*pi*-6/33 + 1e-7)/2)/(33*sin((pi*x - 2*pi*-6/33 + 1e-7)/2)))) + 1e-9))"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0.3636,
+            "label": "T"
+          },
+          {
+            "x": 0.4242,
+            "label": "ω_s"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The minimax criterion",
+      "body": "A window design spends its accuracy badly: the error peaks near the band edges and is much smaller elsewhere, and $\\delta_1 = \\delta_2$ is forced. An **optimal** (minimax, Chebyshev) design chooses $h[n]$ to minimise the **largest weighted error** over the pass and stop bands; the transition band is a don't-care region. With weight $1/K$ in the pass band and 1 in the stop band the result has $\\delta_1 = K\\delta_2$. The error of the solution ripples with equal height everywhere: **equiripple**.",
+      "formula": "\\min_{h[n]}\\ \\max_{\\omega \\in F}\\ \\left|W(\\omega)\\big(H_d(\\omega) - A(\\omega)\\big)\\right|"
+    },
+    {
+      "title": "Explore: trading ripple with the weight",
+      "body": "All five designs have the same order ($M = 16$) and band edges ($\\omega_p = 0.4\\pi$, $\\omega_s = 0.6\\pi$); only the weight differs. Raising $K = \\delta_1/\\delta_2$ buys a quieter stop band with a rougher pass band. Notice that the product $\\delta_1\\delta_2$ changes far less than either ripple (Kaiser's order formula treats it as fixed): for a given $M$ and $\\Delta\\omega$ you can mainly redistribute the error.",
+      "formula": "W(\\omega) = \\begin{cases} 1/K & \\text{pass band} \\\\ 1 & \\text{stop band} \\end{cases}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "ω/π"
+        },
+        "y": {
+          "min": -0.08,
+          "max": 1.12,
+          "label": "A(ω)"
+        },
+        "sliders": [
+          {
+            "name": "Ki",
+            "label": "weight setting (0 … 4)",
+            "min": 0,
+            "max": 4,
+            "step": 1,
+            "value": 2
+          }
+        ],
+        "curves": [
+          {
+            "f": "if(0.5 - Ki, 0.514363 + (0.627533)*cos(1*pi*x) + (-0.028182)*cos(2*pi*x) + (-0.187403)*cos(3*pi*x) + (0.023583)*cos(4*pi*x) + (0.087517)*cos(5*pi*x) + (-0.020238)*cos(6*pi*x) + (-0.052293)*cos(7*pi*x) + (0.026904)*cos(8*pi*x), if(1.5 - Ki, 0.506905 + (0.627833)*cos(1*pi*x) + (-0.013256)*cos(2*pi*x) + (-0.186877)*cos(3*pi*x) + (0.011461)*cos(4*pi*x) + (0.088060)*cos(5*pi*x) + (-0.009734)*cos(6*pi*x) + (-0.052934)*cos(7*pi*x) + (0.012596)*cos(8*pi*x), if(2.5 - Ki, 0.500000 + (0.627835)*cos(1*pi*x) + (-0.186835)*cos(3*pi*x) + (0.088205)*cos(5*pi*x) + (-0.052977)*cos(7*pi*x), if(3.5 - Ki, 0.493095 + (0.627833)*cos(1*pi*x) + (0.013256)*cos(2*pi*x) + (-0.186877)*cos(3*pi*x) + (-0.011461)*cos(4*pi*x) + (0.088060)*cos(5*pi*x) + (0.009734)*cos(6*pi*x) + (-0.052934)*cos(7*pi*x) + (-0.012596)*cos(8*pi*x), 0.485637 + (0.627533)*cos(1*pi*x) + (0.028182)*cos(2*pi*x) + (-0.187403)*cos(3*pi*x) + (-0.023583)*cos(4*pi*x) + (0.087517)*cos(5*pi*x) + (0.020238)*cos(6*pi*x) + (-0.052293)*cos(7*pi*x) + (-0.026904)*cos(8*pi*x)))))"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0.4,
+            "label": "ω_p"
+          },
+          {
+            "x": 0.6,
+            "label": "ω_s"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$K = \\delta_1/\\delta_2$",
+            "value": "if(0.5 - Ki, 0.2, if(1.5 - Ki, 0.5, if(2.5 - Ki, 1, if(3.5 - Ki, 2, 5))))"
+          },
+          {
+            "label": "$\\delta_1$",
+            "value": "if(0.5 - Ki, 0.0082, if(1.5 - Ki, 0.0160, if(2.5 - Ki, 0.0238, if(3.5 - Ki, 0.0319, 0.0411))))",
+            "sig": 2
+          },
+          {
+            "label": "$\\delta_2$",
+            "value": "if(0.5 - Ki, 0.0411, if(1.5 - Ki, 0.0319, if(2.5 - Ki, 0.0238, if(3.5 - Ki, 0.0160, 0.0082))))",
+            "sig": 2
+          }
+        ]
+      }
+    },
+    {
+      "title": "The alternation theorem",
+      "body": "For a type I filter $A(\\omega) = \\sum_{k=0}^{L} a_k\\cos(k\\omega)$, a polynomial of degree $L = M/2$ in $\\cos\\omega$. The minimax solution is **unique**, and it is recognised by its error: $E(\\omega)$ reaches $\\pm\\delta$ with alternating signs at **at least** $L + 2$ frequencies. For a low-pass these always include $\\omega_p$ and $\\omega_s$; at most $L + 3$ are possible (an 'extraripple' design). The plot: $M = 12$, $L = 6$, and the 8 dots alternate between $+\\delta$ and $-\\delta$.",
+      "formula": "\\#\\text{alternations} \\ge L + 2",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "ω/π"
+        },
+        "y": {
+          "min": -0.08,
+          "max": 0.08,
+          "label": "error E(ω)"
+        },
+        "curves": [
+          {
+            "f": "1 - (0.500000 + (0.626430)*cos(1*pi*x) + (-0.183035)*cos(3*pi*x) + (0.107474)*cos(5*pi*x))",
+            "from": 0,
+            "to": 0.4
+          },
+          {
+            "f": "-(0.500000 + (0.626430)*cos(1*pi*x) + (-0.183035)*cos(3*pi*x) + (0.107474)*cos(5*pi*x))",
+            "from": 0.6,
+            "to": 1
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0.0509,
+            "label": "+δ"
+          },
+          {
+            "y": -0.0509,
+            "label": "−δ"
+          }
+        ],
+        "points": [
+          {
+            "x": 0.0,
+            "y": -0.05087,
+            "guides": false,
+            "color": "orange"
+          },
+          {
+            "x": 0.172,
+            "y": 0.05087,
+            "guides": false,
+            "color": "orange"
+          },
+          {
+            "x": 0.326,
+            "y": -0.05091,
+            "guides": false,
+            "color": "orange"
+          },
+          {
+            "x": 0.4,
+            "y": 0.05087,
+            "guides": false,
+            "color": "orange"
+          },
+          {
+            "x": 0.6,
+            "y": -0.05087,
+            "guides": false,
+            "color": "orange"
+          },
+          {
+            "x": 0.674,
+            "y": 0.05091,
+            "guides": false,
+            "color": "orange"
+          },
+          {
+            "x": 0.828,
+            "y": -0.05087,
+            "guides": false,
+            "color": "orange"
+          },
+          {
+            "x": 1.0,
+            "y": 0.05087,
+            "guides": false,
+            "color": "orange"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The Parks–McClellan algorithm",
+      "body": "Parks and McClellan solve the minimax problem with the **Remez exchange**: guess $L + 2$ extremal frequencies; solve the linear equations that make the weighted error exactly $\\pm\\delta$ (alternating) there; evaluate the error on a dense grid; move the extremal set to the new peaks of $|E|$; repeat until it stops changing. It converges in a handful of iterations and is the standard design tool (remez or firpm in common toolboxes).",
+      "formula": "W(\\omega_i)\\big(H_d(\\omega_i) - A(\\omega_i)\\big) = (-1)^i\\delta"
+    },
+    {
+      "title": "Estimating the order",
+      "body": "The order depends mainly on the transition width and on the product of the ripples. Kaiser's empirical estimate is below; it is usually a little low, so check the design and add one or two to $M$ if needed. Example: $\\delta_1 = 0.01$, $\\delta_2 = 0.001$, $\\Delta\\omega = 0.1\\pi$: $M \\approx (50 - 13)/(2.324 \\cdot 0.314)$ = 50.7 (an actual Parks–McClellan design, e.g. with $\\omega_p = 0.3\\pi$, needs $M = 52$). A Kaiser window needs $\\delta = 0.001$ in both bands: $A = 60$ dB and $M = 52/(2.285 \\cdot 0.314)$ = 72.4, so 73: about 40 % longer.",
+      "formula": "M \\approx \\frac{-10\\log_{10}(\\delta_1\\delta_2) - 13}{2.324\\,\\Delta\\omega}"
+    },
+    {
+      "title": "Window or equiripple?",
+      "body": "Both give exactly linear phase. **Window** design: a closed-form recipe, no iterations, but equal ripple in both bands and error wasted away from the band edges. **Frequency sampling**: natural when the response is specified on a frequency grid, or for filter banks. **Parks–McClellan**: the shortest filter for given band edges and ripples, separate control of $\\delta_1$ and $\\delta_2$; it needs a design program and can fail to converge for very long filters. Fewer taps means fewer multiplications per sample, which is what costs power and silicon."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dsp-optimal-1",
+      "title": "Frequency sampling",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Design by frequency sampling",
+          "body": "Pick the amplitude you want at $N = M + 1$ equally spaced frequencies and take the inverse DFT: that is a length-$N$ filter whose response passes exactly through those samples. Between the samples the response is interpolated.",
+          "formula": "\\omega_k = \\frac{2\\pi k}{N}, \\quad f_k = k\\,\\frac{f_s}{N}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "N": [
+              15,
+              21,
+              33,
+              51
+            ],
+            "k": [
+              1,
+              2,
+              3,
+              5
+            ],
+            "fs": [
+              8000,
+              16000,
+              48000
+            ]
+          },
+          "prompt": "A frequency-sampling design uses $N$ = {{N}} samples at $f_s$ = {{fs|Hz}}.",
+          "ask": [
+            {
+              "prompt": "At which frequency $\\omega_k$ (rad/sample) is sample $k$ = {{k}}?",
+              "answer": "2*pi*k/N",
+              "unit": "rad",
+              "explanation": "$\\omega_k = 2\\pi k/N$ = 2π × {{k}} / {{N}} = {{2*pi*k/N|rad}}."
+            },
+            {
+              "prompt": "Which analog frequency does sample $k$ = {{k}} correspond to?",
+              "answer": "k*fs/N",
+              "unit": "Hz",
+              "explanation": "The samples are $f_s/N$ = {{fs/N|Hz}} apart: $f_k = kf_s/N$ = {{k}} × {{fs|Hz}} / {{N}} = {{k*fs/N|Hz}}."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "From samples to coefficients",
+          "body": "For a type I filter ($N$ odd, delay $\\alpha = (N-1)/2$) with real amplitudes $A_k$, the inverse DFT simplifies to a sum of cosines. Each sample $A_k$ contributes one cosine at $\\omega_k$ to $h[n]$.",
+          "formula": "\\begin{aligned} h[n] = \\frac{1}{N}\\Big[&A_0 + 2\\sum_{k=1}^{(N-1)/2} A_k \\\\ &\\cdot\\cos\\frac{2\\pi k(n - \\alpha)}{N}\\Big] \\end{aligned}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "kp": [
+              1,
+              2
+            ],
+            "T": [
+              0,
+              0.4,
+              0.5
+            ]
+          },
+          "derived": {
+            "h4": "(1 + 2*(kp + T))/9",
+            "h3": "(1 + 2*sum(k, 1, kp, cos(2*pi*k/9)) + 2*T*cos(2*pi*(kp+1)/9))/9"
+          },
+          "prompt": "A frequency-sampling design with $N = 9$ ($\\alpha = 4$) has $A_k = 1$ for $k \\le {{kp}}$, $A_{ {{kp+1}} }$ = {{T}} and zero above.",
+          "unit": "",
+          "absTolerance": 0.002,
+          "ask": [
+            {
+              "prompt": "Find the centre tap $h[4]$.",
+              "answer": "h4",
+              "explanation": "At $n = \\alpha$ every cosine is 1: $h[4] = \\frac{1}{9}\\big(A_0 + 2\\sum_{k \\ge 1} A_k\\big)$ = (1 + 2 × ({{kp}} + {{T}})) / 9 = {{h4||3}}."
+            },
+            {
+              "prompt": "Find $h[3]$.",
+              "answer": "h3",
+              "explanation": "$n - \\alpha = -1$: $h[3] = \\frac{1}{9}\\Big(1 + 2\\sum_{k=1}^{ {{kp}} }\\cos\\frac{2\\pi k}{9} + 2 \\cdot {{T}}\\cos\\frac{2\\pi \\cdot {{kp+1}}}{9}\\Big)$ = {{h3||3}}. ($\\cos(2\\pi/9)$ = 0.766, $\\cos(4\\pi/9)$ = 0.174, $\\cos(6\\pi/9)$ = −0.5.)"
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "A frequency-sampling design matches the desired response exactly at every frequency in the pass band.",
+          "answer": false,
+          "explanation": "It matches exactly only **at the sample frequencies** $\\omega_k = 2\\pi k/N$. In between, the response is an interpolation of the samples, and next to an abrupt jump it overshoots by about 12 %, much like a truncated sinc."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Transition samples",
+          "body": "Giving the first sample after the pass band an intermediate value $T$ softens the jump. Drag $T$ and watch the highest lobe of the stop band, which now starts at $k = 7$ (line $\\omega_s$; $N = 33$, pass band $k \\le 5$).",
+          "formula": "A_6 = T, \\qquad 0 < T < 1",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": -80,
+              "max": 5,
+              "label": "|H| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "Tt",
+                "label": "transition sample $T$",
+                "min": 0,
+                "max": 1,
+                "step": 0.01,
+                "value": 0
+              }
+            ],
+            "curves": [
+              {
+                "f": "max(-110, 20*log10(abs(sum(k, -5, 5, sin(33*(pi*x - 2*pi*k/33 + 1e-7)/2)/(33*sin((pi*x - 2*pi*k/33 + 1e-7)/2))) + (Tt)*(sin(33*(pi*x - 2*pi*6/33 + 1e-7)/2)/(33*sin((pi*x - 2*pi*6/33 + 1e-7)/2)) + sin(33*(pi*x - 2*pi*-6/33 + 1e-7)/2)/(33*sin((pi*x - 2*pi*-6/33 + 1e-7)/2)))) + 1e-9))"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0.3636,
+                "label": "T"
+              },
+              {
+                "x": 0.4242,
+                "label": "ω_s"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Why does a transition sample improve a frequency-sampling design?",
+          "options": [
+            "It smooths the jump between the bands, which lowers the ripple; the transition band gets wider",
+            "It narrows the transition band without changing the ripple",
+            "It makes the response exact between the samples",
+            "It makes the filter minimum phase"
+          ],
+          "answer": 0,
+          "explanation": "The ripples come from interpolating an abrupt step between neighbouring samples, just like the Gibbs ripples of a truncated sinc. An intermediate sample makes the step gentler, so the interpolation overshoots far less. The price is that the transition now spans two sample spacings instead of one."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "prompt": "Set the transition sample $T$ so that the highest stop-band lobe (to the right of the line $\\omega_s$, where the samples are zero) is as low as possible.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": -80,
+              "max": 5,
+              "label": "|H| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "Tt",
+                "label": "transition sample $T$",
+                "min": 0,
+                "max": 1,
+                "step": 0.01,
+                "value": 0
+              }
+            ],
+            "curves": [
+              {
+                "f": "max(-110, 20*log10(abs(sum(k, -5, 5, sin(33*(pi*x - 2*pi*k/33 + 1e-7)/2)/(33*sin((pi*x - 2*pi*k/33 + 1e-7)/2))) + (Tt)*(sin(33*(pi*x - 2*pi*6/33 + 1e-7)/2)/(33*sin((pi*x - 2*pi*6/33 + 1e-7)/2)) + sin(33*(pi*x - 2*pi*-6/33 + 1e-7)/2)/(33*sin((pi*x - 2*pi*-6/33 + 1e-7)/2)))) + 1e-9))"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0.3636,
+                "label": "T"
+              },
+              {
+                "x": 0.4242,
+                "label": "ω_s"
+              }
+            ]
+          },
+          "check": "0.06 - abs(Tt - 0.39)",
+          "solution": "$T \\approx 0.39$ (stop band about −42 dB)",
+          "explanation": "The optimum is near $T$ = 0.39, where the highest stop-band lobe is about −42 dB, against −21 dB without a transition sample ($T$ = 0) and only −16 dB if the pass band is simply extended ($T$ = 1). Too large a $T$ brings the ripple back on one side, too small on the other."
+        }
+      ]
+    },
+    {
+      "id": "dsp-optimal-2",
+      "title": "Equiripple design",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Minimax design",
+          "body": "An optimal FIR filter minimises the **largest** weighted error over the pass and stop bands, ignoring the transition band. The weight decides how the error is shared: $1/K$ in the pass band and 1 in the stop band give $\\delta_1 = K\\delta_2$, where $\\delta = \\delta_2$ is the largest weighted error.",
+          "formula": "\\min_{h[n]}\\ \\max_{\\omega \\in F}\\ |E(\\omega)|"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              5,
+              10,
+              20
+            ],
+            "d": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "prompt": "An optimal design with weight $1/K$ = 1/{{K}} in the pass band and 1 in the stop band ends with a largest weighted error $\\delta$ = {{d}}.",
+          "ask": [
+            {
+              "prompt": "Find the pass-band ripple $\\delta_1$.",
+              "answer": "K*d",
+              "unit": "",
+              "explanation": "In the pass band the weighted error is $|E|/K$, so the actual ripple is $\\delta_1 = K\\delta$ = {{K}} × {{d}} = {{K*d}}."
+            },
+            {
+              "prompt": "Find the stop-band attenuation in dB.",
+              "answer": "-20*log10(d)",
+              "unit": "dB",
+              "explanation": "In the stop band the weight is 1, so $\\delta_2 = \\delta$ = {{d}}: $-20\\log_{10}$ {{d}} = {{-20*log10(d)|dB}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "For a given order, a Kaiser-window design minimises the largest error in the pass and stop bands.",
+          "answer": false,
+          "explanation": "A window design follows a recipe; it does not optimise anything. Its error peaks next to the band edges and is much smaller further away, and it forces $\\delta_1 = \\delta_2$. The Parks–McClellan design spreads the error evenly (equiripple), so for the same order its largest error is smaller."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The alternation theorem",
+          "body": "A type I filter of order $M$ has $L + 1$ free coefficients, $L = M/2$. Its optimal error touches $\\pm\\delta$ with **alternating** signs at **at least** $L + 2$ frequencies, including the band edges. Conversely, any design with that property is the (unique) optimum. The dots mark the alternations of a design with $M = 12$.",
+          "formula": "\\#\\text{alternations} \\ge L + 2 = \\frac{M}{2} + 2",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": -0.08,
+              "max": 0.08,
+              "label": "error E(ω)"
+            },
+            "curves": [
+              {
+                "f": "1 - (0.500000 + (0.626430)*cos(1*pi*x) + (-0.183035)*cos(3*pi*x) + (0.107474)*cos(5*pi*x))",
+                "from": 0,
+                "to": 0.4
+              },
+              {
+                "f": "-(0.500000 + (0.626430)*cos(1*pi*x) + (-0.183035)*cos(3*pi*x) + (0.107474)*cos(5*pi*x))",
+                "from": 0.6,
+                "to": 1
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0.0509,
+                "label": "+δ"
+              },
+              {
+                "y": -0.0509,
+                "label": "−δ"
+              }
+            ],
+            "points": [
+              {
+                "x": 0.0,
+                "y": -0.05087,
+                "guides": false,
+                "color": "orange"
+              },
+              {
+                "x": 0.172,
+                "y": 0.05087,
+                "guides": false,
+                "color": "orange"
+              },
+              {
+                "x": 0.326,
+                "y": -0.05091,
+                "guides": false,
+                "color": "orange"
+              },
+              {
+                "x": 0.4,
+                "y": 0.05087,
+                "guides": false,
+                "color": "orange"
+              },
+              {
+                "x": 0.6,
+                "y": -0.05087,
+                "guides": false,
+                "color": "orange"
+              },
+              {
+                "x": 0.674,
+                "y": 0.05091,
+                "guides": false,
+                "color": "orange"
+              },
+              {
+                "x": 0.828,
+                "y": -0.05087,
+                "guides": false,
+                "color": "orange"
+              },
+              {
+                "x": 1.0,
+                "y": 0.05087,
+                "guides": false,
+                "color": "orange"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "M": [
+              10,
+              20,
+              30,
+              40,
+              50,
+              64
+            ]
+          },
+          "prompt": "A type I equiripple low-pass filter has order $M$ = {{M}}. What is the minimum number of alternation frequencies of its error?",
+          "answer": "M/2 + 2",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "$L = M/2$ = {{M/2}}, and the alternation theorem requires at least $L + 2$ = {{M/2+2}} alternations (at most {{M/2+3}} for a low-pass)."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "The graph shows the error $E(\\omega)$ of an optimal low-pass filter in its pass band ($0 \\ldots 0.4\\pi$) and stop band ($0.6\\pi \\ldots \\pi$). How many alternation frequencies does it have? Count $\\omega = 0$, $\\pi$ and both band edges where $|E| = \\delta$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": -0.08,
+              "max": 0.08,
+              "label": "error E(ω)"
+            },
+            "curves": [
+              {
+                "f": "1 - (0.500000 + (0.626430)*cos(1*pi*x) + (-0.183035)*cos(3*pi*x) + (0.107474)*cos(5*pi*x))",
+                "from": 0,
+                "to": 0.4
+              },
+              {
+                "f": "-(0.500000 + (0.626430)*cos(1*pi*x) + (-0.183035)*cos(3*pi*x) + (0.107474)*cos(5*pi*x))",
+                "from": 0.6,
+                "to": 1
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0.0509,
+                "label": "+δ"
+              },
+              {
+                "y": -0.0509,
+                "label": "−δ"
+              }
+            ]
+          },
+          "answer": "8",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "The error touches $\\pm\\delta$ at $\\omega$ = 0, 0.17π, 0.33π, 0.4π ($\\omega_p$) in the pass band and at 0.6π ($\\omega_s$), 0.67π, 0.83π and π in the stop band, with alternating signs: 8 alternations. With $L + 2$ = 8 this is a type I filter of order $M = 12$, and by the alternation theorem it is optimal."
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Put the steps of the Parks–McClellan (Remez exchange) algorithm in order.",
+          "items": [
+            "Guess $L + 2$ extremal frequencies in the bands",
+            "Solve for $A(\\omega)$ and $\\delta$ so the weighted error is $\\pm\\delta$, alternating, at those frequencies",
+            "Evaluate the error on a dense frequency grid",
+            "Move the extremal set to the $L + 2$ largest alternating peaks of $|E|$",
+            "Repeat until the extremal set no longer changes"
+          ],
+          "explanation": "Each pass solves a small linear problem that enforces the alternation on the current guess, then checks the whole band. If the true error peaks are elsewhere, the guess is exchanged for them. When the peaks coincide with the guess, $|E| \\le \\delta$ everywhere with $L + 2$ alternations: by the alternation theorem that is the optimum."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "The order and band edges stay fixed while the weight ratio $K = \\delta_1/\\delta_2$ is increased. What happens?",
+          "options": [
+            "The stop-band ripple falls and the pass-band ripple rises",
+            "Both ripples fall",
+            "The transition band gets narrower",
+            "Nothing: the weight only changes the phase"
+          ],
+          "answer": 0,
+          "explanation": "With fixed $M$ and $\\Delta\\omega$ the error can only be redistributed; the product $\\delta_1\\delta_2$ stays roughly constant. A larger $K$ penalises stop-band error more (relatively), so $\\delta_2$ falls and $\\delta_1 = K\\delta_2$ rises. Explore it on the study card."
+        }
+      ]
+    },
+    {
+      "id": "dsp-optimal-3",
+      "title": "Estimating the order",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "d1": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "d2": [
+              0.001,
+              0.0001,
+              0.003
+            ],
+            "dw": [
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "derived": {
+            "P": "-10*log10(d1*d2)",
+            "M0": "(-10*log10(d1*d2) - 13)/(2.324*pi*dw)"
+          },
+          "require": "min(M0 - floor(M0), ceil(M0) - M0) - 0.08",
+          "prompt": "Estimate the order of an equiripple low-pass filter with $\\delta_1$ = {{d1}}, $\\delta_2$ = {{d2}} and a transition width of {{dw}}$\\pi$, using Kaiser's formula (round up).",
+          "answer": "ceil(M0)",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "$-10\\log_{10}(\\delta_1\\delta_2)$ = −10 log₁₀({{d1*d2}}) = {{P||4}}. $\\Delta\\omega$ = {{dw}}π = {{pi*dw||3}} rad. $M \\approx$ ({{P||4}} − 13) / (2.324 × {{pi*dw||3}}) = {{M0||4}}, so $M$ = {{ceil(M0)}}. (Check the design; the estimate is often one or two short.)"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000,
+              44100,
+              48000
+            ],
+            "fp": [
+              2000,
+              3000
+            ],
+            "tw": [
+              400,
+              600,
+              1000
+            ],
+            "d1": [
+              0.01,
+              0.005
+            ],
+            "As": [
+              60,
+              70,
+              80
+            ]
+          },
+          "derived": {
+            "d2": "10^(-As/20)",
+            "dw": "2*pi*tw/fs",
+            "M0": "(-10*log10(d1*10^(-As/20)) - 13)/(2.324*2*pi*tw/fs)"
+          },
+          "require": "min(min(M0 - floor(M0), ceil(M0) - M0) - 0.08, fs/2 - fp - tw - 100)",
+          "prompt": "An equiripple low-pass at $f_s$ = {{fs|Hz}} passes up to {{fp|Hz}} with ripple $\\delta_1$ = {{d1}} and attenuates by {{As}} dB from {{fp+tw|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Find $\\delta_2$.",
+              "answer": "d2",
+              "unit": "",
+              "explanation": "$\\delta_2 = 10^{-A_s/20} = 10^{-{{As/20}}}$ = {{d2}}."
+            },
+            {
+              "prompt": "Estimate the order $M$ (round up).",
+              "answer": "ceil(M0)",
+              "unit": "",
+              "tolerance": 0.001,
+              "explanation": "$\\delta_2 = 10^{-{{As/20}}}$ = {{d2}}; $\\Delta\\omega = 2\\pi$ × {{tw|Hz}} / {{fs|Hz}} = {{dw||3}} rad. $M \\approx \\frac{-10\\log_{10}(\\delta_1\\delta_2) - 13}{2.324\\,\\Delta\\omega}$ = ({{-10*log10(d1*d2)||4}} − 13) / (2.324 × {{dw||3}}) = {{M0||4}} → {{ceil(M0)}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "d1": [
+              0.01,
+              0.05
+            ],
+            "d2": [
+              0.001,
+              0.0001
+            ],
+            "dw": [
+              0.1,
+              0.2
+            ]
+          },
+          "derived": {
+            "Mp": "(-10*log10(d1*d2) - 13)/(2.324*pi*dw)",
+            "Mk": "(-20*log10(min(d1,d2)) - 8)/(2.285*pi*dw)"
+          },
+          "prompt": "Specs: $\\delta_1$ = {{d1}}, $\\delta_2$ = {{d2}}, $\\Delta\\omega$ = {{dw}}$\\pi$. Compare the (unrounded) order estimates of a Kaiser-window design and an equiripple design.",
+          "ask": [
+            {
+              "prompt": "Find the Kaiser-window estimate.",
+              "answer": "Mk",
+              "unit": "",
+              "explanation": "The window gives equal ripple, so $\\delta = \\min$ = {{min(d1,d2)}}: $A$ = {{-20*log10(min(d1,d2))||3}} dB, $M = (A - 8)/(2.285\\,\\Delta\\omega)$ = {{Mk||4}}."
+            },
+            {
+              "prompt": "Find the ratio of the window estimate to the equiripple estimate.",
+              "answer": "Mk/Mp",
+              "unit": "",
+              "explanation": "Window: $M$ = {{Mk||4}}. Equiripple: $(-10\\log_{10}(\\delta_1\\delta_2) - 13)/(2.324\\,\\Delta\\omega)$ = {{Mp||4}}. Ratio {{Mk/Mp||3}}: the window wastes accuracy in the pass band, where $\\delta_1$ could be {{d1/d2||3}} times larger."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "d1": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "As": [
+              50,
+              60,
+              70,
+              80
+            ]
+          },
+          "prompt": "Specs: pass-band ripple $\\delta_1$ = {{d1}}, stop-band attenuation {{As}} dB. Which weight ratio $K = \\delta_1/\\delta_2$ goes into the Parks–McClellan design?",
+          "answer": "d1/10^(-As/20)",
+          "unit": "",
+          "explanation": "$\\delta_2 = 10^{-{{As/20}}}$ = {{10^(-As/20)}}, so $K = \\delta_1/\\delta_2$ = {{d1}} / {{10^(-As/20)}} = {{d1/10^(-As/20)||3}}. The pass band gets weight $1/K$, the stop band weight 1."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Three low-pass filters of order 24 (dB scale, −90 to 5 dB). Which one is an equiripple (Parks–McClellan) design?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": -90,
+                "max": 5,
+                "label": "dB"
+              },
+              "curves": [
+                {
+                  "f": "max(-110, 20*log10(abs(0.500000 + (0.629990)*cos(1*pi*x) + (-0.192941)*cos(3*pi*x) + (0.097196)*cos(5*pi*x) + (-0.052583)*cos(7*pi*x) + (0.027220)*cos(9*pi*x) + (-0.014420)*cos(11*pi*x)) + 1e-9))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": -90,
+                "max": 5,
+                "label": "dB"
+              },
+              "curves": [
+                {
+                  "f": "max(-110, 20*log10(abs(0.5 + 2*sum(k, 1, 12, (0.5+0.5*cos(pi*k/12))*sin(pi/2*k)/(pi*k)*cos(pi*x*k))) + 1e-9))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "ω/π"
+              },
+              "y": {
+                "min": -90,
+                "max": 5,
+                "label": "dB"
+              },
+              "curves": [
+                {
+                  "f": "max(-110, 20*log10(abs(0.5 + 2*sum(k, 1, 12, (1)*sin(pi/2*k)/(pi*k)*cos(pi*x*k))) + 1e-9))"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "An equiripple design has stop-band lobes that all reach the same height. Window designs have side lobes that decay away from the band edge: the error is largest near $\\omega_s$ and wasted further out."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Kaiser's order formula for equiripple filters gives the exact minimum order.",
+          "answer": false,
+          "explanation": "It is an empirical fit. In practice it tends to be a little low: design with the estimate, check the ripples, and increase $M$ by one or two (sometimes more for narrow or extreme bands) until the specifications are met."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "M": [
+              30,
+              40,
+              50,
+              64,
+              100
+            ],
+            "fs": [
+              8000,
+              48000
+            ]
+          },
+          "prompt": "A type I linear-phase FIR filter of order $M$ = {{M}} runs at {{fs|Hz}}. Using the coefficient symmetry ($h[n] = h[M-n]$: add the two samples first, then multiply), how many multiplications per second does it need?",
+          "answer": "(M/2 + 1)*fs",
+          "unit": "",
+          "explanation": "Pairs $x[n-k] + x[n-M+k]$ share one coefficient: $M/2$ = {{M/2}} pairs plus the centre tap, {{M/2+1}} multiplications per output instead of {{M+1}}. Per second: {{M/2+1}} × {{fs|Hz}} = {{(M/2+1)*fs||4}}."
+        }
+      ]
+    },
+    {
+      "id": "dsp-optimal-4",
+      "title": "Optimal design workout",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "fp": [
+              3000,
+              3400
+            ],
+            "tw": [
+              600,
+              1000
+            ],
+            "As": [
+              60,
+              80
+            ],
+            "d1": [
+              0.01,
+              0.02
+            ]
+          },
+          "derived": {
+            "dw": "2*pi*tw/16000",
+            "M0": "(-10*log10(d1*10^(-As/20)) - 13)/(2.324*2*pi*tw/16000)"
+          },
+          "require": "min(M0/2 - floor(M0/2), ceil(M0/2) - M0/2) - 0.03",
+          "prompt": "A speech filter at $f_s$ = 16 kHz must pass up to {{fp|Hz}} (ripple {{d1}}) and attenuate by {{As}} dB from {{fp+tw|Hz}}. It is an equiripple type I design; use Kaiser's estimate rounded up to an even order.",
+          "ask": [
+            {
+              "prompt": "Find the order $M$.",
+              "answer": "2*ceil(M0/2)",
+              "unit": "",
+              "tolerance": 0.001,
+              "explanation": "$\\Delta\\omega = 2\\pi$ × {{tw|Hz}} / 16 kHz = {{dw||3}} rad, $\\delta_2 = 10^{-{{As/20}}}$. $M \\approx$ ({{-10*log10(d1*10^(-As/20))||4}} − 13) / (2.324 × {{dw||3}}) = {{M0||4}}; the next even order is {{2*ceil(M0/2)}}."
+            },
+            {
+              "prompt": "How many multiplications per second does it need, using the symmetry?",
+              "answer": "(ceil(M0/2) + 1)*16000",
+              "unit": "",
+              "explanation": "$M$ = {{2*ceil(M0/2)}} (estimate {{M0||4}}, rounded up to even). With symmetry: $M/2 + 1$ = {{ceil(M0/2)+1}} multiplications per sample × 16 000 samples/s = {{(ceil(M0/2)+1)*16000||4}} per second."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "M": [
+              40,
+              60,
+              80
+            ],
+            "d1": [
+              0.01,
+              0.02
+            ],
+            "As": [
+              50,
+              60,
+              70
+            ],
+            "fs": [
+              8000,
+              48000
+            ]
+          },
+          "derived": {
+            "dw": "(-10*log10(d1*10^(-As/20)) - 13)/(2.324*M)"
+          },
+          "prompt": "The hardware allows an equiripple filter of order $M$ = {{M}} at $f_s$ = {{fs|Hz}}. With $\\delta_1$ = {{d1}} and {{As}} dB of stop-band attenuation, how narrow can the transition band be (Kaiser's formula)? Give it in Hz.",
+          "answer": "dw/(2*pi)*fs",
+          "unit": "Hz",
+          "explanation": "Solve Kaiser's formula for $\\Delta\\omega$: $\\Delta\\omega = \\frac{-10\\log_{10}(\\delta_1\\delta_2) - 13}{2.324\\,M}$ = ({{-10*log10(d1*10^(-As/20))||4}} − 13) / (2.324 × {{M}}) = {{dw||3}} rad. In Hz: $\\Delta f = \\frac{\\Delta\\omega}{2\\pi}f_s$ = {{dw/(2*pi)*fs|Hz}}."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "M": [
+              30,
+              50
+            ],
+            "dwp": [
+              0.1,
+              0.15
+            ],
+            "d1": [
+              0.01,
+              0.05
+            ]
+          },
+          "derived": {
+            "P": "2.324*pi*dwp*M + 13"
+          },
+          "prompt": "An equiripple filter has $M$ = {{M}} and $\\Delta\\omega$ = {{dwp}}$\\pi$, which by Kaiser's formula fixes $-10\\log_{10}(\\delta_1\\delta_2)$. If the pass-band ripple is set to $\\delta_1$ = {{d1}}, what stop-band attenuation $-20\\log_{10}\\delta_2$ results?",
+          "answer": "2*P + 20*log10(d1)",
+          "unit": "dB",
+          "explanation": "$-10\\log_{10}(\\delta_1\\delta_2) = 2.324\\,\\Delta\\omega M + 13$ = 2.324 × {{pi*dwp||3}} × {{M}} + 13 = {{P||4}} dB. Then $-20\\log_{10}\\delta_2 = 2 \\cdot$ {{P||4}} $+ 20\\log_{10}\\delta_1$ = {{2*P||4}} − {{-20*log10(d1)||3}} = {{2*P + 20*log10(d1)|dB}}. Accept more pass-band ripple and the stop band improves."
+        },
+        {
+          "id": "c4",
+          "type": "trueFalse",
+          "prompt": "A type I low-pass filter of order $M = 20$ whose weighted error reaches $\\pm\\delta$ with alternating signs at 12 frequencies in the bands is the optimal (minimax) design for its band edges and weight.",
+          "answer": true,
+          "explanation": "$L = M/2 = 10$, and the alternation theorem says that $L + 2 = 12$ alternations are both necessary and sufficient for the minimax solution, which is unique. No other order-20 filter has a smaller largest weighted error for these specifications."
+        },
+        {
+          "id": "c5",
+          "type": "multipleChoice",
+          "prompt": "A linear-phase low-pass needs 0.05 dB pass-band ripple and 90 dB stop-band attenuation. Which method gives the shortest filter?",
+          "options": [
+            "Parks–McClellan with weight $K = \\delta_1/\\delta_2$",
+            "Kaiser window",
+            "Hamming window",
+            "Frequency sampling without transition samples"
+          ],
+          "answer": 0,
+          "explanation": "The ripples are very unequal ($\\delta_1 \\approx 0.006$, $\\delta_2 = 3 \\times 10^{-5}$). A window must meet the tighter one in both bands, and the Hamming window cannot even reach 90 dB. Frequency sampling without transition samples gives only about 16 dB. Parks–McClellan meets each band's ripple exactly with the fewest taps."
+        },
+        {
+          "id": "c6",
+          "type": "numeric",
+          "params": {
+            "N": [
+              33,
+              41,
+              65
+            ],
+            "fs": [
+              8000,
+              16000
+            ],
+            "fp": [
+              1000,
+              1500,
+              2100
+            ]
+          },
+          "derived": {
+            "kk": "fp*N/fs"
+          },
+          "require": "min(kk - floor(kk), ceil(kk) - kk) - 0.05",
+          "prompt": "A frequency-sampling low-pass with $N$ = {{N}} at $f_s$ = {{fs|Hz}} must pass 0 to {{fp|Hz}}. How many samples $A_k$ with $k = 0, 1, 2, \\ldots$ lie in the pass band (and are set to 1)?",
+          "answer": "floor(kk) + 1",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "The samples sit at $f_k = kf_s/N$, spaced {{fs/N|Hz}} apart. $f_k \\le$ {{fp|Hz}} for $k \\le$ {{fp|Hz}} / {{fs/N|Hz}} = {{kk||3}}, so $k = 0 \\ldots$ {{floor(kk)}}: {{floor(kk)+1}} samples."
+        }
+      ]
+    }
+  ]
+}

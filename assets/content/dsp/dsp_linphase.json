@@ -1,0 +1,1147 @@
+{
+  "id": "dsp-linphase",
+  "title": "Linear Phase & Minimum Phase",
+  "description": "Group delay, generalized linear phase and the four FIR types, all-pass systems and the minimum-phase/all-pass decomposition.",
+  "reference": "O&S ch. 5",
+  "study": [
+    {
+      "title": "Phase delay and group delay",
+      "body": "A filter with $H(e^{j\\omega}) = |H|e^{j\\theta(\\omega)}$ shifts each sinusoid by $\\theta(\\omega)$. For a narrow-band signal, a pulse $s[n]$ on a carrier at $\\omega_0$, the **envelope** is delayed by the **group delay** $\\tau(\\omega_0)$, the carrier by the phase delay $-\\theta(\\omega_0)/\\omega_0$. If $\\tau$ varies across the band, different frequencies arrive at different times: **phase (dispersion) distortion**. A pure delay $e^{-j\\omega n_d}$ has $\\tau = n_d$ at every frequency. Use the unwrapped (continuous) phase: jumps of $2\\pi$ or $\\pi$ are not delay.",
+      "formula": "\\tau(\\omega) = -\\frac{d}{d\\omega}\\arg H(e^{j\\omega})"
+    },
+    {
+      "title": "Generalized linear phase",
+      "body": "Ideal for waveform fidelity is **linear phase**, $H = |H|e^{-j\\omega\\alpha}$: every component is delayed by $\\alpha$ samples ($\\alpha$ need not be an integer). **Generalized** linear phase allows a real amplitude $A(\\omega)$ that may change sign, plus a constant phase $\\beta$; the group delay is still $\\alpha$ everywhere. A causal FIR filter $h[n]$, $0 \\le n \\le M$, has it when its coefficients are symmetric ($\\beta = 0$) or antisymmetric ($\\beta = \\pi/2$) about $\\alpha = M/2$. A stable, causal IIR filter cannot have exactly linear phase.",
+      "formula": "\\begin{aligned} H(e^{j\\omega}) &= A(\\omega)\\,e^{-j\\alpha\\omega + j\\beta} \\\\ h[n] &= \\pm h[M - n], \\quad \\alpha = M/2 \\end{aligned}"
+    },
+    {
+      "title": "Explore: FIR types I–IV",
+      "body": "Symmetric or antisymmetric, even or odd order $M$: four types. A symmetric filter with odd $M$ (**type II**) always has $H(e^{j\\pi}) = 0$, because the terms cancel in pairs at $z = -1$: no high-pass. Antisymmetric filters always have $H(e^{j0}) = 0$ (zero at $z = 1$): **types III and IV** cannot be low-pass, and type III is also zero at $z = -1$. Examples in the plot: I $\\{1,2,3,2,1\\}$, II $\\{1,2,3,3,2,1\\}$, III $\\{1,0,-1\\}$, IV $\\{1,-3,3,-1\\}$.",
+      "formula": "\\begin{array}{cccc} & h[n] & M & \\text{forced zeros} \\\\ \\text{I} & \\text{sym.} & \\text{even} & \\text{none} \\\\ \\text{II} & \\text{sym.} & \\text{odd} & z = -1 \\\\ \\text{III} & \\text{antisym.} & \\text{even} & z = \\pm 1 \\\\ \\text{IV} & \\text{antisym.} & \\text{odd} & z = 1 \\end{array}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "ω/π"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "|H| (normalized)"
+        },
+        "sliders": [
+          {
+            "name": "Ty",
+            "label": "type (1 = I, 2 = II, 3 = III, 4 = IV)",
+            "min": 1,
+            "max": 4,
+            "step": 1,
+            "value": 2
+          }
+        ],
+        "let": {
+          "g0": "if(1.5-Ty, 1, if(2.5-Ty, 1, 0))",
+          "gpi": "if(1.5-Ty, 1/9, if(2.5-Ty, 0, if(3.5-Ty, 0, 1)))"
+        },
+        "curves": [
+          {
+            "f": "if(1.5-Ty, abs(3 + 4*cos(pi*x) + 2*cos(2*pi*x))/9, if(2.5-Ty, abs(3*cos(pi*x/2) + 2*cos(3*pi*x/2) + cos(5*pi*x/2))/6, if(3.5-Ty, abs(sin(pi*x)), abs(sin(pi*x/2))^3)))"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$|H|$ at $\\omega = 0$",
+            "value": "g0"
+          },
+          {
+            "label": "$|H|$ at $\\omega = \\pi$",
+            "value": "gpi"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: zeros come in quadruples",
+      "body": "For a (anti)symmetric $h[n]$, $H(z) = \\pm z^{-M}H(z^{-1})$: if $z_0$ is a zero, so is $1/z_0$. Real coefficients add the conjugates. So a complex zero $z_0$ off the unit circle brings three partners, $z_0^*$, $1/z_0$ and $1/z_0^*$, all at the same angle $\\pm\\theta$. Zeros on the unit circle are their own mirror images (conjugate pairs), and a real zero $r$ pairs with $1/r$. Drag the zero: its partners follow.",
+      "formula": "H(z) = \\pm z^{-M}H(z^{-1})",
+      "plot": {
+        "x": {
+          "min": -2.6,
+          "max": 2.6,
+          "label": "Re z"
+        },
+        "y": {
+          "min": -1.7,
+          "max": 1.7,
+          "label": "Im z"
+        },
+        "equal": true,
+        "height": 240,
+        "sliders": [
+          {
+            "name": "r",
+            "label": "zero radius $r$",
+            "min": 0.4,
+            "max": 1,
+            "step": 0.02,
+            "value": 0.7
+          },
+          {
+            "name": "tp",
+            "label": "zero angle $\\theta/\\pi$",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "value": 0.3
+          }
+        ],
+        "curves": [
+          {
+            "x": "cos(t)",
+            "y": "sin(t)",
+            "t": [
+              0,
+              "2*pi"
+            ],
+            "color": "grey"
+          }
+        ],
+        "points": [
+          {
+            "x": "r*cos(pi*tp)",
+            "y": "r*sin(pi*tp)",
+            "marker": "o",
+            "color": "blue",
+            "guides": false
+          },
+          {
+            "x": "r*cos(pi*tp)",
+            "y": "-r*sin(pi*tp)",
+            "marker": "o",
+            "color": "blue",
+            "guides": false
+          },
+          {
+            "x": "cos(pi*tp)/r",
+            "y": "sin(pi*tp)/r",
+            "marker": "o",
+            "color": "red",
+            "guides": false
+          },
+          {
+            "x": "cos(pi*tp)/r",
+            "y": "-sin(pi*tp)/r",
+            "marker": "o",
+            "color": "red",
+            "guides": false
+          }
+        ],
+        "readouts": [
+          {
+            "label": "inside: $r$",
+            "value": "r"
+          },
+          {
+            "label": "outside: $1/r$",
+            "value": "1/r"
+          }
+        ]
+      }
+    },
+    {
+      "title": "All-pass systems",
+      "body": "A first-order **all-pass** section has a pole at $a$ and a zero at the mirror image $1/a^*$: its magnitude is exactly 1 at every frequency, only the phase changes. Cascades of such sections (with conjugate pairs for real coefficients) are general all-pass filters. A causal, stable all-pass has a phase that only decreases, i.e. a **positive group delay** at every $\\omega$. Use: a **phase equaliser** that flattens the group delay of another filter without touching its magnitude.",
+      "formula": "H_{ap}(z) = \\frac{z^{-1} - a^*}{1 - a z^{-1}}, \\quad |H_{ap}| = 1"
+    },
+    {
+      "title": "Explore: all-pass group delay",
+      "body": "For a pole $re^{j\\theta}$ the group delay is the expression below: always positive, peaking at $\\omega = \\theta$ with $(1+r)/(1-r)$ samples, and averaging exactly one sample over a full period. Poles close to the unit circle give a tall, narrow delay peak. The plot shows a real pole $a$: $a > 0$ delays low frequencies most, $a < 0$ high frequencies.",
+      "formula": "\\tau(\\omega) = \\frac{1 - r^2}{1 + r^2 - 2r\\cos(\\omega - \\theta)}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "ω/π"
+        },
+        "y": {
+          "min": 0,
+          "max": 20,
+          "label": "τ(ω) (samples)"
+        },
+        "sliders": [
+          {
+            "name": "ap",
+            "label": "pole $a$",
+            "min": -0.9,
+            "max": 0.9,
+            "step": 0.05,
+            "value": 0.6
+          }
+        ],
+        "curves": [
+          {
+            "f": "(1-ap^2)/(1 + ap^2 - 2*ap*cos(pi*x))",
+            "label": "group delay",
+            "labelAt": 0.3
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1,
+            "label": "1 sample"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$\\tau(0) = (1+a)/(1-a)$",
+            "value": "(1+ap)/(1-ap)"
+          },
+          {
+            "label": "$\\tau(\\pi) = (1-a)/(1+a)$",
+            "value": "(1-ap)/(1+ap)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Minimum phase",
+      "body": "A causal, stable system whose zeros are also all **inside** the unit circle is **minimum phase**: it has a causal, stable inverse $1/H(z)$. Any rational $H(z)$ splits into a minimum-phase part and an all-pass part: reflect each zero $z_0$ outside the circle to $1/z_0^*$ and put the difference in an all-pass factor. Of all causal systems with the same $|H|$, the minimum-phase one has the smallest group delay and puts its energy into the first samples (**minimum energy delay**).",
+      "formula": "H(z) = H_{min}(z)\\,H_{ap}(z)"
+    },
+    {
+      "title": "Worked example: reflecting a zero",
+      "body": "$H(z) = 1 - 2z^{-1}$ has its zero at $z = 2$. Split it as below: the first factor has its zero at 0.5, inside the circle; the second is an all-pass (pole at 0.5, zero at 2, magnitude 1). So $h_{min}[n] = \\{2, -1\\}$: apart from its sign, the time reverse of $h[n] = \\{1, -2\\}$, with the same magnitude response. Energy: $h_{min}$ has 4 of its 5 units in the first sample, $h$ only 1.",
+      "formula": "1 - 2z^{-1} = (2 - z^{-1})\\cdot\\frac{1 - 2z^{-1}}{2 - z^{-1}}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dsp-linphase-1",
+      "title": "Group delay and linear phase",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Phase and group delay",
+          "body": "A filter changes the phase of each frequency by $\\theta(\\omega) = \\arg H(e^{j\\omega})$. The **group delay** $\\tau(\\omega) = -d\\theta/d\\omega$ is the number of samples by which the **envelope** of a narrow-band signal around $\\omega$ is delayed. A pure delay $y[n] = x[n - n_d]$ has $\\theta = -\\omega n_d$, so $\\tau = n_d$ at every frequency.",
+          "formula": "\\tau(\\omega) = -\\frac{d\\theta}{d\\omega}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              3,
+              5,
+              8
+            ],
+            "b": [
+              0.5,
+              1,
+              1.5
+            ],
+            "k": [
+              2,
+              3,
+              4,
+              6
+            ]
+          },
+          "prompt": "The unwrapped phase of a filter is $\\theta(\\omega) = -{{a}}\\omega - {{b}}\\sin\\omega$. Find the group delay at $\\omega = \\pi/{{k}}$, in samples.",
+          "answer": "a + b*cos(pi/k)",
+          "unit": "",
+          "explanation": "$\\tau(\\omega) = -\\frac{d\\theta}{d\\omega} = {{a}} + {{b}}\\cos\\omega$. At $\\omega = \\pi/{{k}}$: {{a}} + {{b}} × {{cos(pi/k)||3}} = {{a + b*cos(pi/k)}} samples. The delay depends on frequency, so this phase is not linear."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "L": [
+              21,
+              31,
+              64,
+              101,
+              128
+            ],
+            "fs": [
+              8000,
+              48000
+            ]
+          },
+          "prompt": "A linear-phase FIR filter with {{L}} coefficients (order $M$ = {{L-1}}) runs at $f_s$ = {{fs|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is its group delay in samples?",
+              "answer": "(L-1)/2",
+              "unit": "",
+              "explanation": "The coefficients are symmetric about $n = M/2$, so $\\tau = M/2$ = {{L-1}} / 2 = {{(L-1)/2}} samples at every frequency."
+            },
+            {
+              "prompt": "What is its group delay in seconds?",
+              "answer": "(L-1)/2/fs",
+              "unit": "s",
+              "explanation": "$\\tau = M/2$ = {{(L-1)/2}} samples, and one sample lasts $1/f_s$ = {{1/fs|s}}: {{(L-1)/2}} / {{fs|Hz}} = {{(L-1)/2/fs|s}}."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Generalized linear phase",
+          "body": "With linear phase every frequency is delayed by the same $\\alpha$ samples, so a pulse keeps its shape. **Generalized** linear phase allows a real amplitude $A(\\omega)$ that may change sign (a jump of $\\pi$ in the phase, not a delay) and a constant extra phase $\\beta$. The group delay is still constant.",
+          "formula": "H(e^{j\\omega}) = A(\\omega)\\,e^{-j\\alpha\\omega + j\\beta}"
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "The FIR filter $h[n] = \\{1, 3, -3, -1\\}$ for $n = 0 \\ldots 3$ has generalized linear phase.",
+          "answer": true,
+          "explanation": "$h[n] = -h[3 - n]$: $h[0] = -h[3]$ and $h[1] = -h[2]$. Antisymmetric about $n = 1.5$, so $H(e^{j\\omega}) = A(\\omega)e^{-j1.5\\omega + j\\pi/2}$: a constant group delay of 1.5 samples (a type IV filter)."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "A pulse passes through a linear-phase low-pass filter, well inside its pass band. What happens to it?",
+          "options": [
+            "It is delayed by the group delay, with its shape preserved",
+            "Every frequency component gets the same phase shift, so it is not delayed",
+            "Each frequency component is delayed by a different amount, so it spreads out",
+            "It is delayed by the phase delay of its highest frequency component only"
+          ],
+          "answer": 0,
+          "explanation": "Linear phase means $\\theta(\\omega) = -\\alpha\\omega$: the phase shift grows in proportion to frequency, which is exactly what a time delay of $\\alpha$ samples does to every component. All components stay aligned, so the waveform keeps its shape. The same phase shift for every frequency, by contrast, would distort the pulse."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Symmetry gives linear phase",
+          "body": "Pair the coefficients around the middle. For $h[n] = h[M-n]$, factor out the delay $e^{-j\\omega M/2}$: each pair $e^{-j\\omega(n - M/2)} + e^{j\\omega(n - M/2)}$ is a real cosine. Example: the 3-tap filter $\\{b, a, b\\}$ gives $H = e^{-j\\omega}(a + 2b\\cos\\omega)$, a real amplitude times a delay of one sample.",
+          "formula": "A(\\omega) = \\sum_{n=0}^{M} h[n]\\cos\\big(\\omega(n - M/2)\\big)"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              0.25,
+              0.5,
+              -0.5,
+              1,
+              -1
+            ],
+            "k": [
+              2,
+              3,
+              4,
+              6
+            ]
+          },
+          "require": "abs(a + 2*b*cos(pi/k)) - 0.05",
+          "prompt": "The filter $h[n] = \\{ {{b}}, {{a}}, {{b}} \\}$ has $H(e^{j\\omega}) = A(\\omega)e^{-j\\omega}$. Find the amplitude $A(\\omega)$, with its sign, at $\\omega = \\pi/{{k}}$.",
+          "answer": "a + 2*b*cos(pi/k)",
+          "unit": "",
+          "absTolerance": 0.01,
+          "explanation": "$A(\\omega) = a + 2b\\cos\\omega$ = {{a}} + 2 × ({{b}}) × {{cos(pi/k)||3}} = {{a + 2*b*cos(pi/k)}}. A negative amplitude is a phase jump of $\\pi$, not extra delay: the group delay stays 1 sample."
+        }
+      ]
+    },
+    {
+      "id": "dsp-linphase-2",
+      "title": "Types I–IV and their zeros",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Four types of linear-phase FIR filters",
+          "body": "Symmetric or antisymmetric coefficients, and even or odd order $M$ (odd $M$ means an even number of taps and a delay of a whole sample plus a half). The symmetry forces zeros: at $\\omega = \\pi$ a symmetric filter with odd $M$ cancels in pairs; at $\\omega = 0$ an antisymmetric filter always sums to zero.",
+          "formula": "\\begin{array}{cccc} & h[n] & M & \\text{forced zeros} \\\\ \\text{I} & \\text{sym.} & \\text{even} & \\text{none} \\\\ \\text{II} & \\text{sym.} & \\text{odd} & z = -1 \\\\ \\text{III} & \\text{antisym.} & \\text{even} & z = \\pm 1 \\\\ \\text{IV} & \\text{antisym.} & \\text{odd} & z = 1 \\end{array}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.1,
+              "label": "|H| (normalized)"
+            },
+            "sliders": [
+              {
+                "name": "Ty",
+                "label": "type (1 = I, 2 = II, 3 = III, 4 = IV)",
+                "min": 1,
+                "max": 4,
+                "step": 1,
+                "value": 2
+              }
+            ],
+            "let": {
+              "g0": "if(1.5-Ty, 1, if(2.5-Ty, 1, 0))",
+              "gpi": "if(1.5-Ty, 1/9, if(2.5-Ty, 0, if(3.5-Ty, 0, 1)))"
+            },
+            "curves": [
+              {
+                "f": "if(1.5-Ty, abs(3 + 4*cos(pi*x) + 2*cos(2*pi*x))/9, if(2.5-Ty, abs(3*cos(pi*x/2) + 2*cos(3*pi*x/2) + cos(5*pi*x/2))/6, if(3.5-Ty, abs(sin(pi*x)), abs(sin(pi*x/2))^3)))"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$|H|$ at $\\omega = 0$",
+                "value": "g0"
+              },
+              {
+                "label": "$|H|$ at $\\omega = \\pi$",
+                "value": "gpi"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each type of linear-phase FIR filter to its coefficients.",
+          "pairs": [
+            [
+              "Type I",
+              "symmetric, $M$ even"
+            ],
+            [
+              "Type II",
+              "symmetric, $M$ odd"
+            ],
+            [
+              "Type III",
+              "antisymmetric, $M$ even"
+            ],
+            [
+              "Type IV",
+              "antisymmetric, $M$ odd"
+            ]
+          ],
+          "explanation": "$M$ is the order: $M + 1$ taps, symmetry about $n = M/2$. Odd $M$ gives an even number of taps and a delay of $M/2$ = a whole number plus a half sample."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Which linear-phase FIR types can implement a high-pass filter?",
+          "options": [
+            "Types I and IV",
+            "Types I and II",
+            "Types II and III",
+            "All four types"
+          ],
+          "answer": 0,
+          "explanation": "A high-pass needs a large gain at $\\omega = \\pi$ ($z = -1$). Type II (symmetric, odd $M$) and type III (antisymmetric, even $M$) have a forced zero there. Types I and IV do not; type IV has its forced zero at DC, which a high-pass does not mind."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "c0": [
+              1,
+              2,
+              -1
+            ],
+            "c1": [
+              3,
+              -2,
+              0.5
+            ],
+            "c2": [
+              4,
+              5,
+              -3
+            ]
+          },
+          "require": "abs(c0 + c1 + c2)",
+          "prompt": "A type II filter has $h[n] = \\{ {{c0}}, {{c1}}, {{c2}}, {{c2}}, {{c1}}, {{c0}} \\}$.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "Find $H(e^{j0})$.",
+              "answer": "2*(c0 + c1 + c2)",
+              "explanation": "At $\\omega = 0$ every $e^{-j\\omega n} = 1$: $H(e^{j0}) = \\sum h[n] = 2(h[0] + h[1] + h[2])$ = 2 × {{c0+c1+c2}} = {{2*(c0+c1+c2)}}."
+            },
+            {
+              "prompt": "Find $H(e^{j\\pi})$.",
+              "answer": "0",
+              "absTolerance": 0.001,
+              "explanation": "At $\\omega = \\pi$, $e^{-j\\pi n} = (-1)^n$: $h[0] - h[1] + h[2] - h[3] + h[4] - h[5]$, and with $h[5] = h[0]$, $h[4] = h[1]$, $h[3] = h[2]$ every term cancels: 0. With an even number of taps, the pairs $h[n]$ and $h[5-n]$ get opposite signs and cancel, for any values: a forced zero at $z = -1$."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Zeros in quadruples",
+          "body": "Because $H(z) = \\pm z^{-M}H(z^{-1})$, every zero $z_0$ of a linear-phase filter has a mirror zero $1/z_0$; real coefficients add the conjugates. Drag the zero to see its three partners: same angle up to sign, radii $r$ and $1/r$.",
+          "formula": "z_0,\\ z_0^*,\\ 1/z_0,\\ 1/z_0^*",
+          "plot": {
+            "x": {
+              "min": -2.6,
+              "max": 2.6,
+              "label": "Re z"
+            },
+            "y": {
+              "min": -1.7,
+              "max": 1.7,
+              "label": "Im z"
+            },
+            "equal": true,
+            "height": 240,
+            "sliders": [
+              {
+                "name": "r",
+                "label": "zero radius $r$",
+                "min": 0.4,
+                "max": 1,
+                "step": 0.02,
+                "value": 0.7
+              },
+              {
+                "name": "tp",
+                "label": "zero angle $\\theta/\\pi$",
+                "min": 0,
+                "max": 1,
+                "step": 0.01,
+                "value": 0.3
+              }
+            ],
+            "curves": [
+              {
+                "x": "cos(t)",
+                "y": "sin(t)",
+                "t": [
+                  0,
+                  "2*pi"
+                ],
+                "color": "grey"
+              }
+            ],
+            "points": [
+              {
+                "x": "r*cos(pi*tp)",
+                "y": "r*sin(pi*tp)",
+                "marker": "o",
+                "color": "blue",
+                "guides": false
+              },
+              {
+                "x": "r*cos(pi*tp)",
+                "y": "-r*sin(pi*tp)",
+                "marker": "o",
+                "color": "blue",
+                "guides": false
+              },
+              {
+                "x": "cos(pi*tp)/r",
+                "y": "sin(pi*tp)/r",
+                "marker": "o",
+                "color": "red",
+                "guides": false
+              },
+              {
+                "x": "cos(pi*tp)/r",
+                "y": "-sin(pi*tp)/r",
+                "marker": "o",
+                "color": "red",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "inside: $r$",
+                "value": "r"
+              },
+              {
+                "label": "outside: $1/r$",
+                "value": "1/r"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.4,
+              0.5,
+              0.6,
+              0.8,
+              0.9
+            ],
+            "k": [
+              3,
+              4,
+              6
+            ]
+          },
+          "prompt": "A linear-phase FIR filter with real coefficients has a zero at $z = {{r}}e^{j\\pi/{{k}}}$. Two of its partner zeros lie outside the unit circle. What is their magnitude?",
+          "answer": "1/r",
+          "unit": "",
+          "explanation": "The partners are $z_0^* = {{r}}e^{-j\\pi/{{k}}}$ and $1/z_0^*$, $1/z_0$ $= \\frac{1}{ {{r}} }e^{\\pm j\\pi/{{k}}}$: magnitude 1 / {{r}} = {{1/r}}, at the same angles $\\pm\\pi/{{k}}$."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A linear-phase FIR filter with real coefficients has a zero at $z = 0.5$. Which other zero must it have?",
+          "options": [
+            "$z = 2$",
+            "$z = -0.5$",
+            "$z = -2$",
+            "None: a real zero needs no partner"
+          ],
+          "answer": 0,
+          "explanation": "Linear phase mirrors every zero in the unit circle: $z_0 \\to 1/z_0$ = 2. The conjugate of a real zero is itself, so this is a pair rather than a quadruple."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "A type II FIR filter (symmetric, odd order) can be a good low-pass filter.",
+          "answer": true,
+          "explanation": "Its forced zero is at $\\omega = \\pi$, deep in a low-pass filter's stop band, where a zero is welcome. Type II is ruled out for high-pass and band-stop filters, not for low-pass ones."
+        }
+      ]
+    },
+    {
+      "id": "dsp-linphase-3",
+      "title": "All-pass and minimum phase",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              -0.8,
+              -0.5,
+              0.3,
+              0.5,
+              0.6,
+              0.8,
+              0.9
+            ]
+          },
+          "prompt": "The all-pass filter $H(z) = \\frac{z^{-1} - ({{a}})}{1 - ({{a}})z^{-1}}$ has group delay $\\tau(\\omega) = \\frac{1 - a^2}{1 + a^2 - 2a\\cos\\omega}$ samples.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "Find its group delay at $\\omega = 0$.",
+              "answer": "(1+a)/(1-a)",
+              "explanation": "At $\\omega = 0$: $\\tau = \\frac{1 - a^2}{(1 - a)^2} = \\frac{1 + a}{1 - a}$ = (1 + ({{a}})) / (1 − ({{a}})) = {{(1+a)/(1-a)}} samples."
+            },
+            {
+              "prompt": "Find its group delay at $\\omega = \\pi$.",
+              "answer": "(1-a)/(1+a)",
+              "explanation": "At $\\omega = \\pi$, $\\cos\\omega = -1$: $\\tau = \\frac{1 - a^2}{(1 + a)^2} = \\frac{1 - a}{1 + a}$ = (1 − ({{a}})) / (1 + ({{a}})) = {{(1-a)/(1+a)}} samples. Both are positive, as for every causal stable all-pass."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.5,
+              0.8,
+              0.9,
+              0.95
+            ],
+            "k": [
+              3,
+              4,
+              6
+            ]
+          },
+          "prompt": "A first-order all-pass section has its pole at $a = {{r}}e^{j\\pi/{{k}}}$.",
+          "ask": [
+            {
+              "prompt": "What is the magnitude of its zero?",
+              "answer": "1/r",
+              "unit": "",
+              "explanation": "The zero is at $1/a^* = \\frac{1}{ {{r}} }e^{j\\pi/{{k}}}$: magnitude 1 / {{r}} = {{1/r}}. Conjugating and inverting cancel in the angle."
+            },
+            {
+              "prompt": "What is the angle of its zero, in degrees?",
+              "answer": "180/k",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "$1/a^* = \\frac{1}{r e^{-j\\theta}} = \\frac{1}{r}e^{j\\theta}$: the zero sits at the same angle as the pole, $\\pi/{{k}}$ = {{180/k|°}}, just outside the unit circle."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "D": [
+              3,
+              4,
+              5,
+              9,
+              19
+            ]
+          },
+          "prompt": "The graph shows the group delay of the all-pass $\\frac{z^{-1} - a}{1 - az^{-1}}$ (real $a$). Set $a$ so that the group delay at DC is {{D}} samples.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "ω/π"
+            },
+            "y": {
+              "min": 0,
+              "max": 21,
+              "label": "τ(ω) (samples)"
+            },
+            "sliders": [
+              {
+                "name": "ap",
+                "label": "pole $a$",
+                "min": -0.9,
+                "max": 0.95,
+                "step": 0.005,
+                "value": 0
+              }
+            ],
+            "curves": [
+              {
+                "f": "(1-ap^2)/(1 + ap^2 - 2*ap*cos(pi*x))",
+                "label": "τ(ω)",
+                "labelAt": 0.5
+              }
+            ],
+            "hlines": [
+              {
+                "y": "D",
+                "label": "{{D}} samples"
+              }
+            ]
+          },
+          "answer": {
+            "ap": "(D-1)/(D+1)"
+          },
+          "tolerance": 0.02,
+          "explanation": "$\\tau(0) = \\frac{1 + a}{1 - a}$ = {{D}} gives $a = \\frac{D - 1}{D + 1}$ = {{D-1}} / {{D+1}} = {{(D-1)/(D+1)||3}}. The pole moves towards $z = 1$ as the required delay grows, and the delay peak gets narrower."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "A causal, stable, minimum-phase system has a causal and stable inverse.",
+          "answer": true,
+          "explanation": "The inverse $1/H(z)$ turns zeros into poles. Minimum phase means all zeros lie inside the unit circle, so all poles of the inverse do: it is causal and stable. That is why equalisers and deconvolution need a minimum-phase channel."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Which pole-zero map ($\\times$ poles, $\\circ$ zeros, unit circle in grey) belongs to a minimum-phase system?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -1.8,
+                "max": 1.8,
+                "label": "Re z"
+              },
+              "y": {
+                "min": -1.5,
+                "max": 1.5,
+                "label": "Im z"
+              },
+              "equal": true,
+              "curves": [
+                {
+                  "x": "cos(t)",
+                  "y": "sin(t)",
+                  "t": [
+                    0,
+                    "2*pi"
+                  ],
+                  "color": "grey"
+                }
+              ],
+              "points": [
+                {
+                  "x": 0.42425999999999997,
+                  "y": 0.42425999999999997,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0.42425999999999997,
+                  "y": -0.42425999999999997,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": -0.5,
+                  "y": 0.5,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                },
+                {
+                  "x": -0.5,
+                  "y": -0.5,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -1.8,
+                "max": 1.8,
+                "label": "Re z"
+              },
+              "y": {
+                "min": -1.5,
+                "max": 1.5,
+                "label": "Im z"
+              },
+              "equal": true,
+              "curves": [
+                {
+                  "x": "cos(t)",
+                  "y": "sin(t)",
+                  "t": [
+                    0,
+                    "2*pi"
+                  ],
+                  "color": "grey"
+                }
+              ],
+              "points": [
+                {
+                  "x": 0.42425999999999997,
+                  "y": 0.42425999999999997,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0.42425999999999997,
+                  "y": -0.42425999999999997,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": -1.2,
+                  "y": 0.6,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                },
+                {
+                  "x": -1.2,
+                  "y": -0.6,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -1.8,
+                "max": 1.8,
+                "label": "Re z"
+              },
+              "y": {
+                "min": -1.5,
+                "max": 1.5,
+                "label": "Im z"
+              },
+              "equal": true,
+              "curves": [
+                {
+                  "x": "cos(t)",
+                  "y": "sin(t)",
+                  "t": [
+                    0,
+                    "2*pi"
+                  ],
+                  "color": "grey"
+                }
+              ],
+              "points": [
+                {
+                  "x": 0.88388,
+                  "y": 0.88388,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0.88388,
+                  "y": -0.88388,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": -0.5,
+                  "y": 0.5,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                },
+                {
+                  "x": -0.5,
+                  "y": -0.5,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -1.8,
+                "max": 1.8,
+                "label": "Re z"
+              },
+              "y": {
+                "min": -1.5,
+                "max": 1.5,
+                "label": "Im z"
+              },
+              "equal": true,
+              "curves": [
+                {
+                  "x": "cos(t)",
+                  "y": "sin(t)",
+                  "t": [
+                    0,
+                    "2*pi"
+                  ],
+                  "color": "grey"
+                }
+              ],
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0.625,
+                  "y": 0,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                },
+                {
+                  "x": 1.6,
+                  "y": 0,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "Minimum phase needs **all** poles and zeros strictly inside the unit circle. One map has zeros outside (a valid stable system, but not minimum phase), one has poles outside (unstable), and the real zeros at 0.625 and 1.6 = 1/0.625 are a mirror pair, typical of a linear-phase FIR filter, which is never minimum phase."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "c": [
+              -3,
+              -2,
+              1.5,
+              2,
+              2.5,
+              3
+            ]
+          },
+          "prompt": "$h[n] = \\{1, {{c}}\\}$ has a zero outside the unit circle. Its minimum-phase counterpart $h_{min}[n]$ has the same $|H(e^{j\\omega})|$.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "What fraction of the total energy of $h_{min}[n]$ is in its first sample?",
+              "answer": "c^2/(1+c^2)",
+              "explanation": "The zero is at $z = -({{c}})$, outside the circle. Reflecting it gives $h_{min}[n] = \\{ {{c}}, 1\\}$ (the time reverse; $|{{c}} + e^{-j\\omega}| = |1 + ({{c}})e^{-j\\omega}|$). Its first sample holds ({{c}})² / (1 + ({{c}})²) = {{c^2/(1+c^2)||3}} of the energy."
+            },
+            {
+              "prompt": "What fraction of the total energy of the original $h[n]$ is in its first sample?",
+              "answer": "1/(1+c^2)",
+              "explanation": "$h[0]^2 / (h[0]^2 + h[1]^2)$ = 1 / (1 + ({{c}})²) = {{1/(1+c^2)||3}}. The minimum-phase version $\\{ {{c}}, 1\\}$ has {{c^2/(1+c^2)||3}} there: it releases its energy earliest."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "b": [
+              1.25,
+              1.5,
+              2,
+              3,
+              4,
+              5
+            ],
+            "a": [
+              0.5,
+              0.8
+            ]
+          },
+          "prompt": "$H(z) = \\frac{1 - {{b}}z^{-1}}{1 - {{a}}z^{-1}}$ is written as $H_{min}(z)H_{ap}(z)$. Find the group delay at DC of the all-pass factor $H_{ap}(z)$, in samples.",
+          "answer": "(b+1)/(b-1)",
+          "unit": "",
+          "explanation": "The zero at {{b}} is outside the circle. Reflect it to $1/{{b}}$ = {{1/b||3}}: $H_{ap}(z) = \\frac{z^{-1} - {{1/b||3}}}{1 - {{1/b||3}}z^{-1}}$ (pole {{1/b||3}}, zero {{b}}). With its pole at $1/b$ its DC group delay is $\\frac{1 + 1/b}{1 - 1/b} = \\frac{b + 1}{b - 1}$ = {{(b+1)/(b-1)}} samples. The pole at {{a}} stays in $H_{min}$."
+        }
+      ]
+    },
+    {
+      "id": "dsp-linphase-4",
+      "title": "Phase in practice",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "M": [
+              20,
+              30,
+              40
+            ],
+            "a": [
+              0.5,
+              0.6,
+              0.8
+            ],
+            "fs": [
+              8000,
+              16000
+            ]
+          },
+          "prompt": "A linear-phase FIR filter of order $M$ = {{M}} is followed by the all-pass $\\frac{z^{-1} - {{a}}}{1 - {{a}}z^{-1}}$, at $f_s$ = {{fs|Hz}}. What is the total group delay at DC, in seconds?",
+          "answer": "(M/2 + (1+a)/(1-a))/fs",
+          "unit": "s",
+          "explanation": "Group delays of cascaded systems add (the phases add). FIR: $M/2$ = {{M/2}} samples. All-pass at DC: $\\frac{1 + a}{1 - a}$ = {{(1+a)/(1-a)}} samples. Total {{M/2 + (1+a)/(1-a)}} samples × {{1/fs|s}} = {{(M/2 + (1+a)/(1-a))/fs|s}}."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "nq": [
+              1,
+              2
+            ],
+            "nc": [
+              0,
+              1,
+              2
+            ],
+            "nr": [
+              0,
+              1
+            ]
+          },
+          "prompt": "A linear-phase FIR filter with real coefficients has, in the upper half of the z-plane, {{nq}} zero(s) strictly inside the unit circle and {{nc}} zero(s) on the unit circle (not at $\\pm1$). On the real axis it has {{nr}} zero(s) strictly between 0 and 1. What is the smallest possible order $M$?",
+          "answer": "4*nq + 2*nc + 2*nr",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "Each complex zero inside brings $z_0^*$, $1/z_0$ and $1/z_0^*$: 4 zeros each, {{4*nq}} in total. Each unit-circle zero is its own mirror image and only adds its conjugate: {{2*nc}}. Each real zero $r$ adds $1/r$: {{2*nr}}. An FIR filter of order $M$ has $M$ zeros, so $M$ ≥ {{4*nq}} + {{2*nc}} + {{2*nr}} = {{4*nq + 2*nc + 2*nr}}."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.5,
+              0.7,
+              0.8,
+              0.9
+            ]
+          },
+          "prompt": "The first-order low-pass $H(z) = \\frac{1 - p}{1 - pz^{-1}}$ with $p$ = {{p}} has group delay $\\tau(\\omega) = \\frac{p\\cos\\omega - p^2}{1 - 2p\\cos\\omega + p^2}$ samples.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "Find $\\tau$ at $\\omega = 0$.",
+              "answer": "p/(1-p)",
+              "explanation": "At DC: $\\tau = \\frac{p - p^2}{(1 - p)^2} = \\frac{p}{1 - p}$ = {{p}} / {{1-p}} = {{p/(1-p)}} samples."
+            },
+            {
+              "prompt": "Find $\\tau$ at $\\omega = \\pi$.",
+              "answer": "-p/(1+p)",
+              "explanation": "At $\\omega = \\pi$: $\\tau = \\frac{-p - p^2}{(1 + p)^2} = -\\frac{p}{1 + p}$ = {{-p/(1+p)}} samples. A negative group delay is no paradox: it only applies to narrow-band envelopes at that frequency, which this filter attenuates strongly anyway. The delay varies with frequency, so the phase is not linear."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "trueFalse",
+          "prompt": "Cascading a causal, stable filter with a suitable causal, stable all-pass can reduce the total group delay at every frequency.",
+          "answer": false,
+          "explanation": "A causal, stable all-pass has a positive group delay at **every** frequency, and group delays add in a cascade. An all-pass can only add delay; to reduce it you must change the filter itself, e.g. replace it by its minimum-phase version, which has the least group delay for its magnitude response."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              -0.5,
+              0.25
+            ],
+            "b": [
+              2,
+              3,
+              -2,
+              4
+            ]
+          },
+          "prompt": "$H(z) = (1 - {{a}}z^{-1})(1 - ({{b}})z^{-1})$. The minimum-phase FIR filter with the same magnitude response is $h_{min}[n] = \\{h_0, h_1, h_2\\}$ with $h_0 > 0$.",
+          "unit": "",
+          "absTolerance": 0.01,
+          "ask": [
+            {
+              "prompt": "Find $h_0$.",
+              "answer": "abs(b)",
+              "explanation": "The zero at {{b}} is outside: replace $1 - bz^{-1}$ by $b - z^{-1}$ (same magnitude, zero at $1/b$ = {{1/b||3}}). $h_{min}$ = $\\pm(1 - {{a}}z^{-1})(({{b}}) - z^{-1})$, so $h_0 = |b|$ = {{abs(b)}}."
+            },
+            {
+              "prompt": "Find $h_1$.",
+              "answer": "-sign(b)*(1 + a*b)",
+              "explanation": "$(1 - az^{-1})(b - z^{-1}) = b - (1 + ab)z^{-1} + az^{-2}$. With $b$ = {{b}}: {{b}}, {{-(1+a*b)}}, {{a}}. Scaled to make $h_0$ positive: $h_1$ = {{-sign(b)*(1+a*b)}}."
+            }
+          ]
+        },
+        {
+          "id": "c6",
+          "type": "multipleChoice",
+          "prompt": "A sharp IIR low-pass filter has a group-delay peak near its cutoff that smears transients. Which fix flattens the group delay without changing the magnitude response?",
+          "options": [
+            "Cascade an all-pass phase equaliser",
+            "Replace it by its minimum-phase version",
+            "Reflect its poles to outside the unit circle",
+            "Double the filter order"
+          ],
+          "answer": 0,
+          "explanation": "An all-pass has $|H| = 1$, so it leaves the magnitude alone; its positive group delay is designed to be large where the filter's is small, making the total nearly constant (at the price of more overall delay). A typical IIR low-pass already has its zeros on or inside the unit circle, so its 'minimum-phase version' is the same filter; reflecting poles outside makes it unstable; a higher order sharpens the peak."
+        }
+      ]
+    }
+  ]
+}

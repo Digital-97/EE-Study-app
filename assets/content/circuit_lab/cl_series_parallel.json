@@ -1,0 +1,3749 @@
+{
+ "id": "cl-series-parallel",
+ "title": "Series & Parallel Networks",
+ "description": "Collapse resistor networks to find equivalent resistances, branch currents, voltages and powers.",
+ "reference": "Hambley §2.1–2.3",
+ "study": [
+  {
+   "title": "Series or parallel?",
+   "body": "Two elements are in **series** when they share a node that nothing else touches: they carry the same current. Two elements are in **parallel** when both ends connect to the same pair of nodes: they have the same voltage. Label every node first; elements that touch the same two labels are in parallel.",
+   "formula": "R_s = R_1 + R_2 \\qquad R_p = \\frac{R_1 R_2}{R_1 + R_2}"
+  },
+  {
+   "title": "Strategy: collapse, then expand",
+   "body": "Combine resistors starting at the end farthest from the source until one $R_{eq}$ is left, and find the source current $I = V_s/R_{eq}$. Then expand back: Ohm's law and dividers give every branch. Here: $R_2 \\parallel R_3$ = 2 kΩ, $R_{eq}$ = 3 kΩ, $I$ = 4 mA, so $v_x$ = 8 V and each 4 kΩ resistor carries 2 mA.",
+   "circuit": {
+    "elements": [
+     {
+      "type": "vsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_s",
+      "value": "12 V"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       2,
+       0
+      ],
+      "label": "R_1",
+      "value": "1 kΩ"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       2,
+       2
+      ],
+      "label": "R_2",
+      "value": "4 kΩ"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        2,
+        0
+       ],
+       [
+        4,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4,
+       0
+      ],
+      "to": [
+       4,
+       2
+      ],
+      "label": "R_3",
+      "value": "4 kΩ"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       0
+      ],
+      "label": "v_x"
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       2
+      ]
+     },
+     {
+      "type": "ground",
+      "at": [
+       0,
+       2
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Shortcuts",
+   "body": "The voltage divider splits a voltage over series resistors; the current divider splits a current over two parallel resistors (note: the **other** resistor goes on top). $n$ equal resistors $R$ in parallel give $R/n$. A parallel combination is always smaller than its smallest member, a quick sanity check.",
+   "formula": "v_k = v\\,\\frac{R_k}{R_{total}} \\qquad i_1 = i\\,\\frac{R_2}{R_1+R_2}"
+  },
+  {
+   "title": "Common mistakes",
+   "body": "- Calling two resistors 'in series' while a third branch leaves the node between them.\n- Missing a wire drawn across a resistor: that resistor is shorted, carries no current and drops out.\n- Putting the wrong resistor on top in the current divider.\n- Forgetting that $R_{ab}$ depends on which two terminals you look into: a branch that ends on an open terminal carries no current."
+  }
+ ],
+ "lessons": [
+  {
+   "title": "Warm-up networks",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "All values are shown in the schematic.",
+     "ask": [
+      {
+       "prompt": "Find the equivalent resistance seen by the source.",
+       "answer": "Vs/I_Vs",
+       "unit": "Ω",
+       "explanation": "$R_2 \\parallel R_3$ = {{par(R2,R3)|Ω}} is in series with $R_1$: $R_{eq}$ = {{R1|Ω}} + {{par(R2,R3)|Ω}} = **{{Vs/I_Vs|Ω}}**."
+      },
+      {
+       "prompt": "Find the current supplied by the source.",
+       "answer": "I_Vs",
+       "unit": "A",
+       "explanation": "$R_{eq} = R_1 + R_2 \\parallel R_3$ = {{R1+par(R2,R3)|Ω}}, so $I = V_s/R_{eq}$ = {{Vs|V}} / {{R1+par(R2,R3)|Ω}} = **{{I_Vs|A}}**."
+      },
+      {
+       "prompt": "Find the voltage across $R_3$.",
+       "answer": "abs(V_R3)",
+       "unit": "V",
+       "explanation": "With $R_p = R_2 \\parallel R_3$ = {{par(R2,R3)|Ω}} the divider gives $V_{R_3} = V_s\\frac{R_p}{R_1+R_p}$ = {{Vs|V}} · {{par(R2,R3)/(R1+par(R2,R3))||3}} = **{{abs(V_R3)|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_2$.",
+       "answer": "abs(I_R2)",
+       "unit": "A",
+       "explanation": "$R_2$ and $R_3$ are in parallel, so both have $V_x = V_s\\frac{R_p}{R_1+R_p}$ = {{abs(V_R3)|V}} with $R_p$ = {{par(R2,R3)|Ω}}. Then $I_{R_2}$ = {{abs(V_R3)|V}} / {{R2|Ω}} = **{{abs(I_R2)|A}}**."
+      }
+     ],
+     "hint": "Combine $R_2$ and $R_3$ first.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "Which statement about this network is true?",
+     "options": [
+      "$R_3$ and $R_4$ are in series, and that pair is in parallel with $R_2$",
+      "$R_2$ and $R_3$ are in parallel",
+      "$R_1$ and $R_2$ are in series",
+      "$R_1$ is in parallel with $R_4$"
+     ],
+     "answer": 0,
+     "explanation": "$R_3$ and $R_4$ share a node that nothing else touches, so they are in series. The pair runs from node $x$ to ground, just like $R_2$, so $R_2 \\parallel (R_3 + R_4)$. $R_1$ and $R_2$ are **not** in series: the $R_3$ branch leaves the node between them. $R_3$ alone is not parallel to $R_2$ because its lower end is not at ground.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         2
+        ],
+        "to": [
+         4.5,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          4.5,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R4": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ]
+     },
+     "prompt": "All values are shown in the schematic.",
+     "ask": [
+      {
+       "prompt": "Find the equivalent resistance seen by the source.",
+       "answer": "Vs/I_Vs",
+       "unit": "Ω",
+       "explanation": "$R_3 + R_4$ = {{R3+R4|Ω}}; in parallel with $R_2$: {{par(R2,R3+R4)|Ω}}; plus $R_1$: $R_{eq}$ = **{{Vs/I_Vs|Ω}}**."
+      },
+      {
+       "prompt": "Find the voltage across $R_4$.",
+       "answer": "abs(V_R4)",
+       "unit": "V",
+       "explanation": "$R_p = R_2 \\parallel (R_3+R_4)$ = {{par(R2,R3+R4)|Ω}}, so $v_x = V_s\\frac{R_p}{R_1+R_p}$ = {{par(R2,R3+R4)*Vs/(R1+par(R2,R3+R4))|V}}. Divide $v_x$ over $R_3$ and $R_4$: $V_{R_4} = v_x\\frac{R_4}{R_3+R_4}$ = **{{abs(V_R4)|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_2$.",
+       "answer": "abs(I_R2)",
+       "unit": "A",
+       "explanation": "$v_x = V_s\\frac{R_p}{R_1+R_p}$ with $R_p = R_2 \\parallel (R_3+R_4)$ = {{par(R2,R3+R4)|Ω}}, so $v_x$ = {{abs(V_R2)|V}} and $I_{R_2} = v_x/R_2$ = **{{abs(I_R2)|A}}**."
+      },
+      {
+       "prompt": "Find the power absorbed by $R_1$.",
+       "answer": "P_R1",
+       "unit": "W",
+       "explanation": "The source current flows through $R_1$: $I = V_s/R_{eq}$ = {{Vs|V}} / {{R1+par(R2,R3+R4)|Ω}} = {{I_Vs|A}}. Then $P = I^2R_1$ = **{{P_R1|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4.5,
+         2
+        ],
+        "to": [
+         4.5,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          4.5,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "Is": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800
+      ],
+      "R2": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300
+      ]
+     },
+     "prompt": "A current source drives the network; values are in the schematic.",
+     "ask": [
+      {
+       "prompt": "Find the voltage across the current source.",
+       "answer": "V_Is",
+       "unit": "V",
+       "explanation": "The source sees $R_1 \\parallel (R_2+R_3)$ = {{par(R1,R2+R3)|Ω}}, so $V = I_s R$ = {{Is|A}} · {{par(R1,R2+R3)|Ω}} = **{{V_Is|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_3$.",
+       "answer": "abs(I_R3)",
+       "unit": "A",
+       "explanation": "Current divider between $R_1$ and the branch $R_2+R_3$ = {{R2+R3|Ω}}: $I_{R_3} = I_s\\frac{R_1}{R_1+R_2+R_3}$ = **{{abs(I_R3)|A}}**."
+      },
+      {
+       "prompt": "Find the power delivered by the current source.",
+       "answer": "P_Is",
+       "unit": "W",
+       "explanation": "$P = I_s^2 R_{eq}$ with $R_{eq} = R_1 \\parallel (R_2+R_3)$ = {{par(R1,R2+R3)|Ω}}: $P$ = **{{P_Is|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q5",
+     "type": "trueFalse",
+     "prompt": "If $R_3$ in this circuit is replaced by a short circuit, $R_2$ carries no current.",
+     "answer": true,
+     "explanation": "A short across $R_3$ also connects the top of $R_2$ to ground, so $R_2$ has 0 V across it and carries no current. All of the source current then flows through $R_1$ and the short: $I = V_s/R_1$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R2": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R4": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ]
+     },
+     "prompt": "The network has three terminals; the third terminal is left open each time.",
+     "ask": [
+      {
+       "prompt": "Find the resistance $R_{ab}$ between terminals a and b.",
+       "answer": "R_a_b",
+       "unit": "Ω",
+       "explanation": "With c open, $R_3$ and $R_4$ are in series ({{R3+R4|Ω}}), and that path is parallel to $R_2$ between node x and b: {{par(R2,R3+R4)|Ω}}. Add $R_1$: $R_{ab}$ = **{{R_a_b|Ω}}**."
+      },
+      {
+       "prompt": "Find the resistance $R_{ac}$ between terminals a and c.",
+       "answer": "R_a_c",
+       "unit": "Ω",
+       "explanation": "With b open, $R_2$ and $R_4$ are in series ({{R2+R4|Ω}}) and parallel to $R_3$: {{par(R3,R2+R4)|Ω}}. Add $R_1$: $R_{ac}$ = **{{R_a_c|Ω}}**."
+      },
+      {
+       "prompt": "Find the resistance $R_{bc}$ between terminals b and c.",
+       "answer": "R_b_c",
+       "unit": "Ω",
+       "explanation": "With a open, $R_1$ carries no current. Between b and c: $R_4 \\parallel (R_2+R_3)$ = {{R4|Ω}} ∥ {{R2+R3|Ω}} = **{{R_b_c|Ω}}**."
+      }
+     ],
+     "hint": "A resistor that ends on an open terminal carries no current.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "b"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "c",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-series-parallel-1"
+  },
+  {
+   "title": "Bigger networks",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R2": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R4": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R5": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ]
+     },
+     "prompt": "All values are shown in the schematic.",
+     "ask": [
+      {
+       "prompt": "Find the current supplied by the source.",
+       "answer": "I_Vs",
+       "unit": "A",
+       "explanation": "Branches: $R_2+R_3$ = {{R2+R3|Ω}} and $R_4+R_5$ = {{R4+R5|Ω}}, in parallel {{par(R2+R3,R4+R5)|Ω}}. $R_{eq}$ = {{R1+par(R2+R3,R4+R5)|Ω}}, so $I$ = {{Vs|V}} / {{R1+par(R2+R3,R4+R5)|Ω}} = **{{I_Vs|A}}**."
+      },
+      {
+       "prompt": "Find the voltage across $R_5$.",
+       "answer": "abs(V_R5)",
+       "unit": "V",
+       "explanation": "$R_p$ = {{par(R2+R3,R4+R5)|Ω}} gives $v_x = V_s\\frac{R_p}{R_1+R_p}$ = {{abs(V_R4+V_R5)|V}}. Divide over the right branch: $V_{R_5} = v_x\\frac{R_5}{R_4+R_5}$ = **{{abs(V_R5)|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_3$.",
+       "answer": "abs(I_R3)",
+       "unit": "A",
+       "explanation": "$v_x = V_s\\frac{R_p}{R_1+R_p}$ = {{abs(V_R2+V_R3)|V}} with $R_p$ = {{par(R2+R3,R4+R5)|Ω}}. The left branch carries $v_x/(R_2+R_3)$ = {{abs(V_R2+V_R3)|V}} / {{R2+R3|Ω}} = **{{abs(I_R3)|A}}**."
+      },
+      {
+       "prompt": "Find the power absorbed by $R_1$.",
+       "answer": "P_R1",
+       "unit": "W",
+       "explanation": "$R_1$ carries the full source current $I = V_s/R_{eq}$ = {{I_Vs|A}} ($R_{eq}$ = {{R1+par(R2+R3,R4+R5)|Ω}}), so $P = I^2R_1$ = **{{P_R1|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4.5,
+         2
+        ],
+        "to": [
+         4.5,
+         4
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          4.5,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "Is": [
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "A current source feeds $R_1$ and three parallel resistors.",
+     "ask": [
+      {
+       "prompt": "Find the voltage across $R_1$.",
+       "answer": "abs(V_R1)",
+       "unit": "V",
+       "explanation": "$R_1$ is in series with the source, so it carries exactly $I_s$: $V_{R_1} = I_sR_1$ = {{Is|A}} · {{R1|Ω}} = **{{abs(V_R1)|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_3$.",
+       "answer": "abs(I_R3)",
+       "unit": "A",
+       "explanation": "$R_2 \\parallel R_3 \\parallel R_4$ = {{par(R2,R3,R4)|Ω}}, so $v_x = I_s R_p$ = {{Is*par(R2,R3,R4)|V}} and $I_{R_3} = v_x/R_3$ = **{{abs(I_R3)|A}}**. $R_1$ does not matter here."
+      },
+      {
+       "prompt": "Find the voltage across the current source.",
+       "answer": "V_Is",
+       "unit": "V",
+       "explanation": "$V = I_s(R_1 + R_2 \\parallel R_3 \\parallel R_4)$ = {{Is|A}} · ({{R1|Ω}} + {{par(R2,R3,R4)|Ω}}) = **{{V_Is|V}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p3",
+     "type": "trueFalse",
+     "prompt": "In this circuit, increasing $R_1$ changes the current through $R_3$.",
+     "answer": false,
+     "explanation": "$R_1$ is in series with an ideal current source, so the current into node x is $I_s$ whatever $R_1$ is. The split over $R_2$, $R_3$, $R_4$ is unchanged; only the voltage across the source grows.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "t1",
+     "type": "tapCircuit",
+     "prompt": "Look carefully at every wire. Tap every resistor that carries **no current**.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          7,
+          0
+         ],
+         [
+          7,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          2,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R7",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_7"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          2,
+          3
+         ],
+         [
+          4,
+          3
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "R1",
+      "R2",
+      "R3",
+      "R4",
+      "R5",
+      "R6",
+      "R7"
+     ],
+     "answer": [
+      "R6",
+      "R7"
+     ],
+     "explanation": "A resistor with a plain wire across it has both ends on the same node, so $v = 0$ and $i = 0$.\n- $R_6$ is bridged by the wire on the far right.\n- $R_7$ is bridged by the wire drawn below it.\nWith those two out of the way the network is $R_1 + R_2 \\parallel (R_3 + R_4 \\parallel R_5)$: $R_5$ now runs from the top node straight to the bottom rail, in parallel with $R_4$."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R2": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R4": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R5": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ]
+     },
+     "prompt": "Three-terminal network; the third terminal is left open each time.",
+     "ask": [
+      {
+       "prompt": "Find $R_{ab}$.",
+       "answer": "R_a_b",
+       "unit": "Ω",
+       "explanation": "With c open, $R_4$ and $R_5$ form one series path (via the bottom wire) from x to y: {{R4+R5|Ω}}, parallel to $R_2$: {{par(R2,R4+R5)|Ω}}. Then $R_{ab} = R_1 + R_2\\parallel(R_4+R_5) + R_3$ = **{{R_a_b|Ω}}**."
+      },
+      {
+       "prompt": "Find $R_{ac}$.",
+       "answer": "R_a_c",
+       "unit": "Ω",
+       "explanation": "With b open, $R_3$ carries no current. From x to c: $R_4 \\parallel (R_2+R_5)$ = {{par(R4,R2+R5)|Ω}}. Add $R_1$: $R_{ac}$ = **{{R_a_c|Ω}}**."
+      },
+      {
+       "prompt": "Find $R_{bc}$.",
+       "answer": "R_b_c",
+       "unit": "Ω",
+       "explanation": "With a open, $R_1$ carries no current. From y to c: $R_5 \\parallel (R_2+R_4)$ = {{par(R5,R2+R4)|Ω}}. Add $R_3$: $R_{bc}$ = **{{R_b_c|Ω}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "b"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "c",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800
+      ]
+     },
+     "prompt": "All values are shown in the schematic.",
+     "ask": [
+      {
+       "prompt": "Find the current through $R_1$.",
+       "answer": "abs(I_R1)",
+       "unit": "A",
+       "explanation": "$R_1$ sits directly across the source, so $I_{R_1} = V_s/R_1$ = {{Vs|V}} / {{R1|Ω}} = **{{abs(I_R1)|A}}**. The other branch does not affect it."
+      },
+      {
+       "prompt": "Find the current supplied by the source.",
+       "answer": "I_Vs",
+       "unit": "A",
+       "explanation": "Branch 1: $V_s/R_1$ = {{Vs/R1|A}}. Branch 2: $V_s/(R_2 + R_3\\parallel R_4)$ = {{Vs|V}} / {{R2+par(R3,R4)|Ω}} = {{Vs/(R2+par(R3,R4))|A}}. KCL: $I$ = **{{I_Vs|A}}**."
+      },
+      {
+       "prompt": "Find the voltage across $R_4$.",
+       "answer": "abs(V_R4)",
+       "unit": "V",
+       "explanation": "The right branch has the full $V_s$ across it. Divider: $V_{R_4} = V_s\\frac{R_3\\parallel R_4}{R_2 + R_3\\parallel R_4}$ = {{Vs|V}} · {{par(R3,R4)|Ω}} / {{R2+par(R3,R4)|Ω}} = **{{abs(V_R4)|V}}**."
+      },
+      {
+       "prompt": "Find the power absorbed by $R_2$.",
+       "answer": "P_R2",
+       "unit": "W",
+       "explanation": "Branch current $I_2 = V_s/(R_2 + R_3\\parallel R_4)$ = {{abs(I_R2)|A}}, so $P = I_2^2R_2$ = **{{P_R2|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         4
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "p6",
+     "type": "orderSteps",
+     "prompt": "Put the steps for finding one branch current in a series-parallel network in order.",
+     "items": [
+      "Label the nodes and spot series and parallel groups",
+      "Combine the groups step by step into $R_{eq}$",
+      "Find the source current $I = V_s/R_{eq}$",
+      "Work back toward the branch with Ohm's law and dividers"
+     ],
+     "explanation": "Collapse the network to a single resistance to get the source current, then expand it again in the reverse order, using the voltage or current divider at each split until you reach the branch you need."
+    }
+   ],
+   "id": "cl-series-parallel-2"
+  },
+  {
+   "title": "Six-resistor challenge",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R2": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R6": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ]
+     },
+     "prompt": "Six resistors, one source. All values are shown in the schematic.",
+     "ask": [
+      {
+       "prompt": "Find the equivalent resistance seen by the source.",
+       "answer": "Vs/I_Vs",
+       "unit": "Ω",
+       "explanation": "Three parallel branches: {{R2+R3|Ω}}, {{R4|Ω}} and {{R5+R6|Ω}}, together {{par(R2+R3,R4,R5+R6)|Ω}}. Add $R_1$: $R_{eq}$ = **{{Vs/I_Vs|Ω}}**."
+      },
+      {
+       "prompt": "Find the voltage across $R_6$.",
+       "answer": "abs(V_R6)",
+       "unit": "V",
+       "explanation": "$R_p = (R_2+R_3)\\parallel R_4 \\parallel (R_5+R_6)$ = {{par(R2+R3,R4,R5+R6)|Ω}}, so $v_x = V_s\\frac{R_p}{R_1+R_p}$ = {{abs(V_R4)|V}}. Then $V_{R_6} = v_x\\frac{R_6}{R_5+R_6}$ = **{{abs(V_R6)|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_4$.",
+       "answer": "abs(I_R4)",
+       "unit": "A",
+       "explanation": "$v_x = V_s\\frac{R_p}{R_1+R_p}$ with $R_p$ = {{par(R2+R3,R4,R5+R6)|Ω}}: $v_x$ = {{abs(V_R4)|V}}. $I_{R_4} = v_x/R_4$ = **{{abs(I_R4)|A}}**."
+      },
+      {
+       "prompt": "Find the power absorbed by $R_2$.",
+       "answer": "P_R2",
+       "unit": "W",
+       "explanation": "$v_x$ = {{abs(V_R4)|V}} (as above). The left branch carries $v_x/(R_2+R_3)$ = {{abs(I_R2)|A}}, so $P = I^2R_2$ = **{{P_R2|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4.25,
+         0
+        ],
+        "to": [
+         4.25,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         6.5,
+         0
+        ],
+        "to": [
+         6.5,
+         2
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "val": "R6",
+        "from": [
+         6.5,
+         2
+        ],
+        "to": [
+         6.5,
+         4
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6.5,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.25,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.25,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300
+      ],
+      "R2": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Look carefully at every wire before you start.",
+     "ask": [
+      {
+       "prompt": "Find the equivalent resistance seen by the source.",
+       "answer": "Vs/I_Vs",
+       "unit": "Ω",
+       "explanation": "The wire drawn over $R_2$ shorts it: both ends are the same node, so it drops out. What is left: $R_1 + R_3\\parallel R_4$ = {{R1|Ω}} + {{par(R3,R4)|Ω}} = **{{Vs/I_Vs|Ω}}**."
+      },
+      {
+       "prompt": "Find the voltage across $R_4$.",
+       "answer": "abs(V_R4)",
+       "unit": "V",
+       "explanation": "$R_2$ is shorted by the wire above it. Divider: $V_{R_4} = V_s\\frac{R_3\\parallel R_4}{R_1 + R_3\\parallel R_4}$ = {{Vs|V}} · {{par(R3,R4)|Ω}} / {{R1+par(R3,R4)|Ω}} = **{{abs(V_R4)|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_3$.",
+       "answer": "abs(I_R3)",
+       "unit": "A",
+       "explanation": "With $R_2$ shorted, $v_x = V_s\\frac{R_3\\parallel R_4}{R_1+R_3\\parallel R_4}$ = {{abs(V_R3)|V}}, so $I_{R_3} = v_x/R_3$ = **{{abs(I_R3)|A}}**."
+      }
+     ],
+     "hint": "Is there a resistor with both ends on the same node?",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          2,
+          -1
+         ],
+         [
+          4,
+          -1
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c3",
+     "type": "multipleChoice",
+     "prompt": "In this six-resistor network, which statement is true?",
+     "options": [
+      "$R_4$ is in parallel with the series pair $R_5$, $R_6$",
+      "$R_3$ and $R_5$ are in series",
+      "$R_1$ and $R_4$ are in series",
+      "$R_2$ and $R_4$ are in parallel"
+     ],
+     "answer": 0,
+     "explanation": "$R_4$ runs from node x to the bottom rail, and so does the path $R_5$–$R_6$ (whose middle node touches nothing else): they are in parallel. $R_2$ alone is not parallel to $R_4$; only the pair $R_2 + R_3$ is. $R_1$ is not in series with $R_4$ because three branches leave node x.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.25,
+         0
+        ],
+        "to": [
+         4.25,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6.5,
+         0
+        ],
+        "to": [
+         6.5,
+         2
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6.5,
+         2
+        ],
+        "to": [
+         6.5,
+         4
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6.5,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.25,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.25,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "Is": [
+       0.001,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R4": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R5": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800
+      ]
+     },
+     "prompt": "A current source drives five resistors.",
+     "ask": [
+      {
+       "prompt": "Find the voltage across the current source.",
+       "answer": "V_Is",
+       "unit": "V",
+       "explanation": "From the far end: $R_3+R_4$ = {{R3+R4|Ω}}, parallel $R_5$: {{par(R3+R4,R5)|Ω}}, plus $R_2$: {{R2+par(R3+R4,R5)|Ω}}, parallel $R_1$: {{par(R1,R2+par(R3+R4,R5))|Ω}}. $V = I_sR_{eq}$ = **{{V_Is|V}}**."
+      },
+      {
+       "prompt": "Find the current through $R_5$.",
+       "answer": "abs(I_R5)",
+       "unit": "A",
+       "explanation": "Current divider at the source: the $R_2$ branch ({{R2+par(R3+R4,R5)|Ω}}) gets $I_s\\frac{R_1}{R_1 + R_2 + (R_3+R_4)\\parallel R_5}$ = {{abs(I_R2)|A}}. Divide again: $I_{R_5} = I_{R_2}\\frac{R_3+R_4}{R_3+R_4+R_5}$ = **{{abs(I_R5)|A}}**."
+      },
+      {
+       "prompt": "What percentage of the source power is absorbed by $R_1$?",
+       "answer": "100*P_R1/P_Is",
+       "unit": "%",
+       "explanation": "$R_1$ is directly across the source, so $P_{R_1} = V^2/R_1$ with $V$ = {{V_Is|V}}: {{P_R1|W}}. The source delivers $P = VI_s$ = {{P_Is|W}}. Ratio: **{{100*P_R1/P_Is|%}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4.5,
+         2
+        ],
+        "to": [
+         4.5,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         6.5,
+         0
+        ],
+        "to": [
+         6.5,
+         4
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          4
+         ],
+         [
+          6.5,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         4
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "c5",
+     "type": "trueFalse",
+     "prompt": "If every resistor in a network driven by a single voltage source is doubled, the source current halves.",
+     "answer": true,
+     "explanation": "Doubling every resistor doubles $R_{eq}$, and $I = V_s/R_{eq}$. All voltage-divider ratios stay the same, so every resistor voltage is unchanged while every current halves."
+    },
+    {
+     "id": "c6",
+     "type": "numeric",
+     "params": {
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R2": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R3": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ],
+      "R4": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200
+      ],
+      "R5": [
+       470,
+       560,
+       680,
+       820,
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700
+      ]
+     },
+     "prompt": "Three-terminal network; the third terminal is left open each time.",
+     "ask": [
+      {
+       "prompt": "Find $R_{ab}$.",
+       "answer": "R_a_b",
+       "unit": "Ω",
+       "explanation": "With c open, $R_4$ is dangling. Between x and b: $R_2 \\parallel (R_3+R_5)$ = {{par(R2,R3+R5)|Ω}}. Add $R_1$: $R_{ab}$ = **{{R_a_b|Ω}}**."
+      },
+      {
+       "prompt": "Find $R_{ac}$.",
+       "answer": "R_a_c",
+       "unit": "Ω",
+       "explanation": "With b open: from x to y, $R_3 \\parallel (R_2+R_5)$ = {{par(R3,R2+R5)|Ω}}. Then $R_{ac} = R_1 + $ {{par(R3,R2+R5)|Ω}} $+ R_4$ = **{{R_a_c|Ω}}**."
+      },
+      {
+       "prompt": "Find $R_{bc}$.",
+       "answer": "R_b_c",
+       "unit": "Ω",
+       "explanation": "With a open, $R_1$ is dangling. From b to y: $R_5 \\parallel (R_2+R_3)$ = {{par(R5,R2+R3)|Ω}}; add $R_4$: $R_{bc}$ = **{{R_b_c|Ω}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6.5,
+         0
+        ],
+        "label": "b"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         2,
+         4
+        ],
+        "label": "c",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-series-parallel-3"
+  }
+ ]
+}

@@ -1,0 +1,1911 @@
+{
+  "id": "dsp-wordlength",
+  "title": "Finite Word-Length Effects",
+  "description": "Fixed-point numbers, coefficient quantization and pole sensitivity, round-off noise, overflow and scaling, and limit cycles.",
+  "reference": "O&S ch. 6",
+  "study": [
+    {
+      "title": "Fixed-point numbers",
+      "body": "DSP hardware usually stores numbers as **two's-complement fractions**: a sign bit $b_0$ with weight $-1$ and $B$ fraction bits. The range is $-1 \\le x \\le 1 - 2^{-B}$ and the step is $2^{-B}$. As in O&S, $B$ counts only the fraction bits here, so a word has $B + 1$ bits (in the quantization unit $B$ was the total). The common 16-bit **Q15** format ($B = 15$) stores $x$ as the integer $\\mathrm{round}(x \\cdot 2^{15})$: 0.5 is 0x4000, −0.5 is 0xC000, and the largest value is 0x7FFF = 0.99997. Products of two Q15 numbers have 30 fraction bits and must be rounded (or truncated) back, which is where round-off noise comes from.",
+      "formula": "x = -b_0 + \\sum_{i=1}^{B} b_i2^{-i}"
+    },
+    {
+      "title": "Coefficient quantization",
+      "body": "Rounding the coefficients changes the filter itself: the poles and zeros move. The roots of a high-order polynomial are extremely sensitive to its coefficients when they are clustered, as in narrow-band filters. Example: an order-$N$ denominator with all poles at $z = 0.9$; changing its constant coefficient by $\\varepsilon$ moves the poles onto a circle of radius $\\varepsilon^{1/N}$ around 0.9. With $N = 8$ and $\\varepsilon = 2^{-15}$ that is 0.27: the filter becomes unstable. In a second-order section the same error moves the poles by only $\\sqrt{\\varepsilon}$ = 0.0055.",
+      "formula": "(z - p)^N + \\varepsilon = 0 \\;\\Rightarrow\\; |z - p| = \\varepsilon^{1/N}"
+    },
+    {
+      "title": "Realizable poles of a second-order section",
+      "body": "A direct-form section $1 - a_1z^{-1} - a_2z^{-2}$ with complex poles $re^{\\pm j\\theta}$ has $a_1 = 2r\\cos\\theta$ and $a_2 = -r^2$. Quantizing $a_2$ allows only certain radii ($r^2$ on a grid), quantizing $a_1$ only certain real parts ($r\\cos\\theta$ on a grid). The dots are all poles possible with 3 fraction bits: they are sparse near $z = 1$, exactly where narrow-band low-pass filters need them. The **coupled form**, with coefficients $r\\cos\\theta$ and $r\\sin\\theta$, gives a uniform rectangular grid instead.",
+      "formula": "a_1 = 2r\\cos\\theta, \\qquad a_2 = -r^2",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1.05,
+          "label": "Re z"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.05,
+          "label": "Im z"
+        },
+        "equal": true,
+        "height": 240,
+        "curves": [
+          {
+            "x": "cos(t)",
+            "y": "sin(t)",
+            "t": [
+              0,
+              "pi/2"
+            ],
+            "color": "grey"
+          }
+        ],
+        "points": [
+          {
+            "x": 0.0,
+            "y": 0.35355,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0625,
+            "y": 0.34799,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.125,
+            "y": 0.33072,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.1875,
+            "y": 0.29974,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.25,
+            "y": 0.25,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.3125,
+            "y": 0.16536,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0,
+            "y": 0.5,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0625,
+            "y": 0.49608,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.125,
+            "y": 0.48412,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.1875,
+            "y": 0.46351,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.25,
+            "y": 0.43301,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.3125,
+            "y": 0.39031,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.375,
+            "y": 0.33072,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.4375,
+            "y": 0.24206,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0,
+            "y": 0.61237,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0625,
+            "y": 0.60917,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.125,
+            "y": 0.59948,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.1875,
+            "y": 0.58296,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.25,
+            "y": 0.55902,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.3125,
+            "y": 0.52663,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.375,
+            "y": 0.48412,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.4375,
+            "y": 0.42848,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5,
+            "y": 0.35355,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5625,
+            "y": 0.24206,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0,
+            "y": 0.70711,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0625,
+            "y": 0.70434,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.125,
+            "y": 0.69597,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.1875,
+            "y": 0.68179,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.25,
+            "y": 0.66144,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.3125,
+            "y": 0.63431,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.375,
+            "y": 0.59948,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.4375,
+            "y": 0.55551,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5,
+            "y": 0.5,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5625,
+            "y": 0.42848,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.625,
+            "y": 0.33072,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.6875,
+            "y": 0.16536,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0,
+            "y": 0.79057,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0625,
+            "y": 0.7881,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.125,
+            "y": 0.78062,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.1875,
+            "y": 0.76801,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.25,
+            "y": 0.75,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.3125,
+            "y": 0.72618,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.375,
+            "y": 0.69597,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.4375,
+            "y": 0.65848,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5,
+            "y": 0.61237,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5625,
+            "y": 0.55551,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.625,
+            "y": 0.48412,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.6875,
+            "y": 0.39031,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.75,
+            "y": 0.25,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0,
+            "y": 0.86603,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0625,
+            "y": 0.86377,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.125,
+            "y": 0.85696,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.1875,
+            "y": 0.84548,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.25,
+            "y": 0.82916,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.3125,
+            "y": 0.80768,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.375,
+            "y": 0.78062,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.4375,
+            "y": 0.74739,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5,
+            "y": 0.70711,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5625,
+            "y": 0.65848,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.625,
+            "y": 0.59948,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.6875,
+            "y": 0.52663,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.75,
+            "y": 0.43301,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.8125,
+            "y": 0.29974,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0,
+            "y": 0.93541,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.0625,
+            "y": 0.93332,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.125,
+            "y": 0.92702,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.1875,
+            "y": 0.91643,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.25,
+            "y": 0.90139,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.3125,
+            "y": 0.88167,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.375,
+            "y": 0.85696,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.4375,
+            "y": 0.8268,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5,
+            "y": 0.79057,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.5625,
+            "y": 0.74739,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.625,
+            "y": 0.69597,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.6875,
+            "y": 0.63431,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.75,
+            "y": 0.55902,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.8125,
+            "y": 0.46351,
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0.875,
+            "y": 0.33072,
+            "guides": false,
+            "color": "primary"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Round-off noise",
+      "body": "Rounding a product to $B$ fraction bits adds an error that is modelled like quantization noise: white, uniform, variance $\\sigma_e^2 = 2^{-2B}/12$, independent of everything else. Each source travels to the output through the impulse response $h_{ef}[n]$ from its adder to the output. First-order example $y[n] = ay[n-1] + x[n]$: the one rounded product enters where $x[n]$ does, so the output noise is $\\sigma_e^2/(1 - a^2)$, large for poles close to the unit circle. A direct form I section adds all five rounding errors at one adder in front of $1/A(z)$; with a double-length accumulator they shrink to a single rounding.",
+      "formula": "\\sigma_f^2 = \\sigma_e^2\\sum_n h_{ef}^2[n], \\qquad \\sigma_e^2 = \\frac{2^{-2B}}{12}"
+    },
+    {
+      "title": "Overflow and scaling",
+      "body": "A sum that leaves $[-1, 1)$ **wraps around** in two's complement: 0.75 + 0.5 becomes −0.75, a huge error. (Intermediate overflows in a long sum are harmless if the final result fits.) **Saturation** arithmetic clips instead, a much smaller error. To prevent overflow at a node, scale the input by $s$: with $|x| \\le 1$, the absolute (L1) bound $s = 1/\\sum|h_k[n]|$ guarantees no overflow; $s = 1/\\max|H_k(e^{j\\omega})|$ suffices for sinusoids. Scaling down lowers the signal but not the round-off noise, so it costs SNR: the trade-off of fixed-point design.",
+      "formula": "\\begin{aligned} |w_k[n]| &\\le x_{max}\\sum_m |h_k[m]| \\\\ s &= 1\\Big/\\sum_m |h_k[m]| \\end{aligned}"
+    },
+    {
+      "title": "Explore: zero-input limit cycles",
+      "body": "With rounding inside the loop, $y[n] = Q[a\\,y[n-1]]$ need not decay to zero. Once $|a\\,y| $ rounds back to $|y|$ the output is stuck: a **limit cycle**, constant for $a > 0$ and alternating for $a < 0$. That happens for $|y| \\le \\Delta/(2(1 - |a|))$, the **deadband** (orange). Green: rounded response in steps of $\\Delta$; grey dots: the ideal $a^{n+1}y[-1]$. Remedies: magnitude truncation (rounding towards zero), more bits, or dither. Overflow can cause much larger oscillations; saturation arithmetic prevents those.",
+      "formula": "|y| \\le \\frac{\\Delta}{2(1 - |a|)}",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 20.5,
+          "label": "n"
+        },
+        "y": {
+          "min": -12.5,
+          "max": 12.5,
+          "label": "y[n] / Δ"
+        },
+        "sliders": [
+          {
+            "name": "al",
+            "label": "coefficient $a$",
+            "min": -0.95,
+            "max": 0.95,
+            "step": 0.01,
+            "value": 0.85
+          },
+          {
+            "name": "y0",
+            "label": "$y[-1]$ (in steps $\\Delta$)",
+            "min": -12,
+            "max": 12,
+            "step": 1,
+            "value": 10
+          }
+        ],
+        "let": {
+          "q0": "round(al*y0)",
+          "q1": "round(al*q0)",
+          "q2": "round(al*q1)",
+          "q3": "round(al*q2)",
+          "q4": "round(al*q3)",
+          "q5": "round(al*q4)",
+          "q6": "round(al*q5)",
+          "q7": "round(al*q6)",
+          "q8": "round(al*q7)",
+          "q9": "round(al*q8)",
+          "q10": "round(al*q9)",
+          "q11": "round(al*q10)",
+          "q12": "round(al*q11)",
+          "q13": "round(al*q12)",
+          "q14": "round(al*q13)",
+          "q15": "round(al*q14)",
+          "q16": "round(al*q15)",
+          "q17": "round(al*q16)",
+          "q18": "round(al*q17)",
+          "q19": "round(al*q18)",
+          "q20": "round(al*q19)"
+        },
+        "curves": [
+          {
+            "f": "(q0)*(1-abs(x-(0))/0.004)",
+            "from": -0.004,
+            "to": 0.004
+          },
+          {
+            "f": "(q1)*(1-abs(x-(1))/0.004)",
+            "from": 0.996,
+            "to": 1.004
+          },
+          {
+            "f": "(q2)*(1-abs(x-(2))/0.004)",
+            "from": 1.996,
+            "to": 2.004
+          },
+          {
+            "f": "(q3)*(1-abs(x-(3))/0.004)",
+            "from": 2.996,
+            "to": 3.004
+          },
+          {
+            "f": "(q4)*(1-abs(x-(4))/0.004)",
+            "from": 3.996,
+            "to": 4.004
+          },
+          {
+            "f": "(q5)*(1-abs(x-(5))/0.004)",
+            "from": 4.996,
+            "to": 5.004
+          },
+          {
+            "f": "(q6)*(1-abs(x-(6))/0.004)",
+            "from": 5.996,
+            "to": 6.004
+          },
+          {
+            "f": "(q7)*(1-abs(x-(7))/0.004)",
+            "from": 6.996,
+            "to": 7.004
+          },
+          {
+            "f": "(q8)*(1-abs(x-(8))/0.004)",
+            "from": 7.996,
+            "to": 8.004
+          },
+          {
+            "f": "(q9)*(1-abs(x-(9))/0.004)",
+            "from": 8.996,
+            "to": 9.004
+          },
+          {
+            "f": "(q10)*(1-abs(x-(10))/0.004)",
+            "from": 9.996,
+            "to": 10.004
+          },
+          {
+            "f": "(q11)*(1-abs(x-(11))/0.004)",
+            "from": 10.996,
+            "to": 11.004
+          },
+          {
+            "f": "(q12)*(1-abs(x-(12))/0.004)",
+            "from": 11.996,
+            "to": 12.004
+          },
+          {
+            "f": "(q13)*(1-abs(x-(13))/0.004)",
+            "from": 12.996,
+            "to": 13.004
+          },
+          {
+            "f": "(q14)*(1-abs(x-(14))/0.004)",
+            "from": 13.996,
+            "to": 14.004
+          },
+          {
+            "f": "(q15)*(1-abs(x-(15))/0.004)",
+            "from": 14.996,
+            "to": 15.004
+          },
+          {
+            "f": "(q16)*(1-abs(x-(16))/0.004)",
+            "from": 15.996,
+            "to": 16.004
+          },
+          {
+            "f": "(q17)*(1-abs(x-(17))/0.004)",
+            "from": 16.996,
+            "to": 17.004
+          },
+          {
+            "f": "(q18)*(1-abs(x-(18))/0.004)",
+            "from": 17.996,
+            "to": 18.004
+          },
+          {
+            "f": "(q19)*(1-abs(x-(19))/0.004)",
+            "from": 18.996,
+            "to": 19.004
+          },
+          {
+            "f": "(q20)*(1-abs(x-(20))/0.004)",
+            "from": 19.996,
+            "to": 20.004
+          }
+        ],
+        "points": [
+          {
+            "x": 0,
+            "y": "q0",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 0,
+            "y": "al^(0+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 1,
+            "y": "q1",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 1,
+            "y": "al^(1+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 2,
+            "y": "q2",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 2,
+            "y": "al^(2+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 3,
+            "y": "q3",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 3,
+            "y": "al^(3+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 4,
+            "y": "q4",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 4,
+            "y": "al^(4+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 5,
+            "y": "q5",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 5,
+            "y": "al^(5+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 6,
+            "y": "q6",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 6,
+            "y": "al^(6+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 7,
+            "y": "q7",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 7,
+            "y": "al^(7+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 8,
+            "y": "q8",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 8,
+            "y": "al^(8+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 9,
+            "y": "q9",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 9,
+            "y": "al^(9+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 10,
+            "y": "q10",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 10,
+            "y": "al^(10+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 11,
+            "y": "q11",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 11,
+            "y": "al^(11+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 12,
+            "y": "q12",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 12,
+            "y": "al^(12+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 13,
+            "y": "q13",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 13,
+            "y": "al^(13+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 14,
+            "y": "q14",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 14,
+            "y": "al^(14+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 15,
+            "y": "q15",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 15,
+            "y": "al^(15+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 16,
+            "y": "q16",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 16,
+            "y": "al^(16+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 17,
+            "y": "q17",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 17,
+            "y": "al^(17+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 18,
+            "y": "q18",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 18,
+            "y": "al^(18+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 19,
+            "y": "q19",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 19,
+            "y": "al^(19+1)*y0",
+            "guides": false,
+            "color": "grey"
+          },
+          {
+            "x": 20,
+            "y": "q20",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": 20,
+            "y": "al^(20+1)*y0",
+            "guides": false,
+            "color": "grey"
+          }
+        ],
+        "hlines": [
+          {
+            "y": "1/(2*(1 - abs(al)))",
+            "label": "deadband",
+            "color": "orange"
+          },
+          {
+            "y": "-1/(2*(1 - abs(al)))",
+            "color": "orange"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Worked example: noise in a first-order section",
+      "body": "$y[n] = 0.9\\,y[n-1] + s\\,x[n]$ in Q15 ($B = 15$), $|x| \\le 1$. Overflow: $\\sum|h| = 1/(1 - 0.9) = 10$, so $s = 0.1$, which costs 20 dB of signal. Round-off: $\\sigma_e^2 = 2^{-30}/12 = 7.8 \\times 10^{-11}$, and the noise gain $1/(1 - 0.81)$ = 5.3 raises it to $4.1 \\times 10^{-10}$ (−94 dB). For a white input uniform on $[-1, 1]$ ($\\sigma_x^2 = 1/3$) the output signal power is $0.01 \\cdot \\frac{1}{3} \\cdot 5.3$ = 0.0175, so the SNR is about 76 dB, against 96 dB if no scaling were needed ($s = 1$).",
+      "formula": "\\mathrm{SNR} = \\frac{s^2\\sigma_x^2}{\\sigma_e^2} = 4 \\cdot 2^{2B}(1 - |a|)^2"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dsp-wordlength-1",
+      "title": "Fixed-point numbers and coefficients",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Q15 numbers",
+          "body": "A 16-bit Q15 word is a two's-complement integer $c$ that stands for $x = c/2^{15}$. The range is $-1 \\ldots 1 - 2^{-15}$, the step $2^{-15} \\approx 3.05 \\times 10^{-5}$. Negative numbers are stored as $2^{16} + c$, so their top bit is 1.",
+          "formula": "c = \\mathrm{round}(x \\cdot 2^{15}), \\qquad x = c/2^{15}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "x": [
+              0.5,
+              0.25,
+              -0.75,
+              0.3,
+              -0.1,
+              0.9
+            ]
+          },
+          "prompt": "Which signed integer $c$ stores $x$ = {{x}} in Q15 (rounding to the nearest value)?",
+          "answer": "round(x*32768)",
+          "unit": "",
+          "tolerance": 1e-05,
+          "absTolerance": 0.5,
+          "explanation": "$c = \\mathrm{round}(x \\cdot 2^{15})$ = round({{x}} × 32768) = round({{x*32768||6}}) = {{round(x*32768)||6}}. The stored value is {{round(x*32768)||6}} / 32768 = {{round(x*32768)/32768||6}}: the rounding error is at most $2^{-16}$."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "x": [
+              -0.25,
+              -0.75,
+              -0.375,
+              -0.125,
+              -0.625
+            ]
+          },
+          "derived": {
+            "c": "abs(x)*32768"
+          },
+          "prompt": "Which 16-bit word stores $x$ = {{x}} in Q15 (two's complement)?",
+          "options": [
+            "0x{{65536 - c|hex|4}}",
+            "0x{{32768 + c|hex|4}}",
+            "0x{{65535 - c|hex|4}}",
+            "0x{{c|hex|4}}"
+          ],
+          "answer": 0,
+          "explanation": "$|x| \\cdot 2^{15}$ = {{c||5}} = 0x{{c|hex|4}}. Two's complement stores the negative value as $2^{16} - $ {{c||5}} = {{65536-c||5}} = 0x{{65536 - c|hex|4}}. The other options are sign-magnitude (0x8000 + magnitude), one's complement (all bits inverted) and the positive value."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "w": [
+              8192,
+              57344,
+              24576,
+              36864,
+              63488,
+              6144,
+              40960
+            ]
+          },
+          "prompt": "A Q15 register holds the word 0x{{w|hex|4}}. Which value does it represent?",
+          "answer": "if(w - 32767.5, (w - 65536)/32768, w/32768)",
+          "unit": "",
+          "absTolerance": 0.0001,
+          "explanation": "0x{{w|hex|4}} = {{w||5}}. If the top bit is set (≥ 32768) the integer is negative: subtract 65536. The integer is {{if(w - 32767.5, w - 65536, w)||5}}, so $x$ = {{if(w - 32767.5, w - 65536, w)||5}} / 32768 = {{if(w - 32767.5, (w - 65536)/32768, w/32768)||4}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Quantized coefficients move the poles",
+          "body": "Filter coefficients are rounded to the word length too, so the realized filter differs from the design. A second-order section $1 - a_1z^{-1} - a_2z^{-2}$ with poles $re^{\\pm j\\theta}$ has $a_2 = -r^2$: rounding $a_2$ directly changes the pole radius.",
+          "formula": "r_q = \\sqrt{-Q[a_2]}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.95,
+              0.98,
+              0.99
+            ],
+            "B": [
+              3,
+              4,
+              5
+            ]
+          },
+          "require": "min(abs(r^2*2^B - floor(r^2*2^B) - 0.5) - 0.05, abs(sqrt(round(r^2*2^B)/2^B) - r)/r - 0.002)",
+          "prompt": "A second-order section is designed with poles of radius $r$ = {{r}}. Its coefficient $a_2 = -r^2$ is rounded to {{B}} fraction bits. What is the radius of the realized poles?",
+          "answer": "sqrt(round(r^2*2^B)/2^B)",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "$r^2$ = {{r^2||4}}; on a grid of $2^{-{{B}}}$: {{r^2}} × {{2^B}} = {{r^2*2^B||4}} → {{round(r^2*2^B)}}, so $-a_2$ = {{round(r^2*2^B)}} / {{2^B}} = {{round(r^2*2^B)/2^B||4}} and $r_q$ = {{sqrt(round(r^2*2^B)/2^B)||4}}. Close to the unit circle a small coefficient error matters: a radius of 1 would mean a marginally stable filter."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Quantizing the coefficients of an FIR filter can make it unstable.",
+          "answer": false,
+          "explanation": "An FIR filter has no feedback and all its poles at $z = 0$, whatever its coefficients. Quantization moves its zeros (and changes the frequency response, possibly destroying the stop band), but it stays stable. It even keeps exact linear phase if the coefficients stay symmetric."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Nn": [
+              2,
+              4,
+              8
+            ],
+            "Bt": [
+              8,
+              12,
+              16
+            ]
+          },
+          "prompt": "An order-{{Nn}} denominator has all its poles at $z = 0.9$: $(z - 0.9)^{ {{Nn}} }$. Rounding changes its constant coefficient by $\\varepsilon = 2^{-{{Bt}}}$. How far do the poles move?",
+          "answer": "2^(-Bt/Nn)",
+          "unit": "",
+          "explanation": "$(z - 0.9)^{ {{Nn}} } + \\varepsilon = 0$ gives $|z - 0.9| = \\varepsilon^{1/{{Nn}}} = 2^{-{{Bt}}/{{Nn}}}$ = {{2^(-Bt/Nn)||3}}. A multiple root reacts to a coefficient error with its $N$th root: the higher the order, the worse. That is why high-order filters are built from second-order sections."
+        }
+      ]
+    },
+    {
+      "id": "dsp-wordlength-2",
+      "title": "Round-off noise and scaling",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Each rounding adds noise",
+          "body": "A product of two numbers with $B$ fraction bits has $2B$; rounding it back to $B$ bits adds an error of at most half a step. As for an A/D converter, it is modelled as white noise, uniform over one step $\\Delta = 2^{-B}$.",
+          "formula": "\\sigma_e^2 = \\frac{\\Delta^2}{12} = \\frac{2^{-2B}}{12}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "B": [
+              7,
+              11,
+              15,
+              23,
+              31
+            ]
+          },
+          "prompt": "Products are rounded to {{B}} fraction bits. Express the noise power $\\sigma_e^2$ of one rounding in dB (relative to 1, i.e. full scale).",
+          "answer": "10*log10(2^(-2*B)/12)",
+          "unit": "dB",
+          "explanation": "$\\sigma_e^2 = 2^{-2 \\cdot {{B}}}/12$; in dB: $-6.02 \\cdot {{B}} - 10.8$ = {{10*log10(2^(-2*B)/12)|dB}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Noise through the filter",
+          "body": "Each noise source reaches the output through the impulse response $h_{ef}[n]$ from its adder to the output, and white noise is amplified by $\\sum h_{ef}^2[n]$. In $y[n] = ay[n-1] + x[n]$ the rounded product $ay[n-1]$ enters with the input, so $h_{ef}[n] = a^nu[n]$.",
+          "formula": "\\sigma_f^2 = \\sigma_e^2\\sum_n h_{ef}^2[n] = \\frac{\\sigma_e^2}{1 - a^2}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.9,
+              0.95,
+              0.99,
+              -0.9
+            ]
+          },
+          "prompt": "By how many dB does $y[n] = {{a}}\\,y[n-1] + x[n]$ amplify the round-off noise of its multiplication?",
+          "answer": "10*log10(1/(1 - a^2))",
+          "unit": "dB",
+          "explanation": "$\\sum_n a^{2n} = \\frac{1}{1 - a^2}$ = 1 / (1 − {{a^2}}) = {{1/(1-a^2)||3}}, i.e. {{10*log10(1/(1-a^2))|dB}}. The closer the pole to the unit circle, the longer each error keeps circulating."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.8,
+              0.9,
+              0.95
+            ],
+            "k": [
+              3,
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "th": "pi/k",
+            "G": "(1 + r^2)/((1 - r^2)*(1 - 2*r^2*cos(2*pi/k) + r^4))"
+          },
+          "prompt": "A direct form I second-order section with poles at {{r}}$e^{\\pm j\\pi/{{k}}}$ rounds all 5 products, and all 5 errors enter at the adder in front of $1/A(z)$, whose noise gain is $\\sum h^2 = \\frac{1 + r^2}{(1 - r^2)(1 - 2r^2\\cos 2\\theta + r^4)}$. By how many dB is the output noise above $\\sigma_e^2$?",
+          "answer": "10*log10(5*G)",
+          "unit": "dB",
+          "explanation": "Noise gain: (1 + {{r^2}}) / ((1 − {{r^2}})(1 − 2 × {{r^2}} × {{cos(2*pi/k)||3}} + {{r^4||3}})) = {{G||4}}. Five independent sources: $\\sigma_f^2 = 5 \\cdot$ {{G||4}} $\\sigma_e^2$ = {{5*G||4}} $\\sigma_e^2$, or {{10*log10(5*G)|dB}}. A double-length accumulator, rounding once after the sum, would save {{10*log10(5)|dB}} of that."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Overflow and scaling",
+          "body": "Two's-complement sums wrap around on overflow, a large error. To be safe, scale the input so no node can exceed full scale. For $|x| \\le 1$ the value at a node with impulse response $h_k[n]$ from the input never exceeds $\\sum|h_k[n]|$.",
+          "formula": "s = \\frac{1}{\\sum_n |h_k[n]|}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9,
+              0.95,
+              -0.9
+            ]
+          },
+          "prompt": "$y[n] = {{a}}\\,y[n-1] + s\\,x[n]$ with $|x[n]| \\le 1$ must never overflow.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "Find the largest safe scale factor $s$ (absolute bound).",
+              "answer": "1 - abs(a)",
+              "explanation": "$h[n] = a^n$, so $\\sum|h[n]| = \\frac{1}{1 - |a|}$ = {{1/(1-abs(a))||3}} and $s = 1 - |a|$ = {{1-abs(a)}}. (A constant input of full scale with $a > 0$, or an alternating one with $a < 0$, really does reach the bound.)"
+            },
+            {
+              "prompt": "How many dB of SNR does this scaling cost?",
+              "answer": "20*log10(1/(1 - abs(a)))",
+              "unit": "dB",
+              "explanation": "$s$ = {{1-abs(a)}} lowers the signal by $20\\log_{10}(1/s)$ = {{20*log10(1/(1-abs(a)))|dB}}, while the round-off noise stays the same. Each 6 dB lost is one bit of effective resolution."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "In Q15 two's-complement arithmetic, what is the result of 0.75 + 0.5 when the sum overflows (no saturation)?",
+          "options": [
+            "−0.75",
+            "1.25",
+            "0.99997 (largest value)",
+            "0.25"
+          ],
+          "answer": 0,
+          "explanation": "The true sum 1.25 is outside $[-1, 1)$. Two's-complement addition is modulo 2: 1.25 − 2 = −0.75 (0x6000 + 0x4000 = 0xA000). Saturation arithmetic would give the largest value 0x7FFF instead, a far smaller error."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "In two's-complement arithmetic, intermediate overflows while adding up the terms of a sum do no harm, as long as the final result is within range.",
+          "answer": true,
+          "explanation": "Two's-complement addition is exact modulo 2. Wrapping around and wrapping back cancel, so if the final sum lies in $[-1, 1)$ it is correct. Only the result that is stored, or that goes into a nonlinear operation such as a saturation or a multiplication, must not overflow."
+        }
+      ]
+    },
+    {
+      "id": "dsp-wordlength-3",
+      "title": "Limit cycles and sensitivity",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.6,
+              0.8,
+              0.85,
+              0.93,
+              -0.7,
+              -0.8,
+              -0.85
+            ]
+          },
+          "prompt": "$y[n] = Q[{{a}}\\,y[n-1]]$ with rounding to steps $\\Delta$ and zero input. What is the largest possible limit-cycle amplitude, as a multiple of $\\Delta$?",
+          "answer": "floor(1/(2*(1 - abs(a))))",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "The output is stuck once rounding gives back the same magnitude: $|ay| \\ge |y| - \\Delta/2$, i.e. $|y| \\le \\frac{\\Delta}{2(1 - |a|)}$ = {{1/(2*(1-abs(a)))||3}} $\\Delta$. Only multiples of $\\Delta$ exist, so the largest is {{floor(1/(2*(1-abs(a))))}}$\\Delta$: a constant output for $a > 0$, alternating in sign for $a < 0$."
+        },
+        {
+          "id": "q2",
+          "type": "slider",
+          "params": {
+            "K": [
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "aex": "if(1.5 - K, 0.6, if(2.5 - K, 0.8, 0.85))"
+          },
+          "prompt": "The response starts at $y[-1] = 12\\Delta$ with zero input and rounding. Set $a$ (between 0 and 0.95) so that the output gets stuck at {{K}}$\\Delta$.",
+          "plot": {
+            "x": {
+              "min": -0.5,
+              "max": 20.5,
+              "label": "n"
+            },
+            "y": {
+              "min": -12.5,
+              "max": 12.5,
+              "label": "y[n] / Δ"
+            },
+            "sliders": [
+              {
+                "name": "al",
+                "label": "coefficient $a$",
+                "min": 0,
+                "max": 0.95,
+                "step": 0.01,
+                "value": 0.3
+              }
+            ],
+            "let": {
+              "y0": "12",
+              "q0": "round(al*y0)",
+              "q1": "round(al*q0)",
+              "q2": "round(al*q1)",
+              "q3": "round(al*q2)",
+              "q4": "round(al*q3)",
+              "q5": "round(al*q4)",
+              "q6": "round(al*q5)",
+              "q7": "round(al*q6)",
+              "q8": "round(al*q7)",
+              "q9": "round(al*q8)",
+              "q10": "round(al*q9)",
+              "q11": "round(al*q10)",
+              "q12": "round(al*q11)",
+              "q13": "round(al*q12)",
+              "q14": "round(al*q13)",
+              "q15": "round(al*q14)",
+              "q16": "round(al*q15)",
+              "q17": "round(al*q16)",
+              "q18": "round(al*q17)",
+              "q19": "round(al*q18)",
+              "q20": "round(al*q19)"
+            },
+            "curves": [
+              {
+                "f": "(q0)*(1-abs(x-(0))/0.004)",
+                "from": -0.004,
+                "to": 0.004
+              },
+              {
+                "f": "(q1)*(1-abs(x-(1))/0.004)",
+                "from": 0.996,
+                "to": 1.004
+              },
+              {
+                "f": "(q2)*(1-abs(x-(2))/0.004)",
+                "from": 1.996,
+                "to": 2.004
+              },
+              {
+                "f": "(q3)*(1-abs(x-(3))/0.004)",
+                "from": 2.996,
+                "to": 3.004
+              },
+              {
+                "f": "(q4)*(1-abs(x-(4))/0.004)",
+                "from": 3.996,
+                "to": 4.004
+              },
+              {
+                "f": "(q5)*(1-abs(x-(5))/0.004)",
+                "from": 4.996,
+                "to": 5.004
+              },
+              {
+                "f": "(q6)*(1-abs(x-(6))/0.004)",
+                "from": 5.996,
+                "to": 6.004
+              },
+              {
+                "f": "(q7)*(1-abs(x-(7))/0.004)",
+                "from": 6.996,
+                "to": 7.004
+              },
+              {
+                "f": "(q8)*(1-abs(x-(8))/0.004)",
+                "from": 7.996,
+                "to": 8.004
+              },
+              {
+                "f": "(q9)*(1-abs(x-(9))/0.004)",
+                "from": 8.996,
+                "to": 9.004
+              },
+              {
+                "f": "(q10)*(1-abs(x-(10))/0.004)",
+                "from": 9.996,
+                "to": 10.004
+              },
+              {
+                "f": "(q11)*(1-abs(x-(11))/0.004)",
+                "from": 10.996,
+                "to": 11.004
+              },
+              {
+                "f": "(q12)*(1-abs(x-(12))/0.004)",
+                "from": 11.996,
+                "to": 12.004
+              },
+              {
+                "f": "(q13)*(1-abs(x-(13))/0.004)",
+                "from": 12.996,
+                "to": 13.004
+              },
+              {
+                "f": "(q14)*(1-abs(x-(14))/0.004)",
+                "from": 13.996,
+                "to": 14.004
+              },
+              {
+                "f": "(q15)*(1-abs(x-(15))/0.004)",
+                "from": 14.996,
+                "to": 15.004
+              },
+              {
+                "f": "(q16)*(1-abs(x-(16))/0.004)",
+                "from": 15.996,
+                "to": 16.004
+              },
+              {
+                "f": "(q17)*(1-abs(x-(17))/0.004)",
+                "from": 16.996,
+                "to": 17.004
+              },
+              {
+                "f": "(q18)*(1-abs(x-(18))/0.004)",
+                "from": 17.996,
+                "to": 18.004
+              },
+              {
+                "f": "(q19)*(1-abs(x-(19))/0.004)",
+                "from": 18.996,
+                "to": 19.004
+              },
+              {
+                "f": "(q20)*(1-abs(x-(20))/0.004)",
+                "from": 19.996,
+                "to": 20.004
+              }
+            ],
+            "points": [
+              {
+                "x": 0,
+                "y": "q0",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 0,
+                "y": "al^(0+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 1,
+                "y": "q1",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 1,
+                "y": "al^(1+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 2,
+                "y": "q2",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 2,
+                "y": "al^(2+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 3,
+                "y": "q3",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 3,
+                "y": "al^(3+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 4,
+                "y": "q4",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 4,
+                "y": "al^(4+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 5,
+                "y": "q5",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 5,
+                "y": "al^(5+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 6,
+                "y": "q6",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 6,
+                "y": "al^(6+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 7,
+                "y": "q7",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 7,
+                "y": "al^(7+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 8,
+                "y": "q8",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 8,
+                "y": "al^(8+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 9,
+                "y": "q9",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 9,
+                "y": "al^(9+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 10,
+                "y": "q10",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 10,
+                "y": "al^(10+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 11,
+                "y": "q11",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 11,
+                "y": "al^(11+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 12,
+                "y": "q12",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 12,
+                "y": "al^(12+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 13,
+                "y": "q13",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 13,
+                "y": "al^(13+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 14,
+                "y": "q14",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 14,
+                "y": "al^(14+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 15,
+                "y": "q15",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 15,
+                "y": "al^(15+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 16,
+                "y": "q16",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 16,
+                "y": "al^(16+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 17,
+                "y": "q17",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 17,
+                "y": "al^(17+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 18,
+                "y": "q18",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 18,
+                "y": "al^(18+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 19,
+                "y": "q19",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 19,
+                "y": "al^(19+1)*y0",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": 20,
+                "y": "q20",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": 20,
+                "y": "al^(20+1)*y0",
+                "guides": false,
+                "color": "grey"
+              }
+            ]
+          },
+          "check": "0.5 - abs(q20 - K) - abs(q19 - K)",
+          "solution": "$1 - \\frac{1}{2K} \\le a < 1 - \\frac{1}{2K+2}$, e.g. $a$ = {{aex}}",
+          "explanation": "Stuck at $K\\Delta$ means $K$ lies in the deadband, $K \\le \\frac{1}{2(1 - a)}$, so $a \\ge 1 - \\frac{1}{2K}$ = {{1 - 1/(2*K)||3}}; but $K + 1$ must not, or the decay would stop earlier: $a < 1 - \\frac{1}{2(K+1)}$ = {{1 - 1/(2*K+2)||3}}. For example $a$ = {{aex}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.9,
+              0.95,
+              0.99
+            ],
+            "k": [
+              4,
+              6,
+              12
+            ]
+          },
+          "derived": {
+            "G": "(1 + r^2)/((1 - r^2)*(1 - 2*r^2*cos(2*pi/k) + r^4))"
+          },
+          "prompt": "An all-pole section $1/(1 - 2r\\cos\\theta\\,z^{-1} + r^2z^{-2})$ with $r$ = {{r}}, $\\theta = \\pi/{{k}}$ amplifies white noise at its input by $\\sum h^2 = \\frac{1 + r^2}{(1 - r^2)(1 - 2r^2\\cos 2\\theta + r^4)}$. Find this noise gain in dB.",
+          "answer": "10*log10(G)",
+          "unit": "dB",
+          "explanation": "$\\cos 2\\theta$ = {{cos(2*pi/k)||4}}: (1 + {{r^2||4}}) / ((1 − {{r^2||4}}) × (1 − 2 × {{r^2||4}} × {{cos(2*pi/k)||4}} + {{r^4||4}})) = {{G||4}}, i.e. {{10*log10(G)|dB}}. Narrow-band sections (poles near the circle and near $z = 1$) are the noisiest."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "A narrow-band low-pass needs poles close to $z = 1$. Which second-order structure offers the densest set of realizable pole positions there?",
+          "options": [
+            "Coupled form, with coefficients $r\\cos\\theta$ and $r\\sin\\theta$",
+            "Direct form, with coefficients $2r\\cos\\theta$ and $-r^2$",
+            "They are the same: only the word length matters",
+            "Neither: pole positions are not affected by quantization"
+          ],
+          "answer": 0,
+          "explanation": "In the direct form, quantizing $r^2$ and $r\\cos\\theta$ leaves very few pole positions at small angles near the real axis (see the study card). The coupled form quantizes the real and imaginary parts directly, giving a uniform grid everywhere, at the price of four multipliers instead of two for the poles."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9,
+              0.95
+            ]
+          },
+          "prompt": "$y[n] = {{a}}\\,y[n-1] + s\\,x[n]$. Compare two scaling rules for the input scale factor $s$.",
+          "unit": "",
+          "ask": [
+            {
+              "prompt": "Find $s$ from the absolute bound $s = 1/\\sum|h|$ (never overflows for $|x| \\le 1$).",
+              "answer": "1 - abs(a)",
+              "explanation": "$\\sum|h| = 1/(1 - |a|)$, so $s$ = {{1-abs(a)}}."
+            },
+            {
+              "prompt": "Find $s$ from the energy (L2) rule $s = 1/\\sqrt{\\sum h^2}$, which only limits the output power for random signals.",
+              "answer": "sqrt(1 - a^2)",
+              "explanation": "$\\sum h^2 = 1/(1 - a^2)$, so $s = \\sqrt{1 - a^2}$ = {{sqrt(1-a^2)||3}}, larger than the safe {{1-abs(a)}}: {{20*log10(sqrt(1-a^2)/(1-abs(a)))|dB}} more signal, at the risk of occasional overflow (use saturation then)."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each finite word-length effect to a remedy.",
+          "pairs": [
+            [
+              "Overflow",
+              "scaling and saturation arithmetic"
+            ],
+            [
+              "Zero-input limit cycles",
+              "rounding towards zero (magnitude truncation)"
+            ],
+            [
+              "Pole sensitivity of high orders",
+              "cascade of second-order sections"
+            ],
+            [
+              "Round-off noise of many products",
+              "double-length accumulator"
+            ]
+          ],
+          "explanation": "Scaling keeps nodes in range, saturation limits the damage when they are not. Truncating magnitudes makes the loop lose energy, which suppresses limit cycles. Second-order sections confine each pole pair to two coefficients. Keeping exact products in a wide accumulator and rounding once replaces many noise sources by one."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Saturation arithmetic prevents the large-amplitude overflow oscillations that two's-complement wrap-around can cause in recursive filters.",
+          "answer": true,
+          "explanation": "With wrap-around, an overflow throws a large error back into the loop, which can keep the filter oscillating at full scale even with zero input. Saturation keeps the error small and of the 'right' sign, and for second-order sections it is known to remove these overflow oscillations. Small rounding limit cycles can remain."
+        }
+      ]
+    },
+    {
+      "id": "dsp-wordlength-4",
+      "title": "Word-length workout",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "B": [
+              11,
+              15
+            ],
+            "a": [
+              0.5,
+              0.9,
+              0.99
+            ]
+          },
+          "prompt": "$y[n] = {{a}}\\,y[n-1] + s\\,x[n]$ with {{B}} fraction bits. The input is white and uniform on $[-1, 1]$ ($\\sigma_x^2 = 1/3$) and $s = 1 - |a|$ prevents overflow. Assume the scaling is exact and only the product ${{a}}\\,y[n-1]$ is rounded. Find the output SNR.",
+          "answer": "10*log10(4*2^(2*B)*(1 - abs(a))^2)",
+          "unit": "dB",
+          "explanation": "Both signal and noise see the same gain $1/(1 - a^2)$, which cancels: SNR = $\\frac{s^2\\sigma_x^2}{\\sigma_e^2} = \\frac{(1 - |a|)^2/3}{2^{-2B}/12} = 4 \\cdot 2^{2B}(1 - |a|)^2$. In dB: 6.02 + 6.02 × {{B}} + 20 log₁₀ {{1-abs(a)}} = {{10*log10(4*2^(2*B)*(1 - abs(a))^2)|dB}}."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "S": [
+              60,
+              80,
+              90
+            ],
+            "a": [
+              0.9,
+              0.99,
+              0.999
+            ]
+          },
+          "derived": {
+            "B0": "(S - 6.02 - 20*log10(1 - a))/6.02"
+          },
+          "require": "min(B0 - floor(B0), ceil(B0) - B0) - 0.05",
+          "prompt": "Same first-order filter and assumptions as before, with $a$ = {{a}}. How many fraction bits $B$ are needed for an output SNR of at least {{S}} dB?",
+          "answer": "ceil(B0)",
+          "unit": "bits",
+          "tolerance": 0.001,
+          "explanation": "SNR = $6.02 + 6.02B + 20\\log_{10}(1 - a) \\ge$ {{S}}, with $20\\log_{10}$ {{1-a}} = {{20*log10(1-a)||3}} dB: $B \\ge$ ({{S}} − 6.02 + {{-20*log10(1-a)||3}}) / 6.02 = {{B0||3}}, so $B$ = {{ceil(B0)}}. Every factor 10 closer to the unit circle costs 20 dB, more than 3 bits."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.9,
+              0.95
+            ],
+            "thd": [
+              20,
+              30,
+              45
+            ],
+            "B": [
+              3,
+              4,
+              5
+            ]
+          },
+          "derived": {
+            "a1": "2*r*cos(thd*pi/180)",
+            "q1": "round(2*r*cos(thd*pi/180)*2^B)/2^B",
+            "rq": "sqrt(round(r^2*2^B)/2^B)",
+            "thq": "acos(q1/(2*rq))*180/pi"
+          },
+          "require": "min(min(abs(r^2*2^B - floor(r^2*2^B) - 0.5), abs(2*r*cos(thd*pi/180)*2^B - floor(2*r*cos(thd*pi/180)*2^B) - 0.5)) - 0.05, abs(thq - thd) - 0.25)",
+          "prompt": "A second-order section is designed with poles at {{r}}$e^{\\pm j{{thd}}°}$. Both coefficients $a_1 = 2r\\cos\\theta$ and $a_2 = -r^2$ are rounded to {{B}} fraction bits.",
+          "ask": [
+            {
+              "prompt": "Find the realized pole radius.",
+              "answer": "rq",
+              "unit": "",
+              "tolerance": 0.0005,
+              "explanation": "$r^2$ = {{r^2||4}}, and {{r^2||4}} × {{2^B}} = {{r^2*2^B||4}} rounds to {{round(r^2*2^B)}}: $-a_2$ becomes {{round(r^2*2^B)}} / {{2^B}}, so $r_q$ = {{rq||4}}."
+            },
+            {
+              "prompt": "Find the realized pole angle in degrees.",
+              "answer": "thq",
+              "unit": "°",
+              "absTolerance": 0.1,
+              "explanation": "$a_1$ = {{a1||4}} rounds to {{round(a1*2^B)}} / {{2^B}} = {{q1||4}}, and $r_q$ = {{rq||4}}. $\\cos\\theta_q = a_{1q}/(2r_q)$ = {{q1/(2*rq)||4}}, so $\\theta_q$ = {{thq|°}} instead of {{thd}}°.",
+              "tolerance": 0.003
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "K": [
+              3,
+              5,
+              9,
+              17
+            ]
+          },
+          "prompt": "An adder sums {{K}} products. Instead of rounding each product to the word length, the exact products are summed in a double-length accumulator and the sum is rounded once. By how many dB does the round-off noise at this node drop?",
+          "answer": "10*log10(K)",
+          "unit": "dB",
+          "explanation": "{{K}} independent roundings add {{K}}$\\sigma_e^2$; a single rounding adds $\\sigma_e^2$. The improvement is $10\\log_{10}$ {{K}} = {{10*log10(K)|dB}}. This is why DSP processors have wide accumulators (e.g. 40 bits for 16-bit data)."
+        },
+        {
+          "id": "c5",
+          "type": "trueFalse",
+          "prompt": "In a cascade of second-order sections, the order of the sections affects the output round-off noise but not the transfer function.",
+          "answer": true,
+          "explanation": "Multiplication of the section transfer functions commutes, so $H(z)$ is the same for any order. The noise injected in section $k$, however, passes only through the sections after it, so the order (and the pole-zero pairing) changes the total noise and the scaling. One common choice puts the sections with poles closest to the unit circle last; the best order depends on the scaling rule used."
+        },
+        {
+          "id": "c6",
+          "type": "multipleChoice",
+          "prompt": "A narrow-band low-pass filter designed as one 8th-order direct form becomes unstable when its coefficients are rounded to 16 bits. What is the best fix?",
+          "options": [
+            "Realize it as a cascade of four second-order sections",
+            "Use the transposed direct form of the same 8th-order section",
+            "Scale the input down by a factor 10",
+            "Add dither to the input signal"
+          ],
+          "answer": 0,
+          "explanation": "The instability comes from the extreme sensitivity of clustered roots of an 8th-order polynomial to its coefficients. Transposing keeps the same coefficients, scaling and dither only affect the signal. Splitting into second-order sections makes each pole pair depend on two coefficients only, so 16 bits are plenty."
+        }
+      ]
+    }
+  ]
+}

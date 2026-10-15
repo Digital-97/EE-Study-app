@@ -1,0 +1,1484 @@
+{
+ "id": "ps-fundamentals",
+ "title": "The Grid & Complex Power",
+ "description": "How the grid is built, complex power and the power triangle, power-factor correction and balanced three-phase power solved per phase.",
+ "reference": "Glover ch. 1–2",
+ "study": [
+  {
+   "title": "From power plant to socket",
+   "body": "Large synchronous generators (and, increasingly, wind and solar plants) produce three-phase power at roughly 10–25 kV. Step-up transformers raise it to **transmission** voltages (220–400 kV in Europe, 138–765 kV in North America) for bulk transport over hundreds of kilometres in a meshed grid. Substations step it down to **subtransmission** (about 35–150 kV) and **distribution** feeders (about 4–35 kV), which are usually radial. Distribution transformers finally supply 230/400 V (Europe) or 120/240 V (North America).",
+   "circuit": {
+    "elements": [
+     {
+      "type": "generator",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "transformer",
+      "at": [
+       2,
+       1
+      ]
+     },
+     {
+      "type": "inductor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ]
+     },
+     {
+      "type": "transformer",
+      "at": [
+       6,
+       1
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        7,
+        0
+       ],
+       [
+        8,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       8,
+       0
+      ],
+      "to": [
+       8,
+       2
+      ],
+      "label": "load"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        1,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        2
+       ],
+       [
+        5,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        7,
+        2
+       ],
+       [
+        8,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "text",
+      "at": [
+       0.5,
+       -0.9
+      ],
+      "label": "20 kV"
+     },
+     {
+      "type": "text",
+      "at": [
+       4,
+       -0.9
+      ],
+      "label": "380 kV line"
+     },
+     {
+      "type": "text",
+      "at": [
+       7.5,
+       -0.9
+      ],
+      "label": "10 kV"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Why transmit at high voltage?",
+   "body": "For a given apparent power the line current is $I_L = S/(\\sqrt3V_{LL})$, so the $I^2R$ loss in the three conductors falls with the **square** of the voltage. Doubling the voltage quarters the loss, and also the voltage drop in per cent. The price: larger clearances, taller towers and more expensive transformers and breakers.",
+   "formula": "P_{loss} = 3I_L^2R = \\frac{S^2R}{V_{LL}^2}"
+  },
+  {
+   "title": "Complex power",
+   "body": "Power-system work uses **rms** phasors, so no factor ½ appears. With $\\mathbf V = V\\angle\\delta$ across a load and $\\mathbf I = I\\angle\\beta$ into it, the complex power absorbed is $\\mathbf S = \\mathbf V\\mathbf I^*$. Its real part is the average power $P$ (W), its imaginary part the reactive power $Q$ (var), and $|\\mathbf S|$ the apparent power (VA). The angle $\\theta = \\delta - \\beta$ is the load impedance angle: an inductive load (current lagging) **absorbs** $Q > 0$, a capacitive load absorbs $Q < 0$, i.e. it **supplies** reactive power.",
+   "formula": "\\mathbf S = \\mathbf V\\mathbf I^* = VI\\angle(\\delta - \\beta) = P + jQ"
+  },
+  {
+   "title": "Power triangle and power factor",
+   "body": "$P$, $Q$ and $|\\mathbf S|$ form a right triangle with angle $\\theta$. The power factor $\\cos\\theta = P/|\\mathbf S|$ is **lagging** when $Q > 0$ and **leading** when $Q < 0$. Lines and transformers must carry the apparent power, so a low power factor costs current, losses and voltage drop without delivering more real power.",
+   "formula": "\\text{pf} = \\cos\\theta = \\frac{P}{|\\mathbf S|},\\qquad Q = P\\tan\\theta"
+  },
+  {
+   "title": "Explore: power-factor correction",
+   "body": "A load absorbs 10 MW at pf 0.75 lagging (grey triangle). A shunt capacitor bank supplies $Q_C$ locally, so the network only delivers $Q - Q_C$: $P$ is unchanged, but $|\\mathbf S|$ and the line current fall. Drag $Q_C$ and watch the network's $\\mathbf S$ rotate towards the $P$ axis. A three-phase wye bank that supplies $Q_C$ at line voltage $V_{LL}$ needs $C = Q_C/(\\omega V_{LL}^2)$ per phase; a delta bank needs a third of that.",
+   "formula": "Q_C = P(\\tan\\theta_{old} - \\tan\\theta_{new})",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 12000000.0,
+     "label": "P",
+     "unit": "W"
+    },
+    "y": {
+     "min": -1000000.0,
+     "max": 10000000.0,
+     "label": "Q",
+     "unit": "var"
+    },
+    "equal": true,
+    "height": 250,
+    "sliders": [
+     {
+      "name": "Qc",
+      "label": "$Q_C$",
+      "min": 0,
+      "max": 8800000.0,
+      "step": 100000.0,
+      "value": 0,
+      "unit": "var"
+     }
+    ],
+    "let": {
+     "Ql": "10e6*tan(acos(0.75))",
+     "Qn": "Ql - Qc"
+    },
+    "curves": [
+     {
+      "x": "10e6*t",
+      "y": "0",
+      "t": [
+       0,
+       1
+      ],
+      "color": "blue"
+     },
+     {
+      "x": "10e6*t",
+      "y": "Ql*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "grey",
+      "dash": true
+     },
+     {
+      "x": "10e6",
+      "y": "Ql*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "grey",
+      "dash": true
+     },
+     {
+      "x": "10e6",
+      "y": "Ql - Qc*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "purple"
+     },
+     {
+      "x": "10e6*t",
+      "y": "Qn*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "primary"
+     }
+    ],
+    "labels": [
+     {
+      "x": 4200000.0,
+      "y": -600000.0,
+      "text": "P = 10 MW",
+      "color": "blue"
+     },
+     {
+      "x": 10300000.0,
+      "y": "Ql - Qc/2",
+      "text": "Q_C",
+      "color": "purple"
+     },
+     {
+      "x": 1200000.0,
+      "y": "0.12*Ql + 1.2e6",
+      "text": "S_{load}",
+      "color": "grey"
+     },
+     {
+      "x": 6500000.0,
+      "y": "0.65*Qn - 0.9e6",
+      "text": "S_{net}",
+      "color": "green"
+     }
+    ],
+    "readouts": [
+     {
+      "label": "network pf",
+      "value": "10e6/sqrt(1e14 + Qn^2)"
+     },
+     {
+      "label": "$|\\mathbf S|$ from network",
+      "value": "sqrt(1e14 + Qn^2)",
+      "unit": "VA"
+     },
+     {
+      "label": "line current vs. uncorrected",
+      "value": "100*sqrt(1e14 + Qn^2)/sqrt(1e14 + Ql^2)",
+      "unit": "%"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Balanced three-phase power",
+   "body": "In a balanced system the three phase powers are equal, and the total instantaneous power is **constant**. With line-to-line voltage $V_{LL}$ and line current $I_L$ (rms) the three-phase complex power is the same for wye and delta loads; $\\theta$ is the load impedance angle, not the 30° between line and phase voltages. Equipment ratings (MVA, kV) always mean three-phase power and line-to-line voltage.",
+   "formula": "\\mathbf S_{3\\phi} = 3\\mathbf V_{an}\\mathbf I_a^* = \\sqrt3\\,V_{LL}I_L\\angle\\theta"
+  },
+  {
+   "title": "Per-phase analysis",
+   "body": "Replace every Δ by its Y equivalent ($Z_Y = Z_\\Delta/3$, $V_{LN} = V_{LL}/\\sqrt3$), join all neutrals with an ideal wire, and solve **phase a only** with line-to-neutral voltages. Phases b and c are the same, shifted by −120° and +120°. Multiply per-phase powers by 3 and line-to-neutral voltages by $\\sqrt3$.",
+   "formula": "\\mathbf I_a = \\frac{\\mathbf V_{an}}{Z_{line} + Z_Y}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_{an}",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "inductor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "Z_{line}"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        0
+       ],
+       [
+        5,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       5,
+       0
+      ],
+      "to": [
+       5,
+       2
+      ],
+      "label": "Z_Y"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        5,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       3.2,
+       0
+      ],
+      "to": [
+       4.4,
+       0
+      ],
+      "label": "I_a"
+     },
+     {
+      "type": "text",
+      "at": [
+       2.5,
+       2.6
+      ],
+      "label": "neutral n–N"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Worked example: correcting a feeder load",
+   "body": "A 13.8-kV, 60-Hz feeder supplies 5 MW at pf 0.80 lagging.\n- $I_L = P/(\\sqrt3V_{LL}\\,\\text{pf})$ = 5 MW/(1.732 × 13.8 kV × 0.80) = 261 A.\n- $Q = P\\tan\\theta$ = 5 MW × 0.75 = 3.75 Mvar.\n- For pf 0.95: $Q_{new}$ = 5 MW × tan 18.2° = 1.64 Mvar, so the bank supplies $Q_C$ = 2.11 Mvar.\n- New current: 5 MW/(1.732 × 13.8 kV × 0.95) = 220 A, 16 % less; the feeder's $I^2R$ loss falls by 29 %.\n- Wye bank: $C = Q_C/(\\omega V_{LL}^2)$ = 2.11 Mvar/(377 × (13.8 kV)²) = 29.3 µF per phase."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ps-fundamentals-1",
+   "title": "From power plant to plug",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "The grid in one picture",
+     "body": "Electric energy passes four stages:\n- **Generation**: synchronous generators at 10–25 kV, plus wind and solar plants.\n- **Transmission**: a meshed high-voltage grid that carries bulk power over long distances.\n- **Distribution**: substations step down to medium-voltage feeders, usually radial.\n- **Customers**: distribution transformers supply low voltage.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "generator",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "transformer",
+        "at": [
+         2,
+         1
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ]
+       },
+       {
+        "type": "transformer",
+        "at": [
+         6,
+         1
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          7,
+          0
+         ],
+         [
+          8,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         8,
+         0
+        ],
+        "to": [
+         8,
+         2
+        ],
+        "label": "load"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          1,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          2
+         ],
+         [
+          5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          7,
+          2
+         ],
+         [
+          8,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "text",
+        "at": [
+         0.5,
+         -0.9
+        ],
+        "label": "20 kV"
+       },
+       {
+        "type": "text",
+        "at": [
+         4,
+         -0.9
+        ],
+        "label": "380 kV line"
+       },
+       {
+        "type": "text",
+        "at": [
+         7.5,
+         -0.9
+        ],
+        "label": "10 kV"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "orderSteps",
+     "prompt": "Put the path of the energy in order, from the power plant to the customer.",
+     "items": [
+      "Generator (10–25 kV)",
+      "Step-up transformer",
+      "Transmission line (e.g. 380 kV)",
+      "Substation step-down transformer",
+      "Distribution feeder (e.g. 10 kV)",
+      "Distribution transformer to 230/400 V"
+     ],
+     "explanation": "Generators produce medium voltage. It is stepped up for transmission, because the losses fall with the square of the voltage, and stepped down again in stages close to the loads: substation → medium-voltage feeder → distribution transformer → low-voltage service."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Why transmit at high voltage?",
+     "body": "For a fixed apparent power, the line current is $I_L = S/(\\sqrt3V_{LL})$. The $I^2R$ loss in the three conductors (resistance $R$ each) therefore falls with the **square** of the line voltage:",
+     "formula": "P_{loss} = 3I_L^2R = \\frac{S^2R}{V_{LL}^2}"
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "S": [
+       50000000.0,
+       80000000.0,
+       100000000.0,
+       150000000.0
+      ],
+      "V": [
+       138000.0,
+       230000.0
+      ],
+      "R": {
+       "min": 2,
+       "max": 6,
+       "step": 0.5
+      }
+     },
+     "prompt": "A three-phase line with $R$ = {{R}} Ω per phase carries {{S|VA}} at {{V|V}} (line-to-line). Find the total $I^2R$ loss in the line.",
+     "answer": "S^2*R/V^2",
+     "unit": "W",
+     "explanation": "$I_L = S/(\\sqrt3V_{LL})$ = {{S|VA}}/(1.732 × {{V|V}}) = {{S/(sqrt(3)*V)|A}}. $P_{loss} = 3I_L^2R$ = 3 × ({{S/(sqrt(3)*V)}} A)² × {{R}} Ω = {{S^2*R/V^2|W}}, or {{100*S*R/V^2|%}} of the power transported (at unity pf)."
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "params": {
+      "L": [
+       2000000.0,
+       3000000.0,
+       4000000.0,
+       5000000.0
+      ],
+      "V1": [
+       110000.0,
+       132000.0,
+       150000.0
+      ],
+      "V2": [
+       220000.0,
+       380000.0,
+       400000.0
+      ]
+     },
+     "prompt": "A line loses {{L|W}} when it transmits a certain power at {{V1|V}}. The same power is now sent at {{V2|V}} over the same conductors. What is the new loss?",
+     "options": [
+      "{{L*(V1/V2)^2|W}}",
+      "{{L*V1/V2|W}}",
+      "{{L*(V2/V1)^2|W}}",
+      "{{L|W}}"
+     ],
+     "answer": 0,
+     "explanation": "$P_{loss} = S^2R/V_{LL}^2$: with $S$ and $R$ fixed, the loss scales with $(V_1/V_2)^2$ = ({{V1/V2}})² = {{(V1/V2)^2}}. New loss: {{L|W}} × {{(V1/V2)^2}} = {{L*(V1/V2)^2|W}}. Scaling with $V_1/V_2$ only forgets that the current enters squared."
+    },
+    {
+     "id": "q4",
+     "type": "matchPairs",
+     "prompt": "Match each part of the grid to a typical voltage.",
+     "pairs": [
+      [
+       "Generator terminals",
+       "10–25 kV"
+      ],
+      [
+       "Bulk transmission",
+       "220–765 kV"
+      ],
+      [
+       "Medium-voltage feeder",
+       "4–35 kV"
+      ],
+      [
+       "Low-voltage service (Europe)",
+       "230/400 V"
+      ]
+     ],
+     "explanation": "Stator insulation limits generators to about 25 kV. Transmission uses hundreds of kV for low losses over long distances, feeders run at medium voltage through towns, and the last transformer gives the customer voltage."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Complex power",
+     "body": "Power engineers use **rms** phasors, so no ½ appears. For a load with voltage $\\mathbf V = V\\angle\\delta$ and current $\\mathbf I = I\\angle\\beta$ flowing into it, the complex power absorbed is below. $P$ is the average power (W) and $Q$ the reactive power (var). An inductive load, whose current lags, **absorbs** $Q > 0$.",
+     "formula": "\\mathbf S = \\mathbf V\\mathbf I^* = VI\\angle(\\delta - \\beta) = P + jQ"
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "V": [
+       220,
+       230,
+       240
+      ],
+      "I": {
+       "min": 5,
+       "max": 40,
+       "step": 5
+      },
+      "d": [
+       0,
+       10,
+       20,
+       30
+      ],
+      "b": [
+       -50,
+       -35,
+       -20,
+       -10,
+       15,
+       40
+      ]
+     },
+     "require": "min(cos(rad(d-b)) - 0.2, abs(d-b) - 5)",
+     "prompt": "A single-phase load has $\\mathbf V$ = {{V}}∠{{d}}° V and $\\mathbf I$ = {{I}}∠{{b}}° A (rms, current into the load). Find the reactive power $Q$ it absorbs (negative if it supplies reactive power).",
+     "answer": "V*I*sin(rad(d-b))",
+     "unit": "var",
+     "explanation": "$\\mathbf S = \\mathbf V\\mathbf I^*$ = ({{V}}∠{{d}}°)({{I}}∠{{-b}}°) = {{V*I|VA}}∠{{d-b}}°. $Q = VI\\sin(\\delta - \\beta)$ = {{V*I}} × sin({{d-b}}°) = {{V*I*sin(rad(d-b))|var}}. Positive: the current lags and the load absorbs $Q$ (inductive); negative: it leads and the load supplies $Q$ (capacitive)."
+    },
+    {
+     "id": "q6",
+     "type": "trueFalse",
+     "prompt": "A load that absorbs negative reactive power ($Q < 0$) has a lagging power factor.",
+     "answer": false,
+     "explanation": "$Q < 0$ means the current **leads** the voltage: a capacitive load with a **leading** power factor, which effectively supplies reactive power to the network. Inductive loads such as motors and transformers absorb $Q > 0$ and have a lagging power factor."
+    }
+   ]
+  },
+  {
+   "id": "ps-fundamentals-2",
+   "title": "Power factor and its correction",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "The power triangle",
+     "body": "$P$, $Q$ and the apparent power $|\\mathbf S|$ form a right triangle. The power factor is the cosine of the angle $\\theta$ between $\\mathbf S$ and the $P$ axis. Lines and transformers must carry the **apparent** power, so a poor power factor costs current and losses without delivering more real power.",
+     "formula": "\\text{pf} = \\cos\\theta = \\frac{P}{|\\mathbf S|},\\qquad Q = P\\tan\\theta"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "P": [
+       2000000.0,
+       3000000.0,
+       4000000.0,
+       5000000.0,
+       8000000.0
+      ],
+      "pf": [
+       0.7,
+       0.75,
+       0.8,
+       0.85
+      ]
+     },
+     "prompt": "A factory absorbs {{P|W}} at power factor {{pf}} lagging. How much reactive power does it absorb?",
+     "answer": "P*tan(acos(pf))",
+     "unit": "var",
+     "explanation": "$\\theta = \\arccos {{pf}}$ = {{deg(acos(pf))|°}}. $Q = P\\tan\\theta$ = {{P|W}} × {{tan(acos(pf))}} = {{P*tan(acos(pf))|var}}, positive because the pf is lagging. Check: $|\\mathbf S| = P/\\text{pf}$ = {{P/pf|VA}} and $\\sqrt{P^2 + Q^2}$ gives the same."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "S1": [
+       1000000.0,
+       2000000.0,
+       3000000.0
+      ],
+      "pf1": [
+       0.6,
+       0.7,
+       0.8
+      ],
+      "P2": [
+       500000.0,
+       1000000.0,
+       1500000.0,
+       2000000.0
+      ]
+     },
+     "derived": {
+      "P": "S1*pf1 + P2",
+      "Q": "S1*sqrt(1-pf1^2)"
+     },
+     "prompt": "Two loads share a bus. Load 1 absorbs {{S1|VA}} at pf {{pf1}} lagging; load 2 absorbs {{P2|W}} at unity pf. Find the power factor of the two together.",
+     "answer": "P/sqrt(P^2+Q^2)",
+     "unit": "",
+     "tolerance": 0.01,
+     "explanation": "Add complex powers, not apparent powers. Load 1: $P_1$ = {{S1*pf1|W}}, $Q_1 = S_1\\sin\\theta_1$ = {{Q|var}}. Total: $P$ = {{P|W}}, $Q$ = {{Q|var}}, $|\\mathbf S|$ = {{sqrt(P^2+Q^2)|VA}}. pf $= P/|\\mathbf S|$ = {{P/sqrt(P^2+Q^2)}} lagging."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Correcting the power factor",
+     "body": "Shunt capacitors at the load supply part of its reactive power locally. The load still absorbs the same $P$ and $Q$, but the **network** now delivers only $Q - Q_C$. To go from angle $\\theta_{old}$ to $\\theta_{new}$ the bank must supply:",
+     "formula": "Q_C = P(\\tan\\theta_{old} - \\tan\\theta_{new})"
+    },
+    {
+     "id": "q3",
+     "type": "slider",
+     "params": {
+      "P": [
+       6000000.0,
+       8000000.0,
+       10000000.0
+      ],
+      "pf": [
+       0.7,
+       0.75,
+       0.8
+      ],
+      "pt": [
+       0.9,
+       0.95,
+       0.98
+      ]
+     },
+     "derived": {
+      "Q": "P*tan(acos(pf))",
+      "Qt": "P*tan(acos(pt))"
+     },
+     "prompt": "A load absorbs {{P|W}} at pf {{pf}} lagging (grey). Drag the capacitor bank $Q_C$ until the network supplies the load at pf {{pt}} lagging (orange dashed line).",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": "1.25*P",
+       "label": "P",
+       "unit": "W"
+      },
+      "y": {
+       "min": "-0.1*P",
+       "max": "1.1*P",
+       "label": "Q",
+       "unit": "var"
+      },
+      "equal": true,
+      "height": 250,
+      "sliders": [
+       {
+        "name": "Qc",
+        "label": "$Q_C$",
+        "min": 0,
+        "max": "Q",
+        "step": 50000.0,
+        "value": 0,
+        "unit": "var"
+       }
+      ],
+      "curves": [
+       {
+        "x": "P*t",
+        "y": "0",
+        "t": [
+         0,
+         1
+        ],
+        "color": "blue"
+       },
+       {
+        "x": "P*t",
+        "y": "Q*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "grey",
+        "dash": true
+       },
+       {
+        "x": "1.2*P*t",
+        "y": "1.2*Qt*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "orange",
+        "dash": true
+       },
+       {
+        "x": "P",
+        "y": "Q - Qc*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "purple"
+       },
+       {
+        "x": "P*t",
+        "y": "(Q-Qc)*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "primary"
+       }
+      ],
+      "labels": [
+       {
+        "x": "1.03*P",
+        "y": "Q - Qc/2",
+        "text": "Q_C",
+        "color": "purple"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$|\\mathbf S|$ from the network",
+        "value": "sqrt(P^2 + (Q-Qc)^2)",
+        "unit": "VA"
+       },
+       {
+        "label": "network pf",
+        "value": "P/sqrt(P^2 + (Q-Qc)^2)",
+        "reveal": true
+       }
+      ]
+     },
+     "answer": {
+      "Qc": "Q - Qt"
+     },
+     "tolerance": 0.04,
+     "explanation": "$Q_{old} = P\\tan\\theta_{old}$ = {{Q|var}} and $Q_{new} = P\\tan(\\arccos {{pt}})$ = {{Qt|var}}. The bank supplies the difference, $Q_C$ = {{Q-Qt|var}}. The network's apparent power drops from {{P/pf|VA}} to {{P/pt|VA}} while $P$ stays {{P|W}}."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "P": [
+       1000000.0,
+       2000000.0,
+       3000000.0,
+       5000000.0
+      ],
+      "pf1": [
+       0.7,
+       0.75,
+       0.8
+      ],
+      "pf2": [
+       0.92,
+       0.95,
+       0.98
+      ],
+      "V": [
+       4160,
+       13800
+      ]
+     },
+     "derived": {
+      "Qc": "P*(tan(acos(pf1)) - tan(acos(pf2)))"
+     },
+     "prompt": "A three-phase load absorbs {{P|W}} at pf {{pf1}} lagging from a {{V|V}} (line-to-line), 60-Hz bus. A wye-connected capacitor bank raises the power factor to {{pf2}} lagging.",
+     "ask": [
+      {
+       "prompt": "How much reactive power must the bank supply (three-phase total)?",
+       "answer": "Qc",
+       "unit": "var",
+       "explanation": "$Q_C = P(\\tan\\theta_1 - \\tan\\theta_2)$ = {{P|W}} × ({{tan(acos(pf1))}} − {{tan(acos(pf2))}}) = {{Qc|var}}."
+      },
+      {
+       "prompt": "Find the capacitance of each wye-connected capacitor.",
+       "answer": "Qc/(2*pi*60*V^2)",
+       "unit": "F",
+       "explanation": "$Q_C = P(\\tan\\theta_1 - \\tan\\theta_2)$ = {{Qc|var}}. Each wye capacitor sees $V_{LL}/\\sqrt3$, so $Q_C = 3\\omega C(V_{LL}/\\sqrt3)^2 = \\omega CV_{LL}^2$ and $C = Q_C/(\\omega V_{LL}^2)$ = {{Qc}}/(377 × {{V}}²) = {{Qc/(2*pi*60*V^2)|F}}."
+      }
+     ]
+    },
+    {
+     "id": "q5",
+     "type": "multipleChoice",
+     "prompt": "A shunt capacitor bank corrects a lagging load while the bus voltage stays constant. Which quantity does **not** change?",
+     "options": [
+      "The real power absorbed by the load",
+      "The line current",
+      "The apparent power supplied by the network",
+      "The reactive power supplied by the network"
+     ],
+     "answer": 0,
+     "explanation": "The capacitor only exchanges reactive power. The load's own $P$ and $Q$ are unchanged; the network now supplies less $Q$, so $|\\mathbf S|$ and the line current fall, and with them the feeder's $I^2R$ loss and voltage drop."
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "pf1": [
+       0.65,
+       0.7,
+       0.75,
+       0.8
+      ],
+      "pf2": [
+       0.9,
+       0.95,
+       1.0
+      ]
+     },
+     "prompt": "Raising a load's power factor from {{pf1}} to {{pf2}} at constant $P$ and voltage reduces the line current by what percentage?",
+     "answer": "100*(1 - pf1/pf2)",
+     "unit": "%",
+     "explanation": "$I_L = P/(\\sqrt3V_{LL}\\,\\text{pf})$: the current is inversely proportional to the power factor. $I_{new}/I_{old}$ = {{pf1}}/{{pf2}} = {{pf1/pf2}}, a reduction of {{100*(1-pf1/pf2)|%}}. The $I^2R$ loss falls even more, by {{100*(1-(pf1/pf2)^2)|%}}."
+    }
+   ]
+  },
+  {
+   "id": "ps-fundamentals-3",
+   "title": "Three-phase power, per phase",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "multipleChoice",
+     "params": {
+      "V": [
+       4160,
+       13800,
+       34500
+      ],
+      "I": {
+       "min": 50,
+       "max": 400,
+       "step": 10
+      },
+      "pf": [
+       0.75,
+       0.8,
+       0.85,
+       0.9
+      ]
+     },
+     "prompt": "A balanced three-phase load draws {{I|A}} from {{V|V}} lines (line-to-line) at power factor {{pf}} lagging. What real power does it absorb?",
+     "options": [
+      "{{sqrt(3)*V*I*pf|W}}",
+      "{{3*V*I*pf|W}}",
+      "{{V*I*pf|W}}",
+      "{{sqrt(3)*V*I*sqrt(1-pf^2)|W}}"
+     ],
+     "answer": 0,
+     "explanation": "With line quantities, $P = \\sqrt3V_{LL}I_L\\cos\\theta$ = 1.732 × {{V|V}} × {{I|A}} × {{pf}} = {{sqrt(3)*V*I*pf|W}}. $3V_{LL}I_L$ mixes the per-phase formula with the line-to-line voltage, $V_{LL}I_L$ forgets the √3, and $\\sin\\theta$ gives $Q$, not $P$."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "V": [
+       4160,
+       13800
+      ],
+      "R": {
+       "min": 10,
+       "max": 40,
+       "step": 2
+      },
+      "X": {
+       "min": 5,
+       "max": 30,
+       "step": 1
+      }
+     },
+     "prompt": "A balanced wye load with $Z_Y$ = {{R}} + j{{X}} Ω per phase is supplied at {{V|V}} line-to-line. Find the line current.",
+     "answer": "V/sqrt(3)/sqrt(R^2+X^2)",
+     "unit": "A",
+     "explanation": "Per phase: $V_{an} = V_{LL}/\\sqrt3$ = {{V/sqrt(3)|V}} and $|Z_Y| = \\sqrt{R^2+X^2}$ = {{sqrt(R^2+X^2)|Ω}}. $I_L = V_{an}/|Z_Y|$ = {{V/sqrt(3)/sqrt(R^2+X^2)|A}}. Dividing $V_{LL}$ by $|Z_Y|$ would overestimate the current by √3."
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "V": [
+       400,
+       690,
+       4160
+      ],
+      "R": {
+       "min": 12,
+       "max": 60,
+       "step": 3
+      },
+      "X": {
+       "min": 6,
+       "max": 30,
+       "step": 3
+      }
+     },
+     "prompt": "A balanced **delta** load has $Z_\\Delta$ = {{R}} + j{{X}} Ω per phase on a {{V|V}} (line-to-line) supply. Find the total real power it absorbs.",
+     "answer": "3*V^2*R/(R^2+X^2)",
+     "unit": "W",
+     "explanation": "Convert to wye: $Z_Y = Z_\\Delta/3$ = {{R/3}} + j{{X/3}} Ω. $I_L = (V_{LL}/\\sqrt3)/|Z_Y|$ = {{(V/sqrt(3))/(sqrt(R^2+X^2)/3)|A}}, and $P = 3I_L^2R_Y$ = {{3*V^2*R/(R^2+X^2)|W}}. Directly: each delta branch sees $V_{LL}$, so $P = 3V_{LL}^2R_\\Delta/|Z_\\Delta|^2$, the same."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "V": [
+       4160,
+       13800
+      ],
+      "R": {
+       "min": 20,
+       "max": 40,
+       "step": 2
+      },
+      "X": {
+       "min": 8,
+       "max": 20,
+       "step": 2
+      },
+      "Rl": [
+       0.3,
+       0.5,
+       0.8,
+       1.0
+      ],
+      "Xl": [
+       1,
+       1.5,
+       2,
+       2.5,
+       3
+      ]
+     },
+     "derived": {
+      "Rt": "R+Rl",
+      "Xt": "X+Xl",
+      "I": "V/sqrt(3)/sqrt((R+Rl)^2+(X+Xl)^2)"
+     },
+     "prompt": "A {{V|V}} (line-to-line) source feeds a balanced wye load through three lines (per-phase circuit below). Find the **line-to-line** voltage at the load.",
+     "answer": "V*sqrt(R^2+X^2)/sqrt(Rt^2+Xt^2)",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{an}",
+        "value": "{{V/sqrt(3)|V}}",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_{line}",
+        "value": "{{Rl}} Ω"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "X_{line}",
+        "value": "{{Xl}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "Z_Y",
+        "value": "{{R}} + j{{X}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     },
+     "explanation": "Per phase: $V_{an}$ = {{V/sqrt(3)|V}}. Total impedance {{Rt}} + j{{Xt}} Ω, $|Z|$ = {{sqrt(Rt^2+Xt^2)|Ω}}, so $I_L$ = {{I|A}}. Load phase voltage: $I_L|Z_Y|$ = {{I}} × {{sqrt(R^2+X^2)}} = {{I*sqrt(R^2+X^2)|V}}; line-to-line: × √3 = {{V*sqrt(R^2+X^2)/sqrt(Rt^2+Xt^2)|V}}, {{100*(1-sqrt(R^2+X^2)/sqrt(Rt^2+Xt^2))|%}} below the source."
+    },
+    {
+     "id": "p5",
+     "type": "trueFalse",
+     "prompt": "The total instantaneous power delivered to a balanced three-phase load is constant, even though the power of each phase pulsates at twice the line frequency.",
+     "answer": true,
+     "explanation": "Each phase power is $V_{LN}I_L[\\cos\\theta + \\cos(2\\omega t - \\ldots)]$. The three double-frequency terms are shifted by 120° from each other and add up to zero, leaving $p(t) = 3V_{LN}I_L\\cos\\theta$. That is why three-phase machines run with smooth torque."
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "params": {
+      "Qc": [
+       500000.0,
+       1000000.0,
+       2000000.0,
+       3000000.0
+      ],
+      "V": [
+       6600,
+       11000,
+       20000
+      ]
+     },
+     "prompt": "A {{Qc|var}} three-phase capacitor bank is connected in **delta** on a {{V|V}}, 50-Hz bus. Find the capacitance of each capacitor.",
+     "answer": "Qc/(3*2*pi*50*V^2)",
+     "unit": "F",
+     "explanation": "Each delta capacitor sees the full line-to-line voltage and supplies a third of the total: $Q_C/3 = \\omega CV_{LL}^2$. So $C = Q_C/(3\\omega V_{LL}^2)$ = {{Qc}}/(3 × 314.2 × {{V}}²) = {{Qc/(3*2*pi*50*V^2)|F}}, a third of what a wye bank would need."
+    },
+    {
+     "id": "p7",
+     "type": "multipleChoice",
+     "params": {
+      "Vp": [
+       2400,
+       7970,
+       19920
+      ],
+      "I": {
+       "min": 50,
+       "max": 300,
+       "step": 10
+      }
+     },
+     "prompt": "A per-phase calculation gives a line current of {{I|A}} and a load voltage of {{Vp|V}} line-to-neutral. What is the three-phase apparent power of the load?",
+     "options": [
+      "{{3*Vp*I|VA}}",
+      "{{Vp*I|VA}}",
+      "{{sqrt(3)*Vp*I|VA}}",
+      "{{3*sqrt(3)*Vp*I|VA}}"
+     ],
+     "answer": 0,
+     "explanation": "Per phase $|\\mathbf S_{1\\phi}| = V_{an}I_a$ = {{Vp*I|VA}}; three phases: $|\\mathbf S_{3\\phi}| = 3V_{an}I_a$ = {{3*Vp*I|VA}}. The same follows from $\\sqrt3V_{LL}I_L$ with $V_{LL} = \\sqrt3V_{an}$ = {{sqrt(3)*Vp|V}}. Using √3 with a line-to-neutral voltage is the classic slip."
+    }
+   ]
+  },
+  {
+   "id": "ps-fundamentals-4",
+   "title": "Feeder problems",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "V": [
+       4160,
+       13800
+      ],
+      "P1": [
+       1000000.0,
+       2000000.0,
+       3000000.0
+      ],
+      "pf1": [
+       0.7,
+       0.8,
+       0.85
+      ],
+      "P2": [
+       500000.0,
+       1000000.0,
+       1500000.0
+      ],
+      "pf2": [
+       0.8,
+       0.9
+      ]
+     },
+     "derived": {
+      "Q1": "P1*tan(acos(pf1))",
+      "Q2": "-P2*tan(acos(pf2))",
+      "P": "P1+P2",
+      "Q": "P1*tan(acos(pf1)) - P2*tan(acos(pf2))",
+      "S": "sqrt((P1+P2)^2 + (P1*tan(acos(pf1)) - P2*tan(acos(pf2)))^2)"
+     },
+     "prompt": "A {{V|V}} bus supplies two balanced loads: motors absorbing {{P1|W}} at pf {{pf1}} lagging, and a {{P2|W}} load at pf {{pf2}} **leading**. Find the line current into the bus.",
+     "answer": "S/(sqrt(3)*V)",
+     "unit": "A",
+     "explanation": "$Q_1 = P_1\\tan\\theta_1$ = {{Q1|var}}; the leading load has $Q_2 = -P_2\\tan\\theta_2$ = {{Q2|var}}. Total $\\mathbf S$ = {{P|W}} + j({{Q|var}}), $|\\mathbf S|$ = {{S|VA}}. $I_L = |\\mathbf S|/(\\sqrt3V_{LL})$ = {{S/(sqrt(3)*V)|A}}."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "V": [
+       11000,
+       13800
+      ],
+      "P": {
+       "min": 2000000.0,
+       "max": 5000000.0,
+       "step": 500000.0
+      },
+      "pf": [
+       0.8,
+       0.85,
+       0.9,
+       0.95
+      ],
+      "R": [
+       0.4,
+       0.6,
+       0.8
+      ],
+      "X": [
+       1,
+       1.5,
+       2
+      ]
+     },
+     "derived": {
+      "Vr": "V/sqrt(3)",
+      "I": "P/(sqrt(3)*V*pf)",
+      "s": "sqrt(1-pf^2)",
+      "Vsr": "V/sqrt(3) + R*P/(sqrt(3)*V) + X*P/(sqrt(3)*V*pf)*sqrt(1-pf^2)",
+      "Vsi": "X*P/(sqrt(3)*V) - R*P/(sqrt(3)*V*pf)*sqrt(1-pf^2)"
+     },
+     "prompt": "A three-phase feeder with impedance {{R}} + j{{X}} Ω per phase delivers {{P|W}} at pf {{pf}} lagging to a load whose line-to-line voltage is {{V|V}}. Find the line-to-line voltage at the sending end.",
+     "answer": "sqrt(3)*sqrt(Vsr^2+Vsi^2)",
+     "unit": "V",
+     "tolerance": 0.005,
+     "explanation": "Per phase, take $\\mathbf V_R$ = {{Vr|V}}∠0°. $I = P/(\\sqrt3V_{LL}\\,\\text{pf})$ = {{I|A}} at −{{deg(acos(pf))|°}}, i.e. {{I*pf}} − j{{I*s}} A. $\\mathbf V_S = \\mathbf V_R + (R + jX)\\mathbf I$ = {{Vsr|V}} + j{{Vsi|V}}, so $|\\mathbf V_S|$ = {{sqrt(Vsr^2+Vsi^2)|V}} and $V_{S,LL}$ = {{sqrt(3)*sqrt(Vsr^2+Vsi^2)|V}}, {{100*(sqrt(Vsr^2+Vsi^2)/Vr-1)|%}} above the load voltage."
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "P": [
+       2000000.0,
+       4000000.0,
+       6000000.0
+      ],
+      "pf1": [
+       0.7,
+       0.75,
+       0.8
+      ],
+      "pf2": [
+       0.95,
+       0.98,
+       1.0
+      ],
+      "V": [
+       11000,
+       20000
+      ],
+      "R": [
+       0.5,
+       1,
+       1.5
+      ]
+     },
+     "derived": {
+      "I1": "P/(sqrt(3)*V*pf1)",
+      "I2": "P/(sqrt(3)*V*pf2)"
+     },
+     "prompt": "A plant absorbs {{P|W}} at pf {{pf1}} lagging from a {{V|V}} supply through a feeder with resistance {{R}} Ω per phase. A capacitor bank at the plant raises the power factor to {{pf2}}.",
+     "ask": [
+      {
+       "prompt": "By how much does the feeder's $I^2R$ loss fall?",
+       "answer": "3*R*(I1^2 - I2^2)",
+       "unit": "W",
+       "explanation": "$I_1 = P/(\\sqrt3V\\,\\text{pf}_1)$ = {{I1|A}} and $I_2$ = {{I2|A}}. Loss $3I^2R$: {{3*I1^2*R|W}} before, {{3*I2^2*R|W}} after, a saving of {{3*R*(I1^2-I2^2)|W}}."
+      },
+      {
+       "prompt": "Find the line current after the correction.",
+       "answer": "I2",
+       "unit": "A",
+       "explanation": "$P$ and $V$ are unchanged, so $I_2 = P/(\\sqrt3V\\,\\text{pf}_2)$ = {{P|W}}/(1.732 × {{V|V}} × {{pf2}}) = {{I2|A}}, down from {{I1|A}}."
+      }
+     ]
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "V": [
+       4160,
+       13800
+      ],
+      "R": {
+       "min": 60,
+       "max": 120,
+       "step": 6
+      },
+      "X": {
+       "min": 30,
+       "max": 60,
+       "step": 6
+      },
+      "Xl": [
+       1,
+       2,
+       3
+      ]
+     },
+     "derived": {
+      "I": "V/sqrt(3)/sqrt((R/3)^2 + (X/3+Xl)^2)"
+     },
+     "prompt": "A {{V|V}} (line-to-line) source feeds a balanced **delta** load of {{R}} + j{{X}} Ω per phase through lines with a reactance of j{{Xl}} Ω each. Find the total real power delivered to the load.",
+     "answer": "I^2*R",
+     "unit": "W",
+     "explanation": "Δ→Y: $Z_Y = Z_\\Delta/3$ = {{R/3}} + j{{X/3}} Ω. Per phase the total impedance is {{R/3}} + j{{X/3+Xl}} Ω, so $I_L = (V_{LL}/\\sqrt3)/|Z|$ = {{I|A}}. $P = 3I_L^2R_Y$ = 3 × {{I}}² × {{R/3}} = {{I^2*R|W}}. Forgetting the Δ→Y step would put the full {{R}} Ω in series with the line, which is wrong."
+    },
+    {
+     "id": "c5",
+     "type": "orderSteps",
+     "prompt": "Put the steps of per-phase analysis of a balanced system in order.",
+     "items": [
+      "Convert Δ sources and loads to equivalent Y",
+      "Draw phase a with all neutrals joined",
+      "Solve phase a with line-to-neutral voltages",
+      "Shift by −120° and +120° for phases b and c",
+      "Multiply the per-phase powers by 3"
+     ],
+     "explanation": "Everything must be in Y form before one phase can be isolated. The neutral wire carries no current in a balanced system, so joining the neutrals changes nothing. Phases b and c follow by symmetry, and the three-phase power is three times the phase-a power."
+    },
+    {
+     "id": "c6",
+     "type": "trueFalse",
+     "params": {
+      "S": [
+       25000000.0,
+       50000000.0,
+       100000000.0,
+       200000000.0
+      ],
+      "V": [
+       69000.0,
+       138000.0,
+       230000.0
+      ],
+      "t": [
+       0,
+       1
+      ]
+     },
+     "derived": {
+      "Ishow": "if(t-0.5, S/(sqrt(3)*V), S/V)"
+     },
+     "prompt": "A three-phase transformer winding rated {{S|VA}}, {{V|V}} has a rated line current of about {{Ishow|A}}.",
+     "answer": "t - 0.5",
+     "explanation": "Ratings give three-phase power and line-to-line voltage, so $I_{rated} = S_{3\\phi}/(\\sqrt3V_{LL})$ = {{S|VA}}/(1.732 × {{V|V}}) = {{S/(sqrt(3)*V)|A}}. Dividing $S$ by $V$ alone gives {{S/V|A}}, √3 too large."
+    }
+   ]
+  }
+ ]
+}

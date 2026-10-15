@@ -1,0 +1,1910 @@
+{
+  "id": "ae-ebers-moll",
+  "title": "Ebers–Moll & Differential Amplifiers",
+  "description": "The transconductance view of the transistor: intrinsic emitter resistance, gain limits, bias stability, mirrors, differential pairs and output stages.",
+  "reference": "H&H §2.09–2.19",
+  "study": [
+    {
+      "title": "Explore: the Ebers–Moll law",
+      "body": "The collector current is set by the base–emitter **voltage**, exponentially, from nanoamps to milliamps; $h_{FE}$ only decides how much base current that costs. $V_T = kT/q$ ≈ 25 mV at room temperature and $I_S$ (≈ $10^{-14}$ A) rises steeply with temperature. Drag the temperature: the whole curve shifts left by about 2.1 mV/°C, so at a fixed $V_{BE}$ the current runs away.",
+      "formula": "I_C = I_S\\left(e^{V_{BE}/V_T} - 1\\right)",
+      "plot": {
+        "x": {
+          "min": 0.5,
+          "max": 0.72,
+          "label": "V_{BE}",
+          "unit": "V"
+        },
+        "y": {
+          "min": 0,
+          "max": 0.01,
+          "label": "I_C",
+          "unit": "A"
+        },
+        "sliders": [
+          {
+            "name": "T",
+            "label": "$T$",
+            "min": -25,
+            "max": 100,
+            "step": 5,
+            "value": 25,
+            "unit": "°C"
+          }
+        ],
+        "let": {
+          "VT": "8.617e-5*(T+273.15)",
+          "V1": "0.6-0.0021*(T-25)"
+        },
+        "curves": [
+          {
+            "f": "1e-3*exp((x-0.6)/0.0257)",
+            "color": "grey",
+            "dash": true,
+            "label": "25 °C",
+            "labelAt": 0.75
+          },
+          {
+            "f": "1e-3*exp((x-V1)/VT)",
+            "label": "I_C",
+            "labelAt": 0.55
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$V_T$",
+            "value": "VT",
+            "unit": "V"
+          },
+          {
+            "label": "$V_{BE}$ at 1 mA",
+            "value": "V1",
+            "unit": "V"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Rules of thumb",
+      "body": "From the Ebers–Moll law (room temperature):\n- $V_{BE}$ rises **60 mV per decade** of $I_C$; 18 mV doubles it.\n- At constant $I_C$, $V_{BE}$ falls about **2.1 mV/°C**.\n- **Early effect**: at constant $I_C$, $\\Delta V_{BE} \\approx -0.0001\\,\\Delta V_{CE}$.\n- Intrinsic emitter resistance $r_e = 25\\ \\text{mV}/I_C$ (25 Ω at 1 mA), and $g_m = 1/r_e$. It acts like a resistor in series with the emitter: a follower has $R_{out} = r_e + R_s/(h_{fe}+1)$ and gain $R_L/(R_L + r_e)$.",
+      "formula": "r_e = \\frac{V_T}{I_C} = \\frac{25\\ \\text{mV}}{I_C}"
+    },
+    {
+      "title": "The common-emitter stage revisited",
+      "body": "$r_e$ adds to the external emitter resistor. With the emitter grounded (or fully bypassed) the gain is $-R_C/r_e = -I_CR_C/25\\ \\text{mV} \\approx -40\\,V_{R_C}$ (in volts), so 20$V_{CC}$ when biased at $V_{CC}/2$, whatever the current. But it is a poor amplifier on its own:\n- **Distortion**: $r_e$ follows $I_C$, so the gain varies from 2× nominal to 0 across the output swing.\n- **Low input impedance** $h_{fe}r_e$, also nonlinear.\n- **Bias**: at fixed $V_{BE}$, $I_C$ grows 10× for a 30 °C rise.\nCure: unbypassed $R_E \\gg r_e$, bypass only the part needed for $V_E \\gtrsim$ 1 V, or overall feedback.",
+      "formula": "G = -\\frac{R_C}{R_E + r_e}"
+    },
+    {
+      "title": "Current mirror",
+      "body": "$Q_1$ is diode-connected, so the programming current $I_P$ sets its $V_{BE}$; the matched $Q_2$ with the same $V_{BE}$ carries the same current into its load. With a resistor $R_P$ from $V_{CC}$, $I_P = (V_{CC} - 0.6)/R_P$. The Early effect makes $I_{out}$ rise slowly with $Q_2$'s $V_{CE}$ (a few % over the range); emitter resistors with a few tenths of a volt, or a Wilson mirror, fix that. An emitter resistor on $Q_2$ only gives a ratio mirror: $I_{out}R_E = V_T\\ln(I_P/I_{out})$.",
+      "formula": "I_{out} \\approx I_P = \\frac{V_{CC} - 0.6}{R_P}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "resistor",
+            "from": [
+              1,
+              -1
+            ],
+            "to": [
+              1,
+              1
+            ],
+            "label": "R_P"
+          },
+          {
+            "type": "npn",
+            "at": [
+              1,
+              2
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                1
+              ],
+              [
+                2,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1
+              ],
+              [
+                2,
+                2
+              ],
+              [
+                3,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              1,
+              1
+            ]
+          },
+          {
+            "type": "npn",
+            "at": [
+              4,
+              2
+            ],
+            "label": "Q_2"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              -1
+            ],
+            "to": [
+              4,
+              1
+            ],
+            "label": "load"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                -1
+              ],
+              [
+                4,
+                -1
+              ],
+              [
+                5,
+                -1
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              -1
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              -1
+            ],
+            "label": "+V_{CC}"
+          },
+          {
+            "type": "ground",
+            "at": [
+              1,
+              3
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              4,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Differential amplifier",
+      "body": "The long-tailed pair amplifies $v_1 - v_2$ and rejects what both inputs share. The tail $R_1$ sets the total current, half through each side; the single-ended output (one collector) has $G_{diff} = R_C/2(R_E + r_e)$ and $G_{CM} \\approx -R_C/(2R_1 + R_E)$. Their ratio is the CMRR (formula). A current source as tail makes $R_1$ effectively huge: the CMRR can reach 100 dB. Grounding one input gives a temperature-compensated dc amplifier: both $V_{BE}$ drifts cancel.",
+      "formula": "\\text{CMRR} \\approx \\frac{R_1}{R_E + r_e}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "resistor",
+            "from": [
+              1,
+              0
+            ],
+            "to": [
+              1,
+              1
+            ],
+            "label": "R_C"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              1
+            ],
+            "label": "R_C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                0
+              ],
+              [
+                4,
+                0
+              ],
+              [
+                5,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              0
+            ],
+            "label": "+V_{CC}"
+          },
+          {
+            "type": "npn",
+            "at": [
+              1,
+              2
+            ]
+          },
+          {
+            "type": "npn",
+            "at": [
+              4,
+              2
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              2
+            ],
+            "label": "v_1",
+            "flip": true
+          },
+          {
+            "type": "terminal",
+            "at": [
+              3,
+              2
+            ],
+            "label": "v_2",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                1
+              ],
+              [
+                5,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              1
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              1
+            ],
+            "label": "v_{out}"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              1,
+              3
+            ],
+            "to": [
+              1,
+              4
+            ],
+            "label": "R_E"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              3
+            ],
+            "to": [
+              4,
+              4
+            ],
+            "label": "R_E"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                4
+              ],
+              [
+                4,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2.5,
+              4
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2.5,
+              4
+            ],
+            "to": [
+              2.5,
+              5.5
+            ],
+            "label": "R_1"
+          },
+          {
+            "type": "terminal",
+            "at": [
+              2.5,
+              5.5
+            ],
+            "label": "-V_{EE}"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Miller effect, cascode, bootstrap",
+      "body": "An impedance from the input to a node that swings with gain $A$ looks $1 - A$ times smaller from the input. For an inverting stage ($A = -A_v$) the tiny $C_{cb}$ looks like $C_{cb}(1 + A_v)$ to ground: the **Miller effect**, often the dominant high-frequency rolloff with the source resistance. A **cascode** (common-base transistor stacked on the collector) pins the collector so the input transistor's gain is ≈ −1. When the far end follows the input ($A \\to 1$, e.g. an emitter) a resistor looks like $R/(1 - A)$: **bootstrapping** raises input impedance.",
+      "formula": "C_{in} = C_{cb}(1 + A_v)"
+    },
+    {
+      "title": "Explore: push-pull output",
+      "body": "An npn follower sources and a pnp follower sinks current, each conducting only beyond one $V_{BE}$: without bias there is a ±0.6 V dead zone (**crossover distortion**). Biasing each base one diode drop away from the output (two diodes between the bases) removes it; add small emitter resistors against thermal runaway. For more current gain use **Darlingtons**: $\\beta \\approx \\beta_1\\beta_2$, but $V_{BE}$ doubles and $V_{CE(sat)}$ cannot drop below one $V_{BE}$.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 0.002,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": -2.5,
+          "max": 2.5,
+          "label": "v",
+          "unit": "V"
+        },
+        "sliders": [
+          {
+            "name": "Vb",
+            "label": "bias per side",
+            "min": 0,
+            "max": 0.7,
+            "step": 0.05,
+            "value": 0,
+            "unit": "V"
+          }
+        ],
+        "let": {
+          "d": "max(0.6-Vb, 0)"
+        },
+        "curves": [
+          {
+            "f": "2*sin(2*pi*1000*x)",
+            "color": "grey",
+            "dash": true,
+            "label": "v_{in}",
+            "labelAt": 0.2
+          },
+          {
+            "f": "max(2*sin(2*pi*1000*x)-d, 0) + min(2*sin(2*pi*1000*x)+d, 0)",
+            "label": "v_{out}",
+            "labelAt": 0.62
+          }
+        ],
+        "readouts": [
+          {
+            "label": "Dead zone",
+            "value": "d",
+            "unit": "V"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ae-ebers-moll-1",
+      "title": "Ebers–Moll and rules of thumb",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "A transconductance device",
+          "body": "The first model said $I_C = h_{FE}I_B$. More accurately, the base–emitter voltage sets the collector current, and the base current follows from $h_{FE}$. In the active region $I_C \\gg I_S$, so the −1 can be dropped.",
+          "formula": "I_C \\approx I_S\\,e^{V_{BE}/V_T}, \\quad V_T \\approx 25\\ \\text{mV}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "dV": [
+              0.01,
+              0.018,
+              0.025,
+              0.05,
+              0.06
+            ]
+          },
+          "prompt": "Using $I_C = I_Se^{V_{BE}/V_T}$ with $V_T$ = 25 mV: by what factor does $I_C$ increase when $V_{BE}$ is raised by {{dV|V}}?",
+          "answer": "exp(dV/0.025)",
+          "unit": "",
+          "explanation": "The ratio of two currents only depends on the voltage difference: $I_2/I_1 = e^{\\Delta V_{BE}/V_T}$ = $e^{ {{dV*1000}}/25 }$ = **{{exp(dV/0.025)}}**. $I_S$ cancels, which is why these rules work without knowing it."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "It": [
+              1e-05,
+              0.0001,
+              0.001,
+              0.01
+            ]
+          },
+          "derived": {
+            "Vt": "0.025*ln(It/1e-14)"
+          },
+          "prompt": "A transistor has $I_S$ = 10 fA ($V_T$ = 25 mV). Drag $V_{BE}$ until $I_C$ = {{It|A}}. Note the logarithmic current axis.",
+          "plot": {
+            "x": {
+              "min": 0.45,
+              "max": 0.8,
+              "label": "V_{BE}",
+              "unit": "V"
+            },
+            "y": {
+              "min": 1e-06,
+              "max": 0.1,
+              "label": "I_C",
+              "unit": "A",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "vbe",
+                "label": "$V_{BE}$",
+                "min": 0.45,
+                "max": 0.8,
+                "step": 0.001,
+                "value": 0.45,
+                "unit": "V"
+              }
+            ],
+            "let": {
+              "Ic": "1e-14*exp(vbe/0.025)"
+            },
+            "curves": [
+              {
+                "f": "1e-14*exp(x/0.025)",
+                "label": "I_C",
+                "labelAt": 0.3
+              }
+            ],
+            "hlines": [
+              {
+                "y": "It",
+                "color": "orange",
+                "label": "target"
+              }
+            ],
+            "points": [
+              {
+                "x": "vbe",
+                "y": "max(Ic, 1e-6)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$I_C$",
+                "value": "Ic",
+                "unit": "A"
+              }
+            ]
+          },
+          "answer": {
+            "vbe": "Vt"
+          },
+          "tolerance": 0.005,
+          "explanation": "$V_{BE} = V_T\\ln(I_C/I_S)$ = 25 mV × ln({{It|A}} / 10 fA) = **{{Vt|V|3}}**. On the log axis the curve is a straight line: each decade of current costs $V_T\\ln 10$ ≈ 58 mV, the '60 mV per decade' rule."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Rules of thumb",
+          "body": "- $V_{BE}$ rises 60 mV per decade of $I_C$ (18 mV doubles it).\n- At constant $I_C$, $V_{BE}$ drops about 2.1 mV per °C.\n- Early effect: $\\Delta V_{BE} \\approx -0.0001\\,\\Delta V_{CE}$ at constant $I_C$.\n- $r_e = 25\\ \\text{mV}/I_C$ acts in series with the emitter.",
+          "formula": "\\Delta V_{BE} = 60\\ \\text{mV}\\cdot\\log_{10}\\frac{I_{C2}}{I_{C1}}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "I1": [
+              0.0001,
+              0.001
+            ],
+            "k": [
+              2,
+              4,
+              10,
+              100,
+              1000
+            ]
+          },
+          "prompt": "Using the 60 mV/decade rule: by how much must $V_{BE}$ increase to raise $I_C$ from {{I1|A}} to {{k*I1|A}}?",
+          "answer": "0.06*log10(k)",
+          "unit": "V",
+          "tolerance": 0.05,
+          "explanation": "$\\Delta V_{BE} = 60\\ \\text{mV} \\cdot \\log_{10}(I_{C2}/I_{C1})$ = 60 mV × log₁₀({{k}}) = **{{0.06*log10(k)|V}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "V0": [
+              0.6,
+              0.62,
+              0.65
+            ],
+            "T": [
+              -20,
+              0,
+              50,
+              75,
+              100
+            ]
+          },
+          "prompt": "At 25 °C a transistor has $V_{BE}$ = {{V0|V}} at a certain collector current. Estimate $V_{BE}$ at the same current at {{T}} °C.",
+          "answer": "V0-0.0021*(T-25)",
+          "unit": "V",
+          "explanation": "$V_{BE}$ changes by −2.1 mV/°C: $\\Delta V_{BE}$ = −2.1 mV × ({{T}} − 25) = {{-0.0021*(T-25)|V}}. So $V_{BE}$ = {{V0|V}} + ({{-0.0021*(T-25)|V}}) = **{{V0-0.0021*(T-25)|V}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "dT": [
+              10,
+              20,
+              30,
+              40
+            ]
+          },
+          "prompt": "A grounded-emitter stage is biased by a fixed base voltage (no emitter resistor). By what factor does $I_C$ grow when the transistor warms up by {{dT}} °C? Use the rules of thumb (−2.1 mV/°C, 60 mV per decade).",
+          "answer": "10^(0.0021*dT/0.06)",
+          "unit": "",
+          "tolerance": 0.05,
+          "explanation": "Warming by {{dT}} °C lowers the needed $V_{BE}$ by 2.1 mV × {{dT}} = {{0.0021*dT|V}}. With $V_{BE}$ fixed that acts like {{0.0021*dT|V}} extra drive, i.e. {{0.0021*dT/0.06}} decades at 60 mV/decade: factor $10^{ {{0.0021*dT/0.06}} }$ = **{{10^(0.0021*dT/0.06)}}**. That's why voltage-biasing a bare $V_{BE}$ never works."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each quantity with its room-temperature rule of thumb",
+          "pairs": [
+            [
+              "$V_{BE}$ per decade of $I_C$",
+              "+60 mV"
+            ],
+            [
+              "$V_{BE}$ to double $I_C$",
+              "+18 mV"
+            ],
+            [
+              "Temperature coefficient of $V_{BE}$",
+              "−2.1 mV/°C"
+            ],
+            [
+              "$r_e$ at 1 mA",
+              "25 Ω"
+            ],
+            [
+              "$V_T = kT/q$",
+              "≈ 25 mV"
+            ]
+          ],
+          "explanation": "All follow from $I_C \\propto e^{V_{BE}/V_T}$: a decade costs $V_T\\ln 10$ ≈ 60 mV, a doubling $V_T\\ln 2$ ≈ 18 mV, and $r_e = dV_{BE}/dI_C = V_T/I_C$. The −2.1 mV/°C comes from the strong temperature dependence of $I_S$."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Since $V_{BE}$ determines $I_C$ so precisely, the best way to bias a transistor is to apply a carefully calculated $V_{BE}$ from a divider.",
+          "answer": false,
+          "explanation": "The law is precise, but $I_S$ varies between transistors and $V_{BE}$ drifts −2.1 mV/°C: 18 mV of error already doubles the current, and a 30 °C rise multiplies it by about 10. Bias with an emitter resistor (most of $V_B$ across $R_E$), a matched transistor, or feedback instead."
+        }
+      ]
+    },
+    {
+      "id": "ae-ebers-moll-2",
+      "title": "Gain limits and bias stability",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "IC": [
+              0.0001,
+              0.0005,
+              0.001,
+              0.002,
+              0.005,
+              0.01
+            ]
+          },
+          "prompt": "A transistor runs at $I_C$ = {{IC|A}} (room temperature).",
+          "ask": [
+            {
+              "prompt": "Find its intrinsic emitter resistance $r_e$.",
+              "answer": "0.025/IC",
+              "unit": "Ω",
+              "explanation": "$r_e = 25\\ \\text{mV}/I_C$ = 25 mV / {{IC|A}} = **{{0.025/IC|Ω}}**."
+            },
+            {
+              "prompt": "Find its transconductance $g_m$.",
+              "answer": "IC/0.025",
+              "unit": "S",
+              "explanation": "$g_m = 1/r_e = I_C/25\\ \\text{mV}$ = {{IC|A}} / 25 mV = **{{IC/0.025|S}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "RC": [
+              4700,
+              6800,
+              10000
+            ],
+            "RE": [
+              47,
+              100,
+              220,
+              470
+            ],
+            "IC": [
+              0.0005,
+              0.001,
+              0.002
+            ]
+          },
+          "derived": {
+            "re": "0.025/IC"
+          },
+          "require": "10.5 - RC*IC",
+          "prompt": "A CE amplifier has $R_C$ = {{RC|Ω}}, an unbypassed $R_E$ = {{RE|Ω}} and $I_C$ = {{IC|A}}. Find the magnitude of its voltage gain, including $r_e$.",
+          "answer": "RC/(RE+re)",
+          "unit": "",
+          "explanation": "$r_e$ = 25 mV / {{IC|A}} = {{re|Ω}}. $|G| = R_C/(R_E + r_e)$ = {{RC|Ω}} / ({{RE|Ω}} + {{re|Ω}}) = **{{RC/(RE+re)}}**. The simple model $R_C/R_E$ would give {{RC/RE}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "VCC": [
+              10,
+              12,
+              15,
+              20
+            ],
+            "IC": [
+              0.0002,
+              0.0005,
+              0.001,
+              0.002
+            ]
+          },
+          "prompt": "A grounded-emitter amplifier on $V_{CC}$ = {{VCC|V}} runs at $I_C$ = {{IC|A}}, with $R_C$ chosen to put the collector at $V_{CC}/2$.",
+          "ask": [
+            {
+              "prompt": "Find $R_C$.",
+              "answer": "VCC/2/IC",
+              "unit": "Ω",
+              "explanation": "$R_C = (V_{CC}/2)/I_C$ = {{VCC/2|V}} / {{IC|A}} = **{{VCC/2/IC|Ω}}**."
+            },
+            {
+              "prompt": "Find the magnitude of the small-signal voltage gain.",
+              "answer": "VCC/2/0.025",
+              "unit": "",
+              "explanation": "$|G| = R_C/r_e = I_CR_C/25\\ \\text{mV}$ = {{VCC/2|V}} / 25 mV = **{{VCC/2/0.025}}** = 20 $V_{CC}$. The current cancels out: a larger $I_C$ lowers $r_e$ but forces a smaller $R_C$."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "VCC": [
+              10,
+              15,
+              20
+            ],
+            "frac": [
+              0.25,
+              0.75,
+              0.9
+            ]
+          },
+          "derived": {
+            "V": "frac*VCC"
+          },
+          "prompt": "A grounded-emitter stage on $V_{CC}$ = {{VCC|V}} is biased at $V_C = V_{CC}/2$. What is its small-signal gain magnitude at the moment the output (collector) has swung to {{V|V}}?",
+          "answer": "(VCC-V)/0.025",
+          "unit": "",
+          "explanation": "$|G| = R_C/r_e = I_CR_C/25\\ \\text{mV}$, and $I_CR_C$ is the voltage across $R_C$: {{VCC|V}} − {{V|V}} = {{VCC-V|V}}. So $|G|$ = {{VCC-V|V}} / 25 mV = **{{(VCC-V)/0.025}}**, versus {{VCC/2/0.025}} at the quiescent point. The gain changes across the swing: distortion."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "IC": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "Rs": [
+              1000,
+              4700,
+              10000
+            ],
+            "hfe": [
+              100,
+              200
+            ],
+            "RL": [
+              100,
+              470,
+              1000
+            ]
+          },
+          "derived": {
+            "Ro": "0.025/IC + Rs/(hfe+1)"
+          },
+          "prompt": "An emitter follower runs at $I_C$ = {{IC|A}} with $h_{fe}$ = {{hfe}} and is driven from a source with $R_s$ = {{Rs|Ω}} (ignore the large $R_E$).",
+          "ask": [
+            {
+              "prompt": "Find the output resistance at the emitter.",
+              "answer": "Ro",
+              "unit": "Ω",
+              "explanation": "$R_{out} = r_e + R_s/(h_{fe}+1)$ = {{0.025/IC|Ω}} + {{Rs|Ω}}/{{hfe+1}} = {{0.025/IC|Ω}} + {{Rs/(hfe+1)|Ω}} = **{{Ro|Ω}}**."
+            },
+            {
+              "prompt": "Find the voltage gain $v_{out}/v_s$ with a load $R_L$ = {{RL|Ω}}.",
+              "answer": "RL/(RL+Ro)",
+              "unit": "",
+              "explanation": "The output is a Thévenin source $v_s$ with $R_{out} = r_e + R_s/(h_{fe}+1)$ = {{Ro|Ω}}. The load divides it: $G = R_L/(R_L + R_{out})$ = {{RL|Ω}} / {{RL+Ro|Ω}} = **{{RL/(RL+Ro)||3}}**."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "VE": [
+              0.1,
+              0.2,
+              0.5,
+              1,
+              2
+            ],
+            "dT": [
+              10,
+              20,
+              30
+            ]
+          },
+          "require": "0.3 - 0.0021*dT/VE",
+          "prompt": "A CE stage is biased by a stiff base divider with {{VE|V}} across its emitter resistance. Estimate the percentage increase of $I_C$ when it warms up by {{dT}} °C.",
+          "answer": "100*0.0021*dT/VE",
+          "unit": "%",
+          "tolerance": 0.03,
+          "explanation": "$V_B$ is fixed and $V_{BE}$ drops 2.1 mV × {{dT}} = {{0.0021*dT|V}}, so $V_E$ rises by that much: $\\Delta I_C/I_C = \\Delta V_{BE}/V_E$ = {{0.0021*dT|V}} / {{VE|V}} = **{{100*0.0021*dT/VE|%}}**. Keep $V_E$ around 1 V or more and bypass part of $R_E$ if you need gain."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "params": {
+            "hfe": [
+              100,
+              150,
+              200
+            ],
+            "IC": [
+              0.0005,
+              0.001,
+              0.002
+            ]
+          },
+          "prompt": "What is the small-signal input impedance at the base of a grounded-emitter stage with $h_{fe}$ = {{hfe}} at $I_C$ = {{IC|A}}?",
+          "options": [
+            "{{hfe*0.025/IC|Ω}}",
+            "{{0.025/IC|Ω}}",
+            "{{0.025/(hfe*IC)|Ω}}",
+            "{{hfe*0.025/(IC*1000)|Ω}}"
+          ],
+          "answer": 0,
+          "explanation": "Looking into the base you see the emitter impedance multiplied by $h_{fe}$: $Z_{in} \\approx h_{fe}r_e$ = {{hfe}} × {{0.025/IC|Ω}} = **{{hfe*0.025/IC|Ω}}**. Low, and nonlinear because $r_e$ follows $I_C$."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "RE1": [
+              100,
+              180,
+              330
+            ],
+            "IC": [
+              0.001,
+              0.002
+            ],
+            "f": [
+              20,
+              50,
+              100
+            ]
+          },
+          "derived": {
+            "Rx": "RE1 + 0.025/IC"
+          },
+          "prompt": "A CE stage has an unbypassed $R_{E1}$ = {{RE1|Ω}} plus a bypassed $R_{E2}$; $I_C$ = {{IC|A}}. Choose the bypass capacitor so that its reactance equals the impedance it must beat, $R_{E1} + r_e$, at {{f|Hz}}.",
+          "answer": "1/(2*pi*f*Rx)",
+          "unit": "F",
+          "explanation": "The capacitor must look small compared with what is in series with it, $R_{E1} + r_e$ = {{RE1|Ω}} + {{0.025/IC|Ω}} = {{Rx|Ω}} (not $R_{E2}$!). $C = 1/(2\\pi fR)$ = 1 / (2π × {{f|Hz}} × {{Rx|Ω}}) = **{{1/(2*pi*f*Rx)|F}}**. Use a larger value in practice so the gain is flat at {{f|Hz}}."
+        }
+      ]
+    },
+    {
+      "id": "ae-ebers-moll-3",
+      "title": "Mirrors and differential pairs",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The long-tailed pair",
+          "body": "With $v_1$ up and $v_2$ down by the same amount, the emitters stay put and each side works as a CE stage: single-ended $G_{diff} = R_C/2(R_E + r_e)$. With both inputs moving together, the tail $R_1$ carries both emitter currents and $G_{CM} \\approx -R_C/(2R_1 + R_E)$. CMRR = $G_{diff}/G_{CM}$.",
+          "formula": "\\text{CMRR} \\approx \\frac{R_1}{R_E + r_e}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "resistor",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  1,
+                  1
+                ],
+                "label": "R_C"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "R_C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  0
+                ],
+                "label": "+V_{CC}"
+              },
+              {
+                "type": "npn",
+                "at": [
+                  1,
+                  2
+                ]
+              },
+              {
+                "type": "npn",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  2
+                ],
+                "label": "v_1",
+                "flip": true
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  2
+                ],
+                "label": "v_2",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    1
+                  ],
+                  [
+                    5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  1
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  1
+                ],
+                "label": "v_{out}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  1,
+                  3
+                ],
+                "to": [
+                  1,
+                  4
+                ],
+                "label": "R_E"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  3
+                ],
+                "to": [
+                  4,
+                  4
+                ],
+                "label": "R_E"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    4
+                  ],
+                  [
+                    4,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2.5,
+                  4
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2.5,
+                  4
+                ],
+                "to": [
+                  2.5,
+                  5.5
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  2.5,
+                  5.5
+                ],
+                "label": "-V_{EE}"
+              }
+            ]
+          }
+        },
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "Tap the resistor that mainly determines the **common-mode** gain.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "resistor",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  1,
+                  1
+                ],
+                "label": "R_C",
+                "name": "RC1"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "R_C",
+                "name": "RC2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  0
+                ],
+                "label": "+V_{CC}"
+              },
+              {
+                "type": "npn",
+                "at": [
+                  1,
+                  2
+                ]
+              },
+              {
+                "type": "npn",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  2
+                ],
+                "label": "v_1",
+                "flip": true
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  2
+                ],
+                "label": "v_2",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    1
+                  ],
+                  [
+                    5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  1
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  1
+                ],
+                "label": "v_{out}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  1,
+                  3
+                ],
+                "to": [
+                  1,
+                  4
+                ],
+                "label": "R_E",
+                "name": "RE1"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  3
+                ],
+                "to": [
+                  4,
+                  4
+                ],
+                "label": "R_E",
+                "name": "RE2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    4
+                  ],
+                  [
+                    4,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2.5,
+                  4
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2.5,
+                  4
+                ],
+                "to": [
+                  2.5,
+                  5.5
+                ],
+                "label": "R_1",
+                "name": "R1"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  2.5,
+                  5.5
+                ],
+                "label": "-V_{EE}"
+              }
+            ]
+          },
+          "selectable": [
+            "RC1",
+            "RC2",
+            "RE1",
+            "RE2",
+            "R1"
+          ],
+          "answer": [
+            "R1"
+          ],
+          "explanation": "A common-mode input moves both emitters together, so the current change is set by the long tail $R_1$: $G_{CM} \\approx -R_C/(2R_1 + R_E)$. The small $R_E$ and $r_e$ between the emitters set the **differential** gain. Replacing $R_1$ by a current source makes $G_{CM}$ nearly zero."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "VEE": [
+              10,
+              12,
+              15
+            ],
+            "R1": [
+              10000,
+              15000,
+              22000,
+              47000
+            ]
+          },
+          "derived": {
+            "It": "(VEE-0.6)/R1"
+          },
+          "prompt": "A long-tailed pair has its inputs near ground and a tail resistor $R_1$ = {{R1|Ω}} to $-V_{EE}$ = −{{VEE|V}}.",
+          "ask": [
+            {
+              "prompt": "Find the quiescent collector current of each transistor.",
+              "answer": "It/2",
+              "unit": "A",
+              "explanation": "The emitters sit at −0.6 V, so $I_{tail} = (V_{EE} - 0.6)/R_1$ = {{VEE-0.6|V}} / {{R1|Ω}} = {{It|A}}, split equally: **{{It/2|A}}** each."
+            },
+            {
+              "prompt": "Find $r_e$ of each transistor.",
+              "answer": "0.025/(It/2)",
+              "unit": "Ω",
+              "explanation": "$I_{tail}$ = {{VEE-0.6|V}} / {{R1|Ω}} = {{It|A}}, so $I_C$ = {{It/2|A}} each and $r_e$ = 25 mV / {{It/2|A}} = **{{0.025/(It/2)|Ω}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "RC": [
+              10000,
+              22000,
+              47000
+            ],
+            "RE": [
+              0,
+              47,
+              100,
+              220
+            ],
+            "IC": [
+              0.0001,
+              0.0002,
+              0.0005,
+              0.001
+            ]
+          },
+          "derived": {
+            "re": "0.025/IC"
+          },
+          "require": "10 - RC*IC",
+          "prompt": "A differential pair runs at $I_C$ = {{IC|A}} per side with $R_C$ = {{RC|Ω}} and $R_E$ = {{RE|Ω}} in each emitter. Find the single-ended differential gain magnitude (output at one collector).",
+          "answer": "RC/(2*(RE+re))",
+          "unit": "",
+          "explanation": "$r_e$ = 25 mV / {{IC|A}} = {{re|Ω}}. $G_{diff} = R_C/2(R_E + r_e)$ = {{RC|Ω}} / (2 × {{RE+re|Ω}}) = **{{RC/(2*(RE+re))}}**. The factor 2: only half of $v_1 - v_2$ appears across each base–emitter path."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "VEE": [
+              10,
+              12,
+              15
+            ],
+            "R1": [
+              10000,
+              15000,
+              22000,
+              47000
+            ],
+            "RE": [
+              0,
+              47,
+              100
+            ],
+            "RC": [
+              10000,
+              22000
+            ]
+          },
+          "derived": {
+            "IC": "(VEE-0.6)/(2*R1)",
+            "re": "0.025/IC"
+          },
+          "prompt": "A long-tailed pair: tail $R_1$ = {{R1|Ω}} to −{{VEE|V}} (inputs near ground), $R_E$ = {{RE|Ω}} per emitter, $R_C$ = {{RC|Ω}}, single-ended output.",
+          "ask": [
+            {
+              "prompt": "Find the magnitude of the common-mode gain.",
+              "answer": "RC/(2*R1+RE)",
+              "unit": "",
+              "explanation": "$|G_{CM}| \\approx R_C/(2R_1 + R_E)$ = {{RC|Ω}} / {{2*R1+RE|Ω}} = **{{RC/(2*R1+RE)||3}}**. A common-mode step moves both emitters, and the current change splits over the two halves of the tail."
+            },
+            {
+              "prompt": "Find the CMRR in dB.",
+              "answer": "20*log10(R1/(RE+re))",
+              "unit": "dB",
+              "explanation": "Each side carries $I_C$ = {{VEE-0.6|V}} / (2 × {{R1|Ω}}) = {{IC|A}}, so $r_e$ = {{re|Ω}}. CMRR ≈ $R_1/(R_E + r_e)$ = {{R1|Ω}} / {{RE+re|Ω}} = {{R1/(RE+re)}}, or 20 log₁₀ of that = **{{20*log10(R1/(RE+re))|dB}}**. Modest: that's why real designs use a current-source tail."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "VCC": [
+              5,
+              10,
+              12,
+              15
+            ],
+            "RP": [
+              4700,
+              10000,
+              15000,
+              22000
+            ]
+          },
+          "prompt": "In the current mirror, $V_{CC}$ = {{VCC|V}} and $R_P$ = {{RP|Ω}}. Find the output current into the load.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "resistor",
+                "from": [
+                  1,
+                  -1
+                ],
+                "to": [
+                  1,
+                  1
+                ],
+                "label": "R_P"
+              },
+              {
+                "type": "npn",
+                "at": [
+                  1,
+                  2
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    2,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1
+                  ],
+                  [
+                    2,
+                    2
+                  ],
+                  [
+                    3,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  1
+                ]
+              },
+              {
+                "type": "npn",
+                "at": [
+                  4,
+                  2
+                ],
+                "label": "Q_2"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  -1
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "load"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    -1
+                  ],
+                  [
+                    4,
+                    -1
+                  ],
+                  [
+                    5,
+                    -1
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  -1
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  -1
+                ],
+                "label": "+V_{CC}"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  1,
+                  3
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  4,
+                  3
+                ]
+              }
+            ]
+          },
+          "answer": "(VCC-0.6)/RP",
+          "unit": "A",
+          "explanation": "$Q_1$'s base and collector sit one $V_{BE}$ above ground: $I_P = (V_{CC} - 0.6)/R_P$ = {{VCC-0.6|V}} / {{RP|Ω}} = {{(VCC-0.6)/RP|A}}. $Q_2$ has the same $V_{BE}$, so $I_{out} \\approx I_P$ = **{{(VCC-0.6)/RP|A}}** (as long as $Q_2$ is not saturated)."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "dV": [
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "In a simple mirror, the load voltage changes so that $Q_2$'s $V_{CE}$ increases by {{dV|V}}. With the Early effect $\\Delta V_{BE} \\approx -0.0001\\,\\Delta V_{CE}$ at constant $I_C$, by what percentage does $I_{out}$ increase ($V_{BE}$ is held by $Q_1$; $V_T$ = 25 mV)?",
+          "answer": "100*(exp(1e-4*dV/0.025)-1)",
+          "unit": "%",
+          "tolerance": 0.06,
+          "explanation": "At the higher $V_{CE}$, $Q_2$ would need {{1e-4*dV|V}} less $V_{BE}$ for the same current. Its $V_{BE}$ is fixed, so that is effectively {{1e-4*dV|V}} of extra drive: $e^{ {{1e-4*dV*1000}}/25 }$ − 1 = **{{100*(exp(1e-4*dV/0.025)-1)|%}}** (about 0.4 % per volt). Emitter resistors or a Wilson mirror reduce this."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "IP": [
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "n": [
+              2,
+              5,
+              10
+            ]
+          },
+          "derived": {
+            "Io": "IP/n"
+          },
+          "prompt": "You want a mirror with $I_{out}$ = $I_P/{{n}}$ for $I_P$ = {{IP|A}}, using matched transistors and a resistor $R_E$ in $Q_2$'s emitter only ($V_T$ = 25 mV). Find $R_E$.",
+          "answer": "0.025*ln(n)/Io",
+          "unit": "Ω",
+          "explanation": "$Q_1$ carries {{IP|A}} and $Q_2$ {{Io|A}}, so $V_{BE1} - V_{BE2} = V_T\\ln(I_P/I_{out})$ = 25 mV × ln {{n}} = {{0.025*ln(n)|V}}. That difference sits across $R_E$: $R_E$ = {{0.025*ln(n)|V}} / {{Io|A}} = **{{0.025*ln(n)/Io|Ω}}**."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "In a differential pair whose tail is an ideal current source, a common-mode change of the inputs leaves the collector currents unchanged.",
+          "answer": true,
+          "explanation": "The current source fixes the sum of the emitter currents, and by symmetry it stays split 50/50 when both inputs move together. So the collector voltages do not move: $G_{CM}$ → 0 and the CMRR becomes very large (limited by mismatch and the source's finite impedance)."
+        }
+      ]
+    },
+    {
+      "id": "ae-ebers-moll-4",
+      "title": "Speed and output stages",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Ccb": [
+              2e-12,
+              4e-12,
+              5e-12
+            ],
+            "Av": [
+              50,
+              100,
+              200
+            ],
+            "Rs": [
+              1000,
+              2200,
+              4700,
+              10000
+            ]
+          },
+          "derived": {
+            "Cin": "Ccb*(1+Av)"
+          },
+          "prompt": "A CE stage with voltage gain −{{Av}} uses a transistor with $C_{cb}$ = {{Ccb|F}}. It is driven from $R_s$ = {{Rs|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find the Miller input capacitance.",
+              "answer": "Cin",
+              "unit": "F",
+              "explanation": "The collector swings {{Av}}× opposite to the base, so $C_{cb}$ carries $(1 + A_v)$ times the current: $C_{in} = C_{cb}(1 + A_v)$ = {{Ccb|F}} × {{1+Av}} = **{{Cin|F}}**."
+            },
+            {
+              "prompt": "Find the resulting input −3 dB frequency (ignore other capacitances).",
+              "answer": "1/(2*pi*Rs*Cin)",
+              "unit": "Hz",
+              "explanation": "$C_{in} = C_{cb}(1 + A_v)$ = {{Cin|F}}. $f_{3dB} = 1/(2\\pi R_sC_{in})$ = 1 / (2π × {{Rs|Ω}} × {{Cin|F}}) = **{{1/(2*pi*Rs*Cin)|Hz}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Av": [
+              50,
+              100,
+              200
+            ]
+          },
+          "prompt": "The stage (gain −{{Av}}) is rebuilt as a cascode with the same overall gain. The input transistor now sees a load of only $r_e$ of the upper transistor, so its own gain is about −1. By what factor does the Miller-limited input corner frequency rise?",
+          "answer": "(1+Av)/2",
+          "unit": "",
+          "explanation": "Before: $C_{in} = C_{cb}(1 + {{Av}})$. In the cascode the input transistor's collector barely moves (gain ≈ −1): $C_{in} \\approx C_{cb}(1 + 1) = 2C_{cb}$. The corner frequency scales with $1/C_{in}$: factor {{1+Av}}/2 = **{{(1+Av)/2}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "b1": [
+              50,
+              100
+            ],
+            "b2": [
+              20,
+              50
+            ],
+            "IL": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "A Darlington ($\\beta_1$ = {{b1}}, $\\beta_2$ = {{b2}}) switches a {{IL|A}} load.",
+          "ask": [
+            {
+              "prompt": "What base current is needed (no overdrive margin)?",
+              "answer": "IL/(b1*b2)",
+              "unit": "A",
+              "tolerance": 0.08,
+              "explanation": "$\\beta \\approx \\beta_1\\beta_2$ = {{b1*b2}}, so $I_B = I_L/\\beta$ = {{IL|A}} / {{b1*b2}} = **{{IL/(b1*b2)|A}}**. (Exactly $\\beta = \\beta_1\\beta_2 + \\beta_1 + \\beta_2$, a few % more.)"
+            },
+            {
+              "prompt": "When on, its $V_{CE}$ cannot drop below about $V_{BE2} + V_{CE(sat)1}$ ≈ 0.8 V. Find the power dissipated.",
+              "answer": "0.8*IL",
+              "unit": "W",
+              "explanation": "The output transistor's base needs 0.6 V above its emitter and is fed from the driver's emitter, so $V_{CE} \\approx$ 0.6 + 0.2 = 0.8 V: $P$ = 0.8 V × {{IL|A}} = **{{0.8*IL|W}}**, four times what a single saturated transistor (0.2 V) would dissipate."
+            }
+          ]
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "Vbe": [
+              0.55,
+              0.6,
+              0.65,
+              0.7
+            ]
+          },
+          "prompt": "In this push-pull follower the output transistors start conducting at $V_{BE}$ = {{Vbe|V}}. Set the bias per side so that crossover distortion just disappears, without wasting quiescent current.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.002,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": -2.5,
+              "max": 2.5,
+              "label": "v",
+              "unit": "V"
+            },
+            "sliders": [
+              {
+                "name": "Vb",
+                "label": "bias per side",
+                "min": 0,
+                "max": 0.9,
+                "step": 0.01,
+                "value": 0,
+                "unit": "V"
+              }
+            ],
+            "let": {
+              "d": "max(Vbe-Vb, 0)",
+              "Iq": "0.01*exp((Vb-Vbe)/0.025)"
+            },
+            "curves": [
+              {
+                "f": "2*sin(2*pi*1000*x)",
+                "color": "grey",
+                "dash": true,
+                "label": "v_{in}",
+                "labelAt": 0.2
+              },
+              {
+                "f": "max(2*sin(2*pi*1000*x)-d, 0) + min(2*sin(2*pi*1000*x)+d, 0)",
+                "label": "v_{out}",
+                "labelAt": 0.62
+              }
+            ],
+            "readouts": [
+              {
+                "label": "Quiescent current",
+                "value": "Iq",
+                "unit": "A"
+              }
+            ]
+          },
+          "answer": {
+            "Vb": "Vbe"
+          },
+          "tolerance": 0.03,
+          "explanation": "Each transistor needs {{Vbe|V}} before it conducts, so a bias of **{{Vbe|V}}** per side (two diode drops between the bases) closes the dead zone. Less leaves a flat step at every zero crossing; more makes the quiescent current grow exponentially (×10 per 60 mV), heating the transistors and risking thermal runaway."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "P": [
+              1,
+              5,
+              10
+            ],
+            "RL": [
+              4,
+              8
+            ],
+            "V": [
+              15,
+              20
+            ]
+          },
+          "derived": {
+            "Ip": "sqrt(2*P/RL)"
+          },
+          "require": "V - 2 - sqrt(2*P*RL)",
+          "prompt": "A single npn follower with a current-sink emitter load (±{{V|V}} supplies) must deliver {{P|W}} of sine power into {{RL|Ω}}.",
+          "ask": [
+            {
+              "prompt": "What is the peak load current, i.e. the minimum quiescent current?",
+              "answer": "Ip",
+              "unit": "A",
+              "explanation": "$P = I_p^2R_L/2$, so $I_p = \\sqrt{2P/R_L}$ = √(2 × {{P|W}} / {{RL|Ω}}) = **{{Ip|A}}**. The sink must provide at least this on negative peaks."
+            },
+            {
+              "prompt": "How much power does the stage dissipate with no signal?",
+              "answer": "2*V*Ip",
+              "unit": "W",
+              "explanation": "$I_Q = I_p$ = √(2 × {{P|W}} / {{RL|Ω}}) = {{Ip|A}} flows from +{{V|V}} to −{{V|V}} all the time: $P_Q = 2V I_Q$ = {{2*V|V}} × {{Ip|A}} = **{{2*V*Ip|W}}**, to deliver only {{P|W}}. A push-pull stage idles at nearly zero."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A push-pull stage biased with two diodes runs fine on the bench, but after some minutes at high power its quiescent current keeps climbing until the transistors fail. What is going on, and what is the usual fix?",
+          "options": [
+            "Thermal runaway: hot transistors need less $V_{BE}$, so the fixed bias drives more current; add small emitter resistors and couple the diodes thermally to the transistors",
+            "The Early effect raises the current; use a cascode",
+            "Miller capacitance causes oscillation; add a larger load capacitor",
+            "The diodes age; replace them by resistors"
+          ],
+          "answer": 0,
+          "explanation": "$V_{BE}$ drops 2.1 mV/°C, so at a fixed bias voltage a warmer output transistor conducts more, heats more, and so on. A few tenths of an ohm to an ohm in each emitter (negative feedback on the current) and diodes mounted on the heat sink, tracking the transistors' temperature, stabilise the quiescent current."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "R3": [
+              10000,
+              22000,
+              47000
+            ],
+            "A": [
+              0.95,
+              0.98,
+              0.99
+            ]
+          },
+          "prompt": "In a bootstrapped follower the base is fed from the bias divider through $R_3$ = {{R3|Ω}}, and a capacitor drives the divider end of $R_3$ with the emitter signal (gain {{A}}). What resistance does $R_3$ present to the input signal?",
+          "answer": "R3/(1-A)",
+          "unit": "Ω",
+          "explanation": "The signal across $R_3$ is only $(1 - A)v_{in}$, so its current is $1 - A$ times smaller: $R_{eff} = R_3/(1 - A)$ = {{R3|Ω}} / {{1-A||2}} = **{{R3/(1-A)|Ω}}**. The bias network no longer loads the input."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each problem with its usual cure",
+          "pairs": [
+            [
+              "Miller effect",
+              "Cascode"
+            ],
+            [
+              "Crossover distortion",
+              "Bias the bases two $V_{BE}$ apart"
+            ],
+            [
+              "Thermal runaway",
+              "Small emitter resistors"
+            ],
+            [
+              "Bias divider loads the input",
+              "Bootstrapping"
+            ],
+            [
+              "Early effect in a mirror",
+              "Wilson mirror"
+            ]
+          ],
+          "explanation": "A cascode keeps the input transistor's collector still; bias diodes close the push-pull dead zone; emitter resistors give local current feedback; bootstrapping makes a resistor's far end follow the input; and the Wilson mirror (or emitter resistors) holds the critical $V_{CE}$ constant."
+        }
+      ]
+    }
+  ]
+}

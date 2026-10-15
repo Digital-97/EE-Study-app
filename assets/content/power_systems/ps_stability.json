@@ -1,0 +1,1333 @@
+{
+ "id": "ps-stability",
+ "title": "Stability, Frequency & Renewables",
+ "description": "The swing equation and inertia, the equal-area criterion and critical clearing, frequency droop and load sharing, and how inverter-based solar and wind change grid dynamics.",
+ "reference": "Glover ch. 11–12",
+ "study": [
+  {
+   "title": "The swing equation",
+   "body": "A synchronous generator's rotor angle $\\delta$ (measured against a synchronously rotating reference, in electrical radians) accelerates when the mechanical input power $P_m$ exceeds the electrical output $P_e$. In per unit, with the **inertia constant** $H$ and $\\omega_{syn} = 2\\pi f$ (electrical rad/s), and speed close to synchronous:",
+   "formula": "\\frac{2H}{\\omega_{syn}}\\frac{d^2\\delta}{dt^2} = P_m - P_e"
+  },
+  {
+   "title": "The inertia constant H",
+   "body": "$H$ is the kinetic energy stored in the rotating masses at synchronous speed divided by the machine's MVA rating, in seconds (MJ/MVA). Typical values are 2–9 s; a large $H$ means a slowly swinging rotor. To use it on a system base, scale with the ratings; machines that swing together add their stored energies.",
+   "formula": "\\begin{aligned}H &= \\frac{\\tfrac12J\\omega_m^2}{S_{rated}}\\\\ H_{sys} &= H\\,\\frac{S_{rated}}{S_{sys}}\\end{aligned}"
+  },
+  {
+   "title": "Transient stability and the equal-area criterion",
+   "body": "During a fault $P_e$ drops (to zero for a bolted three-phase fault at the terminals) and the rotor accelerates from $\\delta_0$; the energy gained is the area $A_1$. After clearing at $\\delta_c$, $P_e > P_m$ decelerates the rotor; it stops at the angle where the decelerating area $A_2$ equals $A_1$. If $A_2$ cannot reach $A_1$ before $\\delta_{max} = 180° - \\delta_0$, the machine loses synchronism.",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 180,
+     "label": "δ (°)",
+     "ticks": [
+      0,
+      30,
+      60,
+      90,
+      120,
+      150,
+      180
+     ]
+    },
+    "y": {
+     "min": 0,
+     "max": 1.15,
+     "label": "P (pu of P_max)"
+    },
+    "curves": [
+     {
+      "f": "sin(rad(x))",
+      "color": "blue",
+      "label": "P_e",
+      "labelAt": 0.5
+     },
+     {
+      "x": "30 + 40*t",
+      "y": "0.5",
+      "t": [
+       0,
+       1
+      ],
+      "color": "red"
+     },
+     {
+      "x": "30",
+      "y": "0.5*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "red"
+     },
+     {
+      "x": "70",
+      "y": "0.5*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "red"
+     },
+     {
+      "x": "70",
+      "y": "0.5 + (sin(rad(70)) - 0.5)*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "green"
+     },
+     {
+      "x": "70 + 80*t",
+      "y": "sin(rad(70 + 80*t))",
+      "t": [
+       0,
+       1
+      ],
+      "color": "green"
+     }
+    ],
+    "hlines": [
+     {
+      "y": 0.5,
+      "label": "P_m",
+      "color": "orange"
+     }
+    ],
+    "vlines": [
+     {
+      "x": 30,
+      "label": "δ_0"
+     },
+     {
+      "x": 70,
+      "label": "δ_c"
+     },
+     {
+      "x": 150,
+      "label": "δ_max"
+     }
+    ],
+    "labels": [
+     {
+      "x": 42,
+      "y": 0.25,
+      "text": "A_1",
+      "color": "red"
+     },
+     {
+      "x": 100,
+      "y": 0.72,
+      "text": "A_2",
+      "color": "green"
+     }
+    ],
+    "height": 200
+   }
+  },
+  {
+   "title": "Explore: equal-area criterion",
+   "body": "Bolted three-phase fault at the generator terminals ($P_e$ = 0 during the fault), cleared without changing the network. Drag the clearing angle: while $A_1$ (red) is smaller than the available $A_2$ (green, up to $\\delta_{max}$), the system is stable. The angle where they are equal is the **critical clearing angle**. Raising $P_m$ (heavier loading) shrinks the margin.",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 180,
+     "label": "δ (°)",
+     "ticks": [
+      0,
+      30,
+      60,
+      90,
+      120,
+      150,
+      180
+     ]
+    },
+    "y": {
+     "min": 0,
+     "max": 1.15,
+     "label": "P (pu of P_max)"
+    },
+    "sliders": [
+     {
+      "name": "Pm",
+      "label": "$P_m/P_{max}$",
+      "min": 0.3,
+      "max": 0.9,
+      "step": 0.05,
+      "value": 0.5
+     },
+     {
+      "name": "dc",
+      "label": "clearing angle $\\delta_c$",
+      "min": 0,
+      "max": 180,
+      "step": 1,
+      "value": 70,
+      "unit": "°"
+     }
+    ],
+    "let": {
+     "d0": "deg(asin(Pm))",
+     "dm": "180 - deg(asin(Pm))",
+     "A1": "Pm*rad(dc - deg(asin(Pm)))",
+     "A2": "cos(rad(dc)) + cos(asin(Pm)) - Pm*rad(180 - deg(asin(Pm)) - dc)"
+    },
+    "curves": [
+     {
+      "f": "sin(rad(x))",
+      "color": "blue",
+      "label": "P_e",
+      "labelAt": 0.5
+     },
+     {
+      "x": "d0 + (dc - d0)*t",
+      "y": "Pm",
+      "t": [
+       0,
+       1
+      ],
+      "color": "red"
+     },
+     {
+      "x": "d0",
+      "y": "Pm*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "red"
+     },
+     {
+      "x": "dc",
+      "y": "Pm*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "red"
+     },
+     {
+      "x": "dc",
+      "y": "Pm + (sin(rad(dc)) - Pm)*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "green"
+     },
+     {
+      "x": "dc + (dm - dc)*t",
+      "y": "sin(rad(dc + (dm - dc)*t))",
+      "t": [
+       0,
+       1
+      ],
+      "color": "green"
+     }
+    ],
+    "hlines": [
+     {
+      "y": "Pm",
+      "label": "P_m",
+      "color": "orange"
+     }
+    ],
+    "labels": [
+     {
+      "x": "d0 + 2",
+      "y": "Pm/2",
+      "text": "A_1",
+      "color": "red"
+     },
+     {
+      "x": "(dc + dm)/2 - 6",
+      "y": "(Pm + 1)/2",
+      "text": "A_2",
+      "color": "green"
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$\\delta_0$",
+      "value": "d0",
+      "unit": "°"
+     },
+     {
+      "label": "$A_1$ (accelerating)",
+      "value": "A1",
+      "sig": 3
+     },
+     {
+      "label": "$A_2$ available",
+      "value": "A2",
+      "sig": 3
+     }
+    ],
+    "height": 220
+   }
+  },
+  {
+   "title": "Critical clearing angle and time",
+   "body": "For a three-phase fault with $P_e$ = 0 during the fault and the same $P_{max}$ before and after, setting $A_1 = A_2$ gives $\\delta_{cr}$. With $P_e$ = 0 the swing equation integrates to $\\delta(t) = \\delta_0 + \\omega_{syn}P_mt^2/(4H)$, so the time to reach $\\delta_{cr}$ is the critical clearing time. Protection plus breakers must clear faster than that, typically within 3–6 cycles on transmission systems.",
+   "formula": "\\begin{aligned}\\cos\\delta_{cr} &= (\\pi - 2\\delta_0)\\sin\\delta_0 - \\cos\\delta_0\\\\ t_{cr} &= \\sqrt{\\frac{4H(\\delta_{cr} - \\delta_0)}{\\omega_{syn}P_m}}\\end{aligned}"
+  },
+  {
+   "title": "Frequency and droop control",
+   "body": "After a load increase the generators first supply the extra power from their stored kinetic energy, so the frequency falls. Governors with a **droop** characteristic then raise the turbine power in proportion to the frequency drop; units with the same percentage droop share the change in proportion to their ratings. A new steady frequency results; restoring 50/60 Hz is the job of secondary control (automatic generation control). Unit 1 below runs at 250 MW at 50 Hz, unit 2 at 120 MW.",
+   "formula": "\\begin{aligned}R &= -\\frac{\\Delta f/f_0}{\\Delta P/S_{rated}}\\\\ \\Delta f &= -\\frac{f_0\\,\\Delta P_L}{\\sum_i S_i/R_i}\\end{aligned}",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 450,
+     "label": "P (MW)"
+    },
+    "y": {
+     "min": 49.6,
+     "max": 50.3,
+     "label": "f (Hz)"
+    },
+    "curves": [
+     {
+      "f": "50 - 50*0.05*(x - 250)/400",
+      "to": 400,
+      "color": "blue"
+     },
+     {
+      "f": "50 - 50*0.04*(x - 120)/200",
+      "to": 200,
+      "color": "green"
+     }
+    ],
+    "labels": [
+     {
+      "x": 290,
+      "y": 49.95,
+      "text": "unit 1 (5 %)",
+      "color": "blue"
+     },
+     {
+      "x": 5,
+      "y": 49.65,
+      "text": "unit 2 (4 %)",
+      "color": "green"
+     }
+    ],
+    "hlines": [
+     {
+      "y": 50,
+      "label": "50 Hz"
+     }
+    ],
+    "height": 200
+   }
+  },
+  {
+   "title": "Inertia, RoCoF and renewables",
+   "body": "Right after losing generation $\\Delta P$, before governors act, the frequency falls at the **rate of change of frequency** set by the stored kinetic energy. Solar PV, batteries and most modern wind turbines connect through **inverters**: their output is electronically controlled and decoupled from any rotating mass, so they add no inherent inertia. As they displace synchronous machines, RoCoF and the frequency nadir get worse. Remedies: synchronous condensers (real inertia), fast frequency response and **synthetic inertia** from inverter controls, and **grid-forming** inverters that behave like voltage sources.",
+   "formula": "\\frac{df}{dt} = -\\frac{f_0\\,\\Delta P}{2\\sum_i H_iS_i}"
+  },
+  {
+   "title": "Worked example: clearing a fault in time",
+   "body": "A 60-Hz generator with $H$ = 5 s delivers $P_m$ = 0.5 pu with $P_{max}$ = 1.0 pu. A bolted three-phase fault at its terminals makes $P_e$ = 0.\n- $\\delta_0$ = arcsin 0.5 = 30° = 0.524 rad.\n- $\\cos\\delta_{cr}$ = $(\\pi - 1.047)\\times0.5 - 0.866$ = 0.181, so $\\delta_{cr}$ = 79.6° = 1.389 rad.\n- $t_{cr}$ = √(4 × 5 × (1.389 − 0.524)/(377 × 0.5)) = 0.303 s, about 18 cycles.\n- With $H$ = 2.5 s (half the inertia) $t_{cr}$ falls to 0.214 s."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ps-stability-1",
+   "title": "Rotor dynamics",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Accelerating power",
+     "body": "Each synchronous rotor is a flywheel driven by its turbine ($P_m$) and braked by the electrical load ($P_e$). Any difference accelerates or decelerates it, changing its **rotor angle** $\\delta$. The stored energy is measured by the **inertia constant** $H$: kinetic energy at synchronous speed per MVA of rating, in seconds.",
+     "formula": "H = \\frac{\\tfrac12J\\omega_m^2}{S_{rated}}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "p": [
+       2,
+       4
+      ],
+      "J": [
+       10000,
+       20000,
+       40000,
+       60000
+      ],
+      "S": [
+       200000000.0,
+       400000000.0,
+       600000000.0,
+       900000000.0
+      ]
+     },
+     "derived": {
+      "wm": "2*pi*(120*60/p)/60"
+     },
+     "require": "min(0.5*J*(2*pi*(120*60/p)/60)^2/S - 1.5, 10 - 0.5*J*(2*pi*(120*60/p)/60)^2/S)",
+     "prompt": "A {{p}}-pole, 60-Hz turbine generator rated {{S|VA}} has a total moment of inertia (turbine and rotor) of {{J}} kg·m². Find its inertia constant $H$ (in s).",
+     "answer": "0.5*J*wm^2/S",
+     "unit": "s",
+     "explanation": "Synchronous speed: {{120*60/p}} rpm, $\\omega_m$ = {{wm|rad/s}}. Kinetic energy: ½ × {{J}} × {{wm}}² = {{0.5*J*wm^2|J}}. $H$ = {{0.5*J*wm^2|J}}/{{S|VA}} = {{0.5*J*wm^2/S|s}}."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "H": [
+       3,
+       4,
+       5,
+       6
+      ],
+      "S": [
+       200000000.0,
+       500000000.0,
+       900000000.0
+      ]
+     },
+     "prompt": "A {{S|VA}} generator has $H$ = {{H}} s on its own rating. Express $H$ on a 100-MVA system base.",
+     "answer": "H*S/1e8",
+     "unit": "s",
+     "explanation": "The stored energy, $H \\times S$ = {{H*S/1e6}} MJ, is fixed; on a 100-MVA base $H_{sys}$ = {{H*S/1e6}} MJ/100 MVA = {{H*S/1e8|s}}. Unlike impedances, $H$ scales **up** with the ratio of ratings."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "The swing equation",
+     "body": "In per unit, with $\\delta$ in electrical radians, $\\omega_{syn} = 2\\pi f$ and the speed close to synchronous:",
+     "formula": "\\frac{2H}{\\omega_{syn}}\\frac{d^2\\delta}{dt^2} = P_m - P_e"
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "H": [
+       3,
+       4,
+       5,
+       6
+      ],
+      "Pm": [
+       0.6,
+       0.8,
+       1.0
+      ],
+      "f": [
+       50,
+       60
+      ]
+     },
+     "prompt": "A generator ($H$ = {{H}} s, $P_m$ = {{Pm}} pu, {{f}} Hz) suffers a bolted three-phase fault at its terminals, so $P_e$ drops to 0. Find the initial rotor acceleration in electrical degrees per s².",
+     "answer": "deg(2*pi*f*Pm/(2*H))",
+     "unit": "",
+     "tolerance": 0.02,
+     "explanation": "$d^2\\delta/dt^2 = \\omega_{syn}(P_m - P_e)/(2H)$ = 2π × {{f}} × {{Pm}}/(2 × {{H}}) = {{2*pi*f*Pm/(2*H)}} rad/s² = {{deg(2*pi*f*Pm/(2*H))}} °/s²."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "H": [
+       3,
+       4,
+       5
+      ],
+      "Pm": [
+       0.6,
+       0.8,
+       1.0
+      ],
+      "d0": [
+       20,
+       25,
+       30
+      ],
+      "tc": [
+       0.05,
+       0.08,
+       0.1
+      ]
+     },
+     "prompt": "A 60-Hz generator ($H$ = {{H}} s, $P_m$ = {{Pm}} pu) runs at $\\delta_0$ = {{d0}}° when a bolted terminal fault makes $P_e$ = 0. What is $\\delta$ when the fault is cleared after {{tc}} s?",
+     "answer": "d0 + deg(377*Pm*tc^2/(4*H))",
+     "unit": "°",
+     "absTolerance": 0.5,
+     "explanation": "With constant acceleration $\\alpha = \\omega_{syn}P_m/(2H)$ = {{377*Pm/(2*H)}} rad/s²: $\\delta = \\delta_0 + \\alpha t^2/2$ = {{d0}}° + {{377*Pm*tc^2/(4*H)}} rad = {{d0}}° + {{deg(377*Pm*tc^2/(4*H))|°}} = {{d0 + deg(377*Pm*tc^2/(4*H))|°}}."
+    },
+    {
+     "id": "q5",
+     "type": "trueFalse",
+     "prompt": "Other things equal, a generator with a larger inertia constant $H$ can tolerate a longer fault before losing synchronism.",
+     "answer": true,
+     "explanation": "The acceleration is $\\omega_{syn}(P_m - P_e)/(2H)$: a heavier rotor speeds up more slowly, so it takes longer to swing to the critical angle. The critical clearing time grows with $\\sqrt H$."
+    },
+    {
+     "id": "q6",
+     "type": "matchPairs",
+     "prompt": "Match each quantity in the swing equation to its meaning.",
+     "pairs": [
+      [
+       "$H$",
+       "Stored energy per MVA (s)"
+      ],
+      [
+       "$\\delta$",
+       "Rotor angle in electrical radians"
+      ],
+      [
+       "$\\omega_{syn}$",
+       "$2\\pi f$, electrical rad/s"
+      ],
+      [
+       "$P_m - P_e$",
+       "Accelerating power"
+      ]
+     ],
+     "explanation": "$\\frac{2H}{\\omega_{syn}}\\ddot\\delta = P_m - P_e$: inertia times angular acceleration equals the net (accelerating) power, all in per unit on the machine or system base."
+    }
+   ]
+  },
+  {
+   "id": "ps-stability-2",
+   "title": "The equal-area criterion",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Areas on the power–angle curve",
+     "body": "Fault at $\\delta_0$: $P_e$ falls below $P_m$ and the rotor gains energy (area $A_1$). After clearing at $\\delta_c$, $P_e > P_m$ takes energy back ($A_2$). The rotor stops swinging once $A_2 = A_1$; it must do so before $\\delta_{max} = 180° - \\delta_0$, beyond which it would accelerate again.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 180,
+       "label": "δ (°)",
+       "ticks": [
+        0,
+        30,
+        60,
+        90,
+        120,
+        150,
+        180
+       ]
+      },
+      "y": {
+       "min": 0,
+       "max": 1.15,
+       "label": "P (pu of P_max)"
+      },
+      "curves": [
+       {
+        "f": "sin(rad(x))",
+        "color": "blue",
+        "label": "P_e",
+        "labelAt": 0.5
+       },
+       {
+        "x": "30 + 40*t",
+        "y": "0.5",
+        "t": [
+         0,
+         1
+        ],
+        "color": "red"
+       },
+       {
+        "x": "30",
+        "y": "0.5*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "red"
+       },
+       {
+        "x": "70",
+        "y": "0.5*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "red"
+       },
+       {
+        "x": "70",
+        "y": "0.5 + (sin(rad(70)) - 0.5)*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "green"
+       },
+       {
+        "x": "70 + 80*t",
+        "y": "sin(rad(70 + 80*t))",
+        "t": [
+         0,
+         1
+        ],
+        "color": "green"
+       }
+      ],
+      "hlines": [
+       {
+        "y": 0.5,
+        "label": "P_m",
+        "color": "orange"
+       }
+      ],
+      "vlines": [
+       {
+        "x": 30,
+        "label": "δ_0"
+       },
+       {
+        "x": 70,
+        "label": "δ_c"
+       },
+       {
+        "x": 150,
+        "label": "δ_max"
+       }
+      ],
+      "labels": [
+       {
+        "x": 42,
+        "y": 0.25,
+        "text": "A_1",
+        "color": "red"
+       },
+       {
+        "x": 100,
+        "y": 0.72,
+        "text": "A_2",
+        "color": "green"
+       }
+      ],
+      "height": 200
+     }
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "Pm": [
+       0.4,
+       0.5,
+       0.6,
+       0.7,
+       0.8
+      ]
+     },
+     "prompt": "A generator delivers $P_m$ = {{Pm}} pu over a network with $P_{max}$ = 1.0 pu. Find its steady-state rotor angle $\\delta_0$.",
+     "answer": "deg(asin(Pm))",
+     "unit": "°",
+     "absTolerance": 0.3,
+     "explanation": "In steady state $P_e = P_m$: $\\sin\\delta_0 = P_m/P_{max}$ = {{Pm}}, so $\\delta_0$ = {{deg(asin(Pm))|°}}. The other solution, {{180 - deg(asin(Pm))|°}}, is unstable and marks $\\delta_{max}$."
+    },
+    {
+     "id": "q2",
+     "type": "slider",
+     "params": {
+      "Pm": [
+       0.4,
+       0.5,
+       0.6,
+       0.7
+      ]
+     },
+     "derived": {
+      "d0": "asin(Pm)"
+     },
+     "prompt": "Bolted fault with $P_e$ = 0, $P_m$ = {{Pm}} pu, $P_{max}$ = 1 pu before and after. Drag the clearing angle until the accelerating area $A_1$ equals the maximum decelerating area $A_2$.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 180,
+       "label": "δ (°)",
+       "ticks": [
+        0,
+        30,
+        60,
+        90,
+        120,
+        150,
+        180
+       ]
+      },
+      "y": {
+       "min": 0,
+       "max": 1.15,
+       "label": "P (pu)"
+      },
+      "sliders": [
+       {
+        "name": "dc",
+        "label": "$\\delta_c$",
+        "min": 0,
+        "max": 180,
+        "step": 0.5,
+        "value": "deg(asin(Pm)) + 5",
+        "unit": "°"
+       }
+      ],
+      "let": {
+       "dm": "180 - deg(d0)"
+      },
+      "curves": [
+       {
+        "f": "sin(rad(x))",
+        "color": "blue"
+       },
+       {
+        "x": "deg(d0) + (dc - deg(d0))*t",
+        "y": "Pm",
+        "t": [
+         0,
+         1
+        ],
+        "color": "red"
+       },
+       {
+        "x": "dc",
+        "y": "Pm*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "red"
+       },
+       {
+        "x": "dc",
+        "y": "Pm + (sin(rad(dc)) - Pm)*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "green"
+       },
+       {
+        "x": "dc + (dm - dc)*t",
+        "y": "sin(rad(dc + (dm - dc)*t))",
+        "t": [
+         0,
+         1
+        ],
+        "color": "green"
+       }
+      ],
+      "hlines": [
+       {
+        "y": "Pm",
+        "label": "P_m",
+        "color": "orange"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$A_1$",
+        "value": "Pm*(rad(dc) - d0)",
+        "sig": 3
+       },
+       {
+        "label": "$A_2$ available",
+        "value": "cos(rad(dc)) + cos(d0) - Pm*(pi - d0 - rad(dc))",
+        "sig": 3
+       }
+      ]
+     },
+     "answer": {
+      "dc": "deg(acos((pi - 2*d0)*sin(d0) - cos(d0)))"
+     },
+     "absTolerance": 1.5,
+     "tolerance": 0.001,
+     "explanation": "$\\delta_0$ = arcsin {{Pm}} = {{deg(d0)|°}}. $A_1 = P_m(\\delta_c - \\delta_0)$ and $A_2$ = $\\cos\\delta_c + \\cos\\delta_0 - P_m(\\pi - \\delta_0 - \\delta_c)$ are equal when $\\cos\\delta_c = (\\pi - 2\\delta_0)\\sin\\delta_0 - \\cos\\delta_0$ = {{(pi - 2*d0)*sin(d0) - cos(d0)}}, i.e. $\\delta_{cr}$ = {{deg(acos((pi - 2*d0)*sin(d0) - cos(d0)))|°}}."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Critical clearing angle and time",
+     "body": "For $P_e$ = 0 during the fault and the same $P_{max}$ afterwards, $A_1 = A_2$ gives the critical clearing angle. The rotor reaches it after the critical clearing time (from $\\delta = \\delta_0 + \\omega_{syn}P_mt^2/4H$).",
+     "formula": "\\begin{aligned}\\cos\\delta_{cr} &= (\\pi - 2\\delta_0)\\sin\\delta_0 - \\cos\\delta_0\\\\ t_{cr} &= \\sqrt{\\frac{4H(\\delta_{cr} - \\delta_0)}{\\omega_{syn}P_m}}\\end{aligned}"
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Pm": [
+       0.3,
+       0.4,
+       0.5,
+       0.6,
+       0.7,
+       0.8
+      ]
+     },
+     "derived": {
+      "d0": "asin(Pm)"
+     },
+     "prompt": "A generator delivers $P_m$ = {{Pm}} pu ($P_{max}$ = 1.0 pu before and after the fault). For a bolted fault with $P_e$ = 0, find the critical clearing angle in degrees.",
+     "answer": "deg(acos((pi - 2*d0)*sin(d0) - cos(d0)))",
+     "unit": "°",
+     "absTolerance": 0.5,
+     "explanation": "$\\delta_0$ = arcsin {{Pm}} = {{d0}} rad. $\\cos\\delta_{cr} = (\\pi - 2\\delta_0)\\sin\\delta_0 - \\cos\\delta_0$ = ({{pi - 2*d0}}) × {{Pm}} − {{cos(d0)}} = {{(pi - 2*d0)*sin(d0) - cos(d0)}}, so $\\delta_{cr}$ = {{deg(acos((pi - 2*d0)*sin(d0) - cos(d0)))|°}}."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "Pm": [
+       0.4,
+       0.5,
+       0.6,
+       0.7
+      ],
+      "H": [
+       2,
+       3,
+       4,
+       5,
+       6
+      ],
+      "f": [
+       50,
+       60
+      ]
+     },
+     "derived": {
+      "d0": "asin(Pm)",
+      "dcr": "acos((pi - 2*asin(Pm))*Pm - cos(asin(Pm)))"
+     },
+     "prompt": "Same situation: $P_m$ = {{Pm}} pu, $P_{max}$ = 1.0 pu, $H$ = {{H}} s, {{f}} Hz, bolted fault with $P_e$ = 0. Find the critical clearing time.",
+     "answer": "sqrt(4*H*(dcr - d0)/(2*pi*f*Pm))",
+     "unit": "s",
+     "explanation": "$\\delta_0$ = {{d0}} rad and $\\delta_{cr}$ = {{dcr}} rad ({{deg(dcr)|°}}). $t_{cr} = \\sqrt{4H(\\delta_{cr} - \\delta_0)/(\\omega_{syn}P_m)}$ = √(4 × {{H}} × {{dcr - d0}}/({{2*pi*f}} × {{Pm}})) = {{sqrt(4*H*(dcr - d0)/(2*pi*f*Pm))|s}}, about {{f*sqrt(4*H*(dcr - d0)/(2*pi*f*Pm))}} cycles."
+    },
+    {
+     "id": "q5",
+     "type": "multipleChoice",
+     "prompt": "A fault is cleared at an angle **larger** than the critical clearing angle. What happens?",
+     "options": [
+      "The rotor swings past $\\delta_{max}$, accelerates again and loses synchronism (pole slipping)",
+      "The rotor settles at a larger but stable angle",
+      "The generator's output frequency stays exactly 50/60 Hz",
+      "Nothing: only the clearing time matters, not the angle"
+     ],
+     "answer": 0,
+     "explanation": "The decelerating area available up to $\\delta_{max} = 180° - \\delta_0$ is then smaller than the accelerating area. Beyond $\\delta_{max}$, $P_m > P_e$ again, so the rotor keeps gaining speed and slips poles; out-of-step protection must trip it."
+    },
+    {
+     "id": "q6",
+     "type": "trueFalse",
+     "prompt": "When a fault is cleared exactly at the critical clearing angle, the rotor angle swings up to $\\delta_{max} = 180° - \\delta_0$ before returning.",
+     "answer": true,
+     "explanation": "At critical clearing all of the available decelerating area is needed: $A_2 = A_1$ only when the rotor reaches $\\delta_{max}$. Any later clearing would carry it beyond, into the region where it accelerates again."
+    }
+   ]
+  },
+  {
+   "id": "ps-stability-3",
+   "title": "Frequency, droop and inertia",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Droop control",
+     "body": "A governor with droop $R$ (per unit on its own rating) raises the output by $\\Delta P = -(\\Delta f/f_0)\\,S_{rated}/R$ when the frequency drops. With 5 % droop a 1 % frequency drop calls for 20 % of rating. In steady state all units see the same frequency, so the total increase must match the load increase:",
+     "formula": "\\Delta f = -\\frac{f_0\\,\\Delta P_L}{\\sum_i S_i/R_i}",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 450,
+       "label": "P (MW)"
+      },
+      "y": {
+       "min": 49.6,
+       "max": 50.3,
+       "label": "f (Hz)"
+      },
+      "curves": [
+       {
+        "f": "50 - 50*0.05*(x - 250)/400",
+        "to": 400,
+        "color": "blue"
+       },
+       {
+        "f": "50 - 50*0.04*(x - 120)/200",
+        "to": 200,
+        "color": "green"
+       }
+      ],
+      "labels": [
+       {
+        "x": 290,
+        "y": 49.95,
+        "text": "unit 1 (5 %)",
+        "color": "blue"
+       },
+       {
+        "x": 5,
+        "y": 49.65,
+        "text": "unit 2 (4 %)",
+        "color": "green"
+       }
+      ],
+      "hlines": [
+       {
+        "y": 50,
+        "label": "50 Hz"
+       }
+      ],
+      "height": 200
+     }
+    },
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "S": [
+       200000000.0,
+       500000000.0,
+       800000000.0
+      ],
+      "R": [
+       0.04,
+       0.05,
+       0.06
+      ],
+      "df": [
+       0.05,
+       0.1,
+       0.2
+      ],
+      "f0": [
+       50,
+       60
+      ]
+     },
+     "prompt": "A {{S|W}} generator with {{100*R}} % droop sees the system frequency fall by {{df}} Hz from {{f0}} Hz. By how much does its governor raise its output?",
+     "answer": "df/f0/R*S",
+     "unit": "W",
+     "explanation": "$\\Delta P = (\\Delta f/f_0)\\,S/R$ = ({{df}}/{{f0}})/{{R}} × {{S|W}} = {{df/f0/R}} × {{S|W}} = {{df/f0/R*S|W}}."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "S1": [
+       300000000.0,
+       500000000.0
+      ],
+      "R1": [
+       0.04,
+       0.05
+      ],
+      "S2": [
+       150000000.0,
+       200000000.0,
+       400000000.0
+      ],
+      "R2": [
+       0.05,
+       0.06
+      ],
+      "dP": [
+       20000000.0,
+       50000000.0,
+       80000000.0
+      ]
+     },
+     "derived": {
+      "b": "S1/R1 + S2/R2"
+     },
+     "prompt": "Two 50-Hz generators, {{S1|W}} with {{100*R1}} % droop and {{S2|W}} with {{100*R2}} % droop, share a load increase of {{dP|W}} (load damping neglected).",
+     "ask": [
+      {
+       "prompt": "By how much does the steady-state frequency fall?",
+       "answer": "50*dP/b",
+       "unit": "Hz",
+       "explanation": "$\\sum S_i/R_i$ = {{S1/R1|W}} + {{S2/R2|W}} = {{b|W}} per pu frequency. $\\Delta f = -f_0\\Delta P_L/\\sum$ = −50 × {{dP/1e6}}/{{b/1e6}} = −{{50*dP/b|Hz}}, so the frequency settles at {{50*(1 - dP/b)||5}} Hz."
+      },
+      {
+       "prompt": "How much of the extra load does the first generator pick up?",
+       "answer": "dP*(S1/R1)/b",
+       "unit": "W",
+       "explanation": "Each unit supplies in proportion to $S_i/R_i$: {{S1/R1|W}} out of {{b|W}}, so generator 1 takes {{dP|W}} × {{(S1/R1)/b}} = {{dP*(S1/R1)/b|W}}."
+      }
+     ]
+    },
+    {
+     "id": "p3",
+     "type": "slider",
+     "params": {
+      "dP": [
+       30,
+       50,
+       80
+      ],
+      "P10": [
+       200,
+       250
+      ],
+      "P20": [
+       100,
+       120
+      ]
+     },
+     "derived": {
+      "fn": "50*(1 - dP/(400/0.05 + 200/0.04))"
+     },
+     "prompt": "The units of the graph (400 MW at 5 % droop, 200 MW at 4 %) run at {{P10}} MW and {{P20}} MW at 50 Hz. The load increases by {{dP}} MW. Drag the system frequency to the new steady state.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 450,
+       "label": "P (MW)"
+      },
+      "y": {
+       "min": 49.6,
+       "max": 50.3,
+       "label": "f (Hz)"
+      },
+      "sliders": [
+       {
+        "name": "fs",
+        "label": "$f$",
+        "min": 49.6,
+        "max": 50.2,
+        "step": 0.002,
+        "value": 50,
+        "unit": "Hz",
+        "sig": 5
+       }
+      ],
+      "let": {
+       "p1": "P10 + (50 - fs)/50*400/0.05",
+       "p2": "P20 + (50 - fs)/50*200/0.04"
+      },
+      "curves": [
+       {
+        "f": "50 - 50*0.05*(x - P10)/400",
+        "to": 400,
+        "color": "blue"
+       },
+       {
+        "f": "50 - 50*0.04*(x - P20)/200",
+        "to": 200,
+        "color": "green"
+       }
+      ],
+      "labels": [
+       {
+        "x": "P10 + 45",
+        "y": 50.15,
+        "text": "unit 1",
+        "color": "blue"
+       },
+       {
+        "x": 5,
+        "y": 49.65,
+        "text": "unit 2",
+        "color": "green"
+       }
+      ],
+      "hlines": [
+       {
+        "y": "fs",
+        "color": "orange"
+       }
+      ],
+      "points": [
+       {
+        "x": "p1",
+        "y": "fs",
+        "color": "blue",
+        "guides": false
+       },
+       {
+        "x": "p2",
+        "y": "fs",
+        "color": "green",
+        "guides": false
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$P_1 + P_2$ (MW)",
+        "value": "p1 + p2",
+        "sig": 4
+       },
+       {
+        "label": "new load (MW)",
+        "value": "P10 + P20 + dP",
+        "sig": 4
+       }
+      ]
+     },
+     "answer": {
+      "fs": "fn"
+     },
+     "absTolerance": 0.006,
+     "tolerance": 1e-05,
+     "explanation": "$\\sum S_i/R_i$ = 400/0.05 + 200/0.04 = 13 000 MW per pu frequency. $\\Delta f$ = −50 × {{dP}}/13 000 = −{{50*dP/13000}} Hz, so $f$ = {{fn||5}} Hz. Unit 1 then supplies {{P10 + 8000*dP/13000}} MW and unit 2 {{P20 + 5000*dP/13000}} MW."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "b": [
+       10000000000.0,
+       15000000000.0,
+       20000000000.0
+      ],
+      "D": [
+       1,
+       1.5,
+       2
+      ],
+      "PL": [
+       5000000000.0,
+       8000000000.0
+      ],
+      "dP": [
+       100000000.0,
+       200000000.0,
+       300000000.0
+      ]
+     },
+     "prompt": "An area has $\\sum S_i/R_i$ = {{b|W}} per pu frequency and a load of {{PL|W}} with damping $D$ = {{D}} (a 1 % frequency drop reduces the load by {{D}} %). A {{dP|W}} load is added. Find the steady-state frequency drop at 50 Hz.",
+     "answer": "50*dP/(b + D*PL)",
+     "unit": "Hz",
+     "explanation": "Both the governors and the load respond: $\\Delta f/f_0$ = $-\\Delta P_L/(\\sum S_i/R_i + DP_L)$ = −{{dP/1e6}}/({{b/1e6}} + {{D}} × {{PL/1e6}}) = −{{dP/(b + D*PL)}}. Frequency drop: 50 × {{dP/(b + D*PL)}} = {{50*dP/(b + D*PL)|Hz}}."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "H": [
+       3,
+       4,
+       5
+      ],
+      "S": [
+       20000000000.0,
+       40000000000.0,
+       60000000000.0
+      ],
+      "dP": [
+       1000000000.0,
+       1500000000.0,
+       2000000000.0
+      ],
+      "f0": [
+       50,
+       60
+      ]
+     },
+     "prompt": "A {{f0}}-Hz grid has {{S|VA}} of synchronous generation online with an average $H$ = {{H}} s. A {{dP|W}} power plant trips. Find the initial rate of change of frequency (magnitude, Hz/s).",
+     "answer": "f0*dP/(2*H*S)",
+     "unit": "",
+     "tolerance": 0.02,
+     "explanation": "Stored energy: $HS$ = {{H*S/1e9}} GJ. Swing equation for the whole system: $df/dt = -f_0\\Delta P/(2HS)$ = {{f0}} × {{dP/1e9}}/(2 × {{H*S/1e9}}) = {{f0*dP/(2*H*S)}} Hz/s."
+    },
+    {
+     "id": "p6",
+     "type": "trueFalse",
+     "prompt": "Two generators with the same percentage droop share a load change in proportion to their ratings.",
+     "answer": true,
+     "explanation": "$\\Delta P_i = -(\\Delta f/f_0)S_i/R_i$ and both see the same $\\Delta f$. With equal $R$, $\\Delta P_i \\propto S_i$: each unit moves by the same percentage of its rating."
+    }
+   ]
+  },
+  {
+   "id": "ps-stability-4",
+   "title": "Stability in a renewable grid",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Inverter-based resources",
+     "body": "Solar PV, batteries and full-converter wind turbines are **inverter-based resources** (IBRs). Their power is set by control software, not by a rotor locked to the grid, so they contribute no inherent inertia. **Grid-following** inverters track the measured grid voltage with a phase-locked loop and inject a controlled current; **grid-forming** inverters set their own voltage and frequency like a synchronous machine and can provide synthetic inertia. Synchronous condensers add real inertia without generating real power."
+    },
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "Ss": [
+       15000000000.0,
+       20000000000.0,
+       30000000000.0
+      ],
+      "H": [
+       4,
+       5
+      ],
+      "Sibr": [
+       10000000000.0,
+       20000000000.0,
+       30000000000.0
+      ],
+      "dP": [
+       1000000000.0,
+       1500000000.0
+      ]
+     },
+     "prompt": "A 50-Hz grid runs {{Ss|VA}} of synchronous generators ($H$ = {{H}} s) plus {{Sibr|VA}} of grid-following solar and wind. A {{dP|W}} plant trips.",
+     "ask": [
+      {
+       "prompt": "Find the initial RoCoF magnitude (Hz/s).",
+       "answer": "50*dP/(2*H*Ss)",
+       "unit": "",
+       "tolerance": 0.02,
+       "explanation": "Only the synchronous machines store kinetic energy: $E_k = HS$ = {{H*Ss/1e9}} GJ. RoCoF = $f_0\\Delta P/(2E_k)$ = 50 × {{dP/1e9}}/(2 × {{H*Ss/1e9}}) = {{50*dP/(2*H*Ss)}} Hz/s. The {{Sibr|VA}} of IBRs add nothing."
+      },
+      {
+       "prompt": "Find the equivalent inertia constant on the base of all online capacity ({{(Ss + Sibr)|VA}}).",
+       "answer": "H*Ss/(Ss + Sibr)",
+       "unit": "s",
+       "explanation": "$H_{eq} = \\sum H_iS_i/S_{total}$ = {{H}} × {{Ss/1e9}}/{{(Ss + Sibr)/1e9}} = {{H*Ss/(Ss + Sibr)|s}}: the IBRs dilute the system inertia."
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "r": [
+       0.3,
+       0.5,
+       0.8,
+       1.0,
+       1.5
+      ],
+      "fth": [
+       49.2,
+       49.0,
+       48.8
+      ]
+     },
+     "prompt": "Right after a large plant trips, a 50-Hz grid's frequency falls at {{r}} Hz/s. Assuming this rate stays constant, how long until under-frequency load shedding starts at {{fth}} Hz?",
+     "answer": "(50 - fth)/r",
+     "unit": "s",
+     "explanation": "$t = \\Delta f/\\text{RoCoF}$ = (50 − {{fth}}) Hz/{{r}} Hz/s = {{(50 - fth)/r|s}}. In reality governors and fast frequency response slow the fall, so this is a pessimistic estimate; with low inertia the window for them to act shrinks."
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "Pm": [
+       0.5,
+       0.6,
+       0.7
+      ],
+      "r1": [
+       0.2,
+       0.3,
+       0.4
+      ],
+      "r2": [
+       0.7,
+       0.8,
+       0.9
+      ]
+     },
+     "derived": {
+      "d0": "asin(Pm)",
+      "dm": "pi - asin(Pm/r2)",
+      "cc": "(Pm*(pi - asin(Pm/r2) - asin(Pm)) + r2*cos(pi - asin(Pm/r2)) - r1*cos(asin(Pm)))/(r2 - r1)"
+     },
+     "require": "min(r2 - Pm - 0.1, 1 - abs((Pm*(pi - asin(Pm/r2) - asin(Pm)) + r2*cos(pi - asin(Pm/r2)) - r1*cos(asin(Pm)))/(r2 - r1)) - 0.02, Pm - r1 - 0.05)",
+     "prompt": "A generator delivers $P_m$ = {{Pm}} pu with $P_{max}$ = 1.0 pu. During a fault on a line $P_{max}$ drops to {{r1}} pu; the faulted line is then tripped, leaving $P_{max}$ = {{r2}} pu. Find the critical clearing angle in degrees.",
+     "answer": "deg(acos(cc))",
+     "unit": "°",
+     "absTolerance": 0.5,
+     "explanation": "$\\delta_0$ = arcsin {{Pm}} = {{d0}} rad; after clearing $\\delta_{max} = \\pi - \\arcsin(P_m/{{r2}})$ = {{dm}} rad. Equal areas, $\\int_{\\delta_0}^{\\delta_{cr}}(P_m - {{r1}}\\sin\\delta)\\,d\\delta$ = $\\int_{\\delta_{cr}}^{\\delta_{max}}({{r2}}\\sin\\delta - P_m)\\,d\\delta$, give $\\cos\\delta_{cr} = N/({{r2}} - {{r1}})$ with $N = P_m(\\delta_{max} - \\delta_0) + {{r2}}\\cos\\delta_{max} - {{r1}}\\cos\\delta_0$ = {{cc*(r2 - r1)}}. So $\\cos\\delta_{cr}$ = {{cc}} and $\\delta_{cr}$ = {{deg(acos(cc))|°}}."
+    },
+    {
+     "id": "c4",
+     "type": "multipleChoice",
+     "prompt": "Which of these adds **physical** rotating inertia to the grid?",
+     "options": [
+      "A synchronous condenser",
+      "A grid-following solar inverter",
+      "A full-converter wind turbine without extra controls",
+      "A battery with grid-following control"
+     ],
+     "answer": 0,
+     "explanation": "A synchronous condenser is a synchronous machine without a prime mover: its rotor is locked to the grid frequency and releases kinetic energy when the frequency falls. The others connect through inverters; they can mimic inertia only through fast control (synthetic inertia), not physically."
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "Pm": [
+       0.5,
+       0.6,
+       0.7,
+       0.8
+      ],
+      "Pmax": [
+       1.4,
+       1.6,
+       2.0
+      ],
+      "H": [
+       3,
+       4,
+       5
+      ],
+      "f": [
+       50,
+       60
+      ]
+     },
+     "derived": {
+      "d0": "asin(Pm/Pmax)",
+      "dcr": "acos((pi - 2*asin(Pm/Pmax))*Pm/Pmax - cos(asin(Pm/Pmax)))"
+     },
+     "prompt": "A {{f}}-Hz generator ($H$ = {{H}} s) delivers {{Pm}} pu over a network with $P_{max}$ = {{Pmax}} pu. A bolted three-phase fault at its terminals ($P_e$ = 0) is cleared without changing the network.",
+     "ask": [
+      {
+       "prompt": "Find the critical clearing angle in degrees.",
+       "answer": "deg(dcr)",
+       "unit": "°",
+       "absTolerance": 0.5,
+       "explanation": "$\\delta_0 = \\arcsin(P_m/P_{max})$ = {{d0}} rad. $\\cos\\delta_{cr} = (\\pi - 2\\delta_0)\\sin\\delta_0 - \\cos\\delta_0$ = {{cos(dcr)}}, so $\\delta_{cr}$ = {{deg(dcr)|°}}."
+      },
+      {
+       "prompt": "Find the critical clearing time.",
+       "answer": "sqrt(4*H*(dcr - d0)/(2*pi*f*Pm))",
+       "unit": "s",
+       "explanation": "$\\delta_0$ = {{d0}} rad and $\\delta_{cr}$ = {{dcr}} rad. $t_{cr} = \\sqrt{4H(\\delta_{cr} - \\delta_0)/(\\omega_{syn}P_m)}$ = √(4 × {{H}} × {{dcr - d0}}/({{2*pi*f}} × {{Pm}})) = {{sqrt(4*H*(dcr - d0)/(2*pi*f*Pm))|s}}. Note $P_m$ itself (not $P_m/P_{max}$) sets the acceleration."
+      }
+     ]
+    },
+    {
+     "id": "c6",
+     "type": "orderSteps",
+     "prompt": "After a large generator trips, put the stages of the frequency response in order.",
+     "items": [
+      "Inertial response: rotors release kinetic energy (first seconds)",
+      "Fast frequency response from inverters and loads",
+      "Primary control: governor droop arrests the fall (seconds to ~30 s)",
+      "Secondary control (AGC) restores the frequency (minutes)",
+      "Tertiary control: re-dispatch restores reserves (tens of minutes)"
+     ],
+     "explanation": "Inertia acts instantly and sets the initial RoCoF; fast frequency response (where available) helps within a second or so; governors stop the decline and settle at a lower frequency; automatic generation control then removes the offset, and finally the reserves used are restored by re-dispatch."
+    }
+   ]
+  }
+ ]
+}

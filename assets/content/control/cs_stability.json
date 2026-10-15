@@ -1,0 +1,800 @@
+{
+  "id": "cs-stability",
+  "title": "Stability",
+  "description": "Decide stability from the closed-loop poles and find stable gain ranges with the Routh–Hurwitz test.",
+  "reference": "",
+  "study": [
+    {
+      "title": "Stability and poles",
+      "body": "A linear system is (BIBO) **stable** if every bounded input gives a bounded output. For a transfer function this means: all **closed-loop poles in the left half-plane** (negative real parts). Each pole $p$ adds a term $e^{pt}$ to the response.\n- All poles with $\\text{Re}(p) < 0$: stable, the response decays.\n- Any pole with $\\text{Re}(p) > 0$: unstable, it grows.\n- Simple poles on the $j\\omega$ axis (none to the right): **marginally stable**, sustained oscillation.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 12,
+          "label": "t"
+        },
+        "y": {
+          "min": -3,
+          "max": 3,
+          "label": "impulse response"
+        },
+        "curves": [
+          {
+            "f": "exp(-0.3*x)*sin(2*x)",
+            "color": "green"
+          },
+          {
+            "f": "sin(2*x)",
+            "color": "orange",
+            "dash": true
+          },
+          {
+            "f": "exp(0.1*x)*sin(2*x)",
+            "color": "red",
+            "to": 11.5
+          }
+        ],
+        "labels": [
+          {
+            "x": 0.3,
+            "y": 2.6,
+            "text": "LHP: decays",
+            "color": "green"
+          },
+          {
+            "x": 4.2,
+            "y": 2.6,
+            "text": "jω axis: constant",
+            "color": "orange"
+          },
+          {
+            "x": 8.9,
+            "y": -2.6,
+            "text": "RHP: grows",
+            "color": "red"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Quick checks on the polynomial",
+      "body": "The closed-loop poles are the roots of the characteristic polynomial $a_ns^n + \\dots + a_1s + a_0$ (from $1 + GH = 0$).\n- **Necessary:** all coefficients present and of the same sign. A missing term or a sign change means unstable (or at best marginal).\n- For order 1 and 2 this is also **sufficient**.\n- For order 3, $a_3s^3 + a_2s^2 + a_1s + a_0$ (all positive) is stable if and only if:",
+      "formula": "a_2a_1 > a_3a_0"
+    },
+    {
+      "title": "The Routh array",
+      "body": "Write the coefficients in two rows (alternating), then build each new row from the two above it. The number of **sign changes in the first column** equals the number of right-half-plane poles. No sign changes: stable.",
+      "formula": "\\begin{array}{c|cc} s^3 & a_3 & a_1 \\\\ s^2 & a_2 & a_0 \\\\ s^1 & b_1 & 0 \\\\ s^0 & a_0 & \\end{array} \\quad b_1 = \\frac{a_2a_1 - a_3a_0}{a_2}"
+    },
+    {
+      "title": "Fourth order",
+      "body": "For $s^4 + a_3s^3 + a_2s^2 + a_1s + a_0$ the rows are $[1,\\ a_2,\\ a_0]$, $[a_3,\\ a_1]$, then\n- $b_1 = \\frac{a_3a_2 - a_1}{a_3}$, $b_2 = a_0$\n- $c_1 = \\frac{b_1a_1 - a_3a_0}{b_1}$\n- last row $a_0$.\nStable if $a_3$, $b_1$, $c_1$, $a_0$ are all positive. Every element of a row can be scaled by a positive number to simplify."
+    },
+    {
+      "title": "Range of K and marginal stability",
+      "body": "With a gain $K$ in the loop, the first-column entries depend on $K$; requiring all of them positive gives the stable range. Example: $G = \\frac{K}{s(s+1)(s+2)}$ gives $s^3 + 3s^2 + 2s + K$: $b_1 = (6 - K)/3$, so $0 < K < 6$. At $K = 6$ the $s^1$ row is zero: the **auxiliary polynomial** from the $s^2$ row, $3s^2 + 6 = 0$, gives poles at $\\pm j\\sqrt2$: the loop oscillates at $\\omega = \\sqrt2$ rad/s.",
+      "formula": "a_2s^2 + a_0 = 0 \\;\\Rightarrow\\; \\omega_{osc} = \\sqrt{a_0/a_2}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "cs-stability-1",
+      "title": "Poles and Routh",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Where are the poles?",
+          "body": "Each closed-loop pole $p$ contributes a term $e^{pt}$ to the response. If $p$ has a negative real part the term decays; a positive real part makes it grow. So a feedback loop is **stable** when all its closed-loop poles lie in the **left half-plane**.",
+          "plot": {
+            "x": {
+              "min": -4,
+              "max": 2,
+              "label": "σ"
+            },
+            "y": {
+              "min": -3,
+              "max": 3,
+              "label": "jω"
+            },
+            "points": [
+              {
+                "x": -1,
+                "y": 2,
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -1,
+                "y": -2,
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              },
+              {
+                "x": -3,
+                "y": 0,
+                "guides": false,
+                "marker": "x",
+                "color": "red"
+              }
+            ],
+            "labels": [
+              {
+                "x": -3.9,
+                "y": 2.5,
+                "text": "stable region",
+                "color": "green"
+              },
+              {
+                "x": 0.2,
+                "y": 2.5,
+                "text": "unstable",
+                "color": "red"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Each graph shows the closed-loop poles of a system (σ horizontal, jω vertical, the vertical line is the $j\\omega$ axis). Which system is **unstable**?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -4,
+                "max": 2,
+                "label": "σ"
+              },
+              "y": {
+                "min": -3,
+                "max": 3,
+                "label": "jω"
+              },
+              "points": [
+                {
+                  "x": -2,
+                  "y": 0,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                },
+                {
+                  "x": 0.7,
+                  "y": 1.5,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                },
+                {
+                  "x": 0.7,
+                  "y": -1.5,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -4,
+                "max": 2,
+                "label": "σ"
+              },
+              "y": {
+                "min": -3,
+                "max": 3,
+                "label": "jω"
+              },
+              "points": [
+                {
+                  "x": -0.5,
+                  "y": 2,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                },
+                {
+                  "x": -0.5,
+                  "y": -2,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                },
+                {
+                  "x": -3,
+                  "y": 0,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -4,
+                "max": 2,
+                "label": "σ"
+              },
+              "y": {
+                "min": -3,
+                "max": 3,
+                "label": "jω"
+              },
+              "points": [
+                {
+                  "x": -1,
+                  "y": 0,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                },
+                {
+                  "x": -2,
+                  "y": 0,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                },
+                {
+                  "x": -3.5,
+                  "y": 0,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -4,
+                "max": 2,
+                "label": "σ"
+              },
+              "y": {
+                "min": -3,
+                "max": 3,
+                "label": "jω"
+              },
+              "points": [
+                {
+                  "x": -0.3,
+                  "y": 0,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                },
+                {
+                  "x": -2.5,
+                  "y": 1,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                },
+                {
+                  "x": -2.5,
+                  "y": -1,
+                  "guides": false,
+                  "marker": "x",
+                  "color": "red"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "Only the first map has poles to the right of the $j\\omega$ axis ($0.7 \\pm j1.5$): their terms $e^{0.7t}\\sin(1.5t)$ grow without bound. Poles close to the axis (like $-0.3$ or $-0.5 \\pm j2$) are still stable, just slow to decay."
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "params": {
+            "a": [
+              1,
+              2,
+              3,
+              5
+            ],
+            "sg": [
+              -3,
+              -2,
+              -1,
+              -0.5,
+              0.5,
+              1,
+              2
+            ],
+            "w": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "A closed loop has poles at $s = -{{a}}$ and $s = {{sg}} \\pm j{{w}}$. The loop is stable.",
+          "answer": "-sg",
+          "explanation": "Stability needs **every** pole in the left half-plane. The real pole $-{{a}}$ is fine. The complex pair has real part {{sg}}, so its terms behave like $e^{ {{sg}}t}$: a negative real part means they decay, a positive one means they grow without bound, and then the whole loop is unstable even though the real pole is fine."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The characteristic polynomial",
+          "body": "The closed-loop poles are the roots of $1 + G(s)H(s) = 0$, written as a polynomial. A quick necessary check: **all coefficients must be present and have the same sign**. If one is missing or negative, the loop is not stable. For first- and second-order polynomials, positive coefficients are also enough.",
+          "formula": "a_ns^n + a_{n-1}s^{n-1} + \\dots + a_1s + a_0 = 0"
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "Which characteristic polynomial **can** belong to a stable system?",
+          "options": [
+            "$s^3 + 2s^2 + 3s + 1$",
+            "$s^3 - 2s^2 + 3s + 1$",
+            "$s^3 + 3s + 2$",
+            "$s^4 + s^3 + 2s + 1$"
+          ],
+          "answer": 0,
+          "explanation": "A negative coefficient ($-2s^2$) or a missing term ($s^2$ in $s^3 + 3s + 2$, $s^2$ in the quartic) rules out stability straight away. $s^3 + 2s^2 + 3s + 1$ passes the quick check and also the third-order test: $a_2a_1 = 6 > a_3a_0 = 1$, so it is stable."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The Routh array",
+          "body": "For higher orders, the coefficient check is not enough. The **Routh array** tells how many poles are in the right half-plane without solving for them: write the coefficients in two rows, compute the next rows, and count the **sign changes in the first column**.",
+          "formula": "\\begin{array}{c|cc} s^3 & a_3 & a_1 \\\\ s^2 & a_2 & a_0 \\\\ s^1 & b_1 & 0 \\\\ s^0 & a_0 & \\end{array} \\quad b_1 = \\frac{a_2a_1 - a_3a_0}{a_2}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a2": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "a1": [
+              2,
+              3,
+              5,
+              6
+            ],
+            "a0": [
+              1,
+              4,
+              10,
+              20,
+              30
+            ]
+          },
+          "require": "abs(a2*a1-a0)",
+          "prompt": "Build the Routh array of $s^3 + {{a2}}s^2 + {{a1}}s + {{a0}}$. What is the first-column entry $b_1$ of the $s^1$ row?",
+          "answer": "(a2*a1-a0)/a2",
+          "unit": "",
+          "explanation": "$b_1 = \\frac{a_2a_1 - a_3a_0}{a_2} = \\frac{{{a2}}\\cdot{{a1}} - 1\\cdot{{a0}}}{{{a2}}}$ = {{(a2*a1-a0)/a2}}. First column: 1, {{a2}}, {{(a2*a1-a0)/a2}}, {{a0}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              3,
+              4
+            ],
+            "b": [
+              2,
+              3,
+              5
+            ],
+            "c": [
+              3,
+              5,
+              8,
+              14,
+              20,
+              30
+            ]
+          },
+          "require": "abs(a*b-c)",
+          "prompt": "How many closed-loop poles of $s^3 + {{a}}s^2 + {{b}}s + {{c}}$ lie in the right half-plane?",
+          "answer": "2*step(c-a*b)",
+          "unit": "",
+          "absTolerance": 0.1,
+          "explanation": "First column: 1, {{a}}, $b_1 = \\frac{{{a}}\\cdot{{b}} - {{c}}}{{{a}}}$ = {{(a*b-c)/a}}, {{c}}. Count the sign changes: {{2*step(c-a*b)}}. (Going from positive to negative and back counts twice.)"
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "A polynomial with all coefficients positive can still have roots in the right half-plane.",
+          "answer": true,
+          "explanation": "Positive coefficients are necessary but, from third order on, not sufficient. Example: $s^3 + s^2 + s + 6$ has $b_1 = (1 - 6)/1 = -5$: two sign changes, two right-half-plane poles."
+        }
+      ]
+    },
+    {
+      "id": "cs-stability-2",
+      "title": "Range of K",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              3
+            ],
+            "d": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "b": "a+d"
+          },
+          "prompt": "$G(s) = \\frac{K}{s(s+{{a}})(s+{{b}})}$ with unity negative feedback. Find the largest $K$ for which the loop is stable.",
+          "answer": "a*b*(a+b)",
+          "unit": "",
+          "explanation": "$s(s+{{a}})(s+{{b}}) + K = s^3 + {{a+b}}s^2 + {{a*b}}s + K$. First column: 1, {{a+b}}, $\\frac{{{a+b}}\\cdot{{a*b}} - K}{{{a+b}}}$, $K$. All positive: $0 < K < {{a+b}}\\cdot{{a*b}}$ = {{a*b*(a+b)}}."
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              3
+            ],
+            "d": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "b": "a+d"
+          },
+          "prompt": "$G(s) = \\frac{K}{s(s+{{a}})(s+{{b}})}$ with unity feedback is set to the critical gain $K = {{a*b*(a+b)}}$. At what frequency does the loop oscillate?",
+          "answer": "sqrt(a*b)",
+          "unit": "rad/s",
+          "explanation": "At the critical gain the $s^1$ row is zero. The $s^2$ row gives the auxiliary polynomial ${{a+b}}s^2 + {{a*b*(a+b)}} = 0$, so $s^2 = -{{a*b}}$ and $s = \\pm j\\sqrt{{{a*b}}}$: $\\omega$ = {{sqrt(a*b)}} rad/s."
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              3,
+              5
+            ]
+          },
+          "prompt": "$G(s) = \\frac{K}{(s+{{a}})^3}$ with unity feedback. Find the largest $K$ for stability.",
+          "answer": "8*a^3",
+          "unit": "",
+          "explanation": "$(s+{{a}})^3 + K = s^3 + {{3*a}}s^2 + {{3*a^2}}s + {{a^3}} + K$. Third-order condition: ${{3*a}}\\cdot{{3*a^2}} > {{a^3}} + K$, so $K < {{9*a^3}} - {{a^3}}$ = {{8*a^3}}. (The lower limit is $K > -{{a^3}}$.)"
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "c3": "6*p",
+            "c2": "11*p^2",
+            "c1": "6*p^3",
+            "b1": "10*p^2"
+          },
+          "prompt": "$G(s) = \\frac{K}{s(s+{{p}})(s+{{2*p}})(s+{{3*p}})}$ with unity feedback gives $s^4 + {{c3}}s^3 + {{c2}}s^2 + {{c1}}s + K = 0$.",
+          "ask": [
+            {
+              "prompt": "Find the largest $K$ for stability.",
+              "answer": "10*p^4",
+              "unit": "",
+              "explanation": "Rows: $[1,\\ {{c2}},\\ K]$, $[{{c3}},\\ {{c1}}]$. $b_1 = \\frac{{{c3}}\\cdot{{c2}} - {{c1}}}{{{c3}}}$ = {{b1}}, $b_2 = K$. $c_1 = \\frac{{{b1}}\\cdot{{c1}} - {{c3}}K}{{{b1}}}$ > 0 gives $K < \\frac{{{b1}}\\cdot{{c1}}}{{{c3}}}$ = {{10*p^4}}. Last row $K > 0$."
+            },
+            {
+              "prompt": "At the critical $K$, find the oscillation frequency.",
+              "answer": "p",
+              "unit": "rad/s",
+              "explanation": "Critical $K = \\frac{b_1a_1}{a_3}$ = {{10*p^4}}. Auxiliary polynomial from the $s^2$ row: ${{b1}}s^2 + {{10*p^4}} = 0$, so $\\omega = \\sqrt{{{10*p^4}}/{{b1}}}$ = {{p}} rad/s."
+            }
+          ]
+        },
+        {
+          "id": "p5",
+          "type": "multipleChoice",
+          "prompt": "The first column of a Routh array reads $1,\\ 4,\\ -2,\\ 3,\\ 5$. How many poles lie in the right half-plane?",
+          "options": [
+            "2",
+            "1",
+            "0",
+            "3"
+          ],
+          "answer": 0,
+          "explanation": "Follow the signs: $+$ to $+$ (no change), $+$ to $-$ (change), $-$ to $+$ (change), $+$ to $+$ (no change). Two sign changes, so two right-half-plane poles. The value of the negative entry does not matter, only its sign."
+        },
+        {
+          "id": "p6",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              3,
+              4
+            ],
+            "d": [
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "z": "a+b+d"
+          },
+          "prompt": "A PI-type controller gives $G(s) = \\frac{K(s+{{z}})}{s(s+{{a}})(s+{{b}})}$ with unity feedback. Find the largest $K$ for stability.",
+          "answer": "(a+b)*a*b/d",
+          "unit": "",
+          "explanation": "$s^3 + {{a+b}}s^2 + ({{a*b}} + K)s + {{z}}K = 0$. Condition: ${{a+b}}({{a*b}} + K) > {{z}}K$, i.e. ${{(a+b)*a*b}} > ({{z}} - {{a+b}})K$, so $K <$ {{(a+b)*a*b}}/{{d}} = {{(a+b)*a*b/d}}. The zero far to the left ({{-z}}) is what limits the gain."
+        },
+        {
+          "id": "p7",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              3,
+              5
+            ],
+            "b": [
+              1,
+              2,
+              4
+            ]
+          },
+          "prompt": "A loop has the characteristic equation $s^3 + {{a}}s^2 + (K - {{b}})s + K = 0$. Find the **smallest** $K$ for which it is stable.",
+          "answer": "a*b/(a-1)",
+          "unit": "",
+          "explanation": "First column: 1, {{a}}, $b_1 = \\frac{{{a}}(K - {{b}}) - K}{{{a}}}$, $K$. $b_1 > 0$: ${{a-1}}K > {{a*b}}$, so $K >$ {{a*b/(a-1)}}. This also satisfies $K > {{b}}$ (the $s$ coefficient) and $K > 0$, so the loop is stable for $K >$ {{a*b/(a-1)}}."
+        },
+        {
+          "id": "p8",
+          "type": "trueFalse",
+          "prompt": "If a whole row of the Routh array becomes zero, the polynomial has roots placed symmetrically about the origin, for example a pair on the $j\\omega$ axis.",
+          "answer": true,
+          "explanation": "A zero row means the polynomial has an even factor (the auxiliary polynomial from the row above), whose roots come in pairs $\\pm p$. At a critical gain this is typically $\\pm j\\omega$: marginal stability and a sustained oscillation at $\\omega$."
+        }
+      ]
+    },
+    {
+      "id": "cs-stability-3",
+      "title": "Critical gains",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              3,
+              4
+            ],
+            "c": [
+              5,
+              6,
+              8
+            ]
+          },
+          "derived": {
+            "c2": "a+b+c",
+            "c1": "a*b+b*c+c*a",
+            "c0": "a*b*c"
+          },
+          "prompt": "$G(s) = \\frac{K}{(s+{{a}})(s+{{b}})(s+{{c}})}$ with unity feedback: $s^3 + {{c2}}s^2 + {{c1}}s + {{c0}} + K = 0$.",
+          "ask": [
+            {
+              "prompt": "Find the critical gain $K$ (edge of stability).",
+              "answer": "c2*c1-c0",
+              "unit": "",
+              "explanation": "Condition ${{c2}}\\cdot{{c1}} > {{c0}} + K$, so $K_{crit} = {{c2*c1}} - {{c0}}$ = {{c2*c1-c0}}."
+            },
+            {
+              "prompt": "Find the oscillation frequency at the critical gain.",
+              "answer": "sqrt(c1)",
+              "unit": "rad/s",
+              "explanation": "At $K_{crit}$ = {{c2*c1-c0}}, the auxiliary polynomial is ${{c2}}s^2 + {{c0}} + K = {{c2}}s^2 + {{c2*c1}} = 0$, so $\\omega = \\sqrt{{{c1}}}$ = {{sqrt(c1)}} rad/s."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "prompt": "How many roots of $s^4 + 2s^3 + 3s^2 + 4s + 5$ lie in the right half-plane?",
+          "answer": "2",
+          "unit": "",
+          "absTolerance": 0.1,
+          "explanation": "Rows: $[1,\\ 3,\\ 5]$, $[2,\\ 4]$. $b_1 = (2\\cdot3 - 4)/2 = 1$, $b_2 = 5$. $c_1 = (1\\cdot4 - 2\\cdot5)/1 = -6$. Last row: 5. First column $1, 2, 1, -6, 5$: two sign changes, so two right-half-plane roots, even though every coefficient is positive."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              3
+            ],
+            "d": [
+              1,
+              2,
+              3
+            ],
+            "f": [
+              0.1,
+              0.2,
+              0.25,
+              0.5
+            ]
+          },
+          "derived": {
+            "b": "a+d",
+            "Km": "a*b*(a+b)",
+            "K": "f*a*b*(a+b)"
+          },
+          "prompt": "$G(s) = \\frac{K}{s(s+{{a}})(s+{{b}})}$ runs with $K$ = {{K}}. By what factor can $K$ be increased before the loop goes unstable? Give it in dB (this is the **gain margin**).",
+          "answer": "20*log10(1/f)",
+          "unit": "dB",
+          "explanation": "Critical gain from Routh: $K_{crit} = {{a+b}}\\cdot{{a*b}}$ = {{Km}}. Factor: {{Km}}/{{K}} = {{1/f}}, i.e. $20\\log_{10}({{1/f}})$ = {{20*log10(1/f)|dB}}."
+        },
+        {
+          "id": "c4",
+          "type": "trueFalse",
+          "prompt": "A system whose transfer function has one pole at $s = 0$ and all other poles in the left half-plane is BIBO stable.",
+          "answer": false,
+          "explanation": "It is only **marginally** stable. A pole at the origin is an integrator: a bounded step input produces a ramp output that grows without bound. BIBO stability requires every pole strictly in the left half-plane."
+        },
+        {
+          "id": "c5",
+          "type": "orderSteps",
+          "prompt": "Put the steps for finding the stable range of $K$ in order.",
+          "items": [
+            "Write $1 + KG(s)H(s) = 0$ as a polynomial",
+            "Check that all coefficients can be positive",
+            "Build the Routh array with $K$ as a symbol",
+            "Require every first-column entry to be positive",
+            "Intersect the conditions to get the range of $K$"
+          ],
+          "explanation": "Clear the fractions of the characteristic equation first, then the quick coefficient check often already gives one bound (e.g. $K > 0$). The Routh array gives the rest; the stable range is where all first-column conditions hold at once."
+        },
+        {
+          "id": "c6",
+          "type": "matchPairs",
+          "prompt": "Match the Routh result to the conclusion.",
+          "pairs": [
+            [
+              "All first-column entries positive",
+              "Stable"
+            ],
+            [
+              "Two sign changes",
+              "Two RHP poles"
+            ],
+            [
+              "Row of zeros at $K_{crit}$",
+              "Poles on the $j\\omega$ axis"
+            ],
+            [
+              "A negative polynomial coefficient",
+              "Unstable, no array needed"
+            ]
+          ],
+          "explanation": "Sign changes count right-half-plane poles; none means stable. A zero row signals symmetric roots, at a critical gain a $\\pm j\\omega$ pair. A coefficient with the wrong sign already fails the necessary condition."
+        },
+        {
+          "id": "c7",
+          "type": "multipleChoice",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "d": [
+              1,
+              2,
+              3
+            ],
+            "f": [
+              0.5,
+              2
+            ]
+          },
+          "derived": {
+            "b": "a+d",
+            "Km": "a*b*(a+b)",
+            "K": "f*a*b*(a+b)"
+          },
+          "prompt": "$G(s) = \\frac{K}{s(s+{{a}})(s+{{b}})}$ with unity feedback and $K$ = {{K}}. Which graph is the closed-loop step response?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 20,
+                "label": "t"
+              },
+              "y": {
+                "min": -2,
+                "max": 4,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1-exp(-0.25*x)*cos(1.2*x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 20,
+                "label": "t"
+              },
+              "y": {
+                "min": -2,
+                "max": 4,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1-exp(0.05*x)*cos(1.2*x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 20,
+                "label": "t"
+              },
+              "y": {
+                "min": -2,
+                "max": 4,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1-cos(1.2*x)"
+                }
+              ]
+            }
+          ],
+          "options": [
+            "Decaying oscillation",
+            "Growing oscillation",
+            "Constant oscillation"
+          ],
+          "answer": "round((f-0.5)/1.5)",
+          "explanation": "The critical gain is $K_{crit} = {{a+b}}\\cdot{{a*b}}$ = {{Km}}. Here $K$ = {{K}}, which is {{f}} × $K_{crit}$. Below $K_{crit}$ all poles are in the left half-plane and the oscillation decays; above it a complex pair has crossed into the right half-plane and the oscillation grows. Exactly at $K_{crit}$ it would oscillate with constant amplitude."
+        }
+      ]
+    }
+  ]
+}

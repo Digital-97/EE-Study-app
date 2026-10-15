@@ -1,0 +1,1289 @@
+{
+  "id": "dt-dtft",
+  "title": "DTFT, DFT & FFT",
+  "description": "Describe sequences in frequency with the DTFT, compute DFTs by hand and see why the FFT is fast.",
+  "reference": "Phillips §12.1–12.5",
+  "study": [
+    {
+      "title": "The DTFT",
+      "body": "The discrete-time Fourier transform gives the spectrum of a sequence as a continuous function of the digital frequency $\\Omega$ in rad/sample. Since $e^{-j(\\Omega+2\\pi)n} = e^{-j\\Omega n}$, $X(\\Omega)$ is **periodic**, with period $2\\pi$: only $-\\pi < \\Omega \\le \\pi$ is unique, and $\\Omega = \\pi$ means $f_s/2$. It is the z-transform on the unit circle, $z = e^{j\\Omega}$; for samples $x(nT)$, $\\Omega = \\omega T$. Explore $a^n u[n]$: low-pass for $a > 0$, high-pass for $a < 0$.",
+      "formula": "X(\\Omega) = \\sum_{n=-\\infty}^{\\infty} x[n]\\,e^{-j\\Omega n}",
+      "plot": {
+        "x": {
+          "min": -2,
+          "max": 2,
+          "label": "Ω/π",
+          "ticks": [
+            -2,
+            -1,
+            0,
+            1,
+            2
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": "1.15/(1-abs(a))",
+          "label": "|X(Ω)|"
+        },
+        "sliders": [
+          {
+            "name": "a",
+            "label": "$a$",
+            "min": -0.9,
+            "max": 0.9,
+            "step": 0.05,
+            "value": 0.6
+          }
+        ],
+        "curves": [
+          {
+            "f": "1/sqrt(1 - 2*a*cos(pi*x) + a^2)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$|X(0)|$",
+            "value": "1/(1-a)"
+          },
+          {
+            "label": "$|X(\\pi)|$",
+            "value": "1/(1+a)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "DTFT pairs",
+      "body": "$\\delta[n] \\leftrightarrow 1$: all frequencies equally. $a^n u[n] \\leftrightarrow \\frac{1}{1-ae^{-j\\Omega}}$ for $|a| < 1$. A rectangular pulse of $N$ ones, from $n = 0$ to $N-1$, gives the **digital sinc** (Dirichlet kernel): peak $N$ at $\\Omega = 0$, first nulls at $\\pm 2\\pi/N$, and unlike the CT sinc it repeats every $2\\pi$. Longer pulse, narrower spectrum.",
+      "formula": "\\sum_{n=0}^{N-1} e^{-j\\Omega n} = e^{-j\\Omega (N-1)/2}\\,\\frac{\\sin(N\\Omega/2)}{\\sin(\\Omega/2)}",
+      "plot": {
+        "x": {
+          "min": -2,
+          "max": 2,
+          "label": "Ω/π",
+          "ticks": [
+            -2,
+            -1,
+            0,
+            1,
+            2
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": "1.15*N",
+          "label": "|X(Ω)|"
+        },
+        "sliders": [
+          {
+            "name": "N",
+            "label": "pulse length $N$",
+            "min": 2,
+            "max": 12,
+            "step": 1,
+            "value": 5
+          }
+        ],
+        "curves": [
+          {
+            "f": "abs(sin(N*pi*(x+1e-7)/2)/sin(pi*(x+1e-7)/2))"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "peak $|X(0)|$",
+            "value": "N"
+          },
+          {
+            "label": "first null $\\Omega/\\pi$",
+            "value": "2/N"
+          }
+        ]
+      }
+    },
+    {
+      "title": "DTFT properties",
+      "body": "- Linearity: $ax_1 + bx_2 \\leftrightarrow aX_1 + bX_2$\n- Time shift: $x[n-n_0] \\leftrightarrow e^{-j\\Omega n_0}X(\\Omega)$; the magnitude is unchanged\n- Frequency shift: $e^{j\\Omega_0 n}x[n] \\leftrightarrow X(\\Omega - \\Omega_0)$\n- Real $x[n]$: $X(-\\Omega) = X^*(\\Omega)$, so $|X|$ is even and $\\angle X$ odd\n- Convolution: $x[n]*h[n] \\leftrightarrow X(\\Omega)H(\\Omega)$\n- Parseval: energy is the same in both domains",
+      "formula": "\\sum_{n} |x[n]|^2 = \\frac{1}{2\\pi}\\int_{-\\pi}^{\\pi} |X(\\Omega)|^2\\,d\\Omega"
+    },
+    {
+      "title": "The DFT",
+      "body": "Take a record of $N$ samples and sample its DTFT at $N$ frequencies $\\Omega_k = 2\\pi k/N$: that is the DFT. Bin $k$ is at $f_k = kf_s/N$, and $X[0]$ is the plain sum of the samples. For real $x[n]$, $X[N-k] = X^*[k]$, so only bins $0 \\ldots N/2$ carry new information. Explore: $L$ ones in an 8-point record; the dots are the DFT, the grey curve the DTFT.",
+      "formula": "X[k] = \\sum_{n=0}^{N-1} x[n]\\,e^{-j2\\pi kn/N}",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 8,
+          "label": "k  (Ω = 2πk/8)",
+          "ticks": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 9,
+          "label": "|X|"
+        },
+        "sliders": [
+          {
+            "name": "L",
+            "label": "ones in the record $L$",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "value": 4
+          }
+        ],
+        "curves": [
+          {
+            "f": "abs(sin(pi*L*(x+1e-7)/8)/sin(pi*(x+1e-7)/8))",
+            "color": "grey",
+            "dash": true,
+            "label": "DTFT"
+          },
+          {
+            "f": "if(0.01700 - abs(x - round(x)), abs(sin(pi*L*(round(x)+1e-7)/8)/sin(pi*(round(x)+1e-7)/8)), 0)",
+            "from": -0.4,
+            "to": 7.4
+          }
+        ],
+        "points": [
+          {
+            "x": 0,
+            "y": "abs(sin(pi*L*(0+1e-7)/8)/sin(pi*(0+1e-7)/8))",
+            "guides": false
+          },
+          {
+            "x": 1,
+            "y": "abs(sin(pi*L*(1+1e-7)/8)/sin(pi*(1+1e-7)/8))",
+            "guides": false
+          },
+          {
+            "x": 2,
+            "y": "abs(sin(pi*L*(2+1e-7)/8)/sin(pi*(2+1e-7)/8))",
+            "guides": false
+          },
+          {
+            "x": 3,
+            "y": "abs(sin(pi*L*(3+1e-7)/8)/sin(pi*(3+1e-7)/8))",
+            "guides": false
+          },
+          {
+            "x": 4,
+            "y": "abs(sin(pi*L*(4+1e-7)/8)/sin(pi*(4+1e-7)/8))",
+            "guides": false
+          },
+          {
+            "x": 5,
+            "y": "abs(sin(pi*L*(5+1e-7)/8)/sin(pi*(5+1e-7)/8))",
+            "guides": false
+          },
+          {
+            "x": 6,
+            "y": "abs(sin(pi*L*(6+1e-7)/8)/sin(pi*(6+1e-7)/8))",
+            "guides": false
+          },
+          {
+            "x": 7,
+            "y": "abs(sin(pi*L*(7+1e-7)/8)/sin(pi*(7+1e-7)/8))",
+            "guides": false
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$X[0]$",
+            "value": "L"
+          },
+          {
+            "label": "$|X[1]|$",
+            "value": "abs(sin(pi*L/8)/sin(pi/8))"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Inverse DFT and periodicity",
+      "body": "The inverse DFT has the same form with $+j$ and a factor $1/N$. Both $x[n]$ and $X[k]$ from these sums repeat with period $N$: the DFT treats the record as **one period of a periodic sequence**. This is the discrete-time Fourier series: a sequence with period $N$ has a line spectrum at $\\Omega_k = 2\\pi k/N$ with coefficients $X[k]/N$. Shorthand: $W_N = e^{-j2\\pi/N}$, so $X[k] = \\sum x[n]W_N^{kn}$.",
+      "formula": "x[n] = \\frac{1}{N}\\sum_{k=0}^{N-1} X[k]\\,e^{j2\\pi kn/N}"
+    },
+    {
+      "title": "The FFT",
+      "body": "A direct DFT costs $N^2$ complex multiplications. Radix-2 decimation in time splits the record into even- and odd-indexed samples, takes a DFT of length $N/2$ of each, $E[k]$ and $O[k]$, and combines them with **butterflies**. Repeated, that gives $\\log_2 N$ stages of $N/2$ butterflies, one twiddle multiplication $W_N^k$ each. For $N = 1024$: 1 048 576 versus 5120 multiplications, a speed-up of 205.",
+      "formula": "X[k],\\ X[k+\\tfrac{N}{2}] = E[k] \\pm W_N^k O[k]",
+      "plot": {
+        "x": {
+          "min": 2,
+          "max": 4096,
+          "label": "N",
+          "log": true
+        },
+        "y": {
+          "min": 1,
+          "max": 20000000.0,
+          "label": "complex mults",
+          "log": true
+        },
+        "curves": [
+          {
+            "f": "x^2",
+            "color": "red"
+          },
+          {
+            "f": "x/2*ln(x)/ln(2)"
+          }
+        ],
+        "labels": [
+          {
+            "x": 4,
+            "y": 200000,
+            "text": "DFT: N²",
+            "color": "red"
+          },
+          {
+            "x": 150,
+            "y": 60,
+            "text": "FFT",
+            "color": "primary"
+          },
+          {
+            "x": 1150,
+            "y": 1300,
+            "text": "5120",
+            "color": "orange"
+          },
+          {
+            "x": 1150,
+            "y": 260000,
+            "text": "1.05 M",
+            "color": "red"
+          }
+        ],
+        "points": [
+          {
+            "x": 1024,
+            "y": 5120
+          },
+          {
+            "x": 1024,
+            "y": 1048576,
+            "color": "red"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dt-dtft-1",
+      "title": "From DTFT to DFT",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The DTFT",
+          "body": "The **discrete-time Fourier transform** describes the frequency content of a sequence. Each sample is weighted by $e^{-j\\Omega n}$, where $\\Omega$ is the digital frequency in **rad/sample**. Setting $z = e^{j\\Omega}$ in the z-transform gives the same sum: the DTFT is $X(z)$ on the unit circle.",
+          "formula": "X(\\Omega) = \\sum_{n=-\\infty}^{\\infty} x[n]\\,e^{-j\\Omega n}"
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "The DTFT $X(\\Omega)$ of every sequence repeats itself every $2\\pi$ rad/sample.",
+          "answer": true,
+          "explanation": "$e^{-j(\\Omega + 2\\pi)n} = e^{-j\\Omega n}e^{-j2\\pi n} = e^{-j\\Omega n}$ because $n$ is an integer. So every term, and therefore $X(\\Omega)$, is periodic with period $2\\pi$. This is aliasing seen from the frequency side: $\\Omega$ and $\\Omega + 2\\pi$ are the same sequence frequency."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.6,
+              0.75,
+              0.8,
+              0.9,
+              -0.5,
+              -0.6,
+              -0.8
+            ]
+          },
+          "prompt": "The sequence $x[n] = ({{a}})^n u[n]$ has DTFT $X(\\Omega) = \\frac{1}{1 - ae^{-j\\Omega}}$.",
+          "ask": [
+            {
+              "prompt": "Find $|X(\\Omega)|$ at $\\Omega = 0$ (DC).",
+              "answer": "1/(1-a)",
+              "unit": "",
+              "explanation": "At $\\Omega = 0$, $e^{-j0} = 1$: $X(0) = \\frac{1}{1-a}$ = 1/(1 − ({{a}})) = {{1/(1-a)}}. (This is also $\\sum x[n]$, the sum of all samples.)"
+            },
+            {
+              "prompt": "Find $|X(\\Omega)|$ at $\\Omega = \\pi$ (half the sampling rate).",
+              "answer": "1/(1+a)",
+              "unit": "",
+              "explanation": "At $\\Omega = \\pi$, $e^{-j\\pi} = -1$: $X(\\pi) = \\frac{1}{1+a}$ = 1/(1 + ({{a}})) = {{1/(1+a)}}. With $a > 0$ this is smaller than $X(0)$ (low-pass); with $a < 0$ larger (high-pass)."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Link with the analog spectrum",
+          "body": "If $x[n] = x(nT)$ comes from sampling, the DTFT is the spectrum of the sampled signal: the analog spectrum scaled by $1/T$ and repeated every $f_s$. Digital and analog frequency are linked by $\\Omega = \\omega T$, so $\\Omega = 2\\pi$ is $f_s$ and $\\Omega = \\pi$ is the Nyquist frequency $f_s/2$.",
+          "formula": "\\Omega = \\omega T = 2\\pi\\frac{f}{f_s}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000,
+              10000,
+              44100,
+              48000
+            ],
+            "W": {
+              "min": 0.2,
+              "max": 3,
+              "step": 0.1
+            }
+          },
+          "prompt": "A sampled signal ($f_s$ = {{fs|Hz}}) has a DTFT with a sharp peak at $\\Omega$ = {{W}} rad/sample. Which analog frequency does the peak represent?",
+          "answer": "W*fs/(2*pi)",
+          "unit": "Hz",
+          "explanation": "$f = \\frac{\\Omega}{2\\pi}f_s$ = {{W}}/(2π) × {{fs|Hz}} = {{W*fs/(2*pi)|Hz}}."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "R": [
+              0.25,
+              3,
+              4,
+              9
+            ]
+          },
+          "prompt": "$x[n] = a^n u[n]$. Set $a$ so that $|X(0)|$ is {{R}} times $|X(\\pi)|$.",
+          "plot": {
+            "x": {
+              "min": -1,
+              "max": 1,
+              "label": "Ω/π"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.15/(1-abs(a))",
+              "label": "|X(Ω)|"
+            },
+            "sliders": [
+              {
+                "name": "a",
+                "label": "$a$",
+                "min": -0.9,
+                "max": 0.9,
+                "step": 0.01,
+                "value": 0
+              }
+            ],
+            "curves": [
+              {
+                "f": "1/sqrt(1 - 2*a*cos(pi*x) + a^2)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$|X(0)|$",
+                "value": "1/(1-a)"
+              },
+              {
+                "label": "$|X(\\pi)|$",
+                "value": "1/(1+a)"
+              },
+              {
+                "label": "ratio",
+                "value": "(1+a)/(1-a)",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "a": "(R-1)/(R+1)"
+          },
+          "absTolerance": 0.015,
+          "explanation": "$|X(0)|/|X(\\pi)| = \\frac{1/(1-a)}{1/(1+a)} = \\frac{1+a}{1-a}$. Setting this to {{R}} gives $a = \\frac{R-1}{R+1}$ = {{(R-1)/(R+1)}}. A positive $a$ makes a low-pass spectrum, a negative $a$ a high-pass one."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The DFT",
+          "body": "A computer cannot store the continuous $X(\\Omega)$. Instead take $N$ samples and evaluate their DTFT at $N$ frequencies $\\Omega_k = 2\\pi k/N$: the **discrete Fourier transform**. With sampling rate $f_s$, bin $k$ lies at $f_k = kf_s/N$, and bins above $N/2$ are the negative frequencies.",
+          "formula": "X[k] = \\sum_{n=0}^{N-1} x[n]\\,e^{-j2\\pi kn/N}, \\quad f_k = k\\frac{f_s}{N}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              1000,
+              8000,
+              10000,
+              48000
+            ],
+            "N": [
+              64,
+              128,
+              256,
+              512
+            ],
+            "k": {
+              "min": 3,
+              "max": 30,
+              "step": 1
+            }
+          },
+          "prompt": "A real signal sampled at {{fs|Hz}} is analysed with an $N$ = {{N||5}}-point DFT.",
+          "ask": [
+            {
+              "prompt": "At which frequency does bin $k$ = {{k}} lie?",
+              "answer": "k*fs/N",
+              "unit": "Hz",
+              "explanation": "$f_k = k f_s/N$ = {{k}} × {{fs|Hz}} / {{N||5}} = {{k*fs/N|Hz}}."
+            },
+            {
+              "prompt": "A tone gives a peak in bin {{k}}. In which other bin does its mirror image appear?",
+              "answer": "N-k",
+              "unit": "",
+              "explanation": "For real signals $X[N-k] = X^*[k]$, so the same magnitude appears in bin $N - k$ = {{N||5}} − {{k}} = {{N-k}}. That bin represents the negative frequency $-f_k$."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "a": {
+              "min": 1,
+              "max": 6,
+              "step": 1
+            },
+            "b": {
+              "min": 1,
+              "max": 6,
+              "step": 1
+            },
+            "c": {
+              "min": 1,
+              "max": 6,
+              "step": 1
+            },
+            "d": {
+              "min": 1,
+              "max": 6,
+              "step": 1
+            }
+          },
+          "derived": {
+            "S": "a+b+c+d"
+          },
+          "require": "abs(S/4 - (a-b+c-d))*abs(a - (a-b+c-d))*abs(a - S/4)",
+          "prompt": "A 4-point DFT is taken of $x[n] = [{{a}}, {{b}}, {{c}}, {{d}}]$. What is $X[0]$?",
+          "options": [
+            "{{S}}",
+            "{{S/4}}",
+            "{{a-b+c-d}}",
+            "{{a}}"
+          ],
+          "answer": 0,
+          "explanation": "For $k = 0$ every exponential is $e^0 = 1$, so $X[0] = \\sum x[n]$ = {{a}} + {{b}} + {{c}} + {{d}} = {{S}}. It is $N$ times the mean ({{S/4}}). $a - b + c - d$ would be $X[2]$."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each sequence to its DTFT.",
+          "pairs": [
+            [
+              "$\\delta[n]$",
+              "$1$"
+            ],
+            [
+              "$\\delta[n-3]$",
+              "$e^{-j3\\Omega}$"
+            ],
+            [
+              "$0.5^n u[n]$",
+              "$1/(1-0.5e^{-j\\Omega})$"
+            ],
+            [
+              "$e^{j\\pi n/4}x[n]$",
+              "$X(\\Omega - \\pi/4)$"
+            ]
+          ],
+          "explanation": "A unit sample has a flat spectrum (1); delaying it by 3 adds the linear phase $e^{-j3\\Omega}$. $a^n u[n]$ gives $1/(1-ae^{-j\\Omega})$. Multiplying by $e^{j\\Omega_0 n}$ shifts the spectrum by $\\Omega_0$ (frequency shift, modulation)."
+        }
+      ]
+    },
+    {
+      "id": "dt-dtft-2",
+      "title": "DFTs by hand",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            },
+            "b": {
+              "min": -5,
+              "max": 9,
+              "step": 1
+            }
+          },
+          "require": "abs(a-b)*abs(a+b)*abs(b)",
+          "prompt": "Compute the 2-point DFT of $x[n] = [{{a}}, {{b}}]$.",
+          "ask": [
+            {
+              "prompt": "Find $X[0]$.",
+              "answer": "a+b",
+              "unit": "",
+              "explanation": "For $N = 2$: $e^{-j2\\pi kn/2} = (-1)^{kn}$. $X[0] = x[0] + x[1]$ = {{a}} + ({{b}}) = {{a+b}}."
+            },
+            {
+              "prompt": "Find $X[1]$.",
+              "answer": "a-b",
+              "unit": "",
+              "explanation": "For $N = 2$: $e^{-j\\pi} = -1$, so $X[1] = x[0] - x[1]$ = {{a}} − ({{b}}) = {{a-b}}. This sum/difference pair is the basic FFT butterfly."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "b": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "c": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "d": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            }
+          },
+          "require": "abs(a-c)*abs(b-d)*abs(a+b+c+d)*abs(a-b+c-d)",
+          "prompt": "Compute the 4-point DFT of $x[n] = [{{a}}, {{b}}, {{c}}, {{d}}]$. Use $W_4 = e^{-j\\pi/2} = -j$.",
+          "ask": [
+            {
+              "prompt": "Find $X[2]$.",
+              "answer": "a-b+c-d",
+              "unit": "",
+              "explanation": "$W_4^{2n} = (-1)^n$, so $X[2] = x[0] - x[1] + x[2] - x[3]$ = {{a}} − ({{b}}) + ({{c}}) − ({{d}}) = {{a-b+c-d}}."
+            },
+            {
+              "prompt": "Find $\\mathrm{Re}\\,X[1]$.",
+              "answer": "a-c",
+              "unit": "",
+              "explanation": "$W_4^n = 1, -j, -1, j$, so $X[1] = x[0] - jx[1] - x[2] + jx[3]$.\n$\\mathrm{Re}\\,X[1]$ = {{a}} − ({{c}}) = {{a-c}}."
+            },
+            {
+              "prompt": "Find $\\mathrm{Im}\\,X[1]$.",
+              "answer": "d-b",
+              "unit": "",
+              "explanation": "$X[1] = (x[0]-x[2]) - j(x[1]-x[3])$, so $\\mathrm{Im}\\,X[1] = x[3] - x[1]$ = {{d}} − ({{b}}) = {{d-b}}."
+            },
+            {
+              "prompt": "Find $|X[1]|$.",
+              "answer": "sqrt((a-c)^2+(b-d)^2)",
+              "unit": "",
+              "explanation": "$X[1] = (x[0]-x[2]) - j(x[1]-x[3])$ = {{a-c}} − j({{b-d}}).\n$|X[1]| = \\sqrt{({{a-c}})^2 + ({{b-d}})^2}$ = {{sqrt((a-c)^2+(b-d)^2)}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "k": [
+              1,
+              2,
+              3
+            ],
+            "p": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            },
+            "q": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            }
+          },
+          "prompt": "A real sequence of $N = 8$ samples has $X[{{k}}] = {{p}} + j{{q}}$. What is $X[{{8-k}}]$?",
+          "options": [
+            "${{p}} - j{{q}}$",
+            "${{p}} + j{{q}}$",
+            "$-{{p}} + j{{q}}$",
+            "$-{{p}} - j{{q}}$"
+          ],
+          "answer": 0,
+          "explanation": "For real $x[n]$: $X[N-k] = X^*[k]$. Bin {{8-k}} = 8 − {{k}} is the mirror of bin {{k}}, so it is the complex conjugate: {{p}} − j{{q}}. Same magnitude, opposite phase."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "A": {
+              "min": 4,
+              "max": 20,
+              "step": 2
+            },
+            "B": {
+              "min": -6,
+              "max": 6,
+              "step": 2
+            },
+            "C": {
+              "min": -8,
+              "max": 8,
+              "step": 2
+            }
+          },
+          "require": "abs(B)*abs(A-C)",
+          "prompt": "An inverse 4-point DFT: $X[k] = [{{A}}, {{B}}, {{C}}, {{B}}]$ (all real).",
+          "ask": [
+            {
+              "prompt": "Find $x[0]$.",
+              "answer": "(A+2*B+C)/4",
+              "unit": "",
+              "explanation": "$x[n] = \\frac{1}{4}\\sum X[k]\\,j^{kn}$. For $n = 0$ all factors are 1: $x[0] = \\frac{1}{4}(X[0]+X[1]+X[2]+X[3])$ = ({{A}} + 2·({{B}}) + ({{C}}))/4 = {{(A+2*B+C)/4}}.",
+              "absTolerance": 0.01
+            },
+            {
+              "prompt": "Find $x[1]$.",
+              "answer": "(A-C)/4",
+              "unit": "",
+              "explanation": "For $n = 1$ the factors are $1, j, -1, -j$: $x[1] = \\frac{1}{4}(X[0] + jX[1] - X[2] - jX[3])$. With $X[3] = X[1]$ the $j$ terms cancel: ({{A}} − ({{C}}))/4 = {{(A-C)/4}}.",
+              "absTolerance": 0.01
+            },
+            {
+              "prompt": "Find $x[2]$.",
+              "answer": "(A-2*B+C)/4",
+              "unit": "",
+              "explanation": "For $n = 2$ the factors are $(-1)^k$: $x[2] = \\frac{1}{4}(X[0]-X[1]+X[2]-X[3])$ = ({{A}} − 2·({{B}}) + ({{C}}))/4 = {{(A-2*B+C)/4}}.",
+              "absTolerance": 0.01
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 1,
+              "max": 5,
+              "step": 1
+            },
+            "b": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            }
+          },
+          "require": "abs(b-2*a)*abs(b-a)",
+          "prompt": "$x[n] = [{{a}}, {{b}}, {{a}}]$ for $n = 0, 1, 2$ (zero elsewhere). Its DTFT is $X(\\Omega) = e^{-j\\Omega}(b + 2a\\cos\\Omega)$.",
+          "ask": [
+            {
+              "prompt": "Find $|X(\\Omega)|$ at $\\Omega = 0$.",
+              "answer": "b+2*a",
+              "unit": "",
+              "explanation": "$|e^{-j\\Omega}| = 1$, so $|X| = |b + 2a\\cos\\Omega|$. At $\\Omega = 0$: {{b}} + 2·{{a}} = {{b+2*a}} (the sum of the samples)."
+            },
+            {
+              "prompt": "Find $|X(\\Omega)|$ at $\\Omega = \\pi/3$.",
+              "answer": "b+a",
+              "unit": "",
+              "explanation": "$|X| = |b + 2a\\cos\\Omega|$ with $\\cos(\\pi/3) = 0.5$: {{b}} + 2·{{a}}·0.5 = {{b+a}}."
+            },
+            {
+              "prompt": "Find $|X(\\Omega)|$ at $\\Omega = \\pi$.",
+              "answer": "abs(b-2*a)",
+              "unit": "",
+              "explanation": "$|X| = |b + 2a\\cos\\Omega|$ with $\\cos\\pi = -1$: |{{b}} − 2·{{a}}| = {{abs(b-2*a)}}."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "n0": [
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "$y[n] = x[n - {{n0}}]$. How is $|Y(\\Omega)|$ related to $|X(\\Omega)|$?",
+          "options": [
+            "$|Y(\\Omega)| = |X(\\Omega)|$",
+            "$|Y(\\Omega)| = {{n0}}|X(\\Omega)|$",
+            "$|Y(\\Omega)| = |X(\\Omega - {{n0}})|$",
+            "$|Y(\\Omega)| = |X(\\Omega)|/{{n0}}$"
+          ],
+          "answer": 0,
+          "explanation": "Time shift: $Y(\\Omega) = e^{-j{{n0}}\\Omega}X(\\Omega)$. The factor has magnitude 1, so only the phase changes (by $-{{n0}}\\Omega$, linear in frequency). A shift in **frequency** would come from multiplying by $e^{j\\Omega_0 n}$."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "b": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "c": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "d": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            }
+          },
+          "require": "a^2+b^2+c^2+d^2",
+          "prompt": "$x[n] = [{{a}}, {{b}}, {{c}}, {{d}}]$. Without computing the DFT, find $\\sum_{k=0}^{3}|X[k]|^2$.",
+          "answer": "4*(a^2+b^2+c^2+d^2)",
+          "unit": "",
+          "explanation": "Parseval for the DFT: $\\sum_n |x[n]|^2 = \\frac{1}{N}\\sum_k |X[k]|^2$, so $\\sum_k |X[k]|^2 = N\\sum_n |x[n]|^2$ = 4 × (({{a}})² + ({{b}})² + ({{c}})² + ({{d}})²) = 4 × {{a^2+b^2+c^2+d^2}} = {{4*(a^2+b^2+c^2+d^2)}}."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "For a **real** sequence with $N = 8$, $X[4]$ is always real.",
+          "answer": true,
+          "explanation": "$X[4] = \\sum x[n]e^{-j\\pi n} = \\sum x[n](-1)^n$, a sum of real numbers. Equivalently $X[N-k] = X^*[k]$ with $k = N/2$ gives $X[4] = X^*[4]$. The same holds for $X[0]$."
+        }
+      ]
+    },
+    {
+      "id": "dt-dtft-3",
+      "title": "The FFT",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Decimation in time",
+          "body": "Split $x[n]$ into even samples $x[0], x[2], \\ldots$ and odd samples $x[1], x[3], \\ldots$ and take an $N/2$-point DFT of each: $E[k]$ and $O[k]$. One **butterfly** then gives two outputs with a single twiddle multiplication $W_N^k = e^{-j2\\pi k/N}$. Repeating the split until 2-point DFTs remain gives $\\log_2 N$ stages of $N/2$ butterflies.",
+          "formula": "X[k],\\ X[k+\\tfrac{N}{2}] = E[k] \\pm W_N^k O[k]"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "m": [
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          },
+          "derived": {
+            "N": "2^m",
+            "ex": "floor(log10(N^2))",
+            "mant": "N^2/10^ex"
+          },
+          "prompt": "Compare a direct DFT and a radix-2 FFT for $N$ = {{N||5}}.",
+          "ask": [
+            {
+              "prompt": "How many complex multiplications does the direct DFT need?",
+              "answer": "N^2",
+              "unit": "",
+              "explanation": "$N^2$ = {{N||5}}² = $2^{ {{2*m}} } \\approx {{mant||3}} \\times 10^{ {{ex}} }$."
+            },
+            {
+              "prompt": "How many complex multiplications does the FFT need?",
+              "answer": "N/2*m",
+              "unit": "",
+              "explanation": "$\\frac{N}{2}\\log_2 N$ = {{N/2||5}} × {{m}} = {{N/2*m||6}}. ($\\log_2$ {{N||5}} = {{m}} stages of {{N/2||5}} butterflies.)"
+            },
+            {
+              "prompt": "What is the speed-up factor (DFT count / FFT count)?",
+              "answer": "2*N/m",
+              "unit": "",
+              "explanation": "$\\frac{N^2}{(N/2)\\log_2 N} = \\frac{2N}{\\log_2 N}$ = 2 × {{N||5}} / {{m}} = {{2*N/m}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "orderSteps",
+          "prompt": "Put the steps of an 8-point decimation-in-time FFT in order.",
+          "items": [
+            "Reorder the input in bit-reversed order: x[0], x[4], x[2], x[6], …",
+            "Stage 1: four 2-point butterflies (sum and difference)",
+            "Stage 2: combine into two 4-point DFTs using $W_4$ twiddles",
+            "Stage 3: combine into the 8-point DFT using $W_8^0 \\ldots W_8^3$"
+          ],
+          "explanation": "Repeated even/odd splitting scrambles the input order (bit reversal: index 1 = 001 becomes 100 = 4). Then $\\log_2 8 = 3$ stages of 4 butterflies each build 2-point, 4-point and finally the 8-point DFT."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "b": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "c": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            },
+            "d": {
+              "min": -3,
+              "max": 5,
+              "step": 1
+            }
+          },
+          "require": "abs(b-d)*abs(a+c-b-d)",
+          "prompt": "A 4-point FFT of $x[n] = [{{a}}, {{b}}, {{c}}, {{d}}]$: the 2-point DFTs give $E[0] = x[0]+x[2]$, $E[1] = x[0]-x[2]$, $O[0] = x[1]+x[3]$, $O[1] = x[1]-x[3]$. The twiddles are $W_4^0 = 1$, $W_4^1 = -j$.",
+          "ask": [
+            {
+              "prompt": "Find $X[2] = E[0] - W_4^0 O[0]$.",
+              "answer": "a+c-b-d",
+              "unit": "",
+              "explanation": "$E[0]$ = {{a}} + ({{c}}) = {{a+c}}, $O[0]$ = {{b}} + ({{d}}) = {{b+d}}.\n$X[2] = E[0] - O[0]$ = {{a+c}} − ({{b+d}}) = {{a+c-b-d}}."
+            },
+            {
+              "prompt": "Find $\\mathrm{Im}\\,X[3]$, with $X[3] = E[1] - W_4^1 O[1]$.",
+              "answer": "b-d",
+              "unit": "",
+              "explanation": "$X[3] = E[1] - (-j)O[1] = E[1] + jO[1]$. $E[1]$ is real, so $\\mathrm{Im}\\,X[3] = O[1] = x[1] - x[3]$ = {{b}} − ({{d}}) = {{b-d}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "M": [
+              300,
+              500,
+              700,
+              1000,
+              1500,
+              2000,
+              3000,
+              5000
+            ]
+          },
+          "derived": {
+            "m": "ceil(ln(M)/ln(2))",
+            "N": "2^m"
+          },
+          "prompt": "A record of {{M||4}} samples is zero-padded to the next power of 2 for a radix-2 FFT.",
+          "ask": [
+            {
+              "prompt": "Find the FFT length $N$.",
+              "answer": "N",
+              "unit": "",
+              "explanation": "$2^{{{m-1}}}$ = {{N/2||5}} is too short, $2^{{{m}}}$ = {{N||5}} ≥ {{M||4}}. So $N$ = {{N||5}} with {{N-M||4}} zeros appended."
+            },
+            {
+              "prompt": "How many complex multiplications does the FFT need?",
+              "answer": "N/2*m",
+              "unit": "",
+              "explanation": "$N$ = {{N||5}} = $2^{{{m}}}$, so $\\frac{N}{2}\\log_2 N$ = {{N/2||5}} × {{m}} = {{N/2*m||6}}. A direct {{M||4}}-point DFT would need {{M^2/1e6}} million."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "m": [
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "tc": [
+              1e-08,
+              2e-08,
+              5e-08,
+              1e-07
+            ]
+          },
+          "derived": {
+            "N": "2^m",
+            "ex": "floor(log10(N^2))",
+            "mant": "N^2/10^ex"
+          },
+          "prompt": "A processor needs {{tc|s}} per complex multiplication. Estimate the time for an $N$ = {{N||5}}-point transform (count multiplications only).",
+          "ask": [
+            {
+              "prompt": "Using the FFT:",
+              "answer": "N/2*m*tc",
+              "unit": "s",
+              "explanation": "$\\frac{N}{2}\\log_2 N$ = {{N/2||5}} × {{m}} = {{N/2*m||6}} multiplications × {{tc|s}} = {{N/2*m*tc|s}}."
+            },
+            {
+              "prompt": "Using the direct DFT:",
+              "answer": "N^2*tc",
+              "unit": "s",
+              "explanation": "$N^2 = 2^{ {{2*m}} } \\approx {{mant||3}} \\times 10^{ {{ex}} }$ multiplications × {{tc|s}} = {{N^2*tc|s}}, {{2*N/m}} times longer than the FFT."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "k": [
+              1,
+              3,
+              5,
+              7
+            ]
+          },
+          "prompt": "Find the twiddle factor $W_8^{{{k}}} = e^{-j2\\pi \\cdot {{k}}/8}$.",
+          "ask": [
+            {
+              "prompt": "Give its real part.",
+              "answer": "cos(2*pi*k/8)",
+              "unit": "",
+              "explanation": "$W_8^{{{k}}} = \\cos(2\\pi \\cdot {{k}}/8) - j\\sin(2\\pi \\cdot {{k}}/8)$. Real part: $\\cos({{45*k}}°)$ = {{cos(2*pi*k/8)}}.",
+              "absTolerance": 0.01
+            },
+            {
+              "prompt": "Give its imaginary part.",
+              "answer": "-sin(2*pi*k/8)",
+              "unit": "",
+              "explanation": "$W_8^{{{k}}} = \\cos(2\\pi \\cdot {{k}}/8) - j\\sin(2\\pi \\cdot {{k}}/8)$. Imaginary part: $-\\sin({{45*k}}°)$ = {{-sin(2*pi*k/8)}}.",
+              "absTolerance": 0.01
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "The FFT is a fast **approximation** of the DFT: it trades a small error for speed.",
+          "answer": false,
+          "explanation": "The FFT computes **exactly** the same $X[k]$ as the DFT sum (apart from rounding). It only reorganises the computation so that shared partial sums are reused; that is where the saving from $N^2$ to $\\frac{N}{2}\\log_2 N$ comes from."
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "prompt": "Which property of the twiddle factors makes the butterfly work, i.e. lets $X[k]$ and $X[k+N/2]$ share one multiplication?",
+          "options": [
+            "$W_N^{k+N/2} = -W_N^k$",
+            "$W_N^{k+N} = W_N^k$",
+            "$|W_N^k| = 1$",
+            "$W_N^0 = 1$"
+          ],
+          "answer": 0,
+          "explanation": "$W_N^{N/2} = e^{-j\\pi} = -1$, so $W_N^{k+N/2} = -W_N^k$. The product $W_N^k O[k]$ is computed once, then added for $X[k]$ and subtracted for $X[k+N/2]$. (The other statements are true but are not what saves the multiplication.)"
+        }
+      ]
+    },
+    {
+      "id": "dt-dtft-4",
+      "title": "Reading a spectrum",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A": [
+              2,
+              3,
+              5,
+              10
+            ],
+            "N": [
+              16,
+              32,
+              64
+            ],
+            "m": [
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          },
+          "prompt": "$x[n] = {{A}}\\cos(2\\pi \\cdot {{m}}n/{{N||5}})$ for $n = 0 \\ldots {{N-1}}$ is transformed with an $N$ = {{N||5}}-point DFT.",
+          "ask": [
+            {
+              "prompt": "Find $|X[{{m}}]|$.",
+              "answer": "A*N/2",
+              "unit": "",
+              "explanation": "$\\cos\\theta = \\frac{1}{2}(e^{j\\theta} + e^{-j\\theta})$. The record holds exactly {{m}} cycles, so each half lands in a single bin with weight $N \\cdot A/2$: $|X[{{m}}]|$ = {{N||5}} × {{A}}/2 = {{A*N/2}}."
+            },
+            {
+              "prompt": "Which other bin $k$ (between 0 and $N-1$) is nonzero?",
+              "answer": "N-m",
+              "unit": "",
+              "explanation": "The $e^{-j\\theta}$ half sits at $-{{m}}$, which the periodic DFT shows at $N - m$ = {{N||5}} − {{m}} = {{N-m}}, with the same magnitude {{A*N/2}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "N": [
+              256,
+              512,
+              1024
+            ],
+            "fs": [
+              1000,
+              8000,
+              10000,
+              48000
+            ],
+            "k": {
+              "min": 5,
+              "max": 60,
+              "step": 1
+            },
+            "P": [
+              128,
+              256,
+              640,
+              1024
+            ]
+          },
+          "prompt": "A spectrum analyser takes an $N$ = {{N||5}}-point DFT at $f_s$ = {{fs|Hz}} (rectangular window). The only peak is $|X[{{k}}]|$ = {{P||5}} (and its mirror). The tone lies exactly on the bin.",
+          "ask": [
+            {
+              "prompt": "Find the tone frequency.",
+              "answer": "k*fs/N",
+              "unit": "Hz",
+              "explanation": "$f = k f_s/N$ = {{k}} × {{fs|Hz}} / {{N||5}} = {{k*fs/N|Hz}}."
+            },
+            {
+              "prompt": "Find the amplitude of the tone.",
+              "answer": "2*P/N",
+              "unit": "",
+              "explanation": "A cosine of amplitude $A$ gives $|X[k]| = AN/2$, so $A = 2|X[k]|/N$ = 2 × {{P||5}} / {{N||5}} = {{2*P/N}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "D": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "A": [
+              2,
+              4,
+              6
+            ]
+          },
+          "prompt": "$x[n] = {{D}} + {{A}}\\cos(2\\pi n/4)$ for $n = 0 \\ldots 7$ is transformed with an 8-point DFT.",
+          "ask": [
+            {
+              "prompt": "Find $X[0]$.",
+              "answer": "8*D",
+              "unit": "",
+              "explanation": "$X[0] = \\sum x[n]$. The cosine completes two whole cycles and sums to zero, so $X[0] = 8D$ = 8 × {{D}} = {{8*D}}."
+            },
+            {
+              "prompt": "Find $|X[2]|$.",
+              "answer": "4*A",
+              "unit": "",
+              "explanation": "$\\cos(2\\pi n/4) = \\cos(2\\pi \\cdot 2n/8)$: two cycles in 8 samples, bin 2. $|X[2]| = NA/2$ = 8 × {{A}}/2 = {{4*A}} (the other half is in bin 6)."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "L": [
+              3,
+              4,
+              5,
+              6
+            ],
+            "N": [
+              8,
+              16
+            ],
+            "k": [
+              1,
+              2,
+              3
+            ]
+          },
+          "require": "abs(sin(pi*L*k/N)) - 0.01",
+          "prompt": "A pulse of $L$ = {{L}} ones is zero-padded to $N$ = {{N||5}} samples. The DFT samples the digital sinc: $|X[k]| = \\left|\\frac{\\sin(\\pi Lk/N)}{\\sin(\\pi k/N)}\\right|$. Find $|X[{{k}}]|$.",
+          "answer": "abs(sin(pi*L*k/N)/sin(pi*k/N))",
+          "unit": "",
+          "tolerance": 0.02,
+          "explanation": "$|X[{{k}}]| = \\left|\\frac{\\sin(\\pi \\cdot {{L}} \\cdot {{k}}/{{N||5}})}{\\sin(\\pi \\cdot {{k}}/{{N||5}})}\\right|$ = |{{sin(pi*L*k/N)}} / {{sin(pi*k/N)}}| = {{abs(sin(pi*L*k/N)/sin(pi*k/N))}}. Compare $X[0] = L$ = {{L}}: the DFT just picks points off the DTFT of the pulse."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              44100,
+              48000,
+              96000
+            ],
+            "m": [
+              10,
+              11,
+              12
+            ],
+            "tc": [
+              2e-08,
+              5e-08,
+              1e-07
+            ]
+          },
+          "derived": {
+            "N": "2^m"
+          },
+          "prompt": "A real-time analyser at $f_s$ = {{fs|Hz}} computes an $N$ = {{N||5}}-point FFT of every new block of $N$ samples. A complex multiplication takes {{tc|s}}. Which percentage of the time does the processor spend on FFT multiplications?",
+          "answer": "100*N/2*m*tc/(N/fs)",
+          "unit": "%",
+          "explanation": "FFT time: $\\frac{N}{2}\\log_2 N \\cdot t$ = {{N/2*m||6}} × {{tc|s}} = {{N/2*m*tc|s}}.\nA new block arrives every $N/f_s$ = {{N/fs|s}}.\nLoad = {{N/2*m*tc|s}} / {{N/fs|s}} = {{100*N/2*m*tc/(N/fs)|%}}. (A direct DFT would need {{2*N/m}} times more.)"
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "N": [
+              16,
+              32,
+              64
+            ],
+            "k": {
+              "min": 1,
+              "max": 14,
+              "step": 1
+            }
+          },
+          "prompt": "The $N$ = {{N||5}}-point DFT of $x[n]$ has a peak in bin $k$ = {{k}}. In which bin (0 to $N-1$) does this peak appear in the DFT of $(-1)^n x[n]$?",
+          "answer": "mod(k + N/2, N)",
+          "unit": "",
+          "absTolerance": 0.1,
+          "explanation": "$(-1)^n = e^{j\\pi n}$: a frequency shift by $\\Omega_0 = \\pi$, which is $N/2$ bins. Bin $k$ moves to $k + N/2$ = {{k}} + {{N/2}}, taken modulo {{N||5}}: {{mod(k+N/2,N)}}. This trick turns a low-pass spectrum into a high-pass one."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows $|X(\\Omega)|$ of $x[n] = (-0.7)^n u[n]$?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -2,
+                "max": 2,
+                "label": "Ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 4,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "1/sqrt(1 + 1.4*cos(pi*x) + 0.49)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -2,
+                "max": 2,
+                "label": "Ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 4,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "1/sqrt(1 - 1.4*cos(pi*x) + 0.49)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -2,
+                "max": 2,
+                "label": "Ω/π"
+              },
+              "y": {
+                "min": 0,
+                "max": 4,
+                "label": "|X|"
+              },
+              "curves": [
+                {
+                  "f": "if(1-abs(x), 1/sqrt(1 + 1.4*cos(pi*x) + 0.49), 0)"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "$|X(\\Omega)| = 1/|1 + 0.7e^{-j\\Omega}|$: at $\\Omega = 0$ it is 1/1.7 = 0.59, at $\\Omega = \\pm\\pi$ it is 1/0.3 = 3.3. A negative $a$ alternates the sign of the samples, so the energy sits at high frequencies, and the plot repeats every $2\\pi$."
+        }
+      ]
+    }
+  ]
+}

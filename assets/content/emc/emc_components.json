@@ -1,0 +1,1395 @@
+{
+ "id": "emc-components",
+ "title": "Passive Components at High Frequency",
+ "description": "See capacitors, inductors, resistors, wires, transmission lines and ferrites as they really behave at high frequency.",
+ "reference": "Ott ch. 5",
+ "study": [
+  {
+   "title": "Explore: the real capacitor",
+   "body": "A real capacitor is $C$ in series with its **equivalent series inductance** (ESL: leads, pads, internal structure) and **equivalent series resistance** (ESR). Below the self-resonant frequency $f_r$ it is capacitive, above it inductive; at $f_r$ the impedance dips to the ESR. Drag the sliders: a larger $C$ moves the dip down but leaves the inductive slope unchanged; only a lower ESL (smaller package, shorter connections) helps there. Grey dashed: the ideal capacitor and the ESL alone.",
+   "formula": "\\begin{aligned}|Z| &= \\sqrt{\\mathrm{ESR}^2 + (X_L - X_C)^2}\\\\ X_L &= 2\\pi f\\,\\mathrm{ESL}, \\quad X_C = \\frac{1}{2\\pi fC}\\end{aligned}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       0
+      ],
+      "label": "a",
+      "flip": true
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       2,
+       0
+      ],
+      "label": "C"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       4,
+       0
+      ],
+      "label": "ESL"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4,
+       0
+      ],
+      "to": [
+       6,
+       0
+      ],
+      "label": "ESR"
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       0
+      ],
+      "label": "b"
+     }
+    ]
+   },
+   "plot": {
+    "x": {
+     "min": 10000.0,
+     "max": 1000000000.0,
+     "label": "f",
+     "unit": "Hz",
+     "log": true
+    },
+    "y": {
+     "min": 0.001,
+     "max": 10000.0,
+     "label": "|Z|",
+     "unit": "Ω",
+     "log": true
+    },
+    "sliders": [
+     {
+      "name": "C",
+      "label": "$C$",
+      "min": 1e-09,
+      "max": 1e-05,
+      "log": true,
+      "value": 1e-07,
+      "unit": "F"
+     },
+     {
+      "name": "ESL",
+      "label": "ESL",
+      "min": 3e-10,
+      "max": 2e-08,
+      "log": true,
+      "value": 2e-09,
+      "unit": "H"
+     },
+     {
+      "name": "ESR",
+      "label": "ESR",
+      "min": 0.001,
+      "max": 1,
+      "log": true,
+      "value": 0.02,
+      "unit": "Ω"
+     }
+    ],
+    "let": {
+     "fr": "1/(2*pi*sqrt(ESL*C))"
+    },
+    "curves": [
+     {
+      "f": "sqrt(ESR^2 + (2*pi*x*ESL - 1/(2*pi*x*C))^2)"
+     },
+     {
+      "f": "1/(2*pi*x*C)",
+      "color": "grey",
+      "dash": true
+     },
+     {
+      "f": "2*pi*x*ESL",
+      "color": "grey",
+      "dash": true
+     }
+    ],
+    "vlines": [
+     {
+      "x": "fr",
+      "label": "f_r"
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$f_r$",
+      "value": "fr",
+      "unit": "Hz"
+     },
+     {
+      "label": "$|Z|_{min}$ = ESR",
+      "value": "ESR",
+      "unit": "Ω"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Capacitor types",
+   "body": "Choose the type for the frequency range:\n- **Aluminium electrolytic**: very large $C$, ESR ≈ 0.1–1 Ω, large ESL; low frequency only (below ~25 kHz), bulk storage.\n- **Tantalum**: lower ESR and ESL, usable to a few MHz.\n- **Film** (polyester, polypropylene): stable and low-loss, up to about 1 MHz.\n- **Ceramic**: SMD MLCCs have the lowest ESL (≈ 0.5–2 nH) and work to hundreds of MHz. **C0G/NP0** is stable and precise; **X7R/X5R** (high-K) give more $C$ but change with temperature and DC bias.\n- **Feed-through** capacitors connect the capacitance directly to the chassis wall, with almost no ground inductance.",
+   "formula": "f_r = \\frac{1}{2\\pi\\sqrt{\\mathrm{ESL}\\cdot C}}"
+  },
+  {
+   "title": "Inductors and transformers",
+   "body": "An inductor has winding resistance and **capacitance between its turns**, which gives a parallel resonance; above it the inductor behaves as a capacitor. Air coils and open (rod) cores spread their flux and pick up external fields; closed cores such as toroids keep the flux inside. A transformer also couples noise through its **interwinding capacitance**; a grounded electrostatic (Faraday) shield between the windings breaks that path when it is connected to the ground at the load side.",
+   "formula": "f_r = \\frac{1}{2\\pi\\sqrt{LC_p}}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       0
+      ],
+      "label": "a",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       1,
+       0
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "R_w"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "L"
+     },
+     {
+      "type": "node",
+      "at": [
+       5,
+       0
+      ]
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        5,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       6,
+       0
+      ],
+      "label": "b"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        1,
+        0
+       ],
+       [
+        1,
+        2
+       ],
+       [
+        2,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       2,
+       2
+      ],
+      "to": [
+       4,
+       2
+      ],
+      "label": "C_p",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        2
+       ],
+       [
+        5,
+        2
+       ],
+       [
+        5,
+        0
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Resistors",
+   "body": "A resistor has a small capacitance across it (≈ 0.1–0.5 pF) and inductance in its leads. High values become capacitive: a 10 MΩ resistor with 0.5 pF has $X_C = R$ at 32 kHz. Wirewound resistors are strongly inductive. Use small SMD film resistors in high-frequency circuits. All resistors produce the same thermal noise; composition types add extra current noise.",
+   "formula": "X_{C_p} = R \\text{ at } f = \\frac{1}{2\\pi RC_p}"
+  },
+  {
+   "title": "Conductors: inductance and skin effect",
+   "body": "Above audio frequencies a wire has more reactance than resistance. A straight round wire has about 1 nH per mm (formula: $\\ell$ and $d$ in metres), and its diameter only enters logarithmically. AC current crowds into a surface layer one **skin depth** $\\delta$ thick (copper: $\\delta$ ≈ 66 mm/$\\sqrt{f}$, 0.066 mm at 1 MHz), so the AC resistance grows with $\\sqrt{f}$: for a flat strap $R_{ac} \\approx \\rho/(2(w+t)\\delta)$ per metre. A flat strap has more surface and less inductance than a round wire of the same cross-section, so it is the better high-frequency ground conductor.",
+   "formula": "\\begin{aligned}L &\\approx 0.2\\,\\ell\\left[\\ln\\frac{4\\ell}{d} - 0.75\\right]\\ \\mu\\mathrm{H}\\\\ \\delta &= \\frac{1}{\\sqrt{\\pi f\\mu\\sigma}}\\end{aligned}"
+  },
+  {
+   "title": "Transmission lines",
+   "body": "A connection must be treated as a transmission line once it is longer than about $\\lambda/10$, or when the rise time is shorter than twice its one-way delay. The wave then sees the **characteristic impedance** $Z_0$ and travels at $v = c/\\sqrt{\\varepsilon_r}$ (≈ 15 cm/ns on a PCB, 6–7 ps/mm). At a load $Z_L \\neq Z_0$ part of it reflects. Terminate **in series** at the source ($R_{out} + R_s = Z_0$, no DC current) or **in parallel** at the load ($R = Z_0$).",
+   "formula": "\\begin{aligned}&Z_0 = \\sqrt{\\frac{L}{C}}, \\quad v = \\frac{c}{\\sqrt{\\varepsilon_r}}\\\\ &\\Gamma = \\frac{Z_L - Z_0}{Z_L + Z_0}\\end{aligned}"
+  },
+  {
+   "title": "Ferrites",
+   "body": "Ferrite beads and cores add a **lossy**, mostly resistive impedance at high frequency (typically above 10 MHz) and almost none at DC; both $R$ and $L$ vary with frequency. Like any series element a ferrite only helps if its impedance exceeds the source plus load impedance, so it works in low-impedance circuits (it adds only tens to hundreds of ohms). A core around a whole cable acts as a **common-mode choke**: the signal and return currents' flux cancels. $N$ turns raise the impedance roughly $N^2$ times, and DC current **saturates** the ferrite and lowers its impedance.",
+   "formula": "|Z| = \\sqrt{R^2 + (2\\pi fL)^2}"
+  }
+ ],
+ "lessons": [
+  {
+   "id": "emc-components-1",
+   "title": "Real components",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "The real capacitor",
+     "body": "At high frequency a capacitor is a series RLC circuit: the capacitance $C$, the **equivalent series inductance** (ESL) of leads, pads and internal structure, and the **equivalent series resistance** (ESR). At the self-resonant frequency the reactances cancel and only the ESR remains.",
+     "formula": "f_r = \\frac{1}{2\\pi\\sqrt{\\mathrm{ESL}\\cdot C}}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "C"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "ESL"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "ESR"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "b"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "C": [
+       1e-09,
+       1e-08,
+       1e-07,
+       1e-06
+      ],
+      "ESL": [
+       5e-10,
+       1e-09,
+       2e-09,
+       5e-09
+      ]
+     },
+     "prompt": "A {{C|F}} capacitor has {{ESL|H}} of ESL. Find its self-resonant frequency.",
+     "answer": "1/(2*pi*sqrt(ESL*C))",
+     "unit": "Hz",
+     "explanation": "$f_r = \\frac{1}{2\\pi\\sqrt{\\mathrm{ESL}\\cdot C}}$ = 1 / (2π √({{ESL|H}} × {{C|F}})) = {{1/(2*pi*sqrt(ESL*C))|Hz}}. Above this frequency the part behaves as an inductor."
+    },
+    {
+     "id": "q2",
+     "type": "trueFalse",
+     "prompt": "Above its self-resonant frequency, a larger capacitance value in the same package gives a lower impedance.",
+     "answer": false,
+     "explanation": "Above $f_r$ the impedance is ≈ $2\\pi f\\cdot\\mathrm{ESL}$, set by the package and mounting, not by $C$. A larger value only lowers the impedance below resonance (and moves $f_r$ down)."
+    },
+    {
+     "id": "q3",
+     "type": "matchPairs",
+     "prompt": "Match each capacitor type to where it belongs.",
+     "pairs": [
+      [
+       "Aluminium electrolytic",
+       "Bulk storage below ~25 kHz"
+      ],
+      [
+       "Polypropylene film",
+       "Stable filters up to ~1 MHz"
+      ],
+      [
+       "SMD ceramic (MLCC)",
+       "Decoupling up to hundreds of MHz"
+      ],
+      [
+       "Mica",
+       "High-voltage RF circuits"
+      ]
+     ],
+     "explanation": "Electrolytics give the most capacitance per volume but have high ESR and ESL, so they are low-frequency parts. Film capacitors are stable and low-loss but fairly inductive. Multilayer ceramics in small SMD packages have the lowest inductance. Mica has a high breakdown voltage and is still used in RF transmitters."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Inductors and transformers",
+     "body": "A real inductor has winding resistance $R_w$ and **capacitance between its turns** $C_p$: a parallel resonance, above which it behaves as a capacitor. Air coils and open cores spread their flux and pick up fields; closed cores (toroids) keep it inside. In a transformer the **interwinding capacitance** couples noise from primary to secondary; a grounded electrostatic (Faraday) shield between the windings breaks that path.",
+     "formula": "f_r = \\frac{1}{2\\pi\\sqrt{LC_p}}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         1,
+         0
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_w"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "L"
+       },
+       {
+        "type": "node",
+        "at": [
+         5,
+         0
+        ]
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "b"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          1,
+          0
+         ],
+         [
+          1,
+          2
+         ],
+         [
+          2,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C_p",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          5,
+          2
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "L": [
+       1e-06,
+       1e-05,
+       0.0001,
+       0.001
+      ],
+      "Cp": [
+       2e-12,
+       5e-12,
+       1e-11
+      ]
+     },
+     "prompt": "A {{L|H}} choke has {{Cp|F}} of winding capacitance. Above which frequency does it stop behaving as an inductor?",
+     "answer": "1/(2*pi*sqrt(L*Cp))",
+     "unit": "Hz",
+     "explanation": "At the parallel self-resonance $f_r = \\frac{1}{2\\pi\\sqrt{LC_p}}$ = 1 / (2π √({{L|H}} × {{Cp|F}})) = {{1/(2*pi*sqrt(L*Cp))|Hz}}. Above it the winding capacitance dominates and the choke looks capacitive."
+    },
+    {
+     "id": "q5",
+     "type": "multipleChoice",
+     "prompt": "A noise voltage $V_G$ exists between the ground at the primary side (A) and the ground at the secondary side (B) of an isolation transformer with an electrostatic shield. Where should the shield be connected?",
+     "options": [
+      "To ground B, at the load (secondary) side",
+      "To ground A, at the primary side",
+      "Nowhere: leave it floating",
+      "Only to the transformer's laminated core"
+     ],
+     "answer": 0,
+     "explanation": "$V_G$ is driven between A and B. With the shield at B's potential there is no voltage across the shield-to-secondary capacitance, so no noise current reaches the load. Connected to A, the shield sits at $V_G$ relative to the load and couples it straight through. Rule: connect the shield to the other end of the noise source, here the load ground."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Resistors",
+     "body": "A resistor has a small capacitance $C_p$ across it (≈ 0.1–0.5 pF) and inductance in its leads. Above the frequency where $X_{C_p} = R$, a high-value resistor behaves more like a capacitor. Wirewound resistors are strongly inductive; small SMD film resistors have the least parasitics.",
+     "formula": "f = \\frac{1}{2\\pi RC_p}"
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "R": [
+       1000000.0,
+       4700000.0,
+       10000000.0,
+       22000000.0
+      ],
+      "Cp": [
+       2e-13,
+       3e-13,
+       5e-13
+      ]
+     },
+     "prompt": "A {{R|Ω}} feedback resistor has {{Cp*1e12}} pF of shunt capacitance. At what frequency does the capacitive reactance equal the resistance?",
+     "answer": "1/(2*pi*R*Cp)",
+     "unit": "Hz",
+     "explanation": "$X_C = R$ at $f = \\frac{1}{2\\pi RC_p}$ = 1 / (2π × {{R|Ω}} × {{Cp*1e12}} pF) = {{1/(2*pi*R*Cp)|Hz}}. Well below this frequency the resistor is still resistive."
+    },
+    {
+     "id": "q7",
+     "type": "multipleChoice",
+     "prompt": "Which resistor is the best choice for a 50 Ω attenuator working at 500 MHz?",
+     "options": [
+      "An 0402 thin-film SMD resistor",
+      "A wirewound resistor",
+      "A ½ W carbon-composition resistor with 10 mm leads",
+      "A ½ W metal-film resistor with 10 mm leads"
+     ],
+     "answer": 0,
+     "explanation": "Leads add roughly 1 nH/mm: 10 mm per lead is about 10 nH, i.e. $2\\pi fL$ ≈ 31 Ω per lead at 500 MHz, comparable to the 50 Ω itself. Wirewound parts are coils. A tiny SMD film resistor has a fraction of a nH and a fraction of a pF."
+    }
+   ]
+  },
+  {
+   "id": "emc-components-2",
+   "title": "Conductors and skin effect",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Wires at high frequency",
+     "body": "A straight round wire has about 1 nH per mm; the formula below is more precise ($\\ell$, $d$ in m). At high frequency the current flows in a surface layer one skin depth $\\delta$ thick: in copper $\\delta \\approx 66\\ \\text{mm}/\\sqrt{f}$ with $f$ in Hz.",
+     "formula": "\\begin{aligned}L &\\approx 0.2\\,\\ell\\left[\\ln\\frac{4\\ell}{d} - 0.75\\right]\\ \\mu\\mathrm{H}\\\\ \\delta &= \\frac{1}{\\sqrt{\\pi f\\mu\\sigma}}\\end{aligned}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "l": [
+       0.05,
+       0.1,
+       0.2,
+       0.3,
+       0.5
+      ],
+      "d": [
+       0.0005,
+       0.001,
+       0.0015,
+       0.0025
+      ]
+     },
+     "prompt": "Estimate the inductance of a straight round wire {{l|m}} long and {{d|m}} in diameter.",
+     "answer": "2e-7*l*(ln(4*l/d) - 0.75)",
+     "unit": "H",
+     "explanation": "$L \\approx 0.2\\,\\ell\\,[\\ln(4\\ell/d) - 0.75]$ µH = 0.2 × {{l}} × [ln({{4*l/d||3}}) − 0.75] µH = {{2e-7*l*(ln(4*l/d) - 0.75)|H}}, about {{0.2*(ln(4*l/d) - 0.75)||2}} nH per mm."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "l": [
+       0.1,
+       0.2,
+       0.3
+      ],
+      "f": [
+       10000000.0,
+       30000000.0,
+       100000000.0
+      ],
+      "I": [
+       0.01,
+       0.05,
+       0.1
+      ]
+     },
+     "prompt": "A {{l|m}} ground wire (≈ 1 nH/mm) carries {{I|A}} of common-mode current at {{f|Hz}}. How much voltage appears across it? Neglect its resistance.",
+     "answer": "2*pi*f*l*1e-6*I",
+     "unit": "V",
+     "explanation": "$L$ ≈ {{l*1000}} mm × 1 nH/mm = {{l*1e-6|H}}. $X_L = 2\\pi fL$ = {{2*pi*f*l*1e-6|Ω}}, so $V = IX_L$ = {{I|A}} × {{2*pi*f*l*1e-6|Ω}} = {{2*pi*f*l*1e-6*I|V}}. A 'ground' wire is no ground at high frequency."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "f": [
+       60,
+       1000.0,
+       100000.0,
+       1000000.0,
+       10000000.0,
+       100000000.0,
+       1000000000.0
+      ]
+     },
+     "prompt": "Find the skin depth in copper ($\\sigma$ = 5.8 × 10⁷ S/m) at {{f|Hz}}.",
+     "answer": "1/sqrt(pi*f*4*pi*1e-7*5.8e7)",
+     "unit": "m",
+     "explanation": "$\\delta = \\frac{1}{\\sqrt{\\pi f\\mu_0\\sigma}}$ = 1 / √(π × {{f|Hz}} × 4π × 10⁻⁷ × 5.8 × 10⁷) = {{1/sqrt(pi*f*4*pi*1e-7*5.8e7)|m}}. Handy form: $\\delta \\approx 66\\ \\text{mm}/\\sqrt{f}$ with $f$ in Hz."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "w": [
+       0.005,
+       0.01,
+       0.02,
+       0.025
+      ],
+      "t": [
+       0.0005,
+       0.001,
+       0.002
+      ],
+      "f": [
+       1000000.0,
+       10000000.0,
+       100000000.0
+      ]
+     },
+     "derived": {
+      "dl": "1/sqrt(pi*f*4*pi*1e-7*5.8e7)",
+      "rho": "1/5.8e7"
+     },
+     "prompt": "A copper ground strap is {{w|m}} wide and {{t|m}} thick ($\\rho$ = 1.72 × 10⁻⁸ Ωm). At {{f|Hz}} the current flows in one skin depth along the whole perimeter.",
+     "ask": [
+      {
+       "prompt": "Find its AC resistance per metre.",
+       "answer": "rho/(2*(w+t)*dl)",
+       "unit": "Ω",
+       "explanation": "$\\delta$ = {{dl|m}}. The current flows in an area $2(w+t)\\delta$, so $R_{ac} = \\frac{\\rho}{2(w+t)\\delta}$ = 1.72 × 10⁻⁸ / (2 × {{w+t|m}} × {{dl|m}}) = {{rho/(2*(w+t)*dl)|Ω}} per metre."
+      },
+      {
+       "prompt": "By what factor is the AC resistance higher than the DC resistance?",
+       "answer": "w*t/(2*(w+t)*dl)",
+       "unit": "",
+       "explanation": "$\\delta$ = {{dl|m}}. $R_{dc} = \\rho/(wt)$ and $R_{ac} = \\rho/(2(w+t)\\delta)$, so $R_{ac}/R_{dc} = \\frac{wt}{2(w+t)\\delta}$ = {{w*t*1e6||3}} mm² / (2 × {{(w+t)*1000||3}} mm × {{dl*1000||3}} mm) = {{w*t/(2*(w+t)*dl)||3}}."
+      }
+     ]
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "d": [
+       0.0005,
+       0.001,
+       0.002,
+       0.004
+      ],
+      "f": [
+       1000000.0,
+       10000000.0,
+       100000000.0
+      ]
+     },
+     "derived": {
+      "dl": "1/sqrt(pi*f*4*pi*1e-7*5.8e7)"
+     },
+     "prompt": "Estimate the ratio $R_{ac}/R_{dc}$ of a round copper wire of {{d|m}} diameter at {{f|Hz}}. Use $R_{ac}/R_{dc} \\approx d/(4\\delta) + 0.26$.",
+     "answer": "d/(4*dl) + 0.26",
+     "unit": "",
+     "explanation": "$\\delta$ = {{dl|m}}. The current flows in a ring of area ≈ $\\pi d\\delta$ instead of $\\pi d^2/4$, a factor $d/(4\\delta)$; the 0.26 corrects for the curvature. $R_{ac}/R_{dc}$ ≈ {{d|m}} / (4 × {{dl|m}}) + 0.26 = {{d/(4*dl) + 0.26||3}}."
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "A 25 mm × 1 mm copper strap and a round copper wire have the same cross-section (25 mm²). Compared with the wire, at 10 MHz the strap has…",
+     "options": [
+      "lower AC resistance and lower inductance",
+      "lower AC resistance but higher inductance",
+      "the same AC resistance, since the copper area is equal",
+      "higher AC resistance but lower inductance"
+     ],
+     "answer": 0,
+     "explanation": "At 10 MHz the current only uses a 21 µm skin, so the perimeter counts, not the area: the strap has 52 mm of perimeter, the 5.6 mm wire about 18 mm, so roughly a third of the resistance. A flat, wide conductor also has less inductance than a round one of equal cross-section. That is why braids and straps are used for bonding."
+    },
+    {
+     "id": "q7",
+     "type": "trueFalse",
+     "prompt": "Doubling the diameter of a 10 cm long straight wire halves its inductance.",
+     "answer": false,
+     "explanation": "The diameter appears inside a logarithm: $L ≈ 0.2\\ell[\\ln(4\\ell/d) - 0.75]$ µH. For 10 cm, 1 mm: 105 nH; for 2 mm: 91 nH, only about 13 % less. To lower inductance, make the conductor **shorter** (or flat and wide, or use parallel paths)."
+    },
+    {
+     "id": "q8",
+     "type": "slider",
+     "params": {
+      "dt": [
+       0.001,
+       0.0005,
+       0.0002,
+       0.0001,
+       2e-05,
+       1e-05,
+       5e-06
+      ]
+     },
+     "derived": {
+      "ft": "(0.066/dt)^2"
+     },
+     "prompt": "Set the frequency at which the skin depth in copper is {{dt|m}}.",
+     "plot": {
+      "x": {
+       "min": 100,
+       "max": 1000000000.0,
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": 1e-06,
+       "max": 0.01,
+       "label": "δ",
+       "unit": "m",
+       "log": true
+      },
+      "sliders": [
+       {
+        "name": "f",
+        "label": "$f$",
+        "min": 100,
+        "max": 1000000000.0,
+        "log": true,
+        "value": 100,
+        "unit": "Hz"
+       }
+      ],
+      "curves": [
+       {
+        "f": "0.066/sqrt(x)",
+        "label": "copper",
+        "labelAt": 0.75
+       }
+      ],
+      "points": [
+       {
+        "x": "f",
+        "y": "0.066/sqrt(f)"
+       }
+      ],
+      "hlines": [
+       {
+        "y": "dt",
+        "label": "target",
+        "color": "orange"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$\\delta$",
+        "value": "0.066/sqrt(f)",
+        "unit": "m"
+       }
+      ]
+     },
+     "answer": {
+      "f": "ft"
+     },
+     "tolerance": 0.06,
+     "explanation": "$\\delta = 0.066/\\sqrt{f}$ m, so $f = (0.066/\\delta)^2$ = (0.066 / {{dt}})² = {{ft|Hz}}. Every factor 100 in frequency makes the skin 10 times thinner."
+    }
+   ]
+  },
+  {
+   "id": "emc-components-3",
+   "title": "Transmission lines and ferrites",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Lines and reflections",
+     "body": "On a line the voltage and current waves are related by $Z_0$, travel at $v = 1/\\sqrt{LC} = c/\\sqrt{\\varepsilon_r}$ ($L$, $C$ per metre) and reflect at a load with reflection coefficient $\\Gamma$. A trace is electrically long when the rise time is shorter than twice its one-way delay $t_d$, i.e. when it is longer than the critical length below.",
+     "formula": "\\Gamma = \\frac{Z_L - Z_0}{Z_L + Z_0}, \\qquad \\ell_c = \\frac{t_r v}{2} = \\frac{t_r c}{2\\sqrt{\\varepsilon_r}}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "Lpm": [
+       2.5e-07,
+       3e-07,
+       3.75e-07,
+       4.5e-07
+      ],
+      "Cpm": [
+       5e-11,
+       6.7e-11,
+       1e-10
+      ]
+     },
+     "prompt": "A cable has {{Lpm|H}}/m and {{Cpm|F}}/m.",
+     "ask": [
+      {
+       "prompt": "Find its characteristic impedance.",
+       "answer": "sqrt(Lpm/Cpm)",
+       "unit": "Ω",
+       "explanation": "$Z_0 = \\sqrt{L/C}$ = √({{Lpm|H}} / {{Cpm|F}}) = {{sqrt(Lpm/Cpm)|Ω}}."
+      },
+      {
+       "prompt": "Find the propagation velocity as a fraction of the speed of light ($v/c$).",
+       "answer": "1/sqrt(Lpm*Cpm)/3e8",
+       "unit": "",
+       "explanation": "$v = 1/\\sqrt{LC}$ = 1 / √({{Lpm|H}} × {{Cpm|F}}) = {{1/sqrt(Lpm*Cpm)/1e8||3}} × 10⁸ m/s, so $v/c$ = {{1/sqrt(Lpm*Cpm)/3e8||3}} (the dielectric has $\\varepsilon_r = (c/v)^2$ = {{9e16*Lpm*Cpm||3}})."
+      }
+     ]
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "er": [
+       2.2,
+       3.3,
+       4.0,
+       4.5
+      ],
+      "len": [
+       0.05,
+       0.1,
+       0.2,
+       0.5
+      ]
+     },
+     "prompt": "What is the one-way delay of a {{len|m}} line whose dielectric has (effective) $\\varepsilon_r$ = {{er}}?",
+     "answer": "len*sqrt(er)/3e8",
+     "unit": "s",
+     "explanation": "$v = c/\\sqrt{\\varepsilon_r}$ = 3 × 10⁸ / √{{er}} = {{3/sqrt(er)||3}} × 10⁸ m/s. $t_d = \\ell/v$ = {{len|m}} / ({{3/sqrt(er)||3}} × 10⁸ m/s) = {{len*sqrt(er)/3e8|s}}."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "tr": [
+       2e-10,
+       5e-10,
+       1e-09,
+       2e-09,
+       5e-09
+      ],
+      "er": [
+       3,
+       4,
+       4.5
+      ]
+     },
+     "prompt": "A logic signal has {{tr|s}} rise time on a PCB with effective $\\varepsilon_r$ = {{er}}. Above which trace length must it be treated as a transmission line?",
+     "answer": "tr*3e8/(2*sqrt(er))",
+     "unit": "m",
+     "explanation": "Line effects matter when $t_r < 2t_d$, i.e. $\\ell > \\ell_c = \\frac{t_rv}{2}$. $v = c/\\sqrt{\\varepsilon_r}$ = {{3/sqrt(er)||3}} × 10⁸ m/s, so $\\ell_c$ = {{tr|s}} × {{3/sqrt(er)||3}} × 10⁸ m/s / 2 = {{tr*3e8/(2*sqrt(er))|m}}."
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "Z0": [
+       50,
+       75,
+       100
+      ],
+      "ZL": [
+       10,
+       25,
+       33,
+       150,
+       330,
+       1000
+      ],
+      "Vi": [
+       1,
+       2.5
+      ]
+     },
+     "derived": {
+      "G": "(ZL - Z0)/(ZL + Z0)"
+     },
+     "prompt": "A {{Z0}} Ω line is terminated in {{ZL|Ω}}. A {{Vi|V}} step travels towards the load.",
+     "ask": [
+      {
+       "prompt": "Find the reflection coefficient at the load (with sign).",
+       "answer": "G",
+       "unit": "",
+       "absTolerance": 0.01,
+       "explanation": "$\\Gamma = \\frac{Z_L - Z_0}{Z_L + Z_0}$ = ({{ZL}} − {{Z0}}) / ({{ZL}} + {{Z0}}) = {{G||3}}. Negative means the reflection has the opposite polarity (load below $Z_0$)."
+      },
+      {
+       "prompt": "Find the voltage across the load just after the step arrives.",
+       "answer": "(1 + G)*Vi",
+       "unit": "V",
+       "explanation": "$\\Gamma$ = {{G||3}}. The load voltage is incident plus reflected: $(1 + \\Gamma)V_i$ = {{1+G||3}} × {{Vi|V}} = {{(1+G)*Vi|V}}."
+      }
+     ]
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "Z0": [
+       50,
+       60,
+       75,
+       90
+      ],
+      "Ro": [
+       8,
+       12,
+       18,
+       25
+      ]
+     },
+     "prompt": "A CMOS driver with {{Ro|Ω}} output resistance drives a single load at the end of a {{Z0}} Ω trace. What series termination resistor should be placed at the driver?",
+     "answer": "Z0 - Ro",
+     "unit": "Ω",
+     "explanation": "The source side must match the line: $R_{out} + R_s = Z_0$, so $R_s$ = {{Z0}} − {{Ro}} = {{Z0 - Ro|Ω}}. The driver then launches a half-amplitude wave, which doubles at the open far end to the full logic level, and the reflection is absorbed at the source."
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "Which termination draws no DC current from the driver?",
+     "options": [
+      "A series resistor at the source",
+      "A resistor $R = Z_0$ from the load to ground",
+      "A Thévenin divider (two resistors) at the load",
+      "A resistor $R = Z_0$ from the load to $V_{CC}$"
+     ],
+     "answer": 0,
+     "explanation": "A series termination sits in line with the high-impedance CMOS inputs, so no DC current flows once the line is charged. Parallel terminations at the load hold a resistor across the line, which costs DC power in at least one logic state. The price of series termination: loads along the line see a half-amplitude step until the reflection returns, so it suits point-to-point links."
+    },
+    {
+     "id": "q7",
+     "type": "numeric",
+     "params": {
+      "R": [
+       40,
+       60,
+       100,
+       150
+      ],
+      "X": [
+       30,
+       50,
+       80
+      ],
+      "N": [
+       2,
+       3
+      ]
+     },
+     "prompt": "At 100 MHz a ferrite core's datasheet gives $R$ = {{R|Ω}} and $X_L$ = {{X|Ω}} for one turn.",
+     "ask": [
+      {
+       "prompt": "Find the magnitude of its impedance.",
+       "answer": "sqrt(R^2 + X^2)",
+       "unit": "Ω",
+       "explanation": "$|Z| = \\sqrt{R^2 + X_L^2}$ = √({{R}}² + {{X}}²) = {{sqrt(R^2 + X^2)|Ω}}. Mostly resistive: the ferrite dissipates the noise as heat."
+      },
+      {
+       "prompt": "The cable is looped through the core {{N}} times. Roughly what impedance results (winding capacitance neglected)?",
+       "answer": "N^2*sqrt(R^2 + X^2)",
+       "unit": "Ω",
+       "explanation": "One turn: $|Z| = \\sqrt{R^2 + X_L^2}$ = {{sqrt(R^2 + X^2)|Ω}}. Impedance scales with $N^2$: {{N}}² × {{sqrt(R^2 + X^2)|Ω}} = {{N^2*sqrt(R^2 + X^2)|Ω}}. In practice the extra turn-to-turn capacitance limits this at the highest frequencies."
+      }
+     ]
+    },
+    {
+     "id": "q8",
+     "type": "multipleChoice",
+     "prompt": "A ferrite bead rated 120 Ω at 100 MHz is put in a 3.3 V supply line that carries 2 A. Why may it filter far less than expected?",
+     "options": [
+      "The DC current partly saturates the ferrite, which lowers its impedance",
+      "Ferrites block DC, so the circuit no longer gets power",
+      "A supply line has too high an impedance for any series element to work",
+      "Ferrites only work on signal lines with AC currents below 100 mA"
+     ],
+     "answer": 0,
+     "explanation": "DC bias current pushes the ferrite towards saturation and its permeability, hence its impedance, drops (one bead drops from 200 Ω to about 115 Ω at 1 A). Choose a bead rated for the DC current. A supply line is a low-impedance circuit, which is exactly where a series ferrite is effective."
+    },
+    {
+     "id": "q9",
+     "type": "trueFalse",
+     "prompt": "A ferrite core clamped around a complete USB cable (all conductors, including the return) attenuates common-mode currents while leaving the differential signal almost unaffected.",
+     "answer": true,
+     "explanation": "The differential signal current and its return flow in opposite directions through the core, so their fluxes cancel: no impedance for the signal. Common-mode current flows in the same direction on all conductors and sees the full lossy impedance of the core."
+    }
+   ]
+  },
+  {
+   "id": "emc-components-4",
+   "title": "High-frequency component choices",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "slider",
+     "params": {
+      "ft": [
+       10000000.0,
+       20000000.0,
+       50000000.0,
+       100000000.0
+      ]
+     },
+     "derived": {
+      "Ct": "1/((2*pi*ft)^2*1e-9)"
+     },
+     "prompt": "A capacitor footprint has 1 nH of total inductance (ESL plus mounting) and 20 mΩ ESR. Choose the capacitance that puts the impedance dip at {{ft|Hz}}.",
+     "plot": {
+      "x": {
+       "min": 100000.0,
+       "max": 1000000000.0,
+       "label": "f",
+       "unit": "Hz",
+       "log": true
+      },
+      "y": {
+       "min": 0.001,
+       "max": 1000.0,
+       "label": "|Z|",
+       "unit": "Ω",
+       "log": true
+      },
+      "sliders": [
+       {
+        "name": "C",
+        "label": "$C$",
+        "min": 1e-10,
+        "max": 1e-05,
+        "log": true,
+        "value": 1e-05,
+        "unit": "F"
+       }
+      ],
+      "curves": [
+       {
+        "f": "sqrt(0.02^2 + (2*pi*x*1e-9 - 1/(2*pi*x*C))^2)"
+       }
+      ],
+      "vlines": [
+       {
+        "x": "ft",
+        "label": "target",
+        "color": "orange"
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$f_r$",
+        "value": "1/(2*pi*sqrt(1e-9*C))",
+        "unit": "Hz",
+        "reveal": true
+       }
+      ]
+     },
+     "answer": {
+      "C": "Ct"
+     },
+     "tolerance": 0.06,
+     "explanation": "$f_r = \\frac{1}{2\\pi\\sqrt{LC}}$ → $C = \\frac{1}{(2\\pi f_r)^2L}$ = 1 / ((2π × {{ft|Hz}})² × 1 nH) = {{Ct|F}}. Above that frequency every value gives the same inductive impedance."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "C": [
+       1e-08,
+       1e-07,
+       1e-06
+      ],
+      "L": [
+       5e-10,
+       1e-09,
+       2e-09
+      ],
+      "ESR": [
+       0.01,
+       0.03,
+       0.1
+      ],
+      "f": [
+       1000000.0,
+       10000000.0,
+       100000000.0,
+       500000000.0
+      ]
+     },
+     "derived": {
+      "XL": "2*pi*f*L",
+      "XC": "1/(2*pi*f*C)"
+     },
+     "prompt": "A {{C|F}} capacitor has {{L|H}} ESL and {{ESR|Ω}} ESR. Find the magnitude of its impedance at {{f|Hz}}.",
+     "answer": "sqrt(ESR^2 + (XL - XC)^2)",
+     "unit": "Ω",
+     "explanation": "$X_L = 2\\pi f\\,\\mathrm{ESL}$ = {{XL|Ω}}, $X_C = 1/(2\\pi fC)$ = {{XC|Ω}}. $|Z| = \\sqrt{\\mathrm{ESR}^2 + (X_L - X_C)^2}$ = √({{ESR}}² + ({{XL-XC|Ω}})²) = {{sqrt(ESR^2 + (XL - XC)^2)|Ω}}."
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "l": [
+       0.1,
+       0.2,
+       0.3
+      ],
+      "d": [
+       0.001,
+       0.002
+      ],
+      "I": [
+       0.02,
+       0.05,
+       0.1
+      ],
+      "f": [
+       30000000.0,
+       100000000.0,
+       200000000.0
+      ]
+     },
+     "derived": {
+      "L": "2e-7*l*(ln(4*l/d) - 0.75)"
+     },
+     "require": "3.001e7/f - l",
+     "prompt": "A cabinet door is bonded with a straight {{l|m}} round wire of {{d|m}} diameter. Common-mode current of {{I|A}} at {{f|Hz}} flows through it. What voltage appears across the bond?",
+     "answer": "2*pi*f*L*I",
+     "unit": "V",
+     "explanation": "$L \\approx 0.2\\,\\ell[\\ln(4\\ell/d) - 0.75]$ µH = {{L|H}}. $X_L = 2\\pi fL$ = {{2*pi*f*L|Ω}} (the resistance is negligible), so $V$ = {{I|A}} × {{2*pi*f*L|Ω}} = {{2*pi*f*L*I|V}}. A short, wide strap, or several bonds, would do far better."
+    },
+    {
+     "id": "c4",
+     "type": "trueFalse",
+     "params": {
+      "tr": [
+       3e-10,
+       5e-10,
+       1e-09,
+       2e-09,
+       4e-09
+      ],
+      "er": [
+       3.3,
+       4.2
+      ],
+      "len": [
+       0.02,
+       0.05,
+       0.1,
+       0.2,
+       0.4
+      ]
+     },
+     "derived": {
+      "lc": "tr*3e8/(2*sqrt(er))"
+     },
+     "require": "abs(len - lc)/lc - 0.3",
+     "prompt": "A {{len|m}} trace (effective $\\varepsilon_r$ = {{er}}) is driven by a gate with {{tr|s}} rise time. It must be treated as a transmission line.",
+     "answer": "len - lc",
+     "explanation": "Critical length $\\ell_c = \\frac{t_rc}{2\\sqrt{\\varepsilon_r}}$ = {{tr|s}} × 3 × 10⁸ / (2 × √{{er}}) = {{lc|m}}. The trace is electrically long if $\\ell > \\ell_c$: compare {{len|m}} with {{lc|m}}."
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       3.3,
+       5
+      ],
+      "Ro": [
+       10,
+       20,
+       33
+      ],
+      "Z0": [
+       50,
+       65,
+       75
+      ]
+     },
+     "derived": {
+      "V1": "Vs*Z0/(Z0 + Ro)"
+     },
+     "prompt": "A {{Vs|V}} driver with {{Ro|Ω}} output resistance drives an unterminated {{Z0}} Ω line that ends in a high-impedance CMOS input.",
+     "ask": [
+      {
+       "prompt": "What step voltage is launched into the line?",
+       "answer": "V1",
+       "unit": "V",
+       "explanation": "The line looks like $Z_0$ to the driver: $V_1 = V_s\\frac{Z_0}{Z_0 + R_o}$ = {{Vs|V}} × {{Z0}} / ({{Z0}} + {{Ro}}) = {{V1|V}}."
+      },
+      {
+       "prompt": "What voltage appears at the open end when the wave arrives?",
+       "answer": "2*V1",
+       "unit": "V",
+       "explanation": "$V_1 = V_s Z_0/(Z_0 + R_o)$ = {{V1|V}}. At an open end $\\Gamma$ = +1, so the voltage doubles: {{2*V1|V}}."
+      },
+      {
+       "prompt": "By how much does the receiver voltage overshoot the supply?",
+       "answer": "2*V1 - Vs",
+       "unit": "V",
+       "explanation": "$V_1$ = {{V1|V}}, doubled at the open end: {{2*V1|V}}. Overshoot = {{2*V1|V}} − {{Vs|V}} = {{2*V1 - Vs|V}}; a series resistor of {{Z0 - Ro|Ω}} would remove it."
+      }
+     ]
+    },
+    {
+     "id": "c6",
+     "type": "numeric",
+     "params": {
+      "C": [
+       2e-11,
+       5e-11,
+       1e-10,
+       2e-10
+      ],
+      "RL": [
+       1000,
+       10000
+      ],
+      "f": [
+       100000.0,
+       1000000.0,
+       10000000.0
+      ],
+      "VG": [
+       1,
+       5,
+       10
+      ]
+     },
+     "derived": {
+      "XC": "1/(2*pi*f*C)"
+     },
+     "prompt": "An unshielded isolation transformer has {{C|F}} between its windings. A ground noise voltage of {{VG|V}} at {{f|Hz}} drives this capacitance in series with the {{RL|Ω}} load. How much noise appears across the load?",
+     "answer": "VG*RL/sqrt(RL^2 + XC^2)",
+     "unit": "V",
+     "explanation": "$X_C = 1/(2\\pi fC)$ = {{XC|Ω}}. The load and the capacitance form a divider: $|V_{noise}| = V_G\\frac{R_L}{\\sqrt{R_L^2 + X_C^2}}$ = {{VG|V}} × {{RL|Ω}} / {{sqrt(RL^2 + XC^2)|Ω}} = {{VG*RL/sqrt(RL^2 + XC^2)|V}}. A Faraday shield connected to the load ground would short this path."
+    },
+    {
+     "id": "c7",
+     "type": "matchPairs",
+     "prompt": "Match each job to the most suitable capacitor.",
+     "pairs": [
+      [
+       "Reservoir after a 50 Hz rectifier",
+       "Aluminium electrolytic"
+      ],
+      [
+       "Decoupling a fast logic IC",
+       "Small-package MLCC (X7R)"
+      ],
+      [
+       "Precision active-filter capacitor",
+       "C0G ceramic or polypropylene film"
+      ],
+      [
+       "Power lead through a shielded wall",
+       "Feed-through capacitor"
+      ]
+     ],
+     "explanation": "Bulk storage needs much capacitance at low frequency: electrolytic. Decoupling needs the lowest inductance: small MLCCs. A precise filter needs a stable dielectric: C0G or polypropylene (X7R drifts with temperature and bias). A feed-through capacitor bonds its capacitance directly to the shield, so it stays effective to very high frequencies."
+    }
+   ]
+  }
+ ]
+}

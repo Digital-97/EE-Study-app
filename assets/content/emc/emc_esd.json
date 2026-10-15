@@ -1,0 +1,1188 @@
+{
+  "id": "emc-esd",
+  "title": "ESD, Transients & Contact Protection",
+  "description": "Static charge and the human body model, immunity tests, keeping ESD out of circuits, and protecting contacts and transistors that switch inductive loads.",
+  "reference": "Ott ch. 7, 14, 15",
+  "study": [
+    {
+      "title": "Static electricity",
+      "body": "When two materials touch and separate, electrons move from the one higher in the **triboelectric series** (e.g. skin, glass, nylon, wool: become +) to the lower one (polyester, polyethylene, PVC, Teflon: become −). The charge $Q$ stays put on insulators, so grounding an insulator does not remove it; a charged insulator usually induces charge on a conductor (a person), which then discharges. Since $Q$ is fixed, $V = Q/C$ rises as objects separate. Humidity matters: walking on carpet gives up to 35 kV at 10–20 % RH but only about 1.5 kV above 65 % RH.",
+      "formula": "V = \\frac{Q}{C}"
+    },
+    {
+      "title": "Human body model",
+      "body": "A person is a capacitor $C_b$ (50–250 pF: ≈ 50 pF free-space plus ≈ 100 pF from the feet to the floor) discharging through the body resistance $R_b$ (≈ 500 Ω via a key, 1 kΩ palm, 10 kΩ fingertip). The IEC 61000-4-2 test generator uses **150 pF and 330 Ω**, so a simple estimate of the peak current is $V/R$ (24 A at 8 kV). The standard waveform starts with a sharper spike (rise time 0.7–1 ns, 3.75 A/kV: 30 A at 8 kV) followed by a wider pulse decaying with $\\tau \\approx RC$ = 50 ns. Discharges below about 3.5 kV are not felt, yet can destroy ICs.",
+      "formula": "W = \\tfrac12 C_bV^2,\\qquad I_{pk} \\approx \\frac{V}{R_b}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 2e-07,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 50,
+          "label": "i (A)"
+        },
+        "sliders": [
+          {
+            "name": "V",
+            "label": "$V$ (kV)",
+            "min": 1,
+            "max": 15,
+            "step": 1,
+            "value": 8
+          },
+          {
+            "name": "R",
+            "label": "$R_b$",
+            "min": 330,
+            "max": 2000,
+            "step": 10,
+            "value": 330,
+            "unit": "Ω"
+          }
+        ],
+        "curves": [
+          {
+            "f": "V*1000/R*(1-exp(-x/0.35e-9))*exp(-x/(R*150e-12))",
+            "label": "150 pF model",
+            "labelAt": 0.4
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$I_{pk} \\approx V/R_b$",
+            "value": "V*1000/R",
+            "unit": "A"
+          },
+          {
+            "label": "$W = \\frac12 CV^2$",
+            "value": "0.5*150e-12*(V*1000)^2",
+            "unit": "J"
+          },
+          {
+            "label": "$\\tau = R_bC_b$",
+            "value": "R*150e-12",
+            "unit": "s"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Immunity tests (IEC 61000-4-x)",
+      "body": "- **-4-2 ESD**: contact 2/4/6/8 kV, air 2/4/8/15 kV (levels 1–4); EU generic: ±4 kV contact, ±8 kV air, criterion B.\n- **-4-3 radiated RF**: 3 V/m (residential) or 10 V/m (industrial), 80–1000 MHz, 80 % AM, criterion A.\n- **-4-4 EFT/burst**: 5/50 ns pulses at 5 kHz in 15 ms bursts every 300 ms, 50 Ω source, ±1 kV on residential mains.\n- **-4-5 surge**: 1.2/50 µs voltage, 8/20 µs current, 2 Ω source; ±1 kV line–line, ±2 kV line–earth.\n- **-4-11 dips**: 30 % for ½ cycle (B), 60 % for 5 cycles (C), > 95 % for 250 cycles (C).\nCriteria: **A** no degradation; **B** temporary degradation, self-recovering, no lost state or data; **C** temporary loss of function that recovers by itself or is restored by the user. A transmitter radiating $P_{ERP}$ gives the field below at distance $d$.",
+      "formula": "E = \\frac{\\sqrt{30\\,P_{ERP}}}{d}"
+    },
+    {
+      "title": "Keep it out, divert it",
+      "body": "- **Insulate**: air breaks down at ≈ 3 kV/mm; design for **1 mm per kV** of clearance, and remember sparks find seams and gaps.\n- **Divert**: a metal enclosure with all seams bonded (multipoint, low inductance) carries the discharge current around the circuit; connect the circuit to the chassis in the I/O area.\n- **Clamp and filter at the I/O**: TVS diodes (switch in < 1 ns), with 50–100 Ω of series resistance or ferrite, or an L-filter of 100–1000 pF plus a series resistor/ferrite; return them to the **chassis**, not the circuit ground.\n- **Field coupling**: a nearby discharge induces $V = \\frac{2A}{D}\\frac{di}{dt}$ in a loop ($A$ in cm², $D$ in cm, $di/dt$ in A/ns) and injects $I = C\\,dV/dt$ through stray capacitance: keep loops small.",
+      "formula": "d_{safe} \\approx 1\\ \\text{mm/kV}"
+    },
+    {
+      "title": "Hardening circuits and software",
+      "body": "ESD can cause **hard errors** (damage), **soft errors** (changed bit, lock-up) or **transient upset**. Harden the sensitive inputs: reset, interrupt and control lines get an RC (or ferrite–C) filter close to the pin, and supplies are well decoupled. Software must detect errors and recover to a known state: a **watchdog timer** that resets a locked processor, unused interrupt vectors and unused memory pointing to an error handler, inputs read several times and checked for plausibility, outputs echoed back, CRCs on stored data."
+    },
+    {
+      "title": "Contact arcing and inductive kick",
+      "body": "Interrupting an inductive current makes $V = L\\,di/dt$ shoot to 10–40× the supply, limited only by stray capacitance ($V_{pk} = I_0\\sqrt{L/C}$) and arcing. A **glow discharge** (gas) needs ≥ 320 V and is sustained at ≈ 300 V with mA currents; an **arc** (metal vapour) starts at a field of 0.5 MV/cm, so almost always at tiny gaps, but only sustains above the minimum arcing voltage and current (silver: ≈ 12 V and 0.4 A). Rules: keep the contact voltage **below 300 V** and its initial rise **below 1 V/µs**; inductive loads drawing more than the arcing current are the most damaging.",
+      "formula": "V = L\\frac{di}{dt},\\qquad V_{pk} = I_0\\sqrt{\\frac{L}{C}}"
+    },
+    {
+      "title": "Protection networks",
+      "body": "Across the load: a **diode** keeps the contact (or transistor) at ≈ $V_{dc}$ but slows the release; a **diode + Zener** gives $V_{dc}+V_Z$ and a faster decay; R–C, varistors or back-to-back Zeners also work for AC. Across the contact: an **R–C** network with $V_{dc}/I_A < R < R_L$ and $C$ meeting both rules below; if $V_{dc}/I_A > R_L$ use an **R–C–D** network ($R \\ge 10V_{dc}/I_A$, the diode bypasses $R$ on opening). A transistor driving a coil needs the diode right at the coil to keep the loop small.",
+      "formula": "C \\ge I_0\\cdot1\\,\\tfrac{\\mu\\text{F}}{\\text{A}},\\qquad C \\ge \\left(\\frac{I_0}{300\\ \\text{V}}\\right)^2 L",
+      "circuit": {
+        "elements": [
+          {
+            "type": "battery",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_{dc}"
+          },
+          {
+            "type": "switch",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "contact",
+            "closed": false
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "inductor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "L"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              2
+            ],
+            "to": [
+              4,
+              4
+            ],
+            "label": "R_L"
+          },
+          {
+            "type": "diode",
+            "from": [
+              6,
+              4
+            ],
+            "to": [
+              6,
+              0
+            ],
+            "label": "D"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                6,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              4
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "emc-esd-1",
+      "title": "Static electricity and the human body",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Triboelectric charging",
+          "body": "Contact and separation of two materials moves electrons from the one higher in the triboelectric series to the lower one. Rubbing only increases the contact area. The charge is stuck on insulators, but it induces charge on conductors such as a person, who can then discharge into equipment.",
+          "formula": "V = \\frac{Q}{C}"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "A nylon jacket rubs against a PVC chair. Nylon is near the positive end of the triboelectric series, PVC near the negative end. Which becomes positively charged?",
+          "options": [
+            "The nylon jacket",
+            "The PVC chair",
+            "Neither: only conductors can be charged"
+          ],
+          "answer": 0,
+          "explanation": "Electrons move from the material higher in the series (nylon, gives up electrons easily) to the lower one (PVC). Losing electrons leaves the nylon positive and the PVC negative. Insulators charge very easily; they just can't discharge through a ground connection."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Q": [
+              5e-07,
+              1e-06,
+              1.5e-06
+            ],
+            "C": [
+              1e-10,
+              1.5e-10,
+              2e-10
+            ]
+          },
+          "derived": {
+            "C2": "C - 5e-11"
+          },
+          "prompt": "A person with a body capacitance of {{C|F}} carries a charge of {{Q|C}}.",
+          "ask": [
+            {
+              "prompt": "Find the body voltage.",
+              "answer": "Q/C",
+              "unit": "V",
+              "explanation": "$V = Q/C$ = {{Q|C}} / {{C|F}} = **{{Q/C|V}}**."
+            },
+            {
+              "prompt": "The person lifts one foot, removing about 50 pF of capacitance to the floor. Find the new body voltage.",
+              "answer": "Q/C2",
+              "unit": "V",
+              "explanation": "The charge stays the same, but the body capacitance falls to {{C|F}} − 50 pF = {{C2|F}}, so the voltage rises: $V = Q/C$ = {{Q|C}} / {{C2|F}} = **{{Q/C2|V}}** (it was {{Q/C|V}})."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The human body model",
+          "body": "For testing, the person is modelled as a 150 pF capacitor charged to $V$ and discharged through 330 Ω (IEC 61000-4-2). The current rises in about 1 ns and decays with $\\tau = RC$ ≈ 50 ns.",
+          "formula": "I_{pk} \\approx \\frac{V}{R},\\qquad W = \\tfrac12 CV^2"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "V": [
+              2000,
+              4000,
+              6000,
+              8000,
+              15000
+            ]
+          },
+          "prompt": "An ESD generator (150 pF, 330 Ω) is charged to {{V|V}}.",
+          "ask": [
+            {
+              "prompt": "Estimate the peak discharge current.",
+              "answer": "V/330",
+              "unit": "A",
+              "explanation": "$I_{pk} \\approx V/R$ = {{V|V}} / 330 Ω = **{{V/330|A}}** (the standard's first spike is somewhat higher, 3.75 A per kV)."
+            },
+            {
+              "prompt": "Find the energy stored in the 150 pF capacitor.",
+              "answer": "0.5*150e-12*V^2",
+              "unit": "J",
+              "explanation": "$W = \\frac12CV^2$ = ½ × 150 pF × ({{V|V}})² = **{{0.5*150e-12*V^2|J}}**: tiny energy, but delivered as amperes in nanoseconds."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "Connecting a charged plastic cover to ground through a wire removes its static charge.",
+          "answer": false,
+          "explanation": "Charge cannot move through an insulator, so grounding only drains the spot touched. Charged insulators are neutralised with ionised air or high humidity; conductors (including people, via a 1 MΩ wrist strap) can be grounded."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Roughly what voltage can a person reach walking across a carpet at 15 % relative humidity?",
+          "options": [
+            "Up to about 35 kV",
+            "About 1.5 kV",
+            "About 300 V",
+            "About 150 kV"
+          ],
+          "answer": 0,
+          "shuffle": true,
+          "explanation": "At 10–20 % RH walking on carpet can generate about 35 kV; above 65 % RH surface moisture lets the charge leak away and the same walk gives only about 1.5 kV. That is why ESD problems peak in heated buildings in winter."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each immunity test standard to its disturbance",
+          "pairs": [
+            [
+              "IEC 61000-4-2",
+              "Electrostatic discharge"
+            ],
+            [
+              "IEC 61000-4-3",
+              "Radiated RF field (V/m)"
+            ],
+            [
+              "IEC 61000-4-4",
+              "Electrical fast transient bursts"
+            ],
+            [
+              "IEC 61000-4-5",
+              "Surge (1.2/50 µs)"
+            ],
+            [
+              "IEC 61000-4-11",
+              "Voltage dips and interruptions"
+            ]
+          ],
+          "explanation": "The basic EMC immunity standards are all parts of IEC 61000-4: -2 ESD, -3 radiated RF immunity, -4 EFT/burst (switching of inductive loads), -5 surge (nearby lightning, large load switching), -11 mains dips and interruptions."
+        }
+      ]
+    },
+    {
+      "id": "emc-esd-2",
+      "title": "ESD protection and immunity",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "V": [
+              4000,
+              8000,
+              15000,
+              25000
+            ]
+          },
+          "prompt": "A product must withstand {{V|V}} air discharges.",
+          "ask": [
+            {
+              "prompt": "Air breaks down at about 3 kV/mm. Find the gap a spark can just bridge.",
+              "answer": "V/3e6",
+              "unit": "m",
+              "explanation": "$d = V/E_{bd}$ = {{V|V}} / (3 kV/mm) = **{{V/3e6|m}}**."
+            },
+            {
+              "prompt": "Find the recommended design clearance between the touchable surface and internal circuitry (rule of thumb 1 mm/kV).",
+              "answer": "V/1e6",
+              "unit": "m",
+              "explanation": "1 mm per kV: {{V/1000}} kV → **{{V/1e6|m}}**, about three times the breakdown gap, as margin for humidity, pressure and sharp edges."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "A": [
+              5,
+              10,
+              20
+            ],
+            "D": [
+              5,
+              10,
+              50,
+              100
+            ],
+            "didt": [
+              10,
+              20,
+              40
+            ]
+          },
+          "prompt": "An ESD current with $di/dt$ = {{didt}} A/ns flows {{D}} cm from a {{A}} cm² loop on a PCB. Estimate the voltage induced in the loop.",
+          "answer": "2*A/D*didt",
+          "unit": "V",
+          "explanation": "$V = \\frac{2A}{D}\\frac{di}{dt}$ (A in cm², D in cm, di/dt in A/ns) = 2 × {{A}} / {{D}} × {{didt}} = **{{2*A/D*didt|V}}**. Enough to upset logic even without a direct hit."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "C": [
+              5e-12,
+              1e-11,
+              2e-11
+            ],
+            "dv": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "A discharge to a metal cabinet makes its voltage change at {{dv}} kV/ns. The cabinet has {{C|F}} of stray capacitance to a product in a plastic case. Estimate the current injected into the product.",
+          "answer": "C*dv*1e12",
+          "unit": "A",
+          "explanation": "$I = C\\frac{dV}{dt}$ = {{C|F}} × {{dv}}×10¹² V/s = **{{C*dv*1e12|A}}**. This is why IEC 61000-4-2 also discharges into coupling planes next to the product."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "V": [
+              4000,
+              8000
+            ],
+            "Vc": [
+              12,
+              15,
+              24
+            ]
+          },
+          "prompt": "An ESD generator (330 Ω) charged to {{V|V}} discharges into an I/O pin protected by a TVS diode that clamps at {{Vc|V}}.",
+          "ask": [
+            {
+              "prompt": "Estimate the peak current through the TVS diode.",
+              "answer": "(V-Vc)/330",
+              "unit": "A",
+              "explanation": "The TVS holds the pin at {{Vc|V}}, so the 330 Ω source drops the rest: $I = (V - V_C)/330$ = ({{V|V}} − {{Vc|V}}) / 330 Ω = **{{(V-Vc)/330|A}}**."
+            },
+            {
+              "prompt": "Estimate the peak power dissipated in the TVS diode.",
+              "answer": "Vc*(V-Vc)/330",
+              "unit": "W",
+              "explanation": "$I$ = ({{V|V}} − {{Vc|V}})/330 Ω = {{(V-Vc)/330|A}}; $P = V_CI$ = {{Vc|V}} × {{(V-Vc)/330|A}} = **{{Vc*(V-Vc)/330|W}}**, but only for tens of nanoseconds."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "I": [
+              0.5,
+              1,
+              2
+            ],
+            "dt": [
+              0.01,
+              0.02
+            ],
+            "dV": [
+              2,
+              3,
+              5
+            ]
+          },
+          "prompt": "A product draws {{I|A}} from its power supply output and works properly while that output stays within {{dV|V}} of its nominal value. What output capacitance lets it ride through a {{dt|s}} interruption of the AC mains?",
+          "answer": "I*dt/dV",
+          "unit": "F",
+          "explanation": "$i = C\\frac{dv}{dt}$, so $C = \\frac{I\\,\\Delta t}{\\Delta V}$ = {{I|A}} × {{dt|s}} / {{dV|V}} = **{{I*dt/dV|F}}**."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which performance criterion do the EU generic standards require for the ESD and EFT tests?",
+          "options": [
+            "B: degradation is allowed during the test, but the product recovers by itself with no change of state or stored data",
+            "A: no degradation at all, during or after the test",
+            "C: loss of function is allowed if the user can restore it"
+          ],
+          "answer": 0,
+          "explanation": "Transient tests (ESD, EFT, surge, short dips) use criterion B. Continuous disturbances such as radiated or conducted RF use criterion A; long dips and interruptions use criterion C."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "T": [
+              1,
+              2
+            ]
+          },
+          "prompt": "An EFT test applies bursts lasting 15 ms every 300 ms, with 5/50 ns pulses repeating at 5 kHz inside each burst.",
+          "ask": [
+            {
+              "prompt": "How many pulses does one burst contain?",
+              "answer": "15e-3*5000",
+              "unit": "",
+              "explanation": "$N$ = burst length × repetition rate = 15 ms × 5 kHz = **75** pulses."
+            },
+            {
+              "prompt": "How many pulses hit the product during a {{T}}-minute test?",
+              "answer": "T*60/0.3*75",
+              "unit": "",
+              "explanation": "{{T*60}} s / 300 ms = {{T*200}} bursts, each with 15 ms × 5 kHz = 75 pulses: **{{T*60/0.3*75||4}}** pulses in total."
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "P": [
+              0.5,
+              1,
+              2,
+              5
+            ],
+            "d": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "A handheld radio radiates {{P|W}} (antenna gain 1).",
+          "ask": [
+            {
+              "prompt": "Find the field strength at {{d}} m.",
+              "answer": "sqrt(30*P)/d",
+              "unit": "V/m",
+              "explanation": "$E = \\frac{\\sqrt{30P}}{d}$ = √(30 × {{P}}) / {{d}} = **{{sqrt(30*P)/d|V/m}}**. Nearby low-power transmitters are often a bigger threat than distant broadcast stations."
+            },
+            {
+              "prompt": "At what distance does the field fall to the 3 V/m residential test level?",
+              "answer": "sqrt(30*P)/3",
+              "unit": "m",
+              "explanation": "$d = \\frac{\\sqrt{30P}}{E}$ = √(30 × {{P}}) / 3 = **{{sqrt(30*P)/3|m}}**. Closer than that, the product is exposed to more than it was tested for."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "emc-esd-3",
+      "title": "Contact protection and inductive loads",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "L": [
+              0.1,
+              0.5,
+              1
+            ],
+            "I0": [
+              0.05,
+              0.1,
+              0.2
+            ],
+            "Cs": [
+              1e-10,
+              2e-10,
+              5e-10
+            ]
+          },
+          "prompt": "A contact opens while {{I0|A}} flows in a {{L|H}} coil. Only the {{Cs|F}} of wiring capacitance is across the contact.",
+          "ask": [
+            {
+              "prompt": "Find the peak voltage the circuit could develop (no breakdown).",
+              "answer": "I0*sqrt(L/Cs)",
+              "unit": "V",
+              "explanation": "All the magnetic energy moves into the capacitance: $\\frac12LI_0^2 = \\frac12CV^2$, so $V = I_0\\sqrt{L/C}$ = {{I0|A}} × √({{L|H}} / {{Cs|F}}) = **{{I0*sqrt(L/Cs)|V}}**, far above the 300 V glow threshold."
+            },
+            {
+              "prompt": "Find the initial rate of rise of the contact voltage, in V/µs.",
+              "answer": "I0/Cs*1e-6",
+              "unit": "V/µs",
+              "explanation": "The coil current charges the capacitance: $dV/dt = I_0/C$ = {{I0|A}} / {{Cs|F}} = {{I0/Cs*1e-6||3}} × 10⁶ V/s = **{{I0/Cs*1e-6||3}} V/µs**, at least 100 times the 1 V/µs limit, so an arc forms."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "V": [
+              12,
+              24,
+              48
+            ],
+            "RL": [
+              150,
+              300,
+              600
+            ],
+            "L": [
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "derived": {
+            "I0": "V/RL"
+          },
+          "require": "RL - V/0.4",
+          "prompt": "A relay coil ({{RL|Ω}}, {{L|H}}) is switched from {{V|V}} DC by a silver contact (minimum arcing current 0.4 A). An R–C network will be placed across the contact.",
+          "ask": [
+            {
+              "prompt": "Find the minimum value of R.",
+              "answer": "V/0.4",
+              "unit": "Ω",
+              "explanation": "On closing, $C$ discharges through the contact; limit that current to the arcing current: $R \\ge V_{dc}/I_A$ = {{V|V}} / 0.4 A = **{{V/0.4|Ω}}**. The maximum is $R_L$ = {{RL|Ω}}."
+            },
+            {
+              "prompt": "Find the minimum C that keeps the initial rise of contact voltage below 1 V/µs.",
+              "answer": "I0*1e-6",
+              "unit": "F",
+              "explanation": "$I_0 = V/R_L$ = {{I0|A}}. $dV/dt = I_0/C \\le$ 1 V/µs means $C \\ge I_0\\times$ 1 µF/A = **{{I0*1e-6|F}}**."
+            },
+            {
+              "prompt": "Find the minimum C that keeps the peak contact voltage below 300 V.",
+              "answer": "(I0/300)^2*L",
+              "unit": "F",
+              "explanation": "$I_0\\sqrt{L/C} \\le 300$ V gives $C \\ge (I_0/300)^2L$ = ({{I0|A}} / 300 V)² × {{L|H}} = **{{(I0/300)^2*L|F}}**. Choose $C$ above both limits."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "I0": [
+              0.1,
+              0.2,
+              0.5
+            ],
+            "L": [
+              0.2,
+              0.5,
+              1
+            ],
+            "C": [
+              1e-07,
+              4.7e-07,
+              1e-06
+            ]
+          },
+          "prompt": "A {{C|F}} capacitor is across a contact that interrupts {{I0|A}} in a {{L|H}} inductive load. Neglecting resistance, find the peak contact voltage.",
+          "answer": "I0*sqrt(L/C)",
+          "unit": "V",
+          "explanation": "Energy balance $\\frac12LI_0^2 = \\frac12CV^2$: $V = I_0\\sqrt{L/C}$ = {{I0|A}} × √({{L|H}} / {{C|F}}) = **{{I0*sqrt(L/C)|V}}** (should stay below 300 V)."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "V": [
+              12,
+              24
+            ],
+            "Vz": [
+              24,
+              33,
+              47
+            ],
+            "L": [
+              0.05,
+              0.1,
+              0.2
+            ],
+            "RL": [
+              50,
+              100,
+              200
+            ]
+          },
+          "derived": {
+            "I0": "V/RL"
+          },
+          "prompt": "A transistor switches a {{RL|Ω}}, {{L|H}} solenoid from {{V|V}}. A diode in series with a {{Vz|V}} Zener is connected across the solenoid. Neglect the diode's forward drop.",
+          "ask": [
+            {
+              "prompt": "Find the peak collector–emitter voltage at turn-off.",
+              "answer": "V+Vz",
+              "unit": "V",
+              "explanation": "The coil voltage is clamped at $V_Z$ with the collector end positive, so $V_{CE} = V_{dc} + V_Z$ = {{V|V}} + {{Vz|V}} = **{{V+Vz|V}}**. With a plain diode it would be only ≈ {{V|V}}."
+            },
+            {
+              "prompt": "Estimate how long the coil current takes to fall to zero, neglecting the coil resistance.",
+              "answer": "L*V/RL/Vz",
+              "unit": "s",
+              "explanation": "$I_0 = V/R_L$ = {{I0|A}}. A constant voltage $V_Z$ across $L$ ramps the current down linearly: $t = LI_0/V_Z$ = {{L|H}} × {{I0|A}} / {{Vz|V}} = **{{L*V/RL/Vz|s}}**. A plain diode leaves only the small coil voltage, so the current decays with $\\tau = L/R_L$ = {{L/RL|s}} and the relay releases slowly."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "V": [
+              48,
+              60
+            ],
+            "RL": [
+              40,
+              60,
+              80
+            ]
+          },
+          "prompt": "A {{V|V}} magnetic brake ({{RL|Ω}}, 1 H) is switched by silver contacts ($I_A$ = 0.4 A). Which contact protection is appropriate?",
+          "options": [
+            "An R–C–D network across the contacts (or a diode across the brake)",
+            "An R–C network with R between $V_{dc}/I_A$ and $R_L$",
+            "A capacitor alone across the contacts",
+            "None: the load current is below the arcing current"
+          ],
+          "answer": 0,
+          "explanation": "$V_{dc}/I_A$ = {{V/0.4|Ω}} is larger than $R_L$ = {{RL|Ω}}, so no R satisfies $V_{dc}/I_A < R < R_L$. The load current {{V/RL|A}} is above the arcing current, so protection is needed. The R–C–D network solves the conflict: the diode bypasses R on opening, and R can be large ($\\ge 10V_{dc}/I_A$) for closing. A bare capacitor would be welded by its discharge on closing."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Placing a plain diode across a relay coil makes the relay release faster.",
+          "answer": false,
+          "explanation": "The diode clamps the coil voltage to about 0.7 V, so the stored current circulates slowly ($\\tau = L/R$) and the relay releases **later**. A Zener (or resistor) in series with the diode allows a larger reverse voltage and a faster decay, at the cost of a higher transistor or contact voltage."
+        },
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "A transistor drives a relay coil. Tap the diode that protects the transistor correctly when it turns off.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "battery",
+                "from": [
+                  0,
+                  6
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{dc}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    3,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  3,
+                  1
+                ],
+                "to": [
+                  3,
+                  3
+                ],
+                "label": "coil"
+              },
+              {
+                "type": "npn",
+                "at": [
+                  3,
+                  4
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  1,
+                  4
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "R_B"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  1,
+                  4
+                ],
+                "label": "in",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    5
+                  ],
+                  [
+                    3,
+                    6
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    6
+                  ],
+                  [
+                    6,
+                    6
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "name": "D1",
+                "from": [
+                  5,
+                  3
+                ],
+                "to": [
+                  5,
+                  1
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    1
+                  ],
+                  [
+                    5,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "name": "D2",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "D_2",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1
+                  ],
+                  [
+                    3,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    3
+                  ],
+                  [
+                    3,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "name": "D3",
+                "from": [
+                  6,
+                  6
+                ],
+                "to": [
+                  6,
+                  4
+                ],
+                "label": "D_3"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    4
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  6
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  6
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "answer": [
+            "D1"
+          ],
+          "explanation": "At turn-off the coil keeps its current flowing, so the collector end of the coil swings **positive**. $D_1$ (anode at the collector, cathode at $V_{dc}$) then conducts and clamps $V_{CE}$ near $V_{dc}$, while it is reverse-biased in normal operation. $D_2$ is the wrong way round: it shorts the coil whenever the transistor is on. $D_3$ (collector to ground) only conducts on negative swings, which do not occur here."
+        }
+      ]
+    },
+    {
+      "id": "emc-esd-4",
+      "title": "Designing the protection",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "V": [
+              12,
+              24
+            ],
+            "RL": [
+              180,
+              240,
+              330
+            ],
+            "L": [
+              0.2,
+              0.5
+            ]
+          },
+          "derived": {
+            "I0": "V/RL",
+            "C1": "I0*1e-6",
+            "C2": "(I0/300)^2*L",
+            "Cm": "max(C1, C2)"
+          },
+          "require": "RL - V/0.4",
+          "prompt": "Design an R–C network across the silver contact ($I_A$ = 0.4 A) that switches a {{RL|Ω}}, {{L|H}} relay coil from {{V|V}}.",
+          "ask": [
+            {
+              "prompt": "Find the coil current at the moment the contact opens.",
+              "answer": "I0",
+              "unit": "A",
+              "explanation": "$I_0 = V_{dc}/R_L$ = {{V|V}} / {{RL|Ω}} = **{{I0|A}}**, below the 0.4 A arcing current, so an R–C network (or a diode) is suitable."
+            },
+            {
+              "prompt": "Find the smallest capacitance that meets both the 1 V/µs and the 300 V rules.",
+              "answer": "Cm",
+              "unit": "F",
+              "explanation": "1 V/µs: $C \\ge I_0\\cdot$1 µF/A = {{C1|F}}. 300 V: $C \\ge (I_0/300)^2L$ = {{C2|F}}. The larger value governs: **{{Cm|F}}**; fit a standard capacitor at least this large."
+            },
+            {
+              "prompt": "A 0.22 µF capacitor is fitted. Neglecting resistance, find the peak voltage across the opening contact.",
+              "answer": "I0*sqrt(L/0.22e-6)",
+              "unit": "V",
+              "explanation": "$I_0$ = {{I0|A}}. The coil energy ends up in C: $V = I_0\\sqrt{L/C}$ = {{I0|A}} × √({{L|H}} / 0.22 µF) = **{{I0*sqrt(L/0.22e-6)|V}}**, below 300 V. R is chosen between $V_{dc}/I_A$ = {{V/0.4|Ω}} and $R_L$ = {{RL|Ω}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "V": [
+              24,
+              48
+            ],
+            "RL": [
+              20,
+              30,
+              40
+            ],
+            "L": [
+              0.5,
+              1
+            ],
+            "Vz": [
+              60,
+              100
+            ]
+          },
+          "derived": {
+            "I0": "V/RL"
+          },
+          "prompt": "A {{RL|Ω}}, {{L|H}} solenoid draws its current from {{V|V}} through silver contacts ($I_A$ = 0.4 A). An R–C–D network goes across the contacts.",
+          "ask": [
+            {
+              "prompt": "Find the minimum resistor value in the R–C–D network.",
+              "answer": "10*V/0.4",
+              "unit": "Ω",
+              "explanation": "On closing, the capacitor discharges through R; limit that to a tenth of the arcing current: $R \\ge 10V_{dc}/I_A$ = 10 × {{V|V}} / 0.4 A = **{{10*V/0.4|Ω}}**. On opening, the diode bypasses R."
+            },
+            {
+              "prompt": "Find the minimum capacitance (both the 1 V/µs and the 300 V rules).",
+              "answer": "max(I0*1e-6, (I0/300)^2*L)",
+              "unit": "F",
+              "explanation": "$I_0$ = {{V|V}}/{{RL|Ω}} = {{I0|A}}. 1 V/µs: {{I0*1e-6|F}}; 300 V: $(I_0/300)^2L$ = {{(I0/300)^2*L|F}}. Minimum: **{{max(I0*1e-6, (I0/300)^2*L)|F}}**, a large, high-voltage capacitor."
+            },
+            {
+              "prompt": "A diode in series with a {{Vz|V}} Zener is now also placed across the solenoid. Find the peak voltage across the opening contact.",
+              "answer": "V+Vz",
+              "unit": "V",
+              "explanation": "The solenoid voltage is clamped at $V_Z$, so the contact sees $V_{dc} + V_Z$ = {{V|V}} + {{Vz|V}} = **{{V+Vz|V}}**, below 300 V. Now the capacitor only needs the 1 V/µs rule ({{I0*1e-6|F}}), a much smaller part."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "V": [
+              4000,
+              8000
+            ],
+            "Vc": [
+              12,
+              15,
+              20
+            ],
+            "Rs": [
+              47,
+              100
+            ]
+          },
+          "prompt": "An ESD generator (330 Ω) charged to {{V|V}} hits the pin of an I/O connector. A TVS diode at the connector clamps at {{Vc|V}}; a {{Rs|Ω}} series resistor then leads to the IC pin, whose internal protection holds it at 6 V.",
+          "ask": [
+            {
+              "prompt": "Estimate the peak current in the TVS diode.",
+              "answer": "(V-Vc)/330",
+              "unit": "A",
+              "explanation": "$I_{TVS} \\approx (V - V_C)/330$ = ({{V|V}} − {{Vc|V}}) / 330 Ω = **{{(V-Vc)/330|A}}**."
+            },
+            {
+              "prompt": "Estimate the peak current that still reaches the IC pin.",
+              "answer": "(Vc-6)/Rs",
+              "unit": "A",
+              "explanation": "The series resistor sees the clamp voltage minus the IC's 6 V: $I = (V_C - 6)/R_s$ = ({{Vc|V}} − 6 V) / {{Rs|Ω}} = **{{(Vc-6)/Rs|A}}**, small enough for the IC's own diodes. Without $R_s$ the IC would share the full surge."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "A": [
+              10,
+              20,
+              40
+            ],
+            "D": [
+              20,
+              30,
+              50
+            ],
+            "didt": [
+              10,
+              20
+            ],
+            "Vm": [
+              0.4,
+              0.8
+            ]
+          },
+          "prompt": "The reset line of a microcontroller forms a {{A}} cm² loop. A discharge with $di/dt$ = {{didt}} A/ns may occur {{D}} cm away. The reset input tolerates {{Vm|V}} of noise.",
+          "ask": [
+            {
+              "prompt": "Estimate the voltage induced in the loop.",
+              "answer": "2*A/D*didt",
+              "unit": "V",
+              "explanation": "$V = \\frac{2A}{D}\\frac{di}{dt}$ = 2 × {{A}} / {{D}} × {{didt}} = **{{2*A/D*didt|V}}**, far above the {{Vm|V}} margin."
+            },
+            {
+              "prompt": "Find the largest loop area (cm²) that keeps the induced voltage within the margin.",
+              "answer": "Vm*D/(2*didt)",
+              "unit": "",
+              "explanation": "$A = \\frac{V D}{2\\,di/dt}$ = {{Vm}} × {{D}} / (2 × {{didt}}) = **{{Vm*D/(2*didt)||3}} cm²**. Hard to achieve for a whole reset trace, so in practice also add an RC filter right at the reset pin and a watchdog in software."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Order the layers of an ESD defence, from the first line of defence to the last resort",
+          "items": [
+            "Prevent the spark: insulation with enough clearance (1 mm/kV)",
+            "Divert the current: bonded enclosure, TVS diodes or filters to chassis at the connectors",
+            "Harden sensitive inputs: RC filters on reset and interrupt lines",
+            "Recover in software: watchdog, plausibility checks, error handlers"
+          ],
+          "explanation": "If no spark can reach the circuit, nothing else is needed; if it does occur, give its current a path around the circuit (enclosure, cable protection to chassis). Then harden the inputs that remain sensitive, and finally let the firmware detect and recover from the errors that still get through (Ott's prevent–harden–recover approach)."
+        }
+      ]
+    }
+  ]
+}

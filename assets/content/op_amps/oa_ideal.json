@@ -1,0 +1,1897 @@
+{
+  "id": "oa-ideal",
+  "title": "The Ideal Op Amp",
+  "description": "Op-amp terminals, ideal characteristics, negative feedback, the summing-point constraint and output limits.",
+  "reference": "Hambley §14.1–14.2, 14.6; H&H §4.01–4.03",
+  "study": [
+    {
+      "title": "Op-amp symbol and terminals",
+      "body": "An op amp has an **inverting input** (−), a **noninverting input** (+) and an output; all voltages are measured to ground. With $v_1$ at the + input and $v_2$ at the − input, it amplifies the **differential** input $v_1 - v_2$ by the huge **open-loop gain** $A_{OL}$. Dc supplies ($V_{CC}$, $V_{EE}$, often ±15 V) power it but are usually not drawn.",
+      "formula": "v_o = A_{OL}(v_1 - v_2)",
+      "circuit": {
+        "elements": [
+          {
+            "type": "opamp",
+            "at": [
+              2,
+              1.5
+            ],
+            "label": "A_{OL}"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                1
+              ],
+              [
+                0.3,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                2
+              ],
+              [
+                0.3,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0.3,
+              1
+            ],
+            "label": "v_2",
+            "flip": true
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0.3,
+              2
+            ],
+            "label": "v_1",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                1.5
+              ],
+              [
+                4,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              4,
+              1.5
+            ],
+            "label": "v_o"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Ideal op-amp characteristics",
+      "body": "- Infinite input impedance (no current into the inputs)\n- Infinite gain for the differential signal $v_1 - v_2$\n- Zero gain for the common-mode signal $\\frac{1}{2}(v_1+v_2)$\n- Zero output impedance (output is an ideal voltage source)\n- Infinite bandwidth\nReal IC op amps come close: $A_{OL} \\sim 10^5$–$10^6$, input resistance 1 MΩ or more, output resistance tens of ohms."
+    },
+    {
+      "title": "Negative feedback",
+      "body": "Op amps are almost always used with **negative feedback**: part of the output is returned to the **inverting** input so that it opposes the input change. Quick check: a resistor (or capacitor) network from the output to the − input gives negative feedback. Feedback to the + input is **positive feedback**: the output runs away to one of its limits and the circuit does not amplify linearly."
+    },
+    {
+      "title": "The summing-point constraint",
+      "body": "With negative feedback and an ideal op amp, the output takes exactly the value that makes the differential input zero, and no current flows into the inputs. This is also called a **virtual short circuit**. Analysis recipe: (1) verify negative feedback, (2) apply the constraint, (3) use KCL, KVL and Ohm's law.",
+      "formula": "v_+ = v_-,\\qquad i_+ = i_- = 0"
+    },
+    {
+      "title": "Why the constraint works",
+      "body": "A real op amp needs only a tiny differential input: for $v_o$ = 10 V and $A_{OL} = 2\\times10^5$, $v_1 - v_2 = v_o/A_{OL}$ = 50 µV. Compared with the volts elsewhere in the circuit that is essentially zero. Because the closed-loop gain depends only on resistor ratios, it is accurate even though $A_{OL}$ varies a lot from unit to unit.",
+      "formula": "v_1 - v_2 = \\frac{v_o}{A_{OL}} \\approx 0"
+    },
+    {
+      "title": "Output limits (saturation)",
+      "body": "The output cannot go beyond limits set by the supplies, e.g. roughly ±14 V with ±15 V supplies (less with heavy loads). If the ideal analysis predicts a larger output, the waveform is **clipped** and the summing-point constraint no longer holds. The output current is limited too (tens of mA), so very small load or feedback resistances also cause clipping. The graph is an inverting amplifier: drag its gain and watch the linear input range $|v_{in}| < 14\\text{ V}/|A_v|$ shrink as the gain grows.",
+      "plot": {
+        "x": {
+          "min": -5,
+          "max": 5,
+          "label": "v_{in}",
+          "unit": "V"
+        },
+        "y": {
+          "min": -19,
+          "max": 19,
+          "label": "v_o",
+          "unit": "V"
+        },
+        "sliders": [
+          {
+            "name": "k",
+            "label": "gain magnitude $R_2/R_1$",
+            "min": 1,
+            "max": 10,
+            "step": 0.5,
+            "value": 5
+          }
+        ],
+        "curves": [
+          {
+            "f": "clamp(-k*x, -14, 14)"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 14,
+            "label": "+14 V"
+          },
+          {
+            "y": -14,
+            "label": "−14 V"
+          }
+        ],
+        "vlines": [
+          {
+            "x": "-14/k"
+          },
+          {
+            "x": "14/k"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "Clipping starts at $|v_{in}|$",
+            "value": "14/k",
+            "unit": "V"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "title": "Meet the op amp",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The op-amp symbol",
+          "body": "The triangle is the op amp. The input marked **−** is the inverting input, the one marked **+** is the noninverting input.\nWithout feedback (open loop) it amplifies the **difference** between the inputs by $A_{OL}$, which is enormous (around $10^5$ or more).",
+          "formula": "v_o = A_{OL}(v_1 - v_2)",
+          "circuit": {
+            "elements": [
+              {
+                "type": "opamp",
+                "at": [
+                  2,
+                  1.5
+                ],
+                "label": "A_{OL}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    1
+                  ],
+                  [
+                    0.3,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    0.3,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0.3,
+                  1
+                ],
+                "label": "v_2",
+                "flip": true
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0.3,
+                  2
+                ],
+                "label": "v_1",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    1.5
+                  ],
+                  [
+                    4,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  4,
+                  1.5
+                ],
+                "label": "v_o"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each symbol to its meaning",
+          "pairs": [
+            [
+              "+ input",
+              "Noninverting input"
+            ],
+            [
+              "− input",
+              "Inverting input"
+            ],
+            [
+              "$V_{CC}$, $V_{EE}$",
+              "Dc power-supply voltages"
+            ],
+            [
+              "$A_{OL}$",
+              "Open-loop gain"
+            ]
+          ],
+          "explanation": "A signal at the + input appears at the output with the same sign, a signal at the − input with the opposite sign. $A_{OL}$ is the gain without any feedback network, and the supplies $V_{CC}$, $V_{EE}$ provide the power (usually not drawn)."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The ideal op amp",
+          "body": "For hand analysis we treat the op amp as ideal:\n- infinite input impedance\n- infinite differential gain, zero common-mode gain\n- zero output impedance\n- infinite bandwidth"
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Which of these is **not** a property of the ideal op amp?",
+          "options": [
+            "Zero input impedance",
+            "Infinite differential gain",
+            "Zero output impedance",
+            "Zero common-mode gain"
+          ],
+          "answer": 0,
+          "explanation": "The ideal op amp has **infinite** input impedance, so it draws no current from whatever drives its inputs. Zero input impedance would short out the signal source."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "An op amp with $A_{OL}$ = {{AOL}} is used without feedback. The + input is at $v_1$ = {{1+d|V|7}} and the − input at $v_2$ = 1 V. Find $v_o$.",
+          "answer": "AOL*d",
+          "unit": "V",
+          "explanation": "Only the difference matters: $v_1 - v_2$ = {{d*1e6}} µV.\n$v_o = A_{OL}(v_1 - v_2)$ = {{AOL}} × ({{d*1e6}} µV) = {{AOL*d|V}}.\nA difference of a few tens of microvolts already gives volts at the output. The common 1 V level is ignored (zero common-mode gain).",
+          "params": {
+            "AOL": [
+              100000,
+              200000
+            ],
+            "d": [
+              -6e-05,
+              -4e-05,
+              -2e-05,
+              2e-05,
+              4e-05,
+              6e-05
+            ]
+          }
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Negative feedback and the summing-point constraint",
+          "body": "Connect a network from the output back to the **−** input. If the output rises, the − input rises too and pushes the output back down: **negative feedback**.\nWith an ideal op amp the output settles where the differential input is exactly zero. This gives the **summing-point constraint**:\n- $v_+ = v_-$ (virtual short)\n- $i_+ = i_- = 0$ (no input current)",
+          "formula": "v_+ = v_-,\\qquad i_+ = i_- = 0"
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "In an ideal op-amp circuit with negative feedback, no current flows into the − input even though $v_+ = v_-$.",
+          "answer": true,
+          "explanation": "True. The input impedance is infinite, so $i_- = 0$. The equal voltages are not caused by a real short circuit: the output, acting through the feedback network, forces the difference to zero. That is why it is called a *virtual* short."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "prompt": "A real op amp with $A_{OL}$ = {{AOL}} operates with negative feedback and its output is at $v_o$ = {{vo|V}}. How large is the differential input $v_+ - v_-$?",
+          "answer": "vo/AOL",
+          "unit": "V",
+          "explanation": "$v_+ - v_- = v_o/A_{OL}$ = {{vo|V}}/{{AOL}} = {{vo/AOL|V}}.\nMicrovolts compared with volts elsewhere: treating it as zero (the summing-point constraint) is an excellent approximation.",
+          "params": {
+            "vo": [
+              5,
+              10,
+              12
+            ],
+            "AOL": [
+              100000,
+              200000,
+              500000
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "In this circuit the feedback resistor $R_2$ is connected to the **+** input and the source drives the + input through $R_1$. What does the circuit do?",
+          "options": [
+            "Positive feedback: the output saturates at one of its limits",
+            "Negative feedback: $v_o = -(R_2/R_1)v_{in}$",
+            "Negative feedback: $v_o = (1 + R_2/R_1)v_{in}$"
+          ],
+          "answer": 0,
+          "explanation": "Feedback to the **+** input aids the input change: a slightly positive $v_+$ drives $v_o$ up, which raises $v_+$ further, until the output hits its positive limit (or its negative limit for the opposite start). The summing-point constraint does **not** apply, so $-R_2/R_1$ would be a wrong answer here.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3.5
+                ],
+                "to": [
+                  0,
+                  1.5
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ],
+                  [
+                    2.5,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2.5,
+                  0.5
+                ],
+                "to": [
+                  4.5,
+                  0.5
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ],
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  3.5
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "oa-ideal-1"
+    },
+    {
+      "title": "Using the constraint",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "You want to add a feedback resistor from the output to one of the inputs. Tap the input it must connect to for **negative** feedback.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "opamp",
+                "at": [
+                  3,
+                  2
+                ],
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    1,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2.5
+                  ],
+                  [
+                    1,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  1.5
+                ],
+                "name": "n1",
+                "label": "1"
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  2.5
+                ],
+                "name": "n2",
+                "label": "2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          },
+          "answer": [
+            "n2"
+          ],
+          "explanation": "Negative feedback must go to the **inverting** (−) input. Read the signs inside the symbol: in this drawing the + input is on top and the − input at the bottom, so input 2 is the right one. Feedback to the + input would be positive feedback: the output would run to a supply limit instead of settling."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "prompt": "The op amp is ideal. With $v_{in}$ = {{vin|V}}, $R_1$ = {{R1|Ω}} and $R_2$ = {{R2|Ω}}, find the current $i_1$ flowing through $R_1$ from left to right.",
+          "answer": "vin/R1",
+          "unit": "A",
+          "explanation": "The + input is grounded, so by the summing-point constraint $v_- = v_+ = 0$.\nThe full $v_{in}$ appears across $R_1$: $i_1 = \\frac{v_{in} - 0}{R_1}$ = {{vin|V}}/{{R1|Ω}} = {{vin/R1|A}}.",
+          "params": {
+            "vin": [
+              0.5,
+              1,
+              1.5,
+              2
+            ],
+            "R1": [
+              1000,
+              2200,
+              4700,
+              10000
+            ],
+            "R2": [
+              10000,
+              22000,
+              47000
+            ]
+          },
+          "require": "13 - vin*R2/R1",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3.5
+                ],
+                "to": [
+                  0,
+                  1.5
+                ],
+                "label": "v_{in}",
+                "value": "{{vin|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ],
+                  [
+                    2.5,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2.5,
+                  0.5
+                ],
+                "to": [
+                  4.5,
+                  0.5
+                ],
+                "label": "R_2 = {{R2|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  3.5
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "prompt": "Same type of circuit with $v_{in}$ = {{vin|V}}, $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}}. Use the summing-point constraint and KVL to find $v_o$.",
+          "answer": "-R2*vin/R1",
+          "unit": "V",
+          "explanation": "$v_- = 0$, so $i_1 = v_{in}/R_1$ = {{vin/R1|A}}. No current enters the op amp, so the same current flows through $R_2$ toward the output.\nKVL from the − input (0 V) through $R_2$: $v_o = 0 - R_2 i_1$ = −{{R2|Ω}} × {{vin/R1|A}} = {{-R2*vin/R1|V}}.",
+          "params": {
+            "vin": [
+              0.2,
+              0.5,
+              1,
+              1.5
+            ],
+            "R1": [
+              1000,
+              2200,
+              4700,
+              10000
+            ],
+            "R2": [
+              10000,
+              22000,
+              47000
+            ]
+          },
+          "require": "13 - vin*R2/R1",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3.5
+                ],
+                "to": [
+                  0,
+                  1.5
+                ],
+                "label": "v_{in}",
+                "value": "{{vin|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ],
+                  [
+                    2.5,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2.5,
+                  0.5
+                ],
+                "to": [
+                  4.5,
+                  0.5
+                ],
+                "label": "R_2 = {{R2|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  3.5
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "In this circuit (+ input grounded, negative feedback through $R_2$), what is the voltage at the − input?",
+          "options": [
+            "0 V",
+            "$v_{in}$",
+            "$v_o$",
+            "$v_{in}/2$"
+          ],
+          "answer": 0,
+          "explanation": "Negative feedback is present, so $v_- = v_+$. The + input is grounded, so $v_-$ = 0 V. The − input is a **virtual ground**: at 0 V but not actually connected to ground (no current flows into it).",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3.5
+                ],
+                "to": [
+                  0,
+                  1.5
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ],
+                  [
+                    2.5,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2.5,
+                  0.5
+                ],
+                "to": [
+                  4.5,
+                  0.5
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  3.5
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "An op-amp amplifier has a gain of {{A}} and its output can swing only between −{{Vs|V}} and +{{Vs|V}}. What is the largest peak amplitude of a sine input that is amplified without clipping?",
+          "answer": "Vs/A",
+          "unit": "V",
+          "explanation": "The output peak is $A\\,V_{im}$, which must stay within the limit: $A\\,V_{im} \\le V_{sat}$.\n$V_{im,max} = V_{sat}/A$ = {{Vs|V}}/{{A}} = {{Vs/A|V}}.",
+          "params": {
+            "A": [
+              5,
+              8,
+              10,
+              20,
+              25
+            ],
+            "Vs": [
+              12,
+              13,
+              14
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A noninverting amplifier with gain {{A}} has output limits of ±{{Vs|V}}. The input is a sine wave with {{Vm|V}} peak. What is the peak output voltage?",
+          "options": [
+            "{{Vs|V}} (the output clips)",
+            "{{A*Vm|V}}",
+            "{{Vm|V}}"
+          ],
+          "answer": 0,
+          "explanation": "Ideally the peak would be {{A}} × {{Vm|V}} = {{A*Vm|V}}, but that exceeds the {{Vs|V}} limit. The output follows the sine until it reaches ±{{Vs|V}} and is flattened (clipped) there, so the peak is {{Vs|V}}.",
+          "params": {
+            "A": [
+              5,
+              10
+            ],
+            "Vm": [
+              2,
+              3
+            ],
+            "Vs": [
+              12,
+              14
+            ]
+          },
+          "require": "A*Vm - Vs"
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "If you apply the summing-point constraint to a circuit with positive feedback, you can get a formula that looks reasonable but does not describe what the circuit actually does.",
+          "answer": true,
+          "explanation": "True. The constraint assumes the feedback drives $v_+ - v_-$ toward zero. With positive feedback the output instead runs to a limit. Always verify that the feedback goes to the − input before using $v_+ = v_-$."
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the steps for analysing an ideal op-amp circuit in order",
+          "items": [
+            "Verify that negative feedback is present",
+            "Apply the summing-point constraint: $v_+ = v_-$ and zero input currents",
+            "Write KCL, KVL and Ohm's law for the circuit",
+            "Solve for the requested voltage or current"
+          ],
+          "explanation": "Checking the feedback comes first, because the constraint is only valid with negative feedback. After that the op amp is just a set of conditions, and ordinary circuit laws finish the job."
+        }
+      ],
+      "id": "oa-ideal-2"
+    },
+    {
+      "title": "Beyond the ideal",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "Inverting amplifier with an ideal op amp and $v_{in}$ = 2 V. Tap every node that is at **0 V**.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "name": "Vin",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  2
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    0.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "name": "R1",
+                "from": [
+                  0.5,
+                  2
+                ],
+                "to": [
+                  2.5,
+                  2
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2.5,
+                    2
+                  ],
+                  [
+                    3.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    3,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "name": "R2",
+                "from": [
+                  3,
+                  0.5
+                ],
+                "to": [
+                  5,
+                  0.5
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    0.5
+                  ],
+                  [
+                    6,
+                    0.5
+                  ],
+                  [
+                    6,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4.5,
+                  2.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3.5,
+                    3
+                  ],
+                  [
+                    2.5,
+                    3
+                  ],
+                  [
+                    2.5,
+                    3.8
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  2.5,
+                  3.8
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    2.5
+                  ],
+                  [
+                    6.5,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2.5
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "node",
+                "at": [
+                  0.5,
+                  2
+                ],
+                "name": "n1",
+                "label": "1"
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ],
+                "name": "n2",
+                "label": "2"
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  2.5
+                ],
+                "name": "n3",
+                "label": "3"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2.5,
+                  3
+                ],
+                "name": "n4",
+                "label": "4"
+              }
+            ]
+          },
+          "selectable": [
+            "n1",
+            "n2",
+            "n3",
+            "n4"
+          ],
+          "answer": [
+            "n2",
+            "n4"
+          ],
+          "explanation": "- Node 4 is the + input, wired to ground: 0 V.\n- Node 2 is the − input. With negative feedback the ideal op amp keeps $v_- = v_+$, so it is also at 0 V: a **virtual ground**. It is not connected to ground, yet its voltage is zero.\nNode 1 is at $v_{in}$ = 2 V and node 3 at $v_o = -\\frac{R_2}{R_1}v_{in}$."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "prompt": "In the circuit, $v_{in}$ = {{vin|V}}, $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}} and $R_L$ = {{RL|Ω}}. Find the current flowing **out of** the op-amp output terminal (negative if current flows into it).",
+          "answer": "-R2*vin/R1/RL - vin/R1",
+          "unit": "A",
+          "explanation": "Summing point: $v_- = 0$, so $i_1 = v_{in}/R_1$ = {{vin/R1|A}}, and this current continues through $R_2$ into the output node. Then $v_o = -R_2 i_1$ = {{-R2*vin/R1|V}}.\nLoad current (downward through $R_L$): $v_o/R_L$ = {{-R2*vin/R1/RL|A}}.\nKCL at the output node: $i_{out} + i_1 = v_o/R_L$, so $i_{out}$ = {{-R2*vin/R1/RL|A}} − {{vin/R1|A}} = {{-R2*vin/R1/RL - vin/R1|A}}. The op amp sinks this current; it comes from its negative supply.",
+          "params": {
+            "vin": [
+              0.5,
+              0.8,
+              1.2
+            ],
+            "R1": [
+              2000,
+              4700
+            ],
+            "R2": [
+              22000,
+              47000
+            ],
+            "RL": [
+              2000,
+              4700
+            ]
+          },
+          "require": "13 - vin*R2/R1",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3.5
+                ],
+                "to": [
+                  0,
+                  1.5
+                ],
+                "label": "v_{in}",
+                "value": "{{vin|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ],
+                  [
+                    2.5,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2.5,
+                  0.5
+                ],
+                "to": [
+                  4.5,
+                  0.5
+                ],
+                "label": "R_2 = {{R2|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  3.5
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    7.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6.5,
+                  2
+                ],
+                "to": [
+                  6.5,
+                  3.5
+                ],
+                "label": "R_L",
+                "value": "{{RL|Ω}}",
+                "polarity": "+-"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  6.5,
+                  3.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6.5,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  7.5,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "prompt": "A low-gain op amp with $A_{OL}$ = {{AOL}} is used in an inverting amplifier with $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}} and $v_{in}$ = {{vin|V}}. Do **not** assume infinite gain: find $v_o$ (3 significant figures).",
+          "answer": "-(R2/R1)*vin/(1 + (1 + R2/R1)/AOL)",
+          "unit": "V",
+          "explanation": "Let $v_x$ be the voltage at the − input. The op amp gives $v_o = A_{OL}(0 - v_x)$, so $v_x = -v_o/A_{OL}$.\nKCL at the − input: $\\frac{v_{in} - v_x}{R_1} = \\frac{v_x - v_o}{R_2}$. Substituting and solving:\n$v_o = \\frac{-(R_2/R_1)\\,v_{in}}{1 + (1 + R_2/R_1)/A_{OL}}$ = {{-(R2/R1)*vin}}/(1 + {{1+R2/R1}}/{{AOL}}) = {{-(R2/R1)*vin/(1 + (1 + R2/R1)/AOL)|V}}.\nThe ideal answer would be {{-(R2/R1)*vin|V}}; the error shrinks as $A_{OL}$ grows.",
+          "tolerance": 0.005,
+          "params": {
+            "AOL": [
+              500,
+              1000,
+              2000
+            ],
+            "R1": [
+              1000,
+              2000
+            ],
+            "k": [
+              20,
+              50,
+              100
+            ],
+            "vin": [
+              0.05,
+              0.1
+            ]
+          },
+          "derived": {
+            "R2": "k*R1"
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "A real op amp ($A_{OL}$ = {{AOL}}) is used in an inverting amplifier whose output is $v_o$ = {{vo|V}}. The + input is grounded. What is the voltage $v_-$ at the inverting input?",
+          "answer": "-vo/AOL",
+          "unit": "V",
+          "explanation": "$v_o = A_{OL}(v_+ - v_-) = -A_{OL}v_-$, so $v_- = -v_o/A_{OL}$ = −({{vo|V}})/{{AOL}} = {{-vo/AOL|V}}.\nTiny, and of opposite sign to the output: that is why the ideal model calls it 0 V.",
+          "params": {
+            "vo": [
+              -10,
+              -8,
+              -5,
+              5,
+              8
+            ],
+            "AOL": [
+              100000,
+              200000
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Why are op amps used with negative feedback instead of using the open-loop gain directly?",
+          "options": [
+            "$A_{OL}$ is huge and varies between units; with feedback the gain depends only on resistor ratios",
+            "Negative feedback increases the gain above the open-loop gain",
+            "Without feedback the op amp would draw large input currents",
+            "Feedback is needed to give the op amp a nonzero output resistance"
+          ],
+          "answer": 0,
+          "explanation": "Open loop, microvolts saturate the output and the gain is uncertain (it can vary by a factor of several between units and with temperature). Negative feedback trades excess gain for a precise, stable gain set by resistors, e.g. $-R_2/R_1$."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "An op amp with $A_{OL}$ = {{AOL}} and output limits ±{{Vs|V}} is used **without** feedback. A differential input $v_1 - v_2$ = {{vd*1000}} mV is applied. What is $v_o$?",
+          "options": [
+            "+{{Vs|V}} (saturated)",
+            "{{AOL*vd|V}}",
+            "0 V",
+            "−{{Vs|V}} (saturated)"
+          ],
+          "answer": 0,
+          "explanation": "Linear theory gives $A_{OL}(v_1 - v_2)$ = {{AOL}} × {{vd*1000}} mV = {{AOL*vd|V}}, far beyond the limit. The input is positive, so the output sits at its positive limit, +{{Vs|V}}. Open-loop op amps behave like comparators.",
+          "params": {
+            "AOL": [
+              100000,
+              200000
+            ],
+            "vd": [
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "Vs": [
+              12,
+              14
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "The summing-point constraint $v_+ = v_-$ can be used for an op amp with no feedback at all (a comparator).",
+          "answer": false,
+          "explanation": "False. Without negative feedback nothing forces $v_+ - v_-$ to zero; the output simply saturates at $\\pm V_{sat}$ according to the sign of $v_+ - v_-$. The constraint is a consequence of negative feedback."
+        }
+      ],
+      "id": "oa-ideal-3"
+    },
+    {
+      "id": "oa-ideal-4",
+      "title": "Transfer characteristics",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "g1", "type": "numeric",
+          "params": {"Vsat": [10, 12, 13, 14], "vds": [5e-05, 0.0001, 0.0002]},
+          "derived": {"AOL": "Vsat/vds"},
+          "prompt": "The graph shows the **open-loop** characteristic of an op amp: the output $v_o$ versus the differential input $v_1 - v_2$. Find the open-loop gain $A_{OL}$.",
+          "plot": {
+            "x": {"min": "-2.5*vds", "max": "2.5*vds", "label": "v_1 − v_2", "unit": "V"},
+            "y": {"min": "-1.3*Vsat", "max": "1.3*Vsat", "label": "v_o", "unit": "V"},
+            "curves": [{"f": "clamp(AOL*x, -Vsat, Vsat)"}]
+          },
+          "answer": "AOL",
+          "unit": "",
+          "tolerance": 0.08,
+          "explanation": "In the linear region $v_o = A_{OL}(v_1 - v_2)$, so $A_{OL}$ is the slope. The output reaches its limit of {{Vsat|V}} at a differential input of only {{vds|V}}: $A_{OL}$ = {{Vsat|V}} / {{vds|V}} = {{AOL}}. Note the microvolt scale: this tiny linear range is why the op amp is always used with negative feedback."
+        },
+        {
+          "id": "g2", "type": "numeric",
+          "params": {"G": [2, 4, 5, 10], "sg": [-1, 1], "Vsat": [10, 12, 14]},
+          "derived": {"A": "sg*G", "vlim": "Vsat/G"},
+          "prompt": "The graph shows the transfer characteristic $v_o$ versus $v_{in}$ of an op-amp amplifier with negative feedback.",
+          "plot": {
+            "x": {"min": "-2*vlim", "max": "2*vlim", "label": "v_{in}", "unit": "V"},
+            "y": {"min": "-1.3*Vsat", "max": "1.3*Vsat", "label": "v_o", "unit": "V"},
+            "curves": [{"f": "clamp(A*x, -Vsat, Vsat)"}]
+          },
+          "ask": [
+            {
+              "prompt": "Find the voltage gain $A_v = v_o/v_{in}$ (with its sign).",
+              "answer": "A",
+              "unit": "",
+              "tolerance": 0.05,
+              "explanation": "The gain is the slope of the sloped part. From $v_{in}$ = 0 to {{vlim|V}} the output goes from 0 to {{A*vlim|V}}, so $A_v$ = {{A*vlim|V}} / {{vlim|V}} = {{A}}. A line that falls from left to right means an inverting amplifier (negative gain)."
+            },
+            {
+              "prompt": "Above which input magnitude $|v_{in}|$ is the output clipped?",
+              "answer": "vlim",
+              "unit": "V",
+              "tolerance": 0.07,
+              "explanation": "The sloped part ends where the output reaches the saturation levels ±{{Vsat|V}}: at $|v_{in}|$ ≈ {{vlim|V}} (= {{Vsat|V}} / {{G}}, the saturation voltage divided by the gain magnitude). For larger inputs the output stays flat: it is clipped."
+            }
+          ]
+        },
+        {
+          "id": "g3", "type": "multipleChoice",
+          "params": {"G": [3, 4, 5], "Vm": [4, 5]},
+          "require": "G*Vm - 14.9",
+          "prompt": "A noninverting amplifier with gain {{G}} has an output that saturates at ±12 V (dashed lines). Its input is a sine wave with an amplitude of {{Vm|V}}. Which graph shows $v_o$? All graphs use the same scale.",
+          "optionPlots": [
+            {
+              "x": {"min": 0, "max": 2},
+              "y": {"min": "-1.15*G*Vm", "max": "1.15*G*Vm"},
+              "curves": [{"f": "clamp(G*Vm*sin(2*pi*x), -12, 12)"}],
+              "hlines": [{"y": 12}, {"y": -12}]
+            },
+            {
+              "x": {"min": 0, "max": 2},
+              "y": {"min": "-1.15*G*Vm", "max": "1.15*G*Vm"},
+              "curves": [{"f": "G*Vm*sin(2*pi*x)"}],
+              "hlines": [{"y": 12}, {"y": -12}]
+            },
+            {
+              "x": {"min": 0, "max": 2},
+              "y": {"min": "-1.15*G*Vm", "max": "1.15*G*Vm"},
+              "curves": [{"f": "clamp(-G*Vm*sin(2*pi*x), -12, 12)"}],
+              "hlines": [{"y": 12}, {"y": -12}]
+            },
+            {
+              "x": {"min": 0, "max": 2},
+              "y": {"min": "-1.15*G*Vm", "max": "1.15*G*Vm"},
+              "curves": [{"f": "12*sign(sin(2*pi*x))"}],
+              "hlines": [{"y": 12}, {"y": -12}]
+            }
+          ],
+          "answer": 0,
+          "explanation": "The ideal output would be a sine with amplitude {{G}} × {{Vm|V}} = {{G*Vm|V}}, in phase with the input (noninverting). The output cannot go beyond ±12 V, so the tops and bottoms are clipped flat at the saturation levels. An unclipped sine would exceed the limits, an inverted sine belongs to an inverting amplifier, and a square wave is what a comparator (no feedback) would give."
+        },
+        {
+          "id": "g4", "type": "multipleChoice",
+          "params": {"G": [2, 5], "sg": [-1, 1], "s2": [-1, 1], "r": [0, 1]},
+          "derived": {
+            "Vsat": "12",
+            "A": "sg*G",
+            "vlim": "Vsat/G",
+            "px": "s2*((1-r)*0.5 + r*1.5)*vlim",
+            "py": "clamp(A*px, -Vsat, Vsat)"
+          },
+          "prompt": "The graph shows the transfer characteristic of an op-amp amplifier. At the operating point P, does the summing-point constraint $v_+ = v_-$ hold?",
+          "plot": {
+            "x": {"min": "-2*vlim", "max": "2*vlim", "label": "v_{in}", "unit": "V"},
+            "y": {"min": -16, "max": 16, "label": "v_o", "unit": "V"},
+            "curves": [{"f": "clamp(A*x, -Vsat, Vsat)"}],
+            "points": [{"x": "px", "y": "py", "label": "P"}]
+          },
+          "options": ["Yes: the op amp works linearly, so $v_+ \\approx v_-$", "No: the output is saturated, so $v_+ \\neq v_-$"],
+          "answer": "r",
+          "explanation": "The constraint holds only while negative feedback can adjust the output to keep the differential input near zero. On the sloped part that is the case. On the flat parts the output is stuck at ±12 V: the feedback can no longer act, so a real differential input appears and $v_+ \\neq v_-$. Always check that the predicted output lies within the limits."
+        },
+        {
+          "id": "g5", "type": "multipleChoice",
+          "prompt": "Which graph is the transfer characteristic ($v_o$ versus $v_{in}$) of a **voltage follower** whose output saturates at ±12 V (dashed lines)? Both axes have the same scale.",
+          "optionPlots": [
+            {
+              "x": {"min": -15, "max": 15},
+              "y": {"min": -15, "max": 15},
+              "curves": [{"f": "clamp(x, -12, 12)"}],
+              "hlines": [{"y": 12}, {"y": -12}]
+            },
+            {
+              "x": {"min": -15, "max": 15},
+              "y": {"min": -15, "max": 15},
+              "curves": [{"f": "clamp(-x, -12, 12)"}],
+              "hlines": [{"y": 12}, {"y": -12}]
+            },
+            {
+              "x": {"min": -15, "max": 15},
+              "y": {"min": -15, "max": 15},
+              "curves": [{"f": "x"}],
+              "hlines": [{"y": 12}, {"y": -12}]
+            },
+            {
+              "x": {"min": -15, "max": 15},
+              "y": {"min": -15, "max": 15},
+              "curves": [{"f": "clamp(2*x, -12, 12)"}],
+              "hlines": [{"y": 12}, {"y": -12}]
+            }
+          ],
+          "answer": 0,
+          "explanation": "A follower has $v_o = v_{in}$: a line through the origin with slope 1 (a 45° line when both axes have the same scale), flattening at ±12 V. Slope −1 is an inverting amplifier with gain −1, slope 2 a noninverting amplifier with gain 2, and a line without limits ignores saturation."
+        }
+      ]
+    }
+  ]
+}

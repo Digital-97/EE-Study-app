@@ -1,0 +1,1803 @@
+{
+  "id": "dt-zsystems",
+  "title": "z-Domain System Analysis",
+  "description": "Read stability, ringing and frequency response from the poles and zeros of H(z), and pick the right sequence with the region of convergence.",
+  "reference": "Phillips §11.6–11.7",
+  "study": [
+    {
+      "title": "Transfer function",
+      "body": "With all initial conditions zero, transform the difference equation term by term ($y[n-k] \\to z^{-k}Y(z)$) and solve for $H(z) = Y(z)/X(z)$, the z-transform of the impulse response $h[n]$. Multiply numerator and denominator by $z^2$ to get positive powers. The feedback coefficients $a_k$ form the denominator. A causal system has a **proper** $H(z)$: numerator degree ≤ denominator degree.",
+      "formula": "\\begin{array}{c} y[n] + a_1y[n-1] + a_2y[n-2] \\\\ = b_0x[n] + b_1x[n-1] + b_2x[n-2] \\\\ \\Downarrow \\\\ H(z) = \\dfrac{b_0z^2 + b_1z + b_2}{z^2 + a_1z + a_2} \\end{array}"
+    },
+    {
+      "title": "Poles, zeros and stability",
+      "body": "A causal system is BIBO stable when **all poles lie strictly inside the unit circle**. Simple poles on the circle make it marginally stable (a natural response that never dies out); any pole outside makes it unstable. Zeros do not affect stability, but a causal, stable **inverse** $1/H(z)$ needs all zeros inside the circle too.",
+      "formula": "|p_i| < 1 \\quad \\text{for every pole } p_i",
+      "plot": {
+        "x": {
+          "min": -1.6,
+          "max": 1.6,
+          "label": "Re z"
+        },
+        "y": {
+          "min": -1.25,
+          "max": 1.25,
+          "label": "Im z"
+        },
+        "height": 240,
+        "curves": [
+          {
+            "f": "sqrt(max(0,1-x^2))",
+            "from": -1,
+            "to": 1,
+            "color": "grey"
+          },
+          {
+            "f": "-sqrt(max(0,1-x^2))",
+            "from": -1,
+            "to": 1,
+            "color": "grey"
+          }
+        ],
+        "points": [
+          {
+            "x": 0.6,
+            "y": 0.5,
+            "marker": "x",
+            "color": "red",
+            "guides": false
+          },
+          {
+            "x": 0.6,
+            "y": -0.5,
+            "marker": "x",
+            "color": "red",
+            "guides": false
+          },
+          {
+            "x": -1,
+            "y": 0,
+            "marker": "o",
+            "color": "blue",
+            "guides": false
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "marker": "o",
+            "color": "blue",
+            "guides": false
+          }
+        ],
+        "labels": [
+          {
+            "x": 0.75,
+            "y": 0.75,
+            "text": "× pole",
+            "color": "red"
+          },
+          {
+            "x": -1.55,
+            "y": 0.35,
+            "text": "o zero",
+            "color": "blue"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: pole radius and angle",
+      "body": "A pole pair $re^{\\pm j\\Omega_p}$ gives an impulse response like $h[n] = r^n\\cos(\\Omega_p n)$. The **radius** sets the decay: the envelope $r^n$ falls by a factor $e$ every $-1/\\ln r$ samples, so poles near the circle ring for a long time. The **angle** sets the oscillation: $2\\pi/\\Omega_p$ samples per cycle; at $\\Omega_p = \\pi$ the sign flips every sample.",
+      "formula": "N_{1/e} = \\frac{-1}{\\ln r}, \\qquad N_{cycle} = \\frac{2\\pi}{\\Omega_p}",
+      "plot": {
+        "x": {
+          "min": -0.5,
+          "max": 24.5,
+          "label": "n"
+        },
+        "y": {
+          "min": -1.7,
+          "max": 1.7,
+          "label": "h[n]"
+        },
+        "sliders": [
+          {
+            "name": "r",
+            "label": "pole radius $r$",
+            "min": 0.5,
+            "max": 1.02,
+            "step": 0.01,
+            "value": 0.85
+          },
+          {
+            "name": "Wp",
+            "label": "pole angle $\\Omega_p$ (rad)",
+            "min": 0.1,
+            "max": 3.14,
+            "step": 0.01,
+            "value": 0.6
+          }
+        ],
+        "curves": [
+          {
+            "f": "r^x",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "-(r^x)",
+            "color": "grey",
+            "dash": true
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "points": [
+          {
+            "x": 0,
+            "y": "r^(0)*cos(Wp*(0))",
+            "guides": false
+          },
+          {
+            "x": 1,
+            "y": "r^(1)*cos(Wp*(1))",
+            "guides": false
+          },
+          {
+            "x": 2,
+            "y": "r^(2)*cos(Wp*(2))",
+            "guides": false
+          },
+          {
+            "x": 3,
+            "y": "r^(3)*cos(Wp*(3))",
+            "guides": false
+          },
+          {
+            "x": 4,
+            "y": "r^(4)*cos(Wp*(4))",
+            "guides": false
+          },
+          {
+            "x": 5,
+            "y": "r^(5)*cos(Wp*(5))",
+            "guides": false
+          },
+          {
+            "x": 6,
+            "y": "r^(6)*cos(Wp*(6))",
+            "guides": false
+          },
+          {
+            "x": 7,
+            "y": "r^(7)*cos(Wp*(7))",
+            "guides": false
+          },
+          {
+            "x": 8,
+            "y": "r^(8)*cos(Wp*(8))",
+            "guides": false
+          },
+          {
+            "x": 9,
+            "y": "r^(9)*cos(Wp*(9))",
+            "guides": false
+          },
+          {
+            "x": 10,
+            "y": "r^(10)*cos(Wp*(10))",
+            "guides": false
+          },
+          {
+            "x": 11,
+            "y": "r^(11)*cos(Wp*(11))",
+            "guides": false
+          },
+          {
+            "x": 12,
+            "y": "r^(12)*cos(Wp*(12))",
+            "guides": false
+          },
+          {
+            "x": 13,
+            "y": "r^(13)*cos(Wp*(13))",
+            "guides": false
+          },
+          {
+            "x": 14,
+            "y": "r^(14)*cos(Wp*(14))",
+            "guides": false
+          },
+          {
+            "x": 15,
+            "y": "r^(15)*cos(Wp*(15))",
+            "guides": false
+          },
+          {
+            "x": 16,
+            "y": "r^(16)*cos(Wp*(16))",
+            "guides": false
+          },
+          {
+            "x": 17,
+            "y": "r^(17)*cos(Wp*(17))",
+            "guides": false
+          },
+          {
+            "x": 18,
+            "y": "r^(18)*cos(Wp*(18))",
+            "guides": false
+          },
+          {
+            "x": 19,
+            "y": "r^(19)*cos(Wp*(19))",
+            "guides": false
+          },
+          {
+            "x": 20,
+            "y": "r^(20)*cos(Wp*(20))",
+            "guides": false
+          },
+          {
+            "x": 21,
+            "y": "r^(21)*cos(Wp*(21))",
+            "guides": false
+          },
+          {
+            "x": 22,
+            "y": "r^(22)*cos(Wp*(22))",
+            "guides": false
+          },
+          {
+            "x": 23,
+            "y": "r^(23)*cos(Wp*(23))",
+            "guides": false
+          },
+          {
+            "x": 24,
+            "y": "r^(24)*cos(Wp*(24))",
+            "guides": false
+          }
+        ],
+        "readouts": [
+          {
+            "label": "samples per cycle",
+            "value": "2*pi/Wp"
+          },
+          {
+            "label": "envelope at n = 20",
+            "value": "r^20"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Frequency response",
+      "body": "Evaluate $H(z)$ on the unit circle, $z = e^{j\\Omega}$ with $\\Omega = \\omega T$. Geometrically $|H|$ is the product of the distances from $e^{j\\Omega}$ to the zeros, divided by the product of the distances to the poles: a pole near the circle gives a peak, a zero on it a null. $H(1)$ is the DC gain and $H(-1)$ the gain at $f_s/2$. A sinusoid $A\\cos(\\Omega_0n)$ leaves as $A|H(e^{j\\Omega_0})|\\cos(\\Omega_0n + \\angle H)$.",
+      "formula": "|H(e^{j\\Omega})| = K\\,\\frac{\\prod_i |e^{j\\Omega} - z_i|}{\\prod_i |e^{j\\Omega} - p_i|}"
+    },
+    {
+      "title": "Explore: a resonator",
+      "body": "$H(z) = \\frac{z^2}{(z - re^{j\\theta})(z - re^{-j\\theta})}$ has a pole pair at angle $\\theta$ and two zeros at the origin. As $r \\to 1$ the poles approach the unit circle and the peak at $\\Omega \\approx \\theta$ grows taller and narrower. The $-3$ dB width of the peak is about $2(1 - r)$ rad/sample.",
+      "formula": "\\Delta\\Omega_{3\\,dB} \\approx 2(1 - r)",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3.1416,
+          "label": "Ω (rad/sample)",
+          "ticks": [
+            0,
+            0.5,
+            1,
+            1.5,
+            2,
+            2.5,
+            3
+          ]
+        },
+        "y": {
+          "min": -15,
+          "max": 45,
+          "label": "|H| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "r",
+            "label": "pole radius $r$",
+            "min": 0.5,
+            "max": 0.98,
+            "step": 0.01,
+            "value": 0.9
+          },
+          {
+            "name": "th",
+            "label": "pole angle $\\theta$ (rad)",
+            "min": 0.2,
+            "max": 2.9,
+            "step": 0.01,
+            "value": 1
+          }
+        ],
+        "curves": [
+          {
+            "f": "-10*log10((1-2*r*cos(x-th)+r^2)*(1-2*r*cos(x+th)+r^2))"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "readouts": [
+          {
+            "label": "peak gain $|H(e^{j\\theta})|$",
+            "value": "-10*log10((1-r)^2*(1-2*r*cos(2*th)+r^2))",
+            "unit": "dB"
+          },
+          {
+            "label": "$-3$ dB width $\\approx 2(1-r)$",
+            "value": "2*(1-r)",
+            "unit": "rad"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Simple digital filters",
+      "body": "The exponential smoother $y[n] = a\\,y[n-1] + (1-a)\\,x[n]$ is a first-order low-pass: pole at $a$, DC gain 1, gain $\\frac{1-a}{1+a}$ at $\\Omega = \\pi$. A **notch** puts zeros exactly on the circle at $e^{\\pm j\\Omega_0}$, which removes that frequency completely; poles just inside at $re^{\\pm j\\Omega_0}$ keep the notch narrow and the gain near 1 elsewhere.",
+      "formula": "\\begin{aligned} H_{LP}(z) &= \\frac{(1-a)\\,z}{z - a} \\\\ H_{notch}(z) &= \\frac{z^2 - 2z\\cos\\Omega_0 + 1}{z^2 - 2rz\\cos\\Omega_0 + r^2} \\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3.1416,
+          "label": "Ω (rad/sample)",
+          "ticks": [
+            0,
+            0.5,
+            1,
+            1.5,
+            2,
+            2.5,
+            3
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 1.3,
+          "label": "|H|"
+        },
+        "curves": [
+          {
+            "f": "sqrt((2-2*cos(x-1.0472))*(2-2*cos(x+1.0472))/((1-1.8*cos(x-1.0472)+0.81)*(1-1.8*cos(x+1.0472)+0.81)))",
+            "label": "notch, Ω_0 = π/3",
+            "labelAt": 0.75
+          },
+          {
+            "f": "0.2/sqrt(1-1.6*cos(x)+0.64)",
+            "color": "orange",
+            "label": "low-pass, a = 0.8",
+            "labelAt": 0.6
+          }
+        ]
+      }
+    },
+    {
+      "title": "Bilateral z-transform and ROC",
+      "body": "The bilateral transform sums over all $n$, and then $X(z)$ alone does not fix the sequence: the ROC does. Right-sided sequences converge **outside** the outermost pole, left-sided ones **inside** the innermost pole, two-sided ones in a **ring** between poles; the ROC never contains a pole. An LTI system is stable exactly when the ROC of $H(z)$ includes the unit circle.",
+      "formula": "\\begin{aligned} a^nu[n] &\\leftrightarrow \\frac{z}{z-a}, \\quad |z| > |a| \\\\ -a^nu[-n-1] &\\leftrightarrow \\frac{z}{z-a}, \\quad |z| < |a| \\end{aligned}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "dt-zsystems-1",
+      "title": "Poles, zeros and stability",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "From difference equation to H(z)",
+          "body": "Set the initial conditions to zero and transform every term: a delay $y[n-k]$ becomes $z^{-k}Y(z)$. Collect $Y$ on the left and $X$ on the right. For example $y[n] - 0.5y[n-1] = x[n] + x[n-1]$ gives $Y(1 - 0.5z^{-1}) = X(1 + z^{-1})$.",
+          "formula": "H(z) = \\frac{1 + z^{-1}}{1 - 0.5z^{-1}} = \\frac{z + 1}{z - 0.5}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9,
+              -0.5,
+              -0.8
+            ],
+            "b0": [
+              0.5,
+              2,
+              3
+            ],
+            "b1": [
+              0.5,
+              1.5,
+              2
+            ]
+          },
+          "prompt": "A system obeys $y[n] = {{a}}\\,y[n-1] + {{b0}}\\,x[n] + {{b1}}\\,x[n-1]$.",
+          "ask": [
+            {
+              "prompt": "Where is the pole of $H(z)$?",
+              "answer": "a",
+              "explanation": "Transform: $Y(z)(1 - az^{-1}) = X(z)(b_0 + b_1z^{-1})$, so $H(z) = \\frac{b_0z + b_1}{z - a}$. The pole is at $z = a$ = {{a}}."
+            },
+            {
+              "prompt": "Where is the zero of $H(z)$?",
+              "answer": "-b1/b0",
+              "explanation": "$H(z) = \\frac{b_0 + b_1z^{-1}}{1 - az^{-1}} = \\frac{b_0z + b_1}{z - a}$. The numerator is zero at $z = -b_1/b_0$ = −{{b1}}/{{b0}} = {{-b1/b0}}."
+            },
+            {
+              "prompt": "Find the DC gain $H(1)$.",
+              "answer": "(b0+b1)/(1-a)",
+              "explanation": "$H(z) = \\frac{b_0z + b_1}{z - a}$. At DC, $z = e^{j0} = 1$: $H(1) = \\frac{b_0 + b_1}{1 - a}$ = ({{b0}} + {{b1}}) / (1 − ({{a}})) = {{(b0+b1)/(1-a)}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "p": [
+              0.9,
+              1.2,
+              0.5
+            ],
+            "q": [
+              0.2,
+              0.5,
+              0.36
+            ],
+            "b": [
+              0.5,
+              2
+            ]
+          },
+          "require": "abs(p - q) - 0.05",
+          "prompt": "Which difference equation has\n$$H(z) = \\frac{z + {{b}}}{z^2 - {{p}}z + {{q}}}?$$",
+          "options": [
+            "y[n] = {{p}} y[n−1] − {{q}} y[n−2] + x[n−1] + {{b}} x[n−2]",
+            "y[n] = {{p}} y[n−1] − {{q}} y[n−2] + x[n] + {{b}} x[n−1]",
+            "y[n] = −{{p}} y[n−1] + {{q}} y[n−2] + x[n−1] + {{b}} x[n−2]",
+            "y[n] = {{q}} y[n−1] − {{p}} y[n−2] + x[n−1] + {{b}} x[n−2]"
+          ],
+          "answer": 0,
+          "explanation": "Divide numerator and denominator by $z^2$: $H = \\frac{z^{-1} + {{b}}z^{-2}}{1 - {{p}}z^{-1} + {{q}}z^{-2}}$. Cross-multiplying gives $y[n] - {{p}}y[n-1] + {{q}}y[n-2] = x[n-1] + {{b}}x[n-2]$. The numerator degree is one less than the denominator, so the input enters with one sample of delay; the feedback terms change sign when moved to the right."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Stability from the pole-zero map",
+          "body": "Each pole $p$ contributes a mode $p^n$ to the response. It dies out only if $|p| < 1$. So a causal system is **stable when every pole lies inside the unit circle**. Zeros (o) may lie anywhere; they shape the response but cannot make it grow.",
+          "plot": {
+            "x": {
+              "min": -1.6,
+              "max": 1.6,
+              "label": "Re z"
+            },
+            "y": {
+              "min": -1.25,
+              "max": 1.25,
+              "label": "Im z"
+            },
+            "height": 240,
+            "curves": [
+              {
+                "f": "sqrt(max(0,1-x^2))",
+                "from": -1,
+                "to": 1,
+                "color": "grey"
+              },
+              {
+                "f": "-sqrt(max(0,1-x^2))",
+                "from": -1,
+                "to": 1,
+                "color": "grey"
+              }
+            ],
+            "points": [
+              {
+                "x": 0.6,
+                "y": 0.5,
+                "marker": "x",
+                "color": "red",
+                "guides": false
+              },
+              {
+                "x": 0.6,
+                "y": -0.5,
+                "marker": "x",
+                "color": "red",
+                "guides": false
+              },
+              {
+                "x": -0.4,
+                "y": 0,
+                "marker": "x",
+                "color": "red",
+                "guides": false
+              },
+              {
+                "x": -1,
+                "y": 0,
+                "marker": "o",
+                "color": "blue",
+                "guides": false
+              },
+              {
+                "x": 0.9,
+                "y": 0,
+                "marker": "o",
+                "color": "blue",
+                "guides": false
+              }
+            ],
+            "labels": [
+              {
+                "x": -1.55,
+                "y": 1.05,
+                "text": "stable: all × inside",
+                "color": "green"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "Which pole-zero map belongs to a **stable** causal system? (× pole, o zero, grey: unit circle)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -1.45,
+                "max": 1.45,
+                "label": "Re z"
+              },
+              "y": {
+                "min": -1.45,
+                "max": 1.45,
+                "label": "Im z"
+              },
+              "height": 150,
+              "curves": [
+                {
+                  "f": "sqrt(max(0,1-x^2))",
+                  "from": -1,
+                  "to": 1,
+                  "color": "grey"
+                },
+                {
+                  "f": "-sqrt(max(0,1-x^2))",
+                  "from": -1,
+                  "to": 1,
+                  "color": "grey"
+                }
+              ],
+              "points": [
+                {
+                  "x": 0.5,
+                  "y": 0.6,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0.5,
+                  "y": -0.6,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": -1,
+                  "y": 0,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -1.45,
+                "max": 1.45,
+                "label": "Re z"
+              },
+              "y": {
+                "min": -1.45,
+                "max": 1.45,
+                "label": "Im z"
+              },
+              "height": 150,
+              "curves": [
+                {
+                  "f": "sqrt(max(0,1-x^2))",
+                  "from": -1,
+                  "to": 1,
+                  "color": "grey"
+                },
+                {
+                  "f": "-sqrt(max(0,1-x^2))",
+                  "from": -1,
+                  "to": 1,
+                  "color": "grey"
+                }
+              ],
+              "points": [
+                {
+                  "x": 0.8,
+                  "y": 0.8,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0.8,
+                  "y": -0.8,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -1.45,
+                "max": 1.45,
+                "label": "Re z"
+              },
+              "y": {
+                "min": -1.45,
+                "max": 1.45,
+                "label": "Im z"
+              },
+              "height": 150,
+              "curves": [
+                {
+                  "f": "sqrt(max(0,1-x^2))",
+                  "from": -1,
+                  "to": 1,
+                  "color": "grey"
+                },
+                {
+                  "f": "-sqrt(max(0,1-x^2))",
+                  "from": -1,
+                  "to": 1,
+                  "color": "grey"
+                }
+              ],
+              "points": [
+                {
+                  "x": 1,
+                  "y": 0,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0.4,
+                  "y": 0,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": -0.5,
+                  "y": 0,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -1.45,
+                "max": 1.45,
+                "label": "Re z"
+              },
+              "y": {
+                "min": -1.45,
+                "max": 1.45,
+                "label": "Im z"
+              },
+              "height": 150,
+              "curves": [
+                {
+                  "f": "sqrt(max(0,1-x^2))",
+                  "from": -1,
+                  "to": 1,
+                  "color": "grey"
+                },
+                {
+                  "f": "-sqrt(max(0,1-x^2))",
+                  "from": -1,
+                  "to": 1,
+                  "color": "grey"
+                }
+              ],
+              "points": [
+                {
+                  "x": -1.3,
+                  "y": 0,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0.3,
+                  "y": 0,
+                  "marker": "x",
+                  "color": "red",
+                  "guides": false
+                },
+                {
+                  "x": 0.5,
+                  "y": 0.5,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                },
+                {
+                  "x": 0.5,
+                  "y": -0.5,
+                  "marker": "o",
+                  "color": "blue",
+                  "guides": false
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "Only the first map has all poles inside the circle ($|0.5 \\pm j0.6| = 0.78$); its zero on the circle is harmless. The pair $0.8 \\pm j0.8$ has radius 1.13 (unstable), the pole at $z = 1$ is on the circle (marginally stable: the step-like mode never decays) and the pole at $-1.3$ gives a growing alternating mode."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "params": {
+            "p": [
+              0.4,
+              0.8,
+              1.2
+            ],
+            "q": [
+              0.5,
+              0.81,
+              0.9,
+              1.1,
+              1.21,
+              1.44
+            ]
+          },
+          "prompt": "The causal system\n$$H(z) = \\frac{z^2}{z^2 - {{p}}z + {{q}}}$$\nis stable.",
+          "answer": "1 - q",
+          "explanation": "Here $p^2 < 4q$, so the poles are a complex pair $re^{\\pm j\\Omega}$. Their product is $r^2$ = the constant term {{q}}, so $r = \\sqrt{{{q}}}$ = {{sqrt(q)}}. Stable requires $r < 1$, i.e. a constant term below 1."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Try it: pole radius and angle",
+          "body": "The dots show $h[n] = r^n\\cos(\\Omega_p n)$ for a pole pair at $re^{\\pm j\\Omega_p}$. Drag $r$ towards 1: the ringing lasts longer, and above 1 it grows. Drag the angle: small angles oscillate slowly, $\\Omega_p = \\pi$ flips the sign every sample.",
+          "formula": "N_{1/e} = \\frac{-1}{\\ln r}, \\qquad N_{cycle} = \\frac{2\\pi}{\\Omega_p}",
+          "plot": {
+            "x": {
+              "min": -0.5,
+              "max": 24.5,
+              "label": "n"
+            },
+            "y": {
+              "min": -1.7,
+              "max": 1.7,
+              "label": "h[n]"
+            },
+            "sliders": [
+              {
+                "name": "r",
+                "label": "pole radius $r$",
+                "min": 0.5,
+                "max": 1.02,
+                "step": 0.01,
+                "value": 0.85
+              },
+              {
+                "name": "Wp",
+                "label": "pole angle $\\Omega_p$ (rad)",
+                "min": 0.1,
+                "max": 3.14,
+                "step": 0.01,
+                "value": 0.6
+              }
+            ],
+            "curves": [
+              {
+                "f": "r^x",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "-(r^x)",
+                "color": "grey",
+                "dash": true
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "points": [
+              {
+                "x": 0,
+                "y": "r^(0)*cos(Wp*(0))",
+                "guides": false
+              },
+              {
+                "x": 1,
+                "y": "r^(1)*cos(Wp*(1))",
+                "guides": false
+              },
+              {
+                "x": 2,
+                "y": "r^(2)*cos(Wp*(2))",
+                "guides": false
+              },
+              {
+                "x": 3,
+                "y": "r^(3)*cos(Wp*(3))",
+                "guides": false
+              },
+              {
+                "x": 4,
+                "y": "r^(4)*cos(Wp*(4))",
+                "guides": false
+              },
+              {
+                "x": 5,
+                "y": "r^(5)*cos(Wp*(5))",
+                "guides": false
+              },
+              {
+                "x": 6,
+                "y": "r^(6)*cos(Wp*(6))",
+                "guides": false
+              },
+              {
+                "x": 7,
+                "y": "r^(7)*cos(Wp*(7))",
+                "guides": false
+              },
+              {
+                "x": 8,
+                "y": "r^(8)*cos(Wp*(8))",
+                "guides": false
+              },
+              {
+                "x": 9,
+                "y": "r^(9)*cos(Wp*(9))",
+                "guides": false
+              },
+              {
+                "x": 10,
+                "y": "r^(10)*cos(Wp*(10))",
+                "guides": false
+              },
+              {
+                "x": 11,
+                "y": "r^(11)*cos(Wp*(11))",
+                "guides": false
+              },
+              {
+                "x": 12,
+                "y": "r^(12)*cos(Wp*(12))",
+                "guides": false
+              },
+              {
+                "x": 13,
+                "y": "r^(13)*cos(Wp*(13))",
+                "guides": false
+              },
+              {
+                "x": 14,
+                "y": "r^(14)*cos(Wp*(14))",
+                "guides": false
+              },
+              {
+                "x": 15,
+                "y": "r^(15)*cos(Wp*(15))",
+                "guides": false
+              },
+              {
+                "x": 16,
+                "y": "r^(16)*cos(Wp*(16))",
+                "guides": false
+              },
+              {
+                "x": 17,
+                "y": "r^(17)*cos(Wp*(17))",
+                "guides": false
+              },
+              {
+                "x": 18,
+                "y": "r^(18)*cos(Wp*(18))",
+                "guides": false
+              },
+              {
+                "x": 19,
+                "y": "r^(19)*cos(Wp*(19))",
+                "guides": false
+              },
+              {
+                "x": 20,
+                "y": "r^(20)*cos(Wp*(20))",
+                "guides": false
+              },
+              {
+                "x": 21,
+                "y": "r^(21)*cos(Wp*(21))",
+                "guides": false
+              },
+              {
+                "x": 22,
+                "y": "r^(22)*cos(Wp*(22))",
+                "guides": false
+              },
+              {
+                "x": 23,
+                "y": "r^(23)*cos(Wp*(23))",
+                "guides": false
+              },
+              {
+                "x": 24,
+                "y": "r^(24)*cos(Wp*(24))",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "samples per cycle",
+                "value": "2*pi/Wp"
+              },
+              {
+                "label": "envelope at n = 20",
+                "value": "r^20"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.8,
+              0.9,
+              0.95,
+              0.98
+            ],
+            "kk": [
+              4,
+              5,
+              6,
+              8,
+              10
+            ]
+          },
+          "prompt": "A system has a pole pair at $z$ = {{r}}$e^{\\pm j\\pi/{{kk}}}$.",
+          "ask": [
+            {
+              "prompt": "How many samples does one oscillation of the impulse response take?",
+              "answer": "2*kk",
+              "explanation": "$N_{cycle} = 2\\pi/\\Omega_p = 2\\pi/(\\pi/{{kk}})$ = {{2*kk}} samples."
+            },
+            {
+              "prompt": "After how many samples has the envelope $r^n$ dropped to 1 %?",
+              "answer": "ln(0.01)/ln(r)",
+              "explanation": "Solve $r^n = 0.01$: $n = \\frac{\\ln 0.01}{\\ln r}$ = −4.61 / ln {{r}} = {{ln(0.01)/ln(r)}} samples. The closer the pole to the circle, the longer the ringing."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each pole location to the impulse response it produces.",
+          "pairs": [
+            [
+              "$z = 0.6$",
+              "decays, same sign"
+            ],
+            [
+              "$z = -0.6$",
+              "decays, alternating sign"
+            ],
+            [
+              "$z = 1$",
+              "stays constant"
+            ],
+            [
+              "$z = 1.2$",
+              "grows without bound"
+            ],
+            [
+              "$z = 0.9e^{\\pm j\\pi/4}$",
+              "decaying oscillation"
+            ]
+          ],
+          "explanation": "A real pole $p$ gives $p^n$: decaying for $|p| < 1$, alternating for $p < 0$, constant for $p = 1$ and growing for $|p| > 1$. A complex pair $re^{\\pm j\\Omega}$ gives $r^n\\cos(\\Omega n + \\theta)$: here a decaying oscillation with 8 samples per cycle."
+        }
+      ]
+    },
+    {
+      "id": "dt-zsystems-2",
+      "title": "Responses and frequency response",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "On the unit circle",
+          "body": "Set $z = e^{j\\Omega}$ to get the frequency response. $|H|$ = (product of distances to the zeros) / (product of distances to the poles). Drag the pole pair of this resonator: the peak sits near the pole angle and sharpens as $r \\to 1$. $H(1)$ gives the DC gain, $H(-1)$ the gain at $\\Omega = \\pi$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3.1416,
+              "label": "Ω (rad/sample)",
+              "ticks": [
+                0,
+                0.5,
+                1,
+                1.5,
+                2,
+                2.5,
+                3
+              ]
+            },
+            "y": {
+              "min": -15,
+              "max": 45,
+              "label": "|H| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "r",
+                "label": "pole radius $r$",
+                "min": 0.5,
+                "max": 0.98,
+                "step": 0.01,
+                "value": 0.9
+              },
+              {
+                "name": "th",
+                "label": "pole angle $\\theta$ (rad)",
+                "min": 0.2,
+                "max": 2.9,
+                "step": 0.01,
+                "value": 1
+              }
+            ],
+            "curves": [
+              {
+                "f": "-10*log10((1-2*r*cos(x-th)+r^2)*(1-2*r*cos(x+th)+r^2))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "readouts": [
+              {
+                "label": "peak gain $|H(e^{j\\theta})|$",
+                "value": "-10*log10((1-r)^2*(1-2*r*cos(2*th)+r^2))",
+                "unit": "dB"
+              },
+              {
+                "label": "$-3$ dB width $\\approx 2(1-r)$",
+                "value": "2*(1-r)",
+                "unit": "rad"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.7,
+              0.8,
+              0.9,
+              0.95
+            ],
+            "kk": [
+              2,
+              3,
+              4,
+              6,
+              8
+            ]
+          },
+          "derived": {
+            "W": "pi/kk",
+            "M": "(1-a)/sqrt(1-2*a*cos(W)+a^2)",
+            "ph": "(W - atan2(sin(W), cos(W)-a))*180/pi"
+          },
+          "prompt": "The smoother $y[n] = {{a}}\\,y[n-1] + {{1-a}}\\,x[n]$ has\n$$H(z) = \\frac{{{1-a}}z}{z - {{a}}}$$\nand its frequency response follows with $z = e^{j\\Omega}$.",
+          "ask": [
+            {
+              "prompt": "Find the gain at $\\Omega = \\pi$.",
+              "answer": "(1-a)/(1+a)",
+              "explanation": "$z = e^{j\\pi} = -1$: $H(-1) = \\frac{{{1-a}} \\cdot (-1)}{-1 - {{a}}}$ = {{1-a}} / {{1+a}} = {{(1-a)/(1+a)}}. High frequencies are strongly attenuated."
+            },
+            {
+              "prompt": "Find $|H(e^{j\\Omega})|$ at $\\Omega = \\pi/{{kk}}$.",
+              "answer": "M",
+              "explanation": "$|e^{j\\Omega}| = 1$, so $|H| = \\frac{1-a}{|e^{j\\Omega} - a|} = \\frac{1-a}{\\sqrt{1 - 2a\\cos\\Omega + a^2}}$ = {{1-a}} / $\\sqrt{1 - 2 \\cdot {{a}} \\cdot {{cos(W)}} + {{a^2}}}$ = {{M}}."
+            },
+            {
+              "prompt": "Find the phase of $H(e^{j\\Omega})$ at $\\Omega = \\pi/{{kk}}$.",
+              "answer": "ph",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "$\\angle H = \\angle e^{j\\Omega} - \\angle(e^{j\\Omega} - a) = \\Omega - \\mathrm{atan2}(\\sin\\Omega, \\cos\\Omega - a)$ = {{W*180/pi}}° − {{atan2(sin(W), cos(W)-a)*180/pi}}° = {{ph}}°: a phase lag."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "b0": [
+              0.5,
+              1,
+              2
+            ],
+            "b1": [
+              0.5,
+              1,
+              -1,
+              -0.5
+            ],
+            "A": [
+              2,
+              3,
+              5
+            ],
+            "kk": [
+              2,
+              3,
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "W": "pi/kk",
+            "M": "sqrt(b0^2 + b1^2 + 2*b0*b1*cos(W))"
+          },
+          "require": "M - 0.1",
+          "prompt": "The FIR filter $y[n] = b_0x[n] + b_1x[n-1]$ with $b_0$ = {{b0}} and $b_1$ = {{b1}} gets the input $x[n] = {{A}}\\cos(\\pi n/{{kk}})$. Find the amplitude of the output.",
+          "answer": "A*M",
+          "unit": "",
+          "explanation": "$H(e^{j\\Omega}) = b_0 + b_1e^{-j\\Omega}$, so $|H|^2 = b_0^2 + b_1^2 + 2b_0b_1\\cos\\Omega$ = {{b0^2}} + {{b1^2}} + 2 × {{b0}} × ({{b1}}) × {{cos(W)}} = {{M^2}}.\n$|H|$ = {{M}}, and the output amplitude is {{A}} × {{M}} = {{A*M}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              -0.6,
+              0.9
+            ],
+            "b0": [
+              1,
+              2
+            ],
+            "b1": [
+              0.5,
+              -1,
+              1.5
+            ],
+            "N": [
+              1,
+              2,
+              3
+            ]
+          },
+          "require": "abs(b1 + a*b0) - 0.05",
+          "prompt": "$$H(z) = \\frac{b_0z + b_1}{z - a}$$\nwith $b_0$ = {{b0}}, $b_1$ = {{b1}}, $a$ = {{a}}. Find the impulse response sample $h[{{N}}]$.",
+          "answer": "(b1 + a*b0)*a^(N-1)",
+          "unit": "",
+          "explanation": "Split off the constant: $H(z) = b_0 + \\frac{b_1 + ab_0}{z - a}$. The second term is $(b_1 + ab_0)\\,z^{-1}\\frac{z}{z-a}$, a delayed $a^n$. So $h[0] = b_0$ and $h[n] = (b_1 + ab_0)\\,a^{n-1}$ for $n \\geq 1$.\n$h[{{N}}]$ = ({{b1}} + ({{a}}) × {{b0}}) × ({{a}})$^{{{N-1}}}$ = {{(b1 + a*b0)*a^(N-1)}}."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9
+            ],
+            "b": [
+              0.1,
+              0.2,
+              0.5,
+              2
+            ],
+            "y0": [
+              -2,
+              2,
+              5,
+              10
+            ],
+            "N": [
+              2,
+              3,
+              5
+            ]
+          },
+          "derived": {
+            "zi": "y0*a^(N+1)",
+            "zs": "b*(1-a^(N+1))/(1-a)"
+          },
+          "prompt": "$y[n] = {{a}}\\,y[n-1] + {{b}}\\,x[n]$ with $y[-1]$ = {{y0}} gets a unit step $x[n] = u[n]$. Transforming gives\n$$\\begin{aligned} Y(z) &= \\frac{{{a}}\\,y[-1]\\,z}{z - {{a}}} \\\\ &\\quad {}+ \\frac{{{b}}\\,z^2}{(z - {{a}})(z - 1)} \\end{aligned}$$\nInvert it term by term.",
+          "ask": [
+            {
+              "prompt": "Find the zero-input part of $y[{{N}}]$.",
+              "answer": "zi",
+              "explanation": "The first term is the zero-input response: $a\\,y[-1]\\,a^n = y[-1]\\,a^{n+1}$.\nAt $n$ = {{N}}: {{y0}} × {{a}}$^{{{N+1}}}$ = {{zi}}."
+            },
+            {
+              "prompt": "Find the total $y[{{N}}]$.",
+              "answer": "zi + zs",
+              "explanation": "Zero-input: $y[-1]a^{n+1}$ = {{zi}}. Zero-state (partial fractions of the second term): $b\\,\\frac{1 - a^{n+1}}{1 - a}$ = {{zs}}.\nTotal: {{zi}} + {{zs}} = {{zi + zs}}."
+            },
+            {
+              "prompt": "Find $\\lim_{n\\to\\infty} y[n]$.",
+              "answer": "b/(1-a)",
+              "explanation": "The initial condition dies out ($|a| < 1$). What remains is the DC gain times the step: $H(1) = \\frac{b}{1 - a}$ = {{b}} / {{1-a}} = {{b/(1-a)}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "K": [
+              0.1,
+              0.2,
+              0.5
+            ],
+            "c": [
+              0.5,
+              2,
+              0.25
+            ],
+            "p": [
+              0.5,
+              0.8,
+              1.2
+            ],
+            "q": [
+              0.3,
+              0.5,
+              0.6
+            ],
+            "A": [
+              2,
+              3,
+              5
+            ]
+          },
+          "prompt": "A system has\n$$H(z) = \\frac{{{K}}(z + {{c}})}{z^2 - {{p}}z + {{q}}}$$\nwith both poles inside the unit circle (stable).",
+          "ask": [
+            {
+              "prompt": "A step of height {{A}} is applied. Find the final value of the output.",
+              "answer": "A*K*(1+c)/(1-p+q)",
+              "explanation": "In steady state a constant input is multiplied by the DC gain $H(1)$ = {{K}} × {{1+c}} / (1 − {{p}} + {{q}}) = {{K*(1+c)/(1-p+q)}}.\nOutput: {{A}} × {{K*(1+c)/(1-p+q)}} = {{A*K*(1+c)/(1-p+q)}}."
+            },
+            {
+              "prompt": "Find the gain $|H(-1)|$ at $\\Omega = \\pi$.",
+              "answer": "K*abs(c-1)/(1+p+q)",
+              "explanation": "$H(-1)$ = {{K}} × (−1 + {{c}}) / (1 + {{p}} + {{q}}) = {{K*(c-1)/(1+p+q)}}, so $|H(-1)|$ = {{K*abs(c-1)/(1+p+q)}}."
+            },
+            {
+              "prompt": "The input is $x[n] = {{A}}(-1)^n$. Find the steady-state output $y[n]$ at even $n$.",
+              "answer": "A*K*(c-1)/(1+p+q)",
+              "explanation": "$(-1)^n = \\cos(\\pi n)$ is the fastest sequence, $\\Omega = \\pi$, $z = -1$. $H(-1)$ = {{K}} × ({{c}} − 1) / (1 + {{p}} + {{q}}) = {{K*(c-1)/(1+p+q)}} is real, so $y[n] = A\\,H(-1)(-1)^n$; at even $n$: {{A}} × {{K*(c-1)/(1+p+q)}} = {{A*K*(c-1)/(1+p+q)}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "fs": [
+              1000,
+              8000
+            ],
+            "rat": [
+              0.1,
+              0.15,
+              0.2,
+              0.25,
+              0.3,
+              0.35
+            ]
+          },
+          "derived": {
+            "f0": "rat*fs"
+          },
+          "prompt": "A resonator with poles 0.95$e^{\\pm j\\theta}$ runs at $f_s$ = {{fs|Hz}}. Set the pole angle $\\theta$ so the peak lies at $f_0$ = {{f0|Hz}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "fs/2",
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": -15,
+              "max": 35,
+              "label": "|H| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "th",
+                "label": "pole angle $\\theta$ (rad)",
+                "min": 0.1,
+                "max": 3,
+                "step": 0.01,
+                "value": 0.3
+              }
+            ],
+            "let": {
+              "r": "0.95"
+            },
+            "curves": [
+              {
+                "f": "-10*log10((1-2*r*cos(2*pi*x/fs-th)+r^2)*(1-2*r*cos(2*pi*x/fs+th)+r^2))"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "f0",
+                "label": "f_0"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$\\theta f_s/2\\pi$",
+                "value": "th*fs/(2*pi)",
+                "unit": "Hz",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "th": "2*pi*f0/fs"
+          },
+          "tolerance": 0.03,
+          "explanation": "The peak sits at $\\Omega \\approx \\theta$ (exactly for $r \\to 1$). Convert the frequency: $\\theta = \\Omega_0 = 2\\pi f_0/f_s$ = 2π × {{f0}} / {{fs}} = {{2*pi*f0/fs}} rad."
+        }
+      ]
+    },
+    {
+      "id": "dt-zsystems-3",
+      "title": "Filters, inverses and the ROC",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "f0": [
+              50,
+              60
+            ],
+            "fs": [
+              250,
+              300,
+              400,
+              500,
+              1000
+            ]
+          },
+          "derived": {
+            "W0": "2*pi*f0/fs"
+          },
+          "prompt": "A notch filter must remove {{f0}} Hz hum from a signal sampled at {{fs|Hz}}. Its zeros sit on the unit circle at $e^{\\pm j\\Omega_0}$, so its numerator is $z^2 + b_1z + 1$.",
+          "ask": [
+            {
+              "prompt": "Find $\\Omega_0$.",
+              "answer": "W0",
+              "unit": "rad",
+              "explanation": "$\\Omega_0 = 2\\pi f_0/f_s$ = 2π × {{f0}} / {{fs}} = {{W0}} rad/sample."
+            },
+            {
+              "prompt": "Find $b_1$.",
+              "answer": "-2*cos(W0)",
+              "absTolerance": 0.005,
+              "explanation": "$(z - e^{j\\Omega_0})(z - e^{-j\\Omega_0}) = z^2 - 2z\\cos\\Omega_0 + 1$. With $\\Omega_0$ = 2π × {{f0}}/{{fs}} = {{W0}} rad: $b_1 = -2\\cos\\Omega_0$ = {{-2*cos(W0)}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              1000,
+              8000,
+              10000
+            ],
+            "tau": [
+              0.001,
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "require": "tau*fs - 2",
+          "prompt": "Choose $a$ in $y[n] = a\\,y[n-1] + (1-a)\\,x[n]$ so the filter mimics an RC low-pass with $\\tau$ = {{tau|s}} at $f_s$ = {{fs|Hz}}. (Map the pole with $z = e^{sT}$; give 4 decimals.)",
+          "answer": "exp(-1/(fs*tau))",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "The RC pole is $s = -1/\\tau$, which maps to $a = e^{-T/\\tau}$ with $T = 1/f_s$ = {{1/fs|s}}.\n$a = e^{-{{1/fs}}/{{tau}}}$ = $e^{-{{1/(fs*tau)}}}$ = {{exp(-1/(fs*tau))||5}}.\nThe shortcut $a \\approx 1 - T/\\tau$ = {{1-1/(fs*tau)||5}} is only close when $\\tau$ spans many samples (here {{fs*tau}})."
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "params": {
+            "c": [
+              0.3,
+              -0.8,
+              1.5,
+              -2,
+              0.9,
+              1.25
+            ]
+          },
+          "prompt": "$$H(z) = \\frac{z - c}{z - 0.5}$$\nwith $c$ = {{c}} has a stable, causal inverse system.",
+          "answer": "1 - abs(c)",
+          "explanation": "The inverse is $H^{-1}(z) = \\frac{z - 0.5}{z - c}$: the zeros of $H$ become its poles. It is stable and causal only if the zero $c$ lies inside the unit circle. Here $|c|$ = {{abs(c)}}."
+        },
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The bilateral transform needs an ROC",
+          "body": "Summing over all $n$, both $a^nu[n]$ and $-a^nu[-n-1]$ give $\\frac{z}{z-a}$: the first converges for $|z| > |a|$, the second for $|z| < |a|$. So with the bilateral transform always state the ROC. Right-sided: outside the outermost pole; left-sided: inside the innermost pole; two-sided: a ring between poles.",
+          "formula": "-a^nu[-n-1] \\leftrightarrow \\frac{z}{z-a}, \\quad |z| < |a|"
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              2,
+              3
+            ]
+          },
+          "prompt": "$$X(z) = \\frac{z}{z - {{a}}}$$\nwith ROC $|z| <$ {{a}}. Which sequence is $x[n]$?",
+          "options": [
+            "$-({{a}})^n\\,u[-n-1]$",
+            "$({{a}})^n\\,u[n]$",
+            "$-({{a}})^n\\,u[n]$",
+            "$({{a}})^n\\,u[-n-1]$"
+          ],
+          "answer": 0,
+          "explanation": "An ROC inside the pole means a left-sided sequence. $\\sum_{n=-\\infty}^{-1} -a^nz^{-n} = -\\sum_{m\\geq1}(z/a)^m = \\frac{z}{z-a}$ for $|z| < |a|$. The causal $a^nu[n]$ has the same formula but the ROC $|z| > |a|$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.5,
+              0.4,
+              0.8
+            ],
+            "p2": [
+              2,
+              1.5,
+              3
+            ],
+            "N": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "$$X(z) = \\frac{z}{z - {{p1}}} + \\frac{z}{z - {{p2}}}$$\nwith ROC {{p1}} $< |z| <$ {{p2}}.",
+          "ask": [
+            {
+              "prompt": "Find $x[{{N}}]$.",
+              "answer": "p1^N",
+              "explanation": "The ROC lies outside the pole {{p1}} (right-sided term $({{p1}})^nu[n]$) and inside the pole {{p2}} (left-sided term $-({{p2}})^nu[-n-1]$). For $n \\geq 0$ only the first counts: $x[{{N}}]$ = {{p1}}$^{{{N}}}$ = {{p1^N}}."
+            },
+            {
+              "prompt": "Find $x[-{{N}}]$.",
+              "answer": "-p2^(-N)",
+              "explanation": "For $n < 0$ only the left-sided term $-({{p2}})^nu[-n-1]$ is nonzero: $x[-{{N}}]$ = −{{p2}}$^{-{{N}}}$ = {{-p2^(-N)}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each sequence or property to its region of convergence.",
+          "pairs": [
+            [
+              "right-sided",
+              "outside the outermost pole"
+            ],
+            [
+              "left-sided",
+              "inside the innermost pole"
+            ],
+            [
+              "two-sided",
+              "a ring between two poles"
+            ],
+            [
+              "finite length",
+              "all z, except possibly 0 or ∞"
+            ],
+            [
+              "stable system",
+              "contains the unit circle"
+            ]
+          ],
+          "explanation": "Each pole sets a boundary of the ROC; the ROC itself never contains a pole. Causal (right-sided) systems converge outside, anti-causal ones inside, two-sided ones in between. Stability means $\\sum|h[n]|$ converges, which is the ROC including $|z| = 1$."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "params": {
+            "p1": [
+              0.5,
+              0.8
+            ],
+            "p2": [
+              1.5,
+              2,
+              3
+            ]
+          },
+          "prompt": "An LTI system with poles at {{p1}} and {{p2}} can be stable if it does not have to be causal.",
+          "answer": true,
+          "explanation": "Choose the ROC {{p1}} $< |z| <$ {{p2}}: it contains the unit circle, so the system is stable. The impulse response is then two-sided (the pole at {{p2}} gives a left-sided term), so the system is not causal. A causal version would need $|z| >$ {{p2}} and be unstable."
+        }
+      ]
+    },
+    {
+      "id": "dt-zsystems-4",
+      "title": "System analysis in the z-domain",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.6,
+              1.1,
+              1.2,
+              1.4
+            ],
+            "q": [
+              0.64,
+              0.81,
+              0.9
+            ]
+          },
+          "require": "4*q - p^2 - 0.1",
+          "derived": {
+            "r": "sqrt(q)",
+            "W": "acos(p/(2*sqrt(q)))"
+          },
+          "prompt": "A system obeys $y[n] = {{p}}\\,y[n-1] - {{q}}\\,y[n-2] + x[n]$.",
+          "ask": [
+            {
+              "prompt": "Find the radius of its poles.",
+              "answer": "r",
+              "explanation": "$H(z) = \\frac{z^2}{z^2 - {{p}}z + {{q}}}$. For a complex pair $re^{\\pm j\\Omega}$ the denominator is $z^2 - 2r\\cos\\Omega\\,z + r^2$, so $r = \\sqrt{{{q}}}$ = {{r}}: stable."
+            },
+            {
+              "prompt": "Find the pole angle $\\Omega$ in rad/sample.",
+              "answer": "W",
+              "unit": "rad",
+              "explanation": "$r = \\sqrt{{{q}}}$ = {{r}} and $2r\\cos\\Omega$ = {{p}}, so $\\cos\\Omega$ = {{p}} / (2 × {{r}}) = {{cos(W)}} and $\\Omega$ = {{W}} rad."
+            },
+            {
+              "prompt": "How many samples does one cycle of its ringing take?",
+              "answer": "2*pi/W",
+              "explanation": "$\\cos\\Omega = \\frac{{{p}}}{2\\sqrt{{{q}}}}$ = {{cos(W)}}, $\\Omega$ = {{W}} rad, so $N_{cycle} = 2\\pi/\\Omega$ = {{2*pi/W}} samples."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.8,
+              0.9,
+              0.95
+            ],
+            "kk": [
+              3,
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "th": "pi/kk",
+            "c": "2*r*cos(pi/kk)"
+          },
+          "prompt": "A resonator has\n$$H(z) = \\frac{z^2}{z^2 - {{c||4}}z + {{r^2||4}}},$$\npoles $re^{\\pm j\\theta}$.",
+          "ask": [
+            {
+              "prompt": "Find the DC gain $H(1)$.",
+              "answer": "1/(1 - c + r^2)",
+              "explanation": "$H(1) = \\frac{1}{1 - {{c||4}} + {{r^2||4}}}$ = {{1/(1 - c + r^2)}}."
+            },
+            {
+              "prompt": "Find the gain $|H(e^{j\\theta})|$ at the pole angle.",
+              "answer": "1/((1-r)*sqrt(1 - 2*r*cos(2*th) + r^2))",
+              "explanation": "$r = \\sqrt{{{r^2||4}}}$ = {{r}}, $\\cos\\theta$ = {{c||4}}/(2r) = {{cos(th)}}, so $\\theta$ = π/{{kk}}. Distances from $e^{j\\theta}$: to the zeros at 0: 1 each; to the near pole $re^{j\\theta}$: $1 - r$ = {{1-r}}; to the far pole $re^{-j\\theta}$: $\\sqrt{1 - 2r\\cos 2\\theta + r^2}$ = {{sqrt(1 - 2*r*cos(2*th) + r^2)}}.\n$|H|$ = 1 / ({{1-r}} × {{sqrt(1 - 2*r*cos(2*th) + r^2)}}) = {{1/((1-r)*sqrt(1 - 2*r*cos(2*th) + r^2))}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.6,
+              0.8,
+              0.9
+            ]
+          },
+          "prompt": "$x[n] = \\cos(\\pi n/2)$ drives $y[n] = {{a}}\\,y[n-1] + {{1-a}}\\,x[n]$. In steady state $y[n] = |H|\\cos(\\pi n/2 + \\angle H)$ with $H = H(e^{j\\pi/2}) = H(j)$.",
+          "ask": [
+            {
+              "prompt": "Find the steady-state $y[n]$ at $n = 0$ (i.e. $\\mathrm{Re}\\,H(j)$).",
+              "answer": "(1-a)/(1+a^2)",
+              "explanation": "$H(j) = \\frac{(1-a)\\,j}{j - a}$. Multiply by the conjugate $(-j - a)$: $H(j) = \\frac{(1-a)(1 - ja)}{1 + a^2}$.\n$y[0] = |H|\\cos\\angle H = \\mathrm{Re}\\,H$ = {{1-a}} / {{1+a^2}} = {{(1-a)/(1+a^2)}}."
+            },
+            {
+              "prompt": "Find the steady-state $y[n]$ at $n = 1$.",
+              "answer": "a*(1-a)/(1+a^2)",
+              "explanation": "$H(j) = \\frac{(1-a)(1 - ja)}{1 + a^2}$. At $n = 1$: $|H|\\cos(\\pi/2 + \\angle H) = -|H|\\sin\\angle H = -\\mathrm{Im}\\,H$ = {{a}} × {{1-a}} / {{1+a^2}} = {{a*(1-a)/(1+a^2)}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "kk": [
+              4,
+              5,
+              6
+            ]
+          },
+          "derived": {
+            "c": "2*cos(pi/kk)"
+          },
+          "prompt": "Which filter removes $\\Omega_0 = \\pi/{{kk}}$ **completely** while keeping the gain close to 1 at other frequencies, and is stable?",
+          "options": [
+            "$\\dfrac{z^2 - {{c||4}}z + 1}{z^2 - {{0.9*c||4}}z + 0.81}$",
+            "$\\dfrac{z^2 - {{0.9*c||4}}z + 0.81}{z^2 - {{c||4}}z + 1}$",
+            "$\\dfrac{z^2 - {{0.9*c||4}}z + 0.81}{z^2 - {{0.8*c||4}}z + 0.64}$",
+            "$\\dfrac{z^2 + {{c||4}}z + 1}{z^2 + {{0.9*c||4}}z + 0.81}$"
+          ],
+          "answer": 0,
+          "explanation": "A complete null needs zeros **on** the unit circle at $e^{\\pm j\\pi/{{kk}}}$: $z^2 - 2\\cos(\\pi/{{kk}})z + 1$ = $z^2 - {{c||4}}z + 1$. Poles at $0.9e^{\\pm j\\pi/{{kk}}}$ (inside) narrow the notch. Swapping them puts poles on the circle (not stable); zeros at radius 0.9 only dip; the $+$ signs place the notch at $\\pi - \\Omega_0$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              -0.5,
+              0.8
+            ],
+            "b": [
+              2,
+              -2,
+              1.25,
+              4
+            ],
+            "N": [
+              1,
+              2
+            ]
+          },
+          "prompt": "A **stable** LTI system has\n$$H(z) = \\frac{z}{z - a} + \\frac{z}{z - b}$$\nwith $a$ = {{a}} and $b$ = {{b}}.",
+          "ask": [
+            {
+              "prompt": "Find $h[{{N}}]$.",
+              "answer": "a^N",
+              "explanation": "Stable means the ROC contains $|z| = 1$: {{abs(a)}} $< |z| <$ {{abs(b)}}. So $\\frac{z}{z-a} \\to a^nu[n]$ (right-sided) and $\\frac{z}{z-b} \\to -b^nu[-n-1]$ (left-sided). For $n \\geq 0$: $h[{{N}}]$ = ({{a}})$^{{{N}}}$ = {{a^N}}."
+            },
+            {
+              "prompt": "Find $h[-{{N}}]$.",
+              "answer": "-b^(-N)",
+              "explanation": "The ROC {{abs(a)}} $< |z| <$ {{abs(b)}} contains the unit circle, so the pole at {{b}} contributes the left-sided term $-b^nu[-n-1]$. $h[-{{N}}]$ = −({{b}})$^{-{{N}}}$ = {{-b^(-N)}}."
+            }
+          ],
+          "unit": ""
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.8,
+              0.9
+            ],
+            "c": [
+              0.3,
+              -0.5,
+              0.6,
+              -0.2
+            ],
+            "N": [
+              1,
+              2,
+              3
+            ]
+          },
+          "require": "abs(c - a) - 0.05",
+          "prompt": "An echo channel\n$$H(z) = \\frac{z - c}{z - a}$$\nwith $c$ = {{c}}, $a$ = {{a}} is undone by the inverse $G(z) = 1/H(z)$. Find $g[{{N}}]$, a sample of its impulse response.",
+          "answer": "(c-a)*c^(N-1)",
+          "unit": "",
+          "explanation": "$G(z) = \\frac{z - a}{z - c} = 1 + \\frac{c - a}{z - c}$, stable and causal because $|c| < 1$. The second term is $(c - a)\\,z^{-1}\\frac{z}{z-c}$, so $g[n] = (c - a)\\,c^{n-1}$ for $n \\geq 1$.\n$g[{{N}}]$ = ({{c}} − {{a}}) × ({{c}})$^{{{N-1}}}$ = {{(c-a)*c^(N-1)}}."
+        }
+      ]
+    }
+  ]
+}

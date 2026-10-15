@@ -1,0 +1,1141 @@
+{
+  "id": "emc-radiation",
+  "title": "Digital Circuits & Radiated Emissions",
+  "description": "The spectrum of digital signals, ground noise, loop and cable radiation, and how layout, edges and filtering keep a product under the limits.",
+  "reference": "Ott ch. 10, 12, 16",
+  "study": [
+    {
+      "title": "Spectrum of a digital signal",
+      "body": "A clock is a trapezoidal wave: amplitude $A$, pulse width $\\tau$, rise time $t_r$, period $T$. Its harmonics lie under an envelope that is flat at $2A\\tau/T$ up to $f_1 = 1/(\\pi\\tau)$, falls at **−20 dB/decade** up to $f_2 = 1/(\\pi t_r)$ and at **−40 dB/decade** beyond. So the **rise time**, not the clock frequency, sets the high-frequency content; Ott takes $1/(\\pi t_r)$ as the bandwidth of a logic signal (close to the familiar $0.35/t_r$). A 50 % square wave has only odd harmonics, the fundamental being $0.64A$.",
+      "formula": "f_1 = \\frac{1}{\\pi\\tau},\\qquad f_2 = \\frac{1}{\\pi t_r} = BW",
+      "plot": {
+        "x": {
+          "min": 1000000.0,
+          "max": 10000000000.0,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": -100,
+          "max": 10,
+          "label": "envelope (dB re A)"
+        },
+        "sliders": [
+          {
+            "name": "f0",
+            "label": "clock $f_0$ (50 % duty)",
+            "min": 1000000.0,
+            "max": 50000000.0,
+            "log": true,
+            "value": 10000000.0,
+            "unit": "Hz"
+          },
+          {
+            "name": "tr",
+            "label": "$t_r$",
+            "min": 2e-10,
+            "max": 5e-09,
+            "log": true,
+            "value": 1e-09,
+            "unit": "s"
+          }
+        ],
+        "let": {
+          "f1": "2*f0/pi",
+          "f2": "1/(pi*tr)"
+        },
+        "curves": [
+          {
+            "f": "20*log10(min(1, f1/x)*min(1, f2/x))",
+            "label": "envelope",
+            "labelAt": 0.75
+          }
+        ],
+        "vlines": [
+          {
+            "x": "f1",
+            "label": "f_1"
+          },
+          {
+            "x": "f2",
+            "label": "f_2"
+          }
+        ],
+        "points": [
+          {
+            "x": "f0",
+            "y": "20*log10(2/pi)",
+            "label": "f_0",
+            "color": "orange",
+            "guides": false
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$f_1 = 2f_0/\\pi$",
+            "value": "f1",
+            "unit": "Hz"
+          },
+          {
+            "label": "$f_2 = 1/\\pi t_r$",
+            "value": "f2",
+            "unit": "Hz"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Ground noise and the return path",
+      "body": "Each switching gate draws a transient current (charging load capacitance plus 50–100 mA of shoot-through) that flows through the ground and supply inductance: $V = L\\,di/dt$. A PCB trace has about 15 nH per inch (≈ 6 nH/cm) of loop inductance, far more important than its resistance at nanosecond edges; a plane has about 100× less, and decoupling capacitors next to each IC supply the charge locally. The **return current** takes the path of least resistance at DC, but above a few hundred kHz the path of least **inductance**: in the plane directly under the trace, which gives the smallest loop.",
+      "formula": "V_{gnd} = L\\frac{di}{dt} \\approx L\\frac{\\Delta I}{t_r}"
+    },
+    {
+      "title": "Differential-mode (loop) radiation",
+      "body": "The normal signal current $I_{dm}$ flowing around a loop of area $A$ is a small loop antenna. Measured at distance $r$ over a reflecting ground plane (as in an emission test) the far field is at most the value below ($f$ in Hz, $A$ in m², $I$ in A, $r$ in m; at 3 m the constant becomes $87.6\\times10^{-16}$). Field ∝ $f^2 A I$: **halving the loop area gives −6 dB, doubling the frequency +12 dB**. Valid while the loop perimeter is under $\\lambda/4$. Example: 25 mA at 30 MHz in 10 cm² gives about 200 µV/m at 3 m, twice the Class B limit.",
+      "formula": "E = 263\\times10^{-16}\\,\\frac{f^2 A\\,I_{dm}}{r}"
+    },
+    {
+      "title": "Common-mode (cable) radiation",
+      "body": "Ground noise drives a small **common-mode** current $I_{cm}$ onto every attached cable (length $L$), which then acts as a monopole antenna. It is far more efficient than a loop: 1 m of cable needs about 1000× less current than a 10 cm² loop for the same field at 50 MHz. Only about **5 µA** at 50 MHz on a 1 m cable reaches the Class B limit (100 µV/m at 3 m). Above the frequency where the cable is $\\lambda/4$ long, use $L = \\lambda/4$ ($E \\approx 94.5\\,I_{cm}/r$). No $I_{cm}$ is needed for the circuit to work, so it is the designer's control knob.",
+      "formula": "E = 12.6\\times10^{-7}\\,\\frac{f\\,L\\,I_{cm}}{r}"
+    },
+    {
+      "title": "Explore: emission envelopes",
+      "body": "Model: a 25 MHz, 20 mA clock in a loop of area $A$, and a 1 m cable carrying 0.1 % of the clock current as common mode, both at 3 m, against the FCC Class B limit. Loop radiation ($f^2$) rises **+20 dB/dec** up to $f_2$ and then stays flat; cable radiation ($f$) is flat and falls above $f_2$ (and above $\\lambda/4$). So common-mode radiation dominates at the lower frequencies and differential-mode at the higher ones; a smaller loop moves the crossover up. Slowing the edges ($t_r$) helps both.",
+      "plot": {
+        "x": {
+          "min": 20000000.0,
+          "max": 3000000000.0,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": 0,
+          "max": 90,
+          "label": "E (dBµV/m)"
+        },
+        "sliders": [
+          {
+            "name": "tr",
+            "label": "$t_r$",
+            "min": 2e-10,
+            "max": 5e-09,
+            "log": true,
+            "value": 1e-09,
+            "unit": "s"
+          },
+          {
+            "name": "Acm",
+            "label": "loop area $A$ (cm²)",
+            "min": 1,
+            "max": 20,
+            "log": true,
+            "value": 5
+          }
+        ],
+        "let": {
+          "f1": "2*25e6/pi",
+          "f2": "1/(pi*tr)"
+        },
+        "curves": [
+          {
+            "f": "20*log10(87.6e-16*x^2*Acm*1e-4*0.02*min(1, f1/x)*min(1, f2/x)/1e-6)",
+            "label": "loop (DM)",
+            "labelAt": 0.88
+          },
+          {
+            "f": "20*log10(12.6e-7*x*min(1, 75e6/x)*2e-5*min(1, f1/x)*min(1, f2/x)/3/1e-6)",
+            "color": "blue",
+            "label": "cable (CM)",
+            "labelAt": 0.7
+          },
+          {
+            "f": "40 + 3.5*step(x-88e6) + 2.5*step(x-216e6) + 8*step(x-960e6)",
+            "color": "red",
+            "dash": true,
+            "label": "Class B",
+            "labelAt": 0.55
+          }
+        ],
+        "vlines": [
+          {
+            "x": "f2",
+            "label": "f_2"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$f_2 = 1/\\pi t_r$",
+            "value": "f2",
+            "unit": "Hz"
+          }
+        ],
+        "height": 220
+      }
+    },
+    {
+      "title": "Reducing emissions",
+      "body": "- **Loop area**: route clocks first, short, next to a solid plane; on two-layer boards give clocks a ground trace on **both** sides (canceling loops, 20+ dB).\n- **Edges and frequency**: use the slowest rise time that works; a small series resistor (≈ 33 Ω) in clock outputs damps ringing.\n- **Spread-spectrum (dithered) clock**: frequency-modulate the clock by ≈ 0.5–2 %; peaks drop 10–14 dB for **both** DM and CM.\n- **Cables**: low ground impedance, common-mode chokes/ferrites, filter capacitors to the **chassis**, shields with a 360° connection to the enclosure, circuit ground bonded to chassis in the I/O area."
+    },
+    {
+      "title": "PCB layout and stackup",
+      "body": "Return-path discontinuities force large loops (+20 dB): never route a fast trace over a **slot or split** in its reference plane (if unavoidable, place a stitching capacitor at the crossing); when a signal changes layers, add a ground-to-ground **stitching via** (or a power–ground capacitor) right next to it. Stackup objectives: every signal layer next to a plane, signal-to-plane spacing small (≤ 0.25 mm), power and ground planes close together, fast signals buried between planes, multiple ground planes; four or six layers cannot meet them all, and the first two always come first. A four-layer board is typically 20 dB quieter than a two-layer one.",
+      "circuit": {
+        "elements": [
+          {
+            "type": "text",
+            "at": [
+              1.6,
+              -0.2
+            ],
+            "label": "4-layer"
+          },
+          {
+            "type": "block",
+            "at": [
+              1.6,
+              0.6
+            ],
+            "label": "Signal",
+            "size": [
+              3.2,
+              0.5
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              1.6,
+              1.2999999999999998
+            ],
+            "label": "Ground",
+            "size": [
+              3.2,
+              0.5
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              1.6,
+              2.0
+            ],
+            "label": "Power",
+            "size": [
+              3.2,
+              0.5
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              1.6,
+              2.6999999999999997
+            ],
+            "label": "Signal",
+            "size": [
+              3.2,
+              0.5
+            ]
+          },
+          {
+            "type": "text",
+            "at": [
+              5.6,
+              -0.2
+            ],
+            "label": "6-layer"
+          },
+          {
+            "type": "block",
+            "at": [
+              5.6,
+              0.6
+            ],
+            "label": "Signal (slow)",
+            "size": [
+              3.2,
+              0.5
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              5.6,
+              1.2999999999999998
+            ],
+            "label": "Ground",
+            "size": [
+              3.2,
+              0.5
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              5.6,
+              2.0
+            ],
+            "label": "Signal (fast)",
+            "size": [
+              3.2,
+              0.5
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              5.6,
+              2.6999999999999997
+            ],
+            "label": "Signal (fast)",
+            "size": [
+              3.2,
+              0.5
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              5.6,
+              3.4
+            ],
+            "label": "Power",
+            "size": [
+              3.2,
+              0.5
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              5.6,
+              4.1
+            ],
+            "label": "Signal (slow)",
+            "size": [
+              3.2,
+              0.5
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "emc-radiation-1",
+      "title": "Digital spectra and ground noise",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Spectrum of a clock",
+          "body": "A trapezoidal clock (pulse width $\\tau$, rise time $t_r$) has harmonics under an envelope with two corners: −20 dB/decade from $f_1 = 1/(\\pi\\tau)$ and −40 dB/decade from $f_2 = 1/(\\pi t_r)$. Above $f_2$ the energy is small, so $1/(\\pi t_r)$ is the signal's bandwidth.",
+          "formula": "f_1 = \\frac{1}{\\pi\\tau},\\qquad f_2 = \\frac{1}{\\pi t_r}",
+          "plot": {
+            "x": {
+              "min": 1000000.0,
+              "max": 10000000000.0,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": -100,
+              "max": 10,
+              "label": "envelope (dB)"
+            },
+            "let": {
+              "f1": "2*1e7/pi",
+              "f2": "1/(pi*1e-9)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(min(1, f1/x)*min(1, f2/x))",
+                "labelAt": 0.75
+              }
+            ],
+            "vlines": [
+              {
+                "x": "f1",
+                "label": "f_1"
+              },
+              {
+                "x": "f2",
+                "label": "f_2"
+              }
+            ],
+            "labels": [
+              {
+                "x": 2000000.0,
+                "y": -12,
+                "text": "flat"
+              },
+              {
+                "x": 30000000.0,
+                "y": -40,
+                "text": "−20 dB/dec"
+              },
+              {
+                "x": 1200000000.0,
+                "y": -35,
+                "text": "−40 dB/dec"
+              }
+            ],
+            "height": 170
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "f0": [
+              10000000.0,
+              20000000.0,
+              25000000.0,
+              50000000.0
+            ],
+            "tr": [
+              5e-10,
+              1e-09,
+              2e-09,
+              3e-09
+            ]
+          },
+          "require": "1/(2*f0) - 3*tr",
+          "prompt": "A {{f0|Hz}} clock with 50 % duty cycle has rise and fall times of {{tr|s}}.",
+          "ask": [
+            {
+              "prompt": "Find the frequency $f_2$ above which its harmonics fall at 40 dB/decade.",
+              "answer": "1/(pi*tr)",
+              "unit": "Hz",
+              "explanation": "$f_2 = \\frac{1}{\\pi t_r}$ = 1/(π × {{tr|s}}) = **{{1/(pi*tr)|Hz}}**. This is also the bandwidth of the signal."
+            },
+            {
+              "prompt": "Find the frequency $f_1$ where the envelope starts to fall at 20 dB/decade.",
+              "answer": "2*f0/pi",
+              "unit": "Hz",
+              "explanation": "The pulse width is half the period: $\\tau = \\frac{1}{2f_0}$ = {{1/(2*f0)|s}}. $f_1 = \\frac{1}{\\pi\\tau}$ = **{{2*f0/pi|Hz}}** (below the fundamental, so all harmonics lie on the sloping parts)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "The clock frequency is doubled while the rise time stays the same. What happens to the spectral envelope?",
+          "options": [
+            "$f_1$ doubles, $f_2$ stays the same",
+            "Both $f_1$ and $f_2$ double",
+            "$f_2$ doubles, $f_1$ stays the same",
+            "Nothing changes"
+          ],
+          "answer": 0,
+          "shuffle": true,
+          "explanation": "$f_1 = 1/(\\pi\\tau)$ depends on the pulse width, which halves; $f_2 = 1/(\\pi t_r)$ depends only on the edges. The high-frequency content (above $f_2$) is set by the rise time, which is why fast logic is noisy even at a low clock rate."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "f2t": [
+              100000000.0,
+              200000000.0,
+              300000000.0,
+              500000000.0
+            ]
+          },
+          "derived": {
+            "trt": "1/(pi*f2t)"
+          },
+          "prompt": "Slow the edges of this 10 MHz clock: set the rise time so that the −40 dB/decade corner lies at {{f2t|Hz}}.",
+          "plot": {
+            "x": {
+              "min": 1000000.0,
+              "max": 10000000000.0,
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": -100,
+              "max": 10,
+              "label": "envelope (dB)"
+            },
+            "sliders": [
+              {
+                "name": "tr",
+                "label": "$t_r$",
+                "min": 1e-10,
+                "max": 1e-08,
+                "log": true,
+                "value": 2e-10,
+                "unit": "s"
+              }
+            ],
+            "let": {
+              "f1": "2*1e7/pi",
+              "f2": "1/(pi*tr)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(min(1, f1/x)*min(1, f2/x))",
+                "labelAt": 0.75
+              }
+            ],
+            "vlines": [
+              {
+                "x": "f2t",
+                "label": "target",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$f_2$",
+                "value": "f2",
+                "unit": "Hz",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "tr": "trt"
+          },
+          "tolerance": 0.06,
+          "explanation": "$f_2 = \\frac{1}{\\pi t_r}$, so $t_r = \\frac{1}{\\pi f_2}$ = 1/(π × {{f2t|Hz}}) = **{{trt|s}}**. Every harmonic above the corner is then lower than with faster edges."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Ground bounce",
+          "body": "When outputs switch, the transient current flows through the inductance of the ground pins and traces. With nanosecond edges even a few nH matter, and outputs switching together add their currents. The resulting ground noise upsets logic and, more often, drives common-mode current onto cables.",
+          "formula": "V = L\\frac{di}{dt} \\approx L\\frac{N\\,\\Delta I}{t_r}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "N": [
+              4,
+              8
+            ],
+            "dI": [
+              0.01,
+              0.02
+            ],
+            "tr": [
+              1e-09,
+              2e-09
+            ],
+            "L": [
+              1e-09,
+              2e-09,
+              5e-09
+            ]
+          },
+          "prompt": "{{N}} outputs of an IC switch simultaneously, each with a current step of {{dI|A}} in {{tr|s}}. They share a ground inductance of {{L|H}}. Estimate the ground bounce voltage.",
+          "answer": "L*N*dI/tr",
+          "unit": "V",
+          "explanation": "$di/dt$ = {{N}} × {{dI|A}} / {{tr|s}} = {{N*dI/tr*1e-9||3}} A/ns. $V = L\\,di/dt$ = {{L|H}} × {{N*dI/tr*1e-9||3}} A/ns = **{{L*N*dI/tr|V}}** (nH × A/ns gives volts directly)."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "L": [
+              1e-08,
+              3e-08,
+              6e-08
+            ],
+            "tr": [
+              5e-10,
+              1e-09,
+              2e-09
+            ]
+          },
+          "prompt": "A ground trace has {{L|H}} of loop inductance. Find its reactance at the bandwidth $1/(\\pi t_r)$ of a logic signal with $t_r$ = {{tr|s}}.",
+          "answer": "2*L/tr",
+          "unit": "Ω",
+          "explanation": "$f = \\frac{1}{\\pi t_r}$ = {{1/(pi*tr)|Hz}}. $X_L = 2\\pi fL$ = 2π × {{1/(pi*tr)|Hz}} × {{L|H}} = **{{2*L/tr|Ω}}** (simply $2L/t_r$), thousands of times the trace's DC resistance."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Where the return current flows",
+          "body": "At DC the return current in a ground plane takes the path of **least resistance**: straight between the two vias. Above a few hundred kHz it takes the path of **least inductance**: concentrated directly under the signal trace, because that encloses the smallest loop. Anything that blocks this path (a slot, a split, a layer change without a nearby return via) makes the loop larger."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "A 100 MHz clock trace runs over a solid ground plane from one via to another along an L-shaped route. Its return current flows in a straight line between the two vias.",
+          "answer": false,
+          "explanation": "That is the DC (least-resistance) path. At 100 MHz the return current follows the path of least inductance: underneath the trace, along its L-shaped route, which keeps the loop area minimal."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which of these increases the loop area of a fast signal's return path the most?",
+          "options": [
+            "Routing the trace across a slot in the adjacent ground plane",
+            "Adding a ground stitching via next to the signal via",
+            "Placing the decoupling capacitor right at the IC",
+            "Routing the trace on a layer adjacent to a solid plane"
+          ],
+          "answer": 0,
+          "explanation": "A slot forces the return current to detour around its ends, so the loop grows with the slot length (Ott measured up to 5× more ground voltage for a 1.5 inch slot). The other three options all keep the return path short and close to the signal."
+        }
+      ]
+    },
+    {
+      "id": "emc-radiation-2",
+      "title": "Calculating radiated emissions",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Two radiation models",
+          "body": "Differential mode: a loop of area $A$ carrying $I_{dm}$ (formula below). Common mode: a cable of length $L$ (shorter than $\\lambda/4$) carrying $I_{cm}$: $E_{cm} = 12.6\\times10^{-7}\\,fLI_{cm}/r$. Both give the maximum far field at distance $r$ over a ground plane, in V/m with SI units. Fields in dBµV/m: $20\\log_{10}(E/1\\,\\mu\\text{V/m})$; the Class B limit at 3 m is 100 µV/m (40 dBµV/m) below 88 MHz.",
+          "formula": "E_{dm} = 263\\times10^{-16}\\,\\frac{f^2AI_{dm}}{r}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "f": [
+              30000000.0,
+              50000000.0,
+              100000000.0,
+              200000000.0
+            ],
+            "Acm": [
+              2,
+              5,
+              10,
+              20
+            ],
+            "I": [
+              0.005,
+              0.01,
+              0.02,
+              0.05
+            ],
+            "r": [
+              3,
+              10
+            ]
+          },
+          "derived": {
+            "E": "263e-16*f^2*Acm*1e-4*I/r"
+          },
+          "prompt": "A {{I|A}} current at {{f|Hz}} flows around a loop of {{Acm}} cm² on a PCB. The field is measured at {{r}} m over a ground plane.",
+          "ask": [
+            {
+              "prompt": "Find the maximum electric field strength.",
+              "answer": "E",
+              "unit": "V/m",
+              "explanation": "$E = 263\\times10^{-16}\\frac{f^2AI}{r}$ with $A$ = {{Acm*1e-4||3}} m²: 263×10⁻¹⁶ × ({{f|Hz}})² × {{Acm*1e-4||3}} × {{I|A}} / {{r}} = **{{E|V/m}}**."
+            },
+            {
+              "prompt": "Find the maximum field strength in dBµV/m.",
+              "answer": "20*log10(E/1e-6)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.3,
+              "explanation": "$E = 263\\times10^{-16}\\frac{f^2AI}{r}$ = {{E|V/m}}. In dB: $20\\log_{10}(E/1\\,\\mu\\text{V/m})$ = 20 log({{E*1e6||3}}) = **{{20*log10(E/1e-6)||3}} dBµV/m**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "f": [
+              30000000.0,
+              50000000.0,
+              80000000.0
+            ],
+            "I": [
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "derived": {
+            "Am": "100e-6*3/(263e-16*f^2*I)",
+            "Ac": "Am*1e4"
+          },
+          "require": "Ac - 1",
+          "prompt": "A clock harmonic of {{I|A}} at {{f|Hz}} must stay below the Class B limit of 100 µV/m at 3 m. Find the largest allowed loop area, in cm².",
+          "answer": "Ac",
+          "unit": "",
+          "explanation": "Solve $E = 263\\times10^{-16}\\frac{f^2AI}{r}$ for $A$: $A = \\frac{Er}{263\\times10^{-16}f^2I}$ = (100×10⁻⁶ × 3) / (263×10⁻¹⁶ × ({{f|Hz}})² × {{I|A}}) = {{Am||3}} m² = **{{Ac||3}} cm²**. That is a very small loop."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.25,
+              0.5,
+              2
+            ],
+            "b": [
+              0.5,
+              2,
+              3
+            ]
+          },
+          "require": "abs(ln(a*b^2)) - 0.1",
+          "prompt": "A sinusoidal loop current keeps its amplitude, but the loop area is multiplied by {{a}} and the frequency by {{b}}. By how many dB does the differential-mode field change? (Increase positive, decrease negative.)",
+          "answer": "20*log10(a*b^2)",
+          "unit": "dB",
+          "tolerance": 0.02,
+          "absTolerance": 0.2,
+          "explanation": "$E \\propto f^2A$, so the field ratio is $a\\,b^2$ = {{a}} × {{b}}² = {{a*b^2||3}}. In dB: 20 log({{a*b^2||3}}) = **{{20*log10(a*b^2)||3}} dB** (area: 20 log {{a}} = {{20*log10(a)||3}} dB; frequency: 40 log {{b}} = {{40*log10(b)||3}} dB)."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "f": [
+              30000000.0,
+              50000000.0,
+              100000000.0
+            ],
+            "L": [
+              0.5,
+              1
+            ],
+            "Icm": [
+              1e-06,
+              5e-06,
+              1e-05,
+              2e-05
+            ],
+            "r": [
+              3,
+              10
+            ]
+          },
+          "derived": {
+            "E": "12.6e-7*f*L*Icm/r"
+          },
+          "require": "75e6/f - L",
+          "prompt": "A {{L}} m cable carries a common-mode current of {{Icm|A}} at {{f|Hz}}. The field is measured at {{r}} m.",
+          "ask": [
+            {
+              "prompt": "Find the maximum electric field strength.",
+              "answer": "E",
+              "unit": "V/m",
+              "explanation": "The cable is shorter than $\\lambda/4$ = {{75e6/f||3}} m, so $E = 12.6\\times10^{-7}\\frac{fLI_{cm}}{r}$ = 12.6×10⁻⁷ × {{f|Hz}} × {{L}} m × {{Icm|A}} / {{r}} m = **{{E|V/m}}**."
+            },
+            {
+              "prompt": "Find the maximum field strength in dBµV/m.",
+              "answer": "20*log10(E/1e-6)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.3,
+              "explanation": "$E = 12.6\\times10^{-7}\\frac{fLI_{cm}}{r}$ = {{E|V/m}}, so 20 log({{E*1e6||3}}) = **{{20*log10(E/1e-6)||3}} dBµV/m**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "f": [
+              30000000.0,
+              40000000.0,
+              50000000.0,
+              60000000.0
+            ],
+            "L": [
+              0.5,
+              1,
+              1.2
+            ]
+          },
+          "require": "75e6/f - L",
+          "prompt": "Find the largest common-mode current allowed on a {{L}} m cable at {{f|Hz}} if the field at 3 m must stay below 100 µV/m.",
+          "answer": "100e-6*3/(12.6e-7*f*L)",
+          "unit": "A",
+          "explanation": "$I_{cm} = \\frac{Er}{12.6\\times10^{-7}fL}$ = (100×10⁻⁶ × 3) / (12.6×10⁻⁷ × {{f|Hz}} × {{L}}) = **{{100e-6*3/(12.6e-7*f*L)|A}}**. A few microamps: compare that with the milliamps of signal current on the same cable."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "L": [
+              0.5,
+              1,
+              1.5
+            ],
+            "Acm": [
+              5,
+              10,
+              20
+            ],
+            "f": [
+              30000000.0,
+              48000000.0,
+              60000000.0
+            ]
+          },
+          "require": "75e6/f - L",
+          "prompt": "For the same field strength, how many times larger must a differential-mode current in a {{Acm}} cm² loop be than a common-mode current on a {{L}} m cable, at {{f|Hz}}?",
+          "answer": "12.6e-7*L/(263e-16*f*Acm*1e-4)",
+          "unit": "",
+          "explanation": "Set the two fields equal: $263\\times10^{-16}f^2AI_{dm} = 12.6\\times10^{-7}fLI_{cm}$, so $\\frac{I_{dm}}{I_{cm}} = \\frac{12.6\\times10^{-7}L}{263\\times10^{-16}fA}$ = **{{12.6e-7*L/(263e-16*f*Acm*1e-4)||3}}**. Common-mode radiation is by far the more efficient mechanism."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "tr1": [
+              5e-10,
+              1e-09
+            ],
+            "k": [
+              2,
+              3,
+              4
+            ],
+            "fx": [
+              1000000000.0,
+              2000000000.0
+            ]
+          },
+          "require": "fx - 1/(pi*tr1)",
+          "prompt": "The rise time of a clock is increased from {{tr1|s}} to {{k*tr1|s}}. By how many dB does the emission envelope drop at {{fx|Hz}} (above both $1/\\pi t_r$ corners)?",
+          "answer": "20*log10(k)",
+          "unit": "dB",
+          "tolerance": 0.02,
+          "absTolerance": 0.2,
+          "explanation": "Above $f_2 = 1/(\\pi t_r)$ the current envelope is $\\propto f_1f_2/f^2$, so at a fixed frequency it is proportional to $f_2 \\propto 1/t_r$ (for both DM and CM radiation). Slowing the edges {{k}}× lowers it by 20 log {{k}} = **{{20*log10(k)||3}} dB**."
+        }
+      ]
+    },
+    {
+      "id": "emc-radiation-3",
+      "title": "Reducing emissions and PCB layout",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "h1": [
+              0.5,
+              0.4
+            ],
+            "h2": [
+              0.1,
+              0.125,
+              0.2
+            ]
+          },
+          "prompt": "On a four-layer board, the dielectric between each signal layer and its reference plane is reduced from {{h1}} mm to {{h2}} mm (same routing).",
+          "ask": [
+            {
+              "prompt": "By how many dB does the differential-mode (loop) radiation drop?",
+              "answer": "20*log10(h1/h2)",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.2,
+              "explanation": "The loop area of each trace is its length × its height above the plane, so $A$ drops by {{h1/h2||3}}×. $E \\propto A$: 20 log {{h1/h2||3}} = **{{20*log10(h1/h2)||3}} dB**."
+            },
+            {
+              "prompt": "Crosstalk between adjacent traces scales with the square of the trace height. By how many dB does it drop?",
+              "answer": "40*log10(h1/h2)",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.2,
+              "explanation": "Crosstalk $\\propto h^2$: ratio ({{h1/h2||3}})² = {{(h1/h2)^2||3}}, i.e. 40 log {{h1/h2||3}} = **{{40*log10(h1/h2)||3}} dB**, at no extra cost."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Zl": [
+              25,
+              50,
+              100,
+              300
+            ],
+            "Zf": [
+              100,
+              300,
+              600
+            ]
+          },
+          "prompt": "A ferrite with {{Zf|Ω}} impedance at the frequency of interest is clamped on a cable. The rest of the common-mode loop has an impedance of {{Zl|Ω}}. By how many dB does the common-mode current drop?",
+          "answer": "20*log10((Zl+Zf)/Zl)",
+          "unit": "dB",
+          "tolerance": 0.02,
+          "absTolerance": 0.2,
+          "explanation": "The ferrite is in series with the common-mode loop, so $I_{cm}$ drops by $\\frac{Z_{loop}+Z_f}{Z_{loop}}$ = ({{Zl|Ω}} + {{Zf|Ω}})/{{Zl|Ω}} = {{(Zl+Zf)/Zl||3}}, i.e. **{{20*log10((Zl+Zf)/Zl)||3}} dB**. Ferrites work best in low-impedance loops."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "f0": [
+              50000000.0,
+              100000000.0,
+              133000000.0
+            ],
+            "d": [
+              0.5,
+              1,
+              2
+            ],
+            "n": [
+              3,
+              5,
+              7
+            ]
+          },
+          "prompt": "A {{f0|Hz}} clock is dithered with a {{d}} % downward spread. Over what frequency range is the energy of its harmonic number {{n}} spread?",
+          "answer": "n*d/100*f0",
+          "unit": "Hz",
+          "explanation": "Every harmonic is spread by the same **percentage**, so the absolute width grows with the harmonic number: {{n}} × {{d}} % × {{f0|Hz}} = **{{n*d/100*f0|Hz}}**. Spreading the energy over a band lowers the peak reading, typically by 10–14 dB."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Which four-layer stackup (top to bottom) gives the lowest emissions?",
+          "options": [
+            "Signal / Ground / Power / Signal, with thin dielectric (≤ 0.25 mm) between each signal layer and its plane",
+            "Signal / Ground / Power / Signal, all four layers equally spaced (≈ 0.5 mm)",
+            "Signal / Signal / Ground / Power",
+            "Ground / Power / Signal / Signal"
+          ],
+          "answer": 0,
+          "explanation": "Every signal layer must be adjacent to a plane (Signal / Signal / Ground / Power and Ground / Power / Signal / Signal each leave one signal layer without one), and it should be tightly coupled to it: thinner dielectric means smaller loops, less plane inductance and less crosstalk. The large core between power and ground costs some interplane capacitance, which the decoupling capacitors make up for."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A clock trace on layer 4 must cross the boundary between the 3.3 V and 1.8 V areas of the split power plane on layer 3. What is the best solution?",
+          "options": [
+            "Reroute so it does not cross the split; if it must, add a stitching capacitor across the split right at the crossing",
+            "Make the clock trace wider where it crosses",
+            "Put a ferrite bead in series with the clock trace",
+            "Increase the drive strength of the clock buffer"
+          ],
+          "answer": 0,
+          "explanation": "The return current flows in the plane under the trace; at the split it must detour to find a path, creating a large loop. Avoid the crossing, or give the return current a local high-frequency bridge with a capacitor between the two plane areas at the crossing point."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each technique to how it reduces emissions",
+          "pairs": [
+            [
+              "Spread-spectrum clock",
+              "Spreads harmonic energy over a band"
+            ],
+            [
+              "Ferrite on the cable",
+              "Adds common-mode impedance"
+            ],
+            [
+              "Slower rise time",
+              "Moves the 1/(πt_r) corner down"
+            ],
+            [
+              "Return trace on both sides",
+              "Canceling loops"
+            ]
+          ],
+          "explanation": "Dithering changes the source and so reduces both DM and CM emissions; a ferrite only blocks common-mode current on that cable; slower edges cut all harmonics above $1/(\\pi t_r)$; two symmetric return traces split the return current into two loops whose fields cancel."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Halving the loop area of a clock trace also halves the common-mode radiation from the cables attached to the board.",
+          "answer": false,
+          "explanation": "Loop area only controls differential-mode radiation (−6 dB here). Cable radiation is driven by the ground noise voltage and the common-mode current, which need ground impedance control, filtering or shielding. A dithered clock or slower edges, by contrast, reduce both."
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "prompt": "Which six-layer stackup (top to bottom) shields the high-speed signals best?",
+          "options": [
+            "Signal (slow) / Ground / Signal (fast) / Signal (fast) / Power / Signal (slow)",
+            "Signal / Signal / Ground / Power / Signal / Signal",
+            "Ground / Signal / Signal / Signal / Signal / Power"
+          ],
+          "answer": 0,
+          "explanation": "With Signal (slow) / Ground / Signal (fast) / Signal (fast) / Power / Signal (slow) the fast signals sit on layers 3 and 4, each next to a plane and buried between the planes. Signal / Signal / Ground / Power / Signal / Signal leaves layers 1 and 6 without an adjacent plane (not recommended); Ground / Signal × 4 / Power leaves layers 3 and 4 without an adjacent plane."
+        }
+      ]
+    },
+    {
+      "id": "emc-radiation-4",
+      "title": "Will the product pass?",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "I0": [
+              0.02,
+              0.03,
+              0.05
+            ],
+            "Acm": [
+              5,
+              10,
+              15
+            ],
+            "f0": [
+              20000000.0,
+              25000000.0
+            ],
+            "tr": [
+              1e-09,
+              2e-09
+            ]
+          },
+          "derived": {
+            "s3": "abs(sinc(3*tr*f0))",
+            "I3": "I0*abs(sinc(1.5))*s3",
+            "E3": "87.6e-16*(3*f0)^2*Acm*1e-4*I3"
+          },
+          "require": "E3 - 1.3e-4",
+          "prompt": "A {{f0|Hz}} clock (50 % duty, $t_r$ = {{tr|s}}) drives a trapezoidal current that switches between 0 and {{I0|A}} around a {{Acm}} cm² loop. Consider its 3rd harmonic, measured at 3 m (Class B limit: 100 µV/m).",
+          "ask": [
+            {
+              "prompt": "Find the amplitude of the 3rd-harmonic current.",
+              "answer": "I3",
+              "unit": "A",
+              "explanation": "$I_n = 2Id\\,\\frac{\\sin(n\\pi d)}{n\\pi d}\\cdot\\frac{\\sin(n\\pi t_r/T)}{n\\pi t_r/T}$ with $d$ = 0.5, $n$ = 3: $2d\\,|\\sin(1.5\\pi)/(1.5\\pi)|$ = 0.212, and the rise-time factor for $t_r/T$ = {{tr*f0||3}} is {{s3||3}}. $I_3$ = {{I0|A}} × 0.212 × {{s3||3}} = **{{I3|A}}**."
+            },
+            {
+              "prompt": "Find the field strength of this harmonic in dBµV/m.",
+              "answer": "20*log10(E3/1e-6)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.3,
+              "explanation": "$I_3$ = {{I3|A}} at {{3*f0|Hz}}. $E = 87.6\\times10^{-16}f^2AI$ = 87.6×10⁻¹⁶ × ({{3*f0|Hz}})² × {{Acm*1e-4||3}} m² × {{I3|A}} = {{E3|V/m}} = **{{20*log10(E3/1e-6)||3}} dBµV/m**, {{20*log10(E3/1e-4)||2}} dB over the limit."
+            },
+            {
+              "prompt": "To what loop area (in cm²) must the loop shrink to just meet the limit at this harmonic?",
+              "answer": "Acm*1e-4/E3",
+              "unit": "",
+              "explanation": "$E \\propto A$: the field at {{Acm}} cm² is {{E3|V/m}}, so $A_{max}$ = {{Acm}} cm² × 100 µV/m / {{E3|V/m}} = **{{Acm*1e-4/E3||3}} cm²**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "f": [
+              48000000.0,
+              60000000.0,
+              72000000.0
+            ],
+            "L": [
+              0.5,
+              1
+            ],
+            "Icm": [
+              5e-06,
+              1e-05,
+              2e-05
+            ]
+          },
+          "derived": {
+            "E": "12.6e-7*f*L*Icm/3"
+          },
+          "require": "E - 1.5e-4",
+          "prompt": "A current probe measures {{Icm|A}} of common-mode current at {{f|Hz}} on a {{L}} m cable of the same product (limit 100 µV/m at 3 m).",
+          "ask": [
+            {
+              "prompt": "Find the radiated field in dBµV/m.",
+              "answer": "20*log10(E/1e-6)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.3,
+              "explanation": "$\\lambda/4$ = {{75e6/f||3}} m, longer than the cable, so $E = 12.6\\times10^{-7}\\frac{fLI_{cm}}{r}$ = {{E|V/m}} = **{{20*log10(E/1e-6)||3}} dBµV/m**."
+            },
+            {
+              "prompt": "What minimum insertion loss (dB) must a common-mode choke on the cable give to just meet the limit?",
+              "answer": "20*log10(E/1e-4)",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.3,
+              "explanation": "$E$ = {{E|V/m}} versus 100 µV/m: the current must drop by {{E/1e-4||3}}×, i.e. 20 log {{E/1e-4||3}} = **{{20*log10(E/1e-4)||3}} dB**. In practice add a few dB of margin."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "f": [
+              100000000.0,
+              150000000.0,
+              200000000.0
+            ],
+            "L": [
+              2,
+              3
+            ],
+            "Icm": [
+              2e-06,
+              5e-06
+            ]
+          },
+          "prompt": "A {{L}} m cable carries {{Icm|A}} of common-mode current at {{f|Hz}}. Find the maximum field at 3 m.",
+          "answer": "94.5*Icm/3",
+          "unit": "V/m",
+          "explanation": "$\\lambda/4$ = 75/{{f*1e-6||3}} MHz = {{75e6/f||3}} m is shorter than the cable, so the short-cable formula would overestimate. Use $L = \\lambda/4$: $E = 12.6\\times10^{-7}f\\frac{\\lambda}{4}\\frac{I_{cm}}{r} = \\frac{94.5\\,I_{cm}}{r}$ = 94.5 × {{Icm|A}} / 3 = **{{94.5*Icm/3|V/m}}**, independent of length and frequency."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "X": [
+              12,
+              14,
+              16,
+              20
+            ],
+            "S": [
+              8,
+              10
+            ]
+          },
+          "prompt": "A clock harmonic exceeds the limit by {{X}} dB. A spread-spectrum clock gives {{S}} dB reduction. By what factor must the loop area still be reduced?",
+          "answer": "10^((X-S)/20)",
+          "unit": "",
+          "explanation": "Remaining excess: {{X}} − {{S}} = {{X-S}} dB. $E \\propto A$, so the area must shrink by $10^{{{X-S}}/20}$ = **{{10^((X-S)/20)||3}}×**."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A product shows emission peaks at clock harmonics between 40 and 250 MHz that drop by 15 dB when its I/O cable is unplugged. A smaller clock loop barely helps. What is the dominant mechanism?",
+          "options": [
+            "Common-mode radiation from the cable",
+            "Differential-mode radiation from the PCB loops",
+            "Conducted emission on the mains lead",
+            "Thermal noise of the line drivers"
+          ],
+          "answer": 0,
+          "explanation": "The emission depends on the cable being present and is in the frequency range where common-mode radiation dominates; loop-area changes only affect differential mode. Fix: lower the ground impedance, bond circuit ground to chassis at the connector, and add a common-mode choke, filter or properly terminated shield."
+        }
+      ]
+    }
+  ]
+}

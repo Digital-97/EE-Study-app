@@ -1,0 +1,1449 @@
+{
+ "id": "mc-synchronous",
+ "title": "Synchronous Machines",
+ "description": "Constant-speed operation, the equivalent circuit, the power angle, power-factor control and synchronous generators.",
+ "reference": "Hambley §17.3",
+ "study": [
+  {
+   "title": "Synchronous machines",
+   "body": "The stator carries a three-phase **armature** winding that sets up a rotating field. The rotor carries a **DC field** winding (fed through slip rings or a brushless exciter) or permanent magnets. The rotor poles lock onto the rotating field, so the machine turns at **exactly** synchronous speed whatever the load. Starting torque is zero: it is started with damper (amortisseur) bars acting as an induction cage, or from a variable-frequency drive.",
+   "formula": "n_s = \\frac{120f}{P}"
+  },
+  {
+   "title": "Equivalent circuit",
+   "body": "Per phase (wye equivalent, rms phasors): the rotor field induces $\\mathbf E_r$, proportional to field current $I_f$ (below saturation). The armature reaction and leakage are lumped into the **synchronous reactance** $X_s$; the armature resistance is neglected. As a motor $\\mathbf E_r$ **lags** $\\mathbf V_a$ by the power angle $\\delta$.",
+   "formula": "\\mathbf V_a = \\mathbf E_r + jX_s\\mathbf I_a",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_a",
+      "value": "",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "inductor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "jX_s",
+      "value": ""
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        0
+       ],
+       [
+        4,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "acsource",
+      "from": [
+       4,
+       2
+      ],
+      "to": [
+       4,
+       0
+      ],
+      "label": "E_r",
+      "value": "",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       3.1,
+       0
+      ],
+      "to": [
+       3.9,
+       0
+      ],
+      "label": "I_a"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Power angle",
+   "body": "The power transferred depends on $\\sin\\delta$. As load increases, $\\delta$ grows; the maximum (pull-out) power is reached at $\\delta = 90°$. Beyond it the machine slips poles and loses synchronism. Torque is $P/\\omega_s$.",
+   "formula": "P = \\frac{3V_aE_r}{X_s}\\sin\\delta,\\qquad T_{max} = \\frac{3V_aE_r}{X_s\\,\\omega_s}",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 180,
+     "label": "δ (°)",
+     "ticks": [
+      0,
+      30,
+      60,
+      90,
+      120,
+      150,
+      180
+     ]
+    },
+    "y": {
+     "min": 0,
+     "max": 1.15,
+     "label": "P / P_{max}"
+    },
+    "curves": [
+     {
+      "f": "sin(rad(x))",
+      "color": "blue"
+     }
+    ],
+    "points": [
+     {
+      "x": 90,
+      "y": 1,
+      "label": "pull-out"
+     }
+    ],
+    "labels": [
+     {
+      "x": 8,
+      "y": 0.2,
+      "text": "stable",
+      "color": "green"
+     },
+     {
+      "x": 140,
+      "y": 0.2,
+      "text": "unstable",
+      "color": "red"
+     }
+    ],
+    "height": 180
+   }
+  },
+  {
+   "title": "Field current and power factor",
+   "body": "At constant load, $E_r\\sin\\delta$ is fixed, but the field current sets $E_r$ and therefore the power factor:\n- **under-excited** ($E_r\\cos\\delta < V_a$): lagging, absorbs reactive power,\n- **normal**: unity power factor, minimum $I_a$,\n- **over-excited** ($E_r\\cos\\delta > V_a$): leading, supplies reactive power, like a capacitor.\nPlotting $I_a$ against $I_f$ gives the **V-curves**. An unloaded over-excited machine used only for power-factor correction is a **synchronous condenser**.",
+   "plot": {
+    "x": {
+     "min": 0.5,
+     "max": 9,
+     "label": "I_f (A)"
+    },
+    "y": {
+     "min": 0,
+     "max": 60,
+     "label": "I_a (A)"
+    },
+    "curves": [
+     {
+      "f": "abs(230 - 50*x)/5",
+      "label": "P = 0",
+      "color": "grey",
+      "labelAt": 0.15
+     },
+     {
+      "f": "sqrt((230 - sqrt((50*x)^2 - 144.9275^2))^2 + 144.9275^2)/5",
+      "label": "P = 20 kW",
+      "color": "blue",
+      "from": 2.92,
+      "labelAt": 0.85
+     }
+    ],
+    "labels": [
+     {
+      "x": 1.0,
+      "y": 56,
+      "text": "lagging",
+      "color": "red"
+     },
+     {
+      "x": 7.3,
+      "y": 56,
+      "text": "leading",
+      "color": "green"
+     }
+    ],
+    "height": 200
+   }
+  },
+  {
+   "title": "Synchronous generators",
+   "body": "Nearly all electrical energy is generated by three-phase synchronous generators (alternators). Now the current flows **out** of the machine: $\\mathbf E_r$ **leads** $\\mathbf V_a$ by $\\delta$. On a large grid (constant $V$ and $f$), the prime-mover torque sets the real power $P$, and the field current sets the reactive power $Q$. In isolated operation, the terminal voltage changes with load; voltage regulation compares $E_r$ (no-load voltage) with $V_a$.",
+   "formula": "\\mathbf E_r = \\mathbf V_a + jX_s\\mathbf I_a",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "E_r",
+      "value": "",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "inductor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "jX_s",
+      "value": ""
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        0
+       ],
+       [
+        4,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "acsource",
+      "from": [
+       4,
+       2
+      ],
+      "to": [
+       4,
+       0
+      ],
+      "label": "V_a",
+      "value": "",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       3.1,
+       0
+      ],
+      "to": [
+       3.9,
+       0
+      ],
+      "label": "I_a"
+     }
+    ]
+   }
+  }
+ ],
+ "lessons": [
+  {
+   "id": "mc-synchronous-1",
+   "title": "Locked to the field",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Rotor locked to the rotating field",
+     "body": "Like an induction motor, the stator creates a rotating field. But the rotor is a **magnet**: a DC field winding or permanent magnets. Its poles lock onto the rotating poles, so the rotor turns at exactly the synchronous speed $n_s = 120f/P$, from no load to full load."
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "prompt": "A {{P}}-pole synchronous motor runs from a {{f}}-Hz supply. Find its speed at full load (in rpm).",
+     "answer": "120*f/P",
+     "unit": "",
+     "explanation": "A synchronous motor runs at exactly $n_s = 120f/P$ = 120 × {{f}}/{{P}} = {{120*f/P||4}} rpm, at any load below the pull-out torque.",
+     "params": {
+      "P": [
+       2,
+       4,
+       6,
+       8,
+       10
+      ],
+      "f": [
+       50,
+       60
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "trueFalse",
+     "prompt": "Like an induction motor, a synchronous motor slows down by a few percent when it is loaded.",
+     "answer": false,
+     "explanation": "Its speed stays exactly at $n_s$; what changes with load is the **power angle** $\\delta$ between the rotor poles and the rotating field. Speed regulation is 0 %. Only above the pull-out torque does it fall out of step (and then stall)."
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "prompt": "A synchronous motor produces no average torque at standstill. How is it usually started?",
+     "options": [
+      "With damper (amortisseur) bars that let it start as an induction motor, or from a variable-frequency drive",
+      "By connecting the field winding to the AC supply",
+      "By reversing two supply lines"
+     ],
+     "answer": 0,
+     "explanation": "At standstill the stator field sweeps past the rotor poles 50 or 60 times per second, so the torque alternates and averages zero. Damper bars on the rotor act like a squirrel cage and accelerate it as an induction motor; near $n_s$ the DC field is switched on and the rotor pulls into step. A VFD can instead ramp the frequency up from zero."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Per-phase equivalent circuit",
+     "body": "The DC field induces $\\mathbf E_r$ in each armature phase, proportional to the field current. The armature's own field and leakage act as the **synchronous reactance** $X_s$. Neglecting armature resistance, KVL gives:",
+     "formula": "\\mathbf V_a = \\mathbf E_r + jX_s\\mathbf I_a",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_a",
+        "value": "",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "jX_s",
+        "value": ""
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "acsource",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "E_r",
+        "value": "",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         3.1,
+         0
+        ],
+        "to": [
+         3.9,
+         0
+        ],
+        "label": "I_a"
+       }
+      ]
+     }
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "The power angle",
+     "body": "The angle $\\delta$ between $\\mathbf V_a$ and $\\mathbf E_r$ grows with load. The three-phase power is proportional to $\\sin\\delta$ (with per-phase rms $V_a$ and $E_r$). It peaks at $\\delta = 90°$: the **pull-out** power.",
+     "formula": "P = \\frac{3V_aE_r}{X_s}\\sin\\delta",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 180,
+       "label": "δ (°)",
+       "ticks": [
+        0,
+        30,
+        60,
+        90,
+        120,
+        150,
+        180
+       ]
+      },
+      "y": {
+       "min": 0,
+       "max": 1.15,
+       "label": "P / P_{max}"
+      },
+      "curves": [
+       {
+        "f": "sin(rad(x))",
+        "color": "blue"
+       }
+      ],
+      "points": [
+       {
+        "x": 90,
+        "y": 1,
+        "label": "pull-out"
+       }
+      ],
+      "labels": [
+       {
+        "x": 8,
+        "y": 0.2,
+        "text": "stable",
+        "color": "green"
+       },
+       {
+        "x": 140,
+        "y": 0.2,
+        "text": "unstable",
+        "color": "red"
+       }
+      ],
+      "height": 180
+     }
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "prompt": "A three-phase synchronous motor has $V_a$ = {{V|V}}, $E_r$ = {{E|V}} (per phase, rms) and $X_s$ = {{X|Ω}}. Find the power it develops at $\\delta$ = {{d}}°.",
+     "answer": "3*V*E*sin(rad(d))/X",
+     "unit": "W",
+     "explanation": "$P = 3V_aE_r\\sin\\delta/X_s$ = 3 × {{V}} × {{E}} × sin {{d}}° / {{X}} = {{3*V*E*sin(rad(d))/X|W}}.",
+     "params": {
+      "V": [
+       230,
+       254,
+       277
+      ],
+      "E": [
+       220,
+       250,
+       280,
+       300
+      ],
+      "X": [
+       2,
+       2.5,
+       3,
+       4
+      ],
+      "d": [
+       10,
+       15,
+       20,
+       25,
+       30,
+       35
+      ]
+     }
+    },
+    {
+     "id": "q5",
+     "type": "multipleChoice",
+     "prompt": "The load on a synchronous motor is increased until it needs more than $3V_aE_r/X_s$. What happens?",
+     "options": [
+      "The rotor falls out of step (pulls out) and the motor stalls",
+      "The speed drops a little, like an induction motor",
+      "The power angle settles above 90° and the motor keeps running"
+     ],
+     "answer": 0,
+     "explanation": "$3V_aE_r/X_s$ is the maximum power, reached at $\\delta = 90°$. Beyond it, more $\\delta$ gives **less** power, so the rotor keeps slipping back: it loses synchronism, the torque alternates, and protection must disconnect it.",
+     "shuffle": false
+    },
+    {
+     "id": "i4",
+     "type": "info",
+     "title": "Field current controls power factor",
+     "body": "For a given load, $P$ fixes $E_r\\sin\\delta$, but the field current is free. A weak field (**under-excited**) makes the motor draw lagging current; a strong field (**over-excited**) makes it draw **leading** current and supply reactive power to the network. In between, at unity power factor, the armature current is smallest.",
+     "plot": {
+      "x": {
+       "min": 0.5,
+       "max": 9,
+       "label": "I_f (A)"
+      },
+      "y": {
+       "min": 0,
+       "max": 60,
+       "label": "I_a (A)"
+      },
+      "curves": [
+       {
+        "f": "abs(230 - 50*x)/5",
+        "label": "P = 0",
+        "color": "grey",
+        "labelAt": 0.15
+       },
+       {
+        "f": "sqrt((230 - sqrt((50*x)^2 - 144.9275^2))^2 + 144.9275^2)/5",
+        "label": "P = 20 kW",
+        "color": "blue",
+        "from": 2.92,
+        "labelAt": 0.85
+       }
+      ],
+      "labels": [
+       {
+        "x": 1.0,
+        "y": 56,
+        "text": "lagging",
+        "color": "red"
+       },
+       {
+        "x": 7.3,
+        "y": 56,
+        "text": "leading",
+        "color": "green"
+       }
+      ],
+      "height": 200
+     }
+    },
+    {
+     "id": "q6",
+     "type": "matchPairs",
+     "prompt": "Match each excitation to its behaviour.",
+     "pairs": [
+      [
+       "Under-excited",
+       "Lagging pf, absorbs Q"
+      ],
+      [
+       "Normal excitation",
+       "Unity pf, minimum $I_a$"
+      ],
+      [
+       "Over-excited",
+       "Leading pf, supplies Q"
+      ],
+      [
+       "Synchronous condenser",
+       "Unloaded, over-excited for pf correction"
+      ]
+     ],
+     "explanation": "The V-curves show $I_a$ against $I_f$ at constant load: the minimum is unity pf, to the left lagging, to the right leading. An over-excited synchronous machine without mechanical load behaves like a variable capacitor bank."
+    }
+   ]
+  },
+  {
+   "id": "mc-synchronous-2",
+   "title": "Power angle and excitation",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "prompt": "A hydro-electric generator turns at {{n}} rpm and supplies a {{f}}-Hz grid. How many poles does it have?",
+     "answer": "120*f/n",
+     "unit": "",
+     "explanation": "From $n_s = 120f/P$: $P = 120f/n_s$ = 120 × {{f}}/{{n}} = {{120*f/n}} poles. Slow water turbines need many poles.",
+     "params": {
+      "f": [
+       50,
+       60
+      ],
+      "P": [
+       12,
+       16,
+       20,
+       24,
+       40,
+       48
+      ]
+     },
+     "derived": {
+      "n": "120*f/P"
+     }
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "prompt": "A three-phase synchronous motor ($V_a$ = {{V|V}} per phase, $X_s$ = {{X|Ω}}, $E_r$ = {{E|V}}) develops {{P|W}}. Find the power angle $\\delta$ in degrees.",
+     "answer": "deg(asin(P*X/(3*V*E)))",
+     "unit": "°",
+     "explanation": "$\\sin\\delta = \\dfrac{PX_s}{3V_aE_r}$ = {{P}} × {{X}} / (3 × {{V}} × {{E}}) = {{P*X/(3*V*E)}}, so $\\delta$ = {{deg(asin(P*X/(3*V*E)))|°}}.",
+     "params": {
+      "V": [
+       230,
+       254,
+       277
+      ],
+      "E": [
+       250,
+       280,
+       300,
+       320
+      ],
+      "X": [
+       2,
+       2.5,
+       3
+      ],
+      "P": {
+       "min": 10000,
+       "max": 60000,
+       "step": 5000
+      }
+     },
+     "require": "0.85 - P*X/(3*V*E)",
+     "tolerance": 0.01,
+     "absTolerance": 0.3
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "prompt": "A {{Pp}}-pole, {{f}}-Hz synchronous motor has $V_a$ = {{V|V}}, $E_r$ = {{E|V}} (per phase) and $X_s$ = {{X|Ω}}. Find its pull-out torque.",
+     "answer": "3*V*E/(X*4*pi*f/Pp)",
+     "unit": "N·m",
+     "explanation": "$P_{max} = 3V_aE_r/X_s$ = {{3*V*E/X|W}} at $\\delta$ = 90°. $\\omega_s = 4\\pi f/P$ = {{4*pi*f/Pp|rad/s}}. $T_{max} = P_{max}/\\omega_s$ = {{3*V*E/(X*4*pi*f/Pp)}} N·m.",
+     "params": {
+      "Pp": [
+       4,
+       6,
+       8
+      ],
+      "f": [
+       50,
+       60
+      ],
+      "V": [
+       230,
+       254,
+       277
+      ],
+      "E": [
+       250,
+       280,
+       300
+      ],
+      "X": [
+       2,
+       2.5,
+       3
+      ]
+     }
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "prompt": "The graph shows the power–angle curve of a 4-pole, 50-Hz synchronous motor.",
+     "answer": "Pm/(2*pi*1500/60)",
+     "unit": "N·m",
+     "explanation": "",
+     "params": {
+      "V": [
+       230,
+       254
+      ],
+      "E": [
+       250,
+       280,
+       300
+      ],
+      "X": [
+       2,
+       2.5,
+       3,
+       4
+      ],
+      "d": [
+       20,
+       30,
+       45
+      ]
+     },
+     "derived": {
+      "Pm": "3*V*E/X"
+     },
+     "tolerance": 0.06,
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 180,
+       "label": "δ (°)",
+       "ticks": [
+        0,
+        30,
+        60,
+        90,
+        120,
+        150,
+        180
+       ]
+      },
+      "y": {
+       "min": 0,
+       "max": "1.15*Pm",
+       "label": "P",
+       "unit": "W"
+      },
+      "curves": [
+       {
+        "f": "Pm*sin(rad(x))",
+        "color": "blue"
+       }
+      ],
+      "height": 190
+     },
+     "ask": [
+      {
+       "prompt": "Read the maximum power and find the pull-out torque.",
+       "answer": "Pm/(2*pi*1500/60)",
+       "explanation": "The peak (at δ = 90°) is about {{Pm|W}}. $\\omega_s$ = 2π × 1500/60 = {{2*pi*1500/60|rad/s}}, so $T_{max}$ = {{Pm}} / {{2*pi*1500/60}} = {{Pm/(2*pi*1500/60)}} N·m."
+      },
+      {
+       "prompt": "Read the power at $\\delta$ = {{d}}°.",
+       "answer": "Pm*sin(rad(d))",
+       "unit": "W",
+       "explanation": "At δ = {{d}}° the curve gives about {{Pm*sin(rad(d))|W}} = $P_{max}\\sin\\delta$ = {{Pm|W}} × sin {{d}}°."
+      }
+     ]
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "prompt": "A synchronous motor (per phase: $V_a$ = {{V|V}}, $X_s$ = {{X|Ω}}, armature resistance neglected) draws $I_a$ = {{I|A}} at power factor {{pf}}.",
+     "answer": "1",
+     "unit": "V",
+     "explanation": "",
+     "params": {
+      "V": [
+       230,
+       254,
+       277
+      ],
+      "X": [
+       1.5,
+       2,
+       2.5,
+       3
+      ],
+      "I": {
+       "min": 20,
+       "max": 60,
+       "step": 5
+      },
+      "pf": [
+       0.8,
+       0.85,
+       0.9,
+       0.95
+      ]
+     },
+     "derived": {
+      "c": "X*I*pf",
+      "sn": "X*I*sqrt(1-pf^2)"
+     },
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_a",
+        "value": "{{V|V}}",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "jX_s",
+        "value": "{{X}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "acsource",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "E_r",
+        "value": "",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         3.1,
+         0
+        ],
+        "to": [
+         3.9,
+         0
+        ],
+        "label": "I_a"
+       }
+      ]
+     },
+     "ask": [
+      {
+       "prompt": "The power factor is **leading**. Find $|\\mathbf E_r|$.",
+       "answer": "sqrt((V + sn)^2 + c^2)",
+       "unit": "V",
+       "explanation": "Take $\\mathbf V_a$ = {{V}}∠0° and $\\mathbf I_a$ = {{I}}∠+{{deg(acos(pf))|°}} (leading). $\\mathbf E_r = \\mathbf V_a - jX_s\\mathbf I_a$. $jX_s\\mathbf I_a = -X_sI\\sin\\theta + jX_sI\\cos\\theta$ = −{{sn}} + j{{c}}. So $\\mathbf E_r$ = {{V + sn}} − j{{c}}, $|\\mathbf E_r|$ = {{sqrt((V + sn)^2 + c^2)|V}}. Larger than $V_a$: over-excited."
+      },
+      {
+       "prompt": "The power factor is **lagging**. Find $|\\mathbf E_r|$.",
+       "answer": "sqrt((V - sn)^2 + c^2)",
+       "unit": "V",
+       "explanation": "Take $\\mathbf V_a$ = {{V}}∠0° and $\\mathbf I_a$ = {{I}}∠−{{deg(acos(pf))|°}} (lagging). $jX_s\\mathbf I_a = X_sI\\sin\\phi + jX_sI\\cos\\phi$ = {{sn}} + j{{c}}. $\\mathbf E_r = \\mathbf V_a - jX_s\\mathbf I_a$ = {{V - sn}} − j{{c}}, $|\\mathbf E_r|$ = {{sqrt((V - sn)^2 + c^2)|V}}. Under-excited."
+      },
+      {
+       "prompt": "The power factor is **leading**. Find the power angle $\\delta$ in degrees.",
+       "answer": "deg(atan(c/(V + sn)))",
+       "unit": "°",
+       "tolerance": 0.01,
+       "absTolerance": 0.3,
+       "explanation": "$\\mathbf E_r = \\mathbf V_a - jX_s\\mathbf I_a$ = {{V + sn}} − j{{c}} V with $\\mathbf I_a$ leading. It lags $\\mathbf V_a$ by $\\delta = \\arctan$({{c}}/{{V + sn}}) = {{deg(atan(c/(V + sn)))|°}}."
+      }
+     ]
+    },
+    {
+     "id": "p6",
+     "type": "multipleChoice",
+     "prompt": "A synchronous motor runs with $V_a$ = {{V|V}}, $E_r$ = {{E|V}} and $\\delta$ = {{d}}°. What is its power factor?",
+     "options": [
+      "Leading (over-excited)",
+      "Lagging (under-excited)"
+     ],
+     "answer": "step(V - E*cos(rad(d)))",
+     "explanation": "$\\mathbf I_a = (\\mathbf V_a - \\mathbf E_r)/jX_s$. Its reactive part depends on $V_a - E_r\\cos\\delta$: positive means lagging, negative means leading. Here $E_r\\cos\\delta$ = {{E}} × cos {{d}}° = {{E*cos(rad(d))|V}}, compared with $V_a$ = {{V|V}}.",
+     "params": {
+      "V": [
+       230
+      ],
+      "E": [
+       180,
+       200,
+       260,
+       280,
+       300
+      ],
+      "d": [
+       10,
+       20,
+       30
+      ]
+     },
+     "require": "abs(V - E*cos(rad(d))) - 10",
+     "shuffle": false
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "prompt": "An over-excited synchronous motor draws {{I|A}} from a {{VL|V}} three-phase line at power factor {{pf}} leading. How much reactive power does it **supply** to the network?",
+     "answer": "sqrt(3)*VL*I*sqrt(1-pf^2)",
+     "unit": "var",
+     "explanation": "$Q = \\sqrt3V_LI_L\\sin\\theta$ with $\\sin\\theta = \\sqrt{1 - {{pf}}^2}$ = {{sqrt(1-pf^2)}}: $Q$ = 1.732 × {{VL}} × {{I}} × {{sqrt(1-pf^2)}} = {{sqrt(3)*VL*I*sqrt(1-pf^2)|var}}. Leading current means the motor delivers this reactive power, like a capacitor bank.",
+     "params": {
+      "I": {
+       "min": 20,
+       "max": 100,
+       "step": 10
+      },
+      "VL": [
+       400,
+       480
+      ],
+      "pf": [
+       0.7,
+       0.8,
+       0.85,
+       0.9
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "mc-synchronous-3",
+   "title": "V-curves and generators",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "prompt": "A synchronous motor (per phase $V_a$ = {{V|V}}, $X_s$ = {{X|Ω}}) develops a constant {{P|W}} (three-phase). The field is set so that $E_r$ = {{E|V}}.",
+     "answer": "Ia",
+     "unit": "A",
+     "explanation": "",
+     "params": {
+      "V": [
+       230,
+       254
+      ],
+      "X": [
+       2,
+       3,
+       4
+      ],
+      "P": {
+       "min": 10000,
+       "max": 40000,
+       "step": 5000
+      },
+      "E": {
+       "min": 200,
+       "max": 340,
+       "step": 20
+      }
+     },
+     "derived": {
+      "a": "P*X/(3*V)",
+      "Ec": "sqrt(max(0, E^2 - (P*X/(3*V))^2))",
+      "Ia": "sqrt((V - sqrt(max(0, E^2 - (P*X/(3*V))^2)))^2 + (P*X/(3*V))^2)/X"
+     },
+     "require": "E - 1.25*P*X/(3*V)",
+     "ask": [
+      {
+       "prompt": "Find the armature current $I_a$.",
+       "answer": "Ia",
+       "unit": "A",
+       "explanation": "From $P = 3V_aE_r\\sin\\delta/X_s$: $E_r\\sin\\delta = PX_s/3V_a$ = {{a}} V, so $E_r\\cos\\delta = \\sqrt{E_r^2 - ({{a}})^2}$ = {{Ec}} V. $\\mathbf V_a - \\mathbf E_r$ = ({{V - Ec}}) + j{{a}} V, so $I_a = |\\mathbf V_a - \\mathbf E_r|/X_s$ = {{Ia|A}}."
+      },
+      {
+       "prompt": "Find the power factor (magnitude).",
+       "answer": "P/(3*V*Ia)",
+       "unit": "",
+       "tolerance": 0.01,
+       "explanation": "$E_r\\sin\\delta$ = {{a}} V, $E_r\\cos\\delta$ = {{Ec}} V, so $I_a = |({{V - Ec}}) + j{{a}}|/X_s$ = {{Ia|A}}. pf $= P/(3V_aI_a)$ = {{P}} / (3 × {{V}} × {{Ia}}) = {{P/(3*V*Ia)||3}}; it is leading if $E_r\\cos\\delta > V_a$, lagging otherwise."
+      },
+      {
+       "prompt": "Find the power angle $\\delta$ in degrees.",
+       "answer": "deg(asin(a/E))",
+       "unit": "°",
+       "tolerance": 0.01,
+       "absTolerance": 0.3,
+       "explanation": "$\\sin\\delta = PX_s/(3V_aE_r)$ = {{a}}/{{E}} = {{a/E}}, so $\\delta$ = {{deg(asin(a/E))|°}}."
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "prompt": "A synchronous motor (per phase $V_a$ = {{V|V}}, $X_s$ = {{X|Ω}}) develops {{P|W}}. Its $E_r$ is proportional to field current: $E_r$ = {{E0|V}} at $I_f$ = {{If0|A}}. Which field current gives unity power factor?",
+     "answer": "If0*sqrt(V^2 + (P*X/(3*V))^2)/E0",
+     "unit": "A",
+     "explanation": "At unity pf, $\\mathbf I_a$ is in phase with $\\mathbf V_a$, so $\\mathbf E_r = V_a - jX_sI_a$ with $X_sI_a = X_sP/(3V_a)$ = {{P*X/(3*V)}} V. $E_r = \\sqrt{V_a^2 + ({{P*X/(3*V)}})^2}$ = {{sqrt(V^2 + (P*X/(3*V))^2)|V}}. Scaling: $I_f$ = {{If0}} × {{sqrt(V^2 + (P*X/(3*V))^2)}}/{{E0}} = {{If0*sqrt(V^2 + (P*X/(3*V))^2)/E0|A}}.",
+     "params": {
+      "V": [
+       230,
+       254,
+       277
+      ],
+      "X": [
+       2,
+       3,
+       4
+      ],
+      "P": {
+       "min": 10000,
+       "max": 40000,
+       "step": 5000
+      },
+      "E0": [
+       200,
+       250
+      ],
+      "If0": [
+       2,
+       2.5,
+       3
+      ]
+     }
+    },
+    {
+     "id": "c3",
+     "type": "multipleChoice",
+     "prompt": "A synchronous motor drives a constant load while its field current $I_f$ is varied. Which graph shows the armature current $I_a$?",
+     "answer": 0,
+     "explanation": "At constant power, $I_a$ is smallest at unity power factor and grows in both directions: lagging when under-excited (left), leading when over-excited (right). This is the **V-curve**.",
+     "optionPlots": [
+      {
+       "x": {
+        "min": 0,
+        "max": 1,
+        "label": "I_f",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 1.1,
+        "label": "I_a",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "curves": [
+        {
+         "f": "0.3 + 1.4*abs(x - 0.5)",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1,
+        "label": "I_f",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 1.1,
+        "label": "I_a",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "curves": [
+        {
+         "f": "0.1 + 0.9*x",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1,
+        "label": "I_f",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 1.1,
+        "label": "I_a",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "curves": [
+        {
+         "f": "1 - 1.4*abs(x - 0.5)",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      },
+      {
+       "x": {
+        "min": 0,
+        "max": 1,
+        "label": "I_f",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "y": {
+        "min": 0,
+        "max": 1.1,
+        "label": "I_a",
+        "ticks": [
+         0,
+         0.5,
+         1
+        ]
+       },
+       "curves": [
+        {
+         "f": "1 - 0.8*x",
+         "color": "blue"
+        }
+       ],
+       "height": 140
+      }
+     ]
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "prompt": "A synchronous generator (per phase $X_s$ = {{X|Ω}}, resistance neglected) supplies $I_a$ = {{I|A}} at power factor {{pf}} lagging with terminal voltage $V_a$ = {{V|V}} per phase.",
+     "answer": "sqrt((V + X*I*sqrt(1-pf^2))^2 + (X*I*pf)^2)",
+     "unit": "V",
+     "explanation": "",
+     "params": {
+      "X": [
+       1,
+       1.5,
+       2
+      ],
+      "I": {
+       "min": 20,
+       "max": 100,
+       "step": 10
+      },
+      "pf": [
+       0.8,
+       0.85,
+       0.9
+      ],
+      "V": [
+       230,
+       254,
+       277
+      ]
+     },
+     "derived": {
+      "c": "X*I*pf",
+      "sn": "X*I*sqrt(1-pf^2)",
+      "Er": "sqrt((V + X*I*sqrt(1-pf^2))^2 + (X*I*pf)^2)"
+     },
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "E_r",
+        "value": "",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "jX_s",
+        "value": "{{X}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "acsource",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "V_a",
+        "value": "{{V|V}}",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         3.1,
+         0
+        ],
+        "to": [
+         3.9,
+         0
+        ],
+        "label": "I_a"
+       }
+      ]
+     },
+     "ask": [
+      {
+       "prompt": "Find $|\\mathbf E_r|$.",
+       "answer": "Er",
+       "unit": "V",
+       "explanation": "Generator: $\\mathbf E_r = \\mathbf V_a + jX_s\\mathbf I_a$ with $\\mathbf I_a$ = {{I}}∠−{{deg(acos(pf))|°}}. $jX_s\\mathbf I_a = X_sI\\sin\\phi + jX_sI\\cos\\phi$ = {{sn}} + j{{c}}. $\\mathbf E_r$ = {{V + sn}} + j{{c}}, $|\\mathbf E_r|$ = {{Er|V}}."
+      },
+      {
+       "prompt": "Find the voltage regulation in % (speed and field current constant).",
+       "answer": "100*(Er - V)/V",
+       "unit": "%",
+       "explanation": "$\\mathbf E_r = \\mathbf V_a + jX_s\\mathbf I_a$ = {{V + sn}} + j{{c}}, $|\\mathbf E_r|$ = {{Er|V}}. Removing the load leaves $V_{nl} = E_r$. VR = ({{Er}} − {{V}})/{{V}} × 100 % = {{100*(Er - V)/V|%}}."
+      },
+      {
+       "prompt": "Find the power angle $\\delta$ (by how much $\\mathbf E_r$ leads $\\mathbf V_a$), in degrees.",
+       "answer": "deg(atan(c/(V + sn)))",
+       "unit": "°",
+       "tolerance": 0.01,
+       "absTolerance": 0.3,
+       "explanation": "$\\mathbf E_r$ = {{V + sn}} + j{{c}} V, so $\\delta = \\arctan$({{c}}/{{V + sn}}) = {{deg(atan(c/(V + sn)))|°}}. In a generator $\\mathbf E_r$ leads; in a motor it lags."
+      }
+     ]
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "prompt": "A plant's induction motors absorb {{P1|W}} at power factor {{pf1}} lagging. A new synchronous motor is added that absorbs {{P2|W}} at power factor {{pf2}} **leading**. Find the overall power factor of the plant.",
+     "answer": "(P1+P2)/sqrt((P1+P2)^2 + (P1*tan(acos(pf1)) - P2*tan(acos(pf2)))^2)",
+     "unit": "",
+     "explanation": "Induction motors: $Q_1 = P_1\\tan\\theta_1$ = {{P1*tan(acos(pf1))|var}} (absorbed). Synchronous motor: $Q_2 = P_2\\tan\\theta_2$ = {{P2*tan(acos(pf2))|var}} (supplied). Net $Q$ = {{P1*tan(acos(pf1)) - P2*tan(acos(pf2))|var}}, $P$ = {{P1+P2|W}}. pf $= P/\\sqrt{P^2+Q^2}$ = {{(P1+P2)/sqrt((P1+P2)^2 + (P1*tan(acos(pf1)) - P2*tan(acos(pf2)))^2)||3}} (lagging if the net $Q$ is positive, leading if negative).",
+     "params": {
+      "P1": {
+       "min": 100000,
+       "max": 300000,
+       "step": 50000
+      },
+      "pf1": [
+       0.7,
+       0.75,
+       0.8
+      ],
+      "P2": {
+       "min": 50000,
+       "max": 150000,
+       "step": 25000
+      },
+      "pf2": [
+       0.8,
+       0.85,
+       0.9
+      ]
+     },
+     "tolerance": 0.01
+    },
+    {
+     "id": "c6",
+     "type": "trueFalse",
+     "prompt": "A synchronous generator is connected to a large grid. Increasing its field current increases the real power it delivers.",
+     "answer": false,
+     "explanation": "On a stiff grid $V_a$ and $f$ are fixed. Real power is set by the prime-mover torque ($P \\propto E_r\\sin\\delta$ adjusts through $\\delta$). Raising the field current raises $E_r$ and makes the generator deliver more **reactive** power (more lagging output current); to deliver more real power you must open the turbine's steam or water valve."
+    }
+   ]
+  }
+ ]
+}

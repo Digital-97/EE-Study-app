@@ -1,0 +1,383 @@
+{
+  "id": "sd-excess",
+  "title": "Excess Carriers & Recombination",
+  "description": "What happens when light or a junction injects extra carriers: generation and recombination, lifetime, diffusion length, the continuity equation and quasi-Fermi levels.",
+  "reference": "Neamen ch. 6",
+  "study": [
+    {
+      "title": "Generation and recombination",
+      "body": "In equilibrium thermal generation and recombination of electron–hole pairs balance. Light (or injection from a junction) adds **excess** carriers $\\delta n = \\delta p$. In **low-level injection** ($\\delta p \\ll$ the majority concentration) the majority concentration hardly changes, and the excess decays at a rate set by the **minority-carrier lifetime**: $\\tau_{p0}$ for holes in n-type, $\\tau_{n0}$ for electrons in p-type. Lifetimes range from nanoseconds to milliseconds, depending on the density of recombination centres (traps).",
+      "formula": "R' = \\frac{\\delta p}{\\tau_{p0}} \\quad (\\text{n-type})"
+    },
+    {
+      "title": "Explore: light on, light off",
+      "body": "A uniform generation rate $G'$ (pairs per cm³ per s) switches on at $t = 0$ and off at 5 µs. The excess rises towards $G'\\tau$ with time constant $\\tau$, then decays as $e^{-t/\\tau}$. Here $G' = 10^{20}$ cm⁻³s$^{-1}$. Drag the lifetime: a longer lifetime gives a bigger steady-state excess, but a slower response.",
+      "formula": "\\delta p(t) = G'\\tau\\left(1 - e^{-t/\\tau}\\right)",
+      "plot": {
+        "x": {"min": 0, "max": 1e-5, "label": "t", "unit": "s"},
+        "y": {"min": 0, "max": 3.5, "label": "δp (1e14 cm⁻³)"},
+        "sliders": [{"name": "tau", "label": "$\\tau$", "min": 2e-7, "max": 3e-6, "step": 1e-7, "value": 1e-6, "unit": "s"}],
+        "curves": [{"f": "if(5e-6 - x, 1e6*tau*(1-exp(-x/tau)), 1e6*tau*(1-exp(-5e-6/tau))*exp(-(x-5e-6)/tau))", "label": "δp(t)", "labelAt": 0.25}],
+        "vlines": [{"x": 5e-6, "label": "light off"}],
+        "readouts": [{"label": "Steady state $G'\\tau$", "value": "1e20*tau", "unit": "cm⁻³"}]
+      }
+    },
+    {
+      "title": "Photoconductivity",
+      "body": "Excess pairs add to both carrier populations, so the conductivity rises by $\\Delta\\sigma$ (formula). A photoconductor measures light this way. After the light is switched off, $\\Delta\\sigma$ decays with the lifetime, which is how lifetimes are measured.\n**Example:** $\\delta p = 10^{14}$ cm⁻³ in Si: $\\Delta\\sigma$ = 1.602$\\times10^{-19}$ × 1830 × $10^{14}$ = 0.0293 S/cm.",
+      "formula": "\\Delta\\sigma = q(\\mu_n + \\mu_p)\\,\\delta p"
+    },
+    {
+      "title": "Continuity and diffusion length",
+      "body": "The continuity equation books every change of the excess: what flows in minus what flows out, plus generation, minus recombination. In n-type material at low injection the excess electrons and holes move together (**ambipolar transport**) with the **minority** parameters $D_p$, $\\mu_p$, $\\tau_{p0}$. In steady state, without field or generation, carriers injected at $x = 0$ decay exponentially: on average they diffuse a **diffusion length** $L_p = \\sqrt{D_p\\tau_{p0}}$ before recombining.",
+      "formula": "\\begin{aligned}& D_p\\frac{d^2\\delta p}{dx^2} - \\frac{\\delta p}{\\tau_{p0}} = 0\\\\ & \\delta p(x) = \\delta p(0)\\,e^{-x/L_p}\\end{aligned}"
+    },
+    {
+      "title": "Explore: diffusion length",
+      "body": "Excess holes injected at $x = 0$ into n-type silicon. Drag the lifetime and the diffusion coefficient: $L_p$ grows only as the square root of each. At $x = L_p$ the excess has dropped to $1/e$ = 37 %.",
+      "formula": "L_p = \\sqrt{D_p\\tau_{p0}}",
+      "plot": {
+        "x": {"min": 0, "max": 200, "label": "x (µm)"},
+        "y": {"min": 0, "max": 1.1, "label": "δp(x) / δp(0)"},
+        "sliders": [
+          {"name": "tau", "label": "$\\tau_{p0}$", "min": 1e-8, "max": 1e-5, "log": true, "value": 1e-6, "unit": "s"},
+          {"name": "D", "label": "$D_p$", "min": 2, "max": 40, "step": 0.5, "value": 12.5, "unit": "cm²/s"}
+        ],
+        "let": {"Lum": "sqrt(D*tau)*1e4"},
+        "curves": [{"f": "exp(-x/Lum)", "label": "δp/δp(0)", "labelAt": 0.6}],
+        "points": [{"x": "Lum", "y": 0.368, "label": "L_p"}],
+        "readouts": [{"label": "$L_p$", "value": "sqrt(D*tau)*1e-2", "unit": "m"}]
+      }
+    },
+    {
+      "title": "Quasi-Fermi levels",
+      "body": "Out of equilibrium $np \\ne n_i^2$ and a single Fermi level no longer describes both populations. Instead each gets its own **quasi-Fermi level**, defined so that the equilibrium-style formulas still give $n$ and $p$. In n-type material at low injection $E_{Fn}$ hardly moves (the majority concentration barely changes), while $E_{Fp}$ moves a lot. Their separation measures how far from equilibrium the material is. The graph shows n-type Si with $N_d = 10^{16}$ cm⁻³: drag $\\delta p$ past $10^{16}$ cm⁻³ (high injection) and $E_{Fn}$ starts to move too.",
+      "formula": "\\begin{aligned}& E_{Fn} - E_{Fi} = kT\\ln\\frac{n_0 + \\delta n}{n_i}\\\\ & E_{Fi} - E_{Fp} = kT\\ln\\frac{p_0 + \\delta p}{n_i}\\end{aligned}",
+      "plot": {
+        "x": {"min": 0, "max": 1, "label": "position"},
+        "y": {"min": -0.15, "max": 1.3, "label": "E - E_v (eV)"},
+        "sliders": [{"name": "dp", "label": "$\\delta p$", "min": 1e8, "max": 1e17, "log": true, "value": 1e12, "unit": "cm⁻³"}],
+        "let": {"EFn": "0.5472 + 0.0259*ln((1e16+dp)/1.5e10)", "EFp": "0.5472 - 0.0259*ln((2.25e4+dp)/1.5e10)"},
+        "curves": [
+          {"f": "1.12", "label": "E_c", "labelAt": 0.05},
+          {"f": "0", "label": "E_v", "color": "blue", "labelAt": 0.05},
+          {"f": "0.5472", "label": "E_{Fi}", "color": "grey", "dash": true, "labelAt": 0.92},
+          {"f": "EFn", "label": "E_{Fn}", "color": "red", "labelAt": 0.5},
+          {"f": "EFp", "label": "E_{Fp}", "color": "purple", "labelAt": 0.3}
+        ],
+        "readouts": [{"label": "$E_{Fn} - E_{Fp}$", "value": "EFn - EFp", "unit": "eV"}]
+      }
+    },
+    {
+      "title": "Worked example",
+      "body": "n-type Si, $N_d = 10^{16}$ cm⁻³, $\\tau_{p0}$ = 1 µs, $D_p$ = 10 cm²/s, uniform $G' = 10^{20}$ cm⁻³s$^{-1}$:\n- $\\delta p = G'\\tau_{p0} = 10^{14}$ cm⁻³ ≪ $10^{16}$: low injection\n- $L_p = \\sqrt{10 \\times 10^{-6}}$ = 3.16$\\times10^{-3}$ cm = 31.6 µm\n- $E_{Fn} - E_{Fi}$ = 0.0259 ln(1.01$\\times10^{16}$/1.5$\\times10^{10}$) = 0.348 eV, practically unchanged\n- $E_{Fi} - E_{Fp}$ = 0.0259 ln($10^{14}$/1.5$\\times10^{10}$) = 0.228 eV, whereas in the dark $E_F$ was 0.347 eV **above** $E_{Fi}$"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sd-excess-1",
+      "title": "Generation, recombination and lifetime",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Excess carriers",
+          "body": "Light with $E > E_g$ creates electron–hole **pairs**, so the excess concentrations are equal: $\\delta n = \\delta p$. They recombine at a rate proportional to the excess. Under constant uniform generation $G'$ a steady state is reached where generation equals recombination.",
+          "formula": "G' = \\frac{\\delta p}{\\tau_{p0}} \\;\\Rightarrow\\; \\delta p = G'\\tau_{p0}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"G": [1e19, 1e20, 1e21], "tau": [0.1, 1, 10]},
+          "prompt": "n-type silicon is illuminated uniformly, generating $G'$ = {{G}} pairs per cm³ per second. The hole lifetime is {{tau}} µs. Find the steady-state excess hole concentration.",
+          "answer": "G*tau*1e-6",
+          "unit": "cm⁻³",
+          "explanation": "In steady state generation balances recombination: $G' = \\delta p/\\tau_{p0}$, so $\\delta p = G'\\tau_{p0}$ = {{G}} × {{tau}}$\\times10^{-6}$ s = **{{G*tau*1e-6}} cm⁻³**."
+        },
+        {
+          "id": "q2", "type": "trueFalse",
+          "params": {"Nd": [1e15, 1e16], "dp": [1e12, 1e13, 1e16, 5e16]},
+          "prompt": "n-type silicon with $N_d$ = {{Nd}} cm⁻³ carries an excess of $\\delta p$ = {{dp}} cm⁻³. This is **low-level injection**.",
+          "answer": "Nd - 20*dp",
+          "explanation": "Low-level injection means the excess is much smaller than the majority concentration, so $n_0 + \\delta n \\approx n_0$. Here $\\delta p/N_d$ = {{dp/Nd}}. A ratio ≪ 1 means low injection; a ratio near or above 1 is high injection, where the lifetime and the simple formulas change."
+        },
+        {
+          "id": "i2", "type": "info", "title": "Decay after the light goes off",
+          "body": "Without generation the excess recombines exponentially. The lifetime that counts is that of the **minority** carriers: in n-type material each excess hole easily finds an electron, so the hole lifetime $\\tau_{p0}$ sets the pace for both.",
+          "formula": "\\delta p(t) = \\delta p(0)\\,e^{-t/\\tau_{p0}}"
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"d0": [1e14, 1e15], "tau": [1, 2, 5], "t": [0.5, 1, 2, 5]},
+          "prompt": "At $t$ = 0 the light is switched off; the excess hole concentration is then {{d0}} cm⁻³ and $\\tau_{p0}$ = {{tau}} µs. What is $\\delta p$ at $t$ = {{t}} µs?",
+          "answer": "d0*exp(-t/tau)",
+          "unit": "cm⁻³",
+          "explanation": "$\\delta p(t) = \\delta p(0)\\,e^{-t/\\tau_{p0}}$ = {{d0}} × $e^{-{{t}}/{{tau}}}$ = {{d0}} × {{exp(-t/tau)||3}} = **{{d0*exp(-t/tau)}} cm⁻³**."
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"tau": [0.1, 1, 10, 50], "f": [50, 10, 1]},
+          "prompt": "After the light goes off, how long does it take for the excess carriers to drop to {{f}} % of their initial value? The minority-carrier lifetime is {{tau}} µs.",
+          "answer": "tau*1e-6*ln(100/f)",
+          "unit": "s",
+          "absTolerance": 0,
+          "explanation": "$e^{-t/\\tau} = {{f}}\\,\\% = {{f/100}}$ gives $t = \\tau\\ln(100/{{f}})$ = {{tau}} µs × ln(100/{{f}}) = {{tau}} µs × {{ln(100/f)||3}} = **{{tau*1e-6*ln(100/f)|s}}**."
+        },
+        {
+          "id": "q5", "type": "multipleChoice",
+          "prompt": "In **p-type** silicon under low-level injection, which lifetime governs the decay of the excess carriers?",
+          "options": ["The electron (minority) lifetime $\\tau_{n0}$", "The hole (majority) lifetime", "The dielectric relaxation time", "The average of the two lifetimes"],
+          "answer": 0,
+          "explanation": "Recombination needs an electron and a hole. In p-type material holes are plentiful, so the rate is limited by how quickly each **minority** electron finds a recombination path: $R' = \\delta n/\\tau_{n0}$. The excess holes disappear at the same rate, since $\\delta n = \\delta p$."
+        },
+        {
+          "id": "q6", "type": "numeric",
+          "params": {"dp": [1e13, 1e14, 1e15]},
+          "prompt": "Light creates $\\delta n = \\delta p$ = {{dp}} cm⁻³ in silicon ($\\mu_n$ = 1350, $\\mu_p$ = 480 cm²/V·s). By how much does the conductivity increase?",
+          "answer": "1.602e-19*(1350+480)*dp",
+          "unit": "S/cm",
+          "explanation": "Both carrier types contribute: $\\Delta\\sigma = q(\\mu_n + \\mu_p)\\delta p$ = 1.602$\\times10^{-19}$ × 1830 × {{dp}} = **{{1.602e-19*(1350+480)*dp|S/cm}}**."
+        }
+      ]
+    },
+    {
+      "id": "sd-excess-2",
+      "title": "Diffusion length",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Diffuse and recombine",
+          "body": "Minority carriers injected at a surface (by light or a junction) diffuse into the material and recombine on the way. In steady state the excess falls off exponentially with a characteristic **diffusion length**: the average distance a carrier diffuses during its lifetime.",
+          "formula": "\\begin{aligned}& \\delta p(x) = \\delta p(0)\\,e^{-x/L_p}\\\\ & L_p = \\sqrt{D_p\\tau_{p0}}\\end{aligned}"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"D": [10, 12.4, 35], "tau": [0.1, 1, 10]},
+          "prompt": "Find the diffusion length for minority carriers with $D$ = {{D}} cm²/s and lifetime $\\tau$ = {{tau}} µs.",
+          "answer": "sqrt(D*tau*1e-6)*1e-2",
+          "unit": "m",
+          "absTolerance": 0,
+          "explanation": "$L = \\sqrt{D\\tau}$ = √({{D}} cm²/s × {{tau}}$\\times10^{-6}$ s) = {{sqrt(D*tau*1e-6)}} cm = **{{sqrt(D*tau*1e-6)*1e-2|m}}**. Tens of micrometres is typical for silicon."
+        },
+        {
+          "id": "q2", "type": "multipleChoice",
+          "params": {"D": [12.4, 35], "tau": [1, 5]},
+          "prompt": "Minority holes have $D_p$ = {{D}} cm²/s and $\\tau_{p0}$ = {{tau}} µs. What is their diffusion length?",
+          "options": ["{{sqrt(D*tau*1e-6)*1e-2|m}}", "{{D*tau*1e-6*1e-2|m}}", "{{sqrt(D*tau)*1e-2|m}}", "{{sqrt(D/(tau*1e-6))*1e-2|m}}"],
+          "answer": 0,
+          "explanation": "$L_p = \\sqrt{D_p\\tau_{p0}}$ with $\\tau$ in seconds: √({{D}} × {{tau}}$\\times10^{-6}$) = {{sqrt(D*tau*1e-6)}} cm = **{{sqrt(D*tau*1e-6)*1e-2|m}}**. Forgetting the square root, leaving $\\tau$ in µs or dividing instead of multiplying gives the other values."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"x": [10, 20, 50], "L": [20, 50, 100]},
+          "prompt": "Excess holes are injected at $x$ = 0 and the diffusion length is {{L}} µm. What fraction of the excess at $x$ = 0 is left at $x$ = {{x}} µm?",
+          "answer": "exp(-x/L)",
+          "unit": "",
+          "explanation": "$\\delta p(x)/\\delta p(0) = e^{-x/L_p}$ = $e^{-{{x}}/{{L}}}$ = **{{exp(-x/L)||3}}**. Only the ratio $x/L_p$ matters, so no unit conversion is needed."
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"Lt": [20, 40, 60, 100], "D": [10, 35]},
+          "prompt": "Minority carriers with $D$ = {{D}} cm²/s are injected at $x$ = 0. Choose the lifetime so that the diffusion length equals {{Lt}} µm (the dashed line).",
+          "plot": {
+            "x": {"min": 0, "max": 250, "label": "x (µm)"},
+            "y": {"min": 0, "max": 1.1, "label": "δp(x) / δp(0)"},
+            "sliders": [{"name": "tau", "label": "$\\tau$", "min": 1e-8, "max": 1e-4, "log": true, "value": 1e-8, "unit": "s"}],
+            "let": {"Lum": "sqrt(D*tau)*1e4"},
+            "curves": [{"f": "exp(-x/Lum)", "label": "δp/δp(0)", "labelAt": 0.5}],
+            "vlines": [{"x": "Lt", "label": "target L", "color": "orange"}],
+            "hlines": [{"y": 0.368, "label": "1/e"}],
+            "readouts": [{"label": "$L$", "value": "sqrt(D*tau)*1e-2", "unit": "m", "reveal": true}]
+          },
+          "answer": {"tau": "(Lt*1e-4)^2/D"},
+          "tolerance": 0.1,
+          "explanation": "$L = \\sqrt{D\\tau}$ gives $\\tau = L^2/D$ = ({{Lt}}$\\times10^{-4}$ cm)² / {{D}} cm²/s = **{{(Lt*1e-4)^2/D|s}}**. On the graph the curve must pass through $1/e$ = 0.37 at $x = L$."
+        },
+        {
+          "id": "i2", "type": "info", "title": "Ambipolar transport",
+          "body": "Excess electrons and holes attract each other electrostatically, so they cannot drift or diffuse apart: they move together. In extrinsic material at low injection this joint motion is governed by the **minority** carrier: in n-type silicon the excess (of both kinds) diffuses with $D_p$, drifts with $\\mu_p$ and recombines with $\\tau_{p0}$."
+        },
+        {
+          "id": "q4", "type": "orderSteps",
+          "prompt": "Put the steps for finding the steady-state excess-hole profile in order (light absorbed at the surface $x$ = 0 of a thick n-type sample)",
+          "items": [
+            "Write the continuity equation for the minority holes",
+            "Set $\\partial/\\partial t = 0$ and $G' = 0$ inside the sample; drop the field term",
+            "Solve $D_p\\,\\delta p'' = \\delta p/\\tau_{p0}$: $\\delta p = Ae^{-x/L_p} + Be^{x/L_p}$",
+            "Use $\\delta p \\to 0$ deep inside ($B = 0$) and the surface value ($A = \\delta p(0)$)"
+          ],
+          "explanation": "The continuity equation, simplified for steady state without generation or field, leaves a second-order equation whose solutions are growing and decaying exponentials. The growing one would blow up deep in the sample, so only $\\delta p(0)e^{-x/L_p}$ survives."
+        },
+        {
+          "id": "q5", "type": "trueFalse",
+          "prompt": "In n-type silicon under low injection, the excess **electrons** diffuse with the electron diffusion coefficient $D_n$, independently of the excess holes.",
+          "answer": false,
+          "explanation": "Any separation of the excess electrons and holes would create a field that pulls them back together. They move as one (ambipolar transport), and at low injection in n-type material the ambipolar coefficients reduce to the **minority** (hole) values $D_p$, $\\mu_p$ and $\\tau_{p0}$."
+        }
+      ]
+    },
+    {
+      "id": "sd-excess-3",
+      "title": "Quasi-Fermi levels and lifetimes",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16, 1e17], "dp": [1e12, 1e13, 1e14]},
+          "prompt": "n-type silicon ($N_d$ = {{Nd}} cm⁻³) is illuminated so that $\\delta n = \\delta p$ = {{dp}} cm⁻³ at 300 K.",
+          "ask": [
+            {"prompt": "Find $E_{Fn} - E_{Fi}$.", "answer": "0.0259*ln((Nd+dp)/1.5e10)", "unit": "eV",
+             "explanation": "$n = n_0 + \\delta n$ = {{Nd+dp}} cm⁻³. $E_{Fn} - E_{Fi} = kT\\ln(n/n_i)$ = 0.0259 × ln({{Nd+dp}} / 1.5$\\times10^{10}$) = **{{0.0259*ln((Nd+dp)/1.5e10)||3}} eV**. That is only {{25.9*ln(1 + dp/Nd)||2}} meV above the dark Fermi level $kT\\ln(N_d/n_i)$: the majority quasi-Fermi level hardly moves."},
+            {"prompt": "Find $E_{Fi} - E_{Fp}$.", "answer": "0.0259*ln((2.25e20/Nd+dp)/1.5e10)", "unit": "eV",
+             "explanation": "$p = p_0 + \\delta p$, with $p_0 = n_i^2/N_d$ = {{2.25e20/Nd}} cm⁻³ negligible, so $p \\approx$ {{dp}} cm⁻³. $E_{Fi} - E_{Fp} = kT\\ln(p/n_i)$ = 0.0259 × ln({{2.25e20/Nd+dp}} / 1.5$\\times10^{10}$) = **{{0.0259*ln((2.25e20/Nd+dp)/1.5e10)||3}} eV**: $E_{Fp}$ lies well below $E_{Fi}$, while in the dark $E_F$ was above it."}
+          ]
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"Nd": [1e15, 1e16], "dp": [1e12, 1e13, 1e14]},
+          "prompt": "n-type silicon with $N_d$ = {{Nd}} cm⁻³ carries $\\delta n = \\delta p$ = {{dp}} cm⁻³. Find the quasi-Fermi-level splitting $E_{Fn} - E_{Fp}$ at 300 K.",
+          "answer": "0.0259*ln((Nd+dp)*(2.25e20/Nd+dp)/2.25e20)",
+          "unit": "eV",
+          "explanation": "Multiplying the two definitions: $np = n_i^2\\,e^{(E_{Fn} - E_{Fp})/kT}$. So $E_{Fn} - E_{Fp} = kT\\ln(np/n_i^2)$ = 0.0259 × ln({{Nd+dp}} × {{2.25e20/Nd+dp}} / 2.25$\\times10^{20}$) = **{{0.0259*ln((Nd+dp)*(2.25e20/Nd+dp)/2.25e20)||3}} eV**. In equilibrium it is zero; in a solar cell this splitting sets the maximum open-circuit voltage."
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"X": [0.15, 0.2, 0.25, 0.3]},
+          "prompt": "n-type silicon ($N_d = 10^{16}$ cm⁻³) is illuminated. Drag the excess concentration until the hole quasi-Fermi level $E_{Fp}$ reaches the dashed line, {{X}} eV below $E_{Fi}$.",
+          "plot": {
+            "x": {"min": 0, "max": 1, "label": "position"},
+            "y": {"min": -0.15, "max": 1.3, "label": "E - E_v (eV)"},
+            "sliders": [{"name": "dp", "label": "$\\delta p$", "min": 1e8, "max": 1e16, "log": true, "value": 1e8, "unit": "cm⁻³"}],
+            "let": {"EFn": "0.5472 + 0.0259*ln((1e16+dp)/1.5e10)", "EFp": "0.5472 - 0.0259*ln((2.25e4+dp)/1.5e10)"},
+            "curves": [
+              {"f": "1.12", "label": "E_c", "labelAt": 0.05},
+              {"f": "0", "label": "E_v", "color": "blue", "labelAt": 0.05},
+              {"f": "0.5472", "label": "E_{Fi}", "color": "grey", "labelAt": 0.92},
+              {"f": "EFn", "label": "E_{Fn}", "color": "red", "labelAt": 0.5},
+              {"f": "EFp", "label": "E_{Fp}", "color": "purple", "labelAt": 0.5},
+              {"f": "0.5472 - X", "label": "target", "color": "orange", "dash": true, "labelAt": 0.2}
+            ],
+            "readouts": [{"label": "$E_{Fi} - E_{Fp}$", "value": "0.5472 - EFp", "unit": "eV", "reveal": true}]
+          },
+          "answer": {"dp": "1.5e10*exp(X/0.0259) - 2.25e4"},
+          "tolerance": 0.1,
+          "explanation": "$p = p_0 + \\delta p = n_i e^{(E_{Fi} - E_{Fp})/kT}$ = 1.5$\\times10^{10}$ × $e^{ {{X}}/0.0259 }$ = {{1.5e10*exp(X/0.0259)}} cm⁻³, and $p_0$ = 2.25$\\times10^{4}$ cm⁻³ is negligible: $\\delta p$ ≈ **{{1.5e10*exp(X/0.0259)}} cm⁻³**. Notice that $E_{Fn}$ did not visibly move: this is still low injection."
+        },
+        {
+          "id": "q3", "type": "multipleChoice",
+          "prompt": "Lightly illuminated **p-type** silicon (low injection). Which statement is right?",
+          "options": [
+            "$E_{Fp}$ stays practically at the dark Fermi level; $E_{Fn}$ moves up towards $E_c$",
+            "$E_{Fn}$ stays practically at the dark Fermi level; $E_{Fp}$ moves down",
+            "Both quasi-Fermi levels stay at the dark Fermi level",
+            "Both move by the same amount in opposite directions"
+          ],
+          "answer": 0,
+          "explanation": "The majority holes change by a negligible fraction, so $E_{Fp} \\approx E_F$. The minority electrons increase by many orders of magnitude, and since $E_{Fn} - E_{Fi} = kT\\ln(n/n_i)$, $E_{Fn}$ rises far above the dark $E_F$."
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"Nt": [1e12, 1e13, 1e14, 1e15], "sf": [1, 10]},
+          "derived": {"sig": "sf*1e-15"},
+          "prompt": "Recombination centres with density $N_t$ = {{Nt}} cm⁻³ and capture cross-section $\\sigma = 10^{ {{round(log10(sig))}} }$ cm² limit the minority lifetime as $\\tau = 1/(\\sigma v_{th}N_t)$. With a thermal velocity $v_{th} = 10^7$ cm/s, find $\\tau$.",
+          "answer": "1/(sig*1e7*Nt)",
+          "unit": "s",
+          "absTolerance": 0,
+          "explanation": "$\\tau = 1/(\\sigma v_{th}N_t)$ = 1 / ($10^{ {{round(log10(sig))}} }$ cm² × $10^7$ cm/s × {{Nt}} cm⁻³) = **{{1/(sig*1e7*Nt)|s}}**. Ten times more traps means ten times shorter lifetime: this is why device-grade silicon must be extremely clean (gold or iron atoms are efficient traps)."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"rho": [0.1, 1, 10, 100]},
+          "prompt": "A local excess of majority carriers (a net charge) in silicon with resistivity {{rho}} Ω·cm decays with the **dielectric relaxation time** $\\tau_d = \\varepsilon_{Si}/\\sigma$. Find $\\tau_d$. ($\\varepsilon_{Si} = 11.7\\times8.85\\times10^{-14}$ F/cm)",
+          "answer": "11.7*8.85e-14*rho",
+          "unit": "s",
+          "absTolerance": 0,
+          "explanation": "$\\sigma = 1/\\rho$, so $\\tau_d = \\varepsilon\\rho$ = 1.035$\\times10^{-12}$ F/cm × {{rho}} Ω·cm = **{{11.7*8.85e-14*rho*1e12||3}} ps**. Picoseconds: charge neutrality is restored almost instantly, which is why we may assume $\\delta n = \\delta p$ in the neutral regions."
+        },
+        {
+          "id": "q6", "type": "matchPairs",
+          "prompt": "Match each symbol with its meaning",
+          "pairs": [
+            ["$\\tau_{p0}$", "Minority hole lifetime"],
+            ["$L_p$", "Distance holes diffuse before recombining"],
+            ["$G'$", "Excess pair generation rate"],
+            ["$\\tau_d$", "Dielectric relaxation time"],
+            ["$E_{Fp}$", "Quasi-Fermi level for holes"]
+          ],
+          "explanation": "$\\tau_{p0}$ is the minority (hole) lifetime in n-type material and $L_p = \\sqrt{D_p\\tau_{p0}}$ its diffusion length. $G'$ counts excess pairs per cm³ per second. $\\tau_d = \\varepsilon/\\sigma$ sets how fast net charge disappears. $E_{Fp}$ gives the hole concentration out of equilibrium."
+        }
+      ]
+    },
+    {
+      "id": "sd-excess-4",
+      "title": "Excess-carrier problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"G": [1e20, 1e21], "tau": [1, 2, 5], "t": [0.5, 1, 2, 4]},
+          "prompt": "Uniform light ($G'$ = {{G}} cm⁻³s$^{-1}$) is switched on at $t$ = 0 in n-type silicon with $\\tau_{p0}$ = {{tau}} µs. Find $\\delta p$ at $t$ = {{t}} µs.",
+          "answer": "G*tau*1e-6*(1-exp(-t/tau))",
+          "unit": "cm⁻³",
+          "explanation": "The excess grows towards the steady state $G'\\tau_{p0}$ = {{G*tau*1e-6}} cm⁻³ with time constant $\\tau_{p0}$: $\\delta p = G'\\tau_{p0}(1 - e^{-t/\\tau_{p0}})$ = {{G*tau*1e-6}} × (1 − $e^{-{{t}}/{{tau}}}$) = **{{G*tau*1e-6*(1-exp(-t/tau))}} cm⁻³**."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"G": [1e20, 1e21], "tau": [1, 10], "V": [5, 10]},
+          "prompt": "A silicon photoconductor is 100 µm long with a cross-section of 10 µm × 1 µm and is biased at {{V}} V. Light generates $G'$ = {{G}} cm⁻³s$^{-1}$ uniformly; $\\tau$ = {{tau}} µs, $\\mu_n$ = 1350, $\\mu_p$ = 480 cm²/V·s. By how much does the current increase?",
+          "answer": "1.602e-19*1830*G*tau*1e-6*1e-7*V/1e-2",
+          "unit": "A",
+          "explanation": "$\\delta p = G'\\tau$ = {{G*tau*1e-6}} cm⁻³, so $\\Delta\\sigma = q(\\mu_n + \\mu_p)\\delta p$ = {{1.602e-19*1830*G*tau*1e-6}} S/cm. The field is $V/L$ = {{V}} V / 0.01 cm = {{V/1e-2}} V/cm and $A$ = $10^{-3}$ cm × $10^{-4}$ cm = $10^{-7}$ cm². $\\Delta I = \\Delta\\sigma\\,(V/L)\\,A$ = **{{1.602e-19*1830*G*tau*1e-6*1e-7*V/1e-2|A}}**."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"d0": [1e13, 1e14, 1e15], "D": [10, 12.4], "tau": [0.5, 1, 5]},
+          "prompt": "Excess holes are held at $\\delta p(0)$ = {{d0}} cm⁻³ at the surface $x = 0$ of a thick n-type sample and decay as $e^{-x/L_p}$ inside. With $D_p$ = {{D}} cm²/s and $\\tau_{p0}$ = {{tau}} µs, find the hole diffusion current density at $x = 0$.",
+          "answer": "1.602e-19*D*d0/sqrt(D*tau*1e-6)",
+          "unit": "A/cm²",
+          "explanation": "$L_p = \\sqrt{D_p\\tau_{p0}}$ = {{sqrt(D*tau*1e-6)}} cm. With $\\delta p = \\delta p(0)e^{-x/L_p}$ the slope at 0 is $-\\delta p(0)/L_p$, so $J_p = -qD_p\\,d\\delta p/dx$ = $qD_p\\delta p(0)/L_p$ = 1.602$\\times10^{-19}$ × {{D}} × {{d0}} / {{sqrt(D*tau*1e-6)}} = **{{1.602e-19*D*d0/sqrt(D*tau*1e-6)|A/cm²}}**, flowing into the sample (+x). This is exactly how the diode current is calculated in the next units."
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"tau": [0.5, 1, 2, 5], "dt": [1, 2, 5]},
+          "derived": {"r": "exp(-dt/tau)"},
+          "prompt": "In a photoconductive-decay measurement the excess concentration falls from $1.00\\times10^{14}$ cm⁻³ to {{1e14*r}} cm⁻³ in {{dt}} µs. Find the minority-carrier lifetime.",
+          "answer": "dt*1e-6/ln(1/r)",
+          "unit": "s",
+          "absTolerance": 0,
+          "explanation": "$\\delta p_2/\\delta p_1 = e^{-\\Delta t/\\tau}$, so $\\tau = \\Delta t/\\ln(\\delta p_1/\\delta p_2)$ = {{dt}} µs / ln({{1/r||3}}) = **{{dt*1e-6/ln(1/r)|s}}**. Measuring a ratio removes the need to know $G'$ or the mobilities."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"D": [12.4, 35], "tau": [0.1, 1, 10], "f": [10, 1]},
+          "prompt": "Minority carriers ($D$ = {{D}} cm²/s, $\\tau$ = {{tau}} µs) are injected at $x$ = 0 of a thick sample. At what depth has the excess fallen to {{f}} % of its surface value?",
+          "answer": "sqrt(D*tau*1e-6)*ln(100/f)*1e-2",
+          "unit": "m",
+          "absTolerance": 0,
+          "explanation": "$L = \\sqrt{D\\tau}$ = {{sqrt(D*tau*1e-6)}} cm. From $e^{-x/L} = f$: $x = L\\ln(1/f)$ = {{sqrt(D*tau*1e-6)}} cm × {{ln(100/f)||3}} = **{{sqrt(D*tau*1e-6)*ln(100/f)*1e-2|m}}**."
+        },
+        {
+          "id": "q6", "type": "multipleChoice",
+          "params": {"k": [2, 4, 9]},
+          "prompt": "Contamination increases the recombination-centre density in a silicon wafer by a factor {{k}}. What happens to the minority-carrier diffusion length?",
+          "options": ["It shrinks by a factor {{sqrt(k)||3}}", "It shrinks by a factor {{k}}", "It grows by a factor {{sqrt(k)||3}}", "It stays the same"],
+          "answer": 0,
+          "explanation": "$\\tau \\propto 1/N_t$ drops by {{k}}, and $L = \\sqrt{D\\tau}$ drops by $\\sqrt{ {{k}} }$ = **{{sqrt(k)||3}}**. $D$ does not depend on the trap density."
+        },
+        {
+          "id": "q7", "type": "numeric",
+          "params": {"Na": [1e15, 1e16], "G": [1e19, 1e20, 1e21], "tau": [1, 10]},
+          "derived": {"dn": "G*tau*1e-6"},
+          "prompt": "A p-type solar-cell wafer ($N_a$ = {{Na}} cm⁻³) is illuminated uniformly with $G'$ = {{G}} cm⁻³s$^{-1}$; the electron lifetime is {{tau}} µs. Find the quasi-Fermi-level splitting $E_{Fn} - E_{Fp}$ at 300 K.",
+          "answer": "0.0259*ln((2.25e20/Na + dn)*(Na + dn)/2.25e20)",
+          "unit": "eV",
+          "explanation": "$\\delta n = \\delta p = G'\\tau_{n0}$ = {{dn}} cm⁻³. Then $n$ = {{2.25e20/Na + dn}} cm⁻³ and $p$ = {{Na + dn}} cm⁻³. $E_{Fn} - E_{Fp} = kT\\ln(np/n_i^2)$ = **{{0.0259*ln((2.25e20/Na + dn)*(Na + dn)/2.25e20)||3}} eV**. More light or a longer lifetime gives a larger splitting, and so a higher open-circuit voltage."
+        },
+        {
+          "id": "q8", "type": "trueFalse",
+          "prompt": "In n-type silicon, a local surplus of electrons (a net negative charge) disappears within picoseconds, even though excess electron–hole **pairs** survive for the lifetime $\\tau_{p0}$ (microseconds).",
+          "answer": true,
+          "explanation": "A net charge is removed by majority-carrier drift within the dielectric relaxation time $\\varepsilon/\\sigma$, picoseconds in doped Si. Neutral excess pairs carry no net charge and can only disappear by recombination, which takes the minority lifetime."
+        }
+      ]
+    }
+  ]
+}

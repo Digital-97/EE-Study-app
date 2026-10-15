@@ -1,0 +1,3601 @@
+{
+ "id": "cl-ladders",
+ "title": "Ladder Networks",
+ "description": "Reduce ladders from the far end, then walk the loaded dividers back to the output.",
+ "reference": "Hambley §2.2–2.3",
+ "study": [
+  {
+   "title": "Anatomy of a ladder",
+   "body": "A ladder alternates **series** resistors along the top rail with **shunt** resistors (rungs) to the bottom rail. To find $R_{in}$, start at the end **farthest** from the source: add series, combine with the rung in parallel, and repeat toward the source.",
+   "formula": "R_{in} = R_1 + R_2 \\parallel \\big(R_3 + R_4\\big)",
+   "circuit": {
+    "elements": [
+     {
+      "type": "vsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_s"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       2,
+       0
+      ],
+      "label": "R_1"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       2,
+       2
+      ],
+      "label": "R_2"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       4,
+       0
+      ],
+      "label": "R_3"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4,
+       0
+      ],
+      "to": [
+       4,
+       2
+      ],
+      "label": "R_4"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        0
+       ],
+       [
+        5.5,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "terminal",
+      "at": [
+       5.5,
+       0
+      ],
+      "label": "v_{out}"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        4,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       0
+      ],
+      "label": "v_1"
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       2
+      ]
+     },
+     {
+      "type": "ground",
+      "at": [
+       0,
+       2
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Walking back to the output",
+   "body": "Once $R_{in}$ gives you the first node voltage, every section is a voltage divider between its series resistor and **everything to the right of it** (already reduced). Multiply the divider ratios section by section to reach $v_{out}$.",
+   "formula": "v_{k+1} = v_k\\,\\frac{R_{right}}{R_{series} + R_{right}}"
+  },
+  {
+   "title": "Shortcut: the unit-output trick",
+   "body": "Circuits made of resistors and sources are linear: doubling the source doubles every voltage and current. So assume $v_{out}$ = 1 V, work **backward** to the source with Ohm's law and KCL, and find the source voltage this needs. Then scale every result by the real $V_s$ divided by that value.",
+   "formula": "v_{out} = V_s\\cdot\\frac{1\\ \\text{V}}{V_{s,\\text{needed}}}"
+  },
+  {
+   "title": "Common mistakes",
+   "body": "- Multiplying 'unloaded' divider ratios: each divider is loaded by the rest of the ladder, so use $R_{right}$, not the single rung.\n- Treating the last series resistor as carrying current when the output is open: with nothing connected, the last series resistor and the last rung carry the **same** current.\n- Starting the reduction at the source end instead of the far end."
+  }
+ ],
+ "lessons": [
+  {
+   "title": "Two-rung ladders",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "l1",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Two-rung ladder; all values are shown in the schematic.",
+     "ask": [
+      {
+       "prompt": "Find the input resistance seen by the source.",
+       "answer": "Vs/I_Vs",
+       "unit": "Ω",
+       "explanation": "From the far end: $R_3+R_4$ = {{R3+R4|Ω}}, parallel with $R_2$: {{par(R2,R3+R4)|Ω}}, plus $R_1$: $R_{in}$ = **{{Vs/I_Vs|Ω}}**."
+      },
+      {
+       "prompt": "Find the node voltage $v_1$.",
+       "answer": "v_v_1",
+       "unit": "V",
+       "explanation": "$R_{right} = R_2\\parallel(R_3+R_4)$ = {{par(R2,R3+R4)|Ω}}. Divider: $v_1 = V_s\\frac{R_{right}}{R_1+R_{right}}$ = **{{v_v_1|V}}**."
+      },
+      {
+       "prompt": "Find the output voltage $v_{out}$.",
+       "answer": "v_v_out",
+       "unit": "V",
+       "explanation": "First $v_1 = V_s\\frac{R_2\\parallel(R_3+R_4)}{R_1+R_2\\parallel(R_3+R_4)}$ = {{v_v_1|V}}. Then $v_{out} = v_1\\frac{R_4}{R_3+R_4}$ = **{{v_v_out|V}}**."
+      },
+      {
+       "prompt": "Find the current in the first rung, $R_2$.",
+       "answer": "abs(I_R2)",
+       "unit": "A",
+       "explanation": "$v_1 = V_s\\frac{R_2\\parallel(R_3+R_4)}{R_1+R_2\\parallel(R_3+R_4)}$ = {{v_v_1|V}}, so $I_{R_2} = v_1/R_2$ = **{{abs(I_R2)|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "l2",
+     "type": "trueFalse",
+     "prompt": "For this ladder, $v_{out} = V_s\\frac{R_4}{R_1+R_2+R_3+R_4}$.",
+     "answer": false,
+     "explanation": "That would be true only if all four resistors were in series. $R_2$ is a rung that takes current away, so first find $v_1 = V_s\\frac{R_2\\parallel(R_3+R_4)}{R_1 + R_2\\parallel(R_3+R_4)}$ and then $v_{out} = v_1\\frac{R_4}{R_3+R_4}$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "l3",
+     "type": "numeric",
+     "params": {
+      "Is": [
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "A current source drives a two-rung ladder.",
+     "ask": [
+      {
+       "prompt": "Find the voltage across the current source.",
+       "answer": "V_Is",
+       "unit": "V",
+       "explanation": "The source sees $R_1\\parallel(R_2+R_3)$ = {{R1|Ω}} ∥ {{R2+R3|Ω}} = {{par(R1,R2+R3)|Ω}}, so $V = I_sR$ = **{{V_Is|V}}**."
+      },
+      {
+       "prompt": "Find the output voltage $v_{out}$.",
+       "answer": "v_v_out",
+       "unit": "V",
+       "explanation": "The current divider sends $I_s\\frac{R_1}{R_1+R_2+R_3}$ = {{abs(I_R3)|A}} through $R_2$ and $R_3$, so $v_{out} = I\\,R_3$ = **{{v_v_out|V}}**."
+      },
+      {
+       "prompt": "Find the current in the rung $R_1$.",
+       "answer": "abs(I_R1)",
+       "unit": "A",
+       "explanation": "Current divider: $I_{R_1} = I_s\\frac{R_2+R_3}{R_1+R_2+R_3}$ = {{Is|A}} · {{R2+R3|Ω}} / {{R1+R2+R3|Ω}} = **{{abs(I_R1)|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "l4",
+     "type": "multipleChoice",
+     "prompt": "Where do you start when reducing a ladder to its input resistance?",
+     "options": [
+      "At the end farthest from the source",
+      "At the source",
+      "At the middle rung",
+      "At the largest resistor"
+     ],
+     "answer": 0,
+     "explanation": "Only at the far end do you know what each resistor is connected to: the last series resistor and the last rung are simply in series. Combine, put the result in parallel with the next rung, add the next series resistor, and so on toward the source."
+    },
+    {
+     "id": "t1",
+     "type": "tapCircuit",
+     "prompt": "You reduce this ladder to find $R_{eq}$ seen by the source. Tap the **two** resistors you combine first.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "R1",
+      "R2",
+      "R3",
+      "R4",
+      "R5",
+      "R6"
+     ],
+     "answer": [
+      "R5",
+      "R6"
+     ],
+     "explanation": "Start at the end **farthest from the source**. $R_5$ and $R_6$ carry the same current (nothing else is connected at their joint), so they are in series: $R_5 + R_6$. Then work back towards the source:\n$$R_{eq} = R_1 + R_2 \\parallel \\big(R_3 + R_4 \\parallel (R_5 + R_6)\\big)$$\n$R_1$ is in series with the source, but you can only add it at the very end, once everything behind it is one resistor."
+    },
+    {
+     "id": "l5",
+     "type": "numeric",
+     "params": {
+      "Vt": [
+       1,
+       1.5,
+       2,
+       2.5,
+       3,
+       4,
+       5
+      ],
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "24 - Vt/v_v_out",
+     "prompt": "The ladder's source voltage $V_s$ is unknown.",
+     "ask": [
+      {
+       "prompt": "What source voltage $V_s$ gives $v_{out}$ = {{Vt|V}}?",
+       "answer": "Vt/v_v_out",
+       "unit": "V",
+       "explanation": "Work backward from the output: $I_4 = v_{out}/R_4$, $v_1 = v_{out} + I_4R_3$ = {{Vt*(R3+R4)/R4|V}}, $I_1 = I_4 + v_1/R_2$ = {{Vt/R4 + Vt*(R3+R4)/R4/R2|A}}, and $V_s = v_1 + I_1R_1$ = **{{Vt/v_v_out|V}}**."
+      },
+      {
+       "prompt": "Find the ratio $v_{out}/V_s$.",
+       "answer": "v_v_out",
+       "unit": "",
+       "explanation": "$\\frac{v_{out}}{V_s} = \\frac{R_2\\parallel(R_3+R_4)}{R_1+R_2\\parallel(R_3+R_4)}\\cdot\\frac{R_4}{R_3+R_4}$ = {{par(R2,R3+R4)/(R1+par(R2,R3+R4))||3}} · {{R4/(R3+R4)||3}} = **{{v_v_out||3}}**. It does not depend on $V_s$."
+      }
+     ],
+     "hint": "Linearity: the ratio $v_{out}/V_s$ is fixed by the resistors.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": ""
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "l6",
+     "type": "trueFalse",
+     "prompt": "With nothing connected to the output, $R_3$ and $R_4$ carry the same current.",
+     "answer": true,
+     "explanation": "The output terminal is open, so the node between $R_3$ and $R_4$ has only those two elements: KCL says they carry the same current, and $R_3$, $R_4$ are in series.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         6,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-ladders-1"
+  },
+  {
+   "title": "Three rungs and R–2R",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "m1",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R6": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Three-rung ladder; all values are shown in the schematic.",
+     "ask": [
+      {
+       "prompt": "Find the input resistance seen by the source.",
+       "answer": "Vs/I_Vs",
+       "unit": "Ω",
+       "explanation": "From the far end: $R_5+R_6$ = {{(R5+R6)|Ω}}; ∥ $R_4$: {{par(R4,(R5+R6))|Ω}}; + $R_3$: {{(R3+par(R4,(R5+R6)))|Ω}}; ∥ $R_2$: {{par(R2,(R3+par(R4,(R5+R6))))|Ω}}; + $R_1$: $R_{in}$ = **{{Vs/I_Vs|Ω}}**."
+      },
+      {
+       "prompt": "Find the middle node voltage $v_2$.",
+       "answer": "v_v_2",
+       "unit": "V",
+       "explanation": "$v_1 = V_s\\frac{R_{right,1}}{R_1 + R_{right,1}}$ with $R_{right,1}$ = {{par(R2,(R3+par(R4,(R5+R6))))|Ω}}: $v_1$ = {{v_v_1|V}}. Next section: $v_2 = v_1\\frac{R_4\\parallel(R_5+R_6)}{R_3 + R_4\\parallel(R_5+R_6)}$ = {{v_v_1|V}} · {{par(R4,(R5+R6))|Ω}} / {{(R3+par(R4,(R5+R6)))|Ω}} = **{{v_v_2|V}}**."
+      },
+      {
+       "prompt": "Find the output voltage $v_{out}$.",
+       "answer": "v_v_out",
+       "unit": "V",
+       "explanation": "$v_1$ = {{v_v_1|V}} and $v_2$ = {{v_v_2|V}} (dividers with the loaded sections). Last section: $v_{out} = v_2\\frac{R_6}{R_5+R_6}$ = **{{v_v_out|V}}**."
+      },
+      {
+       "prompt": "Find the current in the rung $R_4$.",
+       "answer": "abs(I_R4)",
+       "unit": "A",
+       "explanation": "$v_1 = V_s\\frac{R_{right,1}}{R_1+R_{right,1}}$ = {{v_v_1|V}} ($R_{right,1}$ = {{par(R2,(R3+par(R4,(R5+R6))))|Ω}}), $v_2 = v_1\\frac{R_4\\parallel(R_5+R_6)}{R_3+R_4\\parallel(R_5+R_6)}$ = {{v_v_2|V}}, so $I_{R_4} = v_2/R_4$ = **{{abs(I_R4)|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "val": "R6",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          7.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7.5,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "m2",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "An R–2R ladder: series resistors $R$ = {{R|Ω}}, rungs and termination $2R$.",
+     "ask": [
+      {
+       "prompt": "Find $v_3$.",
+       "answer": "v_v_3",
+       "unit": "V",
+       "explanation": "Looking right from $v_3$: $2R\\parallel2R = R$. So from $v_2$ the series $R$ sees $R$: $v_3 = v_2/2$, and the same happens one section earlier: $v_2 = V_s/2$. Hence $v_3 = V_s/4$ = **{{v_v_3|V}}**."
+      },
+      {
+       "prompt": "Find the current supplied by the source.",
+       "answer": "I_Vs",
+       "unit": "A",
+       "explanation": "Every 'look to the right' gives $2R\\parallel 2R = R$, so the source sees $R_{in} = R$ = {{R|Ω}}: $I = V_s/R$ = **{{I_Vs|A}}**."
+      },
+      {
+       "prompt": "Find the current through the termination resistor $R_6$.",
+       "answer": "abs(I_R6)",
+       "unit": "A",
+       "explanation": "$v_3 = V_s/4$ = {{v_v_3|V}}, so $I_{R_6} = v_3/2R$ = {{v_v_3|V}} / {{2*R|Ω}} = **{{abs(I_R6)|A}}** (that is $V_s/8R$)."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "2*R",
+        "from": [
+         1.5,
+         0
+        ],
+        "to": [
+         1.5,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R",
+        "from": [
+         1.5,
+         0
+        ],
+        "to": [
+         3.3,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "2*R",
+        "from": [
+         3.3,
+         0
+        ],
+        "to": [
+         3.3,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R",
+        "from": [
+         3.3,
+         0
+        ],
+        "to": [
+         5.1,
+         0
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "2*R",
+        "from": [
+         5.1,
+         0
+        ],
+        "to": [
+         5.1,
+         2
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5.1,
+          0
+         ],
+         [
+          6.9,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "val": "2*R",
+        "from": [
+         6.9,
+         0
+        ],
+        "to": [
+         6.9,
+         2
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6.9,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         1.5,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3.3,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         5.1,
+         0
+        ],
+        "label": "v_3"
+       },
+       {
+        "type": "node",
+        "at": [
+         1.5,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3.3,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         5.1,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "m3",
+     "type": "multipleChoice",
+     "prompt": "In a correctly terminated R–2R ladder, each node voltage compared with the node before it is…",
+     "options": [
+      "half as large",
+      "the same",
+      "a quarter as large",
+      "twice as large"
+     ],
+     "answer": 0,
+     "explanation": "The resistance looking right from every node is $2R\\parallel2R = R$, so each series $R$ forms a 1:1 divider with that $R$: every step halves the voltage. This is how R–2R digital-to-analog converters produce binary weights."
+    },
+    {
+     "id": "m4",
+     "type": "numeric",
+     "params": {
+      "Is": [
+       0.001,
+       0.0015,
+       0.002,
+       0.0025,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "R1": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R2": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R3": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R4": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R5": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "A current source drives a three-rung ladder.",
+     "ask": [
+      {
+       "prompt": "Find the voltage across the current source.",
+       "answer": "V_Is",
+       "unit": "V",
+       "explanation": "From the far end: $R_4+R_5$ = {{R4+R5|Ω}}; ∥ $R_3$: {{par(R3,R4+R5)|Ω}}; + $R_2$: {{R2+par(R3,R4+R5)|Ω}}; ∥ $R_1$: {{par(R1,R2+par(R3,R4+R5))|Ω}}. $V = I_sR$ = **{{V_Is|V}}**."
+      },
+      {
+       "prompt": "Find $v_2$.",
+       "answer": "v_v_2",
+       "unit": "V",
+       "explanation": "$V$ = {{V_Is|V}} across the source. Divider into the next section: $v_2 = V\\frac{R_3\\parallel(R_4+R_5)}{R_2+R_3\\parallel(R_4+R_5)}$ = **{{v_v_2|V}}**."
+      },
+      {
+       "prompt": "Find the output voltage $v_{out}$.",
+       "answer": "v_v_out",
+       "unit": "V",
+       "explanation": "$v_2$ = {{v_v_2|V}} (see the divider from the source node). Then $v_{out} = v_2\\frac{R_5}{R_4+R_5}$ = **{{v_v_out|V}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is",
+        "val": "Is",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          7.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7.5,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "m5",
+     "type": "trueFalse",
+     "prompt": "If $V_s$ is doubled, every current in a resistor ladder doubles.",
+     "answer": true,
+     "explanation": "A network of resistors and one independent source is linear: all voltages and currents are proportional to the source. That is exactly why the unit-output trick works."
+    },
+    {
+     "id": "m6",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "The switch S is closed and shorts the output of the ladder.",
+     "ask": [
+      {
+       "prompt": "Find the input resistance seen by the source.",
+       "answer": "Vs/I_Vs",
+       "unit": "Ω",
+       "explanation": "The closed switch shorts $R_4$, so the far end is just $R_3$: $R_{in} = R_1 + R_2\\parallel R_3$ = {{R1|Ω}} + {{par(R2,R3)|Ω}} = **{{Vs/I_Vs|Ω}}**."
+      },
+      {
+       "prompt": "Find the current through the switch.",
+       "answer": "abs(I_S1)",
+       "unit": "A",
+       "explanation": "$v_1 = V_s\\frac{R_2\\parallel R_3}{R_1+R_2\\parallel R_3}$ = {{v_v_1|V}}. All of the current in $R_3$ goes through the switch (none through the shorted $R_4$): $I = v_1/R_3$ = **{{abs(I_S1)|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "switch",
+        "name": "S1",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "closed": true,
+        "label": "S"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-ladders-2"
+  },
+  {
+   "title": "Ladder challenge",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "k1",
+     "type": "numeric",
+     "params": {
+      "Vt": [
+       1,
+       1.5,
+       2,
+       2.5,
+       3
+      ],
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R6": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "require": "24 - Vt/v_v_out",
+     "prompt": "The source voltage of this three-rung ladder is unknown.",
+     "ask": [
+      {
+       "prompt": "What source voltage $V_s$ gives $v_{out}$ = {{Vt|V}}?",
+       "answer": "Vt/v_v_out",
+       "unit": "V",
+       "explanation": "Backward: $I_6 = v_{out}/R_6$ = {{Vt/R6|A}}, $v_2 = v_{out} + I_6R_5$ = {{Vt*(R5+R6)/R6|V}}, $I_3 = I_6 + v_2/R_4$ = {{Vt/R6 + Vt*(R5+R6)/R6/R4|A}}, $v_1 = v_2 + I_3R_3$ = {{Vt*(R5+R6)/R6 + (Vt/R6 + Vt*(R5+R6)/R6/R4)*R3|V}}, then $V_s = v_1 + (I_3 + v_1/R_2)R_1$ = **{{Vt/v_v_out|V}}**."
+      },
+      {
+       "prompt": "Find the voltage ratio $v_{out}/V_s$.",
+       "answer": "v_v_out",
+       "unit": "",
+       "explanation": "Product of loaded dividers: $\\frac{v_1}{V_s}$ = {{par(R2,(R3+par(R4,(R5+R6))))/(R1+par(R2,(R3+par(R4,(R5+R6)))))||3}}, $\\frac{v_2}{v_1}$ = {{par(R4,(R5+R6))/(R3+par(R4,(R5+R6)))||3}}, $\\frac{v_{out}}{v_2}$ = {{R6/(R5+R6)||3}}. Ratio: **{{v_v_out||3}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": ""
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "val": "R6",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          7.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7.5,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "k2",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R6": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "The ladder's output is brought out to terminals a and b.",
+     "ask": [
+      {
+       "prompt": "Find the input resistance seen by the source (a–b open).",
+       "answer": "Vs/I_Vs",
+       "unit": "Ω",
+       "explanation": "From the far end: {{(R5+R6)|Ω}} → ∥ $R_4$ {{par(R4,(R5+R6))|Ω}} → + $R_3$ {{(R3+par(R4,(R5+R6)))|Ω}} → ∥ $R_2$ {{par(R2,(R3+par(R4,(R5+R6))))|Ω}} → + $R_1$: **{{Vs/I_Vs|Ω}}**."
+      },
+      {
+       "prompt": "With $V_s$ replaced by a short circuit, find the resistance looking into terminals a–b.",
+       "answer": "Req",
+       "unit": "Ω",
+       "explanation": "Now reduce from the source end: $R_1\\parallel R_2$ = {{par(R1,R2)|Ω}}; + $R_3$: {{R3+par(R1,R2)|Ω}}; ∥ $R_4$: {{par(R4,R3+par(R1,R2))|Ω}}; + $R_5$: {{R5+par(R4,R3+par(R1,R2))|Ω}}; ∥ $R_6$: **{{Req|Ω}}**."
+      },
+      {
+       "prompt": "Find the open-circuit voltage $v_{ab}$.",
+       "answer": "Voc",
+       "unit": "V",
+       "explanation": "Open output: the loaded dividers give $v_1$ = {{v_v_1|V}}, $v_2$ = {{v_v_2|V}}, and $v_{ab} = v_2\\frac{R_6}{R_5+R_6}$ = **{{Voc|V}}**."
+      }
+     ],
+     "hint": "The resistance seen depends on which end you look into.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "val": "R6",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          7.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7.5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7.5,
+         2
+        ],
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "k3",
+     "type": "orderSteps",
+     "prompt": "Order the steps of the unit-output (backward) method for a ladder.",
+     "items": [
+      "Assume $v_{out}$ = 1 V",
+      "Find the last rung's current and the next node voltage back",
+      "Repeat KCL and Ohm's law section by section to the source",
+      "Scale all results by $V_s$ divided by the source voltage you found"
+     ],
+     "explanation": "Working backward avoids nested parallel combinations: each step uses only Ohm's law and KCL. Because the circuit is linear, scaling the assumed solution by the ratio of the real to the 'needed' source voltage gives the true values."
+    },
+    {
+     "id": "k4",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R6": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "Three-rung ladder; all values are shown in the schematic.",
+     "ask": [
+      {
+       "prompt": "What percentage of the source power reaches the last rung $R_6$?",
+       "answer": "100*P_R6/P_Vs",
+       "unit": "%",
+       "explanation": "$v_{out}$ = {{v_v_out|V}}, so $P_{R_6} = v_{out}^2/R_6$ = {{P_R6|W}}. The source delivers $V_sI$ = {{P_Vs|W}} ($R_{in}$ = {{(R1+par(R2,(R3+par(R4,(R5+R6)))))|Ω}}). Ratio: **{{100*P_R6/P_Vs|%}}**."
+      },
+      {
+       "prompt": "Find the power absorbed by $R_1$.",
+       "answer": "P_R1",
+       "unit": "W",
+       "explanation": "$R_1$ carries the full input current $V_s/R_{in}$ = {{Vs|V}} / {{(R1+par(R2,(R3+par(R4,(R5+R6)))))|Ω}} = {{I_Vs|A}}, so $P = I^2R_1$ = **{{P_R1|W}}**."
+      },
+      {
+       "prompt": "Find the current through $R_3$.",
+       "answer": "abs(I_R3)",
+       "unit": "A",
+       "explanation": "$v_1 = V_s\\frac{R_{right,1}}{R_1+R_{right,1}}$ = {{v_v_1|V}} with $R_{right,1}$ = {{par(R2,(R3+par(R4,(R5+R6))))|Ω}}. $R_3$ feeds everything to its right ({{(R3+par(R4,(R5+R6)))|Ω}} including itself): $I = v_1/(R_3 + R_4\\parallel(R_5+R_6))$ = **{{abs(I_R3)|A}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "val": "R6",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          0
+         ],
+         [
+          7.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         7.5,
+         0
+        ],
+        "label": "v_{out}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "k5",
+     "type": "multipleChoice",
+     "prompt": "A fourth rung (series resistor + shunt resistor) is added at the output end of a ladder. The input resistance seen by the source…",
+     "options": [
+      "decreases",
+      "increases",
+      "stays the same",
+      "doubles"
+     ],
+     "answer": 0,
+     "explanation": "The new section is connected in parallel with the old last rung, which lowers that rung's effective resistance. That lower value propagates through every series/parallel step toward the source, so $R_{in}$ decreases (usually only slightly)."
+    },
+    {
+     "id": "k6",
+     "type": "numeric",
+     "params": {
+      "Vs": {
+       "min": 5,
+       "max": 24,
+       "step": 1
+      },
+      "R1": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R2": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R3": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R4": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ],
+      "R5": [
+       100,
+       120,
+       150,
+       180,
+       220,
+       270,
+       330,
+       390,
+       470,
+       560,
+       680,
+       820,
+       1000
+      ],
+      "R6": [
+       1000,
+       1200,
+       1500,
+       1800,
+       2200,
+       2700,
+       3300,
+       3900,
+       4700,
+       5600,
+       6800,
+       8200,
+       10000
+      ]
+     },
+     "prompt": "The closed switch S connects the middle node $v_2$ to the bottom rail.",
+     "ask": [
+      {
+       "prompt": "Find the current through the switch.",
+       "answer": "abs(I_S1)",
+       "unit": "A",
+       "explanation": "The switch holds $v_2$ = 0, so $R_4$, $R_5$, $R_6$ carry nothing. $R_{in} = R_1 + R_2\\parallel R_3$ = {{R1+par(R2,R3)|Ω}}, $v_1 = V_s\\frac{R_2\\parallel R_3}{R_{in}}$ = {{v_v_1|V}}, and the switch carries $v_1/R_3$ = **{{abs(I_S1)|A}}**."
+      },
+      {
+       "prompt": "Find the node voltage $v_1$.",
+       "answer": "v_v_1",
+       "unit": "V",
+       "explanation": "With $v_2$ shorted to the rail, $R_3$ goes straight to ground and the rest of the ladder is dead. $v_1 = V_s\\frac{R_2\\parallel R_3}{R_1+R_2\\parallel R_3}$ = **{{v_v_1|V}}**."
+      },
+      {
+       "prompt": "Find the power delivered by the source.",
+       "answer": "P_Vs",
+       "unit": "W",
+       "explanation": "$R_{in} = R_1 + R_2\\parallel R_3$ = {{R1+par(R2,R3)|Ω}} (everything beyond the switch is shorted out), so $P = V_s^2/R_{in}$ = **{{P_Vs|W}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "val": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "val": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "val": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "val": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "val": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "val": "R5",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "val": "R6",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          4,
+          -1.5
+         ],
+         [
+          8,
+          -1.5
+         ]
+        ]
+       },
+       {
+        "type": "switch",
+        "name": "S1",
+        "from": [
+         8,
+         -1.5
+        ],
+        "to": [
+         8,
+         2
+        ],
+        "closed": true,
+        "label": "S"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          8,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "id": "cl-ladders-3"
+  }
+ ]
+}

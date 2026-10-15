@@ -1,0 +1,831 @@
+{
+  "id": "mg-materials",
+  "title": "Magnetic Materials",
+  "description": "Saturation, hysteresis, eddy currents and the core losses of real iron.",
+  "reference": "Hambley §15.4",
+  "study": [
+    {
+      "title": "The B–H curve and saturation",
+      "body": "In iron, $B$ is **not** proportional to $H$. At first small magnetic regions (domains) line up easily with the applied field, so B rises steeply. Once nearly all domains are aligned the iron **saturates**: B hardly grows any more and the slope drops to $\\mu_0$, as in air. For typical core steels saturation sets in at about 1–2 T.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1500,
+          "label": "H",
+          "unit": "A/m"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.8,
+          "label": "B (T)"
+        },
+        "curves": [
+          {
+            "f": "1.5*((1-exp(-2*(x/200)))/(1+exp(-2*(x/200))))+4*pi*1e-7*x",
+            "label": "B–H curve",
+            "labelAt": 0.75
+          },
+          {
+            "f": "1.5*x/200",
+            "to": 220,
+            "color": "grey",
+            "dash": true,
+            "label": "initial slope μ",
+            "labelAt": 0.06
+          }
+        ],
+        "labels": [
+          {
+            "x": 650,
+            "y": 1.68,
+            "text": "saturation: slope only μ_0",
+            "color": "grey"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Relative permeability is not constant",
+      "body": "The ratio $\\mu_r = B/(\\mu_0H)$ depends on the operating point. It is large (thousands) below the knee of the curve and falls steadily in saturation. Designs therefore keep the peak flux density below the knee and use the linear model $B = \\mu H$ there. With a nonlinear core, read $H$ for the required $B$ from the curve and use $Ni = \\sum H_k\\ell_k$.",
+      "formula": "\\mu_r = \\frac{B}{\\mu_0H}"
+    },
+    {
+      "title": "Hysteresis loop",
+      "body": "Driven by AC, the iron traces a **hysteresis loop**: B lags behind H because the domains resist turning back.\n- **Residual flux density** $B_r$: what remains when H returns to 0.\n- **Coercive force** $H_c$: the reverse H needed to bring B to 0.\nTransformer and motor steels are 'soft': a **narrow** loop. Permanent magnets are 'hard': a **wide** loop with large $B_r$ and $H_c$.",
+      "plot": {
+        "x": {
+          "min": -1000,
+          "max": 1000,
+          "label": "H",
+          "unit": "A/m"
+        },
+        "y": {
+          "min": -1.875,
+          "max": 1.875,
+          "label": "B (T)"
+        },
+        "curves": [
+          {
+            "f": "1.5*((1-exp(-2*((x+100)/200)))/(1+exp(-2*((x+100)/200))))",
+            "color": "primary"
+          },
+          {
+            "f": "1.5*((1-exp(-2*((x-100)/200)))/(1+exp(-2*((x-100)/200))))",
+            "color": "primary"
+          }
+        ],
+        "points": [
+          {
+            "x": 0,
+            "y": 0.693,
+            "label": "B_r"
+          },
+          {
+            "x": -100,
+            "y": 0,
+            "label": "−H_c",
+            "guides": false
+          },
+          {
+            "x": 1000,
+            "y": 1.5,
+            "label": "saturation",
+            "guides": false
+          }
+        ]
+      }
+    },
+    {
+      "title": "Hysteresis loss",
+      "body": "The energy per unit volume delivered to the core is $\\int H\\,dB$. Around a closed loop part of it never comes back: the **area of the loop** is the energy (J/m³) turned into heat per cycle. Multiply by the core volume and the number of cycles per second. At a fixed peak flux density the hysteresis loss is therefore **proportional to frequency**.",
+      "formula": "P_h = W_{loop}\\cdot\\text{Vol}\\cdot f"
+    },
+    {
+      "title": "Eddy currents and laminations",
+      "body": "The changing flux also induces voltages inside the conducting iron itself, driving **eddy currents** that heat it ($v^2/R$). The induced voltage is proportional to $f$ (Faraday), so at a fixed peak flux density the eddy loss grows with $f^2$. Cores are built from thin **laminations** insulated from each other (loss roughly $\\propto$ thickness²), or from powdered iron or ferrite at high frequencies.",
+      "formula": "P_e \\propto f^2B_m^2t^2"
+    },
+    {
+      "title": "Core loss",
+      "body": "Core loss = hysteresis loss + eddy-current loss. At a fixed peak flux density it has the form $af + bf^2$. Measuring the total at two frequencies separates the two parts. In a transformer driven by a sinusoidal voltage, $V_{rms} = 4.44fN\\Phi_m$, so the peak flux and the core loss are set by the applied **voltage and frequency**, not by the load.",
+      "formula": "P_{core} = P_h + P_e = af + bf^2"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "mg-materials-1",
+      "title": "B–H curves and losses",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The B–H curve",
+          "body": "For iron, B is not simply $\\mu H$. B rises steeply at first, then bends over at the **knee** and **saturates** (here around 1.5 T): extra H barely adds any flux.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1500,
+              "label": "H",
+              "unit": "A/m"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.8,
+              "label": "B (T)"
+            },
+            "curves": [
+              {
+                "f": "1.5*((1-exp(-2*(x/200)))/(1+exp(-2*(x/200))))+4*pi*1e-7*x",
+                "label": "B–H curve",
+                "labelAt": 0.75
+              },
+              {
+                "f": "1.5*x/200",
+                "to": 220,
+                "color": "grey",
+                "dash": true,
+                "label": "initial slope μ",
+                "labelAt": 0.06
+              }
+            ],
+            "labels": [
+              {
+                "x": 650,
+                "y": 1.68,
+                "text": "saturation: slope only μ_0",
+                "color": "grey"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Deep in saturation, what is the slope $dB/dH$ of the B–H curve of iron?",
+          "options": [
+            "About $\\mu_0$, as for air",
+            "About $\\mu_r\\mu_0$ with $\\mu_r$ in the thousands",
+            "Exactly zero",
+            "Infinite"
+          ],
+          "answer": 0,
+          "explanation": "Once all domains are aligned, the iron cannot contribute any more magnetization, so extra H only adds $\\mu_0\\,\\Delta H$, exactly as in empty space. The slope is small but not zero."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "B": [
+              0.8,
+              1.0,
+              1.2,
+              1.4
+            ],
+            "H": [
+              100,
+              200,
+              400,
+              800
+            ]
+          },
+          "prompt": "At one operating point of a core material, $B$ = {{B}} T when $H$ = {{H}} A/m. Find the relative permeability $\\mu_r$ at this point.",
+          "answer": "B/(4*pi*1e-7*H)",
+          "unit": "",
+          "explanation": "$\\mu_r = \\frac{B}{\\mu_0H}$ = {{B}} / (4π×$10^{-7}$ × {{H}}) = {{B/(4*pi*1e-7*H)||3}}. Note this only holds at this point of the curve."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Hysteresis",
+          "body": "With an alternating H, the iron does not retrace its curve: B lags behind, tracing a loop. When H returns to zero, a **residual flux density** $B_r$ remains; a reverse field $H_c$ (the **coercive force**) is needed to bring B back to zero.",
+          "plot": {
+            "x": {
+              "min": -1000,
+              "max": 1000,
+              "label": "H",
+              "unit": "A/m"
+            },
+            "y": {
+              "min": -1.875,
+              "max": 1.875,
+              "label": "B (T)"
+            },
+            "curves": [
+              {
+                "f": "1.5*((1-exp(-2*((x+100)/200)))/(1+exp(-2*((x+100)/200))))",
+                "color": "primary"
+              },
+              {
+                "f": "1.5*((1-exp(-2*((x-100)/200)))/(1+exp(-2*((x-100)/200))))",
+                "color": "primary"
+              }
+            ],
+            "points": [
+              {
+                "x": 0,
+                "y": 0.693,
+                "label": "B_r"
+              },
+              {
+                "x": -100,
+                "y": 0,
+                "label": "−H_c",
+                "guides": false
+              },
+              {
+                "x": 1000,
+                "y": 1.5,
+                "label": "saturation",
+                "guides": false
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each term with its meaning",
+          "pairs": [
+            [
+              "Residual flux density",
+              "B that remains at H = 0"
+            ],
+            [
+              "Coercive force",
+              "Reverse H that brings B to 0"
+            ],
+            [
+              "Saturation",
+              "Nearly all domains aligned"
+            ],
+            [
+              "Loop area",
+              "Energy lost per cycle per m³"
+            ]
+          ],
+          "explanation": "$B_r$ and $H_c$ are where the loop crosses the B and H axes. Saturation is the flat top of the curve. The area enclosed by the loop, $\\oint H\\,dB$, is the energy per unit volume converted to heat in every cycle."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Which hysteresis loop (same axes) belongs to the best material for a **permanent magnet**?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": -1200,
+                "max": 1200,
+                "label": ""
+              },
+              "y": {
+                "min": -1.25,
+                "max": 1.25,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1.0*((1-exp(-2*((x+500)/200)))/(1+exp(-2*((x+500)/200))))",
+                  "color": "red"
+                },
+                {
+                  "f": "1.0*((1-exp(-2*((x-500)/200)))/(1+exp(-2*((x-500)/200))))",
+                  "color": "red"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -1200,
+                "max": 1200,
+                "label": ""
+              },
+              "y": {
+                "min": -1.25,
+                "max": 1.25,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1.0*((1-exp(-2*((x+40)/200)))/(1+exp(-2*((x+40)/200))))",
+                  "color": "red"
+                },
+                {
+                  "f": "1.0*((1-exp(-2*((x-40)/200)))/(1+exp(-2*((x-40)/200))))",
+                  "color": "red"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": -1200,
+                "max": 1200,
+                "label": ""
+              },
+              "y": {
+                "min": -1.25,
+                "max": 1.25,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "x/1300",
+                  "color": "red"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "A permanent magnet must keep its magnetization (large residual flux density $B_r$) and resist being demagnetized (large coercive force $H_c$): a **wide** loop. The narrow loop suits transformer and motor cores, where loop area means wasted energy. The straight line has no hysteresis and no residual flux, so it cannot stay magnetized."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Core losses",
+          "body": "An iron core in an AC field heats up for two reasons:\n- **Hysteresis loss**: the loop area is lost every cycle, so $P_h \\propto f$.\n- **Eddy-current loss**: induced currents circulate inside the iron, $P_e \\propto f^2$ (at a fixed peak flux density).\nThin insulated **laminations** break up the eddy-current paths."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Building a transformer core from thin insulated laminations mainly reduces its hysteresis loss.",
+          "answer": false,
+          "explanation": "False. Laminations raise the resistance of the eddy-current paths, so they reduce the **eddy-current** loss. Hysteresis loss depends on the material's loop (choose a 'soft' steel with a narrow loop), not on how the core is sliced."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A core is operated at twice the frequency with the same peak flux density. By what factor does its **eddy-current** loss change?",
+          "options": [
+            "×4",
+            "×2",
+            "×1 (no change)",
+            "×0.5"
+          ],
+          "answer": 0,
+          "shuffle": false,
+          "explanation": "The induced voltages inside the iron are proportional to $d\\phi/dt$, so they double; power $v^2/R$ then rises by $2^2 = 4$. (The hysteresis loss only doubles: the same loop is traced twice as often.)"
+        }
+      ]
+    },
+    {
+      "id": "mg-materials-2",
+      "title": "Working with real cores",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "Bs": [
+              1.4,
+              1.6
+            ],
+            "H0": [
+              150,
+              200,
+              250
+            ],
+            "H1": [
+              200,
+              300,
+              400
+            ]
+          },
+          "derived": {
+            "B1": "Bs*((1-exp(-2*(H1/H0)))/(1+exp(-2*(H1/H0))))"
+          },
+          "prompt": "The graph shows the B–H curve of a core steel. Read $B$ at the marked point ($H$ = {{H1}} A/m) and find the relative permeability there.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1000,
+              "label": "H",
+              "unit": "A/m"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.8,
+              "label": "B (T)",
+              "ticks": [
+                0,
+                0.2,
+                0.4,
+                0.6,
+                0.8,
+                1.0,
+                1.2,
+                1.4,
+                1.6,
+                1.8
+              ]
+            },
+            "curves": [
+              {
+                "f": "Bs*((1-exp(-2*(x/H0)))/(1+exp(-2*(x/H0))))",
+                "label": "B(H)",
+                "labelAt": 0.8
+              }
+            ],
+            "points": [
+              {
+                "x": "H1",
+                "y": "B1"
+              }
+            ]
+          },
+          "answer": "B1/(4*pi*1e-7*H1)",
+          "unit": "",
+          "tolerance": 0.08,
+          "explanation": "From the graph, $B$ ≈ {{B1||3}} T at $H$ = {{H1}} A/m.\n$\\mu_r = \\frac{B}{\\mu_0H}$ = {{B1}} / (4π×$10^{-7}$ × {{H1}}) ≈ {{B1/(4*pi*1e-7*H1)||3}}. Further up the curve the same calculation gives a smaller $\\mu_r$."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "W": [
+              50,
+              100,
+              150,
+              250
+            ],
+            "Vcm": [
+              500,
+              1000,
+              2000,
+              5000
+            ],
+            "f": [
+              50,
+              60,
+              400
+            ]
+          },
+          "prompt": "The hysteresis loop of a core material encloses an area of {{W}} J/m³. The core volume is {{Vcm}} cm³ and it is driven at {{f}} Hz (with this loop each cycle). Find the hysteresis power loss.",
+          "answer": "W*Vcm*1e-6*f",
+          "unit": "W",
+          "explanation": "Volume: {{Vcm}} cm³ = {{Vcm*1e-6}} m³ (1 cm³ = $10^{-6}$ m³). Energy per cycle: {{W}} × {{Vcm*1e-6}} = {{W*Vcm*1e-6|J}}.\n$P_h$ = energy per cycle × $f$ = {{W*Vcm*1e-6}} × {{f}} = {{W*Vcm*1e-6*f|W}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Ph": [
+              10,
+              20,
+              40
+            ],
+            "Pe": [
+              5,
+              10,
+              15
+            ],
+            "f1": [
+              50
+            ],
+            "f2": [
+              60,
+              100,
+              150
+            ]
+          },
+          "prompt": "At {{f1}} Hz a core has a hysteresis loss of {{Ph}} W and an eddy-current loss of {{Pe}} W. Find the total core loss at {{f2}} Hz with the same peak flux density.",
+          "answer": "Ph*f2/f1 + Pe*(f2/f1)^2",
+          "unit": "W",
+          "explanation": "Frequency ratio {{f2/f1}}. Hysteresis scales with $f$: {{Ph}} × {{f2/f1}} = {{Ph*f2/f1|W}}. Eddy currents scale with $f^2$: {{Pe}} × {{(f2/f1)^2}} = {{Pe*(f2/f1)^2|W}}.\nTotal: {{Ph*f2/f1 + Pe*(f2/f1)^2|W}}."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Pe": [
+              20,
+              30,
+              50,
+              80
+            ],
+            "t1": [
+              0.5,
+              0.65
+            ],
+            "t2": [
+              0.23,
+              0.27,
+              0.35
+            ]
+          },
+          "prompt": "A core built from {{t1}} mm laminations has an eddy-current loss of {{Pe}} W. Estimate the eddy-current loss if the same core is built from {{t2}} mm laminations (same steel, frequency and flux density; loss ∝ thickness²).",
+          "answer": "Pe*(t2/t1)^2",
+          "unit": "W",
+          "explanation": "$P_e \\propto t^2$: $P_e$ = {{Pe}} W × ({{t2}}/{{t1}})² = {{Pe}} × {{(t2/t1)^2}} = {{Pe*(t2/t1)^2|W}}. Thinner sheets give each eddy loop a smaller induced voltage and a longer, thinner path."
+        },
+        {
+          "id": "g2",
+          "type": "numeric",
+          "params": {
+            "Bs": [
+              1.5,
+              1.6
+            ],
+            "H0": [
+              150,
+              200
+            ],
+            "Bt": [
+              1.0,
+              1.1,
+              1.2,
+              1.3
+            ],
+            "N": [
+              100,
+              200,
+              300
+            ],
+            "l": [
+              0.3,
+              0.4,
+              0.5
+            ]
+          },
+          "derived": {
+            "Ht": "H0*(0.5*ln((1+(Bt/Bs))/(1-(Bt/Bs))))"
+          },
+          "prompt": "A toroidal core of this steel has a mean path length of {{l*100}} cm and {{N}} turns. Use the B–H curve to find the current needed for a flux density of {{Bt}} T.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 500,
+              "label": "H",
+              "unit": "A/m",
+              "ticks": [
+                0,
+                100,
+                200,
+                300,
+                400,
+                500
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 1.8,
+              "label": "B (T)"
+            },
+            "curves": [
+              {
+                "f": "Bs*((1-exp(-2*(x/H0)))/(1+exp(-2*(x/H0))))",
+                "label": "B(H)",
+                "labelAt": 0.85
+              }
+            ],
+            "hlines": [
+              {
+                "y": "Bt",
+                "label": "{{Bt}} T"
+              }
+            ]
+          },
+          "answer": "Ht*l/N",
+          "unit": "A",
+          "tolerance": 0.1,
+          "explanation": "The curve reaches {{Bt}} T at $H$ ≈ {{Ht||3}} A/m. Ampère's law around the core: $Ni = H\\ell$, so $i$ = {{Ht||3}} × {{l}} / {{N}} = {{Ht*l/N|A}}. (A linear model with a fixed $\\mu_r$ would not work here: $\\mu_r$ depends on where you are on the curve.)"
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "As an iron core is driven further into saturation, its relative permeability $\\mu_r = B/(\\mu_0H)$ decreases.",
+          "answer": true,
+          "explanation": "True. In saturation H keeps growing while B barely increases, so the ratio $B/H$ falls, eventually towards $\\mu_0$ (i.e. $\\mu_r \\to 1$ for the incremental slope)."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "B": [
+              0.5,
+              0.8,
+              1.0,
+              1.2
+            ],
+            "Acm": [
+              4,
+              9,
+              16
+            ],
+            "g": [
+              0.0005,
+              0.001,
+              0.002
+            ]
+          },
+          "prompt": "An air gap {{g*1000}} mm long with a cross-section of {{Acm}} cm² carries a flux density of {{B}} T. How much energy is stored in the gap? (Neglect fringing.)",
+          "answer": "B^2/(2*4*pi*1e-7)*Acm*1e-4*g",
+          "unit": "J",
+          "explanation": "Energy density in a linear material: $w = \\frac{B^2}{2\\mu}$; in air $w$ = {{B}}² / (2 × 4π×$10^{-7}$) = {{B^2/(2*4*pi*1e-7)||3}} J/m³.\nGap volume: {{Acm*1e-4}} m² × {{g}} m = {{Acm*1e-4*g}} m³, so $W$ = {{B^2/(2*4*pi*1e-7)*Acm*1e-4*g|J}}. The same B in iron with $\\mu_r$ = 3000 would store 3000 times less per m³."
+        }
+      ]
+    },
+    {
+      "id": "mg-materials-3",
+      "title": "Loss analysis",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "Hc": [
+              50,
+              100,
+              150
+            ],
+            "Bm": [
+              1.0,
+              1.2,
+              1.5
+            ],
+            "Hw": [
+              100,
+              200
+            ],
+            "Vcm": [
+              500,
+              1000,
+              2000
+            ],
+            "f": [
+              50,
+              60
+            ]
+          },
+          "prompt": "A core material's hysteresis loop is idealized as the parallelogram shown. The core volume is {{Vcm}} cm³ and it runs at {{f}} Hz. Find the hysteresis power loss.",
+          "hint": "The horizontal width of the loop is the same at every B between the flat tops. Area = width × height.",
+          "plot": {
+            "x": {
+              "min": "-(Hc+Hw+60)",
+              "max": "Hc+Hw+60",
+              "label": "H",
+              "unit": "A/m",
+              "ticks": [
+                "-Hc",
+                0,
+                "Hc"
+              ]
+            },
+            "y": {
+              "min": "-1.3*Bm",
+              "max": "1.3*Bm",
+              "label": "B (T)",
+              "ticks": [
+                "-Bm",
+                0,
+                "Bm"
+              ]
+            },
+            "curves": [
+              {
+                "f": "clamp(Bm*(x+Hc)/Hw, -Bm, Bm)"
+              },
+              {
+                "f": "clamp(Bm*(x-Hc)/Hw, -Bm, Bm)"
+              }
+            ]
+          },
+          "answer": "4*Hc*Bm*Vcm*1e-6*f",
+          "unit": "W",
+          "tolerance": 0.03,
+          "explanation": "At every B between $-B_m$ and $+B_m$ the loop is $2H_c$ = {{2*Hc}} A/m wide, and it is $2B_m$ = {{2*Bm}} T tall, so its area is $4H_cB_m$ = {{4*Hc*Bm}} J/m³ per cycle.\n$P_h$ = {{4*Hc*Bm}} J/m³ × {{Vcm*1e-6}} m³ × {{f}} Hz = {{4*Hc*Bm*Vcm*1e-6*f|W}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.1,
+              0.2,
+              0.4
+            ],
+            "b": [
+              0.001,
+              0.002,
+              0.004
+            ],
+            "f1": [
+              50,
+              60
+            ]
+          },
+          "derived": {
+            "f2": "2*f1",
+            "P1": "a*f1 + b*f1^2",
+            "P2": "a*f2 + b*f2^2"
+          },
+          "prompt": "A core's total loss is {{P1|W}} at {{f1}} Hz and {{P2|W}} at {{f2}} Hz, with the same peak flux density in both tests. Find the **hysteresis** part of the loss at {{f1}} Hz.",
+          "answer": "a*f1",
+          "unit": "W",
+          "explanation": "Write $P = af + bf^2$. At $f_1$: $P_1 = af_1 + bf_1^2$. At $2f_1$: $P_2 = 2af_1 + 4bf_1^2$.\n$P_2 - 2P_1 = 2bf_1^2$, so the eddy part at $f_1$: $bf_1^2 = (P_2 - 2P_1)/2$ = ({{P2}} − {{2*P1}}) / 2 = {{(P2-2*P1)/2|W}}.\nHysteresis part: $af_1 = P_1 - bf_1^2$ = {{P1}} − {{(P2-2*P1)/2}} = {{a*f1|W}}."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "A transformer designed for 50 Hz is connected to a 60 Hz supply of the **same voltage**. What happens to the peak flux density in its core and to its eddy-current loss?",
+          "options": [
+            "$B_m$ falls to 5/6; eddy loss stays about the same",
+            "$B_m$ stays the same; eddy loss rises by (6/5)²",
+            "$B_m$ rises by 6/5; eddy loss rises",
+            "Both stay exactly the same"
+          ],
+          "answer": 0,
+          "explanation": "$V_{rms} = 4.44fN\\Phi_m$, so at fixed $V$ the peak flux is $\\propto 1/f$: $B_m$ drops to 50/60 = 5/6. Eddy loss $\\propto f^2B_m^2 \\propto V^2$, so it is unchanged. (Hysteresis loss, $\\propto fB_m^n$ with $n$ around 2, actually falls a little.)"
+        },
+        {
+          "id": "q4",
+          "type": "orderSteps",
+          "prompt": "Starting from a demagnetized core, put the points of the first magnetization and the hysteresis loop in order",
+          "items": [
+            "B = 0, H = 0 (demagnetized)",
+            "Positive saturation at maximum H",
+            "H back to 0: B equals the residual value $B_r$",
+            "H = −$H_c$: B is driven to zero",
+            "Negative saturation at maximum reverse H"
+          ],
+          "explanation": "The initial magnetization curve runs from the origin to saturation. Reducing H to zero leaves $B_r$ (the domains stay partly aligned), a reverse field $H_c$ is needed to cancel B, and increasing the reverse field further saturates the core in the opposite direction."
+        },
+        {
+          "id": "g2",
+          "type": "numeric",
+          "params": {
+            "Bt": [
+              1.0,
+              1.1,
+              1.2,
+              1.3
+            ],
+            "N": [
+              200,
+              400,
+              500
+            ],
+            "lc": [
+              0.3,
+              0.4
+            ],
+            "g": [
+              0.0005,
+              0.001
+            ]
+          },
+          "derived": {
+            "Ht": "200*(0.5*ln((1+(Bt/1.5))/(1-(Bt/1.5))))",
+            "Ni": "Ht*lc + Bt*g/(4*pi*1e-7)"
+          },
+          "prompt": "A core of the steel shown (mean length {{lc*100}} cm) has a {{g*1000}} mm air gap of the same area (no fringing). Find the current in a {{N}}-turn coil that gives {{Bt}} T in the core and gap.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 500,
+              "label": "H",
+              "unit": "A/m",
+              "ticks": [
+                0,
+                100,
+                200,
+                300,
+                400,
+                500
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 1.8,
+              "label": "B (T)"
+            },
+            "curves": [
+              {
+                "f": "1.5*((1-exp(-2*(x/200)))/(1+exp(-2*(x/200))))",
+                "label": "B(H) of the steel",
+                "labelAt": 0.8
+              }
+            ],
+            "hlines": [
+              {
+                "y": "Bt",
+                "label": "{{Bt}} T"
+              }
+            ]
+          },
+          "answer": "Ni/N",
+          "unit": "A",
+          "tolerance": 0.04,
+          "explanation": "Core: read $H_c$ ≈ {{Ht||3}} A/m at {{Bt}} T, so $H_c\\ell_c$ = {{Ht*lc||3}} A·t.\nGap (linear): $H_g = B/\\mu_0$ = {{Bt/(4*pi*1e-7)||3}} A/m, so $H_g\\ell_g$ = {{Bt*g/(4*pi*1e-7)||3}} A·t.\n$Ni = H_c\\ell_c + H_g\\ell_g$ = {{Ni||3}} A·t, $i$ = {{Ni||3}} / {{N}} = {{Ni/N|A}}. The gap needs most of the mmf, so small reading errors on the curve hardly matter."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "For a given material and peak flux density, the hysteresis energy lost **per cycle** increases with frequency.",
+          "answer": false,
+          "explanation": "False. The energy per cycle is the loop area times the volume, fixed by the material and the peak flux density. It is the **power** that grows with frequency, because the loop is traced $f$ times per second."
+        }
+      ]
+    }
+  ]
+}

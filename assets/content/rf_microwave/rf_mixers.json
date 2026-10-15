@@ -1,0 +1,444 @@
+{
+  "id": "rf-mixers",
+  "title": "Mixers & Oscillators",
+  "description": "Mixer products and spurs, image rejection, conversion loss and isolation, oscillator start-up conditions, phase noise and reciprocal mixing.",
+  "reference": "Pozar §13.1–13.3, §13.5",
+  "study": [
+    {
+      "title": "Mixer products and spurs",
+      "body": "An ideal multiplier turns $f_{RF}$ and $f_{LO}$ into just the sum and the difference. Real mixers use nonlinear diodes or transistors, so they produce **every** combination $|mf_{RF} - nf_{LO}|$ and $mf_{RF} + nf_{LO}$; the order of a product is $|m| + |n|$. A **spur** is any input frequency that some product drops onto the IF. The image is the (1, 1) product on the other side of the LO; the 'half-IF' (2, 2) spur sits halfway between the wanted signal and the LO. Higher orders are weaker, but a strong interferer can still get through.",
+      "formula": "\\begin{aligned}& |m f_{RF} - n f_{LO}| = f_{IF}\\\\ & \\text{order} = |m| + |n|\\end{aligned}"
+    },
+    {
+      "title": "Images and image-reject mixers",
+      "body": "Recap: the image lies $2f_{IF}$ from the wanted signal, on the other side of the LO, and a filter in front of the mixer must remove it. An **image-reject** (Hartley) mixer uses two mixers driven by LOs 90° apart and combines their IF outputs through a 90° hybrid: the wanted signal adds and the image cancels. Cancellation is only as good as the balance. With amplitude ratio $A$ (from the gain imbalance in dB) and phase error φ, the image rejection ratio follows below. Example: 0.5 dB and 3° give 28 dB; perfect amplitude with 3° gives 31.6 dB.",
+      "formula": "IRR = \\frac{1 + 2A\\cos\\varphi + A^2}{1 - 2A\\cos\\varphi + A^2}"
+    },
+    {
+      "title": "Explore: balance sets the image rejection",
+      "body": "Drag the phase error and the gain imbalance of an image-reject mixer. Even a few degrees or a few tenths of a dB limit the rejection to 25–35 dB, which is why image-reject mixers are usually combined with some filtering.",
+      "plot": {
+        "x": {"min": 0.2, "max": 20, "log": true, "label": "phase error", "unit": "°"},
+        "y": {"min": 0, "max": 60, "label": "IRR (dB)"},
+        "sliders": [
+          {"name": "eps", "label": "gain imbalance", "min": 0, "max": 2, "step": 0.1, "value": 0.5, "unit": "dB"},
+          {"name": "ph", "label": "phase error", "min": 0.2, "max": 20, "log": true, "value": 3, "unit": "°"}
+        ],
+        "let": {"A": "10^(eps/20)"},
+        "curves": [{"f": "10*log10((1+2*A*cos(rad(x))+A^2)/(1-2*A*cos(rad(x))+A^2))"}],
+        "points": [{"x": "ph", "y": "10*log10((1+2*A*cos(rad(ph))+A^2)/(1-2*A*cos(rad(ph))+A^2))", "guides": false}],
+        "readouts": [{"label": "IRR", "value": "10*log10((1+2*A*cos(rad(ph))+A^2)/(1-2*A*cos(rad(ph))+A^2))", "unit": "dB"}]
+      }
+    },
+    {
+      "title": "Conversion loss, noise and isolation",
+      "body": "**Conversion loss** is the IF power below the RF power: 5–7 dB for a passive diode mixer, while active mixers have conversion gain. A passive mixer's (SSB) noise figure is about equal to its conversion loss. When signal and noise come from both sidebands (DSB), the noise figure is 3 dB lower than the SSB figure. **Isolation** keeps the strong LO out of the RF port (where it would radiate from the antenna, or in a zero-IF receiver mix with itself into a DC offset) and out of the IF port. Balanced mixers improve it: a single-balanced mixer (two diodes and a 180° hybrid or balun) isolates LO from RF and cancels LO amplitude noise; a double-balanced ring mixer isolates all ports and suppresses even-order products.",
+      "formula": "\\begin{aligned}& CL = P_{RF} - P_{IF}\\ \\text{(dB)}\\\\ & NF_{SSB} \\approx CL\\\\ & NF_{SSB} = NF_{DSB} + 3\\ \\text{dB}\\end{aligned}"
+    },
+    {
+      "title": "Oscillator start-up",
+      "body": "A feedback oscillator runs where the loop gain is 1∠0° (Barkhausen). To **start**, the loop gain must exceed 1; the amplitude then grows until the amplifier's nonlinearity pulls it back to exactly 1. Microwave oscillators are often seen as a **negative resistance**: a transistor with feedback presents $Z_{in} = R_{in} + jX_{in}$ with $R_{in} < 0$. A load with $R_L < |R_{in}|$ lets oscillations grow; a common choice is $R_L = |R_{in}|/3$, with $X_L = -X_{in}$ so that the circuit resonates at $f_0$.",
+      "formula": "\\begin{aligned}& A\\beta = 1\\angle 0° \\ \\text{(steady state)}\\\\ & R_{in} + R_L < 0 \\ \\text{(start)}\\\\ & X_{in} + X_L = 0\\end{aligned}"
+    },
+    {
+      "title": "Phase noise",
+      "body": "A real oscillator's phase jitters randomly, so its spectrum has skirts. **Phase noise** $\\mathcal{L}(f_m)$ is the single-sideband noise power in 1 Hz at offset $f_m$ from the carrier, relative to the carrier, in dBc/Hz. Close to the carrier it typically falls 20 dB per decade of offset; a higher resonator Q (Leeson's model) lowers it, about 6 dB for every doubling of Q. Frequency multiplication by N, also inside a PLL loop bandwidth, raises it by 20 log N. Integrated over offsets $f_1$…$f_2$ it gives the rms phase error.",
+      "formula": "\\begin{aligned}& \\mathcal{L}(f_2) = \\mathcal{L}(f_1) - 20\\log\\frac{f_2}{f_1}\\\\ & \\mathcal{L}_{N\\times} = \\mathcal{L} + 20\\log N\\\\ & \\sigma_\\varphi = \\sqrt{2\\int_{f_1}^{f_2} 10^{\\mathcal{L}(f)/10}\\,df}\\ \\text{rad}\\end{aligned}"
+    },
+    {
+      "title": "Reciprocal mixing",
+      "body": "The LO's phase noise skirt mixes with **every** signal at the input. A strong blocker at offset Δf from the wanted channel mixes with the LO noise at that same offset and lands, as noise, right in the IF channel; no IF filter can remove it. Example: a −30 dBm blocker 1 MHz away, LO phase noise −130 dBc/Hz at 1 MHz and a 200 kHz channel give −30 − 130 + 53 = −107 dBm of noise in the channel. Receiver blocking specifications therefore set the LO phase noise.",
+      "formula": "N_{rm} = P_{block} + \\mathcal{L}(\\Delta f) + 10\\log B"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "rf-mixers-1",
+      "title": "Mixer products, spurs and images",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "All the products",
+          "body": "A diode or transistor mixer creates $|mf_{RF} \\pm nf_{LO}|$ for all integers m and n. Any input frequency for which one of these equals $f_{IF}$ gets through to the IF output: the wanted signal (1, 1), the image (1, 1 on the other side of the LO) and higher-order spurs.",
+          "formula": "|m f_{RF} - n f_{LO}| = f_{IF}"
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "A receiver uses $f_{LO}$ = 1.9 GHz and $f_{IF}$ = 100 MHz; the wanted signal is at 1.8 GHz. Match each response to the input frequency that produces it.",
+          "pairs": [
+            ["Wanted signal (1 × 1)", "1.80 GHz"],
+            ["Image (1 × 1)", "2.00 GHz"],
+            ["Half-IF spur (2 × 2)", "1.85 GHz"],
+            ["2 × RF − LO spur (2 × 1)", "1.00 GHz"]
+          ],
+          "explanation": "Check each with $|mf_{RF} - nf_{LO}| = 0.1$ GHz: |1.8 − 1.9| = 0.1; |2.0 − 1.9| = 0.1; |2 × 1.85 − 2 × 1.9| = 0.1; |2 × 1.0 − 1.9| = 0.1. The half-IF spur lies halfway between the wanted signal and the LO, where a preselector hardly helps."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"fs": [900000000.0, 1800000000.0, 2400000000.0], "fif": [70000000.0, 140000000.0, 200000000.0]},
+          "derived": {"flo": "fs+fif"},
+          "prompt": "A receiver tuned to {{fs|Hz}} uses a {{fif|Hz}} IF with the LO above the signal ($f_{LO}$ = {{flo|Hz|4}}).",
+          "ask": [
+            {
+              "prompt": "At what input frequency is the half-IF (2 × 2) spur?",
+              "answer": "fs+fif/2",
+              "unit": "Hz",
+              "tolerance": 0.004,
+              "explanation": "$|2f - 2f_{LO}| = f_{IF}$ gives $f = f_{LO} \\pm f_{IF}/2$. The one between signal and LO: {{flo|Hz|4}} − {{fif/2|Hz}} = **{{fs+fif/2|Hz|4}}**, only {{fif/2|Hz}} above the wanted signal."
+            },
+            {
+              "prompt": "At what input frequency is the image?",
+              "answer": "fs+2*fif",
+              "unit": "Hz",
+              "tolerance": 0.0005,
+              "explanation": "The image lies on the other side of the LO: $f_{LO} + f_{IF}$ = $f_s + 2f_{IF}$ = **{{fs+2*fif|Hz|4}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"flo": [1000000000.0, 1500000000.0, 2000000000.0], "fif": [100000000.0, 150000000.0, 250000000.0]},
+          "prompt": "A mixer has $f_{LO}$ = {{flo|Hz}} and $f_{IF}$ = {{fif|Hz}}. Which input frequency **above** $2f_{LO}$ reaches the IF through the (1, 2) product $|f_{RF} - 2f_{LO}| = f_{IF}$?",
+          "answer": "2*flo+fif",
+          "unit": "Hz",
+          "tolerance": 0.0005,
+          "explanation": "$f_{RF} - 2f_{LO} = f_{IF}$ gives $f_{RF}$ = 2 × {{flo|Hz}} + {{fif|Hz}} = **{{2*flo+fif|Hz|4}}**. It mixes with the LO's second harmonic, which every diode mixer generates. A low-pass preselector removes it easily, as it is far from the band."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Image-reject mixers",
+          "body": "Two mixers with LOs 90° apart and a 90° hybrid at the IF make the wanted sideband add and the image cancel. The rejection depends on how well the two paths are balanced in amplitude (ratio A) and phase (error φ).",
+          "formula": "IRR = \\frac{1 + 2A\\cos\\varphi + A^2}{1 - 2A\\cos\\varphi + A^2}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"eps": [0.1, 0.2, 0.5, 1], "phi": [1, 2, 3, 5]},
+          "derived": {"A": "10^(eps/20)", "c": "cos(rad(phi))"},
+          "prompt": "An image-reject mixer has a gain imbalance of {{eps}} dB and a phase error of {{phi}}° between its two paths. Find the image rejection ratio in dB.",
+          "answer": "10*log10((1+2*A*c+A^2)/(1-2*A*c+A^2))",
+          "unit": "dB",
+          "explanation": "A = $10^{ {{eps}}/20}$ = {{A||4}}, cos {{phi}}° = {{c||5}}. Numerator 1 + 2A cos φ + A² = {{1+2*A*c+A^2||4}}, denominator 1 − 2A cos φ + A² = {{1-2*A*c+A^2||3}}. IRR = 10 log(ratio) = **{{10*log10((1+2*A*c+A^2)/(1-2*A*c+A^2))}} dB**."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {"T": [25, 30, 35, 40]},
+          "derived": {"pt": "2*deg(atan(10^(-T/20)))"},
+          "prompt": "An image-reject mixer has perfectly balanced amplitudes. Drag the phase error to the **largest** value that still gives {{T}} dB of image rejection.",
+          "plot": {
+            "x": {"min": 0, "max": 10, "label": "phase error", "unit": "°"},
+            "y": {"min": 10, "max": 60, "label": "IRR (dB)"},
+            "sliders": [{"name": "ph", "label": "phase error", "min": 0.05, "max": 10, "step": 0.05, "value": 10, "unit": "°"}],
+            "curves": [{"f": "20*log10(1/tan(rad(max(x, 0.01))/2))"}],
+            "hlines": [{"y": "T", "color": "orange"}],
+            "points": [{"x": "ph", "y": "20*log10(1/tan(rad(ph)/2))", "guides": false}],
+            "readouts": [{"label": "IRR", "value": "20*log10(1/tan(rad(ph)/2))", "unit": "dB"}]
+          },
+          "answer": {"ph": "pt"},
+          "tolerance": 0.001,
+          "absTolerance": 0.1,
+          "explanation": "With A = 1 the formula simplifies to IRR = (1 + cos φ)/(1 − cos φ) = cot²(φ/2), i.e. 20 log cot(φ/2) dB. Solving for {{T}} dB: φ = 2 arctan($10^{-T/20}$) = **{{pt}}°**. Each 6 dB more rejection halves the allowed phase error."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "An image-reject mixer makes filtering before the mixer unnecessary.",
+          "answer": false,
+          "explanation": "False. Practical balance limits the rejection to roughly 25–40 dB, often not enough against strong image signals. A preselector is still used, though it can be simpler. The image-reject mixer also does nothing against other spurs or overload."
+        }
+      ]
+    },
+    {
+      "id": "rf-mixers-2",
+      "title": "Oscillators and phase noise",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Loop gain",
+          "body": "An amplifier with gain A and a frequency-selective feedback network β oscillates at the frequency where the loop phase is 0° (or 360°). The resonator in β picks that frequency; the amplifier makes up the losses.",
+          "formula": "A(j\\omega_0)\\,\\beta(j\\omega_0) = 1\\angle 0°"
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "For an oscillator to start up reliably, its small-signal loop gain must be exactly 1 at the oscillation frequency.",
+          "answer": false,
+          "explanation": "False. With exactly 1 any small loss would stop it. The small-signal loop gain is designed above 1 (often 2–3), so noise grows into an oscillation; as the amplitude rises the amplifier compresses until the large-signal loop gain is exactly 1 and the amplitude stabilizes."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Negative resistance",
+          "body": "A transistor with suitable feedback shows a negative input resistance $R_{in} < 0$ at its port. Terminating it with $R_L < |R_{in}|$ leaves a net negative resistance, so oscillations grow; choosing $X_L = -X_{in}$ makes the circuit resonate at $f_0$.",
+          "formula": "R_L = \\frac{|R_{in}|}{3},\\qquad X_L = -X_{in}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"R": [15, 30, 45, 60], "X": [-40, -20, 25, 50], "f": [2000000000.0, 5000000000.0, 10000000000.0]},
+          "prompt": "At {{f|Hz}} a transistor oscillator circuit shows $Z_{in}$ = −{{R}} Ω + j({{X}}) Ω. Design the load with the usual start-up margin.",
+          "ask": [
+            {
+              "prompt": "What load resistance $R_L$?",
+              "answer": "R/3",
+              "unit": "Ω",
+              "explanation": "$R_L = |R_{in}|/3$ = {{R}}/3 = **{{R/3|Ω}}**: the total resistance −{{R}} + {{R/3}} = {{-2*R/3}} Ω stays negative, so the oscillation can start and grow until the device compresses."
+            },
+            {
+              "prompt": "What load reactance $X_L$ (with sign)?",
+              "answer": "-X",
+              "unit": "Ω",
+              "explanation": "Resonance needs $X_L = -X_{in}$ = **{{-X|Ω}}**: a positive value is an inductor, a negative one a capacitor at {{f|Hz}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"R": [10, 20, 40, 80], "X": [-50, -20, 20, 50]},
+          "derived": {"G": "sqrt((-R-50)^2+X^2)/sqrt((-R+50)^2+X^2)"},
+          "prompt": "A negative-resistance device has $Z_{in}$ = −{{R}} + j({{X}}) Ω. Find $|\\Gamma_{in}|$ referred to 50 Ω.",
+          "answer": "G",
+          "unit": "",
+          "explanation": "$\\Gamma_{in} = (Z_{in} - 50)/(Z_{in} + 50)$: numerator ({{-R-50}}) + j({{X}}), denominator ({{50-R}}) + j({{X}}). $|\\Gamma_{in}|$ = {{sqrt((R+50)^2+X^2)}}/{{sqrt((50-R)^2+X^2)}} = **{{G}}**: larger than 1, the port reflects more than it receives. With a load $\\Gamma_L$, oscillation needs $\\Gamma_{in}\\Gamma_L = 1$."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Phase noise in dBc/Hz",
+          "body": "$\\mathcal{L}(f_m)$ is the noise power in 1 Hz at an offset $f_m$ from the carrier, relative to the carrier power. In the common 1/f² region it drops 20 dB per decade of offset. A frequency multiplier (or a PLL inside its bandwidth) multiplies the phase deviations by N, raising $\\mathcal{L}$ by 20 log N.",
+          "formula": "\\mathcal{L}(f_2) = \\mathcal{L}(f_1) - 20\\log\\frac{f_2}{f_1}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"L1": [-80, -90, -100, -110], "f1": [1000, 10000, 100000.0], "k": [3, 10, 30, 100]},
+          "prompt": "An oscillator has a phase noise of {{L1}} dBc/Hz at {{f1|Hz}} offset, in a region where it falls at 20 dB/decade. What is it at {{k*f1|Hz}} offset?",
+          "answer": "L1-20*log10(k)",
+          "unit": "dBc/Hz",
+          "explanation": "The offset grows by a factor {{k}}: 20 log {{k}} = {{20*log10(k)}} dB less noise. $\\mathcal{L}$ = {{L1}} − {{20*log10(k)}} = **{{L1-20*log10(k)}} dBc/Hz**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {"L": [-120, -130, -140], "N": [2, 4, 8, 24, 100]},
+          "prompt": "A {{L}} dBc/Hz (at 10 kHz offset) reference is multiplied by {{N}}. What is the phase noise at 10 kHz offset of the multiplied signal?",
+          "answer": "L+20*log10(N)",
+          "unit": "dBc/Hz",
+          "explanation": "Multiplying the frequency by N multiplies the phase deviations by N, so the phase-noise power rises by $N^2$: +20 log {{N}} = +{{20*log10(N)}} dB, giving **{{L+20*log10(N)}} dBc/Hz**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {"L": [-90, -100, -110], "f1": [1000, 10000], "f2": [100000.0, 1000000.0]},
+          "derived": {"Lint": "L+10*log10(f2-f1)"},
+          "prompt": "The phase noise of an LO is flat at {{L}} dBc/Hz between {{f1|Hz}} and {{f2|Hz}} offset (and negligible elsewhere).",
+          "ask": [
+            {
+              "prompt": "What is the integrated single-sideband phase noise in dBc?",
+              "answer": "Lint",
+              "unit": "dBc",
+              "explanation": "Flat density: add 10 log of the bandwidth: {{L}} + 10 log({{f2-f1|Hz}}) = **{{Lint}} dBc**."
+            },
+            {
+              "prompt": "What is the rms phase error in degrees (both sidebands count)?",
+              "answer": "deg(sqrt(2*10^(Lint/10)))",
+              "unit": "°",
+              "tolerance": 0.02,
+              "absTolerance": 0.001,
+              "explanation": "Integrated SSB noise {{Lint}} dBc = {{10^(Lint/10)}}. Both sidebands: $\\sigma_\\varphi^2$ = 2 × {{10^(Lint/10)}} rad², so $\\sigma_\\varphi$ = {{sqrt(2*10^(Lint/10))}} rad = **{{deg(sqrt(2*10^(Lint/10)))}}°**."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rf-mixers-3",
+      "title": "Mixer and oscillator calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"Prf": [-60, -40, -20], "CL": [5, 6, 7], "Plo": [7, 10, 13], "iso": [25, 30, 40]},
+          "prompt": "A diode mixer with {{CL}} dB conversion loss and {{iso}} dB LO-to-RF isolation receives {{Prf}} dBm at its RF port and {{Plo}} dBm of LO.",
+          "ask": [
+            {
+              "prompt": "What is the IF output power, in dBm?",
+              "answer": "Prf-CL",
+              "unit": "dBm",
+              "explanation": "$P_{IF} = P_{RF} - CL$ = {{Prf}} − {{CL}} = **{{Prf-CL}} dBm**."
+            },
+            {
+              "prompt": "How much LO power leaks out of the RF port, in dBm?",
+              "answer": "Plo-iso",
+              "unit": "dBm",
+              "explanation": "{{Plo}} − {{iso}} = **{{Plo-iso}} dBm** travels from the RF port back toward the LNA and antenna. Without enough filtering and LNA reverse isolation it is radiated."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"Pb": [-40, -30, -25], "L": [-120, -130, -140], "B": [25000, 200000, 1000000.0], "Ps": [-100, -95, -90]},
+          "derived": {"N": "Pb+L+10*log10(B)"},
+          "prompt": "A wanted signal of {{Ps}} dBm sits next to a {{Pb}} dBm blocker. The LO has {{L}} dBc/Hz of phase noise at the blocker's offset; the channel is {{B|Hz}} wide.",
+          "ask": [
+            {
+              "prompt": "How much reciprocal-mixing noise lands in the channel, in dBm?",
+              "answer": "N",
+              "unit": "dBm",
+              "explanation": "$N_{rm} = P_{block} + \\mathcal{L} + 10\\log B$ = {{Pb}} + ({{L}}) + {{10*log10(B)}} = **{{N}} dBm**."
+            },
+            {
+              "prompt": "What SNR does this leave for the wanted signal (ignoring thermal noise), in dB?",
+              "answer": "Ps-N",
+              "unit": "dB",
+              "absTolerance": 0.05,
+              "explanation": "$N_{rm}$ = {{Pb}} + ({{L}}) + {{10*log10(B)}} = {{N}} dBm, so SNR = {{Ps}} − ({{N}}) = **{{Ps-N}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"Ps": [-100, -95, -90], "SNR": [8, 10, 15], "Pb": [-40, -30, -20], "B": [25000, 200000]},
+          "prompt": "A receiver must still give {{SNR}} dB SNR for a {{Ps}} dBm signal when a {{Pb}} dBm blocker is present at 1 MHz offset. The channel is {{B|Hz}} wide. What is the highest LO phase noise at 1 MHz offset that is allowed (reciprocal mixing only)?",
+          "answer": "Ps-SNR-Pb-10*log10(B)",
+          "unit": "dBc/Hz",
+          "explanation": "The noise may be at most {{Ps}} − {{SNR}} = {{Ps-SNR}} dBm. With $N = P_{block} + \\mathcal{L} + 10\\log B$: $\\mathcal{L}$ ≤ {{Ps-SNR}} − ({{Pb}}) − {{10*log10(B)}} = **{{Ps-SNR-Pb-10*log10(B)}} dBc/Hz**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"NF1": [1, 2], "G1": [12, 15, 20], "CL": [6, 7, 8], "NF3": [3, 5]},
+          "derived": {"F": "10^(NF1/10)+(10^(CL/10)-1)/10^(G1/10)+(10^(NF3/10)-1)/(10^(G1/10)/10^(CL/10))"},
+          "prompt": "An LNA (NF {{NF1}} dB, gain {{G1}} dB) drives a passive mixer with {{CL}} dB conversion loss (SSB NF ≈ {{CL}} dB), followed by an IF amplifier with NF {{NF3}} dB. Find the receiver's noise figure.",
+          "answer": "10*log10(F)",
+          "unit": "dB",
+          "explanation": "Linear: $F_1$ = {{10^(NF1/10)}}, $G_1$ = {{10^(G1/10)}}; mixer $F_2$ = {{10^(CL/10)}}, $G_2$ = 1/{{10^(CL/10)}}; IF $F_3$ = {{10^(NF3/10)}}. F = {{10^(NF1/10)}} + {{10^(CL/10)-1}}/{{10^(G1/10)}} + {{10^(NF3/10)-1}}/({{10^(G1/10)}}/{{10^(CL/10)}}) = {{F}}, NF = **{{10*log10(F)}} dB**. The mixer's loss makes the IF stage count too."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "In a direct-conversion (zero-IF) receiver, LO power leaking to the mixer's RF port mostly causes:",
+          "options": [
+            "A DC offset at the output, because the leaked LO mixes with the LO itself",
+            "An image response at $f_{LO} + 2f_{IF}$",
+            "A higher noise figure of the LNA",
+            "Third-order intermodulation in the LNA"
+        ],
+          "answer": 0,
+          "explanation": "With $f_{IF}$ = 0 the leaked LO, reflected back into the mixer, is converted to DC, right in the baseband channel. This self-mixing DC offset (which also changes with the antenna environment) is a classic zero-IF problem. A zero-IF receiver has no separate image frequency."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each mixer type to its main property.",
+          "pairs": [
+            ["Single-diode mixer", "Simple, but no inherent port isolation"],
+            ["Single-balanced mixer", "Cancels LO amplitude noise, isolates LO from RF"],
+            ["Double-balanced ring mixer", "All ports isolated, even-order products suppressed"],
+            ["Image-reject mixer", "Cancels the image with quadrature paths"]
+          ],
+          "explanation": "Balancing with hybrids or baluns lets unwanted components cancel: the single-balanced mixer cancels LO noise and LO leakage to the RF port, the double-balanced ring also isolates RF from IF and suppresses even-order spurs. The image-reject mixer uses 90° phasing to cancel one sideband."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {"N": [5, 6, 7, 8, 10]},
+          "prompt": "A mixer data sheet gives a DSB noise figure of {{N}} dB. What SSB noise figure should you use in a superheterodyne receiver, where the wanted signal is in one sideband only?",
+          "answer": "N+3",
+          "unit": "dB",
+          "absTolerance": 0.05,
+          "explanation": "In SSB use, noise from both sidebands still reaches the IF, but only one sideband carries signal, so the SNR is halved: NF$_{SSB}$ = NF$_{DSB}$ + 3 dB = **{{N+3}} dB**."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {"L": [-90, -100, -110], "q": [2, 3, 4, 10]},
+          "prompt": "An oscillator has {{L}} dBc/Hz at 10 kHz offset (in its 1/f² region). Its resonator is replaced by one with a loaded Q {{q}} times higher, all else equal. Estimate the new phase noise at 10 kHz.",
+          "answer": "L-20*log10(q)",
+          "unit": "dBc/Hz",
+          "explanation": "In Leeson's model the phase noise in this region scales as $(f_0/2Q_Lf_m)^2$, so a Q that is {{q}} times higher lowers it by 20 log {{q}} = {{20*log10(q)}} dB: **{{L-20*log10(q)}} dBc/Hz**."
+        }
+      ]
+    },
+    {
+      "id": "rf-mixers-4",
+      "title": "Frequency planning challenge",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {"f1": [430000000.0, 860000000.0, 2400000000.0], "bw": [10000000.0, 30000000.0, 83500000.0]},
+          "derived": {"f2": "f1+bw"},
+          "prompt": "A receiver covers {{f1|Hz|4}} to {{f2|Hz|4}} with high-side LO injection and must keep every channel's image **outside** the band, so a fixed preselector can remove it. What is the minimum IF?",
+          "answer": "bw/2",
+          "unit": "Hz",
+          "explanation": "The image is at $f_s + 2f_{IF}$. The worst case is the lowest channel: its image {{f1|Hz|4}} + $2f_{IF}$ must lie above {{f2|Hz|4}}, so $2f_{IF}$ > {{bw|Hz}} and $f_{IF}$ > **{{bw/2|Hz}}**. In practice you choose a good deal more, so the preselector has room to roll off."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {"L": [-125, -130, -135, -140], "B": [200000, 1000000.0], "Ps": [-95, -85], "SNR": [10, 15]},
+          "prompt": "LO phase noise at 1 MHz offset is {{L}} dBc/Hz. The channel is {{B|Hz}} wide, the wanted signal is {{Ps}} dBm and needs {{SNR}} dB SNR. How strong may a blocker 1 MHz away be (reciprocal mixing only), in dBm?",
+          "answer": "Ps-SNR-L-10*log10(B)",
+          "unit": "dBm",
+          "explanation": "Allowed noise: {{Ps}} − {{SNR}} = {{Ps-SNR}} dBm. $P_{block} = N - \\mathcal{L} - 10\\log B$ = {{Ps-SNR}} − ({{L}}) − {{10*log10(B)}} = **{{Ps-SNR-L-10*log10(B)}} dBm**."
+        },
+        {
+          "id": "c3",
+          "type": "multipleChoice",
+          "params": {"k": [0, 1, 2, 3], "flo": [2000000000.0, 3000000000.0], "fif": [200000000.0, 300000000.0]},
+          "derived": {
+            "fx": "if(0.5-k, flo+fif, if(1.5-k, (flo+fif)/2, if(2.5-k, flo-fif/2, (2*flo+fif)/3)))"
+          },
+          "prompt": "A mixer with $f_{LO}$ = {{flo|Hz}} and $f_{IF}$ = {{fif|Hz}} receives an interferer at {{fx|Hz|5}}. Through which product does it reach the IF?",
+          "options": ["(1, 1): 2nd order", "(2, 1): 3rd order", "(2, 2): 4th order", "(3, 2): 5th order"],
+          "shuffle": false,
+          "answer": "k",
+          "explanation": "Test $|mf_x - nf_{LO}| = f_{IF}$ with the lowest orders first. (1,1): |{{fx|Hz|5}} − {{flo|Hz}}| = {{abs(fx-flo)|Hz|4}}. (2,1): |2 × {{fx|Hz|5}} − {{flo|Hz}}| = {{abs(2*fx-flo)|Hz|4}}. (2,2): {{abs(2*fx-2*flo)|Hz|4}}. (3,2): {{abs(3*fx-2*flo)|Hz|4}}. The first that equals {{fif|Hz}} is the path."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {"Lr": [-140, -145, -150], "fr": [10000000.0, 20000000.0], "fo": [900000000.0, 2400000000.0, 5800000000.0]},
+          "prompt": "A PLL multiplies a {{fr|Hz}} reference with {{Lr}} dBc/Hz at 1 kHz offset up to {{fo|Hz}}. Inside the loop bandwidth the output follows the reference. Estimate the output phase noise at 1 kHz offset.",
+          "answer": "Lr+20*log10(fo/fr)",
+          "unit": "dBc/Hz",
+          "explanation": "N = {{fo|Hz}} / {{fr|Hz}} = {{fo/fr}}. Inside the loop bandwidth: +20 log N = +{{20*log10(fo/fr)}} dB, so **{{Lr+20*log10(fo/fr)}} dBc/Hz**. A cleaner reference or a lower N (higher reference frequency) helps."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {"L": [-95, -100, -105], "f1": [10000, 100000.0], "f2": [1000000.0, 10000000.0]},
+          "derived": {"s": "sqrt(2*10^(L/10)*(f2-f1))"},
+          "prompt": "A QAM receiver's LO has a flat {{L}} dBc/Hz from {{f1|Hz}} to {{f2|Hz}} offset. Its rms phase error must stay below 1° for a clean constellation. What rms phase error (in degrees) does this LO give?",
+          "answer": "deg(s)",
+          "unit": "°",
+          "tolerance": 0.02,
+          "absTolerance": 0.001,
+          "explanation": "$\\sigma_\\varphi^2 = 2 \\cdot 10^{\\mathcal{L}/10}(f_2 - f_1)$ = 2 × {{10^(L/10)}} × {{f2-f1|Hz}} = {{s^2}} rad², so $\\sigma_\\varphi$ = {{s}} rad = **{{deg(s)}}°**: compare with the 1° limit."
+        },
+        {
+          "id": "c6",
+          "type": "trueFalse",
+          "prompt": "Doubling the loaded Q of an oscillator's resonator lowers its phase noise close to the carrier by about 6 dB.",
+          "answer": true,
+          "explanation": "True. In Leeson's model the close-in phase noise is proportional to $1/Q_L^2$: doubling $Q_L$ gives a factor 4, i.e. 6 dB. That is why low-noise oscillators use crystals, dielectric resonators or cavities."
+        }
+      ]
+    }
+  ]
+}

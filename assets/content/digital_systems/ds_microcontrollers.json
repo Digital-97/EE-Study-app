@@ -1,0 +1,575 @@
+{
+  "id": "ds-microcontrollers",
+  "title": "Microcontrollers",
+  "description": "What a microcontroller contains, its registers, instructions and addressing modes, flags, loops and the stack.",
+  "reference": "Hambley §8.3–8.5",
+  "study": [
+    {
+      "title": "What is inside a microcontroller",
+      "body": "A **microcontroller** (MCU) is a complete computer on one chip, made for embedded control: a CPU, **flash** memory for the program, **SRAM** for variables, often EEPROM for settings, and on-chip peripherals: digital I/O ports (GPIO), **timers** and PWM outputs, an **A/D converter**, serial interfaces (UART, SPI, I²C), an interrupt controller, a clock oscillator and a watchdog timer. A **microprocessor** is only the CPU; it needs external memory and I/O chips. Sensors are read via the ADC or digital inputs; actuators are driven by digital outputs, PWM or a D/A converter."
+    },
+    {
+      "title": "The programmer's model",
+      "body": "The examples use a generic 8-bit CPU modelled on the CPU12 in Hambley: two 8-bit **accumulators** A and B (together the 16-bit D), a 16-bit **index register** X, a **stack pointer** SP, the **program counter** PC and a **condition-code register** with the flags N, Z, V and C. An instruction is a mnemonic plus an operand, e.g. LDAA (load A), STAA (store A), ADDA, SUBA, CMPA, INCA, DECB, BNE (branch if not equal), JSR (jump to subroutine). # marks immediate data and \\$ a hexadecimal number.",
+      "formula": "\\begin{array}{ll} \\texttt{LDAA \\#25} & A \\leftarrow 25 \\\\ \\texttt{STAA \\$0820} & M[\\texttt{\\$0820}] \\leftarrow A \\end{array}"
+    },
+    {
+      "title": "Addressing modes",
+      "body": "The addressing mode says where the operand is. **Inherent**: no operand (INCA). **Immediate**: the operand is the number itself (LDAA #20 loads 20). **Direct/extended**: the operand is a memory address (LDAA \\$0820 loads the byte stored at \\$0820). **Indexed**: address = index register + offset (LDAA 2,X loads the byte at X + 2; ideal for tables and arrays). **Relative**: branches jump by an offset relative to the PC (BNE LOOP).",
+      "formula": "\\begin{array}{ll} \\texttt{LDAA \\#20} & A \\leftarrow 20 \\\\ \\texttt{LDAA \\$0820} & A \\leftarrow M[\\texttt{\\$0820}] \\\\ \\texttt{LDAA 2,X} & A \\leftarrow M[X+2] \\end{array}"
+    },
+    {
+      "title": "Flags and branches",
+      "body": "Arithmetic and logic instructions update the condition codes: **Z** = 1 if the result is zero, **N** = 1 if bit 7 of the result is 1 (negative in two's complement), **C** = 1 if there was a carry (or borrow) out of bit 7 (unsigned overflow), **V** = 1 for two's-complement overflow. CMPA computes $A - M$, sets the flags and throws the result away. Conditional branches test the flags: BEQ ($Z$ = 1), BNE ($Z$ = 0), BMI ($N$ = 1), BPL ($N$ = 0), BCS ($C$ = 1). A loop like DECB / BNE LOOP runs its body B times.",
+      "formula": "\\texttt{CMPA \\#M:}\\;\\; A - M \\;\\to\\; N, Z, V, C"
+    },
+    {
+      "title": "Stack and subroutines",
+      "body": "The stack is a last-in, first-out area of RAM; SP points to the top. A **push** first decrements SP and then stores the byte there; a **pull** reads the byte at SP and then increments SP. JSR pushes the 2-byte return address and jumps to the subroutine; RTS pulls that address back into the PC, so the program continues after the JSR. Subroutines save registers they use with PSHA/PSHB and restore them in reverse order. An **interrupt** works the same way, but saves all registers and is triggered by hardware instead of polling.",
+      "formula": "\\begin{array}{ll} \\text{push:} & SP \\leftarrow SP - 1 \\\\ & M[SP] \\leftarrow A \\\\ \\text{pull:} & A \\leftarrow M[SP] \\\\ & SP \\leftarrow SP + 1 \\end{array}"
+    },
+    {
+      "title": "Reading a short program",
+      "body": "Trace a program line by line and keep a table of the registers. This loop adds 5 to A three times: B counts down 3, 2, 1, 0, and BNE jumps back as long as the result of DECB is not zero. Result: A = 15, B = 0. Branching on BPL instead would also run the body for B = 0 and give one extra pass.",
+      "formula": "\\begin{array}{lll} & \\texttt{CLRA} & \\\\ & \\texttt{LDAB} & \\texttt{\\#3} \\\\ \\texttt{LOOP} & \\texttt{ADDA} & \\texttt{\\#5} \\\\ & \\texttt{DECB} & \\\\ & \\texttt{BNE} & \\texttt{LOOP} \\end{array}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ds-microcontrollers-1",
+      "title": "Microcontroller basics",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "A computer on a chip",
+          "body": "A **microcontroller** packs a CPU, flash program memory, SRAM and many peripherals onto one chip: digital I/O pins, timers, PWM outputs, an A/D converter and serial interfaces. It runs one dedicated program (the **firmware**) from the moment power is applied. Microcontrollers are in washing machines, cars, toys and sensors: billions are sold every year."
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Which of these is normally **not** found inside a microcontroller chip?",
+          "options": [
+            "A hard disk",
+            "Flash program memory",
+            "An A/D converter",
+            "Timers and PWM outputs"
+          ],
+          "answer": 0,
+          "explanation": "A microcontroller integrates CPU, flash, SRAM, timers, ADC, serial ports and I/O pins on one chip. Mass storage such as a hard disk is never on-chip; embedded systems rarely use it at all."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Registers and instructions",
+          "body": "Our example CPU has two 8-bit accumulators A and B, a 16-bit index register X, a stack pointer SP, the program counter PC and the flags N, Z, V, C. Each instruction is a **mnemonic** with an **operand**. # means 'this number itself' (immediate); a plain number is a memory **address**; \\$ marks hexadecimal.",
+          "formula": "\\begin{array}{ll} \\texttt{LDAA \\#20} & A \\leftarrow 20 \\\\ \\texttt{LDAA \\$0820} & A \\leftarrow M[\\texttt{\\$0820}] \\\\ \\texttt{LDAA 2,X} & A \\leftarrow M[X+2] \\\\ \\texttt{INCA} & A \\leftarrow A + 1 \\end{array}"
+        },
+        {
+          "id": "q2",
+          "type": "matchPairs",
+          "prompt": "Match each addressing mode to an example instruction.",
+          "pairs": [
+            [
+              "Immediate",
+              "LDAA #\\$20"
+            ],
+            [
+              "Extended",
+              "LDAA \\$0820"
+            ],
+            [
+              "Indexed",
+              "LDAA 2,X"
+            ],
+            [
+              "Inherent",
+              "INCA"
+            ],
+            [
+              "Relative",
+              "BNE LOOP"
+            ]
+          ],
+          "explanation": "Immediate: the operand is the data (#). Extended (direct): the operand is the address of the data. Indexed: the address is X plus an offset. Inherent: the instruction needs no operand. Relative: branches give an offset from the current PC."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "v0": {
+              "min": 10,
+              "max": 99,
+              "step": 1
+            },
+            "v1": {
+              "min": 10,
+              "max": 99,
+              "step": 1
+            },
+            "v2": {
+              "min": 10,
+              "max": 99,
+              "step": 1
+            },
+            "v3": {
+              "min": 10,
+              "max": 99,
+              "step": 1
+            },
+            "k": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "require": "abs((v0-v1)*(v0-v2)*(v0-v3)*(v1-v2)*(v1-v3)*(v2-v3))",
+          "prompt": "Memory holds the bytes below (decimal). X contains \\$0840. What is in A after the instruction $\\texttt{LDAA {{k}},X}$?$$\\begin{array}{c|c} \\text{address} & \\text{content} \\\\ \\hline \\texttt{\\$0840} & {{v0}} \\\\ \\texttt{\\$0841} & {{v1}} \\\\ \\texttt{\\$0842} & {{v2}} \\\\ \\texttt{\\$0843} & {{v3}} \\end{array}$$",
+          "options": [
+            "{{v0}}",
+            "{{v1}}",
+            "{{v2}}",
+            "{{v3}}"
+          ],
+          "answer": "k",
+          "explanation": "Indexed addressing: the effective address is X + offset = \\$0840 + {{k}} = \\$084{{k}}. A is loaded with the byte stored there: **{{(1-min(1,abs(k)))*v0 + (1-min(1,abs(k-1)))*v1 + (1-min(1,abs(k-2)))*v2 + (1-min(1,abs(k-3)))*v3}}**."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "The instruction $\\texttt{CMPA \\#10}$ changes the content of accumulator A when A is not 10.",
+          "answer": false,
+          "explanation": "False. CMPA computes $A - 10$ only to set the flags (Z, N, C, V) and then discards the result; A is unchanged. A following branch (BEQ, BNE, BMI …) uses those flags."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 20,
+              "max": 120,
+              "step": 1
+            },
+            "b": {
+              "min": 5,
+              "max": 90,
+              "step": 1
+            },
+            "c": {
+              "min": 1,
+              "max": 60,
+              "step": 1
+            }
+          },
+          "require": "a + b - c - 1",
+          "prompt": "What does accumulator A contain (decimal) after this program?$$\\begin{array}{lll}  & \\texttt{LDAA} & \\texttt{\\#{{a}}} \\\\  & \\texttt{ADDA} & \\texttt{\\#{{b}}} \\\\  & \\texttt{SUBA} & \\texttt{\\#{{c}}} \\\\  & \\texttt{INCA} &  \\end{array}$$",
+          "answer": "a + b - c + 1",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "Trace it: A = {{a}}, then {{a}} + {{b}} = {{a+b}}, then {{a+b}} − {{c}} = {{a+b-c}}, then INCA adds 1: A = **{{a+b-c+1}}**. All values stay between 0 and 255, so nothing overflows."
+        }
+      ]
+    },
+    {
+      "id": "ds-microcontrollers-2",
+      "title": "Reading assembly",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "n": {
+              "min": 3,
+              "max": 12,
+              "step": 1
+            },
+            "k": {
+              "min": 2,
+              "max": 20,
+              "step": 1
+            }
+          },
+          "require": "255 - n*k",
+          "prompt": "Trace this loop.$$\\begin{array}{lll}  & \\texttt{CLRA} &  \\\\  & \\texttt{LDAB} & \\texttt{\\#{{n}}} \\\\ \\texttt{LOOP} & \\texttt{ADDA} & \\texttt{\\#{{k}}} \\\\  & \\texttt{DECB} &  \\\\  & \\texttt{BNE} & \\texttt{LOOP} \\end{array}$$",
+          "ask": [
+            {
+              "prompt": "What does A contain (decimal) when the loop ends?",
+              "answer": "n*k",
+              "unit": "",
+              "tolerance": 0,
+              "absTolerance": 0.4,
+              "explanation": "B starts at {{n}}. Each pass adds {{k}} to A and decrements B; BNE jumps back while B ≠ 0. So the body runs {{n}} times: A = {{n}} × {{k}} = **{{n*k}}**."
+            },
+            {
+              "prompt": "How many times is the BNE branch **taken** (jumps back)?",
+              "answer": "n - 1",
+              "unit": "",
+              "tolerance": 0,
+              "absTolerance": 0.4,
+              "explanation": "The body runs {{n}} times. After each pass except the last, B is not yet 0 and BNE jumps back: **{{n-1}}** times. After the last DECB, B = 0, Z = 1, and execution falls through."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "a": {
+              "min": 20,
+              "max": 90,
+              "step": 1
+            },
+            "d": [
+              -15,
+              -7,
+              -3,
+              0,
+              0,
+              4,
+              9,
+              15
+            ]
+          },
+          "derived": {
+            "b": "a + d"
+          },
+          "prompt": "After $\\texttt{LDAA \\#{{a}}}$ and $\\texttt{SUBA \\#{{b}}}$, what are the Z and N flags?",
+          "options": [
+            "Z = 1, N = 0",
+            "Z = 0, N = 1",
+            "Z = 0, N = 0"
+          ],
+          "answer": "step(b - a - 0.5) + 2*(1 - step(b - a - 0.5))*min(1, abs(a - b))",
+          "explanation": "{{a}} − {{b}} = {{a-b}}. Z = 1 only if the 8-bit result is exactly 0. A negative result is stored in two's complement (−x becomes 256 − x), so bit 7 is 1 and N = 1. A positive result below 128 has bit 7 = 0, so N = 0."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "p": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "SP contains \\$0900. The program executes {{p}} PSHA instruction(s) and then a JSR to a subroutine. What does SP contain at the first instruction of the subroutine?",
+          "options": [
+            "\\$08FD",
+            "\\$08FC",
+            "\\$08FB",
+            "\\$08FE",
+            "\\$0903"
+          ],
+          "answer": "p - 1",
+          "explanation": "Every push **decrements** SP. The {{p}} PSHA instructions store {{p}} byte(s), and JSR pushes the 2-byte return address: {{p+2}} bytes in total. SP = \\$0900 − {{p+2}}. Counting down in hex: \\$0900 − 1 = \\$08FF, − 2 = \\$08FE, − 3 = \\$08FD, − 4 = \\$08FC, − 5 = \\$08FB."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "v0": {
+              "min": 5,
+              "max": 60,
+              "step": 1
+            },
+            "v1": {
+              "min": 5,
+              "max": 60,
+              "step": 1
+            },
+            "v2": {
+              "min": 5,
+              "max": 60,
+              "step": 1
+            },
+            "v3": {
+              "min": 5,
+              "max": 60,
+              "step": 1
+            }
+          },
+          "prompt": "Memory from \\$0800 holds the bytes {{v0}}, {{v1}}, {{v2}}, {{v3}} (decimal, at \\$0800 … \\$0803). What does A contain after this program?$$\\begin{array}{lll}  & \\texttt{LDX} & \\texttt{\\#\\$0800} \\\\  & \\texttt{LDAA} & \\texttt{0,X} \\\\  & \\texttt{ADDA} & \\texttt{1,X} \\\\  & \\texttt{ADDA} & \\texttt{3,X} \\end{array}$$",
+          "answer": "v0 + v1 + v3",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "LDX #\\$0800 puts the **address** \\$0800 in X (immediate). Then 0,X → \\$0800 = {{v0}}, 1,X → \\$0801 = {{v1}}, 3,X → \\$0803 = {{v3}} (the byte at \\$0802 is skipped). A = {{v0}} + {{v1}} + {{v3}} = **{{v0+v1+v3}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "n": [
+              50,
+              100,
+              200,
+              250
+            ],
+            "f": [
+              1000000.0,
+              4000000.0,
+              8000000.0,
+              16000000.0
+            ],
+            "c": [
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "A delay loop $\\texttt{LOOP: DECB / BNE LOOP}$ starts with B = {{n}}. One pass takes {{c}} clock cycles and the clock is {{f|Hz}}. How long does the loop take (ignore the instructions around it)?",
+          "answer": "n*c/f",
+          "unit": "s",
+          "explanation": "The loop runs {{n}} times × {{c}} cycles = {{n*c}} cycles. With $T_{clk}$ = 1/{{f|Hz}} = {{1/f|s}}: $t$ = {{n*c}} × {{1/f|s}} = **{{n*c/f|s}}**."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the events of a subroutine call in order.",
+          "items": [
+            "JSR pushes the return address onto the stack",
+            "The PC is loaded with the subroutine address",
+            "The subroutine executes",
+            "RTS pulls the return address into the PC",
+            "Execution continues after the JSR"
+          ],
+          "explanation": "JSR saves where to come back to (the address of the next instruction) on the stack, then jumps. RTS at the end of the subroutine restores that address into the PC. Because the stack is LIFO, subroutines can call other subroutines and still return in the right order."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "params": {
+            "a": {
+              "min": 10,
+              "max": 60,
+              "step": 1
+            },
+            "d": [
+              -8,
+              -3,
+              0,
+              2,
+              6,
+              11
+            ]
+          },
+          "derived": {
+            "b": "a + d"
+          },
+          "prompt": "What does B contain after this program?$$\\begin{array}{lll}  & \\texttt{LDAA} & \\texttt{\\#{{a}}} \\\\  & \\texttt{CMPA} & \\texttt{\\#{{b}}} \\\\  & \\texttt{BMI} & \\texttt{L1} \\\\  & \\texttt{LDAB} & \\texttt{\\#1} \\\\  & \\texttt{BRA} & \\texttt{DONE} \\\\ \\texttt{L1} & \\texttt{LDAB} & \\texttt{\\#2} \\\\ \\texttt{DONE} & \\texttt{NOP} &  \\end{array}$$",
+          "options": [
+            "B = 1",
+            "B = 2"
+          ],
+          "answer": "step(b - a - 0.5)",
+          "explanation": "CMPA computes {{a}} − {{b}} = {{a-b}}. BMI branches if N = 1, i.e. if the result is negative (A < {{b}}). Here the result is {{a-b}}, so N = {{step(b-a-0.5)}}: BMI is taken only if N = 1, otherwise LDAB #1 runs. B = **{{1+step(b-a-0.5)}}**. Note that 0 is not negative: equal values do not branch."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "With interrupts, a peripheral (for example a timer) signals the CPU when it needs attention, instead of the CPU repeatedly checking its status in a loop.",
+          "answer": true,
+          "explanation": "True. Repeatedly reading a status flag is **polling**; it is simple but wastes CPU time and can react late. An **interrupt** makes the CPU stop its current work, save its registers on the stack, run the interrupt service routine and then return."
+        }
+      ]
+    },
+    {
+      "id": "ds-microcontrollers-3",
+      "title": "Flags, overflow and the stack",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 120,
+              "max": 250,
+              "step": 1
+            },
+            "b": {
+              "min": 60,
+              "max": 200,
+              "step": 1
+            }
+          },
+          "require": "a + b - 256",
+          "prompt": "After $\\texttt{LDAA \\#{{a}}}$ and $\\texttt{ADDA \\#{{b}}}$, what does the 8-bit accumulator A contain (as an unsigned decimal number)?",
+          "answer": "a + b - 256",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "{{a}} + {{b}} = {{a+b}} does not fit in 8 bits (max 255). The carry out of bit 7 goes to the C flag (C = 1) and A keeps the low 8 bits: {{a+b}} − 256 = **{{a+b-256}}**."
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "params": {
+            "a": {
+              "min": 60,
+              "max": 200,
+              "step": 1
+            },
+            "b": {
+              "min": 30,
+              "max": 150,
+              "step": 1
+            }
+          },
+          "require": "abs(a + b - 255.5) - 2",
+          "prompt": "After $\\texttt{LDAA \\#{{a}}}$ and $\\texttt{ADDA \\#{{b}}}$, the carry flag C is 1.",
+          "answer": "a + b - 255.5",
+          "explanation": "C is set when the unsigned sum exceeds 255. {{a}} + {{b}} = {{a+b}}, so C = {{step(a+b-255.5)}}."
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "params": {
+            "a": {
+              "min": 20,
+              "max": 110,
+              "step": 1
+            },
+            "b": {
+              "min": 20,
+              "max": 110,
+              "step": 1
+            }
+          },
+          "require": "abs(a + b - 127.5) - 2",
+          "prompt": "Both numbers are **signed** (two's complement). After $\\texttt{LDAA \\#{{a}}}$ and $\\texttt{ADDA \\#{{b}}}$, the overflow flag V is 1.",
+          "answer": "a + b - 127.5",
+          "explanation": "Signed 8-bit numbers range from −128 to +127. {{a}} + {{b}} = {{a+b}}. Adding two positive numbers overflows when the result exceeds 127: the stored bit pattern then has bit 7 = 1 and looks negative. So V = {{step(a+b-127.5)}}. (C stays 0 because the unsigned sum is below 256.)"
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "a1": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            },
+            "a2": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            },
+            "b1": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            },
+            "b2": {
+              "min": 1,
+              "max": 9,
+              "step": 1
+            }
+          },
+          "require": "abs(a1 - b1) + abs(a2 - b2)",
+          "prompt": "A = \\${{a1}}{{a2}} and B = \\${{b1}}{{b2}}. What does the 16-bit register X contain after this sequence? (PULX loads the high byte from the address in SP first.)$$\\begin{array}{lll}  & \\texttt{PSHA} &  \\\\  & \\texttt{PSHB} &  \\\\  & \\texttt{PULX} &  \\end{array}$$",
+          "options": [
+            "\\${{b1}}{{b2}}{{a1}}{{a2}}",
+            "\\${{a1}}{{a2}}{{b1}}{{b2}}",
+            "\\$00{{b1}}{{b2}}"
+          ],
+          "answer": 0,
+          "explanation": "PSHA stores \\${{a1}}{{a2}} at SP − 1, PSHB stores \\${{b1}}{{b2}} at SP − 2. SP now points at \\${{b1}}{{b2}}. PULX takes the high byte from SP (\\${{b1}}{{b2}}) and the low byte from SP + 1 (\\${{a1}}{{a2}}): X = **\\${{b1}}{{b2}}{{a1}}{{a2}}**, and SP is back where it started. Last in, first out."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "n": {
+              "min": 3,
+              "max": 20,
+              "step": 1
+            }
+          },
+          "prompt": "What does A contain (decimal) after this loop? Note the branch condition.$$\\begin{array}{lll}  & \\texttt{CLRA} &  \\\\  & \\texttt{LDAB} & \\texttt{\\#{{n}}} \\\\ \\texttt{LOOP} & \\texttt{INCA} &  \\\\  & \\texttt{DECB} &  \\\\  & \\texttt{BPL} & \\texttt{LOOP} \\end{array}$$",
+          "answer": "n + 1",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "BPL branches while N = 0, i.e. while the result of DECB is zero **or** positive. B goes {{n-1}}, …, 1, 0 (all branch) and only −1 (\\$FF, N = 1) ends the loop. So the body runs for B = {{n}} down to 0: {{n+1}} times, and A = **{{n+1}}**. With BNE it would run {{n}} times."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "d": [
+              4e-05,
+              8e-05,
+              0.0001,
+              0.0002
+            ],
+            "f": [
+              1000000.0,
+              2000000.0,
+              4000000.0
+            ]
+          },
+          "require": "255.5 - d*f/4",
+          "prompt": "A delay loop takes 4 clock cycles per pass, on a {{f|Hz}} clock. With which start value of the loop counter does the loop last {{d|s}}?",
+          "answer": "d*f/4",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "One pass takes 4 / {{f|Hz}} = {{4/f|s}}. Number of passes: $N$ = {{d|s}} / {{4/f|s}} = **{{d*f/4}}**. It fits in the 8-bit counter (≤ 255); longer delays need a nested loop or, better, a hardware timer."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each condition-code flag to when it is set.",
+          "pairs": [
+            [
+              "Z",
+              "The result is zero"
+            ],
+            [
+              "N",
+              "Bit 7 of the result is 1"
+            ],
+            [
+              "C",
+              "Carry or borrow out of bit 7"
+            ],
+            [
+              "V",
+              "Two's-complement overflow"
+            ]
+          ],
+          "explanation": "Z and N describe the result itself. C flags an unsigned overflow (the result does not fit in 0–255, or a subtraction needed a borrow); V flags a signed overflow (the result does not fit in −128…+127). Branches such as BEQ, BMI, BCS and BVS test them."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "d": [
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "r": [
+              0,
+              1,
+              2
+            ]
+          },
+          "prompt": "A program calls subroutines nested {{d}} deep (each subroutine calls the next with JSR). Every subroutine first saves {{r}} 8-bit register(s) with PSHA/PSHB. How many bytes of stack are in use at the deepest point?",
+          "answer": "d*(2 + r)",
+          "unit": "",
+          "tolerance": 0,
+          "absTolerance": 0.4,
+          "explanation": "Each level pushes a 2-byte return address (JSR) plus {{r}} saved byte(s): {{2+r}} bytes per level. {{d}} levels × {{2+r}} = **{{d*(2+r)}}** bytes. The stack must be large enough for the deepest nesting **plus** any interrupt that may occur there."
+        }
+      ]
+    }
+  ]
+}

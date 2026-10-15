@@ -1,0 +1,475 @@
+{
+  "id": "rf-amplifiers",
+  "title": "RF Amplifier Design",
+  "description": "Design single-stage transistor amplifiers from S-parameters: power gains, stability tests, unilateral and conjugate matching, and the noise–gain trade-off.",
+  "reference": "Pozar §12.1–12.3",
+  "study": [
+    {
+      "title": "The transistor as a two-port",
+      "body": "At RF a transistor (with its bias) is characterized by measured S-parameters at each frequency. Typical values: $|S_{21}|$ = 2–5 (gain), $|S_{12}|$ = 0.02–0.1 (a little feedback), $|S_{11}|$ and $|S_{22}|$ = 0.3–0.8. The amplifier is the transistor between an input matching network (presenting $\\Gamma_S$) and an output matching network (presenting $\\Gamma_L$). Because $S_{12} \\neq 0$, what one port sees depends on the termination of the other.",
+      "formula": "\\begin{aligned}& \\Gamma_{in} = S_{11} + \\frac{S_{12}S_{21}\\Gamma_L}{1 - S_{22}\\Gamma_L}\\\\ & \\Gamma_{out} = S_{22} + \\frac{S_{12}S_{21}\\Gamma_S}{1 - S_{11}\\Gamma_S}\\end{aligned}"
+    },
+    {
+      "title": "Three power gains",
+      "body": "**Transducer gain** $G_T = P_L/P_{avs}$: power delivered to the load per power available from the source; this is what the system sees. **Operating gain** $G = P_L/P_{in}$ ignores input mismatch; **available gain** $G_A = P_{avn}/P_{avs}$ assumes a conjugately matched load. All three are equal when both ports are conjugately matched. With $\\Gamma_S = \\Gamma_L = 0$ (50 Ω on both sides), $G_T = |S_{21}|^2$.",
+      "formula": "G_T = \\frac{(1-|\\Gamma_S|^2)\\,|S_{21}|^2\\,(1-|\\Gamma_L|^2)}{|1-\\Gamma_S\\Gamma_{in}|^2\\,|1-S_{22}\\Gamma_L|^2}"
+    },
+    {
+      "title": "Unilateral design",
+      "body": "If $S_{12}$ is small, set it to zero: then $\\Gamma_{in} = S_{11}$ and $\\Gamma_{out} = S_{22}$, and the transducer gain splits into three factors: input match, transistor, output match. Each match factor is largest for a conjugate match, $\\Gamma_S = S_{11}^*$ and $\\Gamma_L = S_{22}^*$. In dB the three gains simply add.",
+      "formula": "\\begin{aligned}& G_{TU} = G_S\\,G_0\\,G_L,\\quad G_0 = |S_{21}|^2\\\\ & G_S = \\frac{1-|\\Gamma_S|^2}{|1 - S_{11}\\Gamma_S|^2}\\\\ & G_{S,max} = \\frac{1}{1-|S_{11}|^2}\\ \\text{at}\\ \\Gamma_S = S_{11}^*\\end{aligned}"
+    },
+    {
+      "title": "Stability",
+      "body": "If some passive load makes $|\\Gamma_{in}| > 1$ (or some source makes $|\\Gamma_{out}| > 1$), the port has a negative resistance and the amplifier can oscillate. A two-port is **unconditionally stable** at a frequency if no passive termination can do this. Rollett's test needs two conditions; the μ test needs one. Check every frequency where the transistor has gain, not only the design frequency. A potentially unstable transistor can be stabilized with a small series or shunt resistor at a port, at the cost of gain and noise.",
+      "formula": "\\begin{aligned}& \\Delta = S_{11}S_{22} - S_{12}S_{21}\\\\ & K = \\frac{1 - |S_{11}|^2 - |S_{22}|^2 + |\\Delta|^2}{2|S_{12}S_{21}|}\\\\ & K > 1 \\text{ and } |\\Delta| < 1\\\\ & \\mu = \\frac{1-|S_{11}|^2}{|S_{22} - \\Delta S_{11}^*| + |S_{12}S_{21}|} > 1\\end{aligned}"
+    },
+    {
+      "title": "Maximum gain: conjugate matching",
+      "body": "With $S_{12} \\neq 0$ the best design matches both ports at once ($\\Gamma_S = \\Gamma_{in}^*$, $\\Gamma_L = \\Gamma_{out}^*$), which is only possible for an unconditionally stable device. The resulting maximum available gain depends only on K and the forward/reverse ratio. For K < 1 the useful figure is the **maximum stable gain** (the same with K = 1). The unilateral figure of merit U bounds the error of the unilateral conjugate design ($\\Gamma_S = S_{11}^*$, $\\Gamma_L = S_{22}^*$).",
+      "formula": "\\begin{aligned}& G_{T,max} = \\frac{|S_{21}|}{|S_{12}|}\\left(K - \\sqrt{K^2-1}\\right)\\\\ & MSG = \\frac{|S_{21}|}{|S_{12}|}\\\\ & U = \\frac{|S_{11}||S_{12}||S_{21}||S_{22}|}{(1-|S_{11}|^2)(1-|S_{22}|^2)}\\\\ & \\frac{1}{(1+U)^2} < \\frac{G_T}{G_{TU}} < \\frac{1}{(1-U)^2}\\end{aligned}"
+    },
+    {
+      "title": "Worked example",
+      "body": "A FET at 4 GHz: $S_{11}$ = 0.65∠−140°, $S_{21}$ = 3.2∠75°, $S_{12}$ = 0.06∠50°, $S_{22}$ = 0.45∠−50°.\n- Δ = 0.207∠−149°, K = 1.09: unconditionally stable (μ = 1.05)\n- $G_0$ = 20 log 3.2 = 10.1 dB, $G_{S,max}$ = 2.4 dB, $G_{L,max}$ = 1.0 dB: $G_{TU,max}$ = 13.5 dB\n- U = 0.122: the unilateral design's real gain lies within −1.0 … +1.1 dB of 13.5 dB\n- Simultaneous conjugate match: $G_{T,max}$ = 53.3 × (1.09 − 0.43) = 15.5 dB (MSG = 17.3 dB)\n- Unilateral matches: $\\Gamma_S = S_{11}^*$ = 0.65∠+140°, $\\Gamma_L = S_{22}^*$ = 0.45∠+50°"
+    },
+    {
+      "title": "Low noise versus gain",
+      "body": "A transistor has its lowest noise figure $F_{min}$ for one source reflection $\\Gamma_{opt}$, which is generally **not** $S_{11}^*$. Away from it the noise rises at a rate set by the noise resistance $R_N$. An LNA's input is therefore matched for noise, not gain: it gives up some gain and accepts an input mismatch. Circles of constant F and constant $G_S$ on the Smith chart show the trade-off; balanced amplifiers or isolators can restore the input match.",
+      "formula": "\\begin{aligned}& F = F_{min} + \\frac{4R_N}{Z_0}\\cdot\\frac{|\\Gamma_S - \\Gamma_{opt}|^2}{D}\\\\ & D = (1-|\\Gamma_S|^2)\\,|1+\\Gamma_{opt}|^2\\end{aligned}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "rf-amplifiers-1",
+      "title": "Gains of a transistor two-port",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "What each port sees",
+          "body": "The input matching network presents $\\Gamma_S$ to the transistor, the output network $\\Gamma_L$. The small reverse transmission $S_{12}$ couples the ports: the output reflection depends on the source termination and vice versa.",
+          "formula": "\\Gamma_{out} = S_{22} + \\frac{S_{12}S_{21}\\Gamma_S}{1 - S_{11}\\Gamma_S}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.7], "a11": [-150, -100], "m21": [2.5, 4], "a21": [60, 90], "m12": [0.05, 0.1], "a12": [30, 60], "m22": [0.4, 0.6], "a22": [-60, -30], "GS": [-0.6, -0.3, 0.3, 0.6]},
+          "derived": {
+            "nr": "m12*m21*GS*cos(rad(a12+a21))",
+            "ni": "m12*m21*GS*sin(rad(a12+a21))",
+            "dr": "1-m11*GS*cos(rad(a11))",
+            "di": "-m11*GS*sin(rad(a11))",
+            "fr": "(nr*dr+ni*di)/(dr^2+di^2)",
+            "fi": "(ni*dr-nr*di)/(dr^2+di^2)",
+            "gr": "m22*cos(rad(a22))+fr",
+            "gi": "m22*sin(rad(a22))+fi"
+          },
+          "prompt": "A transistor has $S_{11}$ = {{m11}}∠{{a11}}°, $S_{21}$ = {{m21}}∠{{a21}}°, $S_{12}$ = {{m12}}∠{{a12}}°, $S_{22}$ = {{m22}}∠{{a22}}°. The source presents $\\Gamma_S$ = {{GS}}. Find $|\\Gamma_{out}|$.",
+          "answer": "sqrt(gr^2+gi^2)",
+          "unit": "",
+          "explanation": "$S_{12}S_{21}\\Gamma_S$ = {{nr}} + j({{ni}}); $1 - S_{11}\\Gamma_S$ = {{dr}} + j({{di}}); ratio {{fr}} + j({{fi}}). Add $S_{22}$ = {{m22*cos(rad(a22))}} + j({{m22*sin(rad(a22))}}): $\\Gamma_{out}$ = {{gr}} + j({{gi}}), so $|\\Gamma_{out}|$ = **{{sqrt(gr^2+gi^2)}}** (versus $|S_{22}|$ = {{m22}})."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Which gain?",
+          "body": "Transducer gain $G_T$ compares the load power with the power the source could deliver: it includes every mismatch and is what you measure in a 50 Ω system. Operating gain G uses the power actually entering the amplifier; available gain $G_A$ the power the amplifier could deliver to a matched load."
+        },
+        {
+          "id": "q2",
+          "type": "matchPairs",
+          "prompt": "Match each gain to its definition.",
+          "pairs": [
+            ["Transducer gain $G_T$", "$P_L$ / power available from the source"],
+            ["Operating gain $G$", "$P_L$ / power entering the input"],
+            ["Available gain $G_A$", "Power available at the output / power available from the source"],
+            ["$|S_{21}|^2$", "$G_T$ with 50 Ω source and load"]
+          ],
+          "explanation": "$G_T$ includes both mismatches; $G$ ignores the input mismatch (it starts from the power that actually enters); $G_A$ ignores the output mismatch (it assumes a conjugate load). With $\\Gamma_S = \\Gamma_L = 0$ the transducer gain reduces to $|S_{21}|^2$."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.6, 0.7], "a11": [-160, -120, -80], "m21": [2, 3, 4], "m22": [0.3, 0.5], "a22": [-60, -30], "GS": [-0.5, 0.5, 0.7], "GL": [-0.3, 0.3]},
+          "derived": {
+            "qs": "1-2*m11*GS*cos(rad(a11))+(m11*GS)^2",
+            "ql": "1-2*m22*GL*cos(rad(a22))+(m22*GL)^2",
+            "Gs": "(1-GS^2)/(1-2*m11*GS*cos(rad(a11))+(m11*GS)^2)",
+            "Gl": "(1-GL^2)/(1-2*m22*GL*cos(rad(a22))+(m22*GL)^2)"
+          },
+          "prompt": "A unilateral transistor ($S_{12}$ ≈ 0) has $S_{11}$ = {{m11}}∠{{a11}}°, $|S_{21}|$ = {{m21}}, $S_{22}$ = {{m22}}∠{{a22}}°. The matching networks present $\\Gamma_S$ = {{GS}} and $\\Gamma_L$ = {{GL}}. Find the transducer gain in dB.",
+          "answer": "10*log10(Gs)+20*log10(m21)+10*log10(Gl)",
+          "unit": "dB",
+          "absTolerance": 0.05,
+          "explanation": "$|1 - S_{11}\\Gamma_S|^2 = 1 - 2|S_{11}|\\Gamma_S\\cos\\angle S_{11} + |S_{11}|^2\\Gamma_S^2$ = {{qs}}, so $G_S$ = (1 − {{GS^2}})/{{qs}} = {{Gs}} ({{10*log10(Gs)}} dB). Likewise $G_L$ = (1 − {{GL^2}})/{{ql}} = {{Gl}} ({{10*log10(Gl)}} dB). $G_0$ = 20 log {{m21}} = {{20*log10(m21)}} dB. Total: **{{10*log10(Gs)+20*log10(m21)+10*log10(Gl)}} dB**."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "When a transistor is placed directly between a 50 Ω source and a 50 Ω load, its transducer gain is $|S_{21}|^2$.",
+          "answer": true,
+          "explanation": "True. With $\\Gamma_S = \\Gamma_L = 0$ every factor in the $G_T$ formula except $|S_{21}|^2$ becomes 1. That is exactly how $S_{21}$ is defined: forward transmission between matched (50 Ω) terminations."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Maximum unilateral gain",
+          "body": "For a unilateral transistor the input and output can be matched separately. A conjugate match ($\\Gamma_S = S_{11}^*$, $\\Gamma_L = S_{22}^*$) gives the largest $G_S$ and $G_L$. A badly matched transistor gains the most from matching.",
+          "formula": "G_{TU,max} = \\frac{|S_{21}|^2}{(1-|S_{11}|^2)(1-|S_{22}|^2)}"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.6, 0.7, 0.8], "m21": [2, 2.5, 3, 4], "m22": [0.3, 0.4, 0.5, 0.6]},
+          "prompt": "A unilateral transistor has $|S_{11}|$ = {{m11}}, $|S_{21}|$ = {{m21}}, $|S_{22}|$ = {{m22}}.",
+          "ask": [
+            {
+              "prompt": "How much gain (dB) does the conjugate input match add?",
+              "answer": "-10*log10(1-m11^2)",
+              "unit": "dB",
+              "explanation": "$G_{S,max} = 1/(1 - |S_{11}|^2)$ = 1/(1 − {{m11^2}}) = {{1/(1-m11^2)}}, i.e. **{{-10*log10(1-m11^2)}} dB**."
+            },
+            {
+              "prompt": "What is the maximum unilateral transducer gain in dB?",
+              "answer": "20*log10(m21)-10*log10(1-m11^2)-10*log10(1-m22^2)",
+              "unit": "dB",
+              "explanation": "$G_0$ = 20 log {{m21}} = {{20*log10(m21)}} dB, $G_{S,max}$ = {{-10*log10(1-m11^2)}} dB, $G_{L,max}$ = −10 log(1 − {{m22^2}}) = {{-10*log10(1-m22^2)}} dB. Sum: **{{20*log10(m21)-10*log10(1-m11^2)-10*log10(1-m22^2)}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {"m11": [0.5, 0.6, 0.7], "a11": [-160, -130, -110, -60]},
+          "prompt": "A unilateral transistor has $S_{11}$ = {{m11}}∠{{a11}}°. Which source reflection coefficient gives the maximum gain?",
+          "options": ["{{m11}}∠{{-a11}}°", "{{m11}}∠{{a11}}°", "{{m11}}∠{{a11+180}}°", "{{1/m11}}∠{{-a11}}°"],
+          "answer": 0,
+          "explanation": "Maximum $G_S$ needs a conjugate match: $\\Gamma_S = S_{11}^*$ = **{{m11}}∠{{-a11}}°** (same magnitude, opposite angle). $\\Gamma_S = S_{11}$ forgets the conjugate and gives less gain; a magnitude above 1 is not passive."
+        }
+      ]
+    },
+    {
+      "id": "rf-amplifiers-2",
+      "title": "Stability",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Negative resistance",
+          "body": "Feedback through $S_{12}$ can make $|\\Gamma_{in}| > 1$ for some loads: the input then has a negative resistance and, with the right source, the amplifier oscillates. Rollett's test: the two-port is unconditionally stable if K > 1 **and** |Δ| < 1.",
+          "formula": "\\begin{aligned}& \\Delta = S_{11}S_{22} - S_{12}S_{21}\\\\ & K = \\frac{1 - |S_{11}|^2 - |S_{22}|^2 + |\\Delta|^2}{2|S_{12}S_{21}|}\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.6, 0.7, 0.8], "a11": [-160, -120, -80], "m21": [2, 3, 4, 5], "a21": [40, 70, 100], "m12": [0.03, 0.06, 0.1], "a12": [20, 50, 70], "m22": [0.3, 0.5, 0.7], "a22": [-80, -50, -30]},
+          "derived": {
+            "p1": "m11*m22",
+            "p2": "m12*m21",
+            "Dr": "m11*m22*cos(rad(a11+a22))-m12*m21*cos(rad(a12+a21))",
+            "Di": "m11*m22*sin(rad(a11+a22))-m12*m21*sin(rad(a12+a21))"
+          },
+          "prompt": "A transistor has $S_{11}$ = {{m11}}∠{{a11}}°, $S_{21}$ = {{m21}}∠{{a21}}°, $S_{12}$ = {{m12}}∠{{a12}}°, $S_{22}$ = {{m22}}∠{{a22}}°. Find |Δ|.",
+          "answer": "sqrt(Dr^2+Di^2)",
+          "unit": "",
+          "absTolerance": 0.005,
+          "explanation": "$S_{11}S_{22}$ = {{p1}}∠{{a11+a22}}° = {{p1*cos(rad(a11+a22))}} + j({{p1*sin(rad(a11+a22))}}). $S_{12}S_{21}$ = {{p2}}∠{{a12+a21}}° = {{p2*cos(rad(a12+a21))}} + j({{p2*sin(rad(a12+a21))}}). Δ = difference = {{Dr}} + j({{Di}}), |Δ| = **{{sqrt(Dr^2+Di^2)}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.6, 0.7, 0.8], "a11": [-160, -120, -80], "m21": [2, 3, 4, 5], "a21": [40, 70, 100], "m12": [0.03, 0.06, 0.1], "a12": [20, 50, 70], "m22": [0.3, 0.5, 0.7], "a22": [-80, -50, -30]},
+          "derived": {
+            "Dr": "m11*m22*cos(rad(a11+a22))-m12*m21*cos(rad(a12+a21))",
+            "Di": "m11*m22*sin(rad(a11+a22))-m12*m21*sin(rad(a12+a21))",
+            "D2": "(m11*m22*cos(rad(a11+a22))-m12*m21*cos(rad(a12+a21)))^2+(m11*m22*sin(rad(a11+a22))-m12*m21*sin(rad(a12+a21)))^2",
+            "K": "(1-m11^2-m22^2+D2)/(2*m12*m21)"
+          },
+          "require": "abs(K-1)-0.05",
+          "prompt": "For a transistor with $S_{11}$ = {{m11}}∠{{a11}}°, $S_{21}$ = {{m21}}∠{{a21}}°, $S_{12}$ = {{m12}}∠{{a12}}°, $S_{22}$ = {{m22}}∠{{a22}}°:",
+          "ask": [
+            {
+              "prompt": "find Rollett's stability factor K.",
+              "answer": "K",
+              "unit": "",
+              "explanation": "Δ = $S_{11}S_{22} - S_{12}S_{21}$ = {{Dr}} + j({{Di}}), $|\\Delta|^2$ = {{D2}}. K = (1 − {{m11^2}} − {{m22^2}} + {{D2}}) / (2 × {{m12*m21}}) = **{{K}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "params": {"m11": [0.5, 0.6, 0.7, 0.8], "a11": [-160, -120, -80], "m21": [2, 3, 4, 5], "a21": [40, 70, 100], "m12": [0.03, 0.06, 0.1], "a12": [20, 50, 70], "m22": [0.3, 0.5, 0.7], "a22": [-80, -50, -30]},
+          "derived": {
+            "D2": "(m11*m22*cos(rad(a11+a22))-m12*m21*cos(rad(a12+a21)))^2+(m11*m22*sin(rad(a11+a22))-m12*m21*sin(rad(a12+a21)))^2",
+            "K": "(1-m11^2-m22^2+D2)/(2*m12*m21)"
+          },
+          "require": "abs(K-1)-0.05",
+          "prompt": "A transistor has $S_{11}$ = {{m11}}∠{{a11}}°, $S_{21}$ = {{m21}}∠{{a21}}°, $S_{12}$ = {{m12}}∠{{a12}}°, $S_{22}$ = {{m22}}∠{{a22}}°, giving K = {{K}} and |Δ| = {{sqrt(D2)}}. It is unconditionally stable at this frequency.",
+          "answer": "min(K-1, 1-sqrt(D2))",
+          "explanation": "Rollett: unconditionally stable if K > 1 **and** |Δ| < 1. Here K = {{K}} and |Δ| = {{sqrt(D2)}}, so check K − 1 = {{K-1}} and 1 − |Δ| = {{1-sqrt(D2)}}: the transistor is unconditionally stable only if both are positive. If K < 1, some passive source or load inside the Smith chart makes a port reflection exceed 1: potentially unstable."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "One-number test and cures",
+          "body": "Edwards and Sinsky's μ is a single test: μ > 1 means unconditionally stable, and a larger μ means more margin. A potentially unstable transistor can still be used if the chosen $\\Gamma_S$ and $\\Gamma_L$ stay in the stable regions (outside the stability circles), or it is stabilized with a small resistor at the input or output.",
+          "formula": "\\mu = \\frac{1-|S_{11}|^2}{|S_{22} - \\Delta S_{11}^*| + |S_{12}S_{21}|}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.6, 0.7], "a11": [-160, -120, -80], "m21": [2, 3, 4], "a21": [40, 70, 100], "m12": [0.03, 0.06, 0.1], "a12": [20, 50], "m22": [0.3, 0.5], "a22": [-80, -40]},
+          "derived": {
+            "c11": "m11*cos(rad(a11))",
+            "s11": "m11*sin(rad(a11))",
+            "Dr": "m11*m22*cos(rad(a11+a22))-m12*m21*cos(rad(a12+a21))",
+            "Di": "m11*m22*sin(rad(a11+a22))-m12*m21*sin(rad(a12+a21))",
+            "er": "m22*cos(rad(a22))-(Dr*c11+Di*s11)",
+            "ei": "m22*sin(rad(a22))-(Di*c11-Dr*s11)",
+            "mu": "(1-m11^2)/(sqrt(er^2+ei^2)+m12*m21)"
+          },
+          "require": "abs(mu-1)-0.03",
+          "prompt": "Compute the μ stability factor of a transistor with $S_{11}$ = {{m11}}∠{{a11}}°, $S_{21}$ = {{m21}}∠{{a21}}°, $S_{12}$ = {{m12}}∠{{a12}}°, $S_{22}$ = {{m22}}∠{{a22}}°.",
+          "answer": "mu",
+          "unit": "",
+          "explanation": "Δ = {{Dr}} + j({{Di}}). $\\Delta S_{11}^*$ = {{Dr*c11+Di*s11}} + j({{Di*c11-Dr*s11}}), so $S_{22} - \\Delta S_{11}^*$ = {{er}} + j({{ei}}) with magnitude {{sqrt(er^2+ei^2)}}. μ = (1 − {{m11^2}}) / ({{sqrt(er^2+ei^2)}} + {{m12*m21}}) = **{{mu}}**: μ > 1 means unconditionally stable."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Your transistor has K = 0.8 at the design frequency. Which is a standard way to make a stable amplifier with it?",
+          "options": [
+            "Add a small series or shunt resistor at the input or output (resistive loading)",
+            "Conjugately match both ports: that always makes the amplifier stable",
+            "Raise the gain with a larger output matching inductor",
+            "Nothing: K < 1 only matters for power amplifiers"
+          ],
+          "answer": 0,
+          "explanation": "Resistive loading adds loss exactly where the negative resistance would appear, raising K above 1 at the cost of some gain (and noise, if at the input). A simultaneous conjugate match does not even exist for K < 1. Alternatively, choose $\\Gamma_S$ and $\\Gamma_L$ well inside the stable regions."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each statement to what it means.",
+          "pairs": [
+            ["K > 1 and |Δ| < 1", "Unconditionally stable"],
+            ["μ > 1", "Stable, from a single test"],
+            ["$|\\Gamma_{in}| > 1$", "Negative input resistance"],
+            ["Stability circle", "Boundary where $|\\Gamma_{in}| = 1$ or $|\\Gamma_{out}| = 1$"]
+          ],
+          "explanation": "Rollett needs two conditions, μ only one. A reflection coefficient larger than 1 means the port returns more power than it receives: a negative resistance. The stability circles on the Smith chart separate the safe terminations from the dangerous ones."
+        }
+      ]
+    },
+    {
+      "id": "rf-amplifiers-3",
+      "title": "Designing for gain",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"m11": [0.4, 0.55, 0.7, 0.85], "m21": [2, 3, 4.5], "m22": [0.3, 0.45, 0.6]},
+          "prompt": "Find the maximum unilateral transducer gain (dB) of a transistor with $|S_{11}|$ = {{m11}}, $|S_{21}|$ = {{m21}}, $|S_{22}|$ = {{m22}}.",
+          "answer": "20*log10(m21)-10*log10(1-m11^2)-10*log10(1-m22^2)",
+          "unit": "dB",
+          "explanation": "$G_0$ = 20 log {{m21}} = {{20*log10(m21)}} dB. $G_{S,max} = 1/(1 - |S_{11}|^2)$: {{-10*log10(1-m11^2)}} dB. $G_{L,max} = 1/(1-|S_{22}|^2)$: {{-10*log10(1-m22^2)}} dB. $G_{TU,max}$ = **{{20*log10(m21)-10*log10(1-m11^2)-10*log10(1-m22^2)}} dB**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.6, 0.7], "a11": [-150, -110, -70], "mS": [0.3, 0.5, 0.7], "aS": [60, 100, 140, 180]},
+          "derived": {"q": "1-2*m11*mS*cos(rad(a11+aS))+(m11*mS)^2", "GS": "(1-mS^2)/(1-2*m11*mS*cos(rad(a11+aS))+(m11*mS)^2)"},
+          "prompt": "A unilateral transistor has $S_{11}$ = {{m11}}∠{{a11}}°. The input network presents $\\Gamma_S$ = {{mS}}∠{{aS}}°. Find the input matching gain $G_S$ in dB.",
+          "answer": "10*log10(GS)",
+          "unit": "dB",
+          "absTolerance": 0.03,
+          "explanation": "$S_{11}\\Gamma_S$ = {{m11*mS}}∠{{a11+aS}}°, so $|1 - S_{11}\\Gamma_S|^2$ = 1 − 2 × {{m11*mS}} × cos({{a11+aS}}°) + {{(m11*mS)^2}} = {{q}}. $G_S$ = (1 − {{mS^2}})/{{q}} = {{GS}}, i.e. **{{10*log10(GS)}} dB** (the maximum, at $\\Gamma_S$ = {{m11}}∠{{-a11}}°, is {{-10*log10(1-m11^2)}} dB)."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.6, 0.7, 0.8], "m21": [2, 3, 4], "m12": [0.03, 0.05, 0.08], "m22": [0.4, 0.5, 0.6]},
+          "derived": {"U": "m11*m12*m21*m22/((1-m11^2)*(1-m22^2))"},
+          "prompt": "A transistor has $|S_{11}|$ = {{m11}}, $|S_{21}|$ = {{m21}}, $|S_{12}|$ = {{m12}}, $|S_{22}|$ = {{m22}}. You design it as if it were unilateral, with $\\Gamma_S = S_{11}^*$ and $\\Gamma_L = S_{22}^*$.",
+          "ask": [
+            {
+              "prompt": "Find the unilateral figure of merit U.",
+              "answer": "U",
+              "unit": "",
+              "explanation": "U = {{m11}} × {{m12}} × {{m21}} × {{m22}} / ((1 − {{m11^2}})(1 − {{m22^2}})) = {{m11*m12*m21*m22}} / {{(1-m11^2)*(1-m22^2)}} = **{{U}}**."
+            },
+            {
+              "prompt": "By at most how many dB can the real gain exceed the unilateral prediction?",
+              "answer": "-20*log10(1-U)",
+              "unit": "dB",
+              "explanation": "U = {{U}}. The upper bound is $1/(1-U)^2$: −20 log(1 − {{U}}) = **{{-20*log10(1-U)}} dB** (the lower bound is −20 log(1 + U) = {{-20*log10(1+U)}} dB). A few tenths of a dB justifies the unilateral assumption."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"m21": [2, 3, 4, 5], "m12": [0.03, 0.05, 0.08], "K": [1.1, 1.3, 1.6, 2]},
+          "prompt": "A transistor has $|S_{21}|$ = {{m21}}, $|S_{12}|$ = {{m12}} and K = {{K}} (|Δ| < 1).",
+          "ask": [
+            {
+              "prompt": "Both ports are conjugately matched at the same time. Find the maximum transducer gain in dB.",
+              "answer": "10*log10(m21/m12*(K-sqrt(K^2-1)))",
+              "unit": "dB",
+              "explanation": "$G_{T,max} = \\frac{|S_{21}|}{|S_{12}|}(K - \\sqrt{K^2-1})$ = {{m21/m12}} × ({{K}} − {{sqrt(K^2-1)}}) = {{m21/m12*(K-sqrt(K^2-1))}}, i.e. **{{10*log10(m21/m12*(K-sqrt(K^2-1)))}} dB**."
+            },
+            {
+              "prompt": "Find its maximum stable gain MSG (the value $G_{T,max}$ would reach for K → 1) in dB.",
+              "answer": "10*log10(m21/m12)",
+              "unit": "dB",
+              "explanation": "MSG = $|S_{21}|/|S_{12}|$ = {{m21/m12}}, i.e. **{{10*log10(m21/m12)}} dB**. Note: a power ratio of $|S_{21}|/|S_{12}|$, so 10 log, not 20 log."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {"m11": [0.5, 0.6, 0.7, 0.8], "a11": [-160, -130, -100, -70]},
+          "prompt": "$S_{11}$ = {{m11}}∠{{a11}}° (blue). The input network presents $\\Gamma_S$ (red) with $|\\Gamma_S|$ = {{m11}}. Drag its angle to maximize the input matching gain $G_S$.",
+          "plot": {
+            "smith": true,
+            "sliders": [{"name": "ang", "label": "$\\angle\\Gamma_S$", "min": -180, "max": 180, "step": 1, "value": 0, "unit": "°"}],
+            "let": {"gs": "(1-m11^2)/(1-2*m11^2*cos(rad(a11+ang))+m11^4)"},
+            "curves": [{"x": "m11*cos(t)", "y": "m11*sin(t)", "t": [0, "2*pi"], "color": "grey", "dash": true}],
+            "points": [
+              {"x": "m11*cos(rad(a11))", "y": "m11*sin(rad(a11))", "label": "S_11", "color": "blue"},
+              {"x": "m11*cos(rad(ang))", "y": "m11*sin(rad(ang))", "label": "Γ_S", "color": "red"}
+            ],
+            "readouts": [{"label": "$G_S$", "value": "10*log10(gs)", "unit": "dB"}]
+          },
+          "answer": {"ang": "-a11"},
+          "tolerance": 0.001,
+          "absTolerance": 4,
+          "explanation": "$G_S$ is largest for the conjugate match $\\Gamma_S = S_{11}^*$: the mirror image of $S_{11}$ in the real axis, angle **{{-a11}}°**. Then $G_S = 1/(1-|S_{11}|^2)$ = {{-10*log10(1-m11^2)}} dB. The lowest $G_S$ on this circle lies diametrically opposite, at $\\Gamma_S = -S_{11}^*$ (angle {{mod(-a11, 360)-180}}°)."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.6, 0.7, 0.8], "a11": [-160, -130, -100, -70]},
+          "derived": {"ph": "rad(-a11)", "q": "1-2*m11*cos(rad(-a11))+m11^2"},
+          "prompt": "For a gain match to $S_{11}$ = {{m11}}∠{{a11}}°, the input network must present $\\Gamma_S = S_{11}^*$ (in a 50 Ω system).",
+          "ask": [
+            {
+              "prompt": "Find the resistance part of $Z_S$.",
+              "answer": "50*(1-m11^2)/q",
+              "unit": "Ω",
+              "explanation": "$\\Gamma_S$ = {{m11}}∠{{-a11}}°. $Z_S = 50\\frac{1+\\Gamma_S}{1-\\Gamma_S}$: $R_S = 50(1-|\\Gamma|^2)/|1-\\Gamma|^2$ with $|1-\\Gamma|^2$ = 1 − 2 × {{m11}} × cos({{-a11}}°) + {{m11^2}} = {{q}}: $R_S$ = **{{50*(1-m11^2)/q|Ω}}**."
+            },
+            {
+              "prompt": "Find the reactance part of $Z_S$ (with sign).",
+              "answer": "50*2*m11*sin(ph)/q",
+              "unit": "Ω",
+              "explanation": "$X_S = 50\\cdot 2|\\Gamma|\\sin\\angle\\Gamma/|1-\\Gamma|^2$ = 100 × {{m11}} × sin({{-a11}}°)/{{q}} = **{{100*m11*sin(ph)/q|Ω}}**: the source must look inductive to cancel the capacitive transistor input."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "For a unilateral transistor, conjugately matching the input and the output separately gives the maximum transducer gain.",
+          "answer": true,
+          "explanation": "True. With $S_{12} = 0$ the gain factors into $G_SG_0G_L$, and $G_S$ and $G_L$ are maximized independently by $\\Gamma_S = S_{11}^*$ and $\\Gamma_L = S_{22}^*$. With $S_{12} \\neq 0$ the two matches interact and must be solved simultaneously."
+        }
+      ]
+    },
+    {
+      "id": "rf-amplifiers-4",
+      "title": "Low noise versus gain",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {"Fm": [0.5, 0.8, 1.2], "RN": [8, 15, 25], "mo": [0.4, 0.5, 0.6], "ao": [60, 100, 140], "m11": [0.6, 0.7], "a11": [-150, -110]},
+          "derived": {
+            "dx": "m11*cos(rad(-a11))-mo*cos(rad(ao))",
+            "dy": "m11*sin(rad(-a11))-mo*sin(rad(ao))",
+            "d2": "(m11*cos(rad(-a11))-mo*cos(rad(ao)))^2+(m11*sin(rad(-a11))-mo*sin(rad(ao)))^2",
+            "o2": "(1+mo*cos(rad(ao)))^2+(mo*sin(rad(ao)))^2",
+            "F": "10^(Fm/10)+4*RN/50*d2/((1-m11^2)*o2)"
+          },
+          "prompt": "A FET has $F_{min}$ = {{Fm}} dB, $R_N$ = {{RN}} Ω, $\\Gamma_{opt}$ = {{mo}}∠{{ao}}° and $S_{11}$ = {{m11}}∠{{a11}}° (unilateral). The input is matched for maximum **gain**, $\\Gamma_S = S_{11}^*$. Find the resulting noise figure in dB.",
+          "answer": "10*log10(F)",
+          "unit": "dB",
+          "explanation": "$\\Gamma_S$ = {{m11}}∠{{-a11}}°. $|\\Gamma_S - \\Gamma_{opt}|^2$ = ({{dx}})² + ({{dy}})² = {{d2}}; $|1 + \\Gamma_{opt}|^2$ = {{o2}}; $1 - |\\Gamma_S|^2$ = {{1-m11^2}}. F = {{10^(Fm/10)}} + 4 × {{RN}}/50 × {{d2}}/({{1-m11^2}} × {{o2}}) = {{F}}, so NF = **{{10*log10(F)}} dB** instead of {{Fm}} dB."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {"mo": [0.4, 0.5, 0.6], "ao": [60, 100, 140], "m11": [0.6, 0.7, 0.8], "a11": [-150, -110, -70]},
+          "derived": {
+            "nr": "mo*cos(rad(ao))-m11*cos(rad(a11))",
+            "ni": "mo*sin(rad(ao))+m11*sin(rad(a11))",
+            "dr": "1-mo*m11*cos(rad(ao+a11))",
+            "di": "-mo*m11*sin(rad(ao+a11))",
+            "Ga": "sqrt((nr^2+ni^2)/(dr^2+di^2))"
+          },
+          "prompt": "An LNA uses a unilateral FET with $S_{11}$ = {{m11}}∠{{a11}}°; its lossless input network presents $\\Gamma_S = \\Gamma_{opt}$ = {{mo}}∠{{ao}}° for minimum noise. What VSWR does the 50 Ω source see?",
+          "answer": "(1+Ga)/(1-Ga)",
+          "unit": "",
+          "explanation": "The mismatch between $\\Gamma_S$ and $\\Gamma_{in} = S_{11}$ appears at the 50 Ω side as $|\\Gamma_a| = \\left|\\frac{\\Gamma_S - S_{11}^*}{1 - \\Gamma_SS_{11}}\\right|$. Numerator: {{nr}} + j({{ni}}); denominator: {{dr}} + j({{di}}). $|\\Gamma_a|$ = {{Ga}}, VSWR = (1 + {{Ga}})/(1 − {{Ga}}) = **{{(1+Ga)/(1-Ga)}}**. This is why LNAs often have a poor input match."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {"m11": [0.5, 0.6, 0.7], "a11": [-160, -120], "m21": [2, 3, 4], "a21": [60, 90], "m12": [0.03, 0.05], "a12": [30, 60], "m22": [0.3, 0.5], "a22": [-60, -30]},
+          "derived": {
+            "Dr": "m11*m22*cos(rad(a11+a22))-m12*m21*cos(rad(a12+a21))",
+            "Di": "m11*m22*sin(rad(a11+a22))-m12*m21*sin(rad(a12+a21))",
+            "D2": "(m11*m22*cos(rad(a11+a22))-m12*m21*cos(rad(a12+a21)))^2+(m11*m22*sin(rad(a11+a22))-m12*m21*sin(rad(a12+a21)))^2",
+            "K": "(1-m11^2-m22^2+D2)/(2*m12*m21)"
+          },
+          "require": "min(K-1.05, 1-sqrt(D2))",
+          "prompt": "A transistor has $S_{11}$ = {{m11}}∠{{a11}}°, $S_{21}$ = {{m21}}∠{{a21}}°, $S_{12}$ = {{m12}}∠{{a12}}°, $S_{22}$ = {{m22}}∠{{a22}}°. Check its stability and find the maximum gain with a simultaneous conjugate match, in dB.",
+          "answer": "10*log10(m21/m12*(K-sqrt(K^2-1)))",
+          "unit": "dB",
+          "explanation": "Δ = {{Dr}} + j({{Di}}), |Δ| = {{sqrt(D2)}} < 1. K = (1 − {{m11^2}} − {{m22^2}} + {{D2}})/(2 × {{m12*m21}}) = {{K}} > 1: unconditionally stable. $G_{T,max}$ = {{m21/m12}} × ({{K}} − {{sqrt(K^2-1)}}) = {{m21/m12*(K-sqrt(K^2-1))}} = **{{10*log10(m21/m12*(K-sqrt(K^2-1)))}} dB**."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {"m11": [0.6, 0.7], "a11": [-140, -100], "m21": [2.5, 3.5], "m22": [0.4, 0.5], "a22": [-50, -30], "mS": [0.5, 0.6], "aS": [90, 130], "mL": [0.3, 0.4], "aL": [20, 50]},
+          "derived": {
+            "Gs": "(1-mS^2)/(1-2*m11*mS*cos(rad(a11+aS))+(m11*mS)^2)",
+            "Gl": "(1-mL^2)/(1-2*m22*mL*cos(rad(a22+aL))+(m22*mL)^2)"
+          },
+          "prompt": "A unilateral design uses a transistor with $S_{11}$ = {{m11}}∠{{a11}}°, $|S_{21}|$ = {{m21}}, $S_{22}$ = {{m22}}∠{{a22}}°. The matching networks present $\\Gamma_S$ = {{mS}}∠{{aS}}° (a compromise for low noise) and $\\Gamma_L$ = {{mL}}∠{{aL}}°. Find the transducer gain in dB.",
+          "answer": "10*log10(Gs)+20*log10(m21)+10*log10(Gl)",
+          "unit": "dB",
+          "absTolerance": 0.05,
+          "explanation": "$G_S$ = (1 − {{mS^2}})/|1 − $S_{11}\\Gamma_S$|² with $S_{11}\\Gamma_S$ = {{m11*mS}}∠{{a11+aS}}°: {{Gs}} ({{10*log10(Gs)}} dB). $G_L$ = (1 − {{mL^2}})/|1 − $S_{22}\\Gamma_L$|² with $S_{22}\\Gamma_L$ = {{m22*mL}}∠{{a22+aL}}°: {{Gl}} ({{10*log10(Gl)}} dB). $G_0$ = {{20*log10(m21)}} dB. $G_{TU}$ = **{{10*log10(Gs)+20*log10(m21)+10*log10(Gl)}} dB**, against {{20*log10(m21)-10*log10(1-m11^2)-10*log10(1-m22^2)}} dB for a full gain match."
+        },
+        {
+          "id": "c5",
+          "type": "trueFalse",
+          "prompt": "The input of a low-noise amplifier is normally conjugately matched to the transistor, $\\Gamma_S = \\Gamma_{in}^*$, for maximum gain.",
+          "answer": false,
+          "explanation": "False. For lowest noise the source must present $\\Gamma_{opt}$, which usually differs from $\\Gamma_{in}^*$. The LNA accepts some lost gain and a worse input match to reach a noise figure near $F_{min}$. Gain is cheap (add a stage); noise added at the input cannot be removed."
+        },
+        {
+          "id": "c6",
+          "type": "orderSteps",
+          "prompt": "Put the steps of a single-stage transistor amplifier design in order.",
+          "items": [
+            "Choose the transistor and bias, and get its S-parameters (and noise parameters)",
+            "Check stability (K and |Δ|, or μ) over the whole band",
+            "Choose $\\Gamma_S$ and $\\Gamma_L$ for gain, noise or a compromise",
+            "Design the input and output matching networks",
+            "Simulate or measure gain, noise figure, match and stability"
+          ],
+          "explanation": "S-parameters depend on the bias, so that comes first. A potentially unstable device restricts which terminations are allowed, so check before choosing $\\Gamma_S$ and $\\Gamma_L$. Then realize them with matching networks (L-sections, stubs) and verify, including out-of-band stability."
+        }
+      ]
+    }
+  ]
+}

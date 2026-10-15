@@ -1,0 +1,1303 @@
+{
+  "id": "pe-control",
+  "title": "Converter Dynamics & Control",
+  "description": "Averaged and small-signal converter models, the buck's control-to-output transfer function, loop gain, crossover and phase margin, and compensator design.",
+  "reference": "Erickson ch. 7–9",
+  "study": [
+    {
+      "title": "Averaged models",
+      "body": "To design a feedback loop we need the converter's response to slow changes of $d$, $v_g$ and the load. Averaging every waveform over one switching period removes the switching ripple but keeps the low-frequency dynamics. For the buck the averaged switch-node voltage is $d(t)v_g(t)$, so the averaged inductor obeys the equation below. The model is valid well below $f_s$.",
+      "formula": "L\\frac{d\\langle i_L\\rangle}{dt} = d(t)\\,\\langle v_g\\rangle - \\langle v\\rangle"
+    },
+    {
+      "title": "Small-signal linearization",
+      "body": "Write each quantity as DC value plus small perturbation: $d = D + \\hat d$, $v_g = V_g + \\hat v_g$, $v = V + \\hat v$. Products such as $d\\,v_g$ expand into $DV_g$ (DC), first-order terms $V_g\\hat d + D\\hat v_g$ (kept) and the second-order term $\\hat d\\hat v_g$ (dropped). What remains is a linear circuit with transfer functions such as the **control-to-output** $G_{vd} = \\hat v/\\hat d$ and **line-to-output** $G_{vg} = \\hat v/\\hat v_g$.",
+      "formula": "d\\,v_g \\approx DV_g + V_g\\hat d + D\\hat v_g"
+    },
+    {
+      "title": "Explore: buck control-to-output",
+      "body": "For the buck, $\\hat d$ acts like a voltage source $V_g\\hat d$ driving the LC filter loaded by $R$: a second-order low-pass with a double pole at $f_0 = 1/(2\\pi\\sqrt{LC})$ and quality factor $Q = R\\sqrt{C/L}$. Above $f_0$ the gain falls at −40 dB/decade and the phase drops to −180°. Light loads (large $R$) give a high $Q$ and a sharp resonant peak: at $f_0$ the gain is $20\\log_{10}Q$ dB above its low-frequency value. Drag $Q$ ($V_g$ = 12 V, $f_0$ = 1 kHz).",
+      "formula": "\\begin{aligned}& G_{vd}(s) = \\frac{V_g}{1 + s\\frac{L}{R} + s^2LC}\\\\ & \\phantom{G_{vd}(s)} = \\frac{V_g}{1 + \\frac{s}{Q\\omega_0} + \\left(\\frac{s}{\\omega_0}\\right)^2}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 100,
+          "max": 100000.0,
+          "log": true,
+          "label": "f",
+          "unit": "Hz"
+        },
+        "y": {
+          "min": -40,
+          "max": 50,
+          "label": "|G_vd| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "Q",
+            "label": "$Q$",
+            "min": 0.2,
+            "max": 10,
+            "log": true,
+            "value": 2
+          }
+        ],
+        "curves": [
+          {
+            "f": "20*log10(12/sqrt((1 - (x/1000)^2)^2 + (x/(Q*1000))^2))"
+          }
+        ],
+        "hlines": [
+          {
+            "y": "20*log10(12)",
+            "color": "grey",
+            "label": "V_g = 21.6 dB"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "peak at $f_0$",
+            "value": "20*log10(12*Q)",
+            "unit": "dB"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Capacitor ESR and the boost's RHP zero",
+      "body": "The output capacitor's series resistance $R_c$ adds a zero at $f_{esr} = 1/(2\\pi R_cC)$: above it the gain falls at only −20 dB/decade and the phase recovers towards −90°. The **boost** (and buck-boost) control-to-output function also has a **right-half-plane zero**: raising $d$ first **reduces** the energy delivered to the output. It adds phase lag like a pole and limits the crossover frequency to well below $f_{z,RHP}$.",
+      "formula": "\\begin{aligned}& f_{esr} = \\frac{1}{2\\pi R_cC}\\\\ & f_{z,RHP} = \\frac{D'^2R}{2\\pi L}\\quad\\text{(boost)}\\end{aligned}"
+    },
+    {
+      "title": "The feedback loop",
+      "body": "The output is measured through the sensor gain $H$, compared with $v_{ref}$, and the error passes through the compensator $G_c$ and the PWM modulator ($\\hat d = \\hat v_c/V_M$). The **loop gain** is the product around the loop. Disturbances are suppressed by $1/(1 + T)$, so a large $|T|$ at low frequency means good regulation.",
+      "formula": "T(s) = \\frac{G_c(s)\\,G_{vd}(s)\\,H(s)}{V_M}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                -1.4,
+                0
+              ],
+              [
+                -0.3,
+                0
+              ]
+            ],
+            "label": "v_{ref}"
+          },
+          {
+            "type": "sum",
+            "at": [
+              0,
+              0
+            ],
+            "kind": "+-"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                0.3,
+                0
+              ],
+              [
+                0.9,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              1.6,
+              0
+            ],
+            "label": "G_c(s)",
+            "size": [
+              1.4,
+              0.8
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.3,
+                0
+              ],
+              [
+                2.9,
+                0
+              ]
+            ],
+            "label": "v_c"
+          },
+          {
+            "type": "block",
+            "at": [
+              3.6,
+              0
+            ],
+            "label": "1/V_M",
+            "size": [
+              1.4,
+              0.8
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.3,
+                0
+              ],
+              [
+                4.9,
+                0
+              ]
+            ],
+            "label": "d"
+          },
+          {
+            "type": "block",
+            "at": [
+              5.6,
+              0
+            ],
+            "label": "G_{vd}(s)",
+            "size": [
+              1.4,
+              0.8
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.3,
+                0
+              ],
+              [
+                7.6,
+                0
+              ]
+            ],
+            "label": "v"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6.9,
+                0
+              ],
+              [
+                6.9,
+                1.6
+              ],
+              [
+                4.3,
+                1.6
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6.9,
+              0
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.6,
+              1.6
+            ],
+            "label": "H(s)",
+            "size": [
+              1.4,
+              0.8
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.9,
+                1.6
+              ],
+              [
+                0,
+                1.6
+              ],
+              [
+                0,
+                0.3
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Crossover and phase margin",
+      "body": "The **crossover frequency** $f_c$ is where $|T| = 1$ (0 dB). The **phase margin** $\\varphi_m = 180° + \\angle T(j2\\pi f_c)$ tells how far the loop is from instability; for a loop that looks like an integrator plus one pole near $f_c$, the closed-loop $Q$ is $\\sqrt{\\cos\\varphi_m}/\\sin\\varphi_m$: $\\varphi_m$ = 52° gives $Q \\approx 1$, $\\varphi_m$ = 76° gives $Q$ = 0.5. Keep $f_c$ well below $f_s$ (typically $f_s/10$ or less) where the averaged model holds.",
+      "formula": "\\begin{aligned}& |T(j2\\pi f_c)| = 1\\\\ & \\varphi_m = 180° + \\angle T(j2\\pi f_c)\\end{aligned}"
+    },
+    {
+      "title": "Compensators",
+      "body": "- **PI** (integrator plus zero): very high gain at DC, so zero steady-state error.\n- **Lead / PD**: a zero below $f_c$ and a pole above it add phase where it is needed. The maximum lead $\\theta$ occurs at $\\sqrt{f_zf_p}$; place it at $f_c$.\n- **PID**: both, plus high-frequency poles to keep switching ripple out of the loop.\nA buck with only proportional gain crosses over above $f_0$ where its phase is nearly −180°: it needs lead.",
+      "formula": "\\begin{aligned}& f_z = f_c\\sqrt{\\frac{1 - \\sin\\theta}{1 + \\sin\\theta}}\\\\ & f_p = f_c\\sqrt{\\frac{1 + \\sin\\theta}{1 - \\sin\\theta}}\\end{aligned}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pe-control-1",
+      "title": "Averaged models",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Averaging out the ripple",
+          "body": "Averaging over one switching period turns the buck's switch node into a voltage $d(t)v_g(t)$ that varies slowly. As long as $d$ changes slowly compared with $f_s$, the inductor and capacitor respond to this average just like an ordinary LC circuit.",
+          "formula": "\\langle v_s\\rangle = d(t)\\,\\langle v_g\\rangle"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.25,
+              0.4,
+              0.5
+            ],
+            "dd": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "dvg": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "A buck converter runs from {{Vg|V}} at $D$ = {{D}}.",
+          "ask": [
+            {
+              "prompt": "At low frequency, by how much does $V$ change when $d$ increases by {{dd}}?",
+              "answer": "Vg*dd",
+              "unit": "V",
+              "explanation": "$V = dV_g$, so $\\hat v = V_g\\hat d$ = {{Vg|V}} × {{dd}} = **{{Vg*dd|V}}**. The DC control-to-output gain of the buck is $G_{d0} = V_g$."
+            },
+            {
+              "prompt": "At low frequency, by how much does $V$ change when $v_g$ rises by {{dvg|V}} at constant $d$?",
+              "answer": "D*dvg",
+              "unit": "V",
+              "explanation": "$\\hat v = D\\hat v_g$ = {{D}} × {{dvg|V}} = **{{D*dvg|V}}**. Without feedback, input-voltage ripple passes straight to the output, scaled by $D$."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Perturb and linearize",
+          "body": "Put $d = D + \\hat d$ and $v_g = V_g + \\hat v_g$ into $d\\,v_g$. The product of two small perturbations, $\\hat d\\hat v_g$, is much smaller than the other terms and is dropped. The result is linear in the perturbations, so Laplace transforms and Bode plots apply.",
+          "formula": "\\begin{aligned}& (D + \\hat d)(V_g + \\hat v_g)\\\\ & \\quad\\approx DV_g + V_g\\hat d + D\\hat v_g\\end{aligned}"
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "An averaged converter model correctly predicts the switching ripple of the output voltage.",
+          "answer": false,
+          "explanation": "Averaging over $T_s$ removes the ripple by construction. The averaged (and small-signal) model only describes the slow behaviour, and it is accurate up to roughly a tenth of $f_s$; near $f_s/2$ it breaks down."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "D": [
+              0.3,
+              0.5,
+              0.6,
+              0.75
+            ],
+            "dd": [
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "A boost converter runs from {{Vg|V}} at $D$ = {{D}}. Using the slope of $V = V_g/(1-D)$, by about how much does $V$ rise at low frequency if $d$ increases by {{dd}}?",
+          "answer": "Vg/(1-D)^2*dd",
+          "unit": "V",
+          "explanation": "$\\frac{dV}{dD} = \\frac{V_g}{(1-D)^2}$ = {{Vg}} / {{1-D||2}}² = {{Vg/(1-D)^2|V}} per unit of $d$. So $\\hat v \\approx$ {{Vg/(1-D)^2|V}} × {{dd}} = **{{Vg/(1-D)^2*dd|V}}**. This $G_{d0} = V/D'$ grows quickly with $D$."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The feedback loop",
+          "body": "The sensor $H$ scales the output, the compensator $G_c$ amplifies the error, and the PWM modulator turns the control voltage into a duty cycle with gain $1/V_M$. Around the loop the signals multiply into the loop gain $T$.",
+          "formula": "T = \\frac{G_c\\,G_{vd}\\,H}{V_M}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    -1.4,
+                    0
+                  ],
+                  [
+                    -0.3,
+                    0
+                  ]
+                ],
+                "label": "v_{ref}"
+              },
+              {
+                "type": "sum",
+                "at": [
+                  0,
+                  0
+                ],
+                "kind": "+-"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0.3,
+                    0
+                  ],
+                  [
+                    0.9,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  1.6,
+                  0
+                ],
+                "label": "G_c(s)",
+                "size": [
+                  1.4,
+                  0.8
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.3,
+                    0
+                  ],
+                  [
+                    2.9,
+                    0
+                  ]
+                ],
+                "label": "v_c"
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.6,
+                  0
+                ],
+                "label": "1/V_M",
+                "size": [
+                  1.4,
+                  0.8
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.3,
+                    0
+                  ],
+                  [
+                    4.9,
+                    0
+                  ]
+                ],
+                "label": "d"
+              },
+              {
+                "type": "block",
+                "at": [
+                  5.6,
+                  0
+                ],
+                "label": "G_{vd}(s)",
+                "size": [
+                  1.4,
+                  0.8
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.3,
+                    0
+                  ],
+                  [
+                    7.6,
+                    0
+                  ]
+                ],
+                "label": "v"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6.9,
+                    0
+                  ],
+                  [
+                    6.9,
+                    1.6
+                  ],
+                  [
+                    4.3,
+                    1.6
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6.9,
+                  0
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.6,
+                  1.6
+                ],
+                "label": "H(s)",
+                "size": [
+                  1.4,
+                  0.8
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.9,
+                    1.6
+                  ],
+                  [
+                    0,
+                    1.6
+                  ],
+                  [
+                    0,
+                    0.3
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "VM": [
+              1,
+              1.8,
+              2.5,
+              4
+            ]
+          },
+          "prompt": "A buck converter has $V_g$ = {{Vg|V}} and a PWM sawtooth of $V_M$ = {{VM|V}}. At low frequency, by how much does $V$ change per volt of change of the control voltage $v_c$?",
+          "answer": "Vg/VM",
+          "unit": "",
+          "explanation": "$\\hat d = \\hat v_c/V_M$ and $\\hat v = V_g\\hat d$, so $\\hat v/\\hat v_c = V_g/V_M$ = {{Vg}} / {{VM}} = **{{Vg/VM||3}}** V/V. The modulator and power stage together act as a power amplifier."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each modelling step or block to what it does",
+          "pairs": [
+            [
+              "Averaging over $T_s$",
+              "Removes the switching ripple"
+            ],
+            [
+              "Linearization",
+              "Gives small-signal transfer functions"
+            ],
+            [
+              "PWM modulator",
+              "$\\hat d = \\hat v_c/V_M$"
+            ],
+            [
+              "Loop gain $T$",
+              "Sets how strongly disturbances are rejected"
+            ]
+          ],
+          "explanation": "Averaging and linearization turn the switching circuit into a linear model; the modulator links the control voltage to the duty cycle; the size of $|T|$ decides how much of each disturbance remains ($1/(1+T)$)."
+        }
+      ]
+    },
+    {
+      "id": "pe-control-2",
+      "title": "Buck control-to-output",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "A second-order low-pass",
+          "body": "In the small-signal buck model, $\\hat d$ drives the LC filter through a source $V_g\\hat d$. With an ideal capacitor the result is a double pole at $f_0$ with quality factor $Q$: flat at $V_g$ below $f_0$, a resonant peak at $f_0$, and −40 dB/decade above.",
+          "formula": "\\begin{aligned}& G_{vd}(s) = \\frac{V_g}{1 + s\\frac{L}{R} + s^2LC}\\\\ & f_0 = \\frac{1}{2\\pi\\sqrt{LC}},\\quad Q = R\\sqrt{\\frac{C}{L}}\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05,
+              0.0001
+            ],
+            "C": [
+              4.7e-05,
+              0.0001,
+              0.00022,
+              0.00047
+            ]
+          },
+          "prompt": "A buck converter has $L$ = {{L|H}} and $C$ = {{C|F}}. Find the double-pole frequency $f_0$ of $G_{vd}$.",
+          "answer": "1/(2*pi*sqrt(L*C))",
+          "unit": "Hz",
+          "explanation": "$f_0 = \\frac{1}{2\\pi\\sqrt{LC}}$ = 1 / (2π × √({{L|H}} × {{C|F}})) = **{{1/(2*pi*sqrt(L*C))|Hz}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24
+            ],
+            "L": [
+              2.2e-05,
+              4.7e-05
+            ],
+            "C": [
+              0.0001,
+              0.00022,
+              0.00047
+            ],
+            "R": [
+              1,
+              2,
+              5,
+              10
+            ]
+          },
+          "prompt": "A buck converter: $V_g$ = {{Vg|V}}, $L$ = {{L|H}}, $C$ = {{C|F}}, load $R$ = {{R|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find the quality factor $Q$ of the double pole.",
+              "answer": "R*sqrt(C/L)",
+              "unit": "",
+              "explanation": "$Q = R\\sqrt{C/L}$ = {{R}} × √({{C|F}} / {{L|H}}) = **{{R*sqrt(C/L)||3}}**."
+            },
+            {
+              "prompt": "Find $|G_{vd}|$ at $f_0$ in dB.",
+              "answer": "20*log10(Vg*R*sqrt(C/L))",
+              "unit": "dB",
+              "absTolerance": 0.3,
+              "explanation": "At $\\omega_0$ the 1 and the $s^2LC$ term cancel, leaving only $j/Q$ in the denominator, so $|G_{vd}(j\\omega_0)| = QV_g$ = {{R*sqrt(C/L)||3}} × {{Vg}} = {{Vg*R*sqrt(C/L)||3}}, i.e. **{{20*log10(Vg*R*sqrt(C/L))|dB}}** ({{20*log10(R*sqrt(C/L))|dB}} above the DC gain of {{20*log10(Vg)|dB}})."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "Vg": [
+              12,
+              24
+            ],
+            "L": [
+              2.2e-05,
+              4.7e-05,
+              0.0001
+            ],
+            "C": [
+              0.0001,
+              0.00022,
+              0.00047
+            ],
+            "X": [
+              6,
+              10,
+              14
+            ]
+          },
+          "require": "min(10^(X/20)*sqrt(L/C) - 0.2, 15 - 10^(X/20)*sqrt(L/C))",
+          "prompt": "A buck converter: $V_g$ = {{Vg|V}}, $L$ = {{L|H}}, $C$ = {{C|F}}. Adjust the load $R$ so that the gain at $f_0$ (dashed vertical line) is {{X}} dB above the low-frequency gain, i.e. reaches the orange line.",
+          "plot": {
+            "x": {
+              "min": 100,
+              "max": 100000.0,
+              "log": true,
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": -20,
+              "max": 50,
+              "label": "|G_vd| (dB)"
+            },
+            "sliders": [
+              {
+                "name": "R",
+                "label": "$R$",
+                "min": 0.1,
+                "max": 20,
+                "log": true,
+                "value": 0.3,
+                "unit": "Ω"
+              }
+            ],
+            "let": {
+              "f0": "1/(2*pi*sqrt(L*C))",
+              "Q": "R*sqrt(C/L)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(Vg/sqrt((1 - (x/f0)^2)^2 + (x/(Q*f0))^2))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "20*log10(Vg)",
+                "color": "grey"
+              },
+              {
+                "y": "20*log10(Vg) + X",
+                "color": "orange"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "f0",
+                "color": "grey",
+                "label": "f_0"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "gain at $f_0$ above DC",
+                "value": "20*log10(Q)",
+                "unit": "dB",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "R": "10^(X/20)*sqrt(L/C)"
+          },
+          "tolerance": 0.06,
+          "explanation": "At $f_0$ the gain is $Q$ times the DC gain, so $20\\log_{10}Q$ = {{X}} dB → $Q$ = {{10^(X/20)||3}}. $R = Q\\sqrt{L/C}$ = {{10^(X/20)||3}} × {{sqrt(L/C)||3}} Ω = **{{10^(X/20)*sqrt(L/C)|Ω}}**. A lighter load (larger $R$) means less damping and a taller peak."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Phase and the ESR zero",
+          "body": "The double pole takes the phase from 0° to −180°, very steeply when $Q$ is high. A real output capacitor's ESR $R_c$ adds a zero at $f_{esr} = 1/(2\\pi R_cC)$ that brings the phase back up towards −90° (graph: $f_0$ = 1 kHz, $Q$ = 2, $f_{esr}$ = 10 kHz).",
+          "formula": "f_{esr} = \\frac{1}{2\\pi R_cC}",
+          "plot": {
+            "x": {
+              "min": 100,
+              "max": 100000.0,
+              "log": true,
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": -190,
+              "max": 10,
+              "label": "∠G_vd (°)",
+              "ticks": [
+                -180,
+                -135,
+                -90,
+                -45,
+                0
+              ]
+            },
+            "curves": [
+              {
+                "f": "-deg(atan2(x/(2*1000), 1 - (x/1000)^2))",
+                "color": "grey",
+                "dash": true,
+                "label": "no ESR",
+                "labelAt": 0.93
+              },
+              {
+                "f": "-deg(atan2(x/(2*1000), 1 - (x/1000)^2)) + deg(atan(x/10000))",
+                "label": "with ESR zero",
+                "labelAt": 0.72
+              }
+            ],
+            "height": 170
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "C": [
+              0.0001,
+              0.00022,
+              0.00047,
+              0.001
+            ],
+            "Rc": [
+              0.005,
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "The output capacitor of a buck converter is {{C|F}} with an ESR of {{Rc|Ω}}. At what frequency is the ESR zero of $G_{vd}$?",
+          "answer": "1/(2*pi*Rc*C)",
+          "unit": "Hz",
+          "explanation": "$f_{esr} = \\frac{1}{2\\pi R_cC}$ = 1 / (2π × {{Rc|Ω}} × {{C|F}}) = **{{1/(2*pi*Rc*C)|Hz}}**. Ceramic capacitors have tiny ESR (zero far away); electrolytics put it within the loop bandwidth."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Which magnitude plot is the control-to-output response of a buck converter whose output capacitor has a significant ESR?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 100,
+                "max": 100000.0,
+                "log": true,
+                "label": "f"
+              },
+              "y": {
+                "min": -30,
+                "max": 40,
+                "label": "dB"
+              },
+              "height": 110,
+              "curves": [
+                {
+                  "f": "20*log10(12*sqrt(1 + (x/5000)^2)/sqrt((1 - (x/1000)^2)^2 + (x/(2*1000))^2))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 100,
+                "max": 100000.0,
+                "log": true,
+                "label": "f"
+              },
+              "y": {
+                "min": -30,
+                "max": 40,
+                "label": "dB"
+              },
+              "height": 110,
+              "curves": [
+                {
+                  "f": "20*log10(12/sqrt((1 - (x/1000)^2)^2 + (x/(2*1000))^2))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 100,
+                "max": 100000.0,
+                "log": true,
+                "label": "f"
+              },
+              "y": {
+                "min": -30,
+                "max": 40,
+                "label": "dB"
+              },
+              "height": 110,
+              "curves": [
+                {
+                  "f": "20*log10(12/sqrt(1 + (x/1000)^2))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 100,
+                "max": 100000.0,
+                "log": true,
+                "label": "f"
+              },
+              "y": {
+                "min": -30,
+                "max": 40,
+                "label": "dB"
+              },
+              "height": 110,
+              "curves": [
+                {
+                  "f": "20*log10(12*(x/1000)/sqrt(1 + (x/1000)^2))"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "The double pole gives a peak at $f_0$ and −40 dB/decade, until the ESR zero turns the slope into −20 dB/decade. Without ESR the −40 dB/decade continues; a single pole would fall at only −20 dB/decade from the start with no peak."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "For the ideal buck model, $|G_{vd}|$ at $f_0$ equals $Q$ times the DC gain $V_g$.",
+          "answer": true,
+          "explanation": "At $\\omega = \\omega_0$ the terms $1$ and $(j\\omega/\\omega_0)^2 = -1$ cancel, leaving $j/Q$: $|G_{vd}(j\\omega_0)| = QV_g$. With $Q$ = 5 the peak is 14 dB above the DC gain."
+        }
+      ]
+    },
+    {
+      "id": "pe-control-3",
+      "title": "Loop gain and phase margin",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "What the loop gain buys",
+          "body": "With feedback, input-voltage and load disturbances at the output are divided by $1 + T$, and the DC output follows $v_{ref}/H$ with a relative error of $1/(1 + T(0))$. Stability is judged at crossover: the phase margin $\\varphi_m = 180° + \\angle T$ at $|T| = 1$.",
+          "formula": "\\begin{aligned}& \\hat v = \\frac{G_{vg}}{1 + T}\\,\\hat v_g\\\\ & \\varphi_m = 180° + \\angle T(j2\\pi f_c)\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "VM": [
+              2,
+              2.5,
+              3
+            ],
+            "Gc": [
+              2,
+              5,
+              10
+            ],
+            "H": [
+              0.1,
+              0.25,
+              0.5
+            ]
+          },
+          "derived": {
+            "T0": "Gc*Vg*H/VM"
+          },
+          "prompt": "A buck converter ($V_g$ = {{Vg|V}}, $V_M$ = {{VM|V}}) uses a proportional compensator $G_c$ = {{Gc}} and a sensor with $H$ = {{H}}.",
+          "ask": [
+            {
+              "prompt": "What is the DC loop gain $T(0)$?",
+              "answer": "T0",
+              "unit": "",
+              "explanation": "$T(0) = \\frac{G_cV_gH}{V_M}$ = {{Gc}} × {{Vg}} × {{H}} / {{VM}} = **{{T0||3}}** ({{20*log10(T0)|dB}})."
+            },
+            {
+              "prompt": "What is the relative DC output error in %?",
+              "answer": "100/(1 + T0)",
+              "unit": "%",
+              "explanation": "$T(0)$ = {{T0||3}}. The output settles a fraction $\\frac{1}{1 + T(0)}$ = **{{100/(1+T0)|%}}** away from $v_{ref}/H$. A PI compensator (infinite DC gain) removes this error."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "T0": [
+              10,
+              20,
+              50,
+              100
+            ],
+            "f0": [
+              500,
+              1000,
+              2000
+            ]
+          },
+          "prompt": "A buck loop with only proportional gain has $T(0)$ = {{T0}}. The power stage has its double pole at $f_0$ = {{f0|Hz}} and no ESR zero. Using the −40 dB/decade asymptote above $f_0$, estimate the crossover frequency.",
+          "answer": "f0*sqrt(T0)",
+          "unit": "Hz",
+          "explanation": "Above $f_0$: $|T| \\approx T(0)(f_0/f)^2$. Setting it to 1: $f_c = f_0\\sqrt{T(0)}$ = {{f0|Hz}} × √{{T0}} = **{{f0*sqrt(T0)|Hz}}**. Here the phase is close to −180°, so the phase margin is tiny: the loop needs lead compensation."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "p": [
+              110,
+              120,
+              128,
+              135,
+              150,
+              165
+            ]
+          },
+          "prompt": "At the crossover frequency, the loop gain has a phase of −{{p}}°. What is the phase margin?",
+          "answer": "180 - p",
+          "unit": "°",
+          "absTolerance": 1,
+          "explanation": "$\\varphi_m = 180° + \\angle T$ = 180° − {{p}}° = **{{180-p}}°**. As a rule, aim for 45°–76°."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "th": [
+              30,
+              40,
+              45,
+              50,
+              60
+            ],
+            "fc": [
+              5000.0,
+              10000.0,
+              20000.0
+            ]
+          },
+          "prompt": "A lead compensator must add {{th}}° of phase at the crossover frequency $f_c$ = {{fc|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Where should its zero be?",
+              "answer": "fc*sqrt((1 - sin(rad(th)))/(1 + sin(rad(th))))",
+              "unit": "Hz",
+              "explanation": "$f_z = f_c\\sqrt{\\frac{1 - \\sin\\theta}{1 + \\sin\\theta}}$ = {{fc|Hz}} × √((1 − {{sin(rad(th))||3}})/(1 + {{sin(rad(th))||3}})) = **{{fc*sqrt((1-sin(rad(th)))/(1+sin(rad(th))))|Hz}}**."
+            },
+            {
+              "prompt": "Where should its pole be?",
+              "answer": "fc*sqrt((1 + sin(rad(th)))/(1 - sin(rad(th))))",
+              "unit": "Hz",
+              "explanation": "$f_p = f_c\\sqrt{\\frac{1 + \\sin\\theta}{1 - \\sin\\theta}}$ = **{{fc*sqrt((1+sin(rad(th)))/(1-sin(rad(th))))|Hz}}**. Check: $\\sqrt{f_zf_p} = f_c$, so the maximum lead lands at crossover."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "pm": [
+              30,
+              40,
+              45,
+              52,
+              60,
+              76
+            ]
+          },
+          "prompt": "A loop gain behaves like an integrator with one extra pole near crossover, and has a phase margin of {{pm}}°. What is the $Q$ of the closed-loop response?",
+          "answer": "sqrt(cos(rad(pm)))/sin(rad(pm))",
+          "unit": "",
+          "explanation": "$Q = \\frac{\\sqrt{\\cos\\varphi_m}}{\\sin\\varphi_m}$ = √{{cos(rad(pm))||3}} / {{sin(rad(pm))||3}} = **{{sqrt(cos(rad(pm)))/sin(rad(pm))||3}}**. Low phase margin means high $Q$: overshoot and ringing in the step response."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Why is the crossover frequency of a converter loop kept well below the switching frequency?",
+          "options": [
+            "The averaged small-signal model, on which the design is based, is only valid well below $f_s$",
+            "The inductor saturates at high frequencies",
+            "The phase margin always increases with frequency",
+            "The PWM modulator gain is zero above $f_s/10$"
+          ],
+          "answer": 0,
+          "explanation": "The loop actually samples the error once per switching period, and the switching ripple in the feedback signal would be amplified. The averaged model ignores both, so it is trusted only up to roughly $f_s/10$; designs typically put $f_c$ between $f_s/20$ and $f_s/10$."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each compensator element to its purpose",
+          "pairs": [
+            [
+              "Integrator (PI)",
+              "Zero steady-state error"
+            ],
+            [
+              "Lead zero below $f_c$",
+              "Phase boost at crossover"
+            ],
+            [
+              "Pole above $f_c$",
+              "Limits high-frequency gain"
+            ],
+            [
+              "Larger loop gain",
+              "Better disturbance rejection"
+            ]
+          ],
+          "explanation": "A practical PID compensator combines all of these: an integrator for accuracy, a lead zero (or two) to recover the phase lost at the LC double pole, and poles above $f_c$ so that the switching ripple is not fed back."
+        }
+      ]
+    },
+    {
+      "id": "pe-control-4",
+      "title": "Designing the loop",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "pu": [
+              165,
+              170,
+              175
+            ],
+            "pm": [
+              45,
+              52,
+              60
+            ],
+            "fc": [
+              10000.0,
+              20000.0
+            ]
+          },
+          "derived": {
+            "th": "pm - (180 - pu)"
+          },
+          "prompt": "Without compensation, a buck's loop gain has a phase of −{{pu}}° at the desired crossover $f_c$ = {{fc|Hz}}. You want a phase margin of {{pm}}°.",
+          "ask": [
+            {
+              "prompt": "How much phase must the lead compensator add?",
+              "answer": "th",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "Uncompensated margin: 180° − {{pu}}° = {{180-pu}}°. Needed boost: $\\theta$ = {{pm}}° − {{180-pu}}° = **{{th}}°**."
+            },
+            {
+              "prompt": "Where must the lead pole go?",
+              "answer": "fc*sqrt((1 + sin(rad(th)))/(1 - sin(rad(th))))",
+              "unit": "Hz",
+              "explanation": "Boost $\\theta$ = {{th}}°. $f_p = f_c\\sqrt{\\frac{1 + \\sin\\theta}{1 - \\sin\\theta}}$ = {{fc|Hz}} × √((1 + {{sin(rad(th))||3}})/(1 − {{sin(rad(th))||3}})) = **{{fc*sqrt((1+sin(rad(th)))/(1-sin(rad(th))))|Hz}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24
+            ],
+            "VM": [
+              1,
+              2
+            ],
+            "H": [
+              0.2,
+              0.4
+            ],
+            "f0": [
+              1000.0,
+              2000.0
+            ],
+            "fc": [
+              10000.0,
+              20000.0
+            ],
+            "r": [
+              4,
+              6,
+              9
+            ]
+          },
+          "derived": {
+            "Tu": "Vg*H/VM*(f0/fc)^2"
+          },
+          "prompt": "A buck converter: $V_g$ = {{Vg|V}}, $V_M$ = {{VM|V}}, $H$ = {{H}}, $f_0$ = {{f0|Hz}} (no ESR zero). The crossover is to be at $f_c$ = {{fc|Hz}} using a lead compensator with $f_p/f_z$ = {{r}}, centred on $f_c$.",
+          "ask": [
+            {
+              "prompt": "What is $|T|$ at $f_c$ without the compensator ($G_c$ = 1), using the asymptote?",
+              "answer": "Tu",
+              "unit": "",
+              "explanation": "$|T_u(f_c)| \\approx \\frac{V_gH}{V_M}\\left(\\frac{f_0}{f_c}\\right)^2$ = {{Vg*H/VM||3}} × ({{f0|Hz}}/{{fc|Hz}})² = **{{Tu||3}}** ({{20*log10(Tu)|dB}})."
+            },
+            {
+              "prompt": "What DC gain $G_{c0}$ must the lead compensator have?",
+              "answer": "1/(Tu*sqrt(r))",
+              "unit": "",
+              "explanation": "$|T_u(f_c)|$ = {{Tu||3}}. At its centre frequency the lead's gain is $G_{c0}\\sqrt{f_p/f_z}$ = $G_{c0}$ × {{sqrt(r)||3}}. Crossover needs $G_{c0}\\sqrt{f_p/f_z}\\,|T_u| = 1$, so $G_{c0}$ = 1 / ({{Tu||3}} × {{sqrt(r)||3}}) = **{{1/(Tu*sqrt(r))||3}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "D": [
+              0.4,
+              0.5,
+              0.6
+            ],
+            "L": [
+              2.2e-05,
+              4.7e-05,
+              0.0001
+            ],
+            "R": [
+              10,
+              20,
+              50
+            ]
+          },
+          "prompt": "A boost converter has $D$ = {{D}}, $L$ = {{L|H}} and $R$ = {{R|Ω}}.",
+          "ask": [
+            {
+              "prompt": "At what frequency is its right-half-plane zero?",
+              "answer": "(1-D)^2*R/(2*pi*L)",
+              "unit": "Hz",
+              "explanation": "$f_{z,RHP} = \\frac{D'^2R}{2\\pi L}$ = {{1-D||2}}² × {{R|Ω}} / (2π × {{L|H}}) = **{{(1-D)^2*R/(2*pi*L)|Hz}}**. Crossover is normally kept below about a fifth of this."
+            },
+            {
+              "prompt": "Where does the RHP zero move if the load current doubles ($R$ halves)?",
+              "answer": "(1-D)^2*R/(4*pi*L)",
+              "unit": "Hz",
+              "explanation": "$f_{z,RHP} \\propto R$: halving $R$ gives {{(1-D)^2*R/(4*pi*L)|Hz}}. **Heavy load is the worst case** for a boost loop, so design at maximum load."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "D": [
+              0.4,
+              0.5,
+              0.6
+            ],
+            "L": [
+              2.2e-05,
+              4.7e-05
+            ],
+            "C": [
+              4.7e-05,
+              0.0001,
+              0.00022
+            ],
+            "R": [
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "A boost converter: $D$ = {{D}}, $L$ = {{L|H}}, $C$ = {{C|F}}, $R$ = {{R|Ω}}. In its control-to-output function, $L$ is effectively replaced by $L/D'^2$.",
+          "ask": [
+            {
+              "prompt": "Find the double-pole frequency $f_0$.",
+              "answer": "(1-D)/(2*pi*sqrt(L*C))",
+              "unit": "Hz",
+              "explanation": "$f_0 = \\frac{1}{2\\pi\\sqrt{(L/D'^2)C}} = \\frac{D'}{2\\pi\\sqrt{LC}}$ = {{1-D||2}} / (2π√({{L|H}} × {{C|F}})) = **{{(1-D)/(2*pi*sqrt(L*C))|Hz}}**: it moves down as $D$ increases."
+            },
+            {
+              "prompt": "Find $Q$.",
+              "answer": "(1-D)*R*sqrt(C/L)",
+              "unit": "",
+              "explanation": "$Q = R\\sqrt{\\frac{C}{L/D'^2}} = D'R\\sqrt{C/L}$ = {{1-D||2}} × {{R}} × √({{C|F}}/{{L|H}}) = **{{(1-D)*R*sqrt(C/L)||3}}**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "vin": [
+              0.5,
+              1,
+              2
+            ],
+            "D": [
+              0.3,
+              0.5
+            ],
+            "TdB": [
+              30,
+              40,
+              50
+            ]
+          },
+          "prompt": "The input voltage of a buck converter carries {{vin|V}} (amplitude) of 100 Hz ripple, and the converter runs at $D$ = {{D}}. The loop gain at 100 Hz is {{TdB}} dB. Estimate the amplitude of the 100 Hz ripple at the output (use $|1 + T| \\approx |T|$).",
+          "answer": "D*vin/10^(TdB/20)",
+          "unit": "V",
+          "tolerance": 0.05,
+          "explanation": "Open loop: $\\hat v = D\\hat v_g$ = {{D*vin|V}}. Feedback divides this by $|1 + T| \\approx 10^{ {{TdB}}/20}$ = {{10^(TdB/20)||3}}: **{{D*vin/10^(TdB/20)|V}}**. An integrator in $G_c$ makes $|T|$ large at 100 Hz."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps of designing a voltage-mode buck control loop in order",
+          "items": [
+            "Derive G_vd(s) from the averaged small-signal model",
+            "Choose the crossover frequency (well below f_s)",
+            "Find the phase margin the uncompensated loop would have there",
+            "Design the lead to add the missing phase at f_c",
+            "Set the compensator gain so that |T| = 1 at f_c",
+            "Add an integrator (PI) for high low-frequency gain"
+          ],
+          "explanation": "The plant comes first, then the bandwidth target. The lead's zero and pole follow from the missing phase, its gain from the crossover condition, and finally an inverted zero well below $f_c$ adds an integrator without eating much phase margin."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Adding an integrator (PI) to the loop removes the steady-state error, but if its zero is placed too close to crossover it reduces the phase margin.",
+          "answer": true,
+          "explanation": "An integrator contributes −90° at low frequency; its zero (the “inverted zero”) restores the phase above it. Placed a decade or so below $f_c$ it costs only a few degrees; placed right at $f_c$ it costs 45°."
+        }
+      ]
+    }
+  ]
+}

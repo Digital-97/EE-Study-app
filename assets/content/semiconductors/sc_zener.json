@@ -1,0 +1,1206 @@
+{
+  "id": "sc-zener",
+  "title": "Zener Regulators",
+  "description": "Use a zener diode in reverse breakdown with a series resistor to hold a load voltage constant.",
+  "reference": "Hambley §10.3, §10.5; H&H §1.29, §6.14",
+  "study": [
+    {
+      "title": "The zener diode",
+      "body": "A zener diode is made to operate in **reverse breakdown**. In breakdown the voltage from cathode to anode stays close to the zener voltage $V_Z$ over a wide range of current, so it acts as a voltage reference. With the usual diode references $v_D = -V_Z$ and $i_D < 0$; it is easier to work with the positive reverse current $I_Z = -i_D$, flowing into the cathode.",
+      "circuit": {
+        "elements": [
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                -1
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "arrow",
+            "from": [
+              0,
+              -1
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "I_Z",
+            "flip": true
+          },
+          {
+            "type": "zener",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_Z",
+            "polarity": "-+"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              -1
+            ],
+            "label": "cathode"
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              3
+            ],
+            "label": "anode"
+          }
+        ]
+      },
+      "plot": {
+        "x": {"min": -7, "max": 1.5, "label": "v_D", "unit": "V"},
+        "y": {"min": -0.02, "max": 0.02, "label": "i_D", "unit": "A"},
+        "curves": [{"f": "1e-14*(exp(x/0.026)-1) - 1e-4*exp(-(x+5.6)/0.02)"}],
+        "vlines": [{"x": -5.6, "label": "-V_Z"}]
+      }
+    },
+    {
+      "title": "The shunt regulator",
+      "body": "A series resistor $R$ drops the difference between the supply and $V_Z$, and the zener in parallel with the load holds $v_o \\approx V_Z$. While the zener is in breakdown, the current through $R$ is set by the supply alone, not by the load.",
+      "formula": "I_R = \\frac{V_s - V_Z}{R}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_s"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "zener",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "V_Z"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "R_L",
+            "polarity": "+-"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Sharing the current",
+      "body": "KCL at the output node: the resistor current splits into the zener current and the load current $I_L = V_Z/R_L$. The zener takes whatever the load does not. With no load, all of $I_R$ flows through the zener.",
+      "formula": "I_Z = I_R - I_L = \\frac{V_s - V_Z}{R} - \\frac{V_Z}{R_L}"
+    },
+    {
+      "title": "Staying in breakdown",
+      "body": "The zener only regulates if $I_Z \\ge I_{Z,min}$. This limits the load current and the load resistance:\n$$I_{L,max} = \\frac{V_{s,min} - V_Z}{R} - I_{Z,min}, \\quad R_{L,min} = \\frac{V_Z}{I_{L,max}}$$\nIf the load is too heavy, the zener turns off and the output is just a divider: $v_o = V_s\\frac{R_L}{R + R_L} < V_Z$. Quick test: the zener is in breakdown only if this divider voltage exceeds $V_Z$."
+    },
+    {
+      "title": "Power ratings",
+      "body": "The zener dissipates $P_Z = V_Z I_Z$. The worst case is **maximum supply and no load**, because then all of $I_R$ flows through the zener. The resistor dissipates $P_R = (V_s - V_Z)^2/R$, also largest at maximum supply.",
+      "formula": "P_{Z,max} = V_Z\\,\\frac{V_{s,max} - V_Z}{R}"
+    },
+    {
+      "title": "Design and non-ideal zeners",
+      "body": "Design: choose $V_Z$ = desired output, then pick $R$ small enough to deliver $I_{L,max} + I_{Z,min}$ at the lowest supply, then check the power at the highest supply.\n$$R \\le \\frac{V_{s,min} - V_Z}{I_{L,max} + I_{Z,min}}$$\nA real zener in breakdown has a small resistance $R_Z$ (piecewise-linear model: source $V_Z$ in series with $R_Z$). Without load, a supply change $\\Delta V_s$ then gives $\\Delta v_o = \\Delta V_s\\frac{R_Z}{R + R_Z}$."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sc-zener-1",
+      "title": "How a zener regulator works",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Breakdown on purpose",
+          "body": "A zener diode is built to work in **reverse breakdown**. Once the reverse voltage reaches $V_Z$, current flows from cathode to anode while the voltage stays almost constant. That makes it a simple voltage reference: think of it as a $V_Z$ battery that only works in one direction."
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "In a regulator fed from a positive supply, how is the zener connected?",
+          "options": [
+            "Cathode to the positive output node, anode to ground",
+            "Anode to the positive output node, cathode to ground",
+            "In series between the resistor and the load"
+          ],
+          "answer": 0,
+          "explanation": "The zener must be **reverse** biased to reach breakdown, so its cathode goes to the positive node. Connected the other way it would be forward biased and clamp the output at about 0.7 V."
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "A zener diode in breakdown keeps its voltage close to $V_Z$ even when its current changes a lot.",
+          "answer": true,
+          "explanation": "In breakdown the characteristic is nearly vertical: large changes in current give only tiny changes in voltage. That is exactly why it can regulate a voltage."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The regulator circuit",
+          "body": "The resistor $R$ absorbs the difference between the (varying) supply and $V_Z$; the zener holds the output at $V_Z$. The current through $R$ is $I_R = (V_s - V_Z)/R$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "zener",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "V_Z"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_L",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              10,
+              12,
+              15
+            ],
+            "VZ": [
+              5.1,
+              5.6,
+              6.2
+            ],
+            "R": [
+              220,
+              330,
+              470
+            ],
+            "RL": [
+              1000,
+              2200
+            ]
+          },
+          "prompt": "The zener is in breakdown. Find the current $I_R$ through the series resistor.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "zener",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "V_Z",
+                "value": "{{VZ|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_L",
+                "value": "{{RL|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          },
+          "answer": "(Vs-VZ)/R",
+          "unit": "A",
+          "explanation": "The output node sits at $V_Z$, so $R$ has $V_s - V_Z$ across it:\n$I_R = \\frac{ {{Vs}} - {{VZ}} }{ {{R}} }$ = {{(Vs-VZ)/R|A}}.\n$R_L$ doesn't enter: the load only decides how $I_R$ is split."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "While the zener stays in breakdown, connecting a heavier load (smaller $R_L$) increases the current drawn from the supply.",
+          "answer": false,
+          "explanation": "The supply current is $I_R = (V_s - V_Z)/R$, which does not depend on $R_L$. A heavier load just takes a bigger share of $I_R$, and the zener current drops by the same amount."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Who gets the current?",
+          "body": "KCL at the output node: $I_R = I_Z + I_L$, with $I_L = V_Z/R_L$. The zener takes the rest.",
+          "formula": "I_Z = \\frac{V_s - V_Z}{R} - \\frac{V_Z}{R_L}"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              10,
+              12,
+              15
+            ],
+            "VZ": [
+              5.1,
+              5.6,
+              6.2
+            ],
+            "R": [
+              220,
+              330,
+              470
+            ],
+            "RL": [
+              1000,
+              2200
+            ]
+          },
+          "require": "(Vs-VZ)/R - VZ/RL - 0.001",
+          "prompt": "With $V_s$ = {{Vs|V}}, $R$ = {{R|Ω}}, $V_Z$ = {{VZ|V}} and $R_L$ = {{RL|Ω}}, find the zener current $I_Z$ (the zener is in breakdown).",
+          "answer": "(Vs-VZ)/R - VZ/RL",
+          "unit": "A",
+          "explanation": "$I_R = ({{Vs}} - {{VZ}})/{{R}}$ = {{(Vs-VZ)/R|A}} and $I_L = V_Z/R_L = {{VZ}}/{{RL}}$ = {{VZ/RL|A}}.\n$I_Z = I_R - I_L$ = {{(Vs-VZ)/R - VZ/RL|A}}."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "The load of a working zener regulator is disconnected. What happens?",
+          "options": [
+            "$I_Z$ rises to $I_R = (V_s - V_Z)/R$ and $v_o$ stays $\\approx V_Z$",
+            "$I_Z$ drops to zero",
+            "$v_o$ rises to $V_s$",
+            "Nothing changes at all"
+          ],
+          "answer": 0,
+          "explanation": "With $I_L = 0$, KCL gives $I_Z = I_R$, its maximum value. The output stays at $V_Z$ (the zener is still in breakdown). This is also the case of maximum zener power dissipation."
+        }
+      ]
+    },
+    {
+      "id": "sc-zener-2",
+      "title": "Regulator calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "The zener stays in breakdown while $R_L$ is changed. Tap every element whose current does **not** change.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "name": "Vs",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "resistor",
+                "name": "R",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "zener",
+                "name": "DZ",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "D_Z"
+              },
+              {
+                "type": "resistor",
+                "name": "RL",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_L"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "R",
+            "DZ",
+            "RL"
+          ],
+          "answer": [
+            "R"
+          ],
+          "explanation": "In breakdown the zener holds the output at $V_Z$. The voltage across $R$ is then fixed, $V_s - V_Z$, so its current\n$$i_R = \\frac{V_s - V_Z}{R}$$\ndoes not depend on the load. That current is shared: $i_R = i_Z + i_L$. When $R_L$ changes, $i_L = V_Z/R_L$ changes and the zener current changes by the opposite amount."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              15,
+              18,
+              20
+            ],
+            "VZ": [
+              5.1,
+              6.8,
+              9.1
+            ],
+            "R": [
+              270,
+              330,
+              390
+            ],
+            "IL": [
+              0.005,
+              0.01,
+              0.015
+            ]
+          },
+          "require": "(Vs-VZ)/R - IL - 0.002",
+          "prompt": "The load draws a constant $I_L$ = {{IL|A}}. Find the zener current $I_Z$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "zener",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "V_Z",
+                "value": "{{VZ|V}}"
+              },
+              {
+                "type": "isource",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "I_L",
+                "value": "{{IL|A}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          },
+          "answer": "(Vs-VZ)/R - IL",
+          "unit": "A",
+          "explanation": "$I_R = \\frac{V_s - V_Z}{R} = \\frac{ {{Vs}} - {{VZ}} }{ {{R}} }$ = {{(Vs-VZ)/R|A}}.\n$I_Z = I_R - I_L$ = {{(Vs-VZ)/R|A}} − {{IL|A}} = {{(Vs-VZ)/R - IL|A}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              12,
+              15
+            ],
+            "VZ": [
+              5.1,
+              6.2,
+              7.5
+            ],
+            "R": [
+              220,
+              330
+            ],
+            "RL": [
+              1000,
+              1500,
+              2200
+            ]
+          },
+          "require": "(Vs-VZ)/R - VZ/RL - 0.002",
+          "derived": {
+            "IZ": "(Vs-VZ)/R - VZ/RL"
+          },
+          "prompt": "A regulator has $V_s$ = {{Vs|V}}, $R$ = {{R|Ω}}, $V_Z$ = {{VZ|V}} and $R_L$ = {{RL|Ω}}. How much power does the zener dissipate?",
+          "answer": "VZ*IZ",
+          "unit": "W",
+          "explanation": "$I_Z = \\frac{ {{Vs}} - {{VZ}} }{ {{R}} } - \\frac{ {{VZ}} }{ {{RL}} }$ = {{IZ|A}}.\n$P_Z = V_Z I_Z$ = {{VZ}} V × {{IZ|A}} = {{VZ*IZ|W}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              9,
+              12,
+              15
+            ],
+            "VZ": [
+              5.1,
+              5.6
+            ],
+            "R": [
+              100,
+              150,
+              220
+            ],
+            "Izm": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "derived": {
+            "IR": "(Vs-VZ)/R"
+          },
+          "prompt": "A regulator has $V_s$ = {{Vs|V}}, $R$ = {{R|Ω}} and $V_Z$ = {{VZ|V}}. The zener needs at least $I_{Z,min}$ = {{Izm|A}} to stay in breakdown. What is the largest load current it can supply?",
+          "answer": "IR - Izm",
+          "unit": "A",
+          "explanation": "$I_R = ({{Vs}} - {{VZ}})/{{R}}$ = {{IR|A}}, fixed by the supply. The zener must keep at least $I_{Z,min}$, so\n$I_{L,max} = I_R - I_{Z,min}$ = {{IR|A}} − {{Izm|A}} = {{IR-Izm|A}}."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              9,
+              12,
+              15
+            ],
+            "VZ": [
+              5.1,
+              5.6
+            ],
+            "R": [
+              100,
+              150,
+              220
+            ],
+            "Izm": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "derived": {
+            "ILm": "(Vs-VZ)/R - Izm"
+          },
+          "prompt": "Same kind of regulator: $V_s$ = {{Vs|V}}, $R$ = {{R|Ω}}, $V_Z$ = {{VZ|V}}, $I_{Z,min}$ = {{Izm|A}}. What is the smallest load resistance $R_L$ for which the output stays regulated?",
+          "answer": "VZ/ILm",
+          "unit": "Ω",
+          "explanation": "$I_{L,max} = \\frac{V_s - V_Z}{R} - I_{Z,min}$ = {{ILm|A}}.\nThe load voltage is $V_Z$, so $R_{L,min} = V_Z/I_{L,max} = {{VZ}}/{{ILm}}$ = {{VZ/ILm|Ω}}. A smaller $R_L$ would draw more current and starve the zener."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              12,
+              15,
+              18
+            ],
+            "VZ": [
+              5.1,
+              6.2,
+              9.1
+            ],
+            "R": [
+              100,
+              150,
+              220
+            ]
+          },
+          "prompt": "A regulator with $V_s$ = {{Vs|V}}, $R$ = {{R|Ω}} and $V_Z$ = {{VZ|V}} may be operated without a load. What is the worst-case zener power?",
+          "answer": "VZ*(Vs-VZ)/R",
+          "unit": "W",
+          "explanation": "Without a load, all of $I_R$ flows in the zener: $I_Z = ({{Vs}} - {{VZ}})/{{R}}$ = {{(Vs-VZ)/R|A}}.\n$P_Z = V_Z I_Z$ = {{VZ*(Vs-VZ)/R|W}}. The zener's power rating must exceed this."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "Vs": [
+              10,
+              12
+            ],
+            "VZ": [
+              6.2,
+              6.8
+            ],
+            "R": [
+              470,
+              680
+            ],
+            "RL": [
+              270,
+              330,
+              470
+            ]
+          },
+          "require": "VZ - Vs*RL/(R+RL)",
+          "prompt": "A regulator has $V_s$ = {{Vs|V}}, $R$ = {{R|Ω}}, a {{VZ|V}} zener and a heavy load $R_L$ = {{RL|Ω}}. What is the output voltage $v_o$ across $R_L$?",
+          "options": [
+            "{{Vs*RL/(R+RL)|V}}",
+            "{{VZ|V}}",
+            "{{Vs|V}}",
+            "0 V"
+          ],
+          "answer": 0,
+          "explanation": "Check whether the zener can be in breakdown: with the zener removed, $v_o = V_s\\frac{R_L}{R + R_L} = {{Vs}}\\times\\frac{ {{RL}} }{ {{R}} + {{RL}} }$ = {{Vs*RL/(R+RL)|V}}.\nThis is **less** than $V_Z$ = {{VZ|V}}, so the zener never reaches breakdown and carries no current. The output is just the divider voltage: the load is too heavy for this regulator."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "The zener dissipates the most power when the load is disconnected and the supply voltage is at its maximum.",
+          "answer": true,
+          "explanation": "$P_Z = V_Z I_Z$ with $I_Z = (V_s - V_Z)/R - I_L$. This is largest for the largest $V_s$ and $I_L = 0$. Size the zener's power rating for this case."
+        }
+      ]
+    },
+    {
+      "id": "sc-zener-3",
+      "title": "Designing a regulator",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vmin": [
+              10,
+              11,
+              12
+            ],
+            "VZ": [
+              5,
+              5.6,
+              6.2
+            ],
+            "ILm": [
+              0.02,
+              0.03,
+              0.05
+            ],
+            "Izm": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "prompt": "Design a regulator for a {{VZ|V}} output. The supply can drop to {{Vmin|V}}, the load draws up to {{ILm|A}}, and the zener needs at least {{Izm|A}}. What is the largest allowed series resistance $R$?",
+          "answer": "(Vmin-VZ)/(ILm+Izm)",
+          "unit": "Ω",
+          "explanation": "The hardest case is the lowest supply with the largest load. Then $R$ must still deliver $I_{L,max} + I_{Z,min}$:\n$R \\le \\frac{V_{s,min} - V_Z}{I_{L,max} + I_{Z,min}} = \\frac{ {{Vmin}} - {{VZ}} }{ {{ILm}} + {{Izm}} }$ = {{(Vmin-VZ)/(ILm+Izm)|Ω}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vmax": [
+              14,
+              15,
+              16
+            ],
+            "VZ": [
+              5,
+              5.6,
+              6.2
+            ],
+            "R": [
+              100,
+              120,
+              150
+            ]
+          },
+          "prompt": "The regulator uses $R$ = {{R|Ω}} and a {{VZ|V}} zener. The supply can rise to {{Vmax|V}} and the load may be disconnected. What is the worst-case zener power?",
+          "answer": "VZ*(Vmax-VZ)/R",
+          "unit": "W",
+          "explanation": "Worst case: maximum supply, no load, so $I_Z = I_R = ({{Vmax}} - {{VZ}})/{{R}}$ = {{(Vmax-VZ)/R|A}}.\n$P_{Z,max} = V_Z I_Z$ = {{VZ*(Vmax-VZ)/R|W}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vmax": [
+              14,
+              15,
+              16
+            ],
+            "VZ": [
+              5,
+              5.6,
+              6.2
+            ],
+            "R": [
+              100,
+              120,
+              150
+            ]
+          },
+          "prompt": "For the same kind of regulator ($R$ = {{R|Ω}}, $V_Z$ = {{VZ|V}}, supply up to {{Vmax|V}}), what power rating does the series resistor need at least?",
+          "answer": "(Vmax-VZ)^2/R",
+          "unit": "W",
+          "explanation": "The resistor always has $V_s - V_Z$ across it, whatever the load. Worst case at maximum supply:\n$P_R = \\frac{(V_{s,max} - V_Z)^2}{R} = \\frac{({{Vmax}} - {{VZ}})^2}{ {{R}} }$ = {{(Vmax-VZ)^2/R|W}}."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "VZ": [
+              5,
+              6.2
+            ],
+            "R": [
+              100,
+              220
+            ],
+            "RL": [
+              500,
+              1000
+            ],
+            "Izm": [
+              0.001,
+              0.005
+            ]
+          },
+          "derived": {
+            "Vmin": "VZ + R*(Izm + VZ/RL)"
+          },
+          "prompt": "A regulator has $R$ = {{R|Ω}}, $V_Z$ = {{VZ|V}}, load $R_L$ = {{RL|Ω}} and $I_{Z,min}$ = {{Izm|A}}. What is the lowest supply voltage for which the output is still regulated?",
+          "answer": "Vmin",
+          "unit": "V",
+          "explanation": "At the limit the zener carries just $I_{Z,min}$, and the load takes $V_Z/R_L$ = {{VZ/RL|A}}. So $I_R = I_{Z,min} + I_L$ = {{Izm+VZ/RL|A}} and\n$V_{s,min} = V_Z + R\\,I_R = {{VZ}} + {{R}}\\times{{Izm+VZ/RL}}$ = {{Vmin|V}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "dVs": [
+              1,
+              2,
+              4
+            ],
+            "RZ": [
+              5,
+              10,
+              20
+            ],
+            "R": [
+              200,
+              470,
+              1000
+            ]
+          },
+          "prompt": "A real zener in breakdown is modeled as a source $V_Z$ in series with $R_Z$ = {{RZ|Ω}}. With series resistor $R$ = {{R|Ω}} and no load, the supply rises by {{dVs|V}}. By how much does the output voltage rise?",
+          "answer": "dVs*RZ/(R+RZ)",
+          "unit": "V",
+          "explanation": "For changes, the $V_Z$ source is constant, so $R$ and $R_Z$ form a voltage divider for $\\Delta V_s$:\n$\\Delta v_o = \\Delta V_s\\frac{R_Z}{R + R_Z} = {{dVs}}\\times\\frac{ {{RZ}} }{ {{R}} + {{RZ}} }$ = {{dVs*RZ/(R+RZ)|V}}.\nA small $R_Z$ and a large $R$ give good line regulation."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps of designing a zener regulator in order",
+          "items": [
+            "Choose a zener with $V_Z$ equal to the desired output",
+            "Compute the largest $R$ that gives $I_Z \\ge I_{Z,min}$ at minimum supply and maximum load",
+            "Pick a standard resistor value at or below that limit",
+            "Compute the worst-case powers at maximum supply with no load",
+            "Choose zener and resistor power ratings above those values"
+          ],
+          "explanation": "The minimum-supply/maximum-load case sets the upper limit on $R$. The resulting $R$ then fixes the worst-case dissipation (maximum supply, no load), which sets the power ratings."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Vmin": [
+              10,
+              12
+            ],
+            "Vmax": [
+              14,
+              16
+            ],
+            "VZ": [
+              5,
+              6.2
+            ],
+            "R": [
+              100,
+              150
+            ],
+            "RL": [
+              200,
+              330
+            ]
+          },
+          "require": "(Vmin-VZ)/R - VZ/RL - 0.002",
+          "prompt": "The supply of a regulator varies from {{Vmin|V}} to {{Vmax|V}}; $R$ = {{R|Ω}}, $V_Z$ = {{VZ|V}}, $R_L$ = {{RL|Ω}}. Find the **smallest** zener current that occurs.",
+          "answer": "(Vmin-VZ)/R - VZ/RL",
+          "unit": "A",
+          "explanation": "The load current is fixed: $I_L = {{VZ}}/{{RL}}$ = {{VZ/RL|A}}. $I_Z$ is smallest when $I_R$ is smallest, i.e. at minimum supply:\n$I_{Z} = \\frac{ {{Vmin}} - {{VZ}} }{ {{R}} } - {{VZ/RL}}$ = {{(Vmin-VZ)/R - VZ/RL|A}}.\n(At maximum supply it would be {{(Vmax-VZ)/R - VZ/RL|A}}.)"
+        }
+      ]
+    },
+    {
+      "id": "sc-zener-4",
+      "title": "Zener graphs",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "g1", "type": "numeric",
+          "params": {"VZ": [3.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1]},
+          "prompt": "The graph shows the $i_D$–$v_D$ characteristic of a zener diode (usual diode references). Read its zener voltage $V_Z$ (as a positive number).",
+          "plot": {
+            "x": {"min": "-VZ-1", "max": 1, "label": "v_D", "unit": "V"},
+            "y": {"min": -0.02, "max": 0.02, "label": "i_D", "unit": "A"},
+            "curves": [{"f": "1e-14*(exp(x/0.026)-1) - 1e-4*exp(-(x+VZ)/0.02)"}]
+          },
+          "answer": "VZ",
+          "unit": "V",
+          "tolerance": 0.07,
+          "explanation": "A zener conducts in reverse when $v_D$ reaches $-V_Z$: the curve drops almost vertically at $v_D$ ≈ {{-VZ|V}}, so $V_Z$ ≈ {{VZ|V}}. Because the line is so steep, the voltage hardly changes over a wide range of current, which is what makes the zener a voltage reference. (The steep rise at about +0.7 V is ordinary forward conduction.)"
+        },
+        {
+          "id": "g2", "type": "numeric",
+          "params": {"VZ0": [4.7, 5.1, 6.2], "RZ": [5, 10, 20]},
+          "prompt": "In breakdown a real zener behaves like a source $V_{Z0}$ in series with a small resistance $R_Z$. The graph shows the reverse current $I_Z$ versus the reverse voltage $v_Z$. Use the two marked points to find $R_Z$.",
+          "plot": {
+            "x": {"min": "VZ0-0.01*RZ", "max": "VZ0+0.05*RZ", "label": "v_Z (V)"},
+            "y": {"min": 0, "max": 0.05, "label": "I_Z", "unit": "A"},
+            "curves": [{"f": "max(0, (x-VZ0)/RZ)"}],
+            "points": [{"x": "VZ0+0.02*RZ", "y": 0.02}, {"x": "VZ0+0.04*RZ", "y": 0.04}]
+          },
+          "answer": "RZ",
+          "unit": "Ω",
+          "tolerance": 0.07,
+          "explanation": "Between the marked points the current rises from 20 mA to 40 mA while the voltage rises from {{VZ0+0.02*RZ|V}} to {{VZ0+0.04*RZ|V}}. $R_Z = \\Delta v_Z/\\Delta I_Z$ = {{0.02*RZ|V}} / 20 mA = {{RZ|Ω}}. The line meets $I_Z$ = 0 at $V_{Z0}$ = {{VZ0|V}}."
+        },
+        {
+          "id": "g3", "type": "multipleChoice",
+          "prompt": "A zener regulator ($V_Z$ = 5 V) feeds a load resistor. Which graph shows the output voltage $v_o$ while the supply $V_s$ is slowly raised from 0? ($V_s$ horizontal, $v_o$ vertical, same scales.)",
+          "optionPlots": [
+            {
+              "x": {"min": 0, "max": 20},
+              "y": {"min": 0, "max": 8},
+              "curves": [{"f": "min(5, 0.5*x)"}],
+              "hlines": [{"y": 5}]
+            },
+            {"x": {"min": 0, "max": 20}, "y": {"min": 0, "max": 8}, "curves": [{"f": "0.35*x"}], "hlines": [{"y": 5}]},
+            {
+              "x": {"min": 0, "max": 20},
+              "y": {"min": 0, "max": 8},
+              "curves": [{"f": "max(5, 0.5*x-2)"}],
+              "hlines": [{"y": 5}]
+            },
+            {
+              "x": {"min": 0, "max": 20},
+              "y": {"min": 0, "max": 8},
+              "curves": [{"f": "5*step(x-10)"}],
+              "hlines": [{"y": 5}]
+            }
+          ],
+          "answer": 0,
+          "explanation": "While the divider voltage $V_sR_L/(R+R_L)$ is below $V_Z$ the zener does not conduct, so $v_o$ rises in proportion to $V_s$. Once it reaches $V_Z$ the zener breaks down and holds $v_o$ at $V_Z$ = 5 V: the graph bends into a flat line. A line that keeps rising means no regulation; the output never sits at 5 V for small $V_s$ (there is no source of 5 V then) and it does not jump."
+        },
+        {
+          "id": "g4", "type": "numeric",
+          "params": {"VZ": [5.1, 5.6, 6.2], "R": [100, 220, 330], "RL": [470, 680, 1000]},
+          "derived": {"Vsm": "VZ*(R+RL)/RL"},
+          "prompt": "For a zener shunt regulator with a load resistor, the graph shows $v_o$ versus the supply voltage $V_s$. Read the smallest supply voltage for which the output is regulated.",
+          "plot": {
+            "x": {"min": 0, "max": "ceil(1.6*Vsm)", "label": "V_s", "unit": "V"},
+            "y": {"min": 0, "max": "1.4*VZ", "label": "v_o", "unit": "V"},
+            "curves": [{"f": "min(VZ, x*RL/(R+RL))"}]
+          },
+          "answer": "Vsm",
+          "unit": "V",
+          "tolerance": 0.07,
+          "explanation": "Regulation starts at the knee, where the divider voltage $V_sR_L/(R+R_L)$ reaches $V_Z$ and the zener starts to conduct: $V_s$ ≈ {{Vsm|V}}. Here $R$ = {{R|Ω}} and $R_L$ = {{RL|Ω}}, so $V_{s,min} = V_Z(R+R_L)/R_L$ = {{VZ|V}} × {{(R+RL)/RL||3}} = {{Vsm|V}}. Below the knee the slope is $R_L/(R+R_L)$ = {{RL/(R+RL)||2}}."
+        },
+        {
+          "id": "g5", "type": "multipleChoice",
+          "params": {"s": [0, 1], "VZ": [5.1, 6.2], "R": [220, 330]},
+          "derived": {"RLa": "s*470 + (1-s)*2200", "RLb": "s*2200 + (1-s)*470"},
+          "prompt": "Curves A (green) and B (red) show $v_o$ versus $V_s$ for the same zener regulator with two different load resistors. Which curve belongs to the **smaller** load resistance (the heavier load)?",
+          "plot": {
+            "x": {"min": 0, "max": "1.3*VZ*(R+470)/470", "label": "V_s", "unit": "V"},
+            "y": {"min": 0, "max": "1.4*VZ", "label": "v_o", "unit": "V"},
+            "curves": [
+              {"f": "min(VZ, x*RLa/(R+RLa))", "label": "A"},
+              {"f": "min(VZ, x*RLb/(R+RLb))", "label": "B", "color": "red"}
+            ]
+          },
+          "options": ["Curve A", "Curve B"],
+          "answer": "1-s",
+          "explanation": "Before breakdown the output is the divider voltage $V_sR_L/(R+R_L)$. A smaller $R_L$ gives a smaller fraction, so the rising part is **flatter** and a higher supply is needed before the zener takes over. The curve whose knee lies further to the right belongs to the heavier load."
+        }
+      ]
+    }
+  ]
+}

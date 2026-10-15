@@ -1,0 +1,1088 @@
+{
+  "id": "cs-steady-state",
+  "title": "Steady-State Error",
+  "description": "Find how accurately a loop follows steps, ramps and parabolas, and how integral action helps.",
+  "reference": "",
+  "study": [
+    {
+      "title": "Steady-state error",
+      "body": "The error is $e(t) = r(t) - c(t)$ (unity feedback). Its final value $e_{ss}$ measures accuracy. With $E(s) = \\frac{R(s)}{1+G(s)}$, the **final value theorem** gives $e_{ss}$ without solving for $e(t)$. It is only valid if $e(t)$ settles, i.e. the closed loop is **stable**: always check that first.",
+      "formula": "e_{ss} = \\lim_{s\\to 0} sE(s) = \\lim_{s\\to 0}\\frac{sR(s)}{1+G(s)}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1.2,
+                0
+              ]
+            ],
+            "label": "R(s)"
+          },
+          {
+            "type": "sum",
+            "at": [
+              1.5,
+              0
+            ],
+            "kind": "+-"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.8,
+                0
+              ],
+              [
+                2.5,
+                0
+              ]
+            ],
+            "label": "E"
+          },
+          {
+            "type": "block",
+            "at": [
+              3.5,
+              0
+            ],
+            "label": "G(s)"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.5,
+                0
+              ],
+              [
+                6.5,
+                0
+              ]
+            ],
+            "label": "C(s)"
+          },
+          {
+            "type": "node",
+            "at": [
+              5.5,
+              0
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                5.5,
+                0
+              ],
+              [
+                5.5,
+                2
+              ],
+              [
+                1.5,
+                2
+              ],
+              [
+                1.5,
+                0.3
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "System type",
+      "body": "The **type** of a unity-feedback system is the number of pure integrators (poles at $s = 0$) in the open-loop $G(s)$.\n- $\\frac{K}{(s+1)(s+5)}$: type 0\n- $\\frac{K}{s(s+2)}$: type 1\n- $\\frac{K(s+1)}{s^2(s+4)}$: type 2\nZeros and other poles do not change the type."
+    },
+    {
+      "title": "Error constants",
+      "body": "Apply the final value theorem to a unit step $R = 1/s$, a unit ramp $R = 1/s^2$ and a unit parabola $R = 1/s^3$ ($r = t^2/2$). With the open-loop constants\n- position: $K_p = \\lim_{s\\to0}G(s)$\n- velocity: $K_v = \\lim_{s\\to0}sG(s)$\n- acceleration: $K_a = \\lim_{s\\to0}s^2G(s)$\nthe step, ramp and parabola errors are as below. For an input of amplitude $A$, multiply by $A$.",
+      "formula": "e_{ss} = \\frac{1}{1+K_p},\\;\\; \\frac{1}{K_v},\\;\\; \\frac{1}{K_a}"
+    },
+    {
+      "title": "Explore: gain and step error",
+      "body": "Unity feedback around the type-0 plant $G(s) = \\frac{K}{(s+1)(s+2)}$, unit step input. Drag $K$: the output settles at $\\frac{K_p}{1+K_p}$ with $K_p = G(0) = K/2$, so the error shrinks as $K$ grows but never reaches zero. A high gain also makes the closed loop $s^2 + 3s + 2 + K$ less damped: more overshoot.",
+      "formula": "e_{ss} = \\frac{1}{1 + K_p}, \\qquad K_p = \\lim_{s\\to0}G(s)",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.6,
+          "label": "c(t)"
+        },
+        "sliders": [
+          {
+            "name": "K",
+            "label": "$K$",
+            "min": 0.5,
+            "max": 50,
+            "step": 0.5,
+            "value": 2
+          }
+        ],
+        "let": {
+          "wn": "sqrt(2+K)",
+          "zeta": "3/(2*sqrt(2+K))"
+        },
+        "curves": [
+          {
+            "f": "K/(2+K)*step2(x, zeta, wn)",
+            "label": "c(t)",
+            "labelAt": 0.8
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1,
+            "label": "r = 1"
+          },
+          {
+            "y": "K/(2+K)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$K_p = K/2$",
+            "value": "K/2"
+          },
+          {
+            "label": "$e_{ss} = \\frac{1}{1+K_p}$",
+            "value": "100*2/(2+K)",
+            "unit": "%"
+          },
+          {
+            "label": "overshoot",
+            "value": "if(1-zeta, 100*exp(-pi*zeta/sqrt(abs(1-zeta^2)+1e-12)), 0)",
+            "unit": "%"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Type vs input table",
+      "body": "- Type 0: step $\\frac{1}{1+K_p}$, ramp ∞, parabola ∞\n- Type 1: step 0, ramp $\\frac{1}{K_v}$, parabola ∞\n- Type 2: step 0, ramp 0, parabola $\\frac{1}{K_a}$\nEach integrator lets the loop follow one more derivative of the input exactly. The graph shows a type-1 loop following a ramp with a constant lag $1/K_v$.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 8,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 8,
+          "label": "r, c"
+        },
+        "curves": [
+          {
+            "f": "x",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "x-2.5*(1-exp(-0.4*x))"
+          },
+          {
+            "f": "2.8383+(x-5)*21617",
+            "from": 5,
+            "to": 5.0001,
+            "color": "orange"
+          }
+        ],
+        "labels": [
+          {
+            "x": 0.6,
+            "y": 3,
+            "text": "r(t) = t",
+            "color": "grey"
+          },
+          {
+            "x": 6.3,
+            "y": 3.2,
+            "text": "c(t)",
+            "color": "primary"
+          },
+          {
+            "x": 5.1,
+            "y": 3.9,
+            "text": "e_ss",
+            "color": "orange"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Integral action",
+      "body": "A PI controller $K_P + \\frac{K_I}{s} = \\frac{K_Ps + K_I}{s}$ adds a pole at $s = 0$, so it raises the system type by one. A type-0 plant then has **zero** step error, and a constant disturbance at the plant input is rejected completely. The price: an extra pole makes the loop slower to settle and more prone to overshoot or instability."
+    },
+    {
+      "title": "Quick check with T(0)",
+      "body": "For unity feedback, $e_{ss}$ for a unit step equals $1 - T(0)$, where $T = \\frac{G}{1+G}$ is the closed-loop transfer function. If $T(0) = 1$ the output settles exactly at the reference. **Pitfall:** $K_p$, $K_v$, $K_a$ are defined on the **open-loop** $G(s)$, not on $T(s)$.",
+      "formula": "e_{ss,\\,step} = 1 - T(0)"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "cs-steady-state-1",
+      "title": "Error and system type",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "How accurate is the loop?",
+          "body": "After the transient dies out, the output of a feedback loop may not equal the reference. The remaining difference is the **steady-state error** $e_{ss}$. In the graph a unity loop with a proportional gain settles at 0.8 for a unit step: $e_{ss} = 0.2$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.2,
+              "label": "c(t)"
+            },
+            "curves": [
+              {
+                "f": "0.8*(1-exp(-3*x))",
+                "label": "c(t)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1,
+                "label": "reference r = 1"
+              }
+            ],
+            "labels": [
+              {
+                "x": 2.1,
+                "y": 0.9,
+                "text": "e_ss = 0.2",
+                "color": "orange"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "K": [
+              1,
+              2,
+              3,
+              4,
+              9
+            ],
+            "a": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "A unity-feedback loop with $G(s) = \\frac{{{K*a}}}{s + {{a}}}$ responds to a unit step as shown. Read the steady-state error.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "5/(a*(1+K))",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.2,
+              "label": "c(t)",
+              "ticks": [
+                0,
+                0.2,
+                0.4,
+                0.6,
+                0.8,
+                1
+              ]
+            },
+            "curves": [
+              {
+                "f": "K/(1+K)*(1-exp(-a*(1+K)*x))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1,
+                "label": "r = 1"
+              }
+            ]
+          },
+          "answer": "1/(1+K)",
+          "unit": "",
+          "tolerance": 0.1,
+          "absTolerance": 0.02,
+          "explanation": "The output settles at {{K/(1+K)}}, so $e_{ss} = 1 -$ {{K/(1+K)}} = {{1/(1+K)}}. Check: $K_p = G(0)$ = {{K}}, $e_{ss} = 1/(1+K_p)$ = {{1/(1+K)}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The final value theorem",
+          "body": "For unity feedback, $E(s) = R(s) - C(s) = \\frac{R(s)}{1 + G(s)}$. The final value theorem gives $e_{ss}$ directly from $E(s)$, provided the closed loop is stable.",
+          "formula": "e_{ss} = \\lim_{s\\to0} s\\,\\frac{R(s)}{1+G(s)}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1.2,
+                    0
+                  ]
+                ],
+                "label": "R(s)"
+              },
+              {
+                "type": "sum",
+                "at": [
+                  1.5,
+                  0
+                ],
+                "kind": "+-"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.8,
+                    0
+                  ],
+                  [
+                    2.5,
+                    0
+                  ]
+                ],
+                "label": "E"
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.5,
+                  0
+                ],
+                "label": "G(s)"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.5,
+                    0
+                  ],
+                  [
+                    6.5,
+                    0
+                  ]
+                ],
+                "label": "C(s)"
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  0
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    5.5,
+                    0
+                  ],
+                  [
+                    5.5,
+                    2
+                  ],
+                  [
+                    1.5,
+                    2
+                  ],
+                  [
+                    1.5,
+                    0.3
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "The final value theorem can be applied to any closed loop, stable or not.",
+          "answer": false,
+          "explanation": "The theorem assumes $e(t)$ actually has a final value: all poles of $sE(s)$ must be in the left half-plane. For an unstable loop the error grows without bound, but $\\lim_{s\\to0} sE(s)$ still returns a (meaningless) finite number. Check stability first."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "System type",
+          "body": "The **type** is the number of integrators ($1/s$ factors) in the open-loop $G(s)$. For a unit step, $sR(s) = 1$ and $e_{ss} = \\frac{1}{1 + G(0)}$. Define the position constant $K_p = G(0)$. A type-1 or higher $G$ has $G(0) = \\infty$, so its step error is **zero**.",
+          "formula": "e_{step} = \\frac{1}{1 + K_p}, \\qquad K_p = \\lim_{s\\to0} G(s)"
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Try it: raise the gain",
+          "body": "$G(s) = \\frac{K}{(s+1)(s+2)}$ with unity feedback and a unit step. Drag $K$ and watch where $c(t)$ settles. $K_p = K/2$ and $e_{ss} = 1/(1+K_p)$: doubling the gain does **not** halve the error, and no finite gain removes it. Notice the price: the overshoot grows.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 5,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.6,
+              "label": "c(t)"
+            },
+            "sliders": [
+              {
+                "name": "K",
+                "label": "$K$",
+                "min": 0.5,
+                "max": 50,
+                "step": 0.5,
+                "value": 2
+              }
+            ],
+            "let": {
+              "wn": "sqrt(2+K)",
+              "zeta": "3/(2*sqrt(2+K))"
+            },
+            "curves": [
+              {
+                "f": "K/(2+K)*step2(x, zeta, wn)",
+                "label": "c(t)",
+                "labelAt": 0.8
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1,
+                "label": "r = 1"
+              },
+              {
+                "y": "K/(2+K)"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$K_p = K/2$",
+                "value": "K/2"
+              },
+              {
+                "label": "$e_{ss} = \\frac{1}{1+K_p}$",
+                "value": "100*2/(2+K)",
+                "unit": "%"
+              },
+              {
+                "label": "overshoot",
+                "value": "if(1-zeta, 100*exp(-pi*zeta/sqrt(abs(1-zeta^2)+1e-12)), 0)",
+                "unit": "%"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each open-loop transfer function to its system type.",
+          "pairs": [
+            [
+              "$\\frac{10}{(s+1)(s+4)}$",
+              "Type 0"
+            ],
+            [
+              "$\\frac{10(s+3)}{s(s+1)}$",
+              "Type 1"
+            ],
+            [
+              "$\\frac{10(s+1)}{s^2(s+5)}$",
+              "Type 2"
+            ]
+          ],
+          "explanation": "Count the factors $s$ in the denominator (poles at the origin). The zero at $-3$ or $-1$ and the other poles do not matter."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "b": [
+              10,
+              20,
+              30,
+              60
+            ],
+            "a": [
+              1,
+              2,
+              3
+            ],
+            "c": [
+              2,
+              5,
+              10
+            ],
+            "A": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "$G(s) = \\frac{{{b}}}{(s+{{a}})(s+{{c}})}$ with unity feedback (stable). Find the steady-state error for a step input of amplitude {{A}}.",
+          "answer": "A/(1+b/(a*c))",
+          "unit": "",
+          "explanation": "Type 0. $K_p = G(0) = \\frac{{{b}}}{{{a}}\\cdot{{c}}}$ = {{b/(a*c)}}. $e_{ss} = \\frac{A}{1+K_p} = \\frac{{{A}}}{1 + {{b/(a*c)}}}$ = {{A/(1+b/(a*c))}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "K": [
+              5,
+              10,
+              20,
+              40,
+              50
+            ],
+            "a": [
+              1,
+              2,
+              4,
+              5
+            ]
+          },
+          "prompt": "$G(s) = \\frac{{{K}}}{s(s+{{a}})}$ with unity feedback. Find the steady-state error for a unit ramp $r(t) = t$.",
+          "answer": "a/K",
+          "unit": "",
+          "explanation": "Type 1. $K_v = \\lim_{s\\to0} sG(s) = \\frac{{{K}}}{{{a}}}$ = {{K/a}}. $e_{ss} = 1/K_v$ = {{a/K}}. The output follows the ramp but lags it by this constant amount."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A stable type-1 unity-feedback system gets a unit **step** input. What is $e_{ss}$?",
+          "options": [
+            "0",
+            "$1/K_v$",
+            "$\\frac{1}{1+K_v}$",
+            "∞"
+          ],
+          "answer": 0,
+          "explanation": "With an integrator in $G$, $K_p = G(0) = \\infty$, so $e_{ss} = 1/(1+K_p) = 0$. Intuitively, the integrator keeps changing its output as long as any error remains, so the loop can only rest when the error is exactly zero."
+        }
+      ]
+    },
+    {
+      "id": "cs-steady-state-2",
+      "title": "Error constants",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "K": [
+              10,
+              20,
+              50,
+              100
+            ],
+            "z": [
+              1,
+              2,
+              3
+            ],
+            "p1": [
+              2,
+              4,
+              5
+            ],
+            "p2": [
+              5,
+              10
+            ],
+            "A": [
+              1,
+              2,
+              5
+            ]
+          },
+          "require": "p2 - p1",
+          "prompt": "$G(s) = \\frac{{{K}}(s+{{z}})}{s(s+{{p1}})(s+{{p2}})}$ with unity feedback (assume stable). The input is a ramp $r(t) = {{A}}t$.",
+          "ask": [
+            {
+              "prompt": "Find the velocity constant $K_v$ (in $\\mathrm{s^{-1}}$).",
+              "answer": "K*z/(p1*p2)",
+              "unit": "",
+              "explanation": "$K_v = \\lim_{s\\to0} sG(s) = \\frac{{{K}}\\cdot{{z}}}{{{p1}}\\cdot{{p2}}}$ = {{K*z/(p1*p2)}} $\\mathrm{s^{-1}}$."
+            },
+            {
+              "prompt": "Find the steady-state error.",
+              "answer": "A*p1*p2/(K*z)",
+              "unit": "",
+              "explanation": "$K_v = \\frac{{{K}}\\cdot{{z}}}{{{p1}}\\cdot{{p2}}}$ = {{K*z/(p1*p2)}} $\\mathrm{s^{-1}}$. For a ramp of slope {{A}}: $e_{ss} = A/K_v$ = {{A*p1*p2/(K*z)}}."
+            }
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "multipleChoice",
+          "prompt": "$G(s) = \\frac{20}{(s+2)(s+5)}$ with unity feedback is given a unit **ramp**. What happens to the error?",
+          "options": [
+            "It grows without bound",
+            "It settles at $1/(1+K_p) = 1/3$",
+            "It settles at $1/K_v = 0.5$",
+            "It goes to zero"
+          ],
+          "answer": 0,
+          "explanation": "Type 0: $K_v = \\lim sG(s) = 0$, so $e_{ss} = 1/K_v = \\infty$. A type-0 loop needs a nonzero error to produce a nonzero output, and a ramp needs an ever-growing output, so the error grows linearly."
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              4
+            ],
+            "b": [
+              5,
+              10
+            ],
+            "E": [
+              1,
+              2,
+              5,
+              10
+            ]
+          },
+          "prompt": "$G(s) = \\frac{K}{(s+{{a}})(s+{{b}})}$ with unity feedback. Which gain $K$ gives a steady-state step error of exactly {{E}} %? (Assume the loop is stable.)",
+          "answer": "a*b*(100/E-1)",
+          "unit": "",
+          "explanation": "$e_{ss} = \\frac{1}{1+K_p} = {{E/100}}$ gives $K_p = 1/{{E/100}} - 1$ = {{100/E-1}}. With $K_p = G(0) = \\frac{K}{{{a}}\\cdot{{b}}}$: $K$ = {{a*b}} × {{100/E-1}} = {{a*b*(100/E-1)}}."
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              5,
+              10,
+              20
+            ],
+            "z": [
+              1,
+              2,
+              4
+            ],
+            "p": [
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "$G(s) = \\frac{{{K}}(s+{{z}})}{s^2(s+{{p}})}$ with unity feedback (assume stable). Find $e_{ss}$ for the parabolic input $r(t) = t^2/2$.",
+          "answer": "p/(K*z)",
+          "unit": "",
+          "explanation": "Type 2. $R(s) = 1/s^3$. $K_a = \\lim_{s\\to0} s^2G(s) = \\frac{{{K}}\\cdot{{z}}}{{{p}}}$ = {{K*z/p}} $\\mathrm{s^{-2}}$. $e_{ss} = 1/K_a$ = {{p/(K*z)}}."
+        },
+        {
+          "id": "p5",
+          "type": "numeric",
+          "params": {
+            "K": [
+              0.5,
+              1,
+              2,
+              4
+            ]
+          },
+          "prompt": "The graph shows the unit ramp $r(t) = t$ and the output $c(t)$ of a type-1 unity-feedback loop. Read the steady-state error and give the velocity constant $K_v$ (in $\\mathrm{s^{-1}}$).",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "8/K",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": "8/K",
+              "label": "r, c"
+            },
+            "curves": [
+              {
+                "f": "x",
+                "color": "grey",
+                "dash": true
+              },
+              {
+                "f": "x-(1-exp(-K*x))/K"
+              }
+            ],
+            "labels": [
+              {
+                "x": "2/K",
+                "y": "3.2/K",
+                "text": "r(t)",
+                "color": "grey"
+              },
+              {
+                "x": "5.6/K",
+                "y": "3.6/K",
+                "text": "c(t)",
+                "color": "primary"
+              }
+            ]
+          },
+          "answer": "K",
+          "unit": "",
+          "tolerance": 0.1,
+          "explanation": "Once the transient is over, $c(t)$ runs parallel to $r(t)$, a constant {{1/K}} below it, so $e_{ss}$ = {{1/K}}. For a ramp, $e_{ss} = 1/K_v$, so $K_v$ = 1/{{1/K}} = {{K}} $\\mathrm{s^{-1}}$."
+        },
+        {
+          "id": "p6",
+          "type": "numeric",
+          "params": {
+            "c": [
+              3,
+              4,
+              5,
+              6
+            ],
+            "d": [
+              10,
+              20,
+              25
+            ],
+            "f": [
+              0.5,
+              0.8,
+              0.9,
+              0.95
+            ]
+          },
+          "derived": {
+            "b": "f*d"
+          },
+          "prompt": "A stable unity-feedback loop has the closed-loop transfer function $T(s) = \\frac{{{b}}}{s^2 + {{c}}s + {{d}}}$. Find the steady-state error for a unit step.",
+          "answer": "1-b/d",
+          "unit": "",
+          "explanation": "The output settles at $T(0) = {{b}}/{{d}}$ = {{b/d}}. So $e_{ss} = 1 - T(0)$ = {{1-b/d}}. (Equivalently: $G = T/(1-T)$ has $K_p = $ {{b/(d-b)}} and $1/(1+K_p)$ = {{1-b/d}}.)"
+        },
+        {
+          "id": "p7",
+          "type": "trueFalse",
+          "prompt": "In a type-0 loop, raising the gain $K$ reduces the steady-state step error, but it can never make it exactly zero.",
+          "answer": true,
+          "explanation": "$e_{ss} = 1/(1+K_p)$ with $K_p$ proportional to $K$: it shrinks as $K$ grows but stays positive for every finite $K$. In practice a high gain also hurts stability, so integral action is the usual way to get zero error."
+        },
+        {
+          "id": "p8",
+          "type": "matchPairs",
+          "prompt": "Match the system type and input to the steady-state error.",
+          "pairs": [
+            [
+              "Type 0, step",
+              "$\\frac{1}{1+K_p}$"
+            ],
+            [
+              "Type 1, ramp",
+              "$\\frac{1}{K_v}$"
+            ],
+            [
+              "Type 2, parabola",
+              "$\\frac{1}{K_a}$"
+            ],
+            [
+              "Type 1, step",
+              "$0$"
+            ],
+            [
+              "Type 0, ramp",
+              "$\\infty$"
+            ]
+          ],
+          "explanation": "A system of type $N$ follows inputs up to $t^{N-1}$ exactly, follows $t^N$ with a finite error, and cannot follow faster inputs (infinite error)."
+        }
+      ]
+    },
+    {
+      "id": "cs-steady-state-3",
+      "title": "Integral action",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "info",
+          "title": "Adding integral action",
+          "body": "A PI controller $G_c = K_P + \\frac{K_I}{s} = \\frac{K_P s + K_I}{s}$ in front of a type-0 plant makes the loop type 1. Step error becomes zero and a ramp is followed with a finite error, set by $K_I$:",
+          "formula": "K_v = \\lim_{s\\to0} s\\,\\frac{K_P s + K_I}{s}\\,G_p(s) = K_I\\,G_p(0)"
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "b": [
+              1,
+              2,
+              5
+            ],
+            "a": [
+              1,
+              2,
+              4
+            ],
+            "Kp": [
+              1,
+              2,
+              5
+            ],
+            "Ki": [
+              2,
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "Plant $\\frac{{{b}}}{s+{{a}}}$, PI controller $K_P = {{Kp}}$, $K_I = {{Ki}}$, unity feedback. Find $e_{ss}$ for a unit ramp.",
+          "answer": "a/(Ki*b)",
+          "unit": "",
+          "explanation": "Characteristic equation $s(s+{{a}}) + {{b}}({{Kp}}s + {{Ki}}) = 0$ has all positive coefficients (second order), so the loop is stable. $K_v = K_I G_p(0) = {{Ki}}\\cdot\\frac{{{b}}}{{{a}}}$ = {{Ki*b/a}} $\\mathrm{s^{-1}}$, so $e_{ss} = 1/K_v$ = {{a/(Ki*b)}}. $K_P$ does not affect it."
+        },
+        {
+          "id": "c3",
+          "type": "multipleChoice",
+          "params": {
+            "K": [
+              2,
+              5,
+              10,
+              20
+            ],
+            "b": [
+              1,
+              2
+            ],
+            "a": [
+              1,
+              2,
+              4
+            ]
+          },
+          "require": "abs(b-a)",
+          "prompt": "Plant $\\frac{{{b}}}{s+{{a}}}$ with unity feedback. A proportional controller $K = {{K}}$ is replaced by a PI controller. What happens to the steady-state error for a unit step?",
+          "options": [
+            "It drops from {{1/(1+K*b/a)}} to 0",
+            "It drops from {{1/(1+K)}} to 0",
+            "It stays at {{1/(1+K*b/a)}}",
+            "It drops from {{a/(K*b)}} to 0"
+          ],
+          "answer": 0,
+          "explanation": "With P control: $K_p = K G_p(0) = {{K}}\\cdot{{b/a}}$ = {{K*b/a}}, so $e_{ss} = 1/(1+K_p)$ = {{1/(1+K*b/a)}}. The PI controller adds an integrator: type 1, so $e_{ss} = 0$ for a step. (Forgetting the plant's DC gain gives {{1/(1+K)}}.)"
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              2,
+              3,
+              4
+            ],
+            "L": [
+              0.75,
+              0.8,
+              0.9,
+              0.95
+            ]
+          },
+          "require": "b - a",
+          "derived": {
+            "Kt": "a*b*L/(1-L)",
+            "wn": "sqrt(a*b+Kt)",
+            "zt": "(a+b)/(2*wn)"
+          },
+          "prompt": "Proportional control only: $G(s) = \\frac{K}{(s+{{a}})(s+{{b}})}$ with unity feedback and a unit step. Set $K$ so that the output **settles** at {{L}} (orange line).",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 5,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.6,
+              "label": "c(t)"
+            },
+            "sliders": [
+              {
+                "name": "K",
+                "label": "$K$",
+                "min": 0.5,
+                "max": 300,
+                "log": true,
+                "value": "a*b"
+              }
+            ],
+            "let": {
+              "w": "sqrt(a*b+K)",
+              "z": "(a+b)/(2*sqrt(a*b+K))"
+            },
+            "curves": [
+              {
+                "f": "K/(a*b+K)*step2(x, z, w)",
+                "label": "c(t)",
+                "labelAt": 0.85
+              },
+              {
+                "f": "L",
+                "color": "orange",
+                "dash": true,
+                "label": "target",
+                "labelAt": 0.4
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1,
+                "label": "r = 1"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "final value",
+                "value": "K/(a*b+K)",
+                "sig": 3,
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "K": "Kt"
+          },
+          "tolerance": 0.05,
+          "explanation": "Type 0: $c(\\infty) = \\frac{K_p}{1+K_p}$ with $K_p = G(0) = \\frac{K}{ {{a*b}} }$. Setting it to {{L}} gives $K_p = \\frac{ {{L}} }{1 - {{L}}}$ = {{L/(1-L)}}, so $K$ = {{a*b}} × {{L/(1-L)}} = {{Kt}}. The error is still {{100*(1-L)|%}}, and the loop now has $\\zeta$ = {{zt}}: pushing the error down with $K$ alone costs damping. Integral action removes the error without needing a huge gain."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "K": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "$G(s) = \\frac{K}{s(s+1)(s+2)}$ with unity feedback and $K = {{K}}$. The loop is stable for $0 < K < 6$. Find $e_{ss}$ for a unit ramp.",
+          "answer": "2/K",
+          "unit": "",
+          "explanation": "$K = {{K}} < 6$, so the loop is stable and the final value theorem applies. $K_v = \\lim sG = K/(1\\cdot2)$ = {{K/2}} $\\mathrm{s^{-1}}$ and $e_{ss} = 1/K_v$ = {{2/K}}. Raising $K$ above 6 would lower this number on paper, but the loop would be unstable."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              5,
+              10,
+              20
+            ],
+            "b": [
+              1,
+              2,
+              4
+            ],
+            "a": [
+              1,
+              2,
+              4
+            ],
+            "D": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "Plant $\\frac{{{b}}}{s+{{a}}}$ with proportional control $K = {{K}}$ and unity feedback. With $r = 0$, a constant disturbance $d = {{D}}$ is added at the plant input. Find the steady-state output $c_{ss}$.",
+          "answer": "D*b/(a+K*b)",
+          "unit": "",
+          "explanation": "$\\frac{C}{D} = \\frac{G_p}{1 + KG_p} = \\frac{{{b}}}{s + {{a}} + {{K*b}}}$. Final value for a step of size {{D}}: $c_{ss} = {{D}}\\cdot\\frac{{{b}}}{{{a+K*b}}}$ = {{D*b/(a+K*b)}}. Without control it would be {{D*b/a}}; a PI controller would make it 0."
+        },
+        {
+          "id": "c6",
+          "type": "numeric",
+          "params": {
+            "b": [
+              1,
+              2,
+              5
+            ],
+            "a": [
+              1,
+              2,
+              4,
+              5
+            ],
+            "E": [
+              0.01,
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "Plant $\\frac{{{b}}}{s+{{a}}}$ with a PI controller and unity feedback. Which integral gain $K_I$ gives a ramp error of {{E}} for a unit ramp?",
+          "answer": "a/(b*E)",
+          "unit": "",
+          "explanation": "$e_{ss} = \\frac{1}{K_v}$ with $K_v = K_I\\,G_p(0) = K_I\\frac{{{b}}}{{{a}}}$. So $K_I = \\frac{{{a}}}{{{b}}\\cdot{{E}}}$ = {{a/(b*E)}}."
+        },
+        {
+          "id": "c7",
+          "type": "trueFalse",
+          "prompt": "Adding integral action always improves a loop: zero step error and no downside.",
+          "answer": false,
+          "explanation": "The integrator removes the step error, but it adds a pole at the origin and 90° of phase lag. The loop gets slower to settle, more oscillatory, and can go unstable if $K_I$ is too large. PI tuning trades accuracy against stability."
+        }
+      ]
+    }
+  ]
+}

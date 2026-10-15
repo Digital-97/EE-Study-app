@@ -1,0 +1,1416 @@
+{
+  "id": "mdc-poleplace",
+  "title": "Pole Placement",
+  "description": "Feed back every state to put the closed-loop poles exactly where the specifications want them.",
+  "reference": "FPE §7.5–7.6",
+  "study": [
+    {
+      "title": "Full-state feedback",
+      "body": "If every state is measured, feed them all back: $u = -\\mathbf{K}\\mathbf{x} + \\bar N r$. The closed loop is $\\dot{\\mathbf{x}} = (\\mathbf{A} - \\mathbf{B}\\mathbf{K})\\mathbf{x} + \\mathbf{B}\\bar Nr$, so the closed-loop poles are the eigenvalues of $\\mathbf{A} - \\mathbf{B}\\mathbf{K}$. If $(\\mathbf{A}, \\mathbf{B})$ is controllable, $\\mathbf{K}$ can put them **anywhere** (complex ones in conjugate pairs). The zeros from $r$ to $y$ are not moved.",
+      "formula": "\\det(s\\mathbf{I} - \\mathbf{A} + \\mathbf{B}\\mathbf{K}) = \\alpha_c(s)",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                0.7,
+                0
+              ]
+            ],
+            "label": "r"
+          },
+          {
+            "type": "block",
+            "at": [
+              1.2,
+              0
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "~N"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.7,
+                0
+              ],
+              [
+                2.4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "sum",
+            "at": [
+              2.7,
+              0
+            ],
+            "kind": "+-"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3,
+                0
+              ],
+              [
+                3.8,
+                0
+              ]
+            ],
+            "label": "u"
+          },
+          {
+            "type": "block",
+            "at": [
+              5,
+              0
+            ],
+            "size": [
+              2.4,
+              0.9
+            ],
+            "label": "plant A, B",
+            "value": ""
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6.2,
+                0
+              ],
+              [
+                6.8,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6.8,
+              0
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.8,
+                0
+              ],
+              [
+                7.4,
+                0
+              ]
+            ],
+            "label": "x"
+          },
+          {
+            "type": "block",
+            "at": [
+              7.9,
+              0
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "C"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                8.4,
+                0
+              ],
+              [
+                9.2,
+                0
+              ]
+            ],
+            "label": "y"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.8,
+                0
+              ],
+              [
+                6.8,
+                1.5
+              ],
+              [
+                5.5,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              5,
+              1.5
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "K"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.5,
+                1.5
+              ],
+              [
+                2.7,
+                1.5
+              ],
+              [
+                2.7,
+                0.3
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Matching coefficients",
+      "body": "Pick the desired closed-loop polynomial $\\alpha_c(s)$ from the desired poles, expand $\\det(s\\mathbf{I} - \\mathbf{A} + \\mathbf{B}\\mathbf{K})$ in terms of the unknown gains and match coefficients.\n**Example:** double integrator $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix}$, $\\mathbf{B} = [0 \\;\\; 1]^T$. Then $\\mathbf{A} - \\mathbf{B}\\mathbf{K} = \\begin{bmatrix} 0 & 1 \\\\ -k_1 & -k_2 \\end{bmatrix}$ with polynomial $s^2 + k_2s + k_1$. Poles at $-2 \\pm 2j$ need $(s+2)^2 + 4 = s^2 + 4s + 8$, so $\\mathbf{K} = [8 \\;\\; 4]$.",
+      "formula": "s^2 + k_2s + k_1 = s^2 + 4s + 8"
+    },
+    {
+      "title": "Control canonical form shortcut",
+      "body": "In control canonical form $\\mathbf{B}_c = [1 \\;\\; 0 \\;\\; \\cdots]^T$, so $\\mathbf{B}_c\\mathbf{K}$ only changes the top row: $\\mathbf{A}_c - \\mathbf{B}_c\\mathbf{K}$ has top row $[-a_1 - k_1 \\;\\; -a_2 - k_2 \\;\\; \\cdots]$. Its polynomial is $s^n + (a_1 + k_1)s^{n-1} + \\ldots$, so each gain is simply the desired coefficient minus the open-loop one. For other forms, transform to control canonical form or use Ackermann's formula.",
+      "formula": "\\mathbf{K} = [\\alpha_1 - a_1 \\;\\; \\alpha_2 - a_2 \\;\\; \\cdots \\;\\; \\alpha_n - a_n]"
+    },
+    {
+      "title": "Ackermann's formula",
+      "body": "A closed form for single-input systems: $\\alpha_c(\\mathbf{A}) = \\mathbf{A}^n + \\alpha_1\\mathbf{A}^{n-1} + \\ldots + \\alpha_n\\mathbf{I}$ (the desired polynomial with $\\mathbf{A}$ plugged in) and $\\mathcal{C}$ the controllability matrix. It only exists when $\\mathcal{C}$ is invertible: controllability again.\n**Example:** double integrator, $\\alpha_c = s^2 + 4s + 8$: $\\mathcal{C} = \\begin{bmatrix} 0 & 1 \\\\ 1 & 0 \\end{bmatrix}$ (its own inverse), $[0 \\;\\; 1]\\mathcal{C}^{-1} = [1 \\;\\; 0]$, $\\alpha_c(\\mathbf{A}) = \\mathbf{A}^2 + 4\\mathbf{A} + 8\\mathbf{I} = \\begin{bmatrix} 8 & 4 \\\\ 0 & 8 \\end{bmatrix}$, so $\\mathbf{K} = [8 \\;\\; 4]$ again.",
+      "formula": "\\mathbf{K} = [0 \\;\\; \\cdots \\;\\; 0 \\;\\; 1]\\,\\mathcal{C}^{-1}\\alpha_c(\\mathbf{A})"
+    },
+    {
+      "title": "Choosing pole locations",
+      "body": "Turn the specs into a dominant pole pair $-\\zeta\\omega_n \\pm j\\omega_n\\sqrt{1-\\zeta^2}$ (Year 2 control):\n- overshoot fixes $\\zeta = \\frac{-\\ln M_p}{\\sqrt{\\pi^2 + \\ln^2 M_p}}$\n- 2 % settling time $T_s \\approx \\frac{4}{\\zeta\\omega_n}$ fixes $\\sigma = \\zeta\\omega_n$ (FPE uses the 1 % version $4.6/\\sigma$); 10–90 % rise time $t_r \\approx 1.8/\\omega_n$\n- extra poles: put them a few times further left so they hardly change the response\nDo not move poles further than needed: the gains, the control effort and the noise sensitivity all grow with the distance the poles are moved.",
+      "formula": "\\alpha_c(s) = s^2 + 2\\zeta\\omega_ns + \\omega_n^2"
+    },
+    {
+      "title": "Reference gain",
+      "body": "$\\mathbf{K}$ fixes the dynamics but not the final value. With $u = -\\mathbf{K}\\mathbf{x} + \\bar Nr$ the DC gain from $r$ to $y$ is $-\\mathbf{C}(\\mathbf{A} - \\mathbf{B}\\mathbf{K})^{-1}\\mathbf{B}\\bar N$; choose $\\bar N$ to make it 1. For a plant in companion form with $y = x_1$ and $\\mathbf{B} = [0 \\;\\; b]^T$ the closed loop is $\\frac{b\\bar N}{s^2 + \\alpha_1s + \\alpha_0}$, so $\\bar N = \\alpha_0/b$. FPE writes the same as $\\bar N = N_u + \\mathbf{K}\\mathbf{N}_x$ with the steady-state state $\\mathbf{N}_x r$ and input $N_u r$.",
+      "formula": "\\bar N = \\frac{-1}{\\mathbf{C}(\\mathbf{A} - \\mathbf{B}\\mathbf{K})^{-1}\\mathbf{B}}"
+    },
+    {
+      "title": "Explore: placing the poles of a double integrator",
+      "body": "For $\\ddot y = u$ with $u = -k_1y - k_2\\dot y + \\bar Nr$ the closed loop is $\\frac{\\bar N}{s^2 + k_2s + k_1}$. Choose $\\zeta$ and $\\omega_n$; the gains follow as $k_1 = \\omega_n^2$, $k_2 = 2\\zeta\\omega_n$ and $\\bar N = k_1$. Doubling $\\omega_n$ makes the response twice as fast but quadruples $k_1$ and the initial control effort $\\bar N r$.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 6,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.6,
+          "label": "y(t)"
+        },
+        "sliders": [
+          {
+            "name": "zt",
+            "label": "$\\zeta$",
+            "min": 0.1,
+            "max": 1.5,
+            "step": 0.05,
+            "value": 0.5
+          },
+          {
+            "name": "wn",
+            "label": "$\\omega_n$",
+            "min": 1,
+            "max": 8,
+            "step": 0.1,
+            "value": 3,
+            "unit": "rad/s"
+          }
+        ],
+        "curves": [
+          {
+            "f": "step2(x, zt, wn)",
+            "label": "y(t)",
+            "labelAt": 0.7
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$k_1 = \\omega_n^2$",
+            "value": "wn^2"
+          },
+          {
+            "label": "$k_2 = 2\\zeta\\omega_n$",
+            "value": "2*zt*wn"
+          },
+          {
+            "label": "$\\bar N = k_1$",
+            "value": "wn^2"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "mdc-poleplace-1",
+      "title": "State feedback",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Feed back every state",
+          "body": "Classical control feeds back only the output. If all states are measured, feed back all of them: $u = -\\mathbf{K}\\mathbf{x} + \\bar Nr$. The closed loop $\\dot{\\mathbf{x}} = (\\mathbf{A} - \\mathbf{B}\\mathbf{K})\\mathbf{x} + \\mathbf{B}\\bar Nr$ has a new system matrix, so the gains $\\mathbf{K}$ move the poles. $\\bar N$ only scales the reference.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.7,
+                    0
+                  ]
+                ],
+                "label": "r"
+              },
+              {
+                "type": "block",
+                "at": [
+                  1.2,
+                  0
+                ],
+                "size": [
+                  1,
+                  0.8
+                ],
+                "label": "~N"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.7,
+                    0
+                  ],
+                  [
+                    2.4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "sum",
+                "at": [
+                  2.7,
+                  0
+                ],
+                "kind": "+-"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    3.8,
+                    0
+                  ]
+                ],
+                "label": "u"
+              },
+              {
+                "type": "block",
+                "at": [
+                  5,
+                  0
+                ],
+                "size": [
+                  2.4,
+                  0.9
+                ],
+                "label": "plant A, B",
+                "value": ""
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6.2,
+                    0
+                  ],
+                  [
+                    6.8,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6.8,
+                  0
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.8,
+                    0
+                  ],
+                  [
+                    7.4,
+                    0
+                  ]
+                ],
+                "label": "x"
+              },
+              {
+                "type": "block",
+                "at": [
+                  7.9,
+                  0
+                ],
+                "size": [
+                  1,
+                  0.8
+                ],
+                "label": "C"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    8.4,
+                    0
+                  ],
+                  [
+                    9.2,
+                    0
+                  ]
+                ],
+                "label": "y"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.8,
+                    0
+                  ],
+                  [
+                    6.8,
+                    1.5
+                  ],
+                  [
+                    5.5,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  5,
+                  1.5
+                ],
+                "size": [
+                  1,
+                  0.8
+                ],
+                "label": "K"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.5,
+                    1.5
+                  ],
+                  [
+                    2.7,
+                    1.5
+                  ],
+                  [
+                    2.7,
+                    0.3
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              -2,
+              -1,
+              1,
+              2,
+              3
+            ],
+            "b": [
+              0.5,
+              1,
+              2,
+              4
+            ],
+            "p": [
+              4,
+              5,
+              10
+            ]
+          },
+          "prompt": "A first-order plant $\\dot x = ax + bu$ with $a$ = {{a}} and $b$ = {{b}} gets state feedback $u = -kx$. Which $k$ puts the closed-loop pole at $s = -{{p}}$?",
+          "answer": "(a + p)/b",
+          "unit": "",
+          "explanation": "Closed loop: $\\dot x = ({{a}} - {{b}}k)x$, pole at $s = {{a}} - {{b}}k$. Set it equal to −{{p}}: $k = \\frac{a + p}{b} = \\frac{ {{a}} + {{p}} }{ {{b}} }$ = {{(a + p)/b}}. With $a > 0$ the plant is unstable on its own; feedback can still put the pole anywhere."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Two states",
+          "body": "For $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -a_0 & -a_1 \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ b \\end{bmatrix}$ and $\\mathbf{K} = [k_1 \\;\\; k_2]$, only the bottom row changes: $\\mathbf{A} - \\mathbf{B}\\mathbf{K} = \\begin{bmatrix} 0 & 1 \\\\ -a_0 - bk_1 & -a_1 - bk_2 \\end{bmatrix}$. Match its polynomial with the desired $s^2 + \\alpha_1s + \\alpha_0$.",
+          "formula": "s^2 + (a_1 + bk_2)s + (a_0 + bk_1)"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a0": [
+              -1,
+              0,
+              2,
+              3
+            ],
+            "a1": [
+              0,
+              1,
+              3
+            ],
+            "b": [
+              2,
+              4
+            ],
+            "p1": [
+              2,
+              3
+            ],
+            "p2": [
+              4,
+              5,
+              6
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ {{-a0}} & {{-a1}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ {{b}} \\end{bmatrix}$. Place the closed-loop poles at $-{{p1}}$ and $-{{p2}}$ with $u = -[k_1 \\;\\; k_2]\\,\\mathbf{x}$.",
+          "ask": [
+            {
+              "prompt": "Find $k_1$.",
+              "answer": "(p1*p2 - a0)/b",
+              "unit": "",
+              "explanation": "Desired: $(s + {{p1}})(s + {{p2}}) = s^2 + {{p1+p2}}s + {{p1*p2}}$. Closed loop: $s^2 + ({{a1}} + {{b}}k_2)s + ({{a0}} + {{b}}k_1)$. Constant terms: {{a0}} + {{b}}$k_1$ = {{p1*p2}}, so $k_1$ = {{(p1*p2 - a0)/b}}."
+            },
+            {
+              "prompt": "Find $k_2$.",
+              "answer": "(p1 + p2 - a1)/b",
+              "unit": "",
+              "explanation": "Desired: $s^2 + {{p1+p2}}s + {{p1*p2}}$. Closed loop: $s^2 + ({{a1}} + {{b}}k_2)s + \\ldots$. Match the $s$ terms: {{a1}} + {{b}}$k_2$ = {{p1+p2}}, so $k_2$ = {{(p1 + p2 - a1)/b}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "a0": [
+              2,
+              3,
+              5
+            ],
+            "a1": [
+              1,
+              2,
+              3
+            ],
+            "b": [
+              2,
+              3
+            ],
+            "k1": [
+              4,
+              5,
+              6
+            ],
+            "k2": [
+              1,
+              2
+            ]
+          },
+          "require": "abs(a1 + k2 - b*k2) + abs(a0 + k1 - b*k1)",
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -{{a0}} & -{{a1}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ {{b}} \\end{bmatrix}$, $\\mathbf{K} = [{{k1}} \\;\\; {{k2}}]$. What is $\\det(s\\mathbf{I} - \\mathbf{A} + \\mathbf{B}\\mathbf{K})$?",
+          "options": [
+            "$s^2 + {{a1+b*k2}}s + {{a0+b*k1}}$",
+            "$s^2 + {{a1+b*k1}}s + {{a0+b*k2}}$",
+            "$s^2 + {{a1+k2}}s + {{a0+k1}}$",
+            "$s^2 + {{b*k2}}s + {{b*k1}}$"
+          ],
+          "answer": 0,
+          "explanation": "$\\mathbf{B}\\mathbf{K} = \\begin{bmatrix} 0 & 0 \\\\ {{b*k1}} & {{b*k2}} \\end{bmatrix}$, so $\\mathbf{A} - \\mathbf{B}\\mathbf{K} = \\begin{bmatrix} 0 & 1 \\\\ -{{a0+b*k1}} & -{{a1+b*k2}} \\end{bmatrix}$ with polynomial $s^2 + {{a1+b*k2}}s + {{a0+b*k1}}$. $k_1$ (position gain) adds to the constant term, $k_2$ (velocity gain) to the damping term, both scaled by $b$; the open-loop coefficients stay in."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "From specs to poles",
+          "body": "Overshoot gives $\\zeta$, settling time gives $\\sigma = \\zeta\\omega_n \\approx 4/T_s$ (2 % criterion), and then $\\omega_n = \\sigma/\\zeta$. The desired polynomial is $s^2 + 2\\zeta\\omega_ns + \\omega_n^2$. For the double integrator $\\ddot y = u$ (with $\\mathbf{K} = [k_1 \\;\\; k_2]$ acting on $[y \\;\\; \\dot y]$) this gives the gains directly.",
+          "formula": "k_1 = \\omega_n^2, \\quad k_2 = 2\\zeta\\omega_n"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "OS": [
+              5,
+              10,
+              15,
+              20
+            ],
+            "Ts": [
+              1,
+              2,
+              4
+            ]
+          },
+          "derived": {
+            "z": "-ln(OS/100)/sqrt(pi^2 + ln(OS/100)^2)",
+            "sg": "4/Ts",
+            "wn": "sg/z"
+          },
+          "prompt": "Design $u = -k_1y - k_2\\dot y$ for the double integrator $\\ddot y = u$: {{OS}} % overshoot and a 2 % settling time of {{Ts|s}}.",
+          "ask": [
+            {
+              "prompt": "Find $k_1$.",
+              "answer": "wn^2",
+              "unit": "",
+              "explanation": "$\\zeta = \\frac{-\\ln({{OS/100}})}{\\sqrt{\\pi^2 + \\ln^2({{OS/100}})}}$ = {{z}}, $\\sigma = 4/T_s$ = {{sg}} $\\mathrm{s^{-1}}$, $\\omega_n = \\sigma/\\zeta$ = {{wn}} rad/s. $k_1 = \\omega_n^2$ = {{wn^2}}."
+            },
+            {
+              "prompt": "Find $k_2$.",
+              "answer": "2*sg",
+              "unit": "",
+              "explanation": "$k_2 = 2\\zeta\\omega_n = 2\\sigma$ and $\\sigma = 4/T_s$ = {{sg}} $\\mathrm{s^{-1}}$, so $k_2$ = {{2*sg}}. The settling time alone fixes the velocity gain; the overshoot spec only affects $k_1$."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "State feedback $u = -\\mathbf{K}\\mathbf{x} + \\bar Nr$ can move the zeros of the plant as well as its poles.",
+          "answer": false,
+          "explanation": "For a single-input single-output plant the transfer function from $r$ to $y$ is $\\bar N\\frac{N(s)}{\\alpha_c(s)}$: the denominator is the new polynomial, but the numerator $N(s)$ is the plant numerator, untouched. A zero near the dominant poles still adds overshoot, and a right-half-plane zero stays there. To change zeros you need dynamics in the controller (unit 5)."
+        },
+        {
+          "id": "q6",
+          "type": "slider",
+          "params": {
+            "k1": [
+              4,
+              9,
+              16
+            ],
+            "OS": [
+              5,
+              10,
+              20
+            ]
+          },
+          "derived": {
+            "zr": "-ln(OS/100)/sqrt(pi^2 + ln(OS/100)^2)"
+          },
+          "prompt": "Double integrator with $k_1$ = {{k1}} fixed. Adjust the velocity gain $k_2$ so that the step response overshoots by {{OS}} %.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "8/sqrt(k1)",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 2,
+              "label": "y(t)"
+            },
+            "sliders": [
+              {
+                "name": "k2",
+                "label": "$k_2$",
+                "min": 0.2,
+                "max": 12,
+                "step": 0.05,
+                "value": 0.4
+              }
+            ],
+            "let": {
+              "zt": "k2/(2*sqrt(k1))",
+              "Mp": "if(1 - zt, 100*exp(-pi*zt/sqrt(abs(1 - zt^2) + 1e-12)), 0)"
+            },
+            "curves": [
+              {
+                "f": "step2(x, zt, sqrt(k1))",
+                "label": "y(t)",
+                "labelAt": 0.8
+              },
+              {
+                "f": "1 + OS/100",
+                "dash": true,
+                "color": "orange",
+                "label": "target peak",
+                "labelAt": 0.75
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1
+              }
+            ],
+            "readouts": [
+              {
+                "label": "Overshoot",
+                "value": "Mp",
+                "unit": "%",
+                "reveal": true
+              },
+              {
+                "label": "$\\zeta$",
+                "value": "zt",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "k2": "2*zr*sqrt(k1)"
+          },
+          "tolerance": 0.04,
+          "explanation": "The closed loop is $\\frac{k_1}{s^2 + k_2s + k_1}$, so $\\omega_n = \\sqrt{k_1}$ = {{sqrt(k1)}} rad/s and $\\zeta = \\frac{k_2}{2\\sqrt{k_1}}$. {{OS}} % overshoot needs $\\zeta$ = {{zr}}, so $k_2 = 2\\zeta\\sqrt{k_1}$ = {{2*zr*sqrt(k1)}}. More velocity feedback means more damping."
+        }
+      ]
+    },
+    {
+      "id": "mdc-poleplace-2",
+      "title": "Ackermann and the reference gain",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The control canonical shortcut",
+          "body": "In control canonical form $\\mathbf{B}_c\\mathbf{K}$ only touches the top row, which holds the negated polynomial coefficients. So the closed-loop polynomial is $s^n + (a_1 + k_1)s^{n-1} + \\ldots + (a_n + k_n)$ and each gain is the desired coefficient minus the open-loop one.",
+          "formula": "k_i = \\alpha_i - a_i"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a1": [
+              2,
+              3,
+              4
+            ],
+            "a2": [
+              2,
+              4,
+              6
+            ],
+            "a3": [
+              1,
+              3,
+              5
+            ],
+            "p1": [
+              1,
+              2
+            ],
+            "p2": [
+              3,
+              4
+            ],
+            "p3": [
+              5,
+              10
+            ]
+          },
+          "derived": {
+            "al1": "p1 + p2 + p3",
+            "al2": "p1*p2 + p1*p3 + p2*p3",
+            "al3": "p1*p2*p3"
+          },
+          "prompt": "A plant in control canonical form has open-loop polynomial $s^3 + {{a1}}s^2 + {{a2}}s + {{a3}}$. Place the closed-loop poles at $-{{p1}}$, $-{{p2}}$ and $-{{p3}}$.",
+          "ask": [
+            {
+              "prompt": "Find $k_1$.",
+              "answer": "al1 - a1",
+              "unit": "",
+              "explanation": "Desired: $(s+{{p1}})(s+{{p2}})(s+{{p3}}) = s^3 + {{al1}}s^2 + {{al2}}s + {{al3}}$. $k_1 = \\alpha_1 - a_1$ = {{al1}} − {{a1}} = {{al1 - a1}}."
+            },
+            {
+              "prompt": "Find $k_3$.",
+              "answer": "al3 - a3",
+              "unit": "",
+              "explanation": "Desired constant term $\\alpha_3 = {{p1}}\\cdot{{p2}}\\cdot{{p3}}$ = {{al3}}. $k_3 = \\alpha_3 - a_3$ = {{al3}} − {{a3}} = {{al3 - a3}}."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Ackermann's formula",
+          "body": "For any controllable single-input system: build $\\mathcal{C} = [\\mathbf{B} \\;\\; \\mathbf{A}\\mathbf{B}]$, invert it, take its **last row**, and multiply by $\\alpha_c(\\mathbf{A}) = \\mathbf{A}^2 + \\alpha_1\\mathbf{A} + \\alpha_0\\mathbf{I}$ (for $n = 2$). It does the transformation to control canonical form for you. By hand, matching coefficients is often just as quick.",
+          "formula": "\\mathbf{K} = [0 \\;\\; 1]\\,\\mathcal{C}^{-1}\\alpha_c(\\mathbf{A})"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a11": [
+              -1,
+              0,
+              1
+            ],
+            "a12": [
+              1,
+              2
+            ],
+            "a21": [
+              -1,
+              0,
+              1
+            ],
+            "a22": [
+              -2,
+              0,
+              2
+            ],
+            "p1": [
+              2,
+              3
+            ],
+            "p2": [
+              4,
+              5
+            ]
+          },
+          "derived": {
+            "al1": "p1 + p2",
+            "al0": "p1*p2",
+            "kk2": "al1 + a11 + a22",
+            "kk1": "(al0 - a11*a22 + a11*kk2 + a12*a21)/a12"
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} {{a11}} & {{a12}} \\\\ {{a21}} & {{a22}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}$. Place the poles at $-{{p1}}$ and $-{{p2}}$.",
+          "ask": [
+            {
+              "prompt": "Find $k_2$.",
+              "answer": "kk2",
+              "unit": "",
+              "explanation": "$\\mathbf{A} - \\mathbf{B}\\mathbf{K} = \\begin{bmatrix} {{a11}} & {{a12}} \\\\ {{a21}} - k_1 & {{a22}} - k_2 \\end{bmatrix}$. Its trace is {{a11}} + {{a22}} − $k_2$ and must equal $-\\alpha_1$ = −{{al1}}: $k_2$ = {{al1}} + ({{a11}}) + ({{a22}}) = {{kk2}}."
+            },
+            {
+              "prompt": "Find $k_1$.",
+              "answer": "kk1",
+              "unit": "",
+              "explanation": "Trace condition first: $k_2$ = {{kk2}}. Determinant: ({{a11}})({{a22}} − $k_2$) − ({{a12}})({{a21}} − $k_1$) must equal $\\alpha_0$ = {{al0}}. With $k_2$ = {{kk2}}: ({{a11*(a22 - kk2)}}) − ({{a12*a21}}) + {{a12}}$k_1$ = {{al0}}, so $k_1$ = {{kk1}}. Ackermann's formula gives the same."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Getting the right final value",
+          "body": "After placing the poles, the DC gain from $r$ to $y$ is usually not 1. Compute it with $\\mathbf{K}$ in place, $-\\mathbf{C}(\\mathbf{A} - \\mathbf{B}\\mathbf{K})^{-1}\\mathbf{B}$, and set $\\bar N$ to its inverse. For the companion form with $y = x_1$ and $\\mathbf{B} = [0 \\;\\; b]^T$: $\\bar N = \\alpha_0/b$, where $\\alpha_0$ is the constant term of the closed-loop polynomial.",
+          "formula": "\\bar N = \\frac{-1}{\\mathbf{C}(\\mathbf{A} - \\mathbf{B}\\mathbf{K})^{-1}\\mathbf{B}}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a0": [
+              0,
+              1,
+              2,
+              4
+            ],
+            "a1": [
+              0,
+              1,
+              3
+            ],
+            "b": [
+              1,
+              2,
+              4
+            ],
+            "k1": [
+              5,
+              8,
+              12
+            ],
+            "k2": [
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ {{-a0}} & {{-a1}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ {{b}} \\end{bmatrix}$, $\\mathbf{C} = [1 \\;\\; 0]$, $\\mathbf{K} = [{{k1}} \\;\\; {{k2}}]$. Find $\\bar N$ so that $y$ follows a constant $r$ without error.",
+          "answer": "(a0 + b*k1)/b",
+          "unit": "",
+          "explanation": "Closed loop: $\\frac{Y}{R} = \\frac{ {{b}}\\bar N}{s^2 + {{a1 + b*k2}}s + {{a0 + b*k1}}}$ (the constant term is $a_0 + bk_1$). DC gain $\\frac{ {{b}}\\bar N}{ {{a0 + b*k1}} } = 1$ gives $\\bar N$ = {{a0 + b*k1}}/{{b}} = {{(a0 + b*k1)/b}}. Note that $\\bar N$ depends on $\\mathbf{K}$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "b": [
+              1,
+              2
+            ],
+            "al0": [
+              4,
+              5,
+              8,
+              10
+            ],
+            "al1": [
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "wn": "sqrt(al0)",
+            "zt": "al1/(2*sqrt(al0))",
+            "yf": "b/al0"
+          },
+          "prompt": "The graph shows the unit step response of a pole-placement design with $\\bar N = 1$, for a plant with $\\mathbf{B} = [0 \\;\\; {{b}}]^T$ and $y = x_1$. Read the final value and find the $\\bar N$ that makes it 1.",
+          "answer": "al0/b",
+          "unit": "",
+          "tolerance": 0.06,
+          "explanation": "The response settles at $y_\\infty \\approx$ {{b/al0}}. Since $\\bar N$ only scales the response, $\\bar N = 1/y_\\infty$ = {{al0/b}}. Check: the closed loop is $\\frac{b\\bar N}{s^2 + \\alpha_1s + \\alpha_0}$ with $\\alpha_0$ = {{al0}}, so $\\bar N = \\alpha_0/b$ = {{al0/b}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "10/(zt*wn)",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.5*yf",
+              "label": "y(t)"
+            },
+            "curves": [
+              {
+                "f": "yf*step2(x, zt, wn)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Put the steps of a pole-placement design in order.",
+          "items": [
+            "Turn the overshoot and settling-time specs into desired poles",
+            "Multiply out the desired poles into $\\alpha_c(s)$",
+            "Compute $\\mathbf{K}$ by matching $\\det(s\\mathbf{I} - \\mathbf{A} + \\mathbf{B}\\mathbf{K})$ to $\\alpha_c(s)$",
+            "Choose $\\bar N$ for zero steady-state error",
+            "Simulate and check the control effort"
+          ],
+          "explanation": "The specs give the poles, the poles give $\\alpha_c(s)$, and matching coefficients (or Ackermann) gives $\\mathbf{K}$. $\\bar N$ depends on $\\mathbf{K}$, so it comes after. Finally check that the actuator can deliver the required $u$; if not, choose slower poles. All of this assumes that $(\\mathbf{A}, \\mathbf{B})$ is controllable: check that before you start."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "If $(\\mathbf{A}, \\mathbf{B})$ is not controllable, Ackermann's formula cannot be used because $\\mathcal{C}$ has no inverse.",
+          "answer": true,
+          "explanation": "Ackermann needs $\\mathcal{C}^{-1}$, which exists only when $\\det\\mathcal{C} \\ne 0$. This is more than a technicality: an uncontrollable mode is an eigenvalue of $\\mathbf{A} - \\mathbf{B}\\mathbf{K}$ for **every** $\\mathbf{K}$. You can then only place the controllable poles, and the system is stabilizable only if the stuck ones are already stable."
+        }
+      ]
+    },
+    {
+      "id": "mdc-poleplace-3",
+      "title": "Designing K",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              5,
+              10
+            ],
+            "b": [
+              10,
+              20,
+              50
+            ],
+            "zt": [
+              0.5,
+              0.7,
+              0.8
+            ],
+            "wn": [
+              10,
+              15,
+              20
+            ]
+          },
+          "require": "2*zt*wn - a - 0.5",
+          "prompt": "A DC motor position loop: $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ 0 & -{{a}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ {{b}} \\end{bmatrix}$ with states angle and speed. Design $\\mathbf{K}$ for $\\zeta$ = {{zt}} and $\\omega_n$ = {{wn}} rad/s.",
+          "ask": [
+            {
+              "prompt": "Find $k_1$ (angle gain).",
+              "answer": "wn^2/b",
+              "unit": "",
+              "explanation": "$\\mathbf{A} - \\mathbf{B}\\mathbf{K}$ has polynomial $s^2 + ({{a}} + {{b}}k_2)s + {{b}}k_1$. Desired: $s^2 + 2\\zeta\\omega_ns + \\omega_n^2 = s^2 + {{2*zt*wn}}s + {{wn^2}}$. So {{b}}$k_1$ = {{wn^2}}: $k_1$ = {{wn^2/b}}."
+            },
+            {
+              "prompt": "Find $k_2$ (speed gain).",
+              "answer": "(2*zt*wn - a)/b",
+              "unit": "",
+              "explanation": "Match the $s$ terms: {{a}} + {{b}}$k_2$ = $2\\zeta\\omega_n$ = {{2*zt*wn}}, so $k_2$ = ({{2*zt*wn}} − {{a}})/{{b}} = {{(2*zt*wn - a)/b}}. The motor's own friction already supplies part of the damping."
+            }
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "a1": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "a2": [
+              1,
+              2,
+              4,
+              6
+            ],
+            "sg": [
+              1,
+              2,
+              3
+            ],
+            "w": [
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "$G(s) = \\frac{1}{s^2 + {{a1}}s + {{a2}}}$ in control canonical form. Place the closed-loop poles at $-{{sg}} \\pm j{{w}}$.",
+          "ask": [
+            {
+              "prompt": "Find $k_1$.",
+              "answer": "2*sg - a1",
+              "unit": "",
+              "explanation": "Desired: $(s + {{sg}})^2 + {{w}}^2 = s^2 + {{2*sg}}s + {{sg^2 + w^2}}$. Control canonical form: $k_1 = \\alpha_1 - a_1$ = {{2*sg}} − {{a1}} = {{2*sg - a1}}.",
+              "absTolerance": 0.01
+            },
+            {
+              "prompt": "Find $k_2$.",
+              "answer": "sg^2 + w^2 - a2",
+              "unit": "",
+              "explanation": "Desired constant term $\\sigma^2 + \\omega^2$ = {{sg^2 + w^2}}. $k_2 = \\alpha_2 - a_2$ = {{sg^2 + w^2}} − {{a2}} = {{sg^2 + w^2 - a2}}.",
+              "absTolerance": 0.01
+            }
+          ]
+        },
+        {
+          "id": "p3",
+          "type": "multipleChoice",
+          "params": {
+            "s": [
+              1,
+              2,
+              3
+            ],
+            "w": [
+              1,
+              2,
+              4
+            ]
+          },
+          "require": "abs(s^2 + w^2 - 2*s)",
+          "prompt": "For the double integrator $\\ddot y = u$ with $u = -[k_1 \\;\\; k_2]\\,[y \\;\\; \\dot y]^T$, which gain vector places the poles at $-{{s}} \\pm j{{w}}$?",
+          "options": [
+            "$\\mathbf{K} = [{{s^2 + w^2}} \\;\\; {{2*s}}]$",
+            "$\\mathbf{K} = [{{2*s}} \\;\\; {{s^2 + w^2}}]$",
+            "$\\mathbf{K} = [{{s^2 - w^2}} \\;\\; {{2*s}}]$",
+            "$\\mathbf{K} = [{{s^2 + w^2}} \\;\\; {{s}}]$"
+          ],
+          "answer": 0,
+          "explanation": "Closed loop: $s^2 + k_2s + k_1$. Desired: $(s + {{s}})^2 + {{w}}^2 = s^2 + {{2*s}}s + {{s^2 + w^2}}$. So $k_1 = \\sigma^2 + \\omega^2$ = {{s^2 + w^2}} (the squared distance of the poles from the origin, $\\omega_n^2$) and $k_2 = 2\\sigma$ = {{2*s}}."
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              1
+            ],
+            "l2": [
+              -3,
+              2,
+              3
+            ],
+            "p1": [
+              2,
+              3
+            ],
+            "p2": [
+              4,
+              6
+            ]
+          },
+          "require": "abs(l1 - l2)",
+          "prompt": "Modal form: $\\mathbf{A} = \\begin{bmatrix} {{l1}} & 0 \\\\ 0 & {{l2}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 1 \\\\ 1 \\end{bmatrix}$. Find $k_1$ in $\\mathbf{K} = [k_1 \\;\\; k_2]$ that places the closed-loop poles at $-{{p1}}$ and $-{{p2}}$.",
+          "answer": "(l1*l2 - p1*p2 - l1*(p1 + p2 + l1 + l2))/(l2 - l1)",
+          "unit": "",
+          "explanation": "$\\mathbf{A} - \\mathbf{B}\\mathbf{K} = \\begin{bmatrix} {{l1}} - k_1 & -k_2 \\\\ -k_1 & {{l2}} - k_2 \\end{bmatrix}$ has polynomial $s^2 + (k_1 + k_2 - ({{l1+l2}}))s + {{l1*l2}} - ({{l2}})k_1 - ({{l1}})k_2$.\nMatch $(s + {{p1}})(s + {{p2}}) = s^2 + {{p1+p2}}s + {{p1*p2}}$: $k_1 + k_2$ = {{p1 + p2 + l1 + l2}} and ${{l2}}k_1 + ({{l1}})k_2$ = {{l1*l2 - p1*p2}}.\nSubstitute $k_2$ = {{p1 + p2 + l1 + l2}} − $k_1$: $k_1$ = {{(l1*l2 - p1*p2 - l1*(p1 + p2 + l1 + l2))/(l2 - l1)}} (and $k_2$ = {{p1 + p2 + l1 + l2 - (l1*l2 - p1*p2 - l1*(p1 + p2 + l1 + l2))/(l2 - l1)}})."
+        },
+        {
+          "id": "p5",
+          "type": "slider",
+          "params": {
+            "sg": [
+              1,
+              2,
+              3
+            ],
+            "w": [
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "Double integrator $\\ddot y = u$, $u = -k_1y - k_2\\dot y$. Move the closed-loop poles (×) onto the grey targets at $-{{sg}} \\pm j{{w}}$.",
+          "plot": {
+            "x": {
+              "min": -8,
+              "max": 1,
+              "label": "Re(s)"
+            },
+            "y": {
+              "min": -6,
+              "max": 6,
+              "label": "Im(s)"
+            },
+            "equal": true,
+            "height": 240,
+            "sliders": [
+              {
+                "name": "k1",
+                "label": "$k_1$",
+                "min": 0,
+                "max": 40,
+                "step": 0.25,
+                "value": 1
+              },
+              {
+                "name": "k2",
+                "label": "$k_2$",
+                "min": 0,
+                "max": 12,
+                "step": 0.1,
+                "value": 0.5
+              }
+            ],
+            "let": {
+              "ds": "k2^2/4 - k1",
+              "re1": "-k2/2 + if(ds, sqrt(abs(ds)), 0)",
+              "re2": "-k2/2 - if(ds, sqrt(abs(ds)), 0)",
+              "im": "if(ds, 0, sqrt(abs(ds)))"
+            },
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0
+              }
+            ],
+            "points": [
+              {
+                "x": "-sg",
+                "y": "w",
+                "marker": "o",
+                "guides": false,
+                "color": "grey",
+                "label": "target"
+              },
+              {
+                "x": "-sg",
+                "y": "-w",
+                "marker": "o",
+                "guides": false,
+                "color": "grey"
+              },
+              {
+                "x": "re1",
+                "y": "im",
+                "marker": "x",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": "re2",
+                "y": "-im",
+                "marker": "x",
+                "guides": false,
+                "color": "red"
+              }
+            ]
+          },
+          "answer": {
+            "k1": "sg^2 + w^2",
+            "k2": "2*sg"
+          },
+          "tolerance": 0.05,
+          "explanation": "The poles are the roots of $s^2 + k_2s + k_1$. For $-\\sigma \\pm j\\omega$ that polynomial is $s^2 + 2\\sigma s + \\sigma^2 + \\omega^2$, so $k_2 = 2\\sigma$ = {{2*sg}} (moves the poles left and right) and $k_1 = \\sigma^2 + \\omega^2$ = {{sg^2 + w^2}} (sets their distance from the origin)."
+        },
+        {
+          "id": "p6",
+          "type": "trueFalse",
+          "prompt": "Placing the closed-loop poles further to the left always gives a better design.",
+          "answer": false,
+          "explanation": "Faster poles need larger gains. Large gains mean large control signals (the actuator saturates, and the linear design no longer holds), and they amplify sensor noise and model errors. Move the poles only as far as the specs require; FPE also uses the symmetric root locus (LQR) to balance speed against control effort."
+        }
+      ]
+    },
+    {
+      "id": "mdc-poleplace-4",
+      "title": "Pole placement designs",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "W": [
+              2,
+              3,
+              4
+            ],
+            "b": [
+              1,
+              2,
+              5
+            ],
+            "wn": [
+              4,
+              6,
+              8
+            ]
+          },
+          "prompt": "A balancing robot, linearized about upright, has $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ {{W^2}} & 0 \\end{bmatrix}$ (eigenvalues $\\pm${{W}}: unstable) and $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ {{b}} \\end{bmatrix}$. Design $\\mathbf{K}$ for $\\zeta = 0.7$ and $\\omega_n$ = {{wn}} rad/s.",
+          "ask": [
+            {
+              "prompt": "Find $k_1$.",
+              "answer": "(wn^2 + W^2)/b",
+              "unit": "",
+              "explanation": "$\\mathbf{A} - \\mathbf{B}\\mathbf{K} = \\begin{bmatrix} 0 & 1 \\\\ {{W^2}} - {{b}}k_1 & -{{b}}k_2 \\end{bmatrix}$, polynomial $s^2 + {{b}}k_2s + ({{b}}k_1 - {{W^2}})$. Desired $s^2 + {{1.4*wn}}s + {{wn^2}}$: {{b}}$k_1$ − {{W^2}} = {{wn^2}}, so $k_1$ = {{(wn^2 + W^2)/b}}. Part of the gain just cancels the destabilizing gravity term."
+            },
+            {
+              "prompt": "Find $k_2$.",
+              "answer": "1.4*wn/b",
+              "unit": "",
+              "explanation": "Polynomial $s^2 + {{b}}k_2s + ({{b}}k_1 - {{W^2}})$; desired damping term $2\\zeta\\omega_n$ = {{1.4*wn}}. So $k_2$ = {{1.4*wn}}/{{b}} = {{1.4*wn/b}}."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "zt": [
+              0.5,
+              0.6,
+              0.8
+            ],
+            "wn": [
+              1,
+              2,
+              4
+            ],
+            "c": [
+              3,
+              5
+            ]
+          },
+          "derived": {
+            "p3": "c*zt*wn"
+          },
+          "prompt": "A plant $\\frac{1}{s^3}$ in control canonical form needs a dominant pair with $\\zeta$ = {{zt}}, $\\omega_n$ = {{wn}} rad/s and a third pole {{c}} times further left, at $s = -{{c*zt*wn}}$.",
+          "ask": [
+            {
+              "prompt": "Find $k_2$.",
+              "answer": "wn^2 + 2*zt*wn*p3",
+              "unit": "",
+              "explanation": "$\\alpha_c(s) = (s + {{p3}})(s^2 + {{2*zt*wn}}s + {{wn^2}})$ $= s^3 + {{p3 + 2*zt*wn}}s^2 + {{wn^2 + 2*zt*wn*p3}}s + {{p3*wn^2}}$. All open-loop coefficients of $s^3$ are zero, so $\\mathbf{K} = [\\alpha_1 \\;\\; \\alpha_2 \\;\\; \\alpha_3]$ and $k_2$ = {{wn^2 + 2*zt*wn*p3}}."
+            },
+            {
+              "prompt": "Find $k_3$.",
+              "answer": "p3*wn^2",
+              "unit": "",
+              "explanation": "$\\alpha_3 = p_3\\omega_n^2$ = {{p3}} × {{wn^2}} = {{p3*wn^2}}, and $a_3 = 0$, so $k_3$ = {{p3*wn^2}}."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "a11": [
+              -1,
+              -2
+            ],
+            "a12": [
+              1,
+              2
+            ],
+            "a22": [
+              0,
+              -1,
+              1
+            ],
+            "c1": [
+              1,
+              2
+            ],
+            "c2": [
+              0,
+              1
+            ],
+            "k1": [
+              3,
+              6,
+              10
+            ],
+            "k2": [
+              2,
+              4
+            ]
+          },
+          "require": "abs(-c1*a12 + c2*a11)",
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} {{a11}} & {{a12}} \\\\ 0 & {{a22}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}$, $\\mathbf{C} = [{{c1}} \\;\\; {{c2}}]$ and $\\mathbf{K} = [{{k1}} \\;\\; {{k2}}]$. Find $\\bar N$.",
+          "answer": "-1/((-c1*a12 + c2*a11)/(a11*(a22 - k2) + a12*k1))",
+          "unit": "",
+          "explanation": "$\\mathbf{A}_{cl} = \\mathbf{A} - \\mathbf{B}\\mathbf{K} = \\begin{bmatrix} {{a11}} & {{a12}} \\\\ {{-k1}} & {{a22 - k2}} \\end{bmatrix}$ with $\\det$ = {{a11*(a22 - k2) + a12*k1}}.\n$\\mathbf{A}_{cl}^{-1}\\mathbf{B} = \\frac{1}{\\det}\\begin{bmatrix} -a_{12} \\\\ a_{11} \\end{bmatrix}$ = $\\frac{1}{ {{a11*(a22 - k2) + a12*k1}} }\\begin{bmatrix} {{-a12}} \\\\ {{a11}} \\end{bmatrix}$, so $\\mathbf{C}\\mathbf{A}_{cl}^{-1}\\mathbf{B}$ = {{(-c1*a12 + c2*a11)/(a11*(a22 - k2) + a12*k1)}}.\n$\\bar N = -1/(\\mathbf{C}\\mathbf{A}_{cl}^{-1}\\mathbf{B})$ = {{-1/((-c1*a12 + c2*a11)/(a11*(a22 - k2) + a12*k1))}}."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              -2,
+              -1,
+              1,
+              2
+            ],
+            "d": [
+              -3,
+              0,
+              3
+            ],
+            "p1": [
+              2,
+              3
+            ],
+            "p2": [
+              4,
+              5
+            ]
+          },
+          "prompt": "Use Ackermann's formula for $\\mathbf{A} = \\begin{bmatrix} {{a}} & 1 \\\\ 0 & {{d}} \\end{bmatrix}$, $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}$ and desired poles $-{{p1}}$, $-{{p2}}$. Find $k_1$.",
+          "answer": "a^2 + (p1 + p2)*a + p1*p2",
+          "unit": "",
+          "explanation": "$\\mathcal{C} = [\\mathbf{B} \\;\\; \\mathbf{A}\\mathbf{B}] = \\begin{bmatrix} 0 & 1 \\\\ 1 & {{d}} \\end{bmatrix}$, $\\mathcal{C}^{-1} = \\begin{bmatrix} {{-d}} & 1 \\\\ 1 & 0 \\end{bmatrix}$, last row $[1 \\;\\; 0]$. So $\\mathbf{K}$ is the first row of $\\alpha_c(\\mathbf{A}) = \\mathbf{A}^2 + {{p1+p2}}\\mathbf{A} + {{p1*p2}}\\mathbf{I}$.\nFirst row of $\\mathbf{A}^2$: $[{{a^2}} \\;\\; {{a + d}}]$. So $k_1$ = {{a^2}} + {{p1+p2}}·({{a}}) + {{p1*p2}} = {{a^2 + (p1 + p2)*a + p1*p2}} (and $k_2$ = {{a + d}} + {{p1+p2}} = {{a + d + p1 + p2}})."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "m": [
+              0.5,
+              2,
+              5
+            ],
+            "wn": [
+              2,
+              4,
+              5
+            ],
+            "r": [
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "prompt": "A {{m}} kg cart on a frictionless track ($m\\ddot y = F$) gets $F = -\\mathbf{K}\\mathbf{x} + \\bar Nr$ with poles at $\\zeta = 0.7$, $\\omega_n$ = {{wn}} rad/s. At rest, the reference jumps by {{r}} m. Find the force $F(0^+)$ right after the jump.",
+          "answer": "m*wn^2*r",
+          "unit": "N",
+          "explanation": "$\\mathbf{B} = [0 \\;\\; 1/m]^T$, so $k_1 = m\\omega_n^2$ and $\\bar N = k_1$ = {{m*wn^2}} N/m (closed loop $\\frac{\\bar N/m}{s^2 + 2\\zeta\\omega_ns + \\omega_n^2}$). At $t = 0^+$ the states are still zero, so $F = \\bar Nr$ = {{m*wn^2}} × {{r}} = {{m*wn^2*r|N}}. Doubling $\\omega_n$ quadruples this peak force: fast poles cost actuator effort."
+        },
+        {
+          "id": "c6",
+          "type": "trueFalse",
+          "prompt": "For a single-input plant with controllable $(\\mathbf{A}, \\mathbf{B})$, there is exactly one $\\mathbf{K}$ that gives a chosen set of closed-loop poles.",
+          "answer": true,
+          "explanation": "With one input, $\\mathbf{K}$ has $n$ entries and matching the $n$ coefficients of $\\alpha_c(s)$ gives $n$ linear equations whose matrix is invertible exactly when the system is controllable (that is what Ackermann's formula expresses). With several inputs there are more gains than coefficients and many solutions."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1156 @@
+{
+  "id": "cm-antennas",
+  "title": "Antennas & Propagation",
+  "description": "Dipoles and gain antennas, EIRP, radio propagation, free-space link budgets, waveguides and satellite links.",
+  "reference": "Frenzel ch. 14, 16–17",
+  "study": [
+    {
+      "title": "Antenna fundamentals",
+      "body": "An antenna converts a guided wave into a radiated wave and back. By **reciprocity** its pattern, gain and impedance are the same for transmitting and receiving. Close to the antenna the reactive **near field** dominates; in the **far field** (several wavelengths away, and beyond $2D^2/\\lambda$ for a large antenna of size $D$) the wave is a plane wave with $E/H$ = 377 Ω whose power density falls as $1/d^2$. The direction of the E field is the **polarization** (vertical, horizontal or circular); both ends of a link should use the same.",
+      "formula": "\\begin{aligned}& \\lambda = \\frac{c}{f}\\\\ & S = \\frac{P_t G_t}{4\\pi d^2}, \\qquad E = \\frac{\\sqrt{30\\,P_t G_t}}{d}\\end{aligned}"
+    },
+    {
+      "title": "Half-wave dipole and λ/4 monopole",
+      "body": "A centre-fed half-wave dipole resonates when it is about 5 % shorter than λ/2 (end effect): $L$ ≈ 142.5/$f_{MHz}$ m, or 468/$f_{MHz}$ ft. Its feed-point (radiation) resistance is about 73 Ω and its gain 2.15 dBi. The pattern is a doughnut: maximum broadside, nulls along the wire, half-power beamwidth 78°. A λ/4 monopole over a ground plane is half a dipole: about 36.5 Ω and omnidirectional in the horizontal plane.",
+      "formula": "L \\approx 0.95\\cdot\\frac{\\lambda}{2} = \\frac{142.5}{f_{MHz}}\\ \\mathrm{m}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 180,
+          "label": "θ from the wire axis (°)",
+          "ticks": [
+            0,
+            15,
+            30,
+            45,
+            60,
+            75,
+            90,
+            105,
+            120,
+            135,
+            150,
+            165,
+            180
+          ]
+        },
+        "y": {
+          "min": -20,
+          "max": 2,
+          "label": "relative gain (dB)",
+          "ticks": [
+            -20,
+            -15,
+            -10,
+            -5,
+            0
+          ]
+        },
+        "curves": [
+          {
+            "f": "max(-40, 20*log10(max(1e-6, abs(cos(pi/2*cos(rad(x))))/max(1e-6, sin(rad(x))))))"
+          }
+        ],
+        "hlines": [
+          {
+            "y": -3,
+            "color": "orange",
+            "label": "−3 dB"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 51,
+            "color": "grey",
+            "label": "51°"
+          },
+          {
+            "x": 129,
+            "color": "grey",
+            "label": "129°"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Gain, EIRP and front-to-back ratio",
+      "body": "**Directivity** says how strongly a pattern concentrates power compared with an isotropic radiator; **gain** is directivity times efficiency. Gain is quoted in dBi (vs isotropic) or dBd (vs a dipole), with dBi = dBd + 2.15. **EIRP** is the power an isotropic antenna would need for the same field in the main beam; ERP uses a dipole as reference, so ERP is 2.15 dB below EIRP. The **front-to-back ratio** compares the main lobe with the strongest radiation to the rear.",
+      "formula": "\\begin{aligned}& G_{dBi} = G_{dBd} + 2.15\\\\ & EIRP = P_t G_t = 1.64\\cdot ERP\\\\ & F/B = 10\\log\\frac{P_f}{P_b}\\end{aligned}"
+    },
+    {
+      "title": "Directional antennas",
+      "body": "A **Yagi** adds parasitic elements to a driven dipole: a reflector about 5 % longer behind it and directors about 5 % shorter in front, for 5–15 dBd. A **parabolic dish** focuses the radiation of a feed horn; with an aperture efficiency of about 0.6 its gain is about $6(D/\\lambda)^2$. **Patch** antennas (about λ/2 on a PCB) are flat and cheap. Arrays of elements can steer their beam electronically (phased arrays), and **MIMO** uses several antennas at both ends to send parallel data streams.",
+      "formula": "\\begin{aligned}& G \\approx 6\\left(\\frac{D}{\\lambda}\\right)^2\\\\ & \\theta_{3dB} \\approx \\frac{70\\lambda}{D}\\ \\mathrm{degrees}\\end{aligned}"
+    },
+    {
+      "title": "Propagation",
+      "body": "**Ground waves** (LF and MF, below about 3 MHz, vertically polarized) follow the curvature of the earth; AM broadcasting relies on them. **Sky waves** (HF, 3–30 MHz) are refracted back by the ionosphere: $f_c$ is the highest frequency returned at vertical incidence, and a wave entering at angle $\\theta_i$ from the vertical is returned up to the maximum usable frequency (MUF). Above about 30 MHz waves pass through the ionosphere, so VHF and higher need **line of sight**, limited by the radio horizon (heights in metres, standard 4/3-earth refraction).",
+      "formula": "\\begin{aligned}& MUF = \\frac{f_c}{\\cos\\theta_i}\\\\ & d_{km} \\approx 4.12\\left(\\sqrt{h_t} + \\sqrt{h_r}\\right)\\end{aligned}"
+    },
+    {
+      "title": "Explore: path loss and link budget",
+      "body": "In free space the received power falls as $1/d^2$: 6 dB more loss per doubling of distance. The free-space path loss (FSPL) is the loss between two isotropic antennas; a link budget adds the gains and subtracts the losses, all in dB. The **fade margin** is how far the received level lies above the receiver sensitivity; mobile links need 10–30 dB against multipath fading. The graph uses 20 dBm, two 3 dBi antennas and a −90 dBm receiver: drag the frequency.",
+      "formula": "\\begin{aligned}& FSPL = 32.44 + 20\\log d_{km}\\\\ & \\qquad\\quad + 20\\log f_{MHz}\\\\ & P_r = P_t + G_t + G_r - FSPL - L\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 100,
+          "max": 100000,
+          "log": true,
+          "label": "d",
+          "unit": "m"
+        },
+        "y": {
+          "min": -130,
+          "max": -20,
+          "label": "P_r (dBm)"
+        },
+        "sliders": [
+          {
+            "name": "f",
+            "label": "$f$",
+            "min": 100000000.0,
+            "max": 10000000000.0,
+            "log": true,
+            "value": 900000000.0,
+            "unit": "Hz"
+          }
+        ],
+        "curves": [
+          {
+            "f": "26-(32.44+20*log10(x/1000)+20*log10(f/1e6))"
+          }
+        ],
+        "hlines": [
+          {
+            "y": -90,
+            "color": "orange",
+            "label": "sensitivity"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "range to −90 dBm",
+            "value": "1000*10^((26+90-32.44-20*log10(f/1e6))/20)",
+            "unit": "m"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Waveguides and satellites",
+      "body": "Above a few GHz coax becomes lossy and hollow **waveguides** take over. A rectangular guide is a high-pass filter: the dominant $\\mathrm{TE}_{10}$ mode propagates only above $f_c = c/2a$ ($a$ = broad inside width) and is used from about 1.25 $f_c$ to 1.9 $f_c$. A **geostationary** satellite orbits 35 786 km above the equator once per day, so one hop (ground → satellite → ground) takes about 240–280 ms. The uplink uses the higher frequency of a pair: C band 6/4 GHz, Ku band 14/12 GHz.",
+      "formula": "\\begin{aligned}& f_c = \\frac{c}{2a}\\\\ & t_{hop} = \\frac{2d}{c}\\end{aligned}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "cm-antennas-1",
+      "title": "Dipoles, patterns and gain",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "What an antenna does",
+          "body": "An antenna is a transducer between a guided wave on the feed line and a wave in free space. It is **reciprocal**: pattern, gain and feed impedance are the same whether it transmits or receives. The direction of the E field is the **polarization**; a vertical rod radiates vertically polarized waves, and the receiving antenna should be oriented the same way.",
+          "formula": "\\lambda = \\frac{c}{f}"
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "A passive antenna with 10 dBi gain when transmitting has less gain when it is used for receiving.",
+          "answer": false,
+          "explanation": "False. By reciprocity a passive antenna has the same pattern, gain and impedance for transmitting and receiving. The direction in which it radiates best is also the direction from which it receives best."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The half-wave dipole",
+          "body": "The basic antenna is a centre-fed conductor half a wavelength long. End effects make the resonant length about 5 % shorter than λ/2 in free space. At resonance the feed point looks like a resistance of about 73 Ω, the **radiation resistance**: power 'dissipated' in it is radiated. A λ/4 vertical over a ground plane (monopole) uses its mirror image as the second half and has about 36.5 Ω.",
+          "formula": "L \\approx 0.95\\cdot\\frac{\\lambda}{2} = \\frac{142.5}{f_{MHz}}\\ \\mathrm{m}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "f": [
+              7100000.0,
+              14200000.0,
+              27100000.0,
+              50000000.0,
+              88000000.0,
+              145000000.0,
+              433000000.0
+            ]
+          },
+          "prompt": "Cut a half-wave wire dipole for {{f|Hz}}. Use $L \\approx 0.95\\cdot\\lambda/2$ for the end effect. How long is the whole dipole (both halves)?",
+          "answer": "0.95*3e8/(2*f)",
+          "unit": "m",
+          "explanation": "$\\lambda = c/f$ = 3 × $10^8$ / {{f|Hz}} = {{3e8/f|m}}. $L$ = 0.95 × λ/2 = 142.5/$f_{MHz}$ = **{{0.95*3e8/(2*f)|m}}**, so each half is {{0.95*3e8/(4*f)|m}}."
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each antenna to its typical feed-point impedance at resonance.",
+          "pairs": [
+            [
+              "Half-wave dipole",
+              "≈ 73 Ω"
+            ],
+            [
+              "λ/4 monopole on a ground plane",
+              "≈ 36.5 Ω"
+            ],
+            [
+              "Folded half-wave dipole",
+              "≈ 300 Ω"
+            ]
+          ],
+          "explanation": "The half-wave dipole has about 73 Ω. The monopole is half a dipole and sees half the voltage for the same current: 73/2 ≈ 36.5 Ω (fed with 50 Ω coax, SWR ≈ 1.4). Folding the dipole into two parallel conductors multiplies the impedance by four: about 300 Ω, a match for twin-lead."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Radiation pattern and beamwidth",
+          "body": "The radiation pattern shows the relative field strength versus direction, usually in dB relative to the maximum. A dipole radiates most broadside to the wire and nothing along its axis: a doughnut in 3-D, a figure 8 in the plane of the wire. The **half-power beamwidth** is the angle between the two −3 dB points of the main lobe; the narrower it is, the more directive the antenna."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "The graph shows the pattern of a half-wave dipole in dB versus the angle θ measured from the wire. Read the half-power beamwidth.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 180,
+              "label": "θ from the wire axis (°)",
+              "ticks": [
+                0,
+                15,
+                30,
+                45,
+                60,
+                75,
+                90,
+                105,
+                120,
+                135,
+                150,
+                165,
+                180
+              ]
+            },
+            "y": {
+              "min": -20,
+              "max": 2,
+              "label": "relative gain (dB)",
+              "ticks": [
+                -20,
+                -15,
+                -10,
+                -5,
+                0
+              ]
+            },
+            "curves": [
+              {
+                "f": "max(-40, 20*log10(max(1e-6, abs(cos(pi/2*cos(rad(x))))/max(1e-6, sin(rad(x))))))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": -3,
+                "color": "orange",
+                "label": "−3 dB"
+              }
+            ]
+          },
+          "answer": "78",
+          "unit": "°",
+          "tolerance": 0.001,
+          "absTolerance": 5,
+          "explanation": "The −3 dB line crosses the pattern at θ ≈ 51° and θ ≈ 129°, so the beamwidth is 129° − 51° = **78°**. The maximum lies broadside (90°); along the wire (0° and 180°) there is a null."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Gain, dBi and EIRP",
+          "body": "A directional antenna does not create power, it concentrates it. **Gain** compares the maximum radiation with that of a reference: an isotropic radiator (dBi) or a half-wave dipole (dBd). A dipole has 2.15 dBi, so dBi = dBd + 2.15. The **EIRP** is the transmitter power minus feed-line loss plus antenna gain: the power an isotropic antenna would need for the same field in the main beam.",
+          "formula": "\\begin{aligned}& G_{dBi} = G_{dBd} + 2.15\\\\ & EIRP_{dBm} = P_{t,dBm} - L_{cable} + G_{dBi}\\end{aligned}"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "G": [
+              3,
+              5,
+              6.5,
+              8,
+              12,
+              15
+            ]
+          },
+          "prompt": "A Yagi has a gain of {{G}} dBd. What is its gain in dBi?",
+          "answer": "G+2.15",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.06,
+          "explanation": "A half-wave dipole has 2.15 dBi, so $G_{dBi} = G_{dBd} + 2.15$ = {{G}} + 2.15 = **{{G+2.15||4}} dBi**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "P": [
+              5,
+              10,
+              25,
+              50,
+              100
+            ],
+            "Lc": [
+              1,
+              1.5,
+              2,
+              3
+            ],
+            "G": [
+              6,
+              9,
+              12,
+              15
+            ]
+          },
+          "derived": {
+            "Pdbm": "10*log10(P/1e-3)",
+            "E": "Pdbm-Lc+G"
+          },
+          "prompt": "A {{P|W}} transmitter feeds an antenna with {{G}} dBi gain through a cable with {{Lc}} dB loss.",
+          "ask": [
+            {
+              "prompt": "Find the EIRP in dBm.",
+              "answer": "E",
+              "unit": "dB",
+              "tolerance": 0.005,
+              "absTolerance": 0.6,
+              "explanation": "$P_t$ = 10 log({{P}} W / 1 mW) = {{Pdbm}} dBm. EIRP = {{Pdbm}} − {{Lc}} + {{G}} = **{{E}} dBm**."
+            },
+            {
+              "prompt": "Find the EIRP in watts.",
+              "answer": "P*10^((G-Lc)/10)",
+              "unit": "W",
+              "explanation": "Net gain {{G}} − {{Lc}} = {{G-Lc}} dB, a factor 10^({{G-Lc}}/10) = {{10^((G-Lc)/10)}}. EIRP = {{P}} W × {{10^((G-Lc)/10)}} = **{{P*10^((G-Lc)/10)|W}}**."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cm-antennas-2",
+      "title": "Antenna calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "f": [
+              27000000.0,
+              145000000.0,
+              433000000.0,
+              868000000.0
+            ]
+          },
+          "prompt": "How long should a λ/4 ground-plane whip for {{f|Hz}} be? Use 0.95 × λ/4 for the end effect.",
+          "answer": "0.95*3e8/(4*f)",
+          "unit": "m",
+          "explanation": "$\\lambda$ = 3 × $10^8$ / {{f|Hz}} = {{3e8/f|m}}; $L$ = 0.95 × λ/4 = **{{0.95*3e8/(4*f)|m}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "D": [
+              0.6,
+              1.2,
+              1.8,
+              3.0
+            ],
+            "f": [
+              4000000000.0,
+              6000000000.0,
+              11000000000.0,
+              12000000000.0
+            ]
+          },
+          "derived": {
+            "lam": "3e8/f"
+          },
+          "prompt": "A parabolic dish of {{D|m}} diameter works at {{f|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Estimate its gain in dBi with $G \\approx 6(D/\\lambda)^2$.",
+              "answer": "10*log10(6*(D/lam)^2)",
+              "unit": "dB",
+              "tolerance": 0.005,
+              "absTolerance": 0.6,
+              "explanation": "$\\lambda$ = c/f = {{lam|m}}, so $D/\\lambda$ = {{D/lam}}. $G$ = 6 × {{D/lam}}² = {{6*(D/lam)^2||4}}, or **{{10*log10(6*(D/lam)^2)}} dBi**."
+            },
+            {
+              "prompt": "Estimate its half-power beamwidth with $\\theta \\approx 70\\lambda/D$.",
+              "answer": "70*lam/D",
+              "unit": "°",
+              "tolerance": 0.02,
+              "absTolerance": 0.01,
+              "explanation": "$\\lambda$ = {{lam|m}}; $\\theta$ ≈ 70 × {{lam}} / {{D}} = **{{70*lam/D}}°**: a pencil beam that must be aimed accurately."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "P": [
+              10,
+              25,
+              50,
+              100
+            ],
+            "Lc": [
+              1,
+              2,
+              3
+            ],
+            "G": [
+              5,
+              7,
+              9,
+              11
+            ]
+          },
+          "prompt": "A {{P|W}} transmitter feeds a Yagi of {{G}} dBd through a feed line with {{Lc}} dB loss.",
+          "ask": [
+            {
+              "prompt": "Find the ERP (dipole reference).",
+              "answer": "P*10^((G-Lc)/10)",
+              "unit": "W",
+              "explanation": "ERP uses the dipole as reference, so use the dBd gain: net {{G}} − {{Lc}} = {{G-Lc}} dB. ERP = {{P}} W × 10^({{G-Lc}}/10) = **{{P*10^((G-Lc)/10)|W}}**."
+            },
+            {
+              "prompt": "Find the EIRP (isotropic reference).",
+              "answer": "P*10^((G+2.15-Lc)/10)",
+              "unit": "W",
+              "explanation": "{{G}} dBd = {{G+2.15||4}} dBi. Net {{G+2.15||4}} − {{Lc}} = {{G+2.15-Lc||4}} dB, so EIRP = {{P}} W × 10^({{G+2.15-Lc||4}}/10) = **{{P*10^((G+2.15-Lc)/10)|W}}** (1.64 × ERP)."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "psi": [
+              20,
+              30,
+              45,
+              60,
+              70
+            ]
+          },
+          "prompt": "A vertically polarized wave reaches a linear receiving antenna that is tilted {{psi}}° away from vertical. How much signal (in dB) is lost by the polarization mismatch?",
+          "answer": "-20*log10(cos(rad(psi)))",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.06,
+          "explanation": "The antenna picks up the field component along it, $E\\cos\\psi$, so the power scales with $\\cos^2\\psi$. Loss = $-20\\log\\cos\\psi$ = −20 log(cos {{psi}}°) = **{{-20*log10(cos(rad(psi)))}} dB**. At 90° (cross-polarized) it would in theory receive nothing."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Sf": [
+              40,
+              80,
+              120
+            ],
+            "r": [
+              20,
+              50,
+              100,
+              200,
+              400
+            ]
+          },
+          "prompt": "At equal distance a field-strength meter reads a power density of {{Sf}} µW/m² in front of a Yagi and {{Sf/r}} µW/m² behind it. Find the front-to-back ratio.",
+          "answer": "10*log10(r)",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.06,
+          "explanation": "$F/B = 10\\log(P_f/P_b)$ = 10 log({{Sf}} / {{Sf/r}}) = 10 log {{r}} = **{{10*log10(r)}} dB**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "EIRP": [
+              10,
+              50,
+              100,
+              1000
+            ],
+            "d": [
+              100,
+              500,
+              1000,
+              5000
+            ]
+          },
+          "prompt": "A transmitter radiates an EIRP of {{EIRP|W}}. Consider a point in the main beam, {{d|m}} away in free space.",
+          "ask": [
+            {
+              "prompt": "Find the power density there.",
+              "answer": "EIRP/(4*pi*d^2)",
+              "unit": "W/m²",
+              "explanation": "The EIRP spreads over a sphere: $S = EIRP/(4\\pi d^2)$ = {{EIRP}} / (4π × {{d}}²) = **{{EIRP/(4*pi*d^2)|W/m²}}**."
+            },
+            {
+              "prompt": "Find the rms electric field strength there.",
+              "answer": "sqrt(30*EIRP)/d",
+              "unit": "V/m",
+              "explanation": "$E = \\sqrt{377\\,S} = \\sqrt{30\\,EIRP}/d$ = √(30 × {{EIRP}}) / {{d}} = **{{sqrt(30*EIRP)/d|V/m}}**."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "slider",
+          "params": {
+            "Gt": [
+              30,
+              33,
+              36,
+              40
+            ],
+            "f": [
+              6000000000.0,
+              12000000000.0
+            ]
+          },
+          "derived": {
+            "Dt": "(3e8/f)*sqrt(10^(Gt/10)/6)"
+          },
+          "prompt": "Choose the dish diameter that gives {{Gt}} dBi at {{f|Hz}} (use $G \\approx 6(D/\\lambda)^2$).",
+          "plot": {
+            "x": {
+              "min": 0.2,
+              "max": 4,
+              "label": "D",
+              "unit": "m"
+            },
+            "y": {
+              "min": 15,
+              "max": 55,
+              "label": "G (dBi)"
+            },
+            "sliders": [
+              {
+                "name": "D",
+                "label": "$D$",
+                "min": 0.2,
+                "max": 4,
+                "step": 0.01,
+                "value": 3.5,
+                "unit": "m"
+              }
+            ],
+            "curves": [
+              {
+                "f": "10*log10(6*(x*f/3e8)^2)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "Gt",
+                "color": "orange",
+                "label": "target"
+              }
+            ],
+            "points": [
+              {
+                "x": "D",
+                "y": "10*log10(6*(D*f/3e8)^2)",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$G$ (dBi)",
+                "value": "10*log10(6*(D*f/3e8)^2)",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "D": "Dt"
+          },
+          "tolerance": 0.03,
+          "explanation": "{{Gt}} dBi is a factor 10^({{Gt}}/10) = {{10^(Gt/10)||4}}. $D = \\lambda\\sqrt{G/6}$ = {{3e8/f|m}} × √({{10^(Gt/10)||4}}/6) = **{{Dt|m}}**. Doubling the diameter adds 6 dB."
+        },
+        {
+          "id": "q8",
+          "type": "matchPairs",
+          "prompt": "Match each application to the most suitable antenna.",
+          "pairs": [
+            [
+              "10 GHz point-to-point link",
+              "Parabolic dish"
+            ],
+            [
+              "FM car radio",
+              "Vertical whip (monopole)"
+            ],
+            [
+              "Rooftop UHF TV reception from one direction",
+              "Yagi"
+            ],
+            [
+              "GPS receiver in a phone or car",
+              "Patch"
+            ]
+          ],
+          "explanation": "A fixed microwave link needs very high gain and a narrow beam: a dish. A car needs an omnidirectional antenna: a vertical whip. Receiving one distant transmitter favours a directional, moderately wide-band Yagi. GPS needs a small, flat antenna looking up at the sky (circular polarization): a patch."
+        }
+      ]
+    },
+    {
+      "id": "cm-antennas-3",
+      "title": "Propagation and link budgets",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Propagation and free-space loss",
+          "body": "Below about 3 MHz waves travel as **ground waves**; at HF (3–30 MHz) **sky waves** are refracted back by the ionosphere and cover thousands of kilometres in hops; above about 30 MHz links are **line of sight**. Between two isotropic antennas in free space the loss grows with the square of the distance and of the frequency: the free-space path loss.",
+          "formula": "\\begin{aligned}& FSPL = 32.44 + 20\\log d_{km}\\\\ & \\qquad\\quad + 20\\log f_{MHz}\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each service to its main propagation mode.",
+          "pairs": [
+            [
+              "AM broadcast, 1 MHz, daytime",
+              "Ground wave"
+            ],
+            [
+              "Shortwave, 10 MHz, intercontinental",
+              "Sky wave (ionosphere)"
+            ],
+            [
+              "FM broadcast, 100 MHz",
+              "Line of sight (space wave)"
+            ]
+          ],
+          "explanation": "MF signals follow the earth as ground waves (at night the ionosphere also returns them). HF is refracted by the ionosphere's F layer, which allows hops of thousands of kilometres. VHF passes through the ionosphere, so FM needs line of sight to high transmitter masts."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "ht": [
+              15,
+              30,
+              50,
+              100,
+              150
+            ],
+            "hr": [
+              1.5,
+              2,
+              5,
+              10,
+              30
+            ]
+          },
+          "prompt": "A transmitting antenna is {{ht|m}} high and a receiving antenna {{hr|m}} high. Estimate the maximum line-of-sight distance with $d_{km} \\approx 4.12(\\sqrt{h_t} + \\sqrt{h_r})$.",
+          "answer": "4120*(sqrt(ht)+sqrt(hr))",
+          "unit": "m",
+          "explanation": "$d$ ≈ 4.12 × (√{{ht}} + √{{hr}}) = 4.12 × ({{sqrt(ht)}} + {{sqrt(hr)}}) = **{{4120*(sqrt(ht)+sqrt(hr))|m}}**. Raising the high antenna pays off most; the radio horizon of each antenna adds up."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "fc": [
+              4000000.0,
+              5000000.0,
+              6000000.0,
+              7000000.0,
+              8000000.0
+            ],
+            "th": [
+              30,
+              60,
+              70,
+              75
+            ]
+          },
+          "prompt": "The critical frequency of the F2 layer is {{fc|Hz}}. A sky wave enters the layer at {{th}}° from the vertical. What is the maximum usable frequency?",
+          "options": [
+            "{{fc/cos(rad(th))|Hz}}",
+            "{{fc*cos(rad(th))|Hz}}",
+            "{{fc/sin(rad(th))|Hz}}",
+            "{{fc|Hz}}"
+          ],
+          "answer": 0,
+          "explanation": "Secant law: $MUF = f_c/\\cos\\theta_i$ = {{fc|Hz}} / cos {{th}}° = {{fc|Hz}} / {{cos(rad(th))}} = **{{fc/cos(rad(th))|Hz}}**. The MUF is always above $f_c$ (multiplying by cos θ is the classic slip), and θ is measured from the vertical, not from the horizon. Flatter paths support higher frequencies, so long hops use the upper HF bands."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "d": [
+              500,
+              2000.0,
+              5000.0,
+              10000.0,
+              40000.0
+            ],
+            "f": [
+              433000000.0,
+              868000000.0,
+              2400000000.0,
+              5800000000.0
+            ]
+          },
+          "prompt": "Find the free-space path loss over {{d|m}} at {{f|Hz}}.",
+          "answer": "(32.44+20*log10(d/1000)+20*log10(f/1e6))",
+          "unit": "dB",
+          "tolerance": 0.005,
+          "absTolerance": 0.6,
+          "explanation": "$FSPL$ = 32.44 + 20 log {{d/1000}} + 20 log {{f/1e6}} = 32.44 + {{20*log10(d/1000)}} + {{20*log10(f/1e6)}} = **{{(32.44+20*log10(d/1000)+20*log10(f/1e6))}} dB** (d in km, f in MHz)."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Pt": [
+              10,
+              20,
+              27,
+              30
+            ],
+            "Gt": [
+              2,
+              6,
+              12,
+              18
+            ],
+            "Gr": [
+              2,
+              6,
+              12
+            ],
+            "Lc": [
+              1,
+              2,
+              3
+            ],
+            "d": [
+              1000.0,
+              5000.0,
+              10000.0,
+              20000.0
+            ],
+            "f": [
+              433000000.0,
+              868000000.0,
+              2400000000.0,
+              5800000000.0
+            ],
+            "S": [
+              -95,
+              -100,
+              -105,
+              -110
+            ]
+          },
+          "derived": {
+            "FS": "(32.44+20*log10(d/1000)+20*log10(f/1e6))",
+            "Pr": "Pt+Gt+Gr-Lc-FS",
+            "M": "Pr-S"
+          },
+          "require": "abs(M)-1",
+          "prompt": "A free-space link: {{Pt}} dBm transmitter, antennas of {{Gt}} dBi and {{Gr}} dBi, {{Lc}} dB of cable loss in total, {{f|Hz}} over {{d|m}}. The receiver sensitivity is {{S}} dBm.",
+          "ask": [
+            {
+              "prompt": "Find the received power in dBm.",
+              "answer": "Pr",
+              "unit": "dB",
+              "tolerance": 0.005,
+              "absTolerance": 0.6,
+              "explanation": "$FSPL$ = 32.44 + 20 log {{d/1000}} + 20 log {{f/1e6}} = {{FS||4}} dB. $P_r$ = {{Pt}} + {{Gt}} + {{Gr}} − {{Lc}} − {{FS||4}} = **{{Pr||4}} dBm**."
+            },
+            {
+              "prompt": "Find the fade margin in dB (negative if the link fails).",
+              "answer": "M",
+              "unit": "dB",
+              "tolerance": 0.005,
+              "absTolerance": 0.6,
+              "explanation": "$FSPL$ = {{FS||4}} dB, so $P_r$ = {{Pt}} + {{Gt}} + {{Gr}} − {{Lc}} − {{FS||4}} = {{Pr||4}} dBm. Margin = $P_r - S$ = {{Pr}} − ({{S}}) = **{{M}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "params": {
+            "k": [
+              3,
+              6
+            ]
+          },
+          "prompt": "In free space, doubling the distance between two antennas adds about {{k}} dB of path loss.",
+          "answer": "k-4",
+          "explanation": "The power density falls as $1/d^2$, so doubling $d$ quarters the received power: 20 log 2 = **6 dB** more loss. (3 dB would be a halving of power.)"
+        },
+        {
+          "id": "q7",
+          "type": "slider",
+          "params": {
+            "Pt": [
+              14,
+              20,
+              27
+            ],
+            "f": [
+              868000000.0,
+              2400000000.0,
+              5800000000.0
+            ],
+            "d0": [
+              5000.0,
+              10000.0,
+              20000.0
+            ],
+            "S": [
+              -90,
+              -95,
+              -100
+            ]
+          },
+          "derived": {
+            "FS0": "(32.44+20*log10(d0/1000)+20*log10(f/1e6))",
+            "Greq": "S+10-Pt+FS0"
+          },
+          "require": "min(Greq-3, 50-Greq)",
+          "prompt": "Free-space link at {{f|Hz}}: {{Pt}} dBm transmitter, receiver sensitivity {{S}} dBm. Set the total antenna gain $G_t + G_r$ so that the link at {{d0|m}} has exactly a 10 dB fade margin.",
+          "plot": {
+            "x": {
+              "min": 100,
+              "max": 100000,
+              "log": true,
+              "label": "d",
+              "unit": "m"
+            },
+            "y": {
+              "min": -140,
+              "max": 0,
+              "label": "P_r (dBm)"
+            },
+            "sliders": [
+              {
+                "name": "G",
+                "label": "$G_t + G_r$ (dBi)",
+                "min": 0,
+                "max": 60,
+                "step": 0.5,
+                "value": 0
+              }
+            ],
+            "curves": [
+              {
+                "f": "Pt+G-(32.44+20*log10(x/1000)+20*log10(f/1e6))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "S+10",
+                "color": "orange",
+                "label": "S + 10 dB"
+              },
+              {
+                "y": "S",
+                "color": "grey",
+                "label": "S"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "d0",
+                "color": "grey"
+              }
+            ],
+            "points": [
+              {
+                "x": "d0",
+                "y": "Pt+G-FS0",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$P_r$ at $d_0$ (dBm)",
+                "value": "Pt+G-FS0",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "G": "Greq"
+          },
+          "tolerance": 0.02,
+          "absTolerance": 1,
+          "explanation": "Needed: $P_r = S + 10$ = {{S+10}} dBm. $FSPL$ at {{d0|m}} = {{FS0||4}} dB. $G_t + G_r = P_r - P_t + FSPL$ = {{S+10}} − {{Pt}} + {{FS0||4}} = **{{Greq}} dBi**."
+        }
+      ]
+    },
+    {
+      "id": "cm-antennas-4",
+      "title": "Microwave links, waveguides and satellites",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.02286,
+              0.03485,
+              0.0158,
+              0.04755,
+              0.01067
+            ]
+          },
+          "derived": {
+            "fc": "3e8/(2*a)"
+          },
+          "prompt": "A rectangular waveguide has a broad inside width $a$ = {{a*1e3||4}} mm.",
+          "ask": [
+            {
+              "prompt": "Find the cutoff frequency of the $\\mathrm{TE}_{10}$ mode.",
+              "answer": "fc",
+              "unit": "Hz",
+              "explanation": "For $\\mathrm{TE}_{10}$ half a wavelength must fit across the width: $f_c = c/2a$ = 3 × $10^8$ / (2 × {{a*1e3||4}} mm) = **{{fc|Hz}}**."
+            },
+            {
+              "prompt": "What is the lowest recommended operating frequency (1.25 $f_c$)?",
+              "answer": "1.25*fc",
+              "unit": "Hz",
+              "explanation": "$f_c = c/2a$ = {{fc|Hz}}. Close to cutoff the loss and dispersion are high, so operate above 1.25 $f_c$ = **{{1.25*fc|Hz}}** (and below about 1.9 $f_c$, safely under the $\\mathrm{TE}_{20}$ cutoff at 2 $f_c$)."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "trueFalse",
+          "params": {
+            "f": [
+              5000000000.0,
+              6000000000.0,
+              8000000000.0,
+              10000000000.0,
+              12000000000.0
+            ]
+          },
+          "prompt": "A WR-90 waveguide ($a$ = 22.86 mm) can carry a signal of {{f|Hz}} in the $\\mathrm{TE}_{10}$ mode.",
+          "answer": "f - 3e8/(2*22.86e-3)",
+          "explanation": "$f_c = c/2a$ = 3 × $10^8$ / 0.04572 m = 6.56 GHz. The guide is a high-pass filter: {{f|Hz}} is {{f/6.562e9}} × $f_c$, so it propagates only if that is above 1. (WR-90 is the standard X-band guide, 8.2–12.4 GHz.)"
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "ds": [
+              35786000.0,
+              37000000.0,
+              38500000.0,
+              40000000.0
+            ]
+          },
+          "prompt": "Two earth stations both see a geostationary satellite at a slant range of {{ds/1000||5}} km. Ignore processing delays.",
+          "ask": [
+            {
+              "prompt": "How long does one hop (station A → satellite → station B) take?",
+              "answer": "2*ds/3e8",
+              "unit": "s",
+              "explanation": "The signal travels up and down: $t = 2d/c$ = 2 × {{ds/1000||5}} km / ($3\\times10^5$ km/s) = **{{2*ds/3e8|s}}**."
+            },
+            {
+              "prompt": "In a phone call over this link, how long after A finishes a question can A hear the start of B's immediate reply?",
+              "answer": "4*ds/3e8",
+              "unit": "s",
+              "explanation": "The question needs one hop to reach B and the reply another hop back: $4d/c$ = 4 × {{ds/1000||5}} km / ($3\\times10^5$ km/s) = **{{4*ds/3e8|s}}**. That pause is clearly noticeable, which is why GEO links need echo cancellers."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "EIRP": [
+              48,
+              50,
+              52,
+              54
+            ],
+            "f": [
+              11700000000.0,
+              12200000000.0,
+              12500000000.0
+            ],
+            "ds": [
+              37500000.0,
+              38500000.0,
+              39500000.0
+            ],
+            "D": [
+              0.45,
+              0.6,
+              0.8
+            ]
+          },
+          "derived": {
+            "lam": "3e8/f",
+            "FS": "(32.44+20*log10(ds/1000)+20*log10(f/1e6))",
+            "Gr": "10*log10(6*(D/lam)^2)",
+            "Pr": "EIRP+Gr-FS"
+          },
+          "prompt": "A Ku-band satellite delivers an EIRP of {{EIRP}} dBW at {{f|Hz}} to a home dish of {{D|m}} at a slant range of {{ds/1000||5}} km.",
+          "ask": [
+            {
+              "prompt": "Find the free-space path loss.",
+              "answer": "FS",
+              "unit": "dB",
+              "tolerance": 0.005,
+              "absTolerance": 0.6,
+              "explanation": "$FSPL$ = 32.44 + 20 log {{ds/1000}} + 20 log {{f/1e6}} = **{{FS||4}} dB**."
+            },
+            {
+              "prompt": "Find the gain of the dish with $G \\approx 6(D/\\lambda)^2$.",
+              "answer": "Gr",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "$\\lambda$ = {{lam|m}}, $D/\\lambda$ = {{D/lam}}, $G$ = 6 × {{D/lam}}² = {{6*(D/lam)^2||4}} = **{{Gr}} dBi**."
+            },
+            {
+              "prompt": "Find the received power in dBW (no other losses).",
+              "answer": "Pr",
+              "unit": "dB",
+              "tolerance": 0.005,
+              "absTolerance": 0.6,
+              "explanation": "$FSPL$ = {{FS||4}} dB and the dish gives {{Gr}} dBi ($\\lambda$ = {{lam|m}}). $P_r = EIRP + G_r - FSPL$ = {{EIRP}} + {{Gr}} − {{FS||4}} = **{{Pr||4}} dBW**, about {{10^(Pr/10)*1e12}} pW: hence the low-noise block converter at the dish."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "Pt": [
+              10,
+              14,
+              20
+            ],
+            "Gt": [
+              2,
+              5
+            ],
+            "Gr": [
+              2,
+              5
+            ],
+            "f": [
+              433000000.0,
+              868000000.0
+            ],
+            "S": [
+              -110,
+              -115,
+              -120
+            ],
+            "FM": [
+              10,
+              15,
+              20
+            ]
+          },
+          "derived": {
+            "FSmax": "Pt+Gt+Gr-2-S-FM",
+            "dmax": "1000*10^((FSmax-32.44-20*log10(f/1e6))/20)"
+          },
+          "prompt": "A sensor link at {{f|Hz}} has {{Pt}} dBm transmit power, antennas of {{Gt}} dBi and {{Gr}} dBi, 2 dB of cable loss and a receiver sensitivity of {{S}} dBm. It needs a {{FM}} dB fade margin. What is the maximum free-space range?",
+          "answer": "dmax",
+          "unit": "m",
+          "tolerance": 0.03,
+          "explanation": "Allowed path loss = $P_t + G_t + G_r - L - (S + FM)$ = {{Pt}} + {{Gt}} + {{Gr}} − 2 − ({{S}} + {{FM}}) = {{FSmax}} dB. From the FSPL formula: 20 log $d_{km}$ = {{FSmax}} − 32.44 − 20 log {{f/1e6}} = {{FSmax-32.44-20*log10(f/1e6)}} dB, so $d$ = **{{dmax|m}}**. Every 6 dB of extra margin halves the range."
+        },
+        {
+          "id": "c6",
+          "type": "numeric",
+          "params": {
+            "h1": [
+              30,
+              50,
+              80
+            ],
+            "h2": [
+              30,
+              50,
+              80
+            ],
+            "f": [
+              6000000000.0,
+              11000000000.0
+            ]
+          },
+          "derived": {
+            "dk": "4.12*(sqrt(h1)+sqrt(h2))",
+            "FSd": "32.44+20*log10(dk)+20*log10(f/1e6)"
+          },
+          "prompt": "A microwave link at {{f|Hz}} runs between towers with antennas at {{h1|m}} and {{h2|m}}.",
+          "ask": [
+            {
+              "prompt": "What is the longest hop with line of sight?",
+              "answer": "1000*dk",
+              "unit": "m",
+              "explanation": "$d_{km}$ ≈ 4.12(√{{h1}} + √{{h2}}) = 4.12 × ({{sqrt(h1)}} + {{sqrt(h2)}}) = **{{1000*dk|m}}**."
+            },
+            {
+              "prompt": "What is the free-space path loss over that longest hop?",
+              "answer": "FSd",
+              "unit": "dB",
+              "tolerance": 0.005,
+              "absTolerance": 0.6,
+              "explanation": "The hop is $d$ ≈ 4.12(√{{h1}} + √{{h2}}) = {{dk}} km. $FSPL$ = 32.44 + 20 log {{dk}} + 20 log {{f/1e6}} = **{{FSd}} dB**; dishes of 35–45 dBi at each end make up for it."
+            }
+          ]
+        },
+        {
+          "id": "c7",
+          "type": "multipleChoice",
+          "prompt": "Satellite systems put the uplink on the higher frequency of a band pair (Ku band: 14 GHz up, 12 GHz down). What is the main reason?",
+          "options": [
+            "The lower frequency has less path and rain loss, which helps the power-limited satellite transmitter",
+            "Higher frequencies can pass the ionosphere only upward",
+            "The satellite antenna is too small for the lower frequency",
+            "It doubles the bandwidth of each transponder"
+          ],
+          "answer": 0,
+          "explanation": "The satellite's power comes from solar panels, while an earth station can use a large amplifier. With fixed antenna gains, path loss and rain attenuation grow with frequency, so the weaker downlink gets the lower, kinder frequency. Separate up and down frequencies also keep the transponder's transmitter from blocking its own receiver."
+        }
+      ]
+    }
+  ]
+}

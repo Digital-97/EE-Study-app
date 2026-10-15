@@ -1,0 +1,1408 @@
+{
+  "id": "mg-circuits",
+  "title": "Magnetic Circuits",
+  "description": "Solve cores and air gaps like resistor circuits with mmf, flux and reluctance.",
+  "reference": "Hambley §15.2",
+  "study": [
+    {
+      "title": "Magnetomotive force",
+      "body": "A coil of $N$ turns carrying current $i$ drives flux around a core the way a battery drives current around a circuit. Its 'push' is the **magnetomotive force** (mmf) $\\mathcal{F} = Ni$, measured in ampere-turns (A·t). The direction of the flux it drives follows the right-hand rule (fingers along the current in the turns, thumb along the flux).",
+      "formula": "\\mathcal{F} = Ni"
+    },
+    {
+      "title": "Reluctance",
+      "body": "A section of core with mean path length $\\ell$, cross-section $A$ and permeability $\\mu = \\mu_r\\mu_0$ opposes flux with a **reluctance** (A·t/Wb). Long, thin, low-permeability paths have high reluctance. Use SI units: lengths in m, areas in m² (1 cm² = $10^{-4}$ m²).",
+      "formula": "\\mathcal{R} = \\frac{\\ell}{\\mu A} = \\frac{\\ell}{\\mu_r\\mu_0A}"
+    },
+    {
+      "title": "Ohm's law for magnetic circuits",
+      "body": "Flux, mmf and reluctance obey $\\mathcal{F} = \\mathcal{R}\\phi$, just like $V = RI$. Then $B = \\phi/A$ in each section and $H = B/\\mu$. So a magnetic circuit is drawn as a resistor circuit: the coil becomes a source $\\mathcal{F} = Ni$, each core section a resistor $\\mathcal{R}$, and the flux plays the role of current.\n- mmf acts like voltage, flux like current, reluctance like resistance and permeability like conductivity.",
+      "formula": "\\phi = \\frac{\\mathcal{F}}{\\mathcal{R}} = \\frac{Ni}{\\mathcal{R}}, \\qquad B = \\frac{\\phi}{A}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "F = Ni"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              3,
+              0
+            ],
+            "label": "R_c"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "R_g"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "arrow",
+            "from": [
+              1.6,
+              2
+            ],
+            "to": [
+              0.6,
+              2
+            ],
+            "label": "φ"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Series and parallel paths",
+      "body": "Reluctances combine exactly like resistors: in series they add, in parallel they combine as $\\mathcal{R}_1\\parallel\\mathcal{R}_2$. The KVL analogue: around any closed path the mmf drops $H\\ell$ (i.e. $\\mathcal{R}\\phi$) add up to the enclosed ampere-turns. The KCL analogue: the fluxes entering a junction of core legs sum to zero. In a three-legged core with the coil on the centre leg, the two outer legs are in parallel.",
+      "formula": "\\oint H\\,dl = \\sum_k H_k\\ell_k = \\sum Ni"
+    },
+    {
+      "title": "Air gaps",
+      "body": "An air gap has $\\mu_r = 1$, so a gap of only 1 mm has the same reluctance as 3 m of iron with $\\mu_r = 3000$. A gap therefore usually **dominates** the total reluctance and sets the flux. Gaps are added on purpose to make the inductance predictable and to avoid saturation. We neglect **fringing** (the flux spreading out at the gap), so the gap has the same area as the core. The graph is the core of the worked example (500 A·t, $\\ell_c$ = 40 cm, $A$ = 10 cm²). Drag $\\mu_r$: without a gap it sets the flux; with 1 mm of gap a 5× change of $\\mu_r$ moves the flux by only about 30 %. (Linear model: below about 0.2 mm of gap the readout $B$ exceeds 2 T, but real iron saturates around 1.5–2 T, so the flux there would be lower.)",
+      "formula": "\\mathcal{R}_g = \\frac{\\ell_g}{\\mu_0A_g}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 0.002,
+          "label": "gap length ℓ_g",
+          "unit": "m"
+        },
+        "y": {
+          "min": 0,
+          "max": 0.008,
+          "label": "φ",
+          "unit": "Wb"
+        },
+        "sliders": [
+          {
+            "name": "g",
+            "label": "gap $\\ell_g$",
+            "min": 0,
+            "max": 0.002,
+            "step": 5e-05,
+            "value": 0.001,
+            "unit": "m"
+          },
+          {
+            "name": "mur",
+            "label": "core $\\mu_r$",
+            "min": 1000,
+            "max": 5000,
+            "step": 500,
+            "value": 3000
+          }
+        ],
+        "let": {
+          "Rc": "0.4/(mur*(4*pi*1e-7)*1e-3)",
+          "Rg": "g/((4*pi*1e-7)*1e-3)",
+          "phi": "500/(Rc+Rg)"
+        },
+        "curves": [
+          {
+            "f": "500/(0.4/(mur*(4*pi*1e-7)*1e-3) + x/((4*pi*1e-7)*1e-3))",
+            "label": "φ = F/(R_c + R_g)",
+            "labelAt": 0.55
+          }
+        ],
+        "points": [
+          {
+            "x": "g",
+            "y": "phi"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$\\mathcal{R}_c$",
+            "value": "Rc",
+            "unit": "A·t/Wb"
+          },
+          {
+            "label": "$\\mathcal{R}_g$",
+            "value": "Rg",
+            "unit": "A·t/Wb"
+          },
+          {
+            "label": "$B$",
+            "value": "phi/1e-3",
+            "unit": "T"
+          },
+          {
+            "label": "mmf across the gap",
+            "value": "100*Rg/(Rc+Rg)",
+            "unit": "%",
+            "sig": 2
+          }
+        ]
+      }
+    },
+    {
+      "title": "Worked example: core with a gap",
+      "body": "A core with $\\ell_c$ = 40 cm, $A$ = 10 cm², $\\mu_r$ = 3000 has a 1 mm gap and a 500-turn coil carrying 1 A.\n- $\\mathcal{R}_c$ = 0.4 / (3000 · 4π×$10^{-7}$ · $10^{-3}$) = 1.06×$10^{5}$ A·t/Wb\n- $\\mathcal{R}_g$ = $10^{-3}$ / (4π×$10^{-7}$ · $10^{-3}$) = 7.96×$10^{5}$ A·t/Wb\n- $\\phi$ = 500 / 9.02×$10^{5}$ = 554 µWb, $B$ = 0.554 T\nThe gap takes 88 % of the mmf. **Pitfalls:** forgetting cm-to-m conversions, and using the inside length of the core instead of the mean path length."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "mg-circuits-1",
+      "title": "Magnetic Ohm's law",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The coil as a source",
+          "body": "A coil of $N$ turns carrying $i$ pushes flux around its core. This push is the **magnetomotive force** (mmf), measured in ampere-turns (A·t). Ten turns with 1 A push as hard as one turn with 10 A.",
+          "formula": "\\mathcal{F} = Ni"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "N": [
+              100,
+              200,
+              250,
+              400,
+              500
+            ],
+            "i": [
+              0.2,
+              0.5,
+              1.5,
+              2,
+              3
+            ]
+          },
+          "prompt": "A {{N}}-turn coil carries {{i}} A. Find the magnetomotive force it applies to the core.",
+          "answer": "N*i",
+          "unit": "A·t",
+          "explanation": "$\\mathcal{F} = Ni$ = {{N}} × {{i}} A = {{N*i}} ampere-turns."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Reluctance",
+          "body": "Each part of the flux path opposes the flux with a **reluctance**, which grows with the path length $\\ell$ and shrinks with the cross-section $A$ and the permeability $\\mu = \\mu_r\\mu_0$. It is the magnetic version of $R = \\ell/(\\sigma A)$.",
+          "formula": "\\mathcal{R} = \\frac{\\ell}{\\mu_r\\mu_0A}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "l": [
+              0.2,
+              0.3,
+              0.4,
+              0.5,
+              0.6
+            ],
+            "Acm": [
+              4,
+              6,
+              9,
+              10,
+              16
+            ],
+            "mur": [
+              1000,
+              2000,
+              3000,
+              5000
+            ]
+          },
+          "prompt": "An iron core has a mean path length of {{l*100}} cm, a cross-section of {{Acm}} cm² and $\\mu_r$ = {{mur}}. Find its reluctance.",
+          "answer": "l/(mur*4*pi*1e-7*Acm*1e-4)",
+          "unit": "A·t/Wb",
+          "explanation": "Use metres: $A$ = {{Acm}} cm² = {{Acm*1e-4}} m².\n$\\mathcal{R} = \\frac{\\ell}{\\mu_r\\mu_0A}$ = {{l}} / ({{mur}} × 4π×$10^{-7}$ × {{Acm*1e-4}}) = {{l/(mur*4*pi*1e-7*Acm*1e-4)||4}} A·t/Wb."
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each magnetic quantity with its electric-circuit analogue",
+          "pairs": [
+            [
+              "mmf $\\mathcal{F} = Ni$",
+              "Voltage"
+            ],
+            [
+              "Flux $\\phi$",
+              "Current"
+            ],
+            [
+              "Reluctance $\\mathcal{R}$",
+              "Resistance"
+            ],
+            [
+              "Permeability $\\mu$",
+              "Conductivity"
+            ]
+          ],
+          "explanation": "$\\mathcal{F} = \\mathcal{R}\\phi$ mirrors $V = RI$: mmf drives flux through reluctance as voltage drives current through resistance. $\\mathcal{R} = \\ell/(\\mu A)$ mirrors $R = \\ell/(\\sigma A)$, so permeability plays the part of conductivity."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Magnetic Ohm's law",
+          "body": "The flux follows from the mmf and the total reluctance, exactly like current in a resistor circuit. The flux density in a section of area $A$ is then $B = \\phi/A$. A core with an air gap is two reluctances in series:",
+          "formula": "\\phi = \\frac{Ni}{\\mathcal{R}_c + \\mathcal{R}_g}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "F = Ni"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R_c"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "R_g"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  1.6,
+                  2
+                ],
+                "to": [
+                  0.6,
+                  2
+                ],
+                "label": "φ"
+              }
+            ]
+          }
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Try it: the gap takes over",
+          "body": "A 500 A·t coil on an iron core ($\\ell_c$ = 40 cm, $A$ = 10 cm²) with an air gap. Drag the gap length: the flux falls quickly because $\\mathcal{R}_g$ grows linearly with $\\ell_g$. Then drag the core's $\\mu_r$: with a gap of 1 mm the flux changes far less than without a gap, because the gap takes most of the mmf (readout). (Linear model: below about 0.2 mm of gap $B$ exceeds 2 T, where real iron would already saturate.)",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.002,
+              "label": "gap length ℓ_g",
+              "unit": "m"
+            },
+            "y": {
+              "min": 0,
+              "max": 0.008,
+              "label": "φ",
+              "unit": "Wb"
+            },
+            "sliders": [
+              {
+                "name": "g",
+                "label": "gap $\\ell_g$",
+                "min": 0,
+                "max": 0.002,
+                "step": 5e-05,
+                "value": 0.001,
+                "unit": "m"
+              },
+              {
+                "name": "mur",
+                "label": "core $\\mu_r$",
+                "min": 1000,
+                "max": 5000,
+                "step": 500,
+                "value": 3000
+              }
+            ],
+            "let": {
+              "Rc": "0.4/(mur*(4*pi*1e-7)*1e-3)",
+              "Rg": "g/((4*pi*1e-7)*1e-3)",
+              "phi": "500/(Rc+Rg)"
+            },
+            "curves": [
+              {
+                "f": "500/(0.4/(mur*(4*pi*1e-7)*1e-3) + x/((4*pi*1e-7)*1e-3))",
+                "label": "φ = F/(R_c + R_g)",
+                "labelAt": 0.55
+              }
+            ],
+            "points": [
+              {
+                "x": "g",
+                "y": "phi"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$\\mathcal{R}_c$",
+                "value": "Rc",
+                "unit": "A·t/Wb"
+              },
+              {
+                "label": "$\\mathcal{R}_g$",
+                "value": "Rg",
+                "unit": "A·t/Wb"
+              },
+              {
+                "label": "$B$",
+                "value": "phi/1e-3",
+                "unit": "T"
+              },
+              {
+                "label": "mmf across the gap",
+                "value": "100*Rg/(Rc+Rg)",
+                "unit": "%",
+                "sig": 2
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "N": [
+              200,
+              300,
+              500
+            ],
+            "i": [
+              0.5,
+              1,
+              2
+            ],
+            "R": [
+              200000.0,
+              400000.0,
+              500000.0,
+              800000.0,
+              1000000.0
+            ]
+          },
+          "prompt": "A {{N}}-turn coil carrying {{i}} A is wound on a magnetic circuit with a total reluctance of {{R|A·t/Wb}}. Find the flux.",
+          "answer": "N*i/R",
+          "unit": "Wb",
+          "explanation": "$\\phi = \\frac{Ni}{\\mathcal{R}}$ = {{N*i}} A·t / {{R}} A·t/Wb = {{N*i/R|Wb}}."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A core is replaced by one of the same material and length but with **twice** the cross-sectional area. What happens to its reluctance?",
+          "options": [
+            "It halves",
+            "It doubles",
+            "It stays the same",
+            "It drops to a quarter"
+          ],
+          "answer": 0,
+          "explanation": "$\\mathcal{R} = \\ell/(\\mu A)$ is inversely proportional to $A$, so doubling the area halves the reluctance (like a wire with twice the cross-section has half the resistance). For the same mmf the flux doubles, while $B = \\phi/A$ stays the same."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "An air gap of 1 mm can have a larger reluctance than 30 cm of iron with $\\mu_r$ = 3000 and the same cross-section.",
+          "answer": true,
+          "explanation": "True. With equal areas, compare $\\ell/\\mu_r$: the gap gives 1 mm / 1 = 1 mm, the iron 300 mm / 3000 = 0.1 mm. The tiny gap has **ten times** the reluctance of the iron path."
+        }
+      ]
+    },
+    {
+      "id": "mg-circuits-2",
+      "title": "Cores and air gaps",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "N": [
+              100,
+              200,
+              300,
+              500
+            ],
+            "i": [
+              0.1,
+              0.2,
+              0.5,
+              1
+            ],
+            "r": [
+              0.04,
+              0.05,
+              0.08,
+              0.1
+            ],
+            "Acm": [
+              1,
+              2,
+              4
+            ],
+            "mur": [
+              1000,
+              2000,
+              4000
+            ]
+          },
+          "derived": {
+            "l": "2*pi*r",
+            "R": "l/(mur*4*pi*1e-7*Acm*1e-4)",
+            "phi": "N*i/R",
+            "B": "phi/(Acm*1e-4)"
+          },
+          "require": "1.5-B",
+          "prompt": "A toroidal core has a mean radius of {{r*100}} cm, a cross-section of {{Acm}} cm² and $\\mu_r$ = {{mur}}. It carries {{N}} turns with {{i}} A. Find the flux in the core.",
+          "answer": "phi",
+          "unit": "Wb",
+          "explanation": "Mean path length $\\ell = 2\\pi r$ = {{l}} m, $A$ = {{Acm*1e-4}} m².\n$\\mathcal{R} = \\frac{\\ell}{\\mu_r\\mu_0A}$ = {{R||4}} A·t/Wb.\n$\\phi = Ni/\\mathcal{R}$ = {{N*i}} / {{R||4}} = {{phi|Wb}} (so $B$ = {{B|T}})."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "g": [
+              0.0002,
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "Acm": [
+              2,
+              4,
+              6.25,
+              9,
+              16
+            ]
+          },
+          "prompt": "Find the reluctance of an air gap {{g*1000}} mm long with a cross-section of {{Acm}} cm² (neglect fringing).",
+          "answer": "g/(4*pi*1e-7*Acm*1e-4)",
+          "unit": "A·t/Wb",
+          "explanation": "Air has $\\mu = \\mu_0$: $\\mathcal{R}_g = \\frac{\\ell_g}{\\mu_0A}$ = {{g}} / (4π×$10^{-7}$ × {{Acm*1e-4}}) = {{g/(4*pi*1e-7*Acm*1e-4)||4}} A·t/Wb."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "N": [
+              200,
+              300,
+              500
+            ],
+            "i": [
+              0.5,
+              1,
+              1.5
+            ],
+            "lc": [
+              0.3,
+              0.4,
+              0.5
+            ],
+            "mur": [
+              2000,
+              3000,
+              5000
+            ],
+            "Acm": [
+              4,
+              6,
+              9
+            ],
+            "g": [
+              0.0005,
+              0.001,
+              0.0015
+            ]
+          },
+          "derived": {
+            "A": "Acm*1e-4",
+            "Rc": "lc/(mur*4*pi*1e-7*A)",
+            "Rg": "g/(4*pi*1e-7*A)",
+            "phi": "N*i/(Rc+Rg)",
+            "B": "phi/A"
+          },
+          "require": "1.5-B",
+          "prompt": "A core ($\\ell_c$ = {{lc*100}} cm, $A$ = {{Acm}} cm², $\\mu_r$ = {{mur}}) has an air gap of {{g*1000}} mm with the same area (neglect fringing). A {{N}}-turn coil carries {{i}} A.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "F = Ni",
+                "value": "{{N*i}} A·t"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R_c"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "R_g"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  1.6,
+                  2
+                ],
+                "to": [
+                  0.6,
+                  2
+                ],
+                "label": "φ"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": " Find the flux in the core.",
+              "answer": "phi",
+              "unit": "Wb",
+              "explanation": "$\\mathcal{R}_c = \\frac{\\ell_c}{\\mu_r\\mu_0A}$ = {{Rc||4}}, $\\mathcal{R}_g = \\frac{\\ell_g}{\\mu_0A}$ = {{Rg||4}} A·t/Wb. In series: {{Rc+Rg||4}} A·t/Wb.\n$\\phi = \\frac{Ni}{\\mathcal{R}_c+\\mathcal{R}_g}$ = {{N*i}} / {{Rc+Rg||4}} = {{phi|Wb}}."
+            },
+            {
+              "prompt": " Find the flux density in the air gap.",
+              "answer": "B",
+              "unit": "T",
+              "explanation": "$\\mathcal{R}_c$ = {{Rc||4}}, $\\mathcal{R}_g$ = {{Rg||4}} A·t/Wb, so $\\phi$ = {{N*i}} / {{Rc+Rg||4}} = {{phi|Wb}}. Without fringing the gap has the core area: $B = \\phi/A$ = {{phi|Wb}} / {{A}} m² = {{B|T}}. (Shortcut: $B = \\mu_0Ni/(\\ell_g + \\ell_c/\\mu_r)$.)"
+            },
+            {
+              "prompt": " Find the total reluctance of the magnetic circuit.",
+              "answer": "Rc+Rg",
+              "unit": "A·t/Wb",
+              "explanation": "$\\mathcal{R}_c = \\frac{\\ell_c}{\\mu_r\\mu_0A}$ = {{lc}} / ({{mur}} × 4π×$10^{-7}$ × {{A}}) = {{Rc||4}} A·t/Wb.\n$\\mathcal{R}_g = \\frac{\\ell_g}{\\mu_0A}$ = {{g}} / (4π×$10^{-7}$ × {{A}}) = {{Rg||4}} A·t/Wb.\nSeries: $\\mathcal{R} = \\mathcal{R}_c + \\mathcal{R}_g$ = {{Rc+Rg||4}} A·t/Wb."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "N": [
+              200,
+              400,
+              500,
+              1000
+            ],
+            "Bg": [
+              0.5,
+              0.8,
+              1.0,
+              1.2
+            ],
+            "lc": [
+              0.3,
+              0.5
+            ],
+            "mur": [
+              2000,
+              4000
+            ],
+            "g": [
+              0.0005,
+              0.001,
+              0.002
+            ]
+          },
+          "derived": {
+            "Ni": "Bg/(4*pi*1e-7)*(g + lc/mur)"
+          },
+          "prompt": "A core with mean length {{lc*100}} cm and $\\mu_r$ = {{mur}} has a {{g*1000}} mm air gap of the same cross-section. What current in a {{N}}-turn coil gives a flux density of {{Bg}} T in the gap? (Neglect fringing.)",
+          "answer": "Ni/N",
+          "unit": "A",
+          "explanation": "The same flux and area pass through core and gap, so $B$ is {{Bg}} T in both. Ampère's law: $Ni = H_c\\ell_c + H_g\\ell_g = \\frac{B}{\\mu_0}\\left(\\frac{\\ell_c}{\\mu_r} + \\ell_g\\right)$.\n$Ni$ = {{Bg/(4*pi*1e-7)}} × ({{lc/mur}} + {{g}}) = {{Ni}} A·t, so $i$ = {{Ni}} / {{N}} = {{Ni/N|A}}. The area is not needed."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "N": [
+              100,
+              200,
+              400
+            ],
+            "I": [
+              2,
+              5,
+              10
+            ],
+            "Bt": [
+              0.8,
+              1.0,
+              1.2
+            ]
+          },
+          "derived": {
+            "gt": "(4*pi*1e-7)*N*I/Bt - 0.2/2000"
+          },
+          "require": "min(gt - 0.0003, 0.0045 - gt)",
+          "prompt": "A core with $\\ell_c$ = 20 cm, $\\mu_r$ = 2000 and $A$ = 4 cm² carries {{N}} turns. The peak current is {{I}} A. Choose the air gap so that the flux density reaches exactly {{Bt}} T at the peak current: the line $B(i)$ must pass through the orange point. (Neglect fringing.)",
+          "hint": "$Ni = H_c\\ell_c + H_g\\ell_g = B\\left(\\frac{\\ell_c}{\\mu_r\\mu_0} + \\frac{\\ell_g}{\\mu_0}\\right)$",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "1.25*I",
+              "label": "i",
+              "unit": "A"
+            },
+            "y": {
+              "min": 0,
+              "max": 2,
+              "label": "B",
+              "unit": "T"
+            },
+            "sliders": [
+              {
+                "name": "g",
+                "label": "gap $\\ell_g$",
+                "min": 0.0001,
+                "max": 0.005,
+                "log": true,
+                "value": 0.005,
+                "unit": "m"
+              }
+            ],
+            "curves": [
+              {
+                "f": "(4*pi*1e-7)*N*x/(g + 0.2/2000)",
+                "label": "B(i)",
+                "labelAt": 0.3
+              }
+            ],
+            "points": [
+              {
+                "x": "I",
+                "y": "Bt",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$L = N^2/\\mathcal{R}$",
+                "value": "N^2*(4*pi*1e-7)*4e-4/(g + 0.2/2000)",
+                "unit": "H"
+              },
+              {
+                "label": "$B$ at {{I}} A",
+                "value": "(4*pi*1e-7)*N*I/(g + 0.2/2000)",
+                "unit": "T",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "g": "gt"
+          },
+          "tolerance": 0.05,
+          "explanation": "With the same $B$ in core and gap: $Ni = B\\left(\\frac{\\ell_c}{\\mu_r} + \\ell_g\\right)/\\mu_0$. So $\\ell_g = \\frac{\\mu_0 N i}{B} - \\frac{\\ell_c}{\\mu_r}$ = {{4*pi*1e-7*N*I/Bt*1000}} mm − 0.1 mm = **{{gt*1000}} mm**. A bigger gap flattens the line, so the core reaches saturation only at a higher current; the price is a lower inductance, $L = N^2\\mu_0A/(\\ell_g + \\ell_c/\\mu_r)$ = {{N^2*4*pi*1e-7*4e-4/(gt+0.0001)|H}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "lc": [
+              0.3,
+              0.4,
+              0.5,
+              0.6
+            ],
+            "mur": [
+              1000,
+              2000,
+              3000,
+              5000
+            ],
+            "g": [
+              0.0002,
+              0.0005,
+              0.001,
+              0.002
+            ]
+          },
+          "prompt": "A core of mean length {{lc*100}} cm with $\\mu_r$ = {{mur}} has an air gap of {{g*1000}} mm (same area, no fringing). What percentage of the coil's mmf is used across the **gap**?",
+          "answer": "100*g/(g + lc/mur)",
+          "unit": "%",
+          "explanation": "Series reluctances divide the mmf like a voltage divider: $\\frac{\\mathcal{R}_g}{\\mathcal{R}_c+\\mathcal{R}_g}$. With equal areas the factor $\\mu_0A$ cancels, leaving $\\frac{\\ell_g}{\\ell_g + \\ell_c/\\mu_r}$ = {{g}} / ({{g}} + {{lc/mur}}) = {{100*g/(g + lc/mur)|%}}."
+        },
+        {
+          "id": "g1",
+          "type": "multipleChoice",
+          "prompt": "A coil with a fixed mmf drives flux through an iron core with an adjustable air gap $\\ell_g$. Which graph shows the flux $\\phi$ against $\\ell_g$?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 2,
+                "label": "ℓ_g"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "φ"
+              },
+              "curves": [
+                {
+                  "f": "1/(1+4*x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 2,
+                "label": "ℓ_g"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "φ"
+              },
+              "curves": [
+                {
+                  "f": "max(0, 1-0.5*x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 2,
+                "label": "ℓ_g"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "φ"
+              },
+              "curves": [
+                {
+                  "f": "0.2/x",
+                  "from": 0.17
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 2,
+                "label": "ℓ_g"
+              },
+              "y": {
+                "min": 0,
+                "max": 1.2,
+                "label": "φ"
+              },
+              "curves": [
+                {
+                  "f": "0.2+0.4*x"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "$\\phi = \\frac{\\mathcal{F}}{\\mathcal{R}_c + \\ell_g/(\\mu_0A)}$. At $\\ell_g = 0$ only the core reluctance limits the flux, so $\\phi$ starts at a **finite** value $\\mathcal{F}/\\mathcal{R}_c$. As the gap grows, its reluctance grows linearly and the flux falls like $1/(a + b\\ell_g)$: steeply at first, then slowly, never reaching zero. The $1/\\ell_g$ curve that shoots up at $\\ell_g = 0$ ignores the core reluctance."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "N1": [
+              100,
+              200,
+              300
+            ],
+            "i1": [
+              1,
+              2,
+              3
+            ],
+            "N2": [
+              50,
+              100,
+              150
+            ],
+            "i2": [
+              0.5,
+              1,
+              2
+            ],
+            "R": [
+              200000.0,
+              500000.0,
+              1000000.0
+            ]
+          },
+          "require": "abs(N1*i1 - N2*i2)",
+          "prompt": "Two coils are wound on the same core (total reluctance {{R|A·t/Wb}}): {{N1}} turns carrying {{i1}} A and {{N2}} turns carrying {{i2}} A. The coils are connected so that their mmfs **oppose** each other. Find the magnitude of the core flux.",
+          "answer": "abs(N1*i1 - N2*i2)/R",
+          "unit": "Wb",
+          "explanation": "The mmfs are like two series voltage sources in opposition: net $\\mathcal{F} = |N_1i_1 - N_2i_2|$ = |{{N1*i1}} − {{N2*i2}}| = {{abs(N1*i1-N2*i2)}} A·t.\n$\\phi = \\mathcal{F}/\\mathcal{R}$ = {{abs(N1*i1-N2*i2)}} / {{R}} = {{abs(N1*i1-N2*i2)/R|Wb}}. (Aiding, they would give {{(N1*i1+N2*i2)/R|Wb}}.)"
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "A magnetic circuit consists of an iron core with a gap whose reluctance is much larger than that of the iron. The gap length is **doubled**. What happens to the flux (same coil current)?",
+          "options": [
+            "It roughly halves",
+            "It roughly doubles",
+            "It hardly changes, because the iron sets the flux",
+            "It drops to about a quarter"
+          ],
+          "answer": 0,
+          "explanation": "With $\\mathcal{R}_g \\gg \\mathcal{R}_c$, $\\phi \\approx Ni/\\mathcal{R}_g$, and $\\mathcal{R}_g = \\ell_g/(\\mu_0A)$ doubles with the gap length. So the flux roughly halves. It ends up slightly **above** half of its old value, because the small core reluctance does not double."
+        }
+      ]
+    },
+    {
+      "id": "mg-circuits-3",
+      "title": "Multi-path magnetic circuits",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "This is the analogue circuit of a core with two parallel legs ($\\mathcal{R}_a$, $\\mathcal{R}_b$). Tap every reluctance that carries the **full** flux produced by the coil.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "F"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_y",
+                "name": "Ry"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_a",
+                "name": "Ra"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_b",
+                "name": "Rb"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    2,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  0,
+                  2
+                ],
+                "label": "R_z",
+                "name": "Rz"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "Ry",
+            "Ra",
+            "Rb",
+            "Rz"
+          ],
+          "answer": [
+            "Ry",
+            "Rz"
+          ],
+          "explanation": "$\\mathcal{R}_y$ and $\\mathcal{R}_z$ are in series with the source $\\mathcal{F}$, so the whole flux passes through them. At the junction the flux splits between the parallel legs $\\mathcal{R}_a$ and $\\mathcal{R}_b$ (KCL analogue), the smaller reluctance taking the larger share."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "N": [
+              200,
+              300,
+              500
+            ],
+            "i": [
+              0.5,
+              1,
+              2
+            ],
+            "Rm": [
+              100000.0,
+              150000.0,
+              200000.0
+            ],
+            "R1": [
+              200000.0,
+              300000.0,
+              400000.0
+            ],
+            "R2": [
+              600000.0,
+              800000.0,
+              1200000.0
+            ]
+          },
+          "derived": {
+            "Rt": "Rm + par(R1, R2)",
+            "pc": "N*i/Rt"
+          },
+          "prompt": "The analogue circuit models a three-legged core with the coil on the centre leg ($\\mathcal{R}_m$). The right leg contains an air gap. All reluctances are in A·t/Wb (k = $10^{3}$).",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  2,
+                  4
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "F = Ni",
+                "value": "{{N*i}} A·t",
+                "name": "F",
+                "val": "N*i"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_m",
+                "value": "{{Rm/1e3}}k",
+                "name": "Rm",
+                "val": "Rm"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  0,
+                  4
+                ],
+                "label": "R_1",
+                "value": "{{R1/1e3}}k",
+                "name": "R1",
+                "val": "R1",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  4
+                ],
+                "label": "R_2",
+                "value": "{{R2/1e3}}k",
+                "name": "R2",
+                "val": "R2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    4,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  4
+                ]
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": " Find the flux in the centre leg.",
+              "answer": "abs(I_Rm)",
+              "unit": "Wb",
+              "explanation": "The outer legs are in parallel: $\\mathcal{R}_1\\parallel\\mathcal{R}_2$ = {{par(R1,R2)||4}}. In series with the centre leg: $\\mathcal{R}_t$ = {{Rt||4}} A·t/Wb.\n$\\phi_m = Ni/\\mathcal{R}_t$ = {{N*i}} / {{Rt||4}} = {{pc|Wb}}."
+            },
+            {
+              "prompt": " Find the flux in the right leg ($\\mathcal{R}_2$).",
+              "answer": "abs(I_R2)",
+              "unit": "Wb",
+              "explanation": "$\\mathcal{R}_t = \\mathcal{R}_m + \\mathcal{R}_1\\parallel\\mathcal{R}_2$ = {{Rt||4}} A·t/Wb, so $\\phi_m$ = {{N*i}} / {{Rt||4}} = {{pc|Wb}}.\nThe flux divides like current: $\\phi_2 = \\phi_m\\frac{\\mathcal{R}_1}{\\mathcal{R}_1+\\mathcal{R}_2}$ = {{pc|Wb}} × {{R1/(R1+R2)}} = {{pc*R1/(R1+R2)|Wb}}."
+            },
+            {
+              "prompt": " Find the flux in the left leg ($\\mathcal{R}_1$).",
+              "answer": "abs(I_R1)",
+              "unit": "Wb",
+              "explanation": "$\\mathcal{R}_t = \\mathcal{R}_m + \\mathcal{R}_1\\parallel\\mathcal{R}_2$ = {{Rt||4}} A·t/Wb, so $\\phi_m$ = {{N*i}} / {{Rt||4}} = {{pc|Wb}}.\nFlux divider: $\\phi_1 = \\phi_m\\frac{\\mathcal{R}_2}{\\mathcal{R}_1+\\mathcal{R}_2}$ = {{pc|Wb}} × {{R2/(R1+R2)}} = {{pc*R2/(R1+R2)|Wb}}. The leg without the gap carries more flux."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "N": [
+              300,
+              500
+            ],
+            "i": [
+              0.5,
+              1
+            ],
+            "l1": [
+              0.2,
+              0.3
+            ],
+            "A1cm": [
+              8,
+              10
+            ],
+            "l2": [
+              0.1,
+              0.15
+            ],
+            "A2cm": [
+              4,
+              5
+            ],
+            "mur": [
+              1500,
+              2500
+            ]
+          },
+          "derived": {
+            "R1": "l1/(mur*4*pi*1e-7*A1cm*1e-4)",
+            "R2": "l2/(mur*4*pi*1e-7*A2cm*1e-4)",
+            "phi": "N*i/(R1+R2)",
+            "B2": "phi/(A2cm*1e-4)"
+          },
+          "require": "1.5-B2",
+          "prompt": "A core ($\\mu_r$ = {{mur}}) has two sections in series: {{l1*100}} cm long with {{A1cm}} cm² and {{l2*100}} cm long with only {{A2cm}} cm². A {{N}}-turn coil carries {{i}} A. Find the flux density in the **narrow** section.",
+          "answer": "B2",
+          "unit": "T",
+          "explanation": "$\\mathcal{R}_1$ = {{l1}} / ({{mur}} $\\mu_0$ × {{A1cm*1e-4}}) = {{R1||4}}, $\\mathcal{R}_2$ = {{l2}} / ({{mur}} $\\mu_0$ × {{A2cm*1e-4}}) = {{R2||4}} A·t/Wb.\n$\\phi = Ni/(\\mathcal{R}_1+\\mathcal{R}_2)$ = {{N*i}} / {{R1+R2||4}} = {{phi|Wb}}. The same flux squeezes through the narrow part: $B_2 = \\phi/A_2$ = {{B2|T}} (the wide part has only {{phi/(A1cm*1e-4)|T}}). Narrow sections saturate first."
+        },
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "F": [
+              200,
+              300,
+              400,
+              500
+            ],
+            "Rc": [
+              100000.0,
+              200000.0,
+              400000.0
+            ],
+            "Acm": [
+              5,
+              10
+            ]
+          },
+          "derived": {
+            "k": "1/(4*pi*1e-7*Acm*1e-4)",
+            "p0": "F/Rc"
+          },
+          "prompt": "The graph shows the measured core flux of a coil with a fixed mmf of {{F}} A·t as the air gap $\\ell_g$ is varied. Use the value at $\\ell_g = 0$ to find the reluctance of the iron core alone.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.002,
+              "label": "ℓ_g",
+              "unit": "m"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.2*p0",
+              "label": "φ",
+              "unit": "Wb",
+              "ticks": [
+                0,
+                "p0/4",
+                "p0/2",
+                "3*p0/4",
+                "p0"
+              ]
+            },
+            "curves": [
+              {
+                "f": "F/(Rc + k*x)",
+                "label": "φ(ℓ_g)",
+                "labelAt": 0.5
+              }
+            ]
+          },
+          "answer": "Rc",
+          "unit": "A·t/Wb",
+          "tolerance": 0.05,
+          "explanation": "With no gap only the core limits the flux: $\\phi(0)$ = {{p0|Wb}}, so $\\mathcal{R}_c = \\mathcal{F}/\\phi(0)$ = {{F}} / {{p0}} = {{Rc||3}} A·t/Wb. (Each extra mm of gap adds $\\ell_g/(\\mu_0A)$ = {{k*0.001||3}} A·t/Wb, which is why the curve drops so quickly.)"
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Put the steps in order to find the coil current that gives a required flux density $B$ in a core with an air gap",
+          "items": [
+            "Find the required flux $\\phi = BA$",
+            "Compute the reluctance of each section, $\\ell/(\\mu A)$",
+            "Add the series reluctances",
+            "Find the mmf $\\mathcal{F} = \\mathcal{R}\\phi$",
+            "Divide by the number of turns: $i = \\mathcal{F}/N$"
+          ],
+          "explanation": "Work backwards from the flux: the flux and the reluctances give the required mmf, and the mmf divided by $N$ gives the current."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "N": [
+              200,
+              400,
+              500
+            ],
+            "B": [
+              0.6,
+              0.8,
+              1.0
+            ],
+            "Rm": [
+              100000.0,
+              200000.0
+            ],
+            "R1": [
+              300000.0,
+              400000.0
+            ],
+            "R2": [
+              300000.0,
+              400000.0,
+              800000.0
+            ],
+            "Acm": [
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "phi": "B*Acm*1e-4",
+            "Rt": "Rm + par(R1, R2)"
+          },
+          "prompt": "In a three-legged core, the centre leg (reluctance {{Rm|A·t/Wb}}, area {{Acm}} cm²) carries the coil, and the outer legs have reluctances {{R1/1e5}}×$10^{5}$ and {{R2|A·t/Wb}}. What mmf gives a flux density of {{B}} T in the centre leg?",
+          "answer": "phi*Rt",
+          "unit": "A·t",
+          "explanation": "Required flux: $\\phi = BA$ = {{B}} × {{Acm*1e-4}} = {{phi|Wb}}. The outer legs are in parallel: {{par(R1,R2)||4}}; total $\\mathcal{R}_t$ = {{Rm}} + {{par(R1,R2)||4}} = {{Rt||4}} A·t/Wb.\n$\\mathcal{F} = \\mathcal{R}_t\\phi$ = {{Rt||4}} × {{phi}} = {{phi*Rt}} A·t (that is {{phi*Rt/N|A}} in {{N}} turns)."
+        }
+      ]
+    }
+  ]
+}

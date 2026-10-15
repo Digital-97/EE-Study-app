@@ -1,0 +1,3598 @@
+{
+ "id": "ct-node",
+ "title": "Node-Voltage Analysis",
+ "description": "Solve any resistive circuit by writing KCL in terms of node voltages.",
+ "reference": "Hambley §2.4",
+ "study": [
+  {
+   "title": "Reference node and node voltages",
+   "body": "Pick one node as the **reference node** (ground symbol); the node with the most connections, often the bottom wire, is a good choice. Every other node gets a **node voltage**: its voltage relative to the reference, with + at the node. A circuit with $N$ nodes therefore has $N-1$ unknowns. The voltage across any element follows from the node voltages at its two ends.",
+   "formula": "v_{jk} = v_j - v_k"
+  },
+  {
+   "title": "KCL written with node voltages",
+   "body": "At every non-reference node write KCL with all resistor currents taken as **leaving** the node. The current leaving node $j$ through $R$ toward node $k$ is $(v_j - v_k)/R$; toward the reference it is simply $v_j/R$. Current-source currents pointing **into** the node go on the right-hand side.",
+   "formula": "\\sum_k \\frac{v_j - v_k}{R_{jk}} = \\sum i_{\\text{source, in}}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "vsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_s"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       2,
+       0
+      ],
+      "label": "R_1"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       2,
+       2
+      ],
+      "label": "R_2"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       4.5,
+       0
+      ],
+      "label": "R_3"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4.5,
+       0
+      ],
+      "to": [
+       4.5,
+       2
+      ],
+      "label": "R_4"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4.5,
+        0
+       ],
+       [
+        7,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "isource",
+      "from": [
+       7,
+       2
+      ],
+      "to": [
+       7,
+       0
+      ],
+      "label": "I_s",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        7,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       0
+      ],
+      "label": "v_1"
+     },
+     {
+      "type": "node",
+      "at": [
+       4.5,
+       0
+      ],
+      "label": "v_2"
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       2
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       4.5,
+       2
+      ]
+     },
+     {
+      "type": "ground",
+      "at": [
+       3.25,
+       2
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Matrix form and Cramer's rule",
+   "body": "Collecting terms gives $\\mathbf{G}\\mathbf{v} = \\mathbf{i}$. With only resistors and independent current sources, $G_{jj}$ is the sum of the conductances connected to node $j$ and $G_{jk}$ is **minus** the conductance between nodes $j$ and $k$. Solve a 2×2 system with Cramer's rule. Tip: with resistances in kΩ and currents in mA, conductances are in mS and the node voltages come out directly in volts.",
+   "formula": "v_1 = \\frac{i_1 G_{22} - G_{12}\\, i_2}{G_{11}G_{22} - G_{12}G_{21}}"
+  },
+  {
+   "title": "Voltage sources and supernodes",
+   "body": "A voltage source from a node to the reference simply **fixes** that node voltage, which removes an unknown. A voltage source between two non-reference nodes carries an unknown current, so you cannot write ordinary KCL at either node. Enclose both nodes in a **supernode**: write KCL for all currents crossing its boundary, and add the constraint set by the source.",
+   "formula": "v_2 - v_1 = V_x",
+   "circuit": {
+    "elements": [
+     {
+      "type": "isource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "I_s"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        2,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       2,
+       2
+      ],
+      "label": "R_1"
+     },
+     {
+      "type": "vsource",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       4.5,
+       0
+      ],
+      "label": "V_x"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4.5,
+       0
+      ],
+      "to": [
+       4.5,
+       2
+      ],
+      "label": "R_2"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        4.5,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       0
+      ],
+      "label": "v_1"
+     },
+     {
+      "type": "node",
+      "at": [
+       4.5,
+       0
+      ],
+      "label": "v_2"
+     },
+     {
+      "type": "node",
+      "at": [
+       2,
+       2
+      ]
+     },
+     {
+      "type": "ground",
+      "at": [
+       3.25,
+       2
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Dependent sources",
+   "body": "Treat a dependent source like an independent one while writing KCL. Then add an equation that expresses its controlling variable (for example the current $i_x$ through a resistor) in terms of the node voltages, and substitute. The conductance matrix is then usually **not** symmetric any more. Dependent sources are never set to zero.",
+   "formula": "i_x = \\frac{v_1}{R_1} \\;\\Rightarrow\\; a\\,i_x = \\frac{a\\,v_1}{R_1}"
+  },
+  {
+   "title": "Procedure and pitfalls",
+   "body": "- Choose the reference node and label all node voltages.\n- Draw a supernode around each voltage source between non-reference nodes.\n- Write KCL at each node or supernode, plus the constraint equations.\n- Solve, then get branch currents as $(v_j - v_k)/R$.\nCommon mistakes: mixing *leaving* and *entering* in one equation, applying Ohm's law to a voltage source, and dropping the sign when $v_k > v_j$."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ct-node-1",
+   "title": "Nodes and node voltages",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Choose a reference",
+     "body": "Node-voltage analysis turns a circuit into a few KCL equations. First select a **reference node** and call its voltage 0 V. Every other node gets a node voltage $v_1, v_2, \\ldots$ measured from the reference. With $N$ nodes there are $N-1$ unknowns. In this circuit the bottom wire is the reference and only $v_1$ and $v_2$ are unknown.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         7,
+         2
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "I_s",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "t1",
+     "type": "tapCircuit",
+     "prompt": "You are about to write node equations. Tap the node you would choose as the **reference** node.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "from": [
+         6,
+         2
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         0,
+         0
+        ],
+        "name": "a",
+        "label": "a"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "name": "b",
+        "label": "b"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "name": "c",
+        "label": "c"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ],
+        "name": "d",
+        "label": "d"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "a",
+      "b",
+      "c",
+      "d"
+     ],
+     "answer": [
+      "d"
+     ],
+     "explanation": "Choose the node that touches the most elements, ideally one end of a voltage source. Node d (the whole bottom wire) connects to $V_s$, $R_2$, $R_4$ and $I_s$. With d as reference, $v_a = V_s$ is known immediately, and only $v_b$ and $v_c$ need KCL equations. Any node *may* be the reference, but this choice gives the fewest and simplest equations."
+    },
+    {
+     "id": "q1",
+     "type": "multipleChoice",
+     "prompt": "A circuit has 5 nodes and contains only resistors and independent current sources. How many node-voltage equations do you have to solve?",
+     "options": [
+      "4",
+      "5",
+      "3",
+      "10"
+     ],
+     "answer": 0,
+     "explanation": "One node is the reference (0 V), so there are $N - 1 = 5 - 1 = 4$ unknown node voltages and you write one KCL equation at each of those 4 nodes. KCL at the reference node would add no new information."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Currents from node voltages",
+     "body": "The voltage across a resistor between nodes $j$ and $k$ is $v_j - v_k$ (+ at node $j$). By Ohm's law the current flowing **from $j$ to $k$** is therefore\n$$ i_{j\\to k} = \\frac{v_j - v_k}{R} $$\nFor a resistor to the reference node, $v_k = 0$ and the current is simply $v_j/R$."
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "Which expression gives the current through $R_3$ flowing **from node 1 to node 2**?",
+     "options": [
+      "$\\frac{v_1 - v_2}{R_3}$",
+      "$\\frac{v_2 - v_1}{R_3}$",
+      "$\\frac{v_1 + v_2}{R_3}$",
+      "$\\frac{v_1}{R_3}$"
+     ],
+     "answer": 0,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         7,
+         2
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "I_s",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "The voltage across $R_3$ with + at node 1 is $v_1 - v_2$. In a resistor current flows from + to −, so $i_{1\\to 2} = (v_1 - v_2)/R_3$. The expression $(v_2 - v_1)/R_3$ is the current in the opposite direction, and $v_1/R_3$ would only be right if node 2 were the reference."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "prompt": "Only node 1 is unknown. With $V_s$ = {{Vs|V}}, $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}} and $I_s$ = {{Is|A}}, find $v_1$.",
+     "params": {
+      "Vs": [
+       5,
+       6,
+       9,
+       10,
+       12
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "Is": [
+       0.001,
+       0.002,
+       0.003
+      ]
+     },
+     "derived": {
+      "Gt": "1/R1 + 1/R2",
+      "v1": "(Vs/R1 + Is)/Gt"
+     },
+     "answer": "v1",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2.5,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2.5,
+         0
+        ],
+        "to": [
+         2.5,
+         2
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2.5,
+          0
+         ],
+         [
+          4.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         4.5,
+         2
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2.5,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         2.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         1.25,
+         2
+        ]
+       }
+      ]
+     },
+     "hint": "Write KCL at node 1 with currents leaving through $R_1$ and $R_2$; $I_s$ enters the node.",
+     "explanation": "KCL at node 1, currents leaving: $\\frac{v_1 - V_s}{R_1} + \\frac{v_1}{R_2} = I_s$\nSo $v_1\\left(\\frac{1}{R_1} + \\frac{1}{R_2}\\right) = \\frac{V_s}{R_1} + I_s$, which in mS and mA reads\n$$ {{Gt*1e3}}\\,v_1 = {{Vs/R1*1e3}} + {{Is*1e3}} $$\n$v_1$ = {{(Vs/R1 + Is)*1e3}} / {{Gt*1e3}} = **{{v1|V}}**"
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Voltage sources",
+     "body": "A voltage source from a node to the reference **fixes** that node voltage. A voltage source between two non-reference nodes is different: its current is unknown and Ohm's law does not apply to it. Draw a **supernode** around both nodes, write KCL for the currents leaving the whole supernode, and add the source equation $v_2 - v_1 = V_x$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "vsource",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "V_x"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "In this circuit you can write the current through $V_x$ as $(v_2 - v_1)/V_x$ and use it in an ordinary KCL equation at node 1.",
+     "answer": false,
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "vsource",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "V_x"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "False. An ideal voltage source fixes the voltage between its terminals, but its current can be anything; the rest of the circuit decides it. That is why nodes 1 and 2 are merged into a supernode (KCL: $I_s = v_1/R_1 + v_2/R_2$) and the source gives the second equation $v_2 - v_1 = V_x$."
+    },
+    {
+     "id": "q5",
+     "type": "orderSteps",
+     "prompt": "Put the steps of node-voltage analysis in order.",
+     "items": [
+      "Select a reference node",
+      "Label the other node voltages",
+      "Mark supernodes around floating voltage sources",
+      "Write KCL and constraint equations",
+      "Solve for the node voltages",
+      "Compute the currents you need"
+     ],
+     "explanation": "First fix the reference and the unknowns, then identify supernodes so you know where ordinary KCL is not allowed. Write one equation per unknown, solve, and only then compute branch currents as $(v_j - v_k)/R$."
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "prompt": "A circuit contains a current-controlled current source $2i_x$, where $i_x$ is the current in one of the resistors. What extra step does node-voltage analysis need?",
+     "options": [
+      "Express $i_x$ in terms of the node voltages",
+      "Replace the dependent source by an open circuit",
+      "Nothing: dependent sources do not affect node voltages",
+      "Choose a second reference node"
+     ],
+     "answer": 0,
+     "explanation": "Write KCL treating $2i_x$ like any current source, then write $i_x$ in node voltages (for a resistor $R$ from node 1 to ground: $i_x = v_1/R$) and substitute. Dependent sources are never zeroed, because their value depends on the circuit's own voltages and currents."
+    }
+   ]
+  },
+  {
+   "id": "ct-node-2",
+   "title": "Two-node circuits",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "prompt": "Find the node voltage $v_1$.",
+     "params": {
+      "Vs": [
+       6,
+       9,
+       10,
+       12,
+       15,
+       18,
+       24
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R4": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "Is": [
+       0.001,
+       0.002,
+       0.003,
+       0.004,
+       0.005
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "G4": "1/R4",
+      "a11": "G1 + G2 + G3",
+      "a22": "G3 + G4",
+      "b1": "Vs/R1",
+      "D": "a11*a22 - G3^2",
+      "v1": "(b1*a22 + G3*Is)/D",
+      "v2": "(a11*Is + G3*b1)/D"
+     },
+     "answer": "v1",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_4",
+        "value": "{{R4|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         7,
+         2
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "hint": "Two KCL equations, two unknowns. Use mS and mA to keep the numbers simple.",
+     "explanation": "Write KCL with currents **leaving** each node:\n- Node 1: $\\frac{v_1 - V_s}{R_1} + \\frac{v_1}{R_2} + \\frac{v_1 - v_2}{R_3} = 0$\n- Node 2: $\\frac{v_2 - v_1}{R_3} + \\frac{v_2}{R_4} = I_s$\nWith conductances in mS and currents in mA:\n$$ {{a11*1e3}}\\,v_1 - {{G3*1e3}}\\,v_2 = {{b1*1e3}} $$\n$$ -{{G3*1e3}}\\,v_1 + {{a22*1e3}}\\,v_2 = {{Is*1e3}} $$\nDeterminant: $\\Delta$ = {{a11*1e3}}·{{a22*1e3}} − {{G3*1e3}}² = {{D*1e6}}\nCramer's rule: $v_1 = \\frac{b_1 G_{22} + G_3 I_s}{\\Delta}$ = ({{b1*1e3}}·{{a22*1e3}} + {{G3*1e3}}·{{Is*1e3}}) / {{D*1e6}} = **{{v1|V}}**"
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "prompt": "Find the node voltage $v_2$.",
+     "params": {
+      "Vs": [
+       6,
+       9,
+       10,
+       12,
+       15,
+       18,
+       24
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R4": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "Is": [
+       0.001,
+       0.002,
+       0.003,
+       0.004,
+       0.005
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "G4": "1/R4",
+      "a11": "G1 + G2 + G3",
+      "a22": "G3 + G4",
+      "b1": "Vs/R1",
+      "D": "a11*a22 - G3^2",
+      "v1": "(b1*a22 + G3*Is)/D",
+      "v2": "(a11*Is + G3*b1)/D"
+     },
+     "answer": "v2",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_4",
+        "value": "{{R4|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         7,
+         2
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "Write KCL with currents **leaving** each node:\n- Node 1: $\\frac{v_1 - V_s}{R_1} + \\frac{v_1}{R_2} + \\frac{v_1 - v_2}{R_3} = 0$\n- Node 2: $\\frac{v_2 - v_1}{R_3} + \\frac{v_2}{R_4} = I_s$\nWith conductances in mS and currents in mA:\n$$ {{a11*1e3}}\\,v_1 - {{G3*1e3}}\\,v_2 = {{b1*1e3}} $$\n$$ -{{G3*1e3}}\\,v_1 + {{a22*1e3}}\\,v_2 = {{Is*1e3}} $$\nDeterminant: $\\Delta$ = {{a11*1e3}}·{{a22*1e3}} − {{G3*1e3}}² = {{D*1e6}}\nCramer's rule: $v_2 = \\frac{G_{11} I_s + G_3 b_1}{\\Delta}$ = ({{a11*1e3}}·{{Is*1e3}} + {{G3*1e3}}·{{b1*1e3}}) / {{D*1e6}} = **{{v2|V}}**"
+    },
+    {
+     "id": "p3",
+     "type": "multipleChoice",
+     "prompt": "Which equation is KCL at node 2?",
+     "options": [
+      "$\\frac{v_2 - v_1}{R_3} + \\frac{v_2}{R_4} = I_s$",
+      "$\\frac{v_2 - v_1}{R_3} + \\frac{v_2}{R_4} + I_s = 0$",
+      "$\\frac{v_1 - v_2}{R_3} + \\frac{v_2}{R_4} = I_s$",
+      "$\\frac{v_2}{R_3} + \\frac{v_2}{R_4} = I_s$"
+     ],
+     "answer": 0,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         7,
+         2
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "I_s",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "Currents leaving node 2: through $R_3$ toward node 1, $(v_2 - v_1)/R_3$, and through $R_4$ to the reference, $v_2/R_4$. The source pushes $I_s$ **into** node 2, so leaving = entering gives $\\frac{v_2 - v_1}{R_3} + \\frac{v_2}{R_4} = I_s$. Writing $v_2/R_3$ forgets that the other end of $R_3$ is not at 0 V."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "prompt": "A {{R|Ω}} resistor connects node 1 ($v_1$ = {{v1|V}}) to node 2 ($v_2$ = {{v2|V}}). Find the current through it flowing **from node 1 to node 2** (negative if it actually flows the other way).",
+     "params": {
+      "v1": {
+       "min": 1,
+       "max": 12,
+       "step": 0.5
+      },
+      "v2": {
+       "min": 1,
+       "max": 12,
+       "step": 0.5
+      },
+      "R": [
+       1000,
+       2000,
+       2500,
+       4000,
+       5000
+      ]
+     },
+     "require": "abs(v1 - v2)",
+     "answer": "(v1 - v2)/R",
+     "unit": "A",
+     "absTolerance": 1e-06,
+     "explanation": "$i_{1\\to 2} = \\frac{v_1 - v_2}{R}$ = ({{v1}} − {{v2}}) V / {{R|Ω}} = **{{(v1 - v2)/R|A}}**. A negative result means the current flows from node 2 to node 1."
+    },
+    {
+     "id": "p5",
+     "type": "multipleChoice",
+     "prompt": "The two KCL equations are written as $\\mathbf{G}\\mathbf{v} = \\mathbf{i}$ with $\\mathbf{v} = [v_1\\ v_2]^T$. What is the off-diagonal entry $G_{12}$?",
+     "options": [
+      "$-\\frac{1}{R_3}$",
+      "$+\\frac{1}{R_3}$",
+      "$\\frac{1}{R_1} + \\frac{1}{R_2} + \\frac{1}{R_3}$",
+      "$-\\frac{1}{R_2}$"
+     ],
+     "answer": 0,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         7,
+         2
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "I_s",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "In the node-1 equation, $v_2$ only appears through $R_3$: $\\frac{v_1 - v_2}{R_3}$ contributes $-\\frac{1}{R_3}v_2$. So $G_{12} = G_{21} = -1/R_3$, minus the conductance between the two nodes. $\\frac{1}{R_1}+\\frac{1}{R_2}+\\frac{1}{R_3}$ is the diagonal entry $G_{11}$."
+    },
+    {
+     "id": "t2",
+     "type": "tapCircuit",
+     "prompt": "Ground is the reference. Tap the nodes that together form a **supernode**.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "name": "Is",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "name": "n1",
+        "label": "1"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "vsource",
+        "name": "Vx",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "V_x"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "name": "n2",
+        "label": "2"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ],
+        "name": "n3",
+        "label": "3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "n1",
+      "n2",
+      "n3"
+     ],
+     "answer": [
+      "n1",
+      "n2"
+     ],
+     "explanation": "A supernode appears when a voltage source sits **between two non-reference nodes**. $V_x$ connects node 1 and node 2, so you cannot write the current through it from Ohm's law. Instead, draw a surface around nodes 1 and 2 (and $V_x$), write one KCL equation for that whole surface, and add the constraint $v_2 - v_1 = V_x$.\nNode 3 is an ordinary node (only resistors), and the ground node is the reference."
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "prompt": "Nodes 1 and 2 form a supernode. With $I_s$ = {{Is|A}}, $V_x$ = {{Vx|V}}, $R_1$ = {{R1|Ω}} and $R_2$ = {{R2|Ω}}, find $v_2$.",
+     "params": {
+      "Is": [
+       0.001,
+       0.002,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "Vx": [
+       2,
+       3,
+       4,
+       5,
+       6,
+       8,
+       10
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      }
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "v2": "(Is + Vx*G1)/(G1 + G2)"
+     },
+     "answer": "v2",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "vsource",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "V_x",
+        "value": "{{Vx|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "hint": "Use $v_1 = v_2 - V_x$ in the supernode KCL equation.",
+     "explanation": "Supernode KCL (current $I_s$ enters, currents through $R_1$ and $R_2$ leave):\n$I_s = \\frac{v_1}{R_1} + \\frac{v_2}{R_2}$ with constraint $v_2 - v_1 = V_x$.\nSubstitute $v_1 = v_2 - V_x$: $v_2\\left(\\frac{1}{R_1} + \\frac{1}{R_2}\\right) = I_s + \\frac{V_x}{R_1}$\n$v_2$ = ({{Is*1e3}} + {{Vx*G1*1e3}}) mA / {{(G1+G2)*1e3}} mS = **{{v2|V}}**"
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "prompt": "Same circuit: $I_s$ = {{Is|A}}, $V_x$ = {{Vx|V}}, $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}}. Find the current through the voltage source, flowing from node 1 to node 2.",
+     "params": {
+      "Is": [
+       0.001,
+       0.002,
+       0.003,
+       0.004,
+       0.005
+      ],
+      "Vx": [
+       2,
+       3,
+       4,
+       5,
+       6,
+       8,
+       10
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      }
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "v2": "(Is + Vx*G1)/(G1 + G2)",
+      "v1": "v2 - Vx"
+     },
+     "answer": "v2/R2",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "vsource",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "V_x",
+        "value": "{{Vx|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          4.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "First solve the supernode: $v_2 = \\frac{I_s + V_x/R_1}{1/R_1 + 1/R_2}$ = {{v2|V}} and $v_1 = v_2 - V_x$ = {{v1|V}}.\nKCL at node 2 alone: everything arriving through the source leaves through $R_2$, so $i = \\frac{v_2}{R_2}$ = {{v2|V}} / {{R2|Ω}} = **{{v2/R2|A}}**.\nCheck at node 1: $I_s - v_1/R_1$ = {{Is|A}} − ({{v1/R1|A}}) = {{Is - v1/R1|A}}."
+    },
+    {
+     "id": "p8",
+     "type": "trueFalse",
+     "prompt": "If you write node equations with resistances in kΩ and currents in mA, the node voltages come out directly in volts.",
+     "answer": true,
+     "explanation": "True: kΩ × mA = 10³ Ω × 10⁻³ A = V. Equivalently, conductances in mS times volts give mA. This keeps hand calculations free of powers of ten."
+    }
+   ]
+  },
+  {
+   "id": "ct-node-3",
+   "title": "Dependent sources and power",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "multipleChoice",
+     "prompt": "The diamond is a dependent current source of value {{a}}$\\,i_x$, where $i_x$ is the current down through $R_1$. Which equation is KCL at node 2?",
+     "params": {
+      "a": [
+       2,
+       3,
+       4
+      ]
+     },
+     "options": [
+      "$\\frac{v_2 - v_1}{R_2} + \\frac{v_2}{R_3} + \\frac{ {{a}}\\,v_1}{R_1} = 0$",
+      "$\\frac{v_2 - v_1}{R_2} + \\frac{v_2}{R_3} - \\frac{ {{a}}\\,v_1}{R_1} = 0$",
+      "$\\frac{v_2 - v_1}{R_2} + \\frac{v_2}{R_3} = 0$",
+      "$\\frac{v_2 - v_1}{R_2} + \\frac{v_2}{R_3} + \\frac{ {{a}}\\,v_2}{R_3} = 0$"
+     ],
+     "answer": 0,
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "arrow",
+        "from": [
+         2,
+         1.45
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "i_x",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "ccsource",
+        "from": [
+         6.5,
+         0
+        ],
+        "to": [
+         6.5,
+         2
+        ],
+        "label": "{{a}} i_x"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "The dependent source carries {{a}}$\\,i_x$ **out of** node 2 (arrow points down), so it is a leaving current like the resistor currents. The controlling current is the current down through $R_1$: $i_x = v_1/R_1$. Substituting gives $\\frac{v_2 - v_1}{R_2} + \\frac{v_2}{R_3} + \\frac{ {{a}}\\,v_1}{R_1} = 0$. Ignoring the dependent source, flipping its sign or using the wrong controlling variable gives the other options."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "prompt": "Find $v_1$. The dependent source delivers {{a}}$\\,i_x$ (arrow down), where $i_x$ is the current down through $R_1$.",
+     "params": {
+      "Is": [
+       0.002,
+       0.004,
+       0.005,
+       0.01
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "a": [
+       2,
+       3,
+       4
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "a11": "G1 + G2",
+      "a21": "a*G1 - G2",
+      "a22": "G2 + G3",
+      "D": "a11*a22 + G2*a21",
+      "v1": "Is*a22/D",
+      "v2": "-a21*Is/D"
+     },
+     "require": "abs(R1 - a*R2) - 0.2*R1",
+     "answer": "v1",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "arrow",
+        "from": [
+         2,
+         1.45
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "i_x",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "ccsource",
+        "from": [
+         6.5,
+         0
+        ],
+        "to": [
+         6.5,
+         2
+        ],
+        "label": "{{a}} i_x"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "Node 1: $\\frac{v_1}{R_1} + \\frac{v_1 - v_2}{R_2} = I_s$\nNode 2: $\\frac{v_2 - v_1}{R_2} + \\frac{v_2}{R_3} + {{a}}\\,i_x = 0$ with $i_x = \\frac{v_1}{R_1}$\nIn mS and mA:\n$$ {{a11*1e3}}\\,v_1 - {{G2*1e3}}\\,v_2 = {{Is*1e3}} $$\n$$ {{a21*1e3}}\\,v_1 + {{a22*1e3}}\\,v_2 = 0 $$\n$\\Delta$ = {{a11*1e3}}·{{a22*1e3}} − (−{{G2*1e3}})·({{a21*1e3}}) = {{D*1e6}}\n$v_1 = \\frac{I_s\\,G_{22}}{\\Delta}$ = {{Is*1e3}}·{{a22*1e3}} / {{D*1e6}} = **{{v1|V}}**"
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "prompt": "Same circuit. Find $v_2$ (it may be negative).",
+     "params": {
+      "Is": [
+       0.002,
+       0.004,
+       0.005,
+       0.01
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "a": [
+       2,
+       3,
+       4
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "a11": "G1 + G2",
+      "a21": "a*G1 - G2",
+      "a22": "G2 + G3",
+      "D": "a11*a22 + G2*a21",
+      "v1": "Is*a22/D",
+      "v2": "-a21*Is/D"
+     },
+     "require": "abs(R1 - a*R2) - 0.2*R1",
+     "answer": "v2",
+     "unit": "V",
+     "absTolerance": 0.01,
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "arrow",
+        "from": [
+         2,
+         1.45
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "i_x",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "ccsource",
+        "from": [
+         6.5,
+         0
+        ],
+        "to": [
+         6.5,
+         2
+        ],
+        "label": "{{a}} i_x"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "Node 1: $\\frac{v_1}{R_1} + \\frac{v_1 - v_2}{R_2} = I_s$\nNode 2: $\\frac{v_2 - v_1}{R_2} + \\frac{v_2}{R_3} + {{a}}\\,i_x = 0$ with $i_x = \\frac{v_1}{R_1}$\nIn mS and mA:\n$$ {{a11*1e3}}\\,v_1 - {{G2*1e3}}\\,v_2 = {{Is*1e3}} $$\n$$ {{a21*1e3}}\\,v_1 + {{a22*1e3}}\\,v_2 = 0 $$\n$\\Delta$ = {{a11*1e3}}·{{a22*1e3}} − (−{{G2*1e3}})·({{a21*1e3}}) = {{D*1e6}}\n$v_2 = \\frac{-G_{21} I_s}{\\Delta}$ = −({{a21*1e3}})·{{Is*1e3}} / {{D*1e6}} = **{{v2|V}}**\nA negative $v_2$ means the dependent source pulls more current out of node 2 than $R_2$ can supply at a positive voltage."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "prompt": "Same circuit. Find the current through $R_2$ flowing from node 1 to node 2.",
+     "params": {
+      "Is": [
+       0.002,
+       0.004,
+       0.005,
+       0.01
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "a": [
+       2,
+       3,
+       4
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "a11": "G1 + G2",
+      "a21": "a*G1 - G2",
+      "a22": "G2 + G3",
+      "D": "a11*a22 + G2*a21",
+      "v1": "Is*a22/D",
+      "v2": "-a21*Is/D"
+     },
+     "require": "abs(R1 - a*R2) - 0.2*R1",
+     "answer": "(v1 - v2)/R2",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "arrow",
+        "from": [
+         2,
+         1.45
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "i_x",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          6.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "ccsource",
+        "from": [
+         6.5,
+         0
+        ],
+        "to": [
+         6.5,
+         2
+        ],
+        "label": "{{a}} i_x"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6.5,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "Node 1: $\\frac{v_1}{R_1} + \\frac{v_1 - v_2}{R_2} = I_s$\nNode 2: $\\frac{v_2 - v_1}{R_2} + \\frac{v_2}{R_3} + {{a}}\\,i_x = 0$ with $i_x = \\frac{v_1}{R_1}$\nIn mS and mA:\n$$ {{a11*1e3}}\\,v_1 - {{G2*1e3}}\\,v_2 = {{Is*1e3}} $$\n$$ {{a21*1e3}}\\,v_1 + {{a22*1e3}}\\,v_2 = 0 $$\n$\\Delta$ = {{a11*1e3}}·{{a22*1e3}} − (−{{G2*1e3}})·({{a21*1e3}}) = {{D*1e6}}\n$v_1$ = {{v1|V}}, $v_2$ = {{v2|V}}, so $i = \\frac{v_1 - v_2}{R_2}$ = {{v1 - v2|V}} / {{R2|Ω}} = **{{(v1 - v2)/R2|A}}**.\nCheck with KCL at node 2: this current must equal $v_2/R_3 + {{a}}\\,i_x$ = {{v2/R3 + a*v1/R1|A}}."
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "prompt": "Back to the two-node ladder circuit. Find the power **delivered** by the current source $I_s$.",
+     "params": {
+      "Vs": [
+       6,
+       9,
+       10,
+       12,
+       15,
+       18,
+       24
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "R4": {
+       "min": 1000,
+       "max": 10000,
+       "step": 1000
+      },
+      "Is": [
+       0.001,
+       0.002,
+       0.003,
+       0.004,
+       0.005
+      ]
+     },
+     "derived": {
+      "G1": "1/R1",
+      "G2": "1/R2",
+      "G3": "1/R3",
+      "G4": "1/R4",
+      "a11": "G1 + G2 + G3",
+      "a22": "G3 + G4",
+      "b1": "Vs/R1",
+      "D": "a11*a22 - G3^2",
+      "v1": "(b1*a22 + G3*Is)/D",
+      "v2": "(a11*Is + G3*b1)/D"
+     },
+     "answer": "v2*Is",
+     "unit": "W",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4.5,
+         0
+        ],
+        "to": [
+         4.5,
+         2
+        ],
+        "label": "R_4",
+        "value": "{{R4|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          7,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "isource",
+        "from": [
+         7,
+         2
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          7,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "label": "v_1"
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         0
+        ],
+        "label": "v_2"
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4.5,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3.25,
+         2
+        ]
+       }
+      ]
+     },
+     "hint": "The voltage across the current source equals $v_2$, + at the top.",
+     "explanation": "Write KCL with currents **leaving** each node:\n- Node 1: $\\frac{v_1 - V_s}{R_1} + \\frac{v_1}{R_2} + \\frac{v_1 - v_2}{R_3} = 0$\n- Node 2: $\\frac{v_2 - v_1}{R_3} + \\frac{v_2}{R_4} = I_s$\nWith conductances in mS and currents in mA:\n$$ {{a11*1e3}}\\,v_1 - {{G3*1e3}}\\,v_2 = {{b1*1e3}} $$\n$$ -{{G3*1e3}}\\,v_1 + {{a22*1e3}}\\,v_2 = {{Is*1e3}} $$\nDeterminant: $\\Delta$ = {{a11*1e3}}·{{a22*1e3}} − {{G3*1e3}}² = {{D*1e6}}\n$v_2 = \\frac{G_{11} I_s + G_3 b_1}{\\Delta}$ = {{v2|V}}.\nThe current $I_s$ leaves the source at its + (top) terminal, so the source delivers $P = v_2 I_s$ = {{v2|V}} × {{Is|A}} = **{{v2*Is|W}}**."
+    },
+    {
+     "id": "c6",
+     "type": "trueFalse",
+     "prompt": "When a circuit contains a dependent source, the conductance matrix $\\mathbf{G}$ of the node equations is still always symmetric.",
+     "answer": false,
+     "explanation": "False. In the dependent-source circuit, node 2's equation contains $\\left(\\frac{ {{a}} }{R_1} - \\frac{1}{R_2}\\right)v_1$ while node 1's contains $-\\frac{1}{R_2}v_2$, so $G_{21} \\neq G_{12}$. Symmetry only holds for circuits of resistors and independent sources.",
+     "params": {
+      "a": [
+       2,
+       3,
+       4
+      ]
+     }
+    },
+    {
+     "id": "t3",
+     "type": "tapCircuit",
+     "prompt": "Ground is the reference. Tap every node whose voltage you know **without writing any KCL equation**.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs1",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ],
+        "name": "a",
+        "label": "a"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "vsource",
+        "name": "Vs2",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "V_{s2}"
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ],
+        "name": "c",
+        "label": "c"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ],
+        "name": "b",
+        "label": "b"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         0,
+         2
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "a",
+      "b",
+      "c"
+     ],
+     "answer": [
+      "a",
+      "c"
+     ],
+     "explanation": "- $v_a = V_{s1}$: the source connects a directly to the reference.\n- $v_c = v_a + V_{s2} = V_{s1} + V_{s2}$: the second source fixes the difference between c and a (+ at c).\n- $v_b$ depends on the resistors, so it needs one KCL equation: $\\frac{v_b - v_c}{R_3} + \\frac{v_b}{R_4} = 0$.\nVoltage sources reduce the number of unknowns: here only one equation is left."
+    }
+   ]
+  }
+ ]
+}

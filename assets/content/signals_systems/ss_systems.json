@@ -1,0 +1,537 @@
+{
+  "id": "ss-systems",
+  "title": "System Properties",
+  "description": "Classify systems as linear, time-invariant, causal, memoryless, invertible and stable.",
+  "reference": "Phillips §2.6–2.7",
+  "study": [
+    {
+      "title": "Linearity",
+      "body": "A system is **linear** if it obeys superposition: if $x_1 \\to y_1$ and $x_2 \\to y_2$, then scaled and added inputs give the same combination of outputs. Quick checks: zero input must give zero output, and doubling the input must double the output. $y = 2x(t) + 3$ fails (offset), $y = x^2(t)$ fails (doubling gives ×4), but $y = t\\,x(t)$ and $y = x(t-1)$ are linear.",
+      "formula": "a x_1 + b x_2 \\;\\to\\; a y_1 + b y_2",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            "label": "x(t)"
+          },
+          {
+            "type": "block",
+            "at": [
+              3,
+              0
+            ],
+            "label": "System"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ],
+            "label": "y(t)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Time invariance",
+      "body": "A system is **time-invariant** if delaying the input just delays the output. Test: feed $x(t - t_0)$ and compare with $y(t - t_0)$. Red flags for time variance: an explicit $t$ outside the argument of $x$ (like $t\\,x(t)$ or $\\cos(t)\\,x(t)$), and time scaling or reversal ($x(2t)$, $x(-t)$).",
+      "formula": "x(t - t_0) \\to y(t - t_0) \\quad \\text{for every } t_0"
+    },
+    {
+      "title": "Memory and causality",
+      "body": "**Memoryless:** $y(t)$ depends only on $x$ at the same instant ($y = 3x^2(t)$). **Causal:** $y(t)$ depends only on present and past inputs. $x(t+1)$ is non-causal.\n**Pitfall:** $y(t) = x(t/2)$ is non-causal, because at $t = -2$ it needs $x(-1)$, a future value. Every memoryless system is causal."
+    },
+    {
+      "title": "BIBO stability",
+      "body": "A system is **BIBO stable** if every bounded input ($|x| \\le M$) gives a bounded output. The integrator fails: a step input gives a ramp. $y = t\\,x(t)$ fails too. An LTI system is stable exactly when its impulse response is absolutely integrable:",
+      "formula": "\\int_{-\\infty}^{\\infty}|h(t)|\\,dt < \\infty"
+    },
+    {
+      "title": "Invertibility",
+      "body": "A system is **invertible** if different inputs always give different outputs, so the input can be recovered. $y = x(t - 2)$ (inverse: advance by 2) and $y = 3x + 1$ (inverse: $(y-1)/3$) are invertible. $y = x^2$ loses the sign and $y = dx/dt$ loses constants, so they are not."
+    },
+    {
+      "title": "Worked example: a modulator",
+      "body": "$y(t) = x(t)\\cos(\\omega_0 t)$:\n- **Linear:** $(ax_1 + bx_2)\\cos = a y_1 + b y_2$.\n- **Time-varying:** a delayed input gives $x(t-t_0)\\cos(\\omega_0 t) \\ne y(t - t_0)$.\n- **Memoryless and causal:** uses only $x(t)$.\n- **Stable:** $|y| \\le |x|$.\n- **Not invertible:** $x$ is lost wherever $\\cos(\\omega_0 t) = 0$."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ss-systems-1",
+      "title": "What a system can be",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Systems and linearity",
+          "body": "A system maps an input signal $x(t)$ to an output $y(t)$. It is **linear** when superposition holds: the response to $a x_1 + b x_2$ is $a y_1 + b y_2$. Two quick tests: zero in must give zero out, and doubling the input must double the output.",
+          "formula": "T\\{a x_1 + b x_2\\} = a\\,T\\{x_1\\} + b\\,T\\{x_2\\}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ],
+                "label": "x(t)"
+              },
+              {
+                "type": "block",
+                "at": [
+                  3,
+                  0
+                ],
+                "label": "System"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ],
+                "label": "y(t)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Which system is **linear**?",
+          "options": [
+            "$y(t) = t\\,x(t)$",
+            "$y(t) = 3x(t) + 2$",
+            "$y(t) = x^2(t)$",
+            "$y(t) = |x(t)|$"
+          ],
+          "answer": 0,
+          "explanation": "$t\\,[a x_1 + b x_2] = a\\,t x_1 + b\\,t x_2$: superposition holds (the factor $t$ makes it time-varying, not nonlinear). $3x+2$ gives 2 for zero input; $x^2$ and $|x|$ do not scale: doubling $x$ quadruples $x^2$, and $|-x| \\ne -|x|$."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Time invariance",
+          "body": "A system is **time-invariant** if a delayed input produces the same output, just delayed. To test: apply $x(t - t_0)$, compute the output, and compare it with $y(t - t_0)$. An explicit $t$ multiplying the signal, or a scaled time argument like $x(2t)$, usually breaks it.",
+          "formula": "x(t) \\to y(t) \\;\\Rightarrow\\; x(t - t_0) \\to y(t - t_0)"
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "The system $y(t) = x(2t)$ is time-invariant.",
+          "answer": false,
+          "explanation": "Delay the input: $x_1(t) = x(t - t_0)$ gives $y_1(t) = x_1(2t) = x(2t - t_0)$. But the delayed output is $y(t - t_0) = x(2t - 2t_0)$. They differ, so the compressor is **time-varying**."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Memory and causality",
+          "body": "A **memoryless** system uses only the present input value: $y(t) = f(x(t))$. A **causal** system may use present and past inputs, but never future ones; every physical real-time system is causal.",
+          "formula": "y(t_1) \\text{ depends only on } x(t),\\ t \\le t_1"
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "Which system is **causal**?",
+          "options": [
+            "$y(t) = x(t) + x(t - 1)$",
+            "$y(t) = x(t + 1)$",
+            "$y(t) = x(-t)$",
+            "$y(t) = x(2t)$"
+          ],
+          "answer": 0,
+          "explanation": "$x(t) + x(t-1)$ uses the present and one second ago. $x(t+1)$ needs the future. $x(-t)$ at $t = -1$ needs $x(1)$, which is future. $x(2t)$ at $t = 1$ needs $x(2)$, also future."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Stability and invertibility",
+          "body": "**BIBO stable:** every bounded input gives a bounded output. An integrator is not: a constant input produces an ever-growing ramp. **Invertible:** the input can always be recovered from the output; $y = x^2$ is not invertible because $x$ and $-x$ give the same output.",
+          "formula": "|x(t)| \\le M \\;\\Rightarrow\\; |y(t)| \\le K < \\infty"
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Each system has exactly one of these four properties missing: linearity, time invariance, causality, stability. Match each to the one it lacks.",
+          "pairs": [
+            [
+              "$y(t) = \\int_{-\\infty}^{t}x(\\tau)d\\tau$",
+              "Stability"
+            ],
+            [
+              "$y(t) = x(t + 1)$",
+              "Causality"
+            ],
+            [
+              "$y(t) = \\cos(t)\\,x(t)$",
+              "Time invariance"
+            ],
+            [
+              "$y(t) = x^2(t)$",
+              "Linearity"
+            ]
+          ],
+          "explanation": "- Integrator: linear, time-invariant, causal, but a step input gives an unbounded ramp.\n- $x(t+1)$: an LTI advance, stable, but it uses the future.\n- $\\cos(t)x(t)$: linear, causal, $|y| \\le |x|$, but the gain changes with time.\n- $x^2$: time-invariant, causal, stable for bounded $x$, but not linear."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "The system $y(t) = x(t) + 1$ is linear.",
+          "answer": false,
+          "explanation": "With $x = 0$ the output is 1, not 0. Superposition fails: $x_1 + x_2$ gives $x_1 + x_2 + 1$, while $y_1 + y_2 = x_1 + x_2 + 2$. Such a system is called **incrementally linear** (linear plus an offset)."
+        }
+      ]
+    },
+    {
+      "id": "ss-systems-2",
+      "title": "Classifying systems",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "$y(t) = x(t)\\cos(100t)$ (an AM modulator) is",
+          "options": [
+            "linear and time-varying",
+            "linear and time-invariant",
+            "nonlinear and time-invariant",
+            "nonlinear and time-varying"
+          ],
+          "answer": 0,
+          "explanation": "Linear: $(a x_1 + b x_2)\\cos(100t) = a y_1 + b y_2$. Time-varying: the input $x(t - t_0)$ gives $x(t - t_0)\\cos(100t)$, but $y(t - t_0) = x(t - t_0)\\cos(100(t - t_0))$. The carrier does not shift with the input."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "$y[n] = x[n + 1] - x[n]$ is",
+          "options": [
+            "LTI and non-causal",
+            "LTI and causal",
+            "linear, time-varying and causal",
+            "nonlinear and non-causal"
+          ],
+          "answer": 0,
+          "explanation": "It is a sum of shifted inputs with constant coefficients, so it is linear and time-invariant. $y[n]$ needs $x[n+1]$, one sample in the future, so it is non-causal. (The backward difference $x[n] - x[n-1]$ would be causal.)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "A linear system gives $y_1({{t0}}) = {{p}}$ for input $x_1$ and $y_2({{t0}}) = {{q}}$ for input $x_2$. Find the output at $t = {{t0}}$ for input $x(t) = {{a}}x_1(t) - {{b}}x_2(t)$.",
+          "answer": "a*p - b*q",
+          "unit": "",
+          "explanation": "Superposition: $y = {{a}}y_1 - {{b}}y_2$, so $y({{t0}}) = {{a}}\\cdot({{p}}) - {{b}}\\cdot({{q}})$ = {{a*p-b*q}}. Linearity alone is enough here, since both inputs go into the same system at the same time.",
+          "params": {
+            "p": [
+              2,
+              3,
+              5,
+              -1
+            ],
+            "q": [
+              1,
+              4,
+              -2
+            ],
+            "a": [
+              2,
+              3
+            ],
+            "b": [
+              1,
+              2,
+              4
+            ],
+            "t0": [
+              1,
+              2,
+              3
+            ]
+          },
+          "absTolerance": 0.01
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "An LTI system responds to $x(t)$ with $y(t) = {{A}}\\left(1 - e^{-t/{{tau}}}\\right)u(t)$ ($t$ in s). Find the output at $t = {{t0}}$ s when the input is ${{K}}\\,x(t - {{T}})$.",
+          "answer": "K*A*(1-exp(-(t0-T)/tau))",
+          "unit": "",
+          "explanation": "Time invariance: the delay carries over, so the output is ${{K}}\\,y(t - {{T}})$ (linearity gives the factor {{K}}). At $t = {{t0}}$: ${{K}}\\cdot{{A}}\\left(1 - e^{-({{t0}} - {{T}})/{{tau}}}\\right)$ = {{K*A*(1-exp(-(t0-T)/tau))}}.",
+          "params": {
+            "A": [
+              2,
+              5,
+              10
+            ],
+            "tau": [
+              0.5,
+              2,
+              4
+            ],
+            "T": [
+              1,
+              2
+            ],
+            "K": [
+              2,
+              3
+            ],
+            "t0": [
+              3,
+              4,
+              5
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "The system $y(t) = x(t/2)$ is causal.",
+          "answer": false,
+          "explanation": "For $t > 0$, $t/2 < t$, so it looks into the past. But for negative times, e.g. $t = -4$, it needs $x(-2)$, which lies in the **future**. A system must be causal for all $t$, so this one is not."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "prompt": "An LTI system has $h(t) = {{K}}e^{-{{a}}t}u(t)$. The input is bounded by $|x(t)| \\le {{M}}$. Find the guaranteed upper bound on $|y(t)|$ from $|y| \\le M\\int|h|\\,dt$.",
+          "answer": "M*K/a",
+          "unit": "",
+          "explanation": "$|y(t)| = \\left|\\int h(\\tau)x(t - \\tau)d\\tau\\right| \\le M\\int_0^\\infty {{K}}e^{-{{a}}\\tau}d\\tau = M\\frac{K}{a} = {{M}}\\cdot\\frac{ {{K}} }{ {{a}} }$ = {{M*K/a}}. Since $\\int|h| = {{K/a}}$ is finite, the system is BIBO stable.",
+          "params": {
+            "K": [
+              2,
+              5,
+              10
+            ],
+            "a": [
+              0.5,
+              2,
+              4,
+              5
+            ],
+            "M": [
+              1,
+              3,
+              5
+            ]
+          }
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "Which system is **not** invertible?",
+          "options": [
+            "$y(t) = x^2(t)$",
+            "$y(t) = x^3(t)$",
+            "$y(t) = x(t - 3)$",
+            "$y(t) = 4x(t) + 1$"
+          ],
+          "answer": 0,
+          "explanation": "$x^2$ maps $x$ and $-x$ to the same output, so the sign is lost. $x^3$ is one-to-one (inverse: cube root), a delay is undone by an advance, and $4x+1$ is undone by $(y - 1)/4$."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "Every memoryless system is causal.",
+          "answer": true,
+          "explanation": "Memoryless means $y(t)$ uses only $x(t)$ at the same instant. That is never a future value, so the system is automatically causal. The converse is false: a delay $x(t - 1)$ is causal but has memory."
+        },
+        {
+          "id": "q9",
+          "type": "multipleChoice",
+          "prompt": "$y[n] = n\\,x[n]$ is",
+          "options": [
+            "linear, time-varying, memoryless and unstable",
+            "linear, time-invariant, memoryless and stable",
+            "nonlinear, time-varying, causal and stable",
+            "linear, time-varying, with memory and stable"
+          ],
+          "answer": 0,
+          "explanation": "Linear: $n(a x_1 + b x_2) = a y_1 + b y_2$. Time-varying: the gain $n$ changes with time. Memoryless: only $x[n]$ is used. Unstable: the bounded input $x[n] = 1$ gives $y[n] = n$, which grows without limit."
+        }
+      ]
+    },
+    {
+      "id": "ss-systems-3",
+      "title": "Tricky cases",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "$y(t) = \\int_{-\\infty}^{2t}x(\\tau)\\,d\\tau$. Which property does this system **have**?",
+          "options": [
+            "Linearity",
+            "Time invariance",
+            "Causality",
+            "BIBO stability"
+          ],
+          "answer": 0,
+          "explanation": "- Linear: the integral of $a x_1 + b x_2$ is $a y_1 + b y_2$.\n- Time-varying: $x(t - t_0)$ gives $\\int_{-\\infty}^{2t - t_0}x$, but $y(t - t_0) = \\int_{-\\infty}^{2t - 2t_0}x$.\n- Non-causal: for $t>0$ it integrates up to $2t > t$.\n- Unstable: a step gives an unbounded ramp."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "$y(t) = x(t)\\,x(t - 1)$. Which property does it **lack**?",
+          "options": [
+            "Linearity",
+            "Time invariance",
+            "Causality",
+            "BIBO stability"
+          ],
+          "answer": 0,
+          "explanation": "Doubling $x$ quadruples $y$, so it is not linear. It is time-invariant (both factors shift together), causal (present and past only) and stable ($|y| \\le M^2$). It does have memory, through $x(t-1)$."
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "An LTI system with impulse response $h(t) = u(t)$ is BIBO stable.",
+          "answer": false,
+          "explanation": "$\\int_{-\\infty}^{\\infty}|u(t)|dt = \\int_0^\\infty 1\\,dt = \\infty$. This $h$ is the integrator: the bounded input $u(t)$ gives the unbounded output $r(t) = t\\,u(t)$."
+        },
+        {
+          "id": "q4",
+          "type": "orderSteps",
+          "prompt": "Order the steps to test whether a system is time-invariant.",
+          "items": [
+            "Find the output $y(t)$ for a general input $x(t)$",
+            "Apply the delayed input $x(t - t_0)$ and compute its output $y_1(t)$",
+            "Delay the original output to get $y(t - t_0)$",
+            "Compare: if $y_1(t) = y(t - t_0)$ for every $x$ and $t_0$, it is time-invariant"
+          ],
+          "explanation": "Two outputs are compared: the response to the shifted input, and the shifted response. Be careful in the first: replace $x(\\cdot)$ by $x(\\cdot - t_0)$ **only inside $x$**, not every $t$ in the formula."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "The downsampler $y[n] = x[2n]$ is",
+          "options": [
+            "linear and time-varying",
+            "linear and time-invariant",
+            "nonlinear and time-invariant",
+            "nonlinear and time-varying"
+          ],
+          "answer": 0,
+          "explanation": "Linear: $a x_1[2n] + b x_2[2n] = a y_1 + b y_2$. Time-varying: delaying the input by 1 gives $x[2n - 1]$, which picks the **odd** samples, while $y[n - 1] = x[2n - 2]$ picks the even ones. No shift of $y$ can produce the odd samples."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "prompt": "A sensor amplifier gives {{m+c}} V out for 1 V in and {{3*m+c}} V out for 3 V in. Assuming $y = a x + b$, find the output for {{x0}} V in.",
+          "answer": "m*x0+c",
+          "unit": "V",
+          "explanation": "Slope $a = \\frac{ {{3*m+c}} - {{m+c}} }{3 - 1}$ = {{m}}, offset $b = {{m+c}} - {{m}}$ = {{c}} V. Output: ${{m}}\\cdot{{x0}} + {{c}}$ = {{m*x0+c}} V. Scaling the 1 V result by {{x0}} (giving {{(m+c)*x0}} V) would be wrong: with the offset the system is not linear, only incrementally linear.",
+          "params": {
+            "m": [
+              2,
+              3,
+              4
+            ],
+            "c": [
+              1,
+              2,
+              5
+            ],
+            "x0": [
+              4,
+              5,
+              6
+            ]
+          }
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "prompt": "An LTI system has step response $s(t) = \\left(1 - e^{-t/{{tau}}}\\right)u(t)$ ($t$ in s). The input is a pulse ${{A}}\\left[u(t) - u(t - {{T}})\\right]$. Find the output at $t = {{t0}}$ s.",
+          "answer": "A*((1-exp(-t0/tau)) - (1-exp(-(t0-T)/tau)))",
+          "unit": "",
+          "explanation": "Linearity and time invariance: the pulse is ${{A}}u(t) - {{A}}u(t - {{T}})$, so $y(t) = {{A}}\\left[s(t) - s(t - {{T}})\\right]$. At $t = {{t0}}$: ${{A}}\\left[(1 - e^{-{{t0}}/{{tau}}}) - (1 - e^{-{{t0-T}}/{{tau}}})\\right]$ = {{A*((1-exp(-t0/tau)) - (1-exp(-(t0-T)/tau)))}}.",
+          "params": {
+            "A": [
+              2,
+              5,
+              10
+            ],
+            "tau": [
+              0.5,
+              2
+            ],
+            "T": [
+              1,
+              2
+            ],
+            "t0": [
+              3,
+              4
+            ]
+          },
+          "plot": {
+            "x": {
+              "min": -1,
+              "max": 6,
+              "label": "t (s)",
+              "ticks": [
+                -1,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ]
+            },
+            "y": {
+              "min": -0.1,
+              "max": "1.3*A",
+              "label": ""
+            },
+            "curves": [
+              {
+                "f": "A*(step(x)-step(x-T))",
+                "label": "x(t)",
+                "labelAt": 0.85
+              }
+            ]
+          }
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "$y(t) = \\sin\\big(x(t)\\big)$ is BIBO stable.",
+          "answer": true,
+          "explanation": "Whatever the input, $|\\sin(\\cdot)| \\le 1$, so the output is always bounded by 1. (It is nonlinear, memoryless and time-invariant.)"
+        }
+      ]
+    }
+  ]
+}

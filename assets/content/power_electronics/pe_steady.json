@@ -1,0 +1,1504 @@
+{
+  "id": "pe-steady",
+  "title": "Steady-State Analysis",
+  "description": "Find any converter's conversion ratio and ripples from inductor volt-second balance, capacitor charge balance and the small-ripple approximation.",
+  "reference": "Erickson ch. 2",
+  "study": [
+    {
+      "title": "Inductor volt-second balance",
+      "body": "In steady state the inductor current at the end of every period equals its value at the start. Since $v_L = L\\,di_L/dt$, the net change over a period is $\\frac{1}{L}\\int_0^{T_s} v_L\\,dt = 0$: the **average inductor voltage is zero**. The positive volt-seconds of one interval must cancel the negative volt-seconds of the other. This single rule gives the conversion ratio of every converter.",
+      "formula": "\\langle v_L\\rangle = \\frac{1}{T_s}\\int_0^{T_s} v_L(t)\\,dt = 0"
+    },
+    {
+      "title": "Capacitor charge balance",
+      "body": "Likewise the capacitor voltage repeats every period, so the net charge put into a capacitor over one period is zero: the **average capacitor current is zero**. For the output capacitor this means the average current flowing into the output node equals the load current $V/R$. Charge balance gives the DC inductor current.",
+      "formula": "\\langle i_C\\rangle = \\frac{1}{T_s}\\int_0^{T_s} i_C(t)\\,dt = 0"
+    },
+    {
+      "title": "The small-ripple approximation",
+      "body": "In a good converter the output ripple is a small fraction of $V$. So when writing the inductor voltage in each interval, replace $v(t)$ by its DC value $V$ (and inductor currents by their DC values $I$). Each inductor voltage is then a constant per interval, the inductor current consists of straight lines, and the balance equations become simple algebra. (Do not use it to compute the output ripple of an LC filter: there the inductor ripple **is** the capacitor current.)",
+      "formula": "v(t) = V + v_{ripple}(t) \\approx V"
+    },
+    {
+      "title": "Example: the buck converter",
+      "body": "Interval 1 ($DT_s$, $Q_1$ on): $v_L = V_g - V$, $i_C = i_L - V/R$. Interval 2 ($D'T_s$, $D_1$ on): $v_L = -V$, $i_C = i_L - V/R$. Volt-second balance gives $D(V_g - V) - D'V = 0$, so $V = DV_g$. Charge balance gives $I = V/R$: the inductor carries the load current.",
+      "formula": "\\begin{aligned}& D(V_g - V) - D'V = 0\\\\ & M(D) = \\frac{V}{V_g} = D\\end{aligned}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              3
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_g"
+          },
+          {
+            "type": "switch",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "diode",
+            "from": [
+              2,
+              3
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "D_1"
+          },
+          {
+            "type": "inductor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "label": "L"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              3
+            ],
+            "label": "C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              3
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                3
+              ],
+              [
+                6,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              3
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Example: the boost converter",
+      "body": "Interval 1 ($Q_1$ on): $v_L = V_g$, and the capacitor alone feeds the load, $i_C = -V/R$. Interval 2 ($D_1$ on): $v_L = V_g - V$, $i_C = I - V/R$. Volt-seconds: $DV_g + D'(V_g - V) = 0$, so $V = V_g/D'$. Charge: $-DV/R + D'(I - V/R) = 0$, so the inductor (input) current is $I = V/(D'R)$.",
+      "formula": "\\begin{aligned}& M(D) = \\frac{V}{V_g} = \\frac{1}{1 - D}\\\\ & I = \\frac{V}{D'R}\\end{aligned}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              3
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_g"
+          },
+          {
+            "type": "inductor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "L"
+          },
+          {
+            "type": "switch",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              2,
+              3
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "diode",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "label": "D_1"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              3
+            ],
+            "label": "C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              3
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                3
+              ],
+              [
+                6,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              3
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: inductor current ripple",
+      "body": "With constant inductor voltages, $i_L$ rises with slope $(V_g - V)/L$ for $DT_s$ and falls with slope $-V/L$ for $D'T_s$ (buck). Erickson writes the ripple as $\\Delta i_L$, **half** the peak-to-peak swing, so $i_L$ runs between $I - \\Delta i_L$ and $I + \\Delta i_L$. Drag $D$ and $L$ ($V_g$ = 24 V, $f_s$ = 100 kHz, $I$ = 4 A).",
+      "formula": "2\\Delta i_L = \\frac{V_g - V}{L}\\,DT_s\\quad\\text{(buck)}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "t / T_s"
+        },
+        "y": {
+          "min": 0,
+          "max": 8,
+          "label": "i_L",
+          "unit": "A"
+        },
+        "sliders": [
+          {
+            "name": "D",
+            "label": "$D$",
+            "min": 0.1,
+            "max": 0.9,
+            "step": 0.01,
+            "value": 0.5
+          },
+          {
+            "name": "L",
+            "label": "$L$",
+            "min": 1e-05,
+            "max": 0.0001,
+            "log": true,
+            "value": 2.2e-05,
+            "unit": "H"
+          }
+        ],
+        "let": {
+          "Vg": "24",
+          "I": "4",
+          "dI": "(Vg - D*Vg)*D*1e-5/(2*L)"
+        },
+        "curves": [
+          {
+            "f": "if(D - mod(x, 1), I - dI + 2*dI*mod(x, 1)/D, I + dI - 2*dI*(mod(x, 1) - D)/(1 - D))"
+          }
+        ],
+        "hlines": [
+          {
+            "y": "I",
+            "label": "I"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$2\\Delta i_L$",
+            "value": "2*dI",
+            "unit": "A"
+          },
+          {
+            "label": "peak",
+            "value": "I + dI",
+            "unit": "A"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Output voltage ripple",
+      "body": "**Buck** (two-pole LC filter): the inductor ripple current flows into the capacitor. Each positive half-triangle carries charge $q = \\frac12\\cdot\\frac{T_s}{2}\\cdot\\Delta i_L$, which raises $v$ by $2\\Delta v = q/C$. **Boost**: during $DT_s$ the diode is off and the capacitor alone supplies $V/R$. Here $\\Delta v$ is again **half** the peak-to-peak output ripple.",
+      "formula": "\\begin{aligned}& \\Delta v = \\frac{\\Delta i_L T_s}{8C}\\quad\\text{(buck)}\\\\ & \\Delta v = \\frac{VDT_s}{2RC}\\quad\\text{(boost)}\\end{aligned}"
+    },
+    {
+      "title": "Worked example: buck ripple",
+      "body": "$V_g$ = 48 V, $V$ = 12 V, $I$ = 5 A, $f_s$ = 100 kHz, $L$ = 47 µH, $C$ = 22 µF.\n- $D = V/V_g$ = 0.25, $T_s$ = 10 µs.\n- $2\\Delta i_L = (V_g - V)DT_s/L$ = 36 V × 2.5 µs / 47 µH = 1.91 A, so $i_L$ swings between 4.04 A and 5.96 A.\n- $\\Delta v = \\Delta i_L T_s/(8C)$ = 0.957 A × 10 µs / (8 × 22 µF) = 54 mV, so the output ripple is 109 mV peak-to-peak, 0.9 % of $V$."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pe-steady-1",
+      "title": "Volt-second and charge balance",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Volt-second balance",
+          "body": "In steady state the inductor current returns to the same value every period. Its change over a period is $\\frac{1}{L}\\int v_L\\,dt$, so the area under $v_L(t)$ over one period must be zero. In the graph (a buck with $V_g$ = 24 V, $D$ = 1/3) +16 V for $T_s/3$ cancels −8 V for $2T_s/3$.",
+          "formula": "\\langle v_L\\rangle = 0",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 2,
+              "label": "t / T_s"
+            },
+            "y": {
+              "min": -12,
+              "max": 20,
+              "label": "v_L",
+              "unit": "V"
+            },
+            "curves": [
+              {
+                "f": "if(1/3 - mod(x, 1), 16, -8)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "height": 150
+          }
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "In steady state, the average **current** through an inductor must be zero.",
+          "answer": false,
+          "explanation": "Steady state forces the average inductor **voltage** to zero (volt-second balance). The inductor current can have any DC value: in a buck it carries the full load current. It is the average **capacitor current** that must be zero (charge balance)."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              5,
+              10,
+              12,
+              20,
+              36
+            ],
+            "D": [
+              0.2,
+              0.25,
+              0.4,
+              0.6,
+              0.75
+            ]
+          },
+          "prompt": "An inductor has +{{a|V}} across it for a fraction {{D}} of each period and a constant negative voltage for the rest. In steady state, what is the magnitude of that negative voltage?",
+          "answer": "a*D/(1-D)",
+          "unit": "V",
+          "explanation": "Volt-second balance: $aD - b(1 - D) = 0$, so $b = a\\frac{D}{1-D}$ = {{a}} × {{D}} / {{1-D||2}} = **{{a*D/(1-D)|V}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Buck: the two intervals",
+          "body": "With the small-ripple approximation the output voltage is a constant $V$.\n- $Q_1$ on ($DT_s$): $v_L = V_g - V$\n- $D_1$ on ($D'T_s$): $v_L = -V$\nVolt-second balance: $D(V_g - V) - D'V = 0$, which gives $V = DV_g$.",
+          "formula": "\\begin{aligned}& D(V_g - V) + D'(-V) = 0\\\\ & V = DV_g\\end{aligned}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_g"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "L"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.25,
+              0.4,
+              0.6,
+              0.75
+            ]
+          },
+          "prompt": "A buck converter runs from {{Vg|V}} at $D$ = {{D}} in steady state. Take $v_L$ positive at the switch-node end of the inductor.",
+          "ask": [
+            {
+              "prompt": "What is $v_L$ while $Q_1$ is on?",
+              "answer": "Vg*(1-D)",
+              "unit": "V",
+              "explanation": "$V = DV_g$ = {{D*Vg|V}}. On: $v_L = V_g - V$ = {{Vg}} − {{D*Vg}} = **{{Vg*(1-D)|V}}**. Check: {{Vg*(1-D)|V}} × {{D}} = {{Vg*(1-D)*D|V}}, which cancels the off-interval {{D*Vg|V}} × {{1-D||2}}."
+            },
+            {
+              "prompt": "What is $v_L$ (with sign) while $D_1$ conducts?",
+              "answer": "-D*Vg",
+              "unit": "V",
+              "explanation": "Off: the switch node is at 0, so $v_L = 0 - V = -DV_g$ = **{{-D*Vg|V}}**. Volt-seconds: {{Vg*(1-D)|V}} × {{D}} + ({{-D*Vg|V}}) × {{1-D||2}} = 0."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Capacitor charge balance",
+          "body": "The output capacitor current is the current flowing into the output node minus the load current. Its average must be zero. In the buck the inductor feeds the output node in both intervals, so $I = V/R$. In the boost the inductor current reaches the output only through the diode, during $D'T_s$, so $D'I = V/R$.",
+          "formula": "\\langle i_C\\rangle = 0 \\;\\Rightarrow\\; I_{boost} = \\frac{V}{D'R}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "V": [
+              24,
+              48,
+              60
+            ],
+            "R": [
+              10,
+              20,
+              50
+            ],
+            "D": [
+              0.4,
+              0.5,
+              0.6,
+              0.75
+            ]
+          },
+          "prompt": "A boost converter supplies {{V|V}} to a {{R|Ω}} load at $D$ = {{D}}. Use charge balance to find the average inductor current.",
+          "answer": "V/((1-D)*R)",
+          "unit": "A",
+          "explanation": "Load current: $V/R$ = {{V/R|A}}. The diode passes the inductor current only during $D'T_s$: $D'I = V/R$, so $I = \\frac{V}{D'R}$ = {{V/R|A}} / {{1-D||2}} = **{{V/((1-D)*R)|A}}**."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "While $Q_1$ is off in a boost converter, what is the inductor voltage (positive at the input side)?",
+          "options": [
+            "$V_g - V$, which is negative",
+            "$V_g$",
+            "$-V$",
+            "0"
+          ],
+          "answer": 0,
+          "explanation": "With $Q_1$ off the inductor connects $V_g$ to the output through the diode, so $v_L = V_g - V$. Since $V > V_g$ it is negative, which is what lets the inductor current fall and balances the $+V_g$ of the on-interval."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "D": [
+              0.3,
+              0.5,
+              0.6,
+              0.75
+            ]
+          },
+          "prompt": "A boost converter runs from {{Vg|V}} at $D$ = {{D}}. Use volt-second balance to find $V$.",
+          "answer": "Vg/(1-D)",
+          "unit": "V",
+          "explanation": "$DV_g + D'(V_g - V) = 0$ → $V_g = D'V$ → $V = \\frac{V_g}{1-D}$ = {{Vg}} / {{1-D||2}} = **{{Vg/(1-D)|V}}**."
+        }
+      ]
+    },
+    {
+      "id": "pe-steady-2",
+      "title": "Inductor current ripple",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Straight-line inductor currents",
+          "body": "With $v_L$ constant in each interval, $di_L/dt = v_L/L$ is constant too, so $i_L$ is a triangle wave around its DC value $I$. In a buck the rise during $DT_s$ is $(V_g - V)DT_s/L$ and the fall during $D'T_s$ has the same size (volt-second balance).",
+          "formula": "\\frac{di_L}{dt} = \\frac{v_L}{L}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t / T_s"
+            },
+            "y": {
+              "min": 0,
+              "max": 6,
+              "label": "i_L",
+              "unit": "A"
+            },
+            "curves": [
+              {
+                "f": "if(0.4 - mod(x, 1), 3 - 1.2 + 2*1.2*mod(x, 1)/0.4, 3 + 1.2 - 2*1.2*(mod(x, 1) - 0.4)/(1 - 0.4))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 3,
+                "label": "I"
+              }
+            ],
+            "labels": [
+              {
+                "x": 0.05,
+                "y": 5.3,
+                "text": "slope (V_g − V)/L, then −V/L",
+                "color": "grey"
+              }
+            ],
+            "height": 150
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "L": [
+              4.7e-06,
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ]
+          },
+          "require": "min(Vg - V - 4, 4 - (Vg-V)*(V/Vg)/(fs*L))",
+          "prompt": "A buck converter runs from {{Vg|V}} to {{V|V}} at {{fs|Hz}} with $L$ = {{L|H}}. By how much does the inductor current rise while $Q_1$ is on (peak-to-peak ripple $2\\Delta i_L$)?",
+          "answer": "(Vg-V)*(V/Vg)/(fs*L)",
+          "unit": "A",
+          "explanation": "$D = V/V_g$ = {{V/Vg||3}}, on-time $DT_s$ = {{V/Vg/fs|s}}. Rise = $\\frac{V_g - V}{L}DT_s$ = {{Vg-V}} V / {{L|H}} × {{V/Vg/fs|s}} = **{{(Vg-V)*(V/Vg)/(fs*L)|A}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "I": [
+              2,
+              3,
+              5,
+              8
+            ],
+            "fs": [
+              200000.0,
+              500000.0
+            ],
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ]
+          },
+          "require": "min(Vg - V - 4, I - (Vg-V)*(V/Vg)/(2*fs*L))",
+          "prompt": "A buck converter delivers {{I|A}} at {{V|V}} from {{Vg|V}}; $f_s$ = {{fs|Hz}}, $L$ = {{L|H}}. What is the peak inductor current?",
+          "answer": "I + (Vg-V)*(V/Vg)/(2*fs*L)",
+          "unit": "A",
+          "explanation": "$D$ = {{V/Vg||3}}. $\\Delta i_L = \\frac{(V_g - V)DT_s}{2L}$ = {{(Vg-V)*(V/Vg)/(2*fs*L)|A}} (half the peak-to-peak ripple). The DC inductor current equals the load current, so $i_{L,pk} = I + \\Delta i_L$ = {{I|A}} + {{(Vg-V)*(V/Vg)/(2*fs*L)|A}} = **{{I+(Vg-V)*(V/Vg)/(2*fs*L)|A}}**. The switch and the inductor's saturation current must cover this."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "D": [
+              0.3,
+              0.5,
+              0.6
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05,
+              0.0001
+            ]
+          },
+          "require": "3 - Vg*D/(fs*L)",
+          "prompt": "In a boost converter $V_g$ = {{Vg|V}}, $D$ = {{D}}, $f_s$ = {{fs|Hz}} and $L$ = {{L|H}}. Find the peak-to-peak inductor current ripple.",
+          "answer": "Vg*D/(fs*L)",
+          "unit": "A",
+          "explanation": "While $Q_1$ is on, $v_L = V_g$, so $2\\Delta i_L = \\frac{V_g}{L}DT_s$ = {{Vg}} V × {{D/fs|s}} / {{L|H}} = **{{Vg*D/(fs*L)|A}}**."
+        },
+        {
+          "id": "q4",
+          "type": "slider",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "I": [
+              2,
+              4,
+              6
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              250000.0
+            ],
+            "r": [
+              0.2,
+              0.3,
+              0.4
+            ]
+          },
+          "derived": {
+            "dIt": "r*I/2"
+          },
+          "require": "Vg - V - 4",
+          "prompt": "A buck converter makes {{V|V}} at {{I|A}} from {{Vg|V}} at $f_s$ = {{fs|Hz}}. Choose $L$ so that the inductor current stays between the dashed lines: {{2*dIt|A}} peak-to-peak.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t / T_s"
+            },
+            "y": {
+              "min": 0,
+              "max": "I + 2.5*dIt",
+              "label": "i_L",
+              "unit": "A"
+            },
+            "sliders": [
+              {
+                "name": "L",
+                "label": "$L$",
+                "min": 1e-06,
+                "max": 0.001,
+                "log": true,
+                "value": 0.001,
+                "unit": "H"
+              }
+            ],
+            "let": {
+              "D": "V/Vg",
+              "dI": "(Vg - V)*D/(2*fs*L)"
+            },
+            "curves": [
+              {
+                "f": "if(D - mod(x, 1), I - dI + 2*dI*mod(x, 1)/D, I + dI - 2*dI*(mod(x, 1) - D)/(1 - D))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": "I + dIt",
+                "color": "orange"
+              },
+              {
+                "y": "I - dIt",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$2\\Delta i_L$",
+                "value": "2*dI",
+                "unit": "A",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "L": "(Vg-V)*(V/Vg)/(fs*2*dIt)"
+          },
+          "tolerance": 0.06,
+          "explanation": "$D$ = {{V/Vg||3}}. $L = \\frac{(V_g - V)DT_s}{2\\Delta i_L}$ = {{Vg-V}} V × {{V/Vg/fs|s}} / {{2*dIt|A}} = **{{(Vg-V)*(V/Vg)/(fs*2*dIt)|H}}**. A smaller $L$ gives more ripple; a larger one is bigger and slower to respond."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A buck converter's switching frequency is doubled while $L$, $V_g$ and $D$ stay the same. What happens to the peak-to-peak inductor ripple?",
+          "options": [
+            "It halves",
+            "It doubles",
+            "It drops to a quarter",
+            "It stays the same"
+          ],
+          "answer": 0,
+          "explanation": "$2\\Delta i_L = (V_g - V)DT_s/L$ is proportional to $T_s = 1/f_s$: the current ramps for half as long, so the ripple halves. (The output voltage ripple, proportional to $T_s^2$, drops to a quarter.)"
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "In a buck converter you can find the output voltage ripple by assuming the inductor current is perfectly constant.",
+          "answer": false,
+          "explanation": "In the buck, $i_C = i_L - V/R$. If $i_L$ had no ripple, $i_C$ would be zero and the predicted output ripple would be zero too. The inductor ripple current is exactly what charges and discharges the capacitor, so it must be kept when computing $\\Delta v$."
+        }
+      ]
+    },
+    {
+      "id": "pe-steady-3",
+      "title": "Output voltage ripple",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "pp": [
+              0.5,
+              1,
+              2
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "C": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ]
+          },
+          "prompt": "The inductor ripple of a buck converter is {{pp|A}} peak-to-peak at $f_s$ = {{fs|Hz}}, and the output capacitor is {{C|F}} (ideal). Find the peak-to-peak output voltage ripple.",
+          "answer": "pp/(8*fs*C)",
+          "unit": "V",
+          "explanation": "The capacitor takes the ripple current. Charge in one half-triangle: $q = \\frac12 \\cdot \\frac{T_s}{2}\\cdot\\Delta i_L$ with $\\Delta i_L$ = {{pp/2|A}}. Peak-to-peak: $2\\Delta v = \\frac{q}{C} = \\frac{2\\Delta i_L T_s}{8C}$ = {{pp|A}} / (8 × {{fs|Hz}} × {{C|F}}) = **{{pp/(8*fs*C)|V}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ],
+            "C": [
+              2.2e-05,
+              4.7e-05,
+              0.0001
+            ]
+          },
+          "derived": {
+            "D": "V/Vg",
+            "pp": "(Vg-V)*D/(fs*L)"
+          },
+          "require": "min(Vg - V - 4, 4 - pp)",
+          "prompt": "A buck converter: $V_g$ = {{Vg|V}}, $V$ = {{V|V}}, $f_s$ = {{fs|Hz}}, $L$ = {{L|H}}, $C$ = {{C|F}}.",
+          "ask": [
+            {
+              "prompt": "Find the peak-to-peak inductor ripple $2\\Delta i_L$.",
+              "answer": "pp",
+              "unit": "A",
+              "explanation": "$D$ = {{D||3}}. $2\\Delta i_L = (V_g - V)DT_s/L$ = {{Vg-V}} V × {{D/fs|s}} / {{L|H}} = **{{pp|A}}**."
+            },
+            {
+              "prompt": "Find the peak-to-peak output voltage ripple.",
+              "answer": "pp/(8*fs*C)",
+              "unit": "V",
+              "explanation": "$2\\Delta i_L$ = {{pp|A}} (with $D$ = {{D||3}}). $2\\Delta v = \\frac{2\\Delta i_L}{8f_sC}$ = {{pp|A}} / (8 × {{fs|Hz}} × {{C|F}}) = **{{pp/(8*fs*C)|V}}**, that is {{100*pp/(8*fs*C)/V|%|2}} of $V$."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "V": [
+              24,
+              48
+            ],
+            "R": [
+              10,
+              24,
+              48
+            ],
+            "D": [
+              0.4,
+              0.5,
+              0.6
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "C": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ]
+          },
+          "prompt": "A boost converter delivers {{V|V}} into {{R|Ω}} at $D$ = {{D}} and $f_s$ = {{fs|Hz}}, with $C$ = {{C|F}}. Find the peak-to-peak output voltage ripple.",
+          "answer": "V*D/(R*C*fs)",
+          "unit": "V",
+          "explanation": "While $Q_1$ is on the diode blocks and $C$ alone supplies $V/R$ = {{V/R|A}} for $DT_s$ = {{D/fs|s}}. $2\\Delta v = \\frac{V}{R}\\frac{DT_s}{C}$ = {{V/R|A}} × {{D/fs|s}} / {{C|F}} = **{{V*D/(R*C*fs)|V}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "V": [
+              24,
+              48,
+              400
+            ],
+            "Io": [
+              0.5,
+              1,
+              2
+            ],
+            "D": [
+              0.4,
+              0.5,
+              0.6
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "p": [
+              0.5,
+              1
+            ]
+          },
+          "prompt": "A boost converter makes {{V|V}} at {{Io|A}} with $D$ = {{D}} at {{fs|Hz}}. What output capacitance limits the peak-to-peak ripple to {{p}} % of $V$?",
+          "answer": "Io*D/(fs*p/100*V)",
+          "unit": "F",
+          "explanation": "$2\\Delta v$ = {{p/100*V|V}}. $C = \\frac{I_o DT_s}{2\\Delta v}$ = {{Io|A}} × {{D/fs|s}} / {{p/100*V|V}} = **{{Io*D/(fs*p/100*V)|F}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "pp": [
+              0.6,
+              1,
+              1.5,
+              2
+            ],
+            "fs": [
+              100000.0,
+              250000.0,
+              500000.0
+            ],
+            "dv": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "A buck converter at {{fs|Hz}} has {{pp|A}} of peak-to-peak inductor ripple. What capacitance keeps the peak-to-peak output ripple at {{dv|V}}? (Ignore ESR.)",
+          "answer": "pp/(8*fs*dv)",
+          "unit": "F",
+          "explanation": "$2\\Delta v = \\frac{2\\Delta i_L}{8f_sC}$ → $C = \\frac{2\\Delta i_L}{8f_s\\cdot 2\\Delta v}$ = {{pp|A}} / (8 × {{fs|Hz}} × {{dv|V}}) = **{{pp/(8*fs*dv)|F}}**. Real capacitors also have ESR, which often dominates the ripple."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows the output **capacitor current** of a buck converter in steady state?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t / T_s"
+              },
+              "y": {
+                "min": -2,
+                "max": 6,
+                "label": "i (A)"
+              },
+              "height": 110,
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ],
+              "curves": [
+                {
+                  "f": "if(0.4 - mod(x, 1), 0 - 1 + 2*1*mod(x, 1)/0.4, 0 + 1 - 2*1*(mod(x, 1) - 0.4)/(1 - 0.4))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t / T_s"
+              },
+              "y": {
+                "min": -2,
+                "max": 6,
+                "label": "i (A)"
+              },
+              "height": 110,
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ],
+              "curves": [
+                {
+                  "f": "if(0.4 - mod(x, 1), 3 - 1 + 2*1*mod(x, 1)/0.4, 3 + 1 - 2*1*(mod(x, 1) - 0.4)/(1 - 0.4))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t / T_s"
+              },
+              "y": {
+                "min": -2,
+                "max": 6,
+                "label": "i (A)"
+              },
+              "height": 110,
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ],
+              "curves": [
+                {
+                  "f": "if(0.4 - mod(x, 1), -1.5, 1)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t / T_s"
+              },
+              "y": {
+                "min": -2,
+                "max": 6,
+                "label": "i (A)"
+              },
+              "height": 110,
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ],
+              "curves": [
+                {
+                  "f": "if(0.4 - mod(x, 1), 1, -1)"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "In the buck, $i_C = i_L - V/R$: the inductor's triangle with its DC value removed. It averages to zero (charge balance) and is continuous. The rectangular pulse shape is the boost's capacitor current ($-V/R$ while $Q_1$ is on), and a triangle with a DC offset is the inductor current itself."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Doubling $f_s$ of a buck converter while keeping $L$ and $C$ reduces its peak-to-peak output voltage ripple by a factor of four.",
+          "answer": true,
+          "explanation": "$2\\Delta v = \\frac{(V_g - V)DT_s^2}{8LC}$. The ripple current halves (shorter ramps) **and** each charge pulse lasts half as long, so the voltage ripple scales with $T_s^2$: a factor 4 lower."
+        },
+        {
+          "id": "q8",
+          "type": "orderSteps",
+          "prompt": "Put the steps of a steady-state converter analysis in order",
+          "items": [
+            "Draw the circuit for each switching interval",
+            "Write v_L and i_C in each interval, using the small-ripple approximation",
+            "Apply volt-second balance to each inductor and charge balance to each capacitor",
+            "Solve for the DC voltages and inductor currents",
+            "Compute the ripples from the slopes"
+          ],
+          "explanation": "Each interval gives a simple linear circuit. The balance equations need the interval voltages and currents, which use the DC values (small-ripple approximation). Only after $V$ and $I$ are known can you evaluate the slopes $v_L/L$ and $i_C/C$ to get $\\Delta i_L$ and $\\Delta v$."
+        }
+      ]
+    },
+    {
+      "id": "pe-steady-4",
+      "title": "Steady-state design problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "I": [
+              2,
+              5,
+              10
+            ],
+            "fs": [
+              200000.0,
+              500000.0
+            ],
+            "r": [
+              0.2,
+              0.3,
+              0.4
+            ],
+            "dv": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "derived": {
+            "D": "V/Vg",
+            "pp": "r*I",
+            "L": "(Vg-V)*D/(fs*pp)"
+          },
+          "require": "Vg - V - 4",
+          "prompt": "Design a buck converter: {{Vg|V}} in, {{V|V}} out at {{I|A}}, $f_s$ = {{fs|Hz}}. The peak-to-peak inductor ripple should be {{r*100}} % of $I$, and the peak-to-peak output ripple {{dv|V}}.",
+          "ask": [
+            {
+              "prompt": "What inductance do you need?",
+              "answer": "L",
+              "unit": "H",
+              "explanation": "$D$ = {{D||3}}, $2\\Delta i_L$ = {{r}} × {{I|A}} = {{pp|A}}. $L = \\frac{(V_g - V)DT_s}{2\\Delta i_L}$ = {{Vg-V}} V × {{D/fs|s}} / {{pp|A}} = **{{L|H}}**."
+            },
+            {
+              "prompt": "What output capacitance do you need (ignore ESR)?",
+              "answer": "pp/(8*fs*dv)",
+              "unit": "F",
+              "explanation": "$2\\Delta i_L$ = {{r}} × {{I|A}} = {{pp|A}}. $C = \\frac{2\\Delta i_L}{8f_s\\cdot 2\\Delta v}$ = {{pp|A}} / (8 × {{fs|Hz}} × {{dv|V}}) = **{{pp/(8*fs*dv)|F}}**."
+            },
+            {
+              "prompt": "What is the peak inductor current?",
+              "answer": "I*(1 + r/2)",
+              "unit": "A",
+              "explanation": "$\\Delta i_L$ is half the peak-to-peak value: {{pp/2|A}}. $i_{L,pk} = I + \\Delta i_L$ = {{I|A}} + {{pp/2|A}} = **{{I*(1+r/2)|A}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.3,
+              0.5,
+              0.6
+            ],
+            "R": [
+              20,
+              50,
+              100
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "L": [
+              4.7e-05,
+              0.0001,
+              0.00022
+            ]
+          },
+          "require": "Vg/((1-D)^2*R) - Vg*D/(2*fs*L)",
+          "prompt": "A boost converter: $V_g$ = {{Vg|V}}, $D$ = {{D}}, $R$ = {{R|Ω}}, $f_s$ = {{fs|Hz}}, $L$ = {{L|H}}. Find the peak inductor current.",
+          "answer": "Vg/((1-D)^2*R) + Vg*D/(2*fs*L)",
+          "unit": "A",
+          "explanation": "$V = V_g/D'$ = {{Vg/(1-D)|V}}. Charge balance: $I = \\frac{V}{D'R}$ = {{Vg/((1-D)^2*R)|A}}. Ripple: $\\Delta i_L = \\frac{V_gDT_s}{2L}$ = {{Vg*D/(2*fs*L)|A}}. Peak: $I + \\Delta i_L$ = **{{Vg/((1-D)^2*R)+Vg*D/(2*fs*L)|A}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              5,
+              12,
+              24
+            ],
+            "D": [
+              0.25,
+              0.4,
+              0.6,
+              0.75
+            ]
+          },
+          "prompt": "An unfamiliar converter has a single inductor. Its voltage is $+V_g$ while $Q_1$ is on and $+V$ (where $V$ is the output voltage, which is negative) while the diode conducts. With $V_g$ = {{Vg|V}} and $D$ = {{D}}, what is $V$?",
+          "answer": "-Vg*D/(1-D)",
+          "unit": "V",
+          "explanation": "Volt-second balance: $DV_g + D'V = 0$ → $V = -\\frac{D}{D'}V_g$ = −{{D}}/{{1-D||2}} × {{Vg}} = **{{-Vg*D/(1-D)|V}}**. This is the inverting buck-boost converter of the next unit."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "fs": [
+              100000.0,
+              300000.0,
+              500000.0
+            ],
+            "pp": [
+              0.4,
+              0.8,
+              1.2,
+              2
+            ]
+          },
+          "require": "Vg - V - 4",
+          "prompt": "On a scope, the inductor current of a {{Vg|V}} → {{V|V}} buck converter at {{fs|Hz}} rises by {{pp|A}} during each on-time. What is $L$?",
+          "answer": "(Vg-V)*(V/Vg)/(fs*pp)",
+          "unit": "H",
+          "explanation": "$D$ = {{V/Vg||3}}, on-time $DT_s$ = {{V/Vg/fs|s}}. $L = \\frac{(V_g - V)DT_s}{2\\Delta i_L}$ = {{Vg-V}} V × {{V/Vg/fs|s}} / {{pp|A}} = **{{(Vg-V)*(V/Vg)/(fs*pp)|H}}**."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "params": {
+            "Vg": [
+              12,
+              24
+            ],
+            "V": [
+              5
+            ],
+            "R": [
+              2,
+              5,
+              10,
+              20,
+              50
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "L": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ]
+          },
+          "require": "abs(V/R - (Vg-V)*(V/Vg)/(2*fs*L)) - 0.05",
+          "prompt": "A buck converter makes {{V|V}} from {{Vg|V}} into {{R|Ω}}; $f_s$ = {{fs|Hz}}, $L$ = {{L|H}}. True or false: the inductor current stays positive throughout the period.",
+          "answer": "V/R - (Vg-V)*(V/Vg)/(2*fs*L)",
+          "explanation": "$I = V/R$ = {{V/R|A}}. $\\Delta i_L = \\frac{(V_g - V)DT_s}{2L}$ = {{(Vg-V)*(V/Vg)/(2*fs*L)|A}}. The valley is $I - \\Delta i_L$ = {{V/R-(Vg-V)*(V/Vg)/(2*fs*L)|A}}: the current stays positive only if this is above zero. If it is not, a diode converter enters discontinuous conduction (see the DCM unit)."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "pp": [
+              0.5,
+              1,
+              2
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "C": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ]
+          },
+          "prompt": "A buck converter at {{fs|Hz}} has {{pp|A}} of peak-to-peak inductor ripple and $C$ = {{C|F}}. What is the peak-to-peak output ripple?",
+          "options": [
+            "{{pp/(8*fs*C)|V}}",
+            "{{pp/(2*fs*C)|V}}",
+            "{{pp/(fs*C)|V}}",
+            "{{pp/(16*fs*C)|V}}"
+          ],
+          "answer": 0,
+          "explanation": "Charge per half-triangle: $q = \\frac12\\cdot\\frac{T_s}{2}\\cdot\\frac{2\\Delta i_L}{2} = \\frac{2\\Delta i_L\\,T_s}{8}$, so $2\\Delta v = q/C$ = {{pp|A}} / (8 × {{fs|Hz}} × {{C|F}}) = **{{pp/(8*fs*C)|V}}**. {{pp/(16*fs*C)|V}} would be $\\Delta v$ (half the peak-to-peak value); the others forget that only a small triangle of charge flows."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24
+            ],
+            "D": [
+              0.4,
+              0.5,
+              0.6
+            ],
+            "R": [
+              24,
+              48,
+              100
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "L": [
+              4.7e-05,
+              0.0001
+            ],
+            "C": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ]
+          },
+          "require": "Vg/((1-D)^2*R) - Vg*D/(2*fs*L)",
+          "prompt": "A boost converter: $V_g$ = {{Vg|V}}, $D$ = {{D}}, $R$ = {{R|Ω}}, $f_s$ = {{fs|Hz}}, $L$ = {{L|H}}, $C$ = {{C|F}}.",
+          "ask": [
+            {
+              "prompt": "Find the output voltage.",
+              "answer": "Vg/(1-D)",
+              "unit": "V",
+              "explanation": "$V = \\frac{V_g}{1-D}$ = {{Vg}} / {{1-D||2}} = **{{Vg/(1-D)|V}}**."
+            },
+            {
+              "prompt": "Find the DC inductor current.",
+              "answer": "Vg/((1-D)^2*R)",
+              "unit": "A",
+              "explanation": "$V$ = {{Vg/(1-D)|V}}, $I = \\frac{V}{D'R}$ = {{Vg/(1-D)|V}} / ({{1-D||2}} × {{R|Ω}}) = **{{Vg/((1-D)^2*R)|A}}**. Check with power balance: $V_gI = V^2/R$."
+            },
+            {
+              "prompt": "Find the peak-to-peak output voltage ripple.",
+              "answer": "Vg/(1-D)*D/(R*C*fs)",
+              "unit": "V",
+              "explanation": "$V$ = {{Vg/(1-D)|V}}. $2\\Delta v = \\frac{VDT_s}{RC}$ = {{Vg/(1-D)|V}} × {{D/fs|s}} / ({{R|Ω}} × {{C|F}}) = **{{Vg/(1-D)*D/(R*C*fs)|V}}**."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

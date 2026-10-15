@@ -1,0 +1,1095 @@
+{
+  "id": "mdc-response",
+  "title": "Solving State Equations",
+  "description": "Eigenvalues as poles, modes, the matrix exponential and changes of state coordinates.",
+  "reference": "FPE §7.4",
+  "study": [
+    {
+      "title": "Eigenvalues are the poles",
+      "body": "The denominator of $G(s) = \\mathbf{C}(s\\mathbf{I}-\\mathbf{A})^{-1}\\mathbf{B} + D$ is $\\det(s\\mathbf{I} - \\mathbf{A})$, so the poles are the **eigenvalues** of $\\mathbf{A}$ (unless a pole cancels against a zero). For a 2×2 matrix the characteristic equation is $\\lambda^2 - \\mathrm{tr}(\\mathbf{A})\\lambda + \\det\\mathbf{A} = 0$. The system is asymptotically stable when every eigenvalue has a negative real part; for 2×2 that is exactly $\\mathrm{tr}\\,\\mathbf{A} < 0$ and $\\det\\mathbf{A} > 0$.",
+      "formula": "\\lambda_{1,2} = \\frac{\\mathrm{tr}\\,\\mathbf{A}}{2} \\pm \\sqrt{\\left(\\frac{\\mathrm{tr}\\,\\mathbf{A}}{2}\\right)^2 - \\det\\mathbf{A}}"
+    },
+    {
+      "title": "Modes",
+      "body": "Each eigenvalue $\\lambda_i$ has an eigenvector $\\mathbf{v}_i$ with $\\mathbf{A}\\mathbf{v}_i = \\lambda_i\\mathbf{v}_i$. With distinct eigenvalues the free response is a sum of **modes**; the weights $c_i$ follow from $\\mathbf{x}(0) = c_1\\mathbf{v}_1 + c_2\\mathbf{v}_2$. A start on an eigenvector excites only that mode. **Example:** $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -2 & -3 \\end{bmatrix}$ ($\\lambda = -1, -2$) from $\\mathbf{x}(0) = [1 \\;\\; 0]^T$ gives $x_1(t) = 2e^{-t} - e^{-2t}$: the slow mode dominates after a while.",
+      "formula": "\\mathbf{x}(t) = c_1e^{\\lambda_1t}\\mathbf{v}_1 + c_2e^{\\lambda_2t}\\mathbf{v}_2",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": -1.2,
+          "max": 2.2,
+          "label": "x_1"
+        },
+        "curves": [
+          {
+            "f": "2*exp(-x)",
+            "color": "blue",
+            "dash": true,
+            "label": "mode 1",
+            "labelAt": 0.1
+          },
+          {
+            "f": "-exp(-2*x)",
+            "color": "orange",
+            "dash": true,
+            "label": "mode 2",
+            "labelAt": 0.2
+          },
+          {
+            "f": "2*exp(-x) - exp(-2*x)",
+            "label": "x_1(t)",
+            "labelAt": 0.5
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ]
+      }
+    },
+    {
+      "title": "Complex eigenvalues",
+      "body": "A real matrix has complex eigenvalues in conjugate pairs $\\lambda = \\sigma \\pm j\\omega$. Their modes combine into the real functions $e^{\\sigma t}\\cos\\omega t$ and $e^{\\sigma t}\\sin\\omega t$: an oscillation at $\\omega$ inside the envelope $e^{\\sigma t}$. Negative $\\sigma$: decaying, $\\sigma = 0$: constant amplitude, positive $\\sigma$: growing. The 2 % settling time is about $4/|\\sigma|$."
+    },
+    {
+      "title": "Explore: eigenvalues and the free response",
+      "body": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -a_0 & -a_1 \\end{bmatrix}$ starts at $\\mathbf{x}(0) = [1 \\;\\; 0]^T$ with no input. With $a_1 = 0$ the eigenvalues sit on the imaginary axis and $x_1$ oscillates forever. Raising $a_1$ moves them left; once $a_1^2 \\ge 4a_0$ they become real and the oscillation disappears. A larger $a_0$ raises the oscillation frequency; while the eigenvalues are complex, their real part $-a_1/2$, and so the decay, stays the same.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 10,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": -1.1,
+          "max": 1.1,
+          "label": "x_1(t)"
+        },
+        "sliders": [
+          {
+            "name": "a1",
+            "label": "$a_1$",
+            "min": 0,
+            "max": 6,
+            "step": 0.1,
+            "value": 0.6
+          },
+          {
+            "name": "a0",
+            "label": "$a_0$",
+            "min": 0.25,
+            "max": 9,
+            "step": 0.25,
+            "value": 4
+          }
+        ],
+        "let": {
+          "wn": "sqrt(a0)",
+          "zt": "a1/(2*sqrt(a0))",
+          "ds": "a1^2/4 - a0",
+          "re1": "-a1/2 + if(ds, sqrt(abs(ds)), 0)",
+          "im": "if(ds, 0, sqrt(abs(ds)))"
+        },
+        "curves": [
+          {
+            "f": "1 - step2(x, zt, wn)",
+            "label": "x_1(t)",
+            "labelAt": 0.75
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "readouts": [
+          {
+            "label": "slowest Re $\\lambda$",
+            "value": "re1"
+          },
+          {
+            "label": "Im $\\lambda$",
+            "value": "im"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The matrix exponential",
+      "body": "The scalar solution $x(t) = e^{at}x(0)$ generalizes with the **matrix exponential** $e^{\\mathbf{A}t} = \\mathbf{I} + \\mathbf{A}t + \\frac{(\\mathbf{A}t)^2}{2!} + \\ldots$, also called the state-transition matrix $\\Phi(t)$. It is the inverse Laplace transform of $(s\\mathbf{I} - \\mathbf{A})^{-1}$. An input adds a convolution term. Properties: $e^{\\mathbf{0}} = \\mathbf{I}$, $e^{\\mathbf{A}(t_1 + t_2)} = e^{\\mathbf{A}t_1}e^{\\mathbf{A}t_2}$, $\\frac{d}{dt}e^{\\mathbf{A}t} = \\mathbf{A}e^{\\mathbf{A}t}$.",
+      "formula": "\\mathbf{x}(t) = e^{\\mathbf{A}t}\\mathbf{x}(0) + \\int_0^t e^{\\mathbf{A}(t-\\tau)}\\mathbf{B}u(\\tau)\\,d\\tau"
+    },
+    {
+      "title": "Easy cases",
+      "body": "- Diagonal: $e^{\\mathbf{A}t} = \\mathrm{diag}(e^{\\lambda_1t}, e^{\\lambda_2t})$; the states evolve independently.\n- Triangular $\\begin{bmatrix} \\lambda_1 & b \\\\ 0 & \\lambda_2 \\end{bmatrix}$: diagonal entries $e^{\\lambda_1t}$, $e^{\\lambda_2t}$, top-right $b\\frac{e^{\\lambda_1t} - e^{\\lambda_2t}}{\\lambda_1 - \\lambda_2}$.\n- Repeated eigenvalue $\\begin{bmatrix} \\lambda & 1 \\\\ 0 & \\lambda \\end{bmatrix}$: a factor $t$ appears (formula below).\n- Rotation $\\begin{bmatrix} \\sigma & \\omega \\\\ -\\omega & \\sigma \\end{bmatrix}$: $e^{\\sigma t}\\begin{bmatrix} \\cos\\omega t & \\sin\\omega t \\\\ -\\sin\\omega t & \\cos\\omega t \\end{bmatrix}$.",
+      "formula": "e^{\\mathbf{A}t} = e^{\\lambda t}\\begin{bmatrix} 1 & t \\\\ 0 & 1 \\end{bmatrix}"
+    },
+    {
+      "title": "Any 2×2 with distinct eigenvalues",
+      "body": "Write $e^{\\mathbf{A}t}$ as a sum of the two modes, each with a constant matrix: $\\mathbf{M}_1 = \\frac{\\mathbf{A} - \\lambda_2\\mathbf{I}}{\\lambda_1 - \\lambda_2}$ and $\\mathbf{M}_2 = \\frac{\\mathbf{A} - \\lambda_1\\mathbf{I}}{\\lambda_2 - \\lambda_1}$. At $t = 0$ they add up to $\\mathbf{I}$.\n**Example:** $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -2 & -3 \\end{bmatrix}$, $\\lambda = -1, -2$: $\\mathbf{M}_1 = \\begin{bmatrix} 2 & 1 \\\\ -2 & -1 \\end{bmatrix}$, $\\mathbf{M}_2 = \\begin{bmatrix} -1 & -1 \\\\ 2 & 2 \\end{bmatrix}$, so the top-left entry is $2e^{-t} - e^{-2t}$.",
+      "formula": "e^{\\mathbf{A}t} = e^{\\lambda_1t}\\mathbf{M}_1 + e^{\\lambda_2t}\\mathbf{M}_2"
+    },
+    {
+      "title": "Similarity transforms",
+      "body": "New states $\\mathbf{z}$ with $\\mathbf{x} = \\mathbf{T}\\mathbf{z}$ give $\\dot{\\mathbf{z}} = \\mathbf{T}^{-1}\\mathbf{A}\\mathbf{T}\\mathbf{z} + \\mathbf{T}^{-1}\\mathbf{B}u$ and $y = \\mathbf{C}\\mathbf{T}\\mathbf{z} + Du$. The eigenvalues, trace, determinant and transfer function do not change. With the eigenvectors as columns of $\\mathbf{T}$ the new matrix is diagonal (**modal form**): for a companion matrix $\\begin{bmatrix} 0 & 1 \\\\ -a_0 & -a_1 \\end{bmatrix}$ that is $\\mathbf{T} = \\begin{bmatrix} 1 & 1 \\\\ \\lambda_1 & \\lambda_2 \\end{bmatrix}$.",
+      "formula": "\\bar{\\mathbf{A}} = \\mathbf{T}^{-1}\\mathbf{A}\\mathbf{T}, \\;\\; \\bar{\\mathbf{B}} = \\mathbf{T}^{-1}\\mathbf{B}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "mdc-response-1",
+      "title": "Eigenvalues and modes",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Poles are eigenvalues",
+          "body": "Without input, $\\dot{\\mathbf{x}} = \\mathbf{A}\\mathbf{x}$. Try $\\mathbf{x}(t) = e^{\\lambda t}\\mathbf{v}$: it works when $\\mathbf{A}\\mathbf{v} = \\lambda\\mathbf{v}$, so the natural exponents of the system are the **eigenvalues** of $\\mathbf{A}$, the roots of $\\det(\\lambda\\mathbf{I} - \\mathbf{A}) = 0$. They are the poles of every transfer function of the system. For 2×2:",
+          "formula": "\\lambda^2 - \\mathrm{tr}(\\mathbf{A})\\,\\lambda + \\det\\mathbf{A} = 0"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2,
+              -3
+            ],
+            "l2": [
+              -4,
+              -5,
+              -6
+            ],
+            "p": [
+              -3,
+              -2,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "q": "p + 1",
+            "a": "q*l1 - p*l2",
+            "b": "l2 - l1",
+            "c": "p*q*(l1 - l2)",
+            "d": "q*l2 - p*l1"
+          },
+          "prompt": "Find the eigenvalues of $\\mathbf{A} = \\begin{bmatrix} {{a}} & {{b}} \\\\ {{c}} & {{d}} \\end{bmatrix}$.",
+          "ask": [
+            {
+              "prompt": "Give the eigenvalue closest to the origin (the slow one).",
+              "answer": "l1",
+              "unit": "",
+              "explanation": "$\\mathrm{tr}\\,\\mathbf{A}$ = {{a}} + ({{d}}) = {{l1+l2}} and $\\det\\mathbf{A}$ = ({{a}})({{d}}) − ({{b}})({{c}}) = {{l1*l2}}. So $\\lambda^2 + {{-(l1+l2)}}\\lambda + {{l1*l2}} = 0$, giving $\\lambda = {{(l1+l2)/2}} \\pm \\sqrt{ {{((l1+l2)/2)^2}} - {{l1*l2}} }$ = {{l1}} and {{l2}}. The slow one is {{l1}}."
+            },
+            {
+              "prompt": "Give the eigenvalue farthest from the origin (the fast one).",
+              "answer": "l2",
+              "unit": "",
+              "explanation": "$\\mathrm{tr}\\,\\mathbf{A}$ = {{l1+l2}}, $\\det\\mathbf{A}$ = {{l1*l2}}, so $\\lambda^2 + {{-(l1+l2)}}\\lambda + {{l1*l2}} = 0$ with roots {{l1}} and {{l2}}. The fast one is {{l2}}: its mode $e^{ {{l2}}t}$ dies out first."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Which $\\mathbf{A}$ gives an **asymptotically stable** system $\\dot{\\mathbf{x}} = \\mathbf{A}\\mathbf{x}$?",
+          "options": [
+            "$\\begin{bmatrix} -2 & 1 \\\\ -1 & -1 \\end{bmatrix}$",
+            "$\\begin{bmatrix} -1 & 2 \\\\ 3 & -2 \\end{bmatrix}$",
+            "$\\begin{bmatrix} 1 & -2 \\\\ 1 & 0 \\end{bmatrix}$",
+            "$\\begin{bmatrix} 0 & 1 \\\\ -4 & 0 \\end{bmatrix}$"
+          ],
+          "answer": 0,
+          "explanation": "For 2×2, both eigenvalues are in the left half-plane exactly when $\\mathrm{tr}\\,\\mathbf{A} < 0$ **and** $\\det\\mathbf{A} > 0$ (all coefficients of $\\lambda^2 - \\mathrm{tr}\\,\\lambda + \\det$ positive).\n- $\\begin{bmatrix} -2 & 1 \\\\ -1 & -1 \\end{bmatrix}$: tr −3, det 3. Stable.\n- $\\begin{bmatrix} -1 & 2 \\\\ 3 & -2 \\end{bmatrix}$: tr −3 but det −4: one positive real eigenvalue, despite the negative diagonal.\n- $\\begin{bmatrix} 1 & -2 \\\\ 1 & 0 \\end{bmatrix}$: tr +1: growing oscillation.\n- $\\begin{bmatrix} 0 & 1 \\\\ -4 & 0 \\end{bmatrix}$: tr 0: eigenvalues $\\pm 2j$, oscillates forever (not asymptotically stable)."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Modes and eigenvectors",
+          "body": "With distinct eigenvalues the free response is a sum of **modes** $e^{\\lambda_it}\\mathbf{v}_i$. The eigenvector $\\mathbf{v}_i$ is the direction in state space in which that mode moves; it follows from $(\\mathbf{A} - \\lambda_i\\mathbf{I})\\mathbf{v}_i = \\mathbf{0}$. Only the direction matters, so scale it, for example to first entry 1.",
+          "formula": "\\mathbf{x}(t) = c_1e^{\\lambda_1t}\\mathbf{v}_1 + c_2e^{\\lambda_2t}\\mathbf{v}_2"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2,
+              -3
+            ],
+            "l2": [
+              -4,
+              -5,
+              -6
+            ],
+            "p": [
+              -3,
+              -2,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "q": "p + 1",
+            "a": "q*l1 - p*l2",
+            "b": "l2 - l1",
+            "c": "p*q*(l1 - l2)",
+            "d": "q*l2 - p*l1"
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} {{a}} & {{b}} \\\\ {{c}} & {{d}} \\end{bmatrix}$ has eigenvalues {{l1}} and {{l2}}. Scale each eigenvector as $\\mathbf{v} = [1 \\;\\; v_2]^T$.",
+          "ask": [
+            {
+              "prompt": "Find $v_2$ for $\\lambda$ = {{l1}}.",
+              "answer": "p",
+              "unit": "",
+              "explanation": "First row of $(\\mathbf{A} - \\lambda\\mathbf{I})\\mathbf{v} = \\mathbf{0}$: $(a_{11} - \\lambda)\\cdot 1 + a_{12}v_2 = 0$, so $v_2 = \\frac{\\lambda - a_{11}}{a_{12}}$ = ({{l1}} − ({{a}}))/({{b}}) = {{p}}. Check with row 2: ({{c}}) + ({{d}} − ({{l1}}))·({{p}}) = 0."
+            },
+            {
+              "prompt": "Find $v_2$ for $\\lambda$ = {{l2}}.",
+              "answer": "q",
+              "unit": "",
+              "explanation": "First row of $(\\mathbf{A} - \\lambda\\mathbf{I})\\mathbf{v} = \\mathbf{0}$: $(a_{11} - \\lambda) + a_{12}v_2 = 0$, so $v_2 = \\frac{\\lambda - a_{11}}{a_{12}}$ = ({{l2}} − ({{a}}))/({{b}}) = {{q}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "$\\mathbf{A}$ has eigenvalues $-0.25 \\pm 2j$. Which graph can be $x_1(t)$ for a nonzero initial state and no input?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 8,
+                "label": "t"
+              },
+              "y": {
+                "min": -3.5,
+                "max": 3.5,
+                "label": "x_1"
+              },
+              "curves": [
+                {
+                  "f": "3*exp(-0.25*x)*cos(2*x)"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 8,
+                "label": "t"
+              },
+              "y": {
+                "min": -3.5,
+                "max": 3.5,
+                "label": "x_1"
+              },
+              "curves": [
+                {
+                  "f": "0.5*exp(0.22*x)*cos(2*x)"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 8,
+                "label": "t"
+              },
+              "y": {
+                "min": -3.5,
+                "max": 3.5,
+                "label": "x_1"
+              },
+              "curves": [
+                {
+                  "f": "3*(2*exp(-0.5*x) - exp(-x))"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 8,
+                "label": "t"
+              },
+              "y": {
+                "min": -3.5,
+                "max": 3.5,
+                "label": "x_1"
+              },
+              "curves": [
+                {
+                  "f": "2*cos(2*x)"
+                }
+              ],
+              "hlines": [
+                {
+                  "y": 0
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "$\\lambda = \\sigma \\pm j\\omega$ with $\\sigma = -0.25$ and $\\omega = 2$: a decaying oscillation $e^{-0.25t}\\cos(2t + \\phi)$ with period $2\\pi/2 \\approx 3.1$. The growing oscillation needs $\\sigma > 0$, the constant one $\\sigma = 0$, and the response without oscillation needs real eigenvalues."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Complex eigenvalues",
+          "body": "A conjugate pair $\\lambda = \\sigma \\pm j\\omega$ gives an oscillation at $\\omega$ (rad/s) inside the envelope $e^{\\sigma t}$. For the companion matrix below the pair is $-\\frac{a_1}{2} \\pm j\\sqrt{a_0 - \\frac{a_1^2}{4}}$ when $a_1^2 < 4a_0$. The envelope has dropped to 2 % after about $4/|\\sigma|$.",
+          "formula": "\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -a_0 & -a_1 \\end{bmatrix}"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "a1": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "a0": [
+              5,
+              10,
+              13,
+              17,
+              20,
+              26
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -{{a0}} & -{{a1}} \\end{bmatrix}$ has complex eigenvalues $\\sigma \\pm j\\omega$.",
+          "ask": [
+            {
+              "prompt": "Find the oscillation frequency $\\omega$.",
+              "answer": "sqrt(a0 - a1^2/4)",
+              "unit": "rad/s",
+              "explanation": "$\\lambda^2 + {{a1}}\\lambda + {{a0}} = 0$ gives $\\lambda = -{{a1/2}} \\pm j\\sqrt{ {{a0}} - {{a1^2/4}} }$, so $\\omega$ = {{sqrt(a0 - a1^2/4)}} rad/s."
+            },
+            {
+              "prompt": "After how long has the envelope $e^{\\sigma t}$ dropped to about 2 %?",
+              "answer": "8/a1",
+              "unit": "s",
+              "explanation": "$\\sigma = -a_1/2$ = −{{a1/2}} $\\mathrm{s^{-1}}$ (half the trace). The envelope $e^{\\sigma t}$ reaches $e^{-4} \\approx$ 2 % at $t = 4/|\\sigma|$ = {{8/a1|s}}. The imaginary part does not affect the decay."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match the eigenvalues of $\\mathbf{A}$ to the free response.",
+          "pairs": [
+            [
+              "$-0.5$ and $-3$",
+              "Two decaying exponentials, one slow"
+            ],
+            [
+              "$-1 \\pm 4j$",
+              "Decaying oscillation"
+            ],
+            [
+              "$\\pm 2j$",
+              "Oscillation with constant amplitude"
+            ],
+            [
+              "$0.5$ and $-2$",
+              "Grows without bound"
+            ],
+            [
+              "$0$ and $-1$",
+              "Settles to a constant, not always zero"
+            ]
+          ],
+          "explanation": "Real negative eigenvalues give decaying exponentials; complex ones oscillate at their imaginary part with envelope $e^{\\sigma t}$. A purely imaginary pair never decays. Any eigenvalue with positive real part makes the response grow. An eigenvalue at 0 gives a constant mode: the state stops but need not return to zero."
+        }
+      ]
+    },
+    {
+      "id": "mdc-response-2",
+      "title": "The matrix exponential",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The state-transition matrix",
+          "body": "For $\\dot{\\mathbf{x}} = \\mathbf{A}\\mathbf{x}$ the solution is $\\mathbf{x}(t) = e^{\\mathbf{A}t}\\mathbf{x}(0)$, just like $e^{at}x(0)$ for a scalar. The matrix exponential is defined by the same power series, and column $k$ of $e^{\\mathbf{A}t}$ is the response to a unit initial value in state $k$. For a triangular $\\mathbf{A}$ you can also solve the equations one by one, starting from the bottom.",
+          "formula": "e^{\\mathbf{A}t} = \\mathbf{I} + \\mathbf{A}t + \\frac{(\\mathbf{A}t)^2}{2!} + \\frac{(\\mathbf{A}t)^3}{3!} + \\ldots"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2
+            ],
+            "l2": [
+              -3,
+              -4,
+              -5
+            ],
+            "b": [
+              1,
+              2,
+              3
+            ],
+            "p": [
+              0,
+              1,
+              2
+            ],
+            "q": [
+              1,
+              2
+            ],
+            "t": [
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "$\\dot{\\mathbf{x}} = \\begin{bmatrix} {{l1}} & {{b}} \\\\ 0 & {{l2}} \\end{bmatrix}\\mathbf{x}$ with $\\mathbf{x}(0) = \\begin{bmatrix} {{p}} \\\\ {{q}} \\end{bmatrix}$. Find $x_1$ at $t$ = {{t|s}}.",
+          "answer": "p*exp(l1*t) + q*b*(exp(l1*t) - exp(l2*t))/(l1 - l2)",
+          "unit": "",
+          "explanation": "Bottom row first: $\\dot x_2 = {{l2}}x_2$, so $x_2(t) = {{q}}e^{ {{l2}}t}$. Then $\\dot x_1 = {{l1}}x_1 + {{b}}x_2$, whose solution is the top row of $e^{\\mathbf{A}t}\\mathbf{x}(0)$:\n$$x_1(t) = x_1(0)e^{\\lambda_1t} + a_{12}x_2(0)\\frac{e^{\\lambda_1t} - e^{\\lambda_2t}}{\\lambda_1 - \\lambda_2}$$\nAt $t$ = {{t|s}}: {{p}}·{{exp(l1*t)}} + {{b*q}}·({{exp(l1*t)}} − {{exp(l2*t)}})/({{l1-l2}}) = {{p*exp(l1*t) + q*b*(exp(l1*t) - exp(l2*t))/(l1 - l2)}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Repeated eigenvalue",
+          "body": "When both eigenvalues are equal and $\\mathbf{A}$ is not diagonal, the modes $e^{\\lambda t}$ and $te^{\\lambda t}$ appear, just like a double pole in a transfer function. For the standard case $\\begin{bmatrix} \\lambda & 1 \\\\ 0 & \\lambda \\end{bmatrix}$: $x_2 = x_2(0)e^{\\lambda t}$ drives $x_1$ at its own rate, which produces the factor $t$.",
+          "formula": "e^{\\mathbf{A}t} = e^{\\lambda t}\\begin{bmatrix} 1 & t \\\\ 0 & 1 \\end{bmatrix}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "lam": [
+              -0.5,
+              -1,
+              -2
+            ],
+            "p": [
+              1,
+              2
+            ],
+            "q": [
+              1,
+              2,
+              3
+            ],
+            "t": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "$\\dot{\\mathbf{x}} = \\begin{bmatrix} {{lam}} & 1 \\\\ 0 & {{lam}} \\end{bmatrix}\\mathbf{x}$, $\\mathbf{x}(0) = \\begin{bmatrix} {{p}} \\\\ {{q}} \\end{bmatrix}$. Find $x_1$ at $t$ = {{t|s}}.",
+          "answer": "exp(lam*t)*(p + q*t)",
+          "unit": "",
+          "explanation": "$e^{\\mathbf{A}t} = e^{\\lambda t}\\begin{bmatrix} 1 & t \\\\ 0 & 1 \\end{bmatrix}$, so $x_1(t) = e^{\\lambda t}(x_1(0) + t\\,x_2(0))$ = $e^{ {{lam*t}} }$({{p}} + {{t}}·{{q}}) = {{exp(lam*t)}} × {{p+q*t}} = {{exp(lam*t)*(p + q*t)}}."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Any 2×2 with distinct eigenvalues",
+          "body": "Split $e^{\\mathbf{A}t}$ into its two modes: $e^{\\mathbf{A}t} = e^{\\lambda_1t}\\mathbf{M}_1 + e^{\\lambda_2t}\\mathbf{M}_2$ with $\\mathbf{M}_1 = \\frac{\\mathbf{A} - \\lambda_2\\mathbf{I}}{\\lambda_1 - \\lambda_2}$ and $\\mathbf{M}_2 = \\frac{\\mathbf{A} - \\lambda_1\\mathbf{I}}{\\lambda_2 - \\lambda_1}$. Each entry is a fixed combination of $e^{\\lambda_1t}$ and $e^{\\lambda_2t}$. The same result follows from partial fractions of $(s\\mathbf{I} - \\mathbf{A})^{-1}$.",
+          "formula": "\\mathbf{M}_1 + \\mathbf{M}_2 = \\mathbf{I}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2
+            ],
+            "l2": [
+              -3,
+              -4,
+              -5
+            ],
+            "t": [
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ {{-l1*l2}} & {{l1+l2}} \\end{bmatrix}$ has eigenvalues {{l1}} and {{l2}}.",
+          "ask": [
+            {
+              "prompt": "Find the top-right entry of $e^{\\mathbf{A}t}$ at $t$ = {{t|s}}.",
+              "answer": "(exp(l1*t) - exp(l2*t))/(l1 - l2)",
+              "unit": "",
+              "explanation": "Top-right entries: $\\mathbf{M}_1$ has $\\frac{a_{12}}{\\lambda_1 - \\lambda_2} = \\frac{1}{ {{l1-l2}} }$, $\\mathbf{M}_2$ has $\\frac{1}{ {{l2-l1}} }$. So the entry is $\\frac{e^{\\lambda_1t} - e^{\\lambda_2t}}{\\lambda_1 - \\lambda_2}$ = ({{exp(l1*t)}} − {{exp(l2*t)}})/{{l1-l2}} = {{(exp(l1*t) - exp(l2*t))/(l1 - l2)}}."
+            },
+            {
+              "prompt": "Find the top-left entry of $e^{\\mathbf{A}t}$ at $t$ = {{t|s}}.",
+              "answer": "(l1*exp(l2*t) - l2*exp(l1*t))/(l1 - l2)",
+              "unit": "",
+              "explanation": "Top-left entries: $\\mathbf{M}_1$: $\\frac{0 - \\lambda_2}{\\lambda_1 - \\lambda_2}$ = {{-l2/(l1-l2)}}, $\\mathbf{M}_2$: $\\frac{0 - \\lambda_1}{\\lambda_2 - \\lambda_1}$ = {{-l1/(l2-l1)}}. Entry = {{-l2/(l1-l2)}}·{{exp(l1*t)}} + ({{-l1/(l2-l1)}})·{{exp(l2*t)}} = {{(l1*exp(l2*t) - l2*exp(l1*t))/(l1 - l2)}}. (Check: at $t = 0$ it is 1.)"
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "For any two square matrices, $e^{(\\mathbf{A} + \\mathbf{F})t} = e^{\\mathbf{A}t}e^{\\mathbf{F}t}$.",
+          "answer": false,
+          "explanation": "That rule holds for numbers because $ab = ba$. Matrices generally do not commute: multiply out the series and the cross terms only match when $\\mathbf{A}\\mathbf{F} = \\mathbf{F}\\mathbf{A}$. What does always hold is $e^{\\mathbf{A}(t_1 + t_2)} = e^{\\mathbf{A}t_1}e^{\\mathbf{A}t_2}$, because $\\mathbf{A}$ commutes with itself."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2
+            ],
+            "l2": [
+              -1,
+              -2,
+              -4,
+              -5
+            ],
+            "b1": [
+              1,
+              2
+            ],
+            "b2": [
+              1,
+              2,
+              3
+            ],
+            "u0": [
+              1,
+              2,
+              5
+            ],
+            "t": [
+              0.1,
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "$\\dot{\\mathbf{x}} = \\begin{bmatrix} {{l1}} & 0 \\\\ 0 & {{l2}} \\end{bmatrix}\\mathbf{x} + \\begin{bmatrix} {{b1}} \\\\ {{b2}} \\end{bmatrix}u$ starts at $\\mathbf{x}(0) = \\mathbf{0}$; at $t = 0$ a step $u$ = {{u0}} is applied. Find $x_2$ at $t$ = {{t|s}}.",
+          "answer": "b2*u0/(-l2)*(1 - exp(l2*t))",
+          "unit": "",
+          "explanation": "The states are decoupled. $x_2(t) = \\int_0^t e^{\\lambda_2(t-\\tau)}b_2u_0\\,d\\tau = \\frac{b_2u_0}{-\\lambda_2}\\left(1 - e^{\\lambda_2t}\\right)$ = ({{b2}}·{{u0}}/{{-l2}})(1 − {{exp(l2*t)}}) = {{b2*u0/(-l2)*(1 - exp(l2*t))}}. It rises like a first-order step response toward $b_2u_0/|\\lambda_2|$ = {{b2*u0/(-l2)}}."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps for finding $e^{\\mathbf{A}t}$ with the Laplace transform in order.",
+          "items": [
+            "Form $s\\mathbf{I} - \\mathbf{A}$",
+            "Invert it: adjugate divided by $\\det(s\\mathbf{I} - \\mathbf{A})$",
+            "Split every entry into partial fractions",
+            "Take the inverse Laplace transform of every entry"
+          ],
+          "explanation": "$\\mathcal{L}\\{e^{\\mathbf{A}t}\\} = (s\\mathbf{I} - \\mathbf{A})^{-1}$. Each entry is a rational function with the eigenvalues as poles; partial fractions turn it into terms $\\frac{r}{s - \\lambda_i}$, which transform back to $re^{\\lambda_it}$."
+        }
+      ]
+    },
+    {
+      "id": "mdc-response-3",
+      "title": "Responses and transformations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "m": [
+              1,
+              2
+            ],
+            "k": [
+              8,
+              18,
+              32,
+              50
+            ],
+            "b": [
+              1,
+              2,
+              4
+            ]
+          },
+          "prompt": "A mass-spring-damper has $m$ = {{m}} kg, $k$ = {{k}} N/m and $b$ = {{b}} N·s/m, so $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -k/m & -b/m \\end{bmatrix}$. Its eigenvalues are $\\sigma \\pm j\\omega$.",
+          "ask": [
+            {
+              "prompt": "Find $\\sigma$.",
+              "answer": "-b/(2*m)",
+              "unit": "",
+              "explanation": "$\\det(\\lambda\\mathbf{I} - \\mathbf{A}) = \\lambda^2 + \\frac{b}{m}\\lambda + \\frac{k}{m} = \\lambda^2 + {{b/m}}\\lambda + {{k/m}}$. The real part of a complex pair is half the trace: $\\sigma = -\\frac{b}{2m}$ = {{-b/(2*m)}} $\\mathrm{s^{-1}}$."
+            },
+            {
+              "prompt": "Find $\\omega$.",
+              "answer": "sqrt(k/m - (b/(2*m))^2)",
+              "unit": "rad/s",
+              "explanation": "$\\lambda^2 + {{b/m}}\\lambda + {{k/m}} = 0$: $\\omega = \\sqrt{\\frac{k}{m} - \\sigma^2} = \\sqrt{ {{k/m}} - {{(b/(2*m))^2}} }$ = {{sqrt(k/m - (b/(2*m))^2)}} rad/s, slightly below the undamped $\\sqrt{k/m}$ = {{sqrt(k/m)}} rad/s."
+            }
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "tau": [
+              0.2,
+              0.5,
+              1,
+              2,
+              4
+            ],
+            "x0": [
+              2,
+              3,
+              5
+            ]
+          },
+          "prompt": "The graph shows the free response $x(t) = x(0)e^{\\lambda t}$ of a first-order mode. Read the graph and find the eigenvalue $\\lambda$.",
+          "answer": "-1/tau",
+          "unit": "",
+          "tolerance": 0.1,
+          "explanation": "After one time constant $\\tau = 1/|\\lambda|$ the response has dropped to $e^{-1}$ = 36.8 % of its start: {{0.368*x0}}. The curve passes that level at $t \\approx$ {{tau|s}}, so $\\lambda = -1/\\tau$ = {{-1/tau}} $\\mathrm{s^{-1}}$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "5*tau",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.1*x0",
+              "label": "x(t)"
+            },
+            "curves": [
+              {
+                "f": "x0*exp(-x/tau)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2
+            ],
+            "l2": [
+              -3,
+              -4,
+              -5
+            ],
+            "c0": [
+              1,
+              2,
+              3
+            ],
+            "c1": [
+              1,
+              2
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ {{-l1*l2}} & {{l1+l2}} \\end{bmatrix}$ (eigenvalues {{l1}}, {{l2}}), $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}$, $\\mathbf{C} = [{{c0}} \\;\\; {{c1}}]$. Transform to modal form with $\\mathbf{T} = \\begin{bmatrix} 1 & 1 \\\\ {{l1}} & {{l2}} \\end{bmatrix}$.",
+          "ask": [
+            {
+              "prompt": "Find the first entry of $\\bar{\\mathbf{B}} = \\mathbf{T}^{-1}\\mathbf{B}$.",
+              "answer": "1/(l1 - l2)",
+              "unit": "",
+              "explanation": "$\\det\\mathbf{T} = \\lambda_2 - \\lambda_1$ = {{l2-l1}}, so $\\mathbf{T}^{-1} = \\frac{1}{ {{l2-l1}} }\\begin{bmatrix} {{l2}} & -1 \\\\ {{-l1}} & 1 \\end{bmatrix}$. Its last column is $\\bar{\\mathbf{B}}$: first entry $-1/({{l2-l1}})$ = {{1/(l1-l2)}}."
+            },
+            {
+              "prompt": "Find the second entry of $\\bar{\\mathbf{B}} = \\mathbf{T}^{-1}\\mathbf{B}$.",
+              "answer": "1/(l2 - l1)",
+              "unit": "",
+              "explanation": "$\\mathbf{T}^{-1} = \\frac{1}{ {{l2-l1}} }\\begin{bmatrix} {{l2}} & -1 \\\\ {{-l1}} & 1 \\end{bmatrix}$, so $\\bar{\\mathbf{B}}$ = (last column) = $[-1 \\;\\; 1]^T/({{l2-l1}})$: second entry {{1/(l2-l1)}}."
+            },
+            {
+              "prompt": "Find the first entry of $\\bar{\\mathbf{C}} = \\mathbf{C}\\mathbf{T}$.",
+              "answer": "c0 + c1*l1",
+              "unit": "",
+              "explanation": "$\\mathbf{C}\\mathbf{T} = [c_0 + c_1\\lambda_1 \\;\\; c_0 + c_1\\lambda_2]$: first entry {{c0}} + {{c1}}·({{l1}}) = {{c0 + c1*l1}}. In modal form the transfer function is $\\frac{\\bar c_1\\bar b_1}{s - \\lambda_1} + \\frac{\\bar c_2\\bar b_2}{s - \\lambda_2}$: its partial fractions."
+            }
+          ]
+        },
+        {
+          "id": "p4",
+          "type": "trueFalse",
+          "prompt": "A similarity transformation $\\bar{\\mathbf{A}} = \\mathbf{T}^{-1}\\mathbf{A}\\mathbf{T}$ changes the eigenvectors but not the eigenvalues.",
+          "answer": true,
+          "explanation": "$\\det(s\\mathbf{I} - \\mathbf{T}^{-1}\\mathbf{A}\\mathbf{T}) = \\det\\big(\\mathbf{T}^{-1}(s\\mathbf{I} - \\mathbf{A})\\mathbf{T}\\big)$ $= \\det(s\\mathbf{I} - \\mathbf{A})$: same characteristic polynomial. An eigenvector $\\mathbf{v}$ of $\\mathbf{A}$ becomes $\\mathbf{T}^{-1}\\mathbf{v}$, the same physical mode described in the new coordinates."
+        },
+        {
+          "id": "p5",
+          "type": "numeric",
+          "params": {
+            "sg": [
+              -0.5,
+              -1
+            ],
+            "w": [
+              1,
+              2,
+              3
+            ],
+            "t": [
+              0.25,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "$\\dot{\\mathbf{x}} = \\begin{bmatrix} {{sg}} & {{w}} \\\\ {{-w}} & {{sg}} \\end{bmatrix}\\mathbf{x}$ with $\\mathbf{x}(0) = [1 \\;\\; 0]^T$. Find $x_1$ at $t$ = {{t|s}}.",
+          "answer": "exp(sg*t)*cos(w*t)",
+          "unit": "",
+          "absTolerance": 0.005,
+          "explanation": "This is the rotation form with eigenvalues $\\sigma \\pm j\\omega$ = {{sg}} ± j{{w}}: $e^{\\mathbf{A}t} = e^{\\sigma t}\\begin{bmatrix} \\cos\\omega t & \\sin\\omega t \\\\ -\\sin\\omega t & \\cos\\omega t \\end{bmatrix}$. So $x_1 = e^{\\sigma t}\\cos\\omega t$ = $e^{ {{sg*t}} }\\cos({{w*t}})$ = {{exp(sg*t)}} × {{cos(w*t)}} = {{exp(sg*t)*cos(w*t)}} (angle in radians)."
+        },
+        {
+          "id": "p6",
+          "type": "slider",
+          "params": {
+            "a0": [
+              9,
+              16,
+              25
+            ],
+            "Ts": [
+              2,
+              4
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ -{{a0}} & -a_1 \\end{bmatrix}$. Set $a_1$ so that the free response settles (2 %) in about $T_s$ = {{Ts|s}}.",
+          "plot": {
+            "x": {
+              "min": -8,
+              "max": 1,
+              "label": "Re(s)"
+            },
+            "y": {
+              "min": -6,
+              "max": 6,
+              "label": "Im(s)"
+            },
+            "equal": true,
+            "height": 240,
+            "sliders": [
+              {
+                "name": "a1",
+                "label": "$a_1$",
+                "min": 0.2,
+                "max": 8,
+                "step": 0.05,
+                "value": 0.5
+              }
+            ],
+            "let": {
+              "ds": "a1^2/4 - a0",
+              "re1": "-a1/2 + if(ds, sqrt(abs(ds)), 0)",
+              "re2": "-a1/2 - if(ds, sqrt(abs(ds)), 0)",
+              "im": "if(ds, 0, sqrt(abs(ds)))"
+            },
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0
+              },
+              {
+                "x": "-4/Ts",
+                "color": "orange",
+                "reveal": true
+              }
+            ],
+            "points": [
+              {
+                "x": "re1",
+                "y": "im",
+                "marker": "x",
+                "guides": false,
+                "color": "red"
+              },
+              {
+                "x": "re2",
+                "y": "-im",
+                "marker": "x",
+                "guides": false,
+                "color": "red"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "Re $\\lambda$ (slowest)",
+                "value": "re1"
+              },
+              {
+                "label": "Im $\\lambda$",
+                "value": "im"
+              }
+            ]
+          },
+          "answer": {
+            "a1": "8/Ts"
+          },
+          "tolerance": 0.03,
+          "explanation": "For a complex pair $\\lambda = -\\frac{a_1}{2} \\pm j\\sqrt{a_0 - \\frac{a_1^2}{4}}$, so the decay rate is $|\\sigma| = a_1/2$. $T_s \\approx 4/|\\sigma|$ gives $|\\sigma| = 4/T_s$ = {{4/Ts}} $\\mathrm{s^{-1}}$ and $a_1 = 2|\\sigma|$ = {{8/Ts}}. The eigenvalues then sit on the orange line Re(s) = −{{4/Ts}}; $a_0$ only moves them up and down."
+        }
+      ]
+    },
+    {
+      "id": "mdc-response-4",
+      "title": "Complete solutions",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2
+            ],
+            "l2": [
+              -3,
+              -4
+            ],
+            "p": [
+              1,
+              2
+            ],
+            "qq": [
+              -1,
+              1,
+              2
+            ],
+            "t": [
+              0.5,
+              1
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ {{-l1*l2}} & {{l1+l2}} \\end{bmatrix}$ (eigenvalues {{l1}} and {{l2}}) starts at $\\mathbf{x}(0) = \\begin{bmatrix} {{p}} \\\\ {{qq}} \\end{bmatrix}$ with no input. Find $x_1$ at $t$ = {{t|s}}.",
+          "answer": "p*(l1*exp(l2*t) - l2*exp(l1*t))/(l1 - l2) + qq*(exp(l1*t) - exp(l2*t))/(l1 - l2)",
+          "unit": "",
+          "absTolerance": 0.005,
+          "explanation": "Row 1 of $e^{\\mathbf{A}t}$ from $\\mathbf{M}_1 = \\frac{\\mathbf{A} - \\lambda_2\\mathbf{I}}{\\lambda_1 - \\lambda_2}$ and $\\mathbf{M}_2 = \\frac{\\mathbf{A} - \\lambda_1\\mathbf{I}}{\\lambda_2 - \\lambda_1}$:\n$\\Phi_{11} = \\frac{\\lambda_1e^{\\lambda_2t} - \\lambda_2e^{\\lambda_1t}}{\\lambda_1 - \\lambda_2}$ = {{(l1*exp(l2*t) - l2*exp(l1*t))/(l1 - l2)}}, $\\Phi_{12} = \\frac{e^{\\lambda_1t} - e^{\\lambda_2t}}{\\lambda_1 - \\lambda_2}$ = {{(exp(l1*t) - exp(l2*t))/(l1 - l2)}}.\n$x_1 = \\Phi_{11}x_1(0) + \\Phi_{12}x_2(0)$ = {{(l1*exp(l2*t) - l2*exp(l1*t))/(l1 - l2)}}·{{p}} + {{(exp(l1*t) - exp(l2*t))/(l1 - l2)}}·({{qq}}) = {{p*(l1*exp(l2*t) - l2*exp(l1*t))/(l1 - l2) + qq*(exp(l1*t) - exp(l2*t))/(l1 - l2)}}."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2
+            ],
+            "l2": [
+              -3,
+              -4,
+              -5
+            ],
+            "t": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ {{-l1*l2}} & {{l1+l2}} \\end{bmatrix}$ (eigenvalues {{l1}}, {{l2}}), $\\mathbf{B} = \\begin{bmatrix} 0 \\\\ 1 \\end{bmatrix}$, $\\mathbf{x}(0) = \\mathbf{0}$, unit step input.",
+          "ask": [
+            {
+              "prompt": "Find $x_1$ at $t$ = {{t|s}}.",
+              "answer": "1/(l1*l2) + exp(l1*t)/(l1*(l1 - l2)) + exp(l2*t)/(l2*(l2 - l1))",
+              "unit": "",
+              "explanation": "$X_1(s) = \\frac{1}{s(s - \\lambda_1)(s - \\lambda_2)}$ (companion form: $\\mathbf{C} = [1 \\;\\; 0]$ gives $\\frac{1}{s^2 + a_1s + a_0}$). Partial fractions:\n$$x_1(t) = \\frac{1}{\\lambda_1\\lambda_2} + \\frac{e^{\\lambda_1t}}{\\lambda_1(\\lambda_1 - \\lambda_2)} + \\frac{e^{\\lambda_2t}}{\\lambda_2(\\lambda_2 - \\lambda_1)}$$\n= {{1/(l1*l2)}} + ({{exp(l1*t)/(l1*(l1 - l2))}}) + ({{exp(l2*t)/(l2*(l2 - l1))}}) = {{1/(l1*l2) + exp(l1*t)/(l1*(l1 - l2)) + exp(l2*t)/(l2*(l2 - l1))}}.",
+              "absTolerance": 0.002
+            },
+            {
+              "prompt": "Find the final value of $x_1$.",
+              "answer": "1/(l1*l2)",
+              "unit": "",
+              "explanation": "In steady state $\\dot{\\mathbf{x}} = \\mathbf{0}$: $\\mathbf{x}_{ss} = -\\mathbf{A}^{-1}\\mathbf{B}$. Row 2 gives $-{{l1*l2}}x_1 + 0 + 1 = 0$, so $x_1 = 1/(\\lambda_1\\lambda_2)$ = 1/{{l1*l2}} = {{1/(l1*l2)}}."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "sg": [
+              -0.2,
+              -0.5,
+              -1
+            ],
+            "w": [
+              1,
+              2,
+              4
+            ],
+            "p": [
+              1,
+              2
+            ],
+            "qq": [
+              1,
+              2,
+              3
+            ],
+            "t": [
+              0.5,
+              1
+            ]
+          },
+          "prompt": "$\\dot{\\mathbf{x}} = \\begin{bmatrix} {{sg}} & {{w}} \\\\ {{-w}} & {{sg}} \\end{bmatrix}\\mathbf{x}$ with $\\mathbf{x}(0) = \\begin{bmatrix} {{p}} \\\\ {{qq}} \\end{bmatrix}$. Find $x_2$ at $t$ = {{t|s}}.",
+          "answer": "exp(sg*t)*(-p*sin(w*t) + qq*cos(w*t))",
+          "unit": "",
+          "absTolerance": 0.005,
+          "explanation": "$e^{\\mathbf{A}t} = e^{\\sigma t}\\begin{bmatrix} \\cos\\omega t & \\sin\\omega t \\\\ -\\sin\\omega t & \\cos\\omega t \\end{bmatrix}$ with $\\sigma$ = {{sg}}, $\\omega$ = {{w}}. Row 2: $x_2 = e^{\\sigma t}(-x_1(0)\\sin\\omega t + x_2(0)\\cos\\omega t)$ = {{exp(sg*t)}} × (−{{p}}·{{sin(w*t)}} + {{qq}}·{{cos(w*t)}}) = {{exp(sg*t)*(-p*sin(w*t) + qq*cos(w*t))}}."
+        },
+        {
+          "id": "c4",
+          "type": "multipleChoice",
+          "prompt": "Which matrix can **not** be a state-transition matrix $e^{\\mathbf{A}t}$ for any constant $\\mathbf{A}$?",
+          "options": [
+            "$\\begin{bmatrix} e^{-t} & 0 \\\\ 0 & 2e^{-2t} \\end{bmatrix}$",
+            "$\\begin{bmatrix} e^{-t} & 0 \\\\ 0 & e^{-3t} \\end{bmatrix}$",
+            "$\\begin{bmatrix} \\cos t & \\sin t \\\\ -\\sin t & \\cos t \\end{bmatrix}$",
+            "$\\begin{bmatrix} 1 & t \\\\ 0 & 1 \\end{bmatrix}$"
+          ],
+          "answer": 0,
+          "explanation": "Every $e^{\\mathbf{A}t}$ equals $\\mathbf{I}$ at $t = 0$ (no time, no change). $\\mathrm{diag}(e^{-t}, 2e^{-2t})$ gives $\\mathrm{diag}(1, 2)$ at $t = 0$, so it is impossible. The others are $e^{\\mathbf{A}t}$ for $\\mathbf{A} = \\mathrm{diag}(-1, -3)$, for the rotation $\\begin{bmatrix} 0 & 1 \\\\ -1 & 0 \\end{bmatrix}$, and for the double integrator $\\begin{bmatrix} 0 & 1 \\\\ 0 & 0 \\end{bmatrix}$."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "l1": [
+              -1,
+              -2,
+              -3
+            ],
+            "l2": [
+              -4,
+              -5,
+              -6
+            ],
+            "p": [
+              -3,
+              -2,
+              1,
+              2
+            ],
+            "k": [
+              1,
+              2,
+              3
+            ],
+            "t": [
+              0.5,
+              1
+            ]
+          },
+          "derived": {
+            "q": "p + 1",
+            "a": "q*l1 - p*l2",
+            "b": "l2 - l1",
+            "c": "p*q*(l1 - l2)",
+            "d": "q*l2 - p*l1"
+          },
+          "prompt": "$\\mathbf{A} = \\begin{bmatrix} {{a}} & {{b}} \\\\ {{c}} & {{d}} \\end{bmatrix}$ has eigenvalues {{l1}} and {{l2}}. The system starts at $\\mathbf{x}(0) = \\begin{bmatrix} {{k}} \\\\ {{k*p}} \\end{bmatrix}$ with no input. Find $x_1$ at $t$ = {{t|s}}.",
+          "answer": "k*exp(l1*t)",
+          "unit": "",
+          "absTolerance": 0.002,
+          "explanation": "Check whether $\\mathbf{x}(0)$ is an eigenvector: $\\mathbf{A}\\mathbf{x}(0) = [{{a*k + b*k*p}} \\;\\; {{c*k + d*k*p}}]^T$, which is {{l1}} times $\\mathbf{x}(0)$. It is, for $\\lambda$ = {{l1}}, so only that mode is excited and the state slides along the eigenvector: $\\mathbf{x}(t) = e^{\\lambda t}\\mathbf{x}(0)$. $x_1$ = {{k}}$e^{ {{l1*t}} }$ = {{k*exp(l1*t)}}."
+        },
+        {
+          "id": "c6",
+          "type": "numeric",
+          "params": {
+            "sg": [
+              -0.2,
+              -0.3,
+              -0.5
+            ],
+            "w": [
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "The graph shows $x_1(t)$ of a system with complex eigenvalues $\\sigma \\pm j\\omega$ after an initial displacement. Read the period and find $\\omega$.",
+          "answer": "w",
+          "unit": "rad/s",
+          "tolerance": 0.08,
+          "explanation": "Successive peaks are one period $T_d$ = {{2*pi/w|s}} apart. $\\omega = 2\\pi/T_d$ = {{w}} rad/s. (The envelope $e^{\\sigma t}$ only sets how fast the peaks shrink.)",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "8*pi/w",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": -1.1,
+              "max": 1.1,
+              "label": "x_1(t)"
+            },
+            "curves": [
+              {
+                "f": "exp(sg*x)*cos(w*x)"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "c7",
+          "type": "trueFalse",
+          "prompt": "If every eigenvalue of $\\mathbf{A}$ has a negative real part, every entry of $e^{\\mathbf{A}t}$ tends to 0 as $t \\to \\infty$.",
+          "answer": true,
+          "explanation": "Every entry of $e^{\\mathbf{A}t}$ is a combination of the modes $e^{\\lambda_it}$ (times powers of $t$ for repeated eigenvalues). With $\\mathrm{Re}\\,\\lambda_i < 0$ each of them decays, even $te^{\\lambda t}$, so $e^{\\mathbf{A}t} \\to \\mathbf{0}$ and every free response returns to the origin: asymptotic stability."
+        }
+      ]
+    }
+  ]
+}

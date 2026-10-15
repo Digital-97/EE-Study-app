@@ -1,0 +1,3118 @@
+{
+  "id": "ae-feedback",
+  "title": "Feedback & Real Op Amps",
+  "description": "Negative feedback in numbers, and what real op amps do to it: offsets, bias currents, bandwidth, slew rate, stability and comparators.",
+  "reference": "H&H §4.01–4.35",
+  "study": [
+    {
+      "title": "The golden rules and when they fail",
+      "body": "With negative feedback and the op amp in its linear range: **(I)** the output does whatever is needed to make the voltage difference between the inputs zero; **(II)** the inputs draw no current. Rule I fails when the loop cannot do its job: output clipped at a rail, output slewing, signal frequency near the bandwidth limit, inputs outside the common-mode range, or no (or positive) feedback as in comparators. Rule II is only approximate: real inputs draw a bias current $I_B$ (pA for FET inputs, nA for BJT inputs)."
+    },
+    {
+      "title": "The feedback equation",
+      "body": "A fraction $B$ of the output is subtracted from the input of an amplifier with open-loop gain $A$. The **loop gain** $AB$ is the gain 'left over'; when $AB \\gg 1$ the closed-loop gain is $1/B$, set by the resistors (noninverting amp: $1/B = 1 + R_2/R_1$). Changes in $A$ are reduced by $1+AB$: $dG/G = (dA/A)/(1+AB)$. Feedback in series with the input raises $Z_{in}$ by $1+AB$; feedback sampling the output voltage lowers $Z_{out}$ by $1+AB$.",
+      "formula": "G = \\frac{A}{1+AB} \\approx \\frac{1}{B}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                1
+              ],
+              [
+                0.7,
+                1
+              ]
+            ],
+            "label": "v_{in}"
+          },
+          {
+            "type": "sum",
+            "at": [
+              1,
+              1
+            ],
+            "kind": "+-"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.3,
+                1
+              ],
+              [
+                1.8,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              2.8,
+              1
+            ],
+            "label": "A"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                3.8,
+                1
+              ],
+              [
+                5.6,
+                1
+              ]
+            ],
+            "label": "v_{out}"
+          },
+          {
+            "type": "node",
+            "at": [
+              4.6,
+              1
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.6,
+                1
+              ],
+              [
+                4.6,
+                2.5
+              ],
+              [
+                3.8,
+                2.5
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              2.8,
+              2.5
+            ],
+            "label": "B"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.8,
+                2.5
+              ],
+              [
+                1,
+                2.5
+              ],
+              [
+                1,
+                1.3
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Offset voltage and bias current",
+      "body": "Model the offset $V_{os}$ as a small battery in series with the + input: it is amplified by the **noise gain** $1 + R_2/R_1$, also in an inverting amplifier. Bias current into the − input flows through $R_2$ and adds $I_BR_2$. A resistor $R_3 = R_1 \\parallel R_2$ in series with the + input cancels the bias-current part, leaving only $I_{os}R_2$ (offset current $I_{os}$ is typically $I_B$/2 to $I_B$/10).",
+      "formula": "V_{out,err} = V_{os}\\left(1+\\frac{R_2}{R_1}\\right) + I_BR_2",
+      "circuit": {
+        "elements": [
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              1.5
+            ],
+            "to": [
+              2,
+              1.5
+            ],
+            "label": "R_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                1.5
+              ],
+              [
+                0,
+                2.5
+              ]
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              0,
+              2.5
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              1.5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1.5
+              ],
+              [
+                3,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1.5
+              ],
+              [
+                2,
+                0.5
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0.5
+            ],
+            "to": [
+              5.5,
+              0.5
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5.5,
+                0.5
+              ],
+              [
+                5.5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5.5,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                2
+              ],
+              [
+                6.5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              6.5,
+              2
+            ],
+            "label": "v_o"
+          },
+          {
+            "type": "opamp",
+            "at": [
+              4,
+              2
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              1.5,
+              2.5
+            ],
+            "to": [
+              3,
+              2.5
+            ],
+            "label": "R_3",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1.5,
+                2.5
+              ],
+              [
+                1.5,
+                3.5
+              ]
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              1.5,
+              3.5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: gain–bandwidth product",
+      "body": "An internally compensated op amp rolls off at 6 dB/octave (20 dB/decade) from a few Hz, reaching unity gain at $f_T$ (here 1 MHz). With feedback the closed-loop gain follows the open-loop curve once $A$ drops to the noise gain $G$, so the bandwidth is $f_T/G$. The large-signal limit is the **slew rate** SR: a sine of peak $V_p$ needs $2\\pi f V_p \\le$ SR, so full power is available only up to $f_{max} = SR/(2\\pi V_p)$.",
+      "formula": "f_{-3dB} \\approx \\frac{f_T}{1+R_2/R_1}",
+      "plot": {
+        "x": {
+          "min": 1,
+          "max": 10000000.0,
+          "log": true,
+          "label": "f",
+          "unit": "Hz"
+        },
+        "y": {
+          "min": -10,
+          "max": 110,
+          "label": "gain (dB)"
+        },
+        "sliders": [
+          {
+            "name": "G",
+            "label": "noise gain $1+R_2/R_1$",
+            "min": 1,
+            "max": 1000,
+            "log": true,
+            "value": 10
+          }
+        ],
+        "curves": [
+          {
+            "f": "20*log10(2e5/sqrt(1+(x/5)^2))",
+            "color": "grey",
+            "dash": true,
+            "label": "open loop",
+            "labelAt": 0.3
+          },
+          {
+            "f": "20*log10(2e5/sqrt((1+2e5/G)^2+(x/5)^2))",
+            "label": "closed loop",
+            "labelAt": 0.15
+          }
+        ],
+        "readouts": [
+          {
+            "label": "closed-loop gain",
+            "value": "20*log10(G)",
+            "unit": "dB"
+          },
+          {
+            "label": "$f_{-3dB} \\approx f_T/G$",
+            "value": "1e6/G",
+            "unit": "Hz"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: compensation and phase margin",
+      "body": "The dominant pole gives 90° lag and a second pole $f_2$ adds more; at 180° lag with loop gain ≥ 1 the amplifier oscillates. **Phase margin** is 180° minus the lag at the crossover $f_c$ where $|AB| = 1$ (aim for ≥ 45°). Unity-gain-stable op amps put $f_T$ below $f_2$ for the worst case $B = 1$, which makes them slow; decompensated types are faster but need a minimum noise gain. A capacitive load adds a pole with the output resistance: use a small series resistor. Graph: $f_T$ = 50 MHz, $f_2$ = 10 MHz.",
+      "formula": "\\varphi_m \\approx 90^\\circ - \\arctan\\frac{f_c}{f_2}",
+      "plot": {
+        "x": {
+          "min": 10000.0,
+          "max": 1000000000.0,
+          "log": true,
+          "label": "f",
+          "unit": "Hz"
+        },
+        "y": {
+          "min": -40,
+          "max": 80,
+          "label": "|AB| (dB)"
+        },
+        "sliders": [
+          {
+            "name": "G",
+            "label": "noise gain $1/B$",
+            "min": 1,
+            "max": 100,
+            "log": true,
+            "value": 1
+          }
+        ],
+        "let": {
+          "r": "5/G",
+          "u": "sqrt((-1+sqrt(1+4*r^2))/2)"
+        },
+        "curves": [
+          {
+            "f": "20*log10(1e5/G/sqrt(1+(x/500)^2)/sqrt(1+(x/1e7)^2))",
+            "label": "loop gain",
+            "labelAt": 0.2
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "vlines": [
+          {
+            "x": "1e7*u",
+            "label": "f_c"
+          },
+          {
+            "x": 10000000.0,
+            "color": "grey"
+          }
+        ],
+        "labels": [
+          {
+            "x": 11500000.0,
+            "y": 55,
+            "text": "f_2",
+            "color": "grey"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "crossover $f_c$",
+            "value": "1e7*u",
+            "unit": "Hz"
+          },
+          {
+            "label": "phase margin",
+            "value": "90 - deg(atan(u))",
+            "unit": "°"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Output limits and single-supply operation",
+      "body": "A classic op amp output swings to within 1–2 V of each rail and delivers about 20 mA; **rail-to-rail** types get within tens of mV, and some inputs also work down to (or beyond) the rails. On a single supply, bias the signal at $V_{CC}/2$: a divider $R_A = R_B$ sets the + input, $C_1$ couples the signal in, and $C_2$ makes the dc gain 1 so the output also sits at $V_{CC}/2$. The ac gain is $1 + R_2/R_1$.",
+      "formula": "v_{o,peak} \\le \\frac{V_{CC}}{2} - V_{headroom}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "opamp",
+            "at": [
+              4,
+              3
+            ],
+            "flip": true
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              2.5
+            ],
+            "label": "v_{in}",
+            "flip": true
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              0,
+              2.5
+            ],
+            "to": [
+              2,
+              2.5
+            ],
+            "label": "C_1"
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2.5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                2.5
+              ],
+              [
+                3,
+                2.5
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              2.5
+            ],
+            "to": [
+              2,
+              1
+            ],
+            "label": "R_A"
+          },
+          {
+            "type": "terminal",
+            "at": [
+              2,
+              1
+            ],
+            "label": "+V_{CC}"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              2.5
+            ],
+            "to": [
+              2,
+              4.5
+            ],
+            "label": "R_B",
+            "flip": true
+          },
+          {
+            "type": "ground",
+            "at": [
+              2,
+              4.5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                3.5
+              ],
+              [
+                3,
+                5
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              5
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              5
+            ],
+            "to": [
+              5.5,
+              5
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5.5,
+                5
+              ],
+              [
+                5.5,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5.5,
+              3
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                3
+              ],
+              [
+                6.5,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              6.5,
+              3
+            ],
+            "label": "v_o"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              5
+            ],
+            "to": [
+              3,
+              6
+            ],
+            "label": "R_1"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              3,
+              6
+            ],
+            "to": [
+              3,
+              7
+            ],
+            "label": "C_2"
+          },
+          {
+            "type": "ground",
+            "at": [
+              3,
+              7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Comparators and Schmitt triggers",
+      "body": "A comparator is built for open-loop use: fast, no compensation, quick recovery, often an open-collector output with a pull-up. An op amp used this way is slow. **Positive feedback** gives hysteresis: the threshold depends on the output state, so a slow, noisy input causes one clean transition. In the inverting Schmitt trigger drawn (output $\\pm V_{sat}$) the thresholds are $\\pm V_{sat}R_1/(R_1+R_2)$:",
+      "formula": "\\Delta V = 2V_{sat}\\frac{R_1}{R_1+R_2}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "opamp",
+            "at": [
+              4,
+              2
+            ],
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2.5
+              ],
+              [
+                3,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              3,
+              4
+            ],
+            "label": "v_{in}"
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              1.5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1.5
+              ],
+              [
+                3,
+                1.5
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              1.5
+            ],
+            "to": [
+              2,
+              3.5
+            ],
+            "label": "R_1",
+            "flip": true
+          },
+          {
+            "type": "ground",
+            "at": [
+              2,
+              3.5
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                1.5
+              ],
+              [
+                2,
+                0.5
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0.5
+            ],
+            "to": [
+              5.5,
+              0.5
+            ],
+            "label": "R_2"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5.5,
+                0.5
+              ],
+              [
+                5.5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              5.5,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                2
+              ],
+              [
+                6.5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              6.5,
+              2
+            ],
+            "label": "v_o"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ae-feedback-1",
+      "title": "Feedback and the golden rules",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The golden rules",
+          "body": "Horowitz & Hill's two rules for op amps with negative feedback:\n- **I.** The output does whatever is needed to make $v_+ - v_- = 0$.\n- **II.** The inputs draw no current.\nRule I is a consequence of feedback with huge gain, so it only holds while the op amp *can* respond: not clipped, not slewing, within its bandwidth and common-mode range."
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "In which case can you still use golden rule I ($v_+ = v_-$)?",
+          "options": [
+            "A ×10 amplifier at 1 kHz whose output stays 3 V from either rail",
+            "A comparator without feedback",
+            "An amplifier whose output is clipped at the positive rail",
+            "A Schmitt trigger (feedback to the + input)"
+          ],
+          "answer": 0,
+          "explanation": "Rule I needs working negative feedback. A clipped output can no longer move to correct the input difference, a comparator has no feedback, and a Schmitt trigger has positive feedback, so its inputs differ on purpose. The ×10 amplifier at 1 kHz is well inside its linear range."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The feedback equation",
+          "body": "The amplifier sees $v_{in} - Bv_{out}$, so $v_{out} = A(v_{in} - Bv_{out})$. Solving gives the closed-loop gain below. The product $AB$ is the **loop gain**: the gain around the loop. If $AB \\gg 1$, $G \\approx 1/B$: the gain depends only on the feedback network, not on the op amp.",
+          "formula": "G = \\frac{A}{1+AB}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    0.7,
+                    1
+                  ]
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "sum",
+                "at": [
+                  1,
+                  1
+                ],
+                "kind": "+-"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.3,
+                    1
+                  ],
+                  [
+                    1.8,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2.8,
+                  1
+                ],
+                "label": "A"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    3.8,
+                    1
+                  ],
+                  [
+                    5.6,
+                    1
+                  ]
+                ],
+                "label": "v_{out}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  4.6,
+                  1
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.6,
+                    1
+                  ],
+                  [
+                    4.6,
+                    2.5
+                  ],
+                  [
+                    3.8,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2.8,
+                  2.5
+                ],
+                "label": "B"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.8,
+                    2.5
+                  ],
+                  [
+                    1,
+                    2.5
+                  ],
+                  [
+                    1,
+                    1.3
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "A": [
+              1000.0,
+              10000.0,
+              100000.0
+            ],
+            "G0": [
+              10,
+              100,
+              1000
+            ]
+          },
+          "require": "A/G0 - 4",
+          "prompt": "An amplifier with open-loop gain $A$ = {{A}} gets feedback with $B$ = 1/{{G0}}.",
+          "ask": [
+            {
+              "prompt": "Find the loop gain $AB$.",
+              "answer": "A/G0",
+              "unit": "",
+              "explanation": "$AB$ = {{A}} / {{G0}} = {{A/G0}}."
+            },
+            {
+              "prompt": "Find the closed-loop gain.",
+              "answer": "A/(1 + A/G0)",
+              "unit": "",
+              "explanation": "$G = \\frac{A}{1+AB}$ = {{A}} / (1 + {{A/G0}}) = {{A/(1+A/G0)||4}}, a little below the ideal $1/B$ = {{G0}}."
+            },
+            {
+              "prompt": "By what percentage is the gain below the ideal value $1/B$?",
+              "answer": "100/(1 + A/G0)",
+              "unit": "%",
+              "explanation": "The relative error is $\\frac{1}{1+AB}$ = 1/(1 + {{A/G0}}) = {{100/(1+A/G0)}} %. More loop gain, less error."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "A": [
+              10000.0,
+              100000.0,
+              200000.0
+            ],
+            "G0": [
+              10,
+              100
+            ],
+            "dA": [
+              20,
+              30,
+              50
+            ]
+          },
+          "prompt": "An op amp's open-loop gain $A$ = {{A}} drops by {{dA}} % when it warms up. It is used in a noninverting amplifier with $B$ = 1/{{G0}}. By how many percent does the closed-loop gain **drop**? For a change this large, use the loop gain **after** the change.",
+          "answer": "dA/(1 + A*(1 - dA/100)/G0)",
+          "unit": "%",
+          "hint": "$\\Delta G/G = (\\Delta A/A)/(1+AB)$, with $AB$ computed from the new $A$.",
+          "explanation": "Feedback divides the change by $1+AB$. For a large change use the loop gain with the **new** $A$ = {{A*(1-dA/100)}}: $AB$ = {{A*(1-dA/100)/G0}}.\n$\\frac{\\Delta G}{G} = \\frac{\\Delta A/A}{1+AB}$ = {{dA}} % / {{1+A*(1-dA/100)/G0}} = {{dA/(1 + A*(1 - dA/100)/G0)}} %. (This is exact: $G_1 - G_2 = \\frac{A_1-A_2}{(1+A_1B)(1+A_2B)}$.)"
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Feedback changes impedances",
+          "body": "In a noninverting amplifier the feedback voltage is in **series** with the input: the input only has to supply the tiny error voltage, so $Z_{in}$ rises by $1+AB$. Because feedback senses the output voltage, $Z_{out}$ drops by $1+AB$. In an inverting amplifier the feedback is in **shunt** at the input: the − input is a virtual ground and $Z_{in} = R_1$.",
+          "formula": "Z_{in} = Z_i(1+AB), \\qquad Z_{out} = \\frac{Z_o}{1+AB}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Zi": [
+              1000000.0,
+              2000000.0
+            ],
+            "Zo": [
+              50,
+              75,
+              100
+            ],
+            "A": [
+              100000.0,
+              200000.0
+            ],
+            "G0": [
+              1,
+              10,
+              100
+            ]
+          },
+          "prompt": "A BJT-input op amp has $A$ = {{A}}, open-loop input resistance $Z_i$ = {{Zi|Ω}} and output resistance $Z_o$ = {{Zo|Ω}}. It is used as a noninverting amplifier with gain {{G0}}.",
+          "ask": [
+            {
+              "prompt": "Find the input impedance.",
+              "answer": "Zi*(1 + A/G0)",
+              "unit": "Ω",
+              "explanation": "$B = 1/G$, so $AB$ = {{A}}/{{G0}} = {{A/G0}}.\n$Z_{in} = Z_i(1+AB)$ = {{Zi|Ω}} × {{1+A/G0}} = {{Zi*(1+A/G0)|Ω}}. (In practice the common-mode input resistance and leakage limit this.)"
+            },
+            {
+              "prompt": "Find the output impedance.",
+              "answer": "Zo/(1 + A/G0)",
+              "unit": "Ω",
+              "explanation": "$AB$ = {{A/G0}}, so $Z_{out} = \\frac{Z_o}{1+AB}$ = {{Zo|Ω}} / {{1+A/G0}} = {{Zo/(1+A/G0)|Ω}}. It rises at high frequency, where $A$ falls."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Negative feedback raises the input impedance of an inverting amplifier far above $R_1$.",
+          "answer": false,
+          "explanation": "In the inverting amplifier the feedback holds the − input at virtual ground, so the source sees just $R_1$ to ground: $Z_{in} = R_1$. The $(1+AB)$ boost applies to series feedback at the input, as in the noninverting amplifier."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            [
+              "Open-loop gain $A$",
+              "Gain of the op amp alone"
+            ],
+            [
+              "Feedback fraction $B$",
+              "Part of the output fed back"
+            ],
+            [
+              "Loop gain $AB$",
+              "Excess gain that makes rule I work"
+            ],
+            [
+              "Noise gain $1/B$",
+              "Gain applied to errors at the input"
+            ]
+          ],
+          "explanation": "$A$ is huge and poorly defined; $B$ is set by the resistors. Their product, the loop gain, determines how accurate, stable and low-impedance the circuit is. The noise gain $1/B = 1 + R_2/R_1$ multiplies input-referred errors such as $V_{os}$, even in an inverting amplifier."
+        }
+      ]
+    },
+    {
+      "id": "ae-feedback-2",
+      "title": "DC errors: offset and bias current",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vos": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "R1": [
+              1000,
+              2200,
+              4700,
+              10000
+            ],
+            "R2": [
+              47000,
+              100000,
+              220000
+            ]
+          },
+          "prompt": "The input of an inverting amplifier is grounded. The op amp is ideal except for its offset, modelled as $V_{os}$ = {{Vos|V}} in series with the + input.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1",
+                "name": "R1",
+                "val": "R1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    1.5
+                  ],
+                  [
+                    0,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0.5
+                ],
+                "to": [
+                  5.5,
+                  0.5
+                ],
+                "label": "R_2",
+                "name": "R2",
+                "val": "R2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ],
+                "name": "U1"
+              },
+              {
+                "type": "vsource",
+                "from": [
+                  1.5,
+                  2.5
+                ],
+                "to": [
+                  3,
+                  2.5
+                ],
+                "label": "V_{os}",
+                "name": "Vos",
+                "val": "Vos",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1.5,
+                    2.5
+                  ],
+                  [
+                    1.5,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  1.5,
+                  3.5
+                ]
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find the output voltage.",
+              "answer": "V_U1",
+              "unit": "V",
+              "explanation": "Rule I puts the − input at $V_{os}$, so $R_1$ carries $V_{os}/R_1$, which also flows through $R_2$:\n$v_o = V_{os}\\left(1+\\frac{R_2}{R_1}\\right)$ = {{Vos|V}} × {{1+R2/R1}} = {{V_U1|V}}."
+            },
+            {
+              "prompt": "By what factor is $V_{os}$ amplified?",
+              "answer": "1 + R2/R1",
+              "unit": "",
+              "explanation": "The offset sees the **noise gain** $1 + R_2/R_1$ = {{1+R2/R1}}, not the signal gain $R_2/R_1$ = {{R2/R1}}: the output is {{V_U1|V}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "IB": [
+              2e-08,
+              5e-08,
+              1e-07,
+              5e-07
+            ],
+            "R1": [
+              10000,
+              47000
+            ],
+            "R2": [
+              100000,
+              470000,
+              1000000
+            ]
+          },
+          "prompt": "The input is grounded and the + input is tied to ground. The op amp draws a bias current $I_B$ = {{IB|A}} into its − input (modelled as a current source). Find the output voltage.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1",
+                "name": "R1",
+                "val": "R1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    1.5
+                  ],
+                  [
+                    0,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0.5
+                ],
+                "to": [
+                  5.5,
+                  0.5
+                ],
+                "label": "R_2",
+                "name": "R2",
+                "val": "R2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ],
+                "name": "U1"
+              },
+              {
+                "type": "isource",
+                "from": [
+                  2,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  3.5
+                ],
+                "label": "I_B",
+                "name": "IB",
+                "val": "IB",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    3.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  3.5
+                ]
+              }
+            ]
+          },
+          "answer": "V_U1",
+          "unit": "V",
+          "explanation": "The − input sits at 0 V (rule I), so $R_1$ carries no current. All of $I_B$ must come from the output through $R_2$:\n$v_o = I_BR_2$ = {{IB|A}} × {{R2|Ω}} = {{V_U1|V}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "R1": [
+              1000,
+              10000
+            ],
+            "R2": [
+              100000,
+              220000,
+              470000,
+              1000000
+            ],
+            "IB": [
+              5e-08,
+              1e-07,
+              2e-07
+            ],
+            "Ios": [
+              2e-09,
+              5e-09,
+              1e-08
+            ]
+          },
+          "prompt": "An inverting amplifier has $R_1$ = {{R1|Ω}} and $R_2$ = {{R2|Ω}}. The op amp has $I_B$ = {{IB|A}} and $I_{os}$ = {{Ios|A}}.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    1.5
+                  ],
+                  [
+                    0,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2.5
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0.5
+                ],
+                "to": [
+                  5.5,
+                  0.5
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  1.5,
+                  2.5
+                ],
+                "to": [
+                  3,
+                  2.5
+                ],
+                "label": "R_3",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1.5,
+                    2.5
+                  ],
+                  [
+                    1.5,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  1.5,
+                  3.5
+                ]
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Without $R_3$ (+ input grounded), estimate the output error due to $I_B$.",
+              "answer": "IB*R2",
+              "unit": "V",
+              "explanation": "$v_o = I_BR_2$ = {{IB|A}} × {{R2|Ω}} = {{IB*R2|V}}."
+            },
+            {
+              "prompt": "Which $R_3$ cancels the bias-current error?",
+              "answer": "par(R1, R2)",
+              "unit": "Ω",
+              "explanation": "$R_3 = R_1 \\parallel R_2$ = {{par(R1,R2)|Ω}}: both inputs then see the same resistance, so equal bias currents give equal voltage drops."
+            },
+            {
+              "prompt": "With $R_3 = R_1 \\parallel R_2$, estimate the remaining output error.",
+              "answer": "Ios*R2",
+              "unit": "V",
+              "explanation": "Only the difference between the two input currents remains: $v_o \\approx I_{os}R_2$ = {{Ios|A}} × {{R2|Ω}} = {{Ios*R2|V}}, against {{IB*R2|V}} without $R_3$."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vos": [
+              0.0005,
+              0.001,
+              0.003
+            ],
+            "IB": [
+              2e-08,
+              8e-08,
+              2.5e-07
+            ],
+            "R1": [
+              1000,
+              10000
+            ],
+            "G": [
+              10,
+              20,
+              50,
+              100
+            ]
+          },
+          "derived": {
+            "R2": "(G - 1)*R1"
+          },
+          "prompt": "A noninverting amplifier with gain {{G}} uses $R_1$ = {{R1|Ω}} and $R_2$ = {{R2|Ω}} (no bias compensation). The op amp has $V_{os}$ = {{Vos|V}} and $I_B$ = {{IB|A}}. Estimate the worst-case output error with the input at 0 V.",
+          "answer": "Vos*G + IB*R2",
+          "unit": "V",
+          "explanation": "Offset: $V_{os}(1 + R_2/R_1)$ = {{Vos|V}} × {{G}} = {{Vos*G|V}}.\nBias current: $I_BR_2$ = {{IB|A}} × {{R2|Ω}} = {{IB*R2|V}}.\nWorst case they add: {{Vos*G + IB*R2|V}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "TC": [
+              1e-06,
+              5e-06,
+              1e-05
+            ],
+            "dT": [
+              30,
+              50,
+              70
+            ],
+            "G": [
+              100,
+              1000
+            ]
+          },
+          "prompt": "The offset of a ×{{G}} amplifier is trimmed to zero at 25 °C. The op amp's offset drift is {{TC*1e6}} µV/°C. How much does the output drift if the temperature rises {{dT}} °C?",
+          "answer": "TC*dT*G",
+          "unit": "V",
+          "explanation": "$\\Delta V_{os}$ = {{TC*1e6}} µV/°C × {{dT}} °C = {{TC*dT|V}}; times the noise gain {{G}}: {{TC*dT*G|V}}. Trimming removes the initial offset, not the drift: precision work needs a low-drift op amp."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "In an inverting amplifier with gain −10, an input offset voltage $V_{os}$ produces an output offset of $10V_{os}$.",
+          "answer": false,
+          "explanation": "The offset sits in series with the + input and sees the noise gain $1 + R_2/R_1$ = 11, so the output offset is $11V_{os}$. The signal gain (−10) and the noise gain differ."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "A photodiode amplifier uses a 10 MΩ feedback resistor. Which op amp gives the smallest dc output error?",
+          "options": [
+            "FET input: $I_B$ = 10 pA, $V_{os}$ = 1 mV",
+            "BJT input: $I_B$ = 100 nA, $V_{os}$ = 25 µV",
+            "BJT input: $I_B$ = 20 nA, $V_{os}$ = 0.5 mV"
+          ],
+          "answer": 0,
+          "explanation": "With 10 MΩ the bias current dominates: 100 nA × 10 MΩ = 1 V and 20 nA × 10 MΩ = 0.2 V, while 10 pA × 10 MΩ = 0.1 mV. The FET op amp's 1 mV offset (noise gain ≈ 1 here) is small by comparison. Rule of thumb: high resistances call for FET inputs."
+        },
+        {
+          "id": "q8",
+          "type": "matchPairs",
+          "prompt": "Match each dc-error problem to a good cure.",
+          "pairs": [
+            [
+              "Initial $V_{os}$ too large",
+              "Trim it, or choose a precision op amp"
+            ],
+            [
+              "$I_BR_2$ error with BJT op amp",
+              "Add $R_1 \\parallel R_2$ in series with the + input"
+            ],
+            [
+              "Megohm resistors",
+              "Use a FET-input op amp"
+            ],
+            [
+              "Only ac signals matter",
+              "Capacitor in series with $R_1$ (dc gain 1)"
+            ]
+          ],
+          "explanation": "Trimming fixes the initial offset but not its drift. Bias compensation cancels equal input currents, leaving $I_{os}R_2$. FET inputs have pA bias currents. A capacitor in series with $R_1$ of a noninverting amplifier reduces the dc noise gain to 1, so the offset is not amplified."
+        }
+      ]
+    },
+    {
+      "id": "ae-feedback-3",
+      "title": "Bandwidth, slew rate and stability",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "fT": [
+              1000000.0,
+              3000000.0,
+              10000000.0
+            ],
+            "G": [
+              10,
+              20,
+              50,
+              100
+            ]
+          },
+          "prompt": "An op amp has $f_T$ = {{fT|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Find the bandwidth of a noninverting amplifier with gain +{{G}}.",
+              "answer": "fT/G",
+              "unit": "Hz",
+              "explanation": "Noise gain = signal gain = {{G}}: $f_{-3dB} \\approx f_T/G$ = {{fT|Hz}} / {{G}} = {{fT/G|Hz}}."
+            },
+            {
+              "prompt": "Find the bandwidth of an inverting amplifier with gain −{{G}}.",
+              "answer": "fT/(G + 1)",
+              "unit": "Hz",
+              "explanation": "The bandwidth is set by the **noise gain** $1 + R_2/R_1$ = {{G+1}}, not by $R_2/R_1$:\n$f_{-3dB} \\approx$ {{fT|Hz}} / {{G+1}} = {{fT/(G+1)|Hz}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "You need a gain of 100 with at least 50 kHz bandwidth, using op amps with $f_T$ = 1 MHz. Which works?",
+          "options": [
+            "Two cascaded ×10 stages",
+            "One ×100 stage",
+            "One ×100 stage with larger resistors",
+            "Two cascaded ×100 stages"
+          ],
+          "answer": 0,
+          "explanation": "One ×100 stage only reaches 1 MHz/100 = 10 kHz, whatever the resistor values. Each ×10 stage has 100 kHz bandwidth; two identical poles in cascade give about 0.64 × 100 kHz ≈ 64 kHz overall. Splitting gain over stages buys bandwidth."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "SR": [
+              500000.0,
+              1000000.0,
+              2000000.0,
+              5000000.0
+            ],
+            "Vp": [
+              5,
+              10
+            ],
+            "f": [
+              100000.0,
+              200000.0,
+              500000.0
+            ]
+          },
+          "prompt": "An op amp has a slew rate of {{SR/1e6}} V/µs.",
+          "ask": [
+            {
+              "prompt": "Up to what frequency can it deliver an undistorted sine of {{Vp|V}} peak?",
+              "answer": "SR/(2*pi*Vp)",
+              "unit": "Hz",
+              "explanation": "A sine $V_p\\sin(2\\pi ft)$ has maximum slope $2\\pi fV_p$. Set it equal to SR:\n$f_{max} = \\frac{SR}{2\\pi V_p}$ = {{SR/1e6}} × 10⁶ V/s / (2π × {{Vp|V}}) = {{SR/(2*pi*Vp)|Hz}}."
+            },
+            {
+              "prompt": "What is the largest undistorted peak amplitude at {{f|Hz}}?",
+              "answer": "SR/(2*pi*f)",
+              "unit": "V",
+              "explanation": "$V_p = \\frac{SR}{2\\pi f}$ = {{SR/1e6}} × 10⁶ V/s / (2π × {{f|Hz}}) = {{SR/(2*pi*f)|V}}. Larger signals turn into triangles."
+            }
+          ]
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "fb": [
+              10000.0,
+              20000.0,
+              50000.0,
+              100000.0
+            ]
+          },
+          "derived": {
+            "Gt": "1e6/fb"
+          },
+          "prompt": "Op amp with $f_T$ = 1 MHz. Set the noise gain so the closed-loop bandwidth is {{fb|Hz}} (dashed line).",
+          "plot": {
+            "x": {
+              "min": 1,
+              "max": 10000000.0,
+              "log": true,
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": -10,
+              "max": 110,
+              "label": "gain (dB)"
+            },
+            "sliders": [
+              {
+                "name": "G",
+                "label": "noise gain $G$",
+                "min": 1,
+                "max": 1000,
+                "log": true,
+                "value": 1
+              }
+            ],
+            "curves": [
+              {
+                "f": "20*log10(2e5/sqrt(1+(x/5)^2))",
+                "color": "grey",
+                "dash": true,
+                "label": "open loop",
+                "labelAt": 0.3
+              },
+              {
+                "f": "20*log10(2e5/sqrt((1+2e5/G)^2+(x/5)^2))",
+                "label": "closed loop",
+                "labelAt": 0.15
+              }
+            ],
+            "vlines": [
+              {
+                "x": "fb",
+                "label": "{{fb|Hz}}",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$f_{-3dB}$",
+                "value": "1e6/G",
+                "unit": "Hz",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "G": "Gt"
+          },
+          "tolerance": 0.06,
+          "explanation": "$f_{-3dB} \\approx f_T/G$, so $G = f_T/f_{-3dB}$ = 1 MHz / {{fb|Hz}} = {{Gt}} ({{20*log10(Gt)|dB}}). The flat closed-loop line meets the falling open-loop line exactly there."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vp": [
+              5,
+              10
+            ],
+            "f": [
+              50000.0,
+              100000.0,
+              200000.0
+            ],
+            "G": [
+              10,
+              50,
+              100
+            ]
+          },
+          "prompt": "An amplifier with gain {{G}} must deliver an undistorted {{Vp|V}} peak sine at frequencies up to {{f|Hz}}.",
+          "ask": [
+            {
+              "prompt": "Find the minimum slew rate in V/µs.",
+              "answer": "2*pi*f*Vp/1e6",
+              "unit": "V/µs",
+              "explanation": "SR ≥ $2\\pi fV_p$ = 2π × {{f|Hz}} × {{Vp|V}} = {{2*pi*f*Vp/1e6}} V/µs. Choose a part with some margin."
+            },
+            {
+              "prompt": "Find the minimum $f_T$ so that {{f|Hz}} is still within the −3 dB bandwidth.",
+              "answer": "G*f",
+              "unit": "Hz",
+              "explanation": "$f_T \\ge G \\cdot f$ = {{G}} × {{f|Hz}} = {{G*f|Hz}}. For a gain error well below 3 dB at that frequency, take 5–10 times more."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "fT": [
+              10000000.0,
+              50000000.0,
+              100000000.0
+            ],
+            "f2": [
+              5000000.0,
+              10000000.0,
+              20000000.0,
+              50000000.0
+            ],
+            "G": [
+              1,
+              2,
+              5,
+              10
+            ]
+          },
+          "require": "1.001*f2 - fT/G",
+          "prompt": "An op amp has $f_T$ = {{fT|Hz}} and a second pole at $f_2$ = {{f2|Hz}}. It is used with noise gain {{G}}. Estimate the phase margin, taking the crossover at $f_c \\approx f_T/G$.",
+          "answer": "90 - deg(atan(fT/(G*f2)))",
+          "unit": "°",
+          "absTolerance": 2,
+          "explanation": "$f_c \\approx f_T/G$ = {{fT/G|Hz}}. The dominant pole gives 90° lag, the second pole $\\arctan(f_c/f_2)$ = {{deg(atan(fT/(G*f2)))|°}}.\n$\\varphi_m \\approx 90° - \\arctan(f_c/f_2)$ = {{90 - deg(atan(fT/(G*f2)))|°}}. (The second pole also lowers $|AB|$ at $f_c$, by up to 3 dB when $f_c = f_2$, so the true crossover is a little lower and the margin a few degrees better, as the study card's slider shows.)"
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Why is a unity-gain-stable op amp slower than a 'decompensated' version of the same design?",
+          "options": [
+            "Its dominant pole is set so the loop is stable even with $B = 1$, which pushes $f_T$ (and the slew rate) down",
+            "It has a lower supply voltage",
+            "Its output stage has a higher output resistance",
+            "It uses FET inputs, which are slow"
+          ],
+          "answer": 0,
+          "explanation": "With $B = 1$ the loop gain crosses 1 at $f_T$ itself, so $f_T$ must stay below the second pole. A decompensated op amp assumes a noise gain of, say, ≥ 5: crossover is then at $f_T/5$, so $f_T$ and the slew rate can be about 5× higher."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "A0": [
+              100000.0,
+              200000.0
+            ],
+            "f0": [
+              5,
+              10,
+              20
+            ],
+            "G": [
+              10,
+              100
+            ]
+          },
+          "prompt": "The graph shows an op amp's open-loop gain. Read $f_T$ and estimate the bandwidth of a noninverting amplifier with gain {{G}}.",
+          "plot": {
+            "x": {
+              "min": 1,
+              "max": 100000000.0,
+              "log": true,
+              "label": "f",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": -20,
+              "max": 120,
+              "label": "|A| (dB)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(A0/sqrt(1+(x/f0)^2))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ]
+          },
+          "answer": "A0*f0/G",
+          "unit": "Hz",
+          "tolerance": 0.2,
+          "explanation": "The curve crosses 0 dB at $f_T$ ≈ {{A0*f0|Hz}} (it falls 20 dB per decade). The noise gain is {{G}} ({{20*log10(G)|dB}}), so $f_{-3dB} \\approx f_T/G$ = {{A0*f0/G|Hz}}: where the open-loop curve drops to {{20*log10(G)|dB}}."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "Ro": [
+              50,
+              100,
+              200
+            ],
+            "CL": [
+              1e-09,
+              4.7e-09,
+              1e-08
+            ],
+            "fT": [
+              1000000.0,
+              4000000.0,
+              10000000.0
+            ]
+          },
+          "derived": {
+            "fp": "1/(2*pi*Ro*CL)"
+          },
+          "prompt": "A unity-gain follower ($f_T$ = {{fT|Hz}}, open-loop output resistance $R_o$ = {{Ro|Ω}}) drives a cable of $C_L$ = {{CL|F}}.",
+          "ask": [
+            {
+              "prompt": "At what frequency is the extra pole caused by the load?",
+              "answer": "fp",
+              "unit": "Hz",
+              "explanation": "$R_o$ and $C_L$ form a low-pass inside the loop: $f_p = \\frac{1}{2\\pi R_oC_L}$ = 1/(2π × {{Ro|Ω}} × {{CL|F}}) = {{fp|Hz}}."
+            },
+            {
+              "prompt": "Estimate the phase margin that this pole leaves (crossover at $f_T$).",
+              "answer": "90 - deg(atan(fT/fp))",
+              "unit": "°",
+              "absTolerance": 2,
+              "explanation": "$f_p = 1/(2\\pi R_oC_L)$ = {{fp|Hz}}. At the crossover $f_T$ it adds $\\arctan(f_T/f_p)$ = {{deg(atan(fT/fp))|°}} of lag:\n$\\varphi_m \\approx 90° -$ {{deg(atan(fT/fp))|°}} = {{90 - deg(atan(fT/fp))|°}} (ignoring the op amp's own second pole; the load pole also pulls the crossover down, so the true margin is somewhat larger). Much below 45° means ringing or oscillation; cure it with a 50–100 Ω series resistor outside the loop."
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "type": "numeric",
+          "params": {
+            "Vcc": [
+              5,
+              12
+            ],
+            "hr": [
+              0.05,
+              1.5
+            ],
+            "RL": [
+              100,
+              220,
+              470
+            ]
+          },
+          "prompt": "A single-supply amplifier on {{Vcc|V}} has its output biased at $V_{CC}/2$. The op amp swings to within {{hr|V}} of each rail and delivers at most 20 mA.",
+          "ask": [
+            {
+              "prompt": "Find the largest undistorted peak output amplitude with no load.",
+              "answer": "Vcc/2 - hr",
+              "unit": "V",
+              "explanation": "From $V_{CC}/2$ = {{Vcc/2|V}} the output can move {{Vcc/2|V}} − {{hr|V}} = {{Vcc/2 - hr|V}} up or down before it hits a limit."
+            },
+            {
+              "prompt": "Now an ac-coupled load of {{RL|Ω}} is connected. Find the largest undistorted peak amplitude.",
+              "answer": "min(Vcc/2 - hr, 0.02*RL)",
+              "unit": "V",
+              "explanation": "Swing limit: $V_{CC}/2 - V_{headroom}$ = {{Vcc/2 - hr|V}}. Current limit: 20 mA × {{RL|Ω}} = {{0.02*RL|V}}. The smaller one wins: {{min(Vcc/2 - hr, 0.02*RL)|V}}."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ae-feedback-4",
+      "title": "Comparators, Schmitt triggers and real designs",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Positive feedback: the Schmitt trigger",
+          "body": "Feed part of the output back to the **+** input. When the output is high, the + input sits at an upper threshold; once $v_{in}$ crosses it, the output flips and the threshold jumps down. Noise smaller than the hysteresis can no longer cause multiple transitions. Use a real comparator for this when speed matters: an op amp without negative feedback slews slowly and recovers slowly from saturation.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ],
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  4
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  3.5
+                ],
+                "label": "R_1",
+                "flip": true
+              },
+              {
+                "type": "ground",
+                "at": [
+                  2,
+                  3.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0.5
+                ],
+                "to": [
+                  5.5,
+                  0.5
+                ],
+                "label": "R_2"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vsat": [
+              12,
+              13,
+              14
+            ],
+            "R1": [
+              1000,
+              2200,
+              4700,
+              10000
+            ],
+            "R2": [
+              10000,
+              47000,
+              100000
+            ]
+          },
+          "require": "R2 - R1 - 1",
+          "prompt": "Inverting Schmitt trigger, output ±{{Vsat|V}}.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ],
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  4
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  3.5
+                ],
+                "label": "R_1",
+                "flip": true,
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  2,
+                  3.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0.5
+                ],
+                "to": [
+                  5.5,
+                  0.5
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find the upper threshold.",
+              "answer": "Vsat*R1/(R1 + R2)",
+              "unit": "V",
+              "explanation": "With the output at +{{Vsat|V}} the divider sets $v_+ = V_{sat}\\frac{R_1}{R_1+R_2}$ = {{Vsat|V}} × {{R1|Ω}}/{{R1+R2|Ω}} = {{Vsat*R1/(R1+R2)|V}}. When $v_{in}$ rises past this, the output swings low."
+            },
+            {
+              "prompt": "Find the hysteresis (difference between the thresholds).",
+              "answer": "2*Vsat*R1/(R1 + R2)",
+              "unit": "V",
+              "explanation": "The thresholds are $\\pm V_{sat}\\frac{R_1}{R_1+R_2}$ = ±{{Vsat*R1/(R1+R2)|V}}, so $\\Delta V$ = {{2*Vsat*R1/(R1+R2)|V}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vsat": [
+              12,
+              13,
+              14
+            ],
+            "R1": [
+              1000,
+              4700,
+              10000
+            ],
+            "R2": [
+              22000,
+              47000,
+              100000,
+              220000
+            ]
+          },
+          "require": "R2 - 2*R1",
+          "prompt": "Noninverting Schmitt trigger, output ±{{Vsat|V}}, − input grounded.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  2
+                ],
+                "flip": true
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  1.5
+                ],
+                "label": "v_{in}",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1.5
+                ],
+                "to": [
+                  2,
+                  1.5
+                ],
+                "label": "R_1",
+                "flip": true,
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    3,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2.5
+                  ],
+                  [
+                    3,
+                    3.5
+                  ]
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  3,
+                  3.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1.5
+                  ],
+                  [
+                    2,
+                    0.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0.5
+                ],
+                "to": [
+                  5.5,
+                  0.5
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    0.5
+                  ],
+                  [
+                    5.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    2
+                  ],
+                  [
+                    6.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  2
+                ],
+                "label": "v_o"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "The output is low. At what input voltage does it switch high?",
+              "answer": "Vsat*R1/R2",
+              "unit": "V",
+              "explanation": "Superposition at the + input: $v_+ = \\frac{v_{in}R_2 + v_oR_1}{R_1+R_2}$. It switches when $v_+$ crosses 0: $v_{in} = -v_o\\frac{R_1}{R_2}$. With $v_o = -V_{sat}$: $v_{in}$ = {{Vsat|V}} × {{R1|Ω}}/{{R2|Ω}} = {{Vsat*R1/R2|V}}."
+            },
+            {
+              "prompt": "Find the hysteresis.",
+              "answer": "2*Vsat*R1/R2",
+              "unit": "V",
+              "explanation": "The thresholds are $\\pm V_{sat}R_1/R_2$ = ±{{Vsat*R1/R2|V}}, so $\\Delta V = 2V_{sat}R_1/R_2$ = {{2*Vsat*R1/R2|V}}."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vcc": [
+              3.3,
+              5,
+              12
+            ],
+            "Ra": [
+              10000,
+              22000
+            ],
+            "Rb": [
+              10000,
+              22000
+            ],
+            "Rf": [
+              100000,
+              220000,
+              470000
+            ]
+          },
+          "derived": {
+            "VH": "Vcc*Rb/(Rb + par(Ra, Rf))",
+            "VL": "Vcc*par(Rb, Rf)/(Ra + par(Rb, Rf))"
+          },
+          "prompt": "Single-supply inverting Schmitt trigger: a comparator with push-pull output (0 V or {{Vcc|V}}), $R_A$ = {{Ra|Ω}}, $R_B$ = {{Rb|Ω}}, $R_F$ = {{Rf|Ω}}.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "opamp",
+                "at": [
+                  4,
+                  3
+                ],
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    3.5
+                  ],
+                  [
+                    3,
+                    5
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  5
+                ],
+                "label": "v_{in}"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2.5
+                  ],
+                  [
+                    3,
+                    2.5
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  2.5
+                ],
+                "to": [
+                  0,
+                  2.5
+                ],
+                "label": "R_A",
+                "value": "{{Ra|Ω}}"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  2.5
+                ],
+                "label": "+V_{CC}",
+                "flip": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  2.5
+                ],
+                "to": [
+                  2,
+                  4.5
+                ],
+                "label": "R_B",
+                "flip": true,
+                "value": "{{Rb|Ω}}"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  2,
+                  4.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    2.5
+                  ],
+                  [
+                    2,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  5.5,
+                  1
+                ],
+                "label": "R_F",
+                "value": "{{Rf|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    1
+                  ],
+                  [
+                    5.5,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  3
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    3
+                  ],
+                  [
+                    6.5,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  6.5,
+                  3
+                ],
+                "label": "v_o"
+              }
+            ]
+          },
+          "ask": [
+            {
+              "prompt": "Find the upper threshold (output high).",
+              "answer": "VH",
+              "unit": "V",
+              "explanation": "Output at $V_{CC}$: $R_F$ is in parallel with $R_A$ (both to $V_{CC}$), {{par(Ra,Rf)|Ω}}.\n$V_H = V_{CC}\\frac{R_B}{R_B + R_A\\parallel R_F}$ = {{VH|V}}."
+            },
+            {
+              "prompt": "Find the lower threshold (output low).",
+              "answer": "VL",
+              "unit": "V",
+              "explanation": "Output at 0 V: $R_F$ is in parallel with $R_B$ (both to ground), {{par(Rb,Rf)|Ω}}.\n$V_L = V_{CC}\\frac{R_B\\parallel R_F}{R_A + R_B\\parallel R_F}$ = {{VL|V}}."
+            },
+            {
+              "prompt": "Find the hysteresis.",
+              "answer": "VH - VL",
+              "unit": "V",
+              "explanation": "Output high: $V_H = V_{CC}R_B/(R_B + R_A\\parallel R_F)$ = {{VH|V}}. Output low: $V_L = V_{CC}(R_B\\parallel R_F)/(R_A + R_B\\parallel R_F)$ = {{VL|V}}.\n$\\Delta V$ = {{VH-VL|V}}."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vsat": [
+              12,
+              13
+            ],
+            "dV": [
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "Design an inverting Schmitt trigger (output ±{{Vsat|V}}) with {{dV|V}} hysteresis. With $R_1$ = 10 kΩ, what $R_2$ is needed?",
+          "answer": "10000*(2*Vsat/dV - 1)",
+          "unit": "Ω",
+          "explanation": "$\\Delta V = 2V_{sat}\\frac{R_1}{R_1+R_2}$ → $R_1 + R_2 = \\frac{2V_{sat}R_1}{\\Delta V}$ → $R_2 = R_1\\left(\\frac{2V_{sat}}{\\Delta V} - 1\\right)$ = 10 kΩ × ({{2*Vsat/dV}} − 1) = {{10000*(2*Vsat/dV - 1)|Ω}}."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Why is a general-purpose op amp a poor comparator for a 100 kHz signal?",
+          "options": [
+            "Its compensation limits the slew rate and it recovers slowly from saturation",
+            "Its input bias current is too high",
+            "Its open-loop gain is too low",
+            "It cannot be used without negative feedback at all"
+          ],
+          "answer": 0,
+          "explanation": "An op amp is compensated for stability with feedback: slew rates of 0.5–15 V/µs mean several µs per transition, plus a delay to come out of saturation. A comparator has no compensation and switches in tens of ns. Using an op amp open loop is allowed, just slow."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Diodes inside the loop",
+          "body": "Put a diode inside the feedback loop and the op amp hides its 0.6 V drop: the output follows the input with an error of only $V_F/A$. That gives a **precision rectifier**, and with a hold capacitor $C_H$ an **active peak detector**: $C_H$ charges to the highest input voltage. Follow it with a FET-input buffer; leakage then lets $C_H$ droop at $dV/dt = I_{leak}/C_H$. Speed is limited by the slew rate, as the op amp output must jump across the diode drop.",
+          "formula": "\\frac{dV}{dt} = \\frac{I_{leak}}{C_H}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "opamp",
+                "at": [
+                  3,
+                  1.5
+                ],
+                "flip": true
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  1
+                ],
+                "label": "v_{in}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    2,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  4,
+                  1.5
+                ],
+                "to": [
+                  5.5,
+                  1.5
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  1.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    1.5
+                  ],
+                  [
+                    7,
+                    1.5
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  7,
+                  1.5
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "node",
+                "at": [
+                  6.5,
+                  1.5
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  6.5,
+                  1.5
+                ],
+                "to": [
+                  6.5,
+                  3.5
+                ],
+                "label": "C_H"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  6.5,
+                  3.5
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5.5,
+                    1.5
+                  ],
+                  [
+                    5.5,
+                    2.8
+                  ],
+                  [
+                    2,
+                    2.8
+                  ],
+                  [
+                    2,
+                    2
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Il": [
+              1e-10,
+              1e-09,
+              5e-09
+            ],
+            "CH": [
+              1e-08,
+              1e-07,
+              1e-06
+            ]
+          },
+          "prompt": "A peak detector's hold capacitor $C_H$ = {{CH|F}} is discharged by a total leakage (diode, buffer input, capacitor) of {{Il|A}}.",
+          "ask": [
+            {
+              "prompt": "Find the droop rate in V/s.",
+              "answer": "Il/CH",
+              "unit": "V/s",
+              "explanation": "$\\frac{dV}{dt} = \\frac{I_{leak}}{C_H}$ = {{Il|A}} / {{CH|F}} = {{Il/CH}} V/s."
+            },
+            {
+              "prompt": "How long can it hold the peak before it has drooped by 10 mV?",
+              "answer": "0.01*CH/Il",
+              "unit": "s",
+              "explanation": "$t = \\frac{C_H\\Delta V}{I_{leak}}$ = {{CH|F}} × 10 mV / {{Il|A}} = {{0.01*CH/Il|s}}. A larger $C_H$ holds longer, but the op amp must charge it faster (output current limit)."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "G": [
+              10,
+              20,
+              50
+            ],
+            "fT": [
+              1000000.0,
+              4000000.0,
+              10000000.0
+            ],
+            "SR": [
+              500000.0,
+              2000000.0,
+              13000000.0
+            ],
+            "Vos": [
+              0.001,
+              0.003
+            ]
+          },
+          "prompt": "A noninverting amplifier with gain {{G}} uses an op amp with $f_T$ = {{fT|Hz}}, SR = {{SR/1e6}} V/µs and $V_{os}$ = {{Vos|V}}, on ±15 V supplies (output limit ±13 V).",
+          "ask": [
+            {
+              "prompt": "Find the small-signal bandwidth.",
+              "answer": "fT/G",
+              "unit": "Hz",
+              "explanation": "$f_{-3dB} \\approx f_T/G$ = {{fT|Hz}} / {{G}} = {{fT/G|Hz}}."
+            },
+            {
+              "prompt": "Find the largest undistorted peak output at 20 kHz.",
+              "answer": "min(SR/(2*pi*2e4), 13)",
+              "unit": "V",
+              "explanation": "Slew limit: $\\frac{SR}{2\\pi f}$ = {{SR/1e6}} × 10⁶ V/s / (2π × 20 kHz) = {{SR/(2*pi*2e4)|V}}. Output limit: 13 V. The smaller one counts: {{min(SR/(2*pi*2e4), 13)|V}}."
+            },
+            {
+              "prompt": "Find the output offset with the input grounded.",
+              "answer": "Vos*G",
+              "unit": "V",
+              "explanation": "$V_{os}$ is amplified by the noise gain {{G}}: {{Vos|V}} × {{G}} = {{Vos*G|V}}."
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "type": "orderSteps",
+          "prompt": "An inverting Schmitt trigger (output ±$V_{sat}$, thresholds $\\pm V_{th}$) starts with $v_{in}$ far below zero. Put the events in order as $v_{in}$ rises slowly and then falls again.",
+          "items": [
+            "Output at $+V_{sat}$; the + input sits at $+V_{th}$",
+            "$v_{in}$ rises past $+V_{th}$",
+            "Output flips to $-V_{sat}$; the + input drops to $-V_{th}$",
+            "Small dips in $v_{in}$ cause no new transition",
+            "$v_{in}$ falls below $-V_{th}$ and the output flips back high"
+          ],
+          "explanation": "Positive feedback moves the threshold away from the input as soon as the output flips, so the input must travel the full hysteresis $2V_{th}$ before the next transition. That is what makes the output clean with a noisy, slowly varying input."
+        }
+      ]
+    }
+  ]
+}

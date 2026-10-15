@@ -1,0 +1,1559 @@
+{
+  "id": "pe-switching",
+  "title": "Switching & PWM",
+  "description": "Why converters switch instead of burning the excess voltage, how duty cycle and PWM set the average output, and how switches are built from MOSFETs and diodes.",
+  "reference": "Erickson ch. 1, 2, 4",
+  "study": [
+    {
+      "title": "Why switch?",
+      "body": "A linear regulator drops the excess voltage across a transistor that carries the full load current, so its efficiency can never exceed $V/V_g$. Stepping 100 V down to 50 V at 10 A that way burns 500 W. A **switch-mode converter** uses only elements that ideally dissipate nothing: switches that are fully on or fully off, inductors and capacitors. Real converters reach 90–98 %, so heat sinks shrink and the converter gets small and light.",
+      "formula": "\\eta = \\frac{P_{out}}{P_{in}},\\qquad P_{loss} = P_{out}\\left(\\frac{1}{\\eta} - 1\\right)"
+    },
+    {
+      "title": "The ideal switch",
+      "body": "An ideal switch is either **on** ($v = 0$, any current) or **off** ($i = 0$, any voltage), so the power $p = vi$ it absorbs is always zero. Resistors and transistors in their linear region are kept out of the power path. Real losses come from the small on-state voltage, the finite switching speed and parasitic resistances (see the unit Switching Losses & Thermal).",
+      "formula": "p_{switch} = v\\,i = 0"
+    },
+    {
+      "title": "Explore: duty cycle and the switch node",
+      "body": "The switch connects the **switch node** to $V_g$ for $DT_s$ and to ground for the rest of the period, $D'T_s$. $D$ is the **duty cycle**, $D' = 1 - D$, and $T_s = 1/f_s$ is the switching period. The average of this rectangular wave is $DV_g$. Drag $D$ (here $V_g$ = 24 V).",
+      "formula": "\\langle v_s\\rangle = \\frac{1}{T_s}\\int_0^{T_s} v_s(t)\\,dt = DV_g",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "t / T_s"
+        },
+        "y": {
+          "min": 0,
+          "max": 28,
+          "label": "v_s",
+          "unit": "V"
+        },
+        "sliders": [
+          {
+            "name": "D",
+            "label": "$D$",
+            "min": 0.05,
+            "max": 0.95,
+            "step": 0.01,
+            "value": 0.4
+          }
+        ],
+        "let": {
+          "Vg": "24"
+        },
+        "curves": [
+          {
+            "f": "Vg*step(D - mod(x, 1))"
+          },
+          {
+            "f": "D*Vg",
+            "color": "orange",
+            "dash": true,
+            "label": "average",
+            "labelAt": 0.88
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$\\langle v_s\\rangle$",
+            "value": "D*Vg",
+            "unit": "V"
+          },
+          {
+            "label": "$t_{on}$ at 100 kHz",
+            "value": "D*10e-6",
+            "unit": "s"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Filtering: the buck converter",
+      "body": "A low-pass LC filter between the switch node and the load passes the DC component $DV_g$ and strongly attenuates the switching harmonics at $f_s, 2f_s, \\dots$, because its corner frequency $f_0 = 1/(2\\pi\\sqrt{LC})$ is far below $f_s$. The result is the **buck converter**: an ideally lossless DC–DC converter with $V = DV_g$. The $n$-th harmonic of the switch-node wave has amplitude $\\frac{2V_g}{n\\pi}\\left|\\sin(n\\pi D)\\right|$.",
+      "formula": "V = DV_g",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              3
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_g"
+          },
+          {
+            "type": "switch",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "diode",
+            "from": [
+              2,
+              3
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "D_1"
+          },
+          {
+            "type": "inductor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "label": "L"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              3
+            ],
+            "label": "C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              3
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                3
+              ],
+              [
+                6,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              3
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Pulse-width modulation (PWM)",
+      "body": "A PWM modulator compares a control voltage $v_c$ with a sawtooth of peak value $V_M$ running at $f_s$. The gate signal is high while the sawtooth is below $v_c$, so $D = v_c/V_M$ (for $0 \\le v_c \\le V_M$). A feedback controller moves $v_c$ to keep the output at its setpoint when $V_g$ or the load changes. Drag $v_c$ ($V_M$ = 2 V).",
+      "formula": "D = \\frac{v_c}{V_M}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "t / T_s"
+        },
+        "y": {
+          "min": -0.1,
+          "max": 3.6,
+          "label": "v",
+          "unit": "V"
+        },
+        "sliders": [
+          {
+            "name": "vc",
+            "label": "$v_c$",
+            "min": 0,
+            "max": 2,
+            "step": 0.01,
+            "value": 1.2,
+            "unit": "V"
+          }
+        ],
+        "let": {
+          "VM": "2"
+        },
+        "curves": [
+          {
+            "f": "VM*mod(x, 1)",
+            "color": "grey"
+          },
+          {
+            "f": "vc",
+            "color": "orange",
+            "dash": true,
+            "label": "v_c",
+            "labelAt": 0.9
+          },
+          {
+            "f": "2.5 + 0.8*step(vc - VM*mod(x, 1))",
+            "label": "gate",
+            "labelAt": 0.02
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$D$",
+            "value": "vc/VM"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Realising the switch: MOSFET and diode",
+      "body": "In practice the changeover switch becomes a **MOSFET**, turned on and off by its gate, and a **diode**. When the MOSFET turns off, the inductor current must keep flowing: it drives the switch node negative until the diode conducts, so the diode switches by itself. A MOSFET conducts in either direction when on and blocks positive $v_{DS}$ when off (its body diode conducts for $v_{DS} < 0$). A diode conducts positive current and blocks negative voltage. Replacing the diode by a second MOSFET, a **synchronous rectifier**, cuts the conduction loss at low output voltages.",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_g",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "nmos",
+            "at": [
+              2,
+              1
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "terminal",
+            "at": [
+              1,
+              1
+            ],
+            "label": "gate",
+            "flip": true
+          },
+          {
+            "type": "diode",
+            "from": [
+              2,
+              4
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "D_1"
+          },
+          {
+            "type": "inductor",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "L"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              4,
+              2
+            ],
+            "to": [
+              4,
+              4
+            ],
+            "label": "C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                6,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              2
+            ],
+            "to": [
+              6,
+              4
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                6,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              4
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Averages and rms of switched waveforms",
+      "body": "Switched currents are pulses, so their average and rms values differ a lot. A pulse of height $I$ and duty cycle $D$ has average $DI$ but rms value $\\sqrt{D}\\,I$, and the rms value sets the conduction loss $I_{rms}^2R$. A DC current $I$ with a triangular ripple of peak deviation $\\Delta i$ (half the peak-to-peak value) has an rms value of $\\sqrt{I^2 + \\Delta i^2/3}$, barely above $I$ for small ripple.",
+      "formula": "\\langle i\\rangle = DI,\\qquad I_{rms} = \\sqrt{D}\\,I"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pe-switching-1",
+      "title": "Why switch?",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Linear regulation wastes power",
+          "body": "A linear regulator acts like a variable resistor in series with the load. The full load current $I$ flows through a transistor that has $V_g - V$ across it, and all that power becomes heat. Its efficiency is therefore at most $V/V_g$.",
+          "formula": "P_{loss} = (V_g - V)\\,I,\\qquad \\eta \\le \\frac{V}{V_g}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              24,
+              48,
+              100
+            ],
+            "V": [
+              5,
+              12,
+              15
+            ],
+            "I": [
+              2,
+              5,
+              10
+            ]
+          },
+          "require": "Vg - V - 5",
+          "prompt": "A linear regulator makes {{V|V}} at {{I|A}} from a {{Vg|V}} input.",
+          "ask": [
+            {
+              "prompt": "How much power does the pass transistor dissipate?",
+              "answer": "(Vg-V)*I",
+              "unit": "W",
+              "explanation": "$P_{loss} = (V_g - V)I$ = ({{Vg}} − {{V}}) V × {{I|A}} = **{{(Vg-V)*I|W}}**, while the load only receives {{V*I|W}}."
+            },
+            {
+              "prompt": "What is its efficiency (in %)?",
+              "answer": "100*V/Vg",
+              "unit": "%",
+              "explanation": "Input and output current are the same, so $\\eta = \\frac{VI}{V_gI} = \\frac{V}{V_g}$ = {{V}} / {{Vg}} = **{{100*V/Vg|%}}**."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Switches, inductors and capacitors",
+          "body": "An ideal switch has either zero voltage (on) or zero current (off), so $p = vi = 0$ at every instant. Ideal inductors and capacitors store energy and return it without loss. A converter built only from these elements can change the voltage level at 100 % efficiency; real ones reach 90–98 %.",
+          "formula": "p = v\\,i = 0"
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "An ideal switch dissipates no power, both when it is on and when it is off.",
+          "answer": true,
+          "explanation": "On: $v = 0$, so $p = vi = 0$. Off: $i = 0$, so again $p = 0$. Loss only appears in real switches, through the on-state voltage drop and during the transitions when $v$ and $i$ are both non-zero."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Po": [
+              50,
+              100,
+              200,
+              500
+            ],
+            "eta": [
+              0.9,
+              0.92,
+              0.95,
+              0.97
+            ]
+          },
+          "prompt": "A converter delivers {{Po|W}} with an efficiency of {{eta*100}} %. How much power is lost as heat?",
+          "answer": "Po*(1/eta - 1)",
+          "unit": "W",
+          "explanation": "$P_{in} = P_{out}/\\eta$ = {{Po|W}} / {{eta}} = {{Po/eta|W}}, so $P_{loss} = P_{in} - P_{out} = P_{out}(1/\\eta - 1)$ = **{{Po*(1/eta-1)|W}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              24,
+              48
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "I": [
+              2,
+              4
+            ],
+            "eta": [
+              0.9,
+              0.95
+            ]
+          },
+          "require": "Vg - V - 5",
+          "prompt": "You need {{V|V}} at {{I|A}} from {{Vg|V}}. How many times more heat does a linear regulator produce than a switching converter with {{eta*100}} % efficiency?",
+          "answer": "((Vg-V)*I)/(V*I*(1/eta-1))",
+          "unit": "",
+          "explanation": "Linear: $(V_g - V)I$ = {{(Vg-V)*I|W}}. Switcher: $P_{out}(1/\\eta - 1)$ = {{V*I|W}} × (1/{{eta}} − 1) = {{V*I*(1/eta-1)|W}}. Ratio: {{(Vg-V)*I|W}} / {{V*I*(1/eta-1)|W}} = **{{(Vg-V)/(V*(1/eta-1))||3}}**. The heat sink of the switcher can be that much smaller."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "Which element would you keep **out of** the power path of an efficient converter?",
+          "options": [
+            "A resistor that carries the load current",
+            "An inductor",
+            "A capacitor",
+            "A MOSFET that is driven fully on or fully off"
+          ],
+          "answer": 0,
+          "explanation": "A resistor converts $I^2R$ into heat. Inductors and capacitors only store energy, and a MOSFET that is either fully on (small $v$) or fully off (no $i$) dissipates little. The resistor is the only lossy element by nature."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each element to how it handles power",
+          "pairs": [
+            [
+              "Switch on",
+              "v = 0, any current"
+            ],
+            [
+              "Switch off",
+              "i = 0, any voltage"
+            ],
+            [
+              "Inductor or capacitor",
+              "Stores energy without loss"
+            ],
+            [
+              "Linear pass transistor",
+              "Burns (V_g − V)·I"
+            ]
+          ],
+          "explanation": "Ideal switches and reactive elements absorb no average power, which is why a switching converter can in principle reach 100 % efficiency. A linear pass transistor has voltage and current at the same time, so it dissipates $(V_g - V)I$."
+        }
+      ]
+    },
+    {
+      "id": "pe-switching-2",
+      "title": "Duty cycle and PWM",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Duty cycle",
+          "body": "In every period $T_s = 1/f_s$ the switch connects the switch node to $V_g$ for $t_{on} = DT_s$ and to ground for $D'T_s$. With $f_s$ = 100 kHz, $T_s$ = 10 µs; $D$ = 0.3 means 3 µs at $V_g$ and 7 µs at 0 V.",
+          "formula": "D = \\frac{t_{on}}{T_s} = t_{on}f_s,\\qquad D' = 1 - D",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t / T_s"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.2,
+              "label": "v_s / V_g"
+            },
+            "curves": [
+              {
+                "f": "step(0.3 - mod(x, 1))"
+              }
+            ],
+            "height": 150
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              50000.0,
+              100000.0,
+              200000.0,
+              250000.0,
+              500000.0
+            ],
+            "D": [
+              0.2,
+              0.25,
+              0.3,
+              0.4,
+              0.6,
+              0.75
+            ]
+          },
+          "prompt": "A converter switches at {{fs|Hz}} with a duty cycle of {{D}}. How long is the switch in position 1 (connected to $V_g$) each period?",
+          "answer": "D/fs",
+          "unit": "s",
+          "explanation": "$T_s = 1/f_s$ = {{1/fs|s}}, so $t_{on} = DT_s$ = {{D}} × {{1/fs|s}} = **{{D/fs|s}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "ton": [
+              5e-07,
+              1e-06,
+              1.5e-06,
+              2e-06,
+              3e-06
+            ]
+          },
+          "prompt": "The switch node of a {{fs|Hz}} converter sits at {{Vg|V}} for {{ton|s}} of each period and at 0 V for the rest. What is its average voltage?",
+          "answer": "Vg*ton*fs",
+          "unit": "V",
+          "explanation": "$D = t_{on}f_s$ = {{ton|s}} × {{fs|Hz}} = {{ton*fs||3}}. $\\langle v_s\\rangle = DV_g$ = {{ton*fs||3}} × {{Vg|V}} = **{{Vg*ton*fs|V}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The LC filter keeps the average",
+          "body": "An inductor and a capacitor form a low-pass filter whose corner frequency is far below $f_s$. They pass the DC component of $v_s$ and block the switching ripple, so the load sees $V = DV_g$, anywhere from 0 to $V_g$ depending on $D$. This is the **buck converter**.",
+          "formula": "V = DV_g",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_g"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "L"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "Vo": [
+              3,
+              9
+            ]
+          },
+          "prompt": "A buck converter must make {{Vo|V}} from 12 V. Which switch-node waveform is right?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t / T_s"
+              },
+              "y": {
+                "min": 0,
+                "max": 14,
+                "label": "v_s (V)"
+              },
+              "height": 110,
+              "curves": [
+                {
+                  "f": "12*step(0.25 - mod(x, 1))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t / T_s"
+              },
+              "y": {
+                "min": 0,
+                "max": 14,
+                "label": "v_s (V)"
+              },
+              "height": 110,
+              "curves": [
+                {
+                  "f": "12*step(0.75 - mod(x, 1))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t / T_s"
+              },
+              "y": {
+                "min": 0,
+                "max": 14,
+                "label": "v_s (V)"
+              },
+              "height": 110,
+              "curves": [
+                {
+                  "f": "12*step(0.5 - mod(x, 1))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t / T_s"
+              },
+              "y": {
+                "min": 0,
+                "max": 14,
+                "label": "v_s (V)"
+              },
+              "height": 110,
+              "curves": [
+                {
+                  "f": "12*step(0.4 - mod(x, 1))"
+                }
+              ]
+            }
+          ],
+          "answer": "if(Vo - 6, 1, 0)",
+          "explanation": "$D = V/V_g$ = {{Vo}} / 12 = **{{Vo/12||2}}**, so the switch node must be high for {{Vo/12*100|%}} of every period. The waveform with $D$ = {{1-Vo/12||2}} would give {{12-Vo|V}}: a common slip is to mix up the on and off times."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "The PWM modulator",
+          "body": "The gate signal comes from a comparator: a sawtooth with peak value $V_M$ rises once per period, and the output is high while the sawtooth is below the control voltage $v_c$. The on-time is therefore proportional to $v_c$, and the controller sets the duty cycle simply by moving $v_c$.",
+          "formula": "D = \\frac{v_c}{V_M}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "VM": [
+              2.5,
+              3,
+              4
+            ],
+            "vc": {
+              "min": 0.5,
+              "max": 2.4,
+              "step": 0.1
+            },
+            "Vg": [
+              12,
+              24,
+              48
+            ]
+          },
+          "require": "VM - vc - 0.2",
+          "prompt": "A PWM modulator has a sawtooth peak of $V_M$ = {{VM|V}}, and the control voltage is {{vc|V}}. It drives a buck converter with $V_g$ = {{Vg|V}}.",
+          "ask": [
+            {
+              "prompt": "What is the duty cycle (in %)?",
+              "answer": "100*vc/VM",
+              "unit": "%",
+              "explanation": "$D = v_c/V_M$ = {{vc}} / {{VM}} = **{{100*vc/VM|%}}**."
+            },
+            {
+              "prompt": "What is the output voltage?",
+              "answer": "Vg*vc/VM",
+              "unit": "V",
+              "explanation": "$D = v_c/V_M$ = {{vc}} / {{VM}} = {{vc/VM||3}}, so $V = DV_g$ = {{vc/VM||3}} × {{Vg|V}} = **{{Vg*vc/VM|V}}**. The modulator plus power stage behaves like an amplifier with gain $V_g/V_M$."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "VM": [
+              2,
+              2.5,
+              3,
+              4
+            ],
+            "Dt": [
+              0.25,
+              0.3,
+              0.4,
+              0.6,
+              0.7,
+              0.75
+            ]
+          },
+          "prompt": "The sawtooth of a PWM modulator has a peak of {{VM|V}}. Set the control voltage $v_c$ so that the gate signal has a duty cycle of {{Dt}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t / T_s"
+            },
+            "y": {
+              "min": -0.1,
+              "max": "1.8*VM",
+              "label": "v",
+              "unit": "V"
+            },
+            "sliders": [
+              {
+                "name": "vc",
+                "label": "$v_c$",
+                "min": 0,
+                "max": "VM",
+                "step": 0.01,
+                "value": "VM/2",
+                "unit": "V"
+              }
+            ],
+            "curves": [
+              {
+                "f": "VM*mod(x, 1)",
+                "color": "grey"
+              },
+              {
+                "f": "vc",
+                "color": "orange",
+                "dash": true,
+                "label": "v_c",
+                "labelAt": 0.9
+              },
+              {
+                "f": "1.25*VM + 0.4*VM*step(vc - VM*mod(x, 1))",
+                "label": "gate",
+                "labelAt": 0.02
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$D$",
+                "value": "vc/VM",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "vc": "Dt*VM"
+          },
+          "tolerance": 0.03,
+          "explanation": "The gate is high while the sawtooth is below $v_c$, i.e. for the fraction $v_c/V_M$ of each period. So $v_c = DV_M$ = {{Dt}} × {{VM|V}} = **{{Dt*VM|V}}**."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Doubling the switching frequency of a buck converter at the same duty cycle doubles its output voltage.",
+          "answer": false,
+          "explanation": "$V = DV_g$ does not contain $f_s$. A higher $f_s$ only makes the ripple smaller (or allows a smaller $L$ and $C$), at the price of higher switching losses."
+        }
+      ]
+    },
+    {
+      "id": "pe-switching-3",
+      "title": "Averages, rms and harmonics",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "I": [
+              2,
+              5,
+              8,
+              10
+            ],
+            "D": [
+              0.2,
+              0.25,
+              0.4,
+              0.5,
+              0.6
+            ]
+          },
+          "prompt": "A MOSFET carries a rectangular current pulse of {{I|A}} for a fraction {{D}} of each period and nothing otherwise.",
+          "ask": [
+            {
+              "prompt": "What is the average current?",
+              "answer": "D*I",
+              "unit": "A",
+              "explanation": "$\\langle i\\rangle = DI$ = {{D}} × {{I|A}} = **{{D*I|A}}**."
+            },
+            {
+              "prompt": "What is the rms current?",
+              "answer": "sqrt(D)*I",
+              "unit": "A",
+              "explanation": "$I_{rms} = \\sqrt{\\frac{1}{T_s}\\int_0^{T_s} i^2\\,dt}$ $= \\sqrt{D I^2} = \\sqrt{D}\\,I$ = √{{D}} × {{I|A}} = **{{sqrt(D)*I|A}}**, larger than the average {{D*I|A}}."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "I": [
+              3,
+              5,
+              10,
+              15
+            ],
+            "D": [
+              0.25,
+              0.4,
+              0.5,
+              0.7
+            ],
+            "Ron": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "A MOSFET with $R_{DS(on)}$ = {{Ron|Ω}} conducts a {{I|A}} current pulse with duty cycle {{D}}. What is its conduction loss?",
+          "answer": "D*I^2*Ron",
+          "unit": "W",
+          "explanation": "$I_{rms}^2 = DI^2$, so $P = I_{rms}^2R_{DS(on)} = DI^2R_{DS(on)}$ = {{D}} × ({{I|A}})² × {{Ron|Ω}} = **{{D*I^2*Ron|W}}**. Using the average current instead ($(DI)^2R$) would underestimate it by a factor $1/D$."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "I": [
+              2,
+              4,
+              5,
+              8
+            ],
+            "r": [
+              0.4,
+              0.6,
+              0.8,
+              1.0
+            ]
+          },
+          "derived": {
+            "pp": "r*I"
+          },
+          "prompt": "An inductor carries {{I|A}} DC with a triangular ripple of {{pp|A}} peak-to-peak. What is its rms current?",
+          "answer": "sqrt(I^2 + (pp/2)^2/3)",
+          "unit": "A",
+          "tolerance": 0.005,
+          "explanation": "The peak deviation is $\\Delta i$ = {{pp/2|A}}. $I_{rms} = \\sqrt{I^2 + \\Delta i^2/3}$ = √({{I}}² + {{pp/2}}²/3) = **{{sqrt(I^2+(pp/2)^2/3)|A|4}}**, only {{100*(sqrt(1+(pp/2/I)^2/3)-1)|%|2}} above the DC value."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4,
+              0.5,
+              0.6,
+              0.75
+            ]
+          },
+          "prompt": "The switch node of a converter swings between 0 and {{Vg|V}} with duty cycle {{D}}. What is the amplitude of its fundamental component at $f_s$?",
+          "answer": "2*Vg/pi*sin(pi*D)",
+          "unit": "V",
+          "explanation": "For a rectangular wave, harmonic $n$ has amplitude $\\frac{2V_g}{n\\pi}|\\sin(n\\pi D)|$. For $n = 1$: 2 × {{Vg}} / π × sin(π × {{D}}) = **{{2*Vg/pi*sin(pi*D)|V}}**. It is largest at $D$ = 0.5, and it is what the LC filter must suppress."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "V1": [
+              7.6,
+              15.3,
+              30.6
+            ],
+            "fs": [
+              100000.0,
+              200000.0,
+              500000.0
+            ],
+            "f0": [
+              2000.0,
+              5000.0,
+              10000.0
+            ]
+          },
+          "prompt": "The fundamental of a buck converter's switch-node voltage has an amplitude of {{V1|V}} at $f_s$ = {{fs|Hz}}. The LC filter has $f_0$ = {{f0|Hz}}; far above $f_0$ its gain is about $(f_0/f)^2$. Estimate the amplitude of the $f_s$ component at the output.",
+          "answer": "V1*(f0/fs)^2",
+          "unit": "V",
+          "explanation": "$|H(f_s)| \\approx (f_0/f_s)^2$ = ({{f0|Hz}} / {{fs|Hz}})² = {{(f0/fs)^2||3}}. Output: {{V1|V}} × {{(f0/fs)^2||3}} = **{{V1*(f0/fs)^2|V}}**. A second-order filter falls at 40 dB/decade, so a 100× lower $f_0$ gives 10 000× attenuation."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "I": [
+              4,
+              6,
+              10
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4,
+              0.6,
+              0.7
+            ]
+          },
+          "prompt": "A switch current is a rectangular pulse of height {{I|A}} with duty cycle {{D}}. What is its rms value?",
+          "options": [
+            "{{sqrt(D)*I|A}}",
+            "{{D*I|A}}",
+            "{{I|A}}",
+            "{{sqrt(1-D)*I|A}}"
+          ],
+          "answer": 0,
+          "explanation": "$I_{rms} = \\sqrt{D}\\,I$ = √{{D}} × {{I|A}} = **{{sqrt(D)*I|A}}**. $DI$ is the average, $I$ the peak, and $\\sqrt{1-D}\\,I$ would be the rms value of the complementary (diode) pulse."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4,
+              0.6,
+              0.7,
+              0.8
+            ]
+          },
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 2e-05,
+              "label": "t",
+              "unit": "s",
+              "ticks": [
+                0,
+                2e-06,
+                4e-06,
+                6e-06,
+                8e-06,
+                1e-05,
+                1.2e-05,
+                1.4e-05,
+                1.6e-05,
+                1.8e-05,
+                2e-05
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": "1.2*Vg",
+              "label": "v_s",
+              "unit": "V"
+            },
+            "curves": [
+              {
+                "f": "Vg*step(D - mod(x/10e-6, 1))"
+              }
+            ],
+            "height": 160,
+            "hlines": [
+              {
+                "y": "Vg",
+                "label": "{{Vg|V}}",
+                "color": "grey"
+              }
+            ]
+          },
+          "prompt": "The graph shows the switch-node voltage of a converter switching at 100 kHz. What is its average value?",
+          "answer": "Vg*D",
+          "unit": "V",
+          "tolerance": 0.05,
+          "explanation": "Read $t_{on}$ = {{D*10e-6|s}} out of $T_s$ = 10 µs, so $D$ = {{D}}. $\\langle v_s\\rangle = DV_g$ = {{D}} × {{Vg|V}} = **{{Vg*D|V}}**."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "The rms value of a current can never be smaller than its average value.",
+          "answer": true,
+          "explanation": "$I_{rms}^2 = \\langle i^2\\rangle$ $= \\langle i\\rangle^2 + \\langle (i - \\langle i\\rangle)^2\\rangle$, which is at least $\\langle i\\rangle^2$. They are only equal for pure DC. Pulsed currents in converters therefore cause more $I^2R$ loss than their average suggests."
+        }
+      ]
+    },
+    {
+      "id": "pe-switching-4",
+      "title": "Realising the switches",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "tapCircuit",
+          "prompt": "In this buck converter, tap every element that must block the full input voltage $V_g$ during part of the switching period.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_g",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "nmos",
+                "at": [
+                  2,
+                  1
+                ],
+                "label": "Q_1",
+                "name": "Q1"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  1,
+                  1
+                ],
+                "label": "gate",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "from": [
+                  2,
+                  4
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "D_1",
+                "name": "D1"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "L",
+                "name": "L"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  4,
+                  4
+                ],
+                "label": "C",
+                "name": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    6,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  2
+                ],
+                "to": [
+                  6,
+                  4
+                ],
+                "label": "R",
+                "name": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    6,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  4
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  4
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "Q1",
+            "D1",
+            "L",
+            "C"
+          ],
+          "answer": [
+            "Q1",
+            "D1"
+          ],
+          "explanation": "- MOSFET on: the switch node is at $V_g$ and the diode is reverse biased with $V_g$ across it.\n- MOSFET off: the diode conducts, the switch node is ≈ 0 and the MOSFET blocks $v_{DS} = V_g$.\nThe inductor sees $V_g - V$ and $-V$, the capacitor $V$. Both semiconductors need a voltage rating above $V_g$ plus margin."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "A buck converter is built with a MOSFET but the diode is left out. What happens at the first turn-off?",
+          "options": [
+            "The inductor drives the switch node far negative ($v = L\\,di/dt$) until something breaks down",
+            "The inductor current stops and the circuit simply idles",
+            "The output voltage doubles",
+            "The output capacitor discharges back into the source"
+          ],
+          "answer": 0,
+          "explanation": "An inductor current cannot change instantly. Without a path, $di/dt$ is huge, so $v_L = L\\,di/dt$ forces the switch node very negative until the MOSFET avalanches or another part fails. The diode provides the path the current needs while the MOSFET is off."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "I": [
+              5,
+              10,
+              15,
+              20
+            ],
+            "D": [
+              0.1,
+              0.2,
+              0.3,
+              0.4
+            ],
+            "VF": [
+              0.5,
+              0.7
+            ],
+            "Ron": [
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "require": "VF - I*Ron",
+          "prompt": "In a buck converter the inductor current is {{I|A}} (ripple negligible) and $D$ = {{D}}. The freewheeling path is either a diode with $V_F$ = {{VF|V}} or a synchronous MOSFET with $R_{DS(on)}$ = {{Ron|Ω}}.",
+          "ask": [
+            {
+              "prompt": "What is the diode's conduction loss?",
+              "answer": "VF*I*(1-D)",
+              "unit": "W",
+              "explanation": "The diode carries $I$ during $D'T_s$: $P_D = V_F I D'$ = {{VF}} V × {{I|A}} × {{1-D||2}} = **{{VF*I*(1-D)|W}}**."
+            },
+            {
+              "prompt": "What is the synchronous MOSFET's conduction loss?",
+              "answer": "I^2*Ron*(1-D)",
+              "unit": "W",
+              "explanation": "$P = I_{rms}^2R_{DS(on)} = D'I^2R_{DS(on)}$ = {{1-D||2}} × ({{I|A}})² × {{Ron|Ω}} = **{{I^2*Ron*(1-D)|W}}**, versus {{VF*I*(1-D)|W}} with the diode."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "A power MOSFET that is turned off can block voltage of either polarity.",
+          "answer": false,
+          "explanation": "Its body diode conducts as soon as $v_{DS}$ goes negative, so a MOSFET only blocks positive $v_{DS}$ (and can conduct in both directions when on). Blocking both polarities needs two devices in anti-series."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each device to its role",
+          "pairs": [
+            [
+              "Diode",
+              "Switches by itself when the current reverses"
+            ],
+            [
+              "MOSFET",
+              "Turned on and off by its gate"
+            ],
+            [
+              "Synchronous rectifier",
+              "MOSFET used in place of a diode"
+            ],
+            [
+              "Body diode",
+              "Conducts when v_DS < 0"
+            ]
+          ],
+          "explanation": "Active switches (MOSFET, IGBT) are controlled by a gate signal; passive switches (diodes) are commutated by the circuit voltages and currents. A synchronous rectifier is a MOSFET timed to conduct when the diode would, with a lower voltage drop."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "I": [
+              5,
+              10
+            ],
+            "D": [
+              0.3,
+              0.42,
+              0.5
+            ],
+            "Ron": [
+              0.01,
+              0.03
+            ],
+            "VF": [
+              0.5,
+              0.7
+            ]
+          },
+          "prompt": "A buck converter delivers {{V|V}} at {{I|A}} with $D$ = {{D}}. The MOSFET has $R_{DS(on)}$ = {{Ron|Ω}} and the diode $V_F$ = {{VF|V}}; ignore ripple and switching losses. What is the efficiency (in %)?",
+          "answer": "100*V*I/(V*I + D*I^2*Ron + (1-D)*VF*I)",
+          "unit": "%",
+          "tolerance": 0.01,
+          "explanation": "MOSFET: $DI^2R_{DS(on)}$ = {{D*I^2*Ron|W}}. Diode: $D'V_FI$ = {{(1-D)*VF*I|W}}. $P_{out}$ = {{V*I|W}}. $\\eta$ = {{V*I|W}} / ({{V*I|W}} + {{D*I^2*Ron|W}} + {{(1-D)*VF*I|W}}) = **{{100*V*I/(V*I+D*I^2*Ron+(1-D)*VF*I)|%}}**. At low output voltages the diode drop dominates."
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the events of one switching period of a MOSFET + diode buck converter in order, starting when the gate goes high.",
+          "items": [
+            "The MOSFET turns on; the switch node rises to V_g and the diode is reverse biased",
+            "The inductor current ramps up with slope (V_g − V)/L",
+            "The gate goes low and the MOSFET turns off",
+            "The inductor current forces the diode on; the switch node drops to ≈ 0",
+            "The inductor current ramps down with slope −V/L"
+          ],
+          "explanation": "The MOSFET sets the interval $DT_s$; the diode takes over automatically for $D'T_s$ because the inductor current must continue. The inductor voltage is $V_g - V$ in the first interval and $-V$ in the second."
+        }
+      ]
+    }
+  ]
+}

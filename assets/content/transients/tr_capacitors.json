@@ -1,0 +1,1320 @@
+{
+  "id": "tr-capacitors",
+  "title": "Capacitors",
+  "description": "How capacitors store charge and energy, and how their current depends on changing voltage.",
+  "reference": "Hambley §3.1–3.3; H&H §1.12",
+  "study": [
+    {
+      "title": "Capacitance and the i–v relation",
+      "body": "A capacitor stores charge $q$ proportional to its voltage: $q = Cv$, with $C$ in farads (F). Current is the rate of charge flow, so with the **passive reference configuration** (current entering the + terminal) the current is proportional to the **rate of change** of voltage. A constant voltage means zero current: in DC a capacitor acts as an open circuit.",
+      "formula": "i(t) = C\\,\\frac{dv(t)}{dt}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "arrow",
+            "from": [
+              0.1,
+              1
+            ],
+            "to": [
+              0.8,
+              1
+            ],
+            "label": "i"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              1,
+              1
+            ],
+            "to": [
+              3,
+              1
+            ],
+            "label": "C"
+          },
+          {
+            "type": "text",
+            "at": [
+              1.6,
+              1.4
+            ],
+            "label": "+"
+          },
+          {
+            "type": "text",
+            "at": [
+              2.4,
+              1.4
+            ],
+            "label": "−"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                1
+              ],
+              [
+                4,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              4,
+              1
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Voltage from current",
+      "body": "Integrating the current gives the voltage. The integral is the charge delivered since $t_0$, so the voltage change equals (area under $i(t)$)/$C$.\n**Example:** a constant 2 mA into a 10 µF capacitor for 5 ms adds $q = 10\\ \\mu\\text{C}$, so $\\Delta v = 10\\ \\mu\\text{C}/10\\ \\mu\\text{F} = 1$ V. A constant current produces a linear voltage ramp.",
+      "formula": "v(t) = \\frac{1}{C}\\int_{t_0}^{t} i(t)\\,dt + v(t_0)"
+    },
+    {
+      "title": "Stored energy",
+      "body": "The power into a capacitor is $p = vi$. It can be positive (charging, energy stored in the electric field) or negative (energy returned to the circuit). An ideal capacitor never dissipates energy. The stored energy depends only on the present voltage, and it grows with the **square** of the voltage.",
+      "formula": "w(t) = \\tfrac{1}{2}Cv^2(t) = \\frac{q^2(t)}{2C}"
+    },
+    {
+      "title": "Series and parallel capacitances",
+      "body": "Capacitances in **parallel add** (same voltage, charges add). Capacitances in **series** combine like resistors in parallel (same charge, voltages add). Watch out: this is the opposite of the rules for resistors.\n- Two equal capacitors in series: $C/2$\n- In series, the smaller capacitor takes the larger share of the voltage.",
+      "formula": "C_{par} = C_1 + C_2 + \\dots \\qquad \\frac{1}{C_{ser}} = \\frac{1}{C_1} + \\frac{1}{C_2} + \\dots"
+    },
+    {
+      "title": "Parallel-plate capacitor",
+      "body": "Two conducting plates of area $A$, separated by a distance $d$ filled with a dielectric of permittivity $\\varepsilon = \\varepsilon_r\\varepsilon_0$, where $\\varepsilon_0 \\approx 8.85\\times10^{-12}$ F/m. Bigger plates, thinner gap or a higher $\\varepsilon_r$ give more capacitance. Real capacitors also have a maximum voltage rating and some leakage resistance.",
+      "formula": "C = \\frac{\\varepsilon A}{d}"
+    },
+    {
+      "title": "Voltage cannot jump",
+      "body": "Because $i = C\\,dv/dt$, an instantaneous jump in capacitor voltage would need an infinite current. So in real circuits the **capacitor voltage is continuous**: $v_C(0^+) = v_C(0^-)$ when a switch operates at $t = 0$. The capacitor current, however, can jump. This continuity rule is the key to transient analysis."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "tr-capacitors-1",
+      "title": "Charge, voltage and current",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "What a capacitor does",
+          "body": "A capacitor is two conductors separated by an insulator. Putting a voltage $v$ across it stores a charge $+q$ on one plate and $-q$ on the other. The ratio is the capacitance $C$, measured in farads (F). Practical values range from pF to mF.",
+          "formula": "q = Cv"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "C": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ],
+            "V": {
+              "min": 5,
+              "max": 15,
+              "step": 1
+            }
+          },
+          "prompt": "A {{C|F}} capacitor has {{V|V}} across it. How much charge is stored on its positive plate?",
+          "answer": "C*V",
+          "unit": "C",
+          "explanation": "$q = Cv$ = {{C|F}} × {{V|V}} = {{C*V|C}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Current means changing voltage",
+          "body": "Current is the rate at which charge arrives: $i = dq/dt = C\\,dv/dt$. With the passive reference configuration (current entering the + terminal), a rising voltage means positive current, a falling voltage means negative current, and a **constant voltage means zero current**.",
+          "formula": "i = C\\frac{dv}{dt}"
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "If the voltage across a capacitor is constant, the current through it is zero.",
+          "answer": true,
+          "explanation": "True. $i = C\\,dv/dt$ and the derivative of a constant is zero. That is why a capacitor behaves like an open circuit for DC once everything has settled."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "C": [
+              1e-06,
+              4.7e-06,
+              1e-05,
+              2.2e-05
+            ],
+            "V": [
+              5,
+              10,
+              12
+            ],
+            "T": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "prompt": "The voltage across a {{C|F}} capacitor rises linearly from 0 V to {{V|V}} in {{T|s}}. What current flows into its + terminal during the ramp?",
+          "answer": "C*V/T",
+          "unit": "A",
+          "explanation": "The slope is $dv/dt$ = {{V|V}} / {{T|s}} = {{V/T||3}} V/s, so $i = C\\,dv/dt$ = {{C|F}} × {{V/T||3}} V/s = {{C*V/T|A}}."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Energy in the electric field",
+          "body": "Charging a capacitor stores energy in its electric field. The energy depends only on the present voltage, and it is returned when the capacitor discharges. An ideal capacitor dissipates nothing.",
+          "formula": "w = \\tfrac{1}{2}Cv^2"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "C": [
+              0.0001,
+              0.00022,
+              0.00047,
+              0.001
+            ],
+            "V": {
+              "min": 5,
+              "max": 50,
+              "step": 5
+            }
+          },
+          "prompt": "How much energy is stored in a {{C|F}} capacitor charged to {{V|V}}?",
+          "answer": "0.5*C*V^2",
+          "unit": "J",
+          "explanation": "$w = \\tfrac12 Cv^2$ = 0.5 × {{C|F}} × ({{V|V}})² = {{0.5*C*V^2|J}}."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "The voltage across a capacitor is doubled. What happens to its stored energy?",
+          "options": [
+            "It becomes 4 times larger",
+            "It becomes 2 times larger",
+            "It stays the same",
+            "It halves"
+          ],
+          "answer": 0,
+          "explanation": "$w = \\tfrac12 Cv^2$ depends on the **square** of the voltage: $(2v)^2 = 4v^2$, so the energy is 4 times larger. (The charge $q = Cv$ only doubles.)"
+        }
+      ]
+    },
+    {
+      "id": "tr-capacitors-2",
+      "title": "Capacitor calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "I": [
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "C": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ],
+            "T": {
+              "min": 0.001,
+              "max": 0.01,
+              "step": 0.001
+            }
+          },
+          "prompt": "A constant current of {{I|A}} flows into an initially uncharged {{C|F}} capacitor for {{T|s}}. What is the capacitor voltage at the end?",
+          "answer": "I*T/C",
+          "unit": "V",
+          "explanation": "With constant current the voltage ramps linearly: $v = \\frac{1}{C}\\int_0^T i\\,dt = \\frac{IT}{C}$ = ({{I|A}} × {{T|s}}) / {{C|F}} = {{I*T|C}} / {{C|F}} = {{I*T/C|V}}."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "C1": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ],
+            "C2": [
+              1e-06,
+              3.3e-06,
+              4.7e-06,
+              2.2e-05
+            ]
+          },
+          "prompt": "Capacitors of {{C1|F}} and {{C2|F}} are connected **in series**. What is the equivalent capacitance?",
+          "options": [
+            "{{par(C1,C2)|F}}",
+            "{{C1+C2|F}}",
+            "{{min(C1,C2)|F}}"
+          ],
+          "answer": 0,
+          "explanation": "Series capacitances combine like parallel resistors: $C_{eq} = \\frac{C_1C_2}{C_1+C_2}$ = {{par(C1,C2)|F}}. Adding them ({{C1+C2|F}}) is the rule for **parallel** capacitors. A series combination is always smaller than the smallest capacitor."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "er": [
+              1,
+              2.2,
+              4,
+              10
+            ],
+            "A": [
+              0.0001,
+              0.0004,
+              0.0025
+            ],
+            "d": [
+              0.0001,
+              0.0005,
+              0.001
+            ]
+          },
+          "prompt": "A parallel-plate capacitor has plate area {{A*1e4}} cm², plate separation {{d*1e3}} mm and a dielectric with $\\varepsilon_r$ = {{er}}. Find $C$. Use $\\varepsilon_0 = 8.85\\times10^{-12}$ F/m.",
+          "answer": "8.85e-12*er*A/d",
+          "unit": "F",
+          "explanation": "Convert to SI: $A$ = {{A}} m², $d$ = {{d}} m. Then $C = \\frac{\\varepsilon_r\\varepsilon_0 A}{d}$ = {{er}} × 8.85e-12 × {{A}} / {{d}} = {{8.85e-12*er*A/d|F}}."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "The plate separation of a parallel-plate capacitor is doubled, with everything else unchanged. The capacitance…",
+          "options": [
+            "halves",
+            "doubles",
+            "stays the same",
+            "becomes 4 times smaller"
+          ],
+          "answer": 0,
+          "explanation": "$C = \\varepsilon A/d$ is inversely proportional to $d$, so doubling $d$ halves $C$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              6,
+              9,
+              12,
+              24
+            ],
+            "C1": [
+              1e-06,
+              2.2e-06,
+              4.7e-06
+            ],
+            "C2": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ]
+          },
+          "require": "abs(C1-C2)",
+          "prompt": "Two initially uncharged capacitors $C_1$ = {{C1|F}} and $C_2$ = {{C2|F}} are connected in series across a {{Vs|V}} DC source, as shown. After charging, what is the voltage $v_1$ across $C_1$ (+ on the left)?",
+          "answer": "Vs*C2/(C1+C2)",
+          "unit": "V",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  1
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    1
+                  ],
+                  [
+                    1,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  1,
+                  1
+                ],
+                "to": [
+                  3,
+                  1
+                ],
+                "label": "C_1",
+                "value": "{{C1|F}}"
+              },
+              {
+                "type": "text",
+                "at": [
+                  1.6,
+                  1.4
+                ],
+                "label": "+"
+              },
+              {
+                "type": "text",
+                "at": [
+                  2.4,
+                  1.4
+                ],
+                "label": "−"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    1
+                  ],
+                  [
+                    4,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  4,
+                  3
+                ],
+                "label": "C_2",
+                "value": "{{C2|F}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    3
+                  ],
+                  [
+                    0,
+                    3
+                  ]
+                ]
+              }
+            ]
+          },
+          "explanation": "In series both capacitors receive the same charge: $q = C_{eq}V_s$ with $C_{eq}$ = {{par(C1,C2)|F}}, so $q$ = {{par(C1,C2)*Vs|C}}. Then $v_1 = q/C_1 = V_s\\frac{C_2}{C_1+C_2}$ = {{Vs*C2/(C1+C2)|V}}. Note the **smaller** capacitor gets the **larger** voltage."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "C": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ],
+            "V1": [
+              10,
+              12,
+              15
+            ],
+            "V2": [
+              2,
+              4,
+              6
+            ],
+            "T": [
+              0.001,
+              0.002,
+              0.004
+            ]
+          },
+          "prompt": "The voltage across a {{C|F}} capacitor falls linearly from {{V1|V}} to {{V2|V}} in {{T|s}}. Find the current $i$ during this interval, referenced into the + terminal (passive reference). Include the sign.",
+          "answer": "C*(V2-V1)/T",
+          "unit": "A",
+          "explanation": "$dv/dt$ = ({{V2|V}} − {{V1|V}}) / {{T|s}} = {{(V2-V1)/T||3}} V/s, so $i = C\\,dv/dt$ = {{C|F}} × ({{(V2-V1)/T||3}} V/s) = {{C*(V2-V1)/T|A}}. It is negative: current actually leaves the + terminal, because the capacitor is discharging."
+        },
+        {
+          "id": "g1",
+          "type": "multipleChoice",
+          "params": {
+            "Vp": [
+              5,
+              10
+            ],
+            "Tms": [
+              1,
+              2,
+              5
+            ],
+            "C": [
+              1e-06,
+              2.2e-06,
+              4.7e-06
+            ]
+          },
+          "derived": {
+            "T": "Tms/1000",
+            "I": "C*Vp/T"
+          },
+          "prompt": "The graph shows the voltage $v(t)$ across a {{C|F}} capacitor. Which graph shows the current $i(t)$ into its + terminal (same time axis, zero line in the middle)?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "4*T",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.25*Vp",
+              "label": "v (V)"
+            },
+            "curves": [
+              {
+                "f": "Vp*(1-abs(mod(x,2*T)/T-1))",
+                "label": "v(t)"
+              }
+            ]
+          },
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": "4*T",
+                "label": ""
+              },
+              "y": {
+                "min": -1.5,
+                "max": 1.5,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "sign(T-mod(x,2*T))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": "4*T",
+                "label": ""
+              },
+              "y": {
+                "min": -1.5,
+                "max": 1.5,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1-abs(mod(x,2*T)/T-1)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": "4*T",
+                "label": ""
+              },
+              "y": {
+                "min": -1.5,
+                "max": 1.5,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "-sign(T-mod(x,2*T))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": "4*T",
+                "label": ""
+              },
+              "y": {
+                "min": -1.5,
+                "max": 1.5,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "-(1-abs(mod(x,2*T)/T-1))"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "$i = C\\,dv/dt$, so the current follows the **slope** of $v$, not its value. On every rising ramp the slope is constant (+{{Vp}} V in {{T|s}}), so $i$ = +{{I|A}}; on every falling ramp $i$ = −{{I|A}}. The result is a square wave that is positive while $v$ rises. A triangle-shaped current would mean $i \\propto v$: that is a resistor, not a capacitor."
+        },
+        {
+          "id": "g2",
+          "type": "numeric",
+          "params": {
+            "V1": [
+              4,
+              6,
+              8,
+              10
+            ],
+            "am": [
+              1,
+              2
+            ],
+            "bm": [
+              1,
+              2
+            ],
+            "cm": [
+              1,
+              2
+            ],
+            "C": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ]
+          },
+          "derived": {
+            "t1": "am/1000",
+            "t2": "(am+bm)/1000",
+            "t3": "(am+bm+cm)/1000"
+          },
+          "prompt": "The graph shows the voltage across a {{C|F}} capacitor (passive reference configuration).",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.007,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.25*V1",
+              "label": "v (V)"
+            },
+            "curves": [
+              {
+                "f": "V1*clamp(x/t1,0,1) - V1*clamp((x-t2)/(t3-t2),0,1)",
+                "label": "v(t)"
+              }
+            ]
+          },
+          "tolerance": 0.05,
+          "ask": [
+            {
+              "prompt": "Find the current $i$ into the + terminal while the voltage **rises**.",
+              "answer": "C*V1/t1",
+              "unit": "A",
+              "explanation": "Read the slope of the rising ramp: $v$ goes up by {{V1}} V in {{t1|s}}, so $dv/dt$ = {{V1/t1|V/s}}. Then $i = C\\,dv/dt$ = {{C|F}} × {{V1/t1|V/s}} = {{C*V1/t1|A}}."
+            },
+            {
+              "prompt": "Find the current $i$ into the + terminal while the voltage **falls** (with its sign).",
+              "answer": "-C*V1/(t3-t2)",
+              "unit": "A",
+              "explanation": "The falling ramp goes from {{V1}} V to 0 between {{t2|s}} and {{t3|s}}, so $dv/dt$ = −{{V1/(t3-t2)|V/s}}. Then $i = C\\,dv/dt$ = −{{C*V1/(t3-t2)|A}}: the current flows **out** of the + terminal while the capacitor discharges."
+            },
+            {
+              "prompt": "Find the current $i$ while the voltage is **constant** (between {{t1|s}} and {{t2|s}}).",
+              "answer": "0",
+              "unit": "A",
+              "absTolerance": 1e-09,
+              "explanation": "On the flat part $dv/dt = 0$, so $i = C\\,dv/dt = 0$, even though the capacitor holds {{V1|V}} and stores energy."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each combination with its equivalent capacitance",
+          "pairs": [
+            [
+              "Two 10 µF in parallel",
+              "20 µF"
+            ],
+            [
+              "Two 10 µF in series",
+              "5 µF"
+            ],
+            [
+              "Three 30 µF in series",
+              "10 µF"
+            ],
+            [
+              "10 µF in parallel with (two 10 µF in series)",
+              "15 µF"
+            ]
+          ],
+          "explanation": "Parallel capacitances add: 10 + 10 = 20 µF. Series: $1/C = 1/C_1 + 1/C_2$, so two equal capacitors give half (5 µF) and three equal 30 µF give 30/3 = 10 µF. Last one: 10 µF + 5 µF = 15 µF."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "The power absorbed by a capacitor ($p = vi$, passive reference) can be negative.",
+          "answer": true,
+          "explanation": "True. When the capacitor discharges, $v$ and $i$ have opposite signs, so $p < 0$: the capacitor is returning stored energy to the circuit. Over time it can never deliver more energy than was stored in it."
+        }
+      ]
+    },
+    {
+      "id": "tr-capacitors-3",
+      "title": "Multi-step capacitor problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "I": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "T": [
+              0.002,
+              0.005,
+              0.01
+            ],
+            "C": [
+              1e-05,
+              2.2e-05,
+              4.7e-05,
+              0.0001
+            ]
+          },
+          "prompt": "An uncharged {{C|F}} capacitor is charged by a constant {{I|A}} current for {{T|s}}. How much energy is stored at the end?",
+          "answer": "0.5*C*(I*T/C)^2",
+          "unit": "J",
+          "explanation": "First the voltage: $v = IT/C$ = {{I|A}} × {{T|s}} / {{C|F}} = {{I*T/C|V}}. Then $w = \\tfrac12 Cv^2$ = 0.5 × {{C|F}} × ({{I*T/C|V}})² = {{0.5*C*(I*T/C)^2|J}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "V": [
+              5,
+              10,
+              12,
+              20
+            ],
+            "C1": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ],
+            "C2": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ]
+          },
+          "prompt": "$C_1$ = {{C1|F}} is charged to {{V|V}}; $C_2$ = {{C2|F}} is uncharged. The switch closes at $t = 0$. What is the final common voltage across the two capacitors?",
+          "answer": "V*C1/(C1+C2)",
+          "unit": "V",
+          "circuit": {
+            "elements": [
+              {
+                "type": "capacitor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  0,
+                  2
+                ],
+                "label": "C_1",
+                "value": "{{C1|F}}"
+              },
+              {
+                "type": "text",
+                "at": [
+                  -0.4,
+                  0.6
+                ],
+                "label": "+"
+              },
+              {
+                "type": "text",
+                "at": [
+                  -0.4,
+                  1.4
+                ],
+                "label": "−"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "switch",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "t = 0"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "C_2",
+                "value": "{{C2|F}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "explanation": "Charge is conserved: initially $q = C_1V$ = {{C1*V|C}}. Afterwards the capacitors are in parallel ({{C1+C2|F}}), so $v = \\frac{C_1V}{C_1+C_2}$ = {{C1*V|C}} / {{C1+C2|F}} = {{V*C1/(C1+C2)|V}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "V": [
+              5,
+              10,
+              12,
+              20
+            ],
+            "C1": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ],
+            "C2": [
+              1e-06,
+              2.2e-06,
+              4.7e-06,
+              1e-05
+            ]
+          },
+          "prompt": "Same setup: $C_1$ = {{C1|F}} charged to {{V|V}}, $C_2$ = {{C2|F}} uncharged, and the switch closes at $t = 0$. How much energy is lost (dissipated in the wiring resistance) during the charge sharing?",
+          "answer": "0.5*C1*V^2 - 0.5*(C1+C2)*(V*C1/(C1+C2))^2",
+          "unit": "J",
+          "circuit": {
+            "elements": [
+              {
+                "type": "capacitor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  0,
+                  2
+                ],
+                "label": "C_1",
+                "value": "{{C1|F}}"
+              },
+              {
+                "type": "text",
+                "at": [
+                  -0.4,
+                  0.6
+                ],
+                "label": "+"
+              },
+              {
+                "type": "text",
+                "at": [
+                  -0.4,
+                  1.4
+                ],
+                "label": "−"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "switch",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "t = 0"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "C_2",
+                "value": "{{C2|F}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "explanation": "Before: $w_1 = \\tfrac12C_1V^2$ = {{0.5*C1*V^2|J}}. After: $v_f = \\frac{C_1V}{C_1+C_2}$ = {{V*C1/(C1+C2)|V}} and $w_2 = \\tfrac12(C_1+C_2)v_f^2$ = {{0.5*(C1+C2)*(V*C1/(C1+C2))^2|J}}. Lost: {{0.5*C1*V^2 - 0.5*(C1+C2)*(V*C1/(C1+C2))^2|J}}. Charge is conserved but energy is not: the fraction lost is $C_2/(C_1+C_2)$, however small the resistance."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "V0": [
+              0,
+              2,
+              5
+            ],
+            "I": [
+              0.001,
+              0.002
+            ],
+            "T1": [
+              0.003,
+              0.004,
+              0.005
+            ],
+            "T2": [
+              0.001,
+              0.002
+            ],
+            "C": [
+              1e-06,
+              2.2e-06,
+              4.7e-06
+            ]
+          },
+          "prompt": "A {{C|F}} capacitor starts at $v(0)$ = {{V0|V}}. A current of {{I|A}} flows into its + terminal for {{T1|s}}, then the current reverses to −{{I|A}} for a further {{T2|s}}. What is the capacitor voltage at the end?",
+          "answer": "V0 + I*(T1-T2)/C",
+          "unit": "V",
+          "explanation": "Net charge delivered = area under $i(t)$ = {{I|A}} × ({{T1|s}} − {{T2|s}}) = {{I*(T1-T2)|C}}. So $v = v(0) + \\Delta q/C$ = {{V0|V}} + {{I*(T1-T2)|C}} / {{C|F}} = {{V0 + I*(T1-T2)/C|V}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "C1": [
+              1e-05,
+              2.2e-05,
+              4.7e-05
+            ],
+            "C2": [
+              4.7e-06,
+              1e-05,
+              2.2e-05
+            ],
+            "C3": [
+              1e-06,
+              4.7e-06,
+              1e-05
+            ]
+          },
+          "prompt": "Find the equivalent capacitance between terminals a and b.",
+          "answer": "par(C1, C2+C3)",
+          "unit": "F",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0
+                ],
+                "label": "a",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "C_1",
+                "value": "{{C1|F}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "C_2",
+                "value": "{{C2|F}}",
+                "flip": true
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "C_3",
+                "value": "{{C3|F}}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  2
+                ],
+                "label": "b",
+                "flip": true
+              }
+            ]
+          },
+          "explanation": "$C_2$ and $C_3$ are in parallel: {{C2|F}} + {{C3|F}} = {{C2+C3|F}}. That combination is in series with $C_1$: $C_{eq} = \\frac{C_1(C_2+C_3)}{C_1+C_2+C_3}$ = {{par(C1, C2+C3)|F}}."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Order the steps to find a capacitor voltage $v(t)$ from a given current waveform $i(t)$",
+          "items": [
+            "Note the initial voltage $v(t_0)$",
+            "Find the charge delivered: the area under $i(t)$ from $t_0$ to $t$",
+            "Divide that charge by $C$ to get the voltage change",
+            "Add the change to $v(t_0)$"
+          ],
+          "explanation": "$v(t) = \\frac1C\\int_{t_0}^t i\\,dt + v(t_0)$: the integral is the charge (area under the current curve), dividing by $C$ turns it into a voltage change, and the initial voltage sets the starting point."
+        },
+        {
+          "id": "g1",
+          "type": "multipleChoice",
+          "params": {
+            "Tm": [
+              2,
+              4
+            ],
+            "r": [
+              0.25,
+              0.5
+            ],
+            "Im": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "C": [
+              1e-06,
+              2.2e-06,
+              4.7e-06
+            ]
+          },
+          "derived": {
+            "t1": "Tm/1000",
+            "t2": "t1*(1+r)"
+          },
+          "prompt": "The graph shows the current $i(t)$ into the + terminal of an initially uncharged {{C|F}} capacitor. Which graph shows its voltage $v(t)$?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "2*t1",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": "-1.4*Im",
+              "max": "1.4*Im",
+              "label": "current i",
+              "unit": "A"
+            },
+            "curves": [
+              {
+                "f": "Im*step(t1-x) - Im*step(x-t1)*step(t2-x)"
+              }
+            ]
+          },
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": "2*t1",
+                "label": ""
+              },
+              "y": {
+                "min": "-1.2*t1",
+                "max": "1.2*t1",
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "clamp(x,0,t1) - clamp(x-t1,0,t2-t1)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": "2*t1",
+                "label": ""
+              },
+              "y": {
+                "min": "-1.2*t1",
+                "max": "1.2*t1",
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "t1*step(t1-x) - t1*step(x-t1)*step(t2-x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": "2*t1",
+                "label": ""
+              },
+              "y": {
+                "min": "-1.2*t1",
+                "max": "1.2*t1",
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "clamp(x,0,t1) - clamp(x-t1,0,t2-t1)/r"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": "2*t1",
+                "label": ""
+              },
+              "y": {
+                "min": "-1.2*t1",
+                "max": "1.2*t1",
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "clamp(x,0,t1) - max(0,x-t1)"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "$v(t) = \\frac1C\\int_0^t i\\,dt$: the voltage is the running area under $i$, divided by $C$. A constant +{{Im|A}} for {{t1|s}} makes $v$ rise linearly to {{Im*t1/C|V}}. Then −{{Im|A}} flows for only {{t2-t1|s}}, so $v$ falls linearly by {{Im*(t2-t1)/C|V}} to {{Im*(2*t1-t2)/C|V}}. Once $i = 0$ the voltage stays constant: it does not jump and does not drift back to zero."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "The voltage across a capacitor is a triangular wave (straight ramps up and down). What does the capacitor current look like?",
+          "options": [
+            "A square wave",
+            "A triangular wave",
+            "A sine wave",
+            "Zero"
+          ],
+          "answer": 0,
+          "explanation": "$i = C\\,dv/dt$. On each ramp the slope is constant, so the current is constant: positive on the rising ramps and negative on the falling ones. That gives a square wave."
+        }
+      ]
+    }
+  ]
+}

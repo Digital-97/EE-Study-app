@@ -1,0 +1,3377 @@
+{
+ "id": "ct-mesh",
+ "title": "Mesh-Current Analysis",
+ "description": "Solve planar circuits by writing KVL around each mesh in terms of mesh currents.",
+ "reference": "Hambley §2.5",
+ "study": [
+  {
+   "title": "Meshes and mesh currents",
+   "body": "A **mesh** is a loop that contains no other loop, like a window pane in the drawing of a planar circuit. Give every mesh a **mesh current**, conventionally clockwise. An element on the outside of the circuit carries one mesh current; an element shared by two meshes carries their difference. A connected planar circuit with $b$ branches and $n$ nodes has $b - n + 1$ meshes.",
+   "formula": "i_{R_3} = i_1 - i_2",
+   "circuit": {
+    "elements": [
+     {
+      "type": "vsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_{s1}"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "R_1"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       6,
+       0
+      ],
+      "label": "R_2"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       3,
+       2
+      ],
+      "label": "R_3",
+      "flip": true
+     },
+     {
+      "type": "vsource",
+      "from": [
+       6,
+       0
+      ],
+      "to": [
+       6,
+       2
+      ],
+      "label": "V_{s2}",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       3,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       3,
+       2
+      ]
+     },
+     {
+      "type": "loop",
+      "at": [
+       1.5,
+       1
+      ],
+      "label": "i_1"
+     },
+     {
+      "type": "loop",
+      "at": [
+       4.5,
+       1
+      ],
+      "label": "i_2"
+     }
+    ]
+   }
+  },
+  {
+   "title": "KVL around each mesh",
+   "body": "Walk around mesh $k$ in the direction of its current and add up the voltage **drops**. A resistor only in mesh $k$ gives $R\\,i_k$; a resistor shared with mesh $j$ gives $R(i_k - i_j)$. A voltage source counts $-V$ when you pass from − to + (a rise) and $+V$ when you pass from + to −.",
+   "formula": "-V_{s1} + R_1 i_1 + R_3(i_1 - i_2) = 0"
+  },
+  {
+   "title": "Matrix form R i = v",
+   "body": "With all mesh currents clockwise and only resistors and independent voltage sources, the diagonal entry $R_{kk}$ is the total resistance around mesh $k$, the off-diagonal entry $R_{kj}$ is **minus** the resistance shared by meshes $k$ and $j$, and $v_k$ is the sum of the source voltage rises in mesh $k$. The matrix is then symmetric. Work in kΩ and V to get currents in mA.",
+   "formula": "\\begin{bmatrix} R_1+R_3 & -R_3 \\\\ -R_3 & R_2+R_3 \\end{bmatrix}\\begin{bmatrix} i_1 \\\\ i_2 \\end{bmatrix} = \\begin{bmatrix} V_{s1} \\\\ V_{s2} \\end{bmatrix}"
+  },
+  {
+   "title": "Current sources and supermeshes",
+   "body": "A current source on the **outside** of a mesh fixes that mesh current directly (e.g. $i_2 = I_s$ if the source points in the clockwise direction of mesh 2). A current source **shared** by two meshes has an unknown voltage, so you cannot write KVL around either mesh. Combine them into a **supermesh**: write KVL around the outer loop that avoids the source, plus the constraint set by the source.",
+   "formula": "i_2 - i_1 = I_s",
+   "circuit": {
+    "elements": [
+     {
+      "type": "vsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_s"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "R_1"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       6,
+       0
+      ],
+      "label": "R_2"
+     },
+     {
+      "type": "isource",
+      "from": [
+       3,
+       2
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "I_s",
+      "flip": true
+     },
+     {
+      "type": "resistor",
+      "from": [
+       6,
+       0
+      ],
+      "to": [
+       6,
+       2
+      ],
+      "label": "R_3",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        2
+       ],
+       [
+        6,
+        2
+       ]
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       3,
+       0
+      ]
+     },
+     {
+      "type": "node",
+      "at": [
+       3,
+       2
+      ]
+     },
+     {
+      "type": "loop",
+      "at": [
+       1.5,
+       1
+      ],
+      "label": "i_1"
+     },
+     {
+      "type": "loop",
+      "at": [
+       4.5,
+       1
+      ],
+      "label": "i_2"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Dependent sources",
+   "body": "Write the mesh equations treating a dependent source like an independent one, then express its controlling variable in terms of the mesh currents (for example $i_x = i_1$ when $i_x$ flows in an outer branch of mesh 1). The resistance matrix may then become unsymmetric.",
+   "formula": "v_{\\text{dep}} = r\\,i_x = r\\,i_1"
+  },
+  {
+   "title": "Node or mesh?",
+   "body": "Mesh analysis only works for planar circuits (drawable without crossing wires). Count the equations: mesh analysis needs one per mesh minus one per outer current source, node analysis one per non-reference node minus one per voltage source. Choose the method with fewer equations. Always check the result with a KCL or KVL equation you did not use."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ct-mesh-1",
+   "title": "Mesh currents",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Currents that circulate",
+     "body": "Mesh-current analysis assigns a current to every **mesh** (window) of a planar circuit, all drawn clockwise. The real branch currents follow from them: $R_1$ carries only $i_1$, $R_2$ only $i_2$, and the shared resistor $R_3$ carries both. KCL is satisfied automatically, so only KVL equations are needed: one per mesh.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q1",
+     "type": "multipleChoice",
+     "prompt": "A connected planar circuit has 6 branches and 4 nodes. How many mesh currents does it have?",
+     "options": [
+      "3",
+      "4",
+      "6",
+      "2"
+     ],
+     "answer": 0,
+     "explanation": "Number of meshes = $b - n + 1$ = 6 − 4 + 1 = 3. Compare node analysis: $n - 1$ = 3 node voltages. Here both methods need three equations."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "The shared branch",
+     "body": "In $R_3$, $i_1$ flows **down** (clockwise in mesh 1) and $i_2$ flows **up** (clockwise in mesh 2). The net current down through $R_3$ is therefore $i_1 - i_2$, and walking around mesh 1 the voltage drop across $R_3$ is $R_3(i_1 - i_2)$. Walking around mesh 2 it is $R_3(i_2 - i_1)$.\n$$ i_{R_3,\\downarrow} = i_1 - i_2 $$",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "prompt": "The mesh currents are $i_1$ = {{i1|A}} and $i_2$ = {{i2|A}} (both clockwise) and $R_3$ = {{R3|Ω}}. Find the voltage across $R_3$ with + at the **top**.",
+     "params": {
+      "i1": {
+       "min": 0.001,
+       "max": 0.006,
+       "step": 0.0005
+      },
+      "i2": {
+       "min": 0.001,
+       "max": 0.006,
+       "step": 0.0005
+      },
+      "R3": [
+       1000,
+       2000,
+       2200,
+       3300,
+       4700
+      ]
+     },
+     "require": "abs(i1 - i2)",
+     "answer": "R3*(i1 - i2)",
+     "unit": "V",
+     "absTolerance": 0.001,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "The net current flowing **down** through $R_3$ (from + to −) is $i_1 - i_2$ = {{(i1 - i2)|A}}. So $v = R_3(i_1 - i_2)$ = {{R3|Ω}} × {{(i1 - i2)|A}} = **{{R3*(i1 - i2)|V}}**. A negative value means the bottom of $R_3$ is actually at the higher potential."
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "prompt": "Going clockwise around mesh 1, which KVL equation is correct?",
+     "options": [
+      "$-V_{s1} + R_1 i_1 + R_3(i_1 - i_2) = 0$",
+      "$-V_{s1} + R_1 i_1 + R_3(i_2 - i_1) = 0$",
+      "$V_{s1} + R_1 i_1 + R_3(i_1 - i_2) = 0$",
+      "$-V_{s1} + R_1 i_1 + R_3 i_1 = 0$"
+     ],
+     "answer": 0,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "Start at the bottom-left corner: going up through $V_{s1}$ from − to + is a rise, $-V_{s1}$. Then the drop $R_1 i_1$ and, down through $R_3$, the drop $R_3(i_1 - i_2)$ because $i_2$ flows the other way in $R_3$. Forgetting $i_2$ or reversing the difference are the classic mistakes."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Current sources",
+     "body": "A current source on the **outer** edge of a mesh fixes that mesh current: here $I_s$ points down, the clockwise direction of mesh 2, so $i_2 = I_s$ and only one KVL equation (mesh 1) is left. A current source in a branch **shared** by two meshes calls for a supermesh (see the challenge).",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "isource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "I_s",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "If the current source in this circuit pointed **up** instead of down, then $i_2 = -I_s$.",
+     "answer": true,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "isource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "I_s",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "True. The right branch carries only $i_2$, which is defined clockwise (downward in that branch). A source forcing $I_s$ upward means $i_2$ flows opposite to its reference: $i_2 = -I_s$."
+    },
+    {
+     "id": "q5",
+     "type": "matchPairs",
+     "prompt": "Match each term with its meaning.",
+     "pairs": [
+      [
+       "Node-voltage analysis",
+       "KCL at each node"
+      ],
+      [
+       "Mesh-current analysis",
+       "KVL around each mesh"
+      ],
+      [
+       "Supernode",
+       "Floating voltage source"
+      ],
+      [
+       "Supermesh",
+       "Current source shared by two meshes"
+      ]
+     ],
+     "explanation": "The two methods are duals: node analysis writes KCL with node voltages as unknowns, mesh analysis writes KVL with mesh currents. A voltage source between two non-reference nodes forces a supernode; a current source between two meshes forces a supermesh."
+    },
+    {
+     "id": "q6",
+     "type": "orderSteps",
+     "prompt": "Put the steps of mesh-current analysis in order.",
+     "items": [
+      "Check that the circuit is planar",
+      "Draw a clockwise current in each mesh",
+      "Write KVL for each mesh or supermesh",
+      "Add constraints from current sources",
+      "Solve for the mesh currents",
+      "Find branch currents as sums or differences"
+     ],
+     "explanation": "Mesh analysis needs a planar drawing. Define the unknowns, write one equation per unknown (KVL plus current-source constraints), solve, then combine mesh currents to get the actual branch currents."
+    }
+   ]
+  },
+  {
+   "id": "ct-mesh-2",
+   "title": "Two-mesh circuits",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "prompt": "Find the mesh current $i_1$ (clockwise).",
+     "params": {
+      "Vs1": [
+       5,
+       6,
+       9,
+       10,
+       12,
+       15,
+       20
+      ],
+      "Vs2": [
+       3,
+       5,
+       6,
+       9,
+       10,
+       12
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      }
+     },
+     "derived": {
+      "a11": "R1 + R3",
+      "a22": "R2 + R3",
+      "D": "a11*a22 - R3^2",
+      "i1": "(Vs1*a22 + R3*Vs2)/D",
+      "i2": "(a11*Vs2 + R3*Vs1)/D"
+     },
+     "answer": "i1",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}",
+        "value": "{{Vs1|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "value": "{{Vs2|V}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "hint": "Write KVL for both meshes, then use Cramer's rule. Working in kΩ gives mA.",
+     "explanation": "Clockwise KVL, summing voltage drops:\n- Mesh 1: $-V_{s1} + R_1 i_1 + R_3(i_1 - i_2) = 0$\n- Mesh 2: $R_2 i_2 - V_{s2} + R_3(i_2 - i_1) = 0$ (going down through $V_{s2}$ from − to + is a rise)\nIn kΩ and V (currents in mA):\n$$ {{a11/1e3}}\\,i_1 - {{R3/1e3}}\\,i_2 = {{Vs1}} $$\n$$ -{{R3/1e3}}\\,i_1 + {{a22/1e3}}\\,i_2 = {{Vs2}} $$\n$\\Delta$ = {{a11/1e3}}·{{a22/1e3}} − {{R3/1e3}}² = {{D/1e6}}\n$i_1 = \\frac{V_{s1}(R_2+R_3) + R_3 V_{s2}}{\\Delta}$ = ({{Vs1}}·{{a22/1e3}} + {{R3/1e3}}·{{Vs2}}) / {{D/1e6}} mA = **{{i1|A}}**"
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "prompt": "Find the mesh current $i_2$ (clockwise).",
+     "params": {
+      "Vs1": [
+       5,
+       6,
+       9,
+       10,
+       12,
+       15,
+       20
+      ],
+      "Vs2": [
+       3,
+       5,
+       6,
+       9,
+       10,
+       12
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      }
+     },
+     "derived": {
+      "a11": "R1 + R3",
+      "a22": "R2 + R3",
+      "D": "a11*a22 - R3^2",
+      "i1": "(Vs1*a22 + R3*Vs2)/D",
+      "i2": "(a11*Vs2 + R3*Vs1)/D"
+     },
+     "answer": "i2",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}",
+        "value": "{{Vs1|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "value": "{{Vs2|V}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "Clockwise KVL, summing voltage drops:\n- Mesh 1: $-V_{s1} + R_1 i_1 + R_3(i_1 - i_2) = 0$\n- Mesh 2: $R_2 i_2 - V_{s2} + R_3(i_2 - i_1) = 0$ (going down through $V_{s2}$ from − to + is a rise)\nIn kΩ and V (currents in mA):\n$$ {{a11/1e3}}\\,i_1 - {{R3/1e3}}\\,i_2 = {{Vs1}} $$\n$$ -{{R3/1e3}}\\,i_1 + {{a22/1e3}}\\,i_2 = {{Vs2}} $$\n$\\Delta$ = {{a11/1e3}}·{{a22/1e3}} − {{R3/1e3}}² = {{D/1e6}}\n$i_2 = \\frac{(R_1+R_3)V_{s2} + R_3 V_{s1}}{\\Delta}$ = ({{a11/1e3}}·{{Vs2}} + {{R3/1e3}}·{{Vs1}}) / {{D/1e6}} mA = **{{i2|A}}**"
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "prompt": "Find the current flowing **down** through $R_3$ (negative if it flows up).",
+     "params": {
+      "Vs1": [
+       5,
+       6,
+       9,
+       10,
+       12,
+       15,
+       20
+      ],
+      "Vs2": [
+       3,
+       5,
+       6,
+       9,
+       10,
+       12
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      }
+     },
+     "derived": {
+      "a11": "R1 + R3",
+      "a22": "R2 + R3",
+      "D": "a11*a22 - R3^2",
+      "i1": "(Vs1*a22 + R3*Vs2)/D",
+      "i2": "(a11*Vs2 + R3*Vs1)/D"
+     },
+     "require": "abs(Vs1*R2 - Vs2*R1) - 0.05*Vs1*R2",
+     "answer": "i1 - i2",
+     "unit": "A",
+     "absTolerance": 1e-06,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}",
+        "value": "{{Vs1|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "value": "{{Vs2|V}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "Clockwise KVL, summing voltage drops:\n- Mesh 1: $-V_{s1} + R_1 i_1 + R_3(i_1 - i_2) = 0$\n- Mesh 2: $R_2 i_2 - V_{s2} + R_3(i_2 - i_1) = 0$ (going down through $V_{s2}$ from − to + is a rise)\nIn kΩ and V (currents in mA):\n$$ {{a11/1e3}}\\,i_1 - {{R3/1e3}}\\,i_2 = {{Vs1}} $$\n$$ -{{R3/1e3}}\\,i_1 + {{a22/1e3}}\\,i_2 = {{Vs2}} $$\n$\\Delta$ = {{a11/1e3}}·{{a22/1e3}} − {{R3/1e3}}² = {{D/1e6}}\n$i_1$ = {{i1|A}}, $i_2$ = {{i2|A}}. Downward current in $R_3$: $i_1 - i_2$ = **{{i1 - i2|A}}**."
+    },
+    {
+     "id": "t1",
+     "type": "tapCircuit",
+     "prompt": "All three mesh currents are clockwise. Tap every element whose voltage appears in the KVL equation of **mesh 2**.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         9,
+         0
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "resistor",
+        "name": "R6",
+        "from": [
+         9,
+         0
+        ],
+        "to": [
+         9,
+         2
+        ],
+        "label": "R_6"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          9,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         6,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.7,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.7,
+         1
+        ],
+        "label": "i_2"
+       },
+       {
+        "type": "loop",
+        "at": [
+         7.7,
+         1
+        ],
+        "label": "i_3"
+       }
+      ]
+     },
+     "selectable": [
+      "Vs",
+      "R1",
+      "R2",
+      "R3",
+      "R4",
+      "R5",
+      "R6"
+     ],
+     "answer": [
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "explanation": "Mesh 2 is the middle window. Its boundary consists of $R_2$ (shared with mesh 1), $R_3$ on top and $R_4$ (shared with mesh 3); the bottom is a plain wire. KVL clockwise:\n$$R_2(i_2 - i_1) + R_3 i_2 + R_4(i_2 - i_3) = 0$$\nThe shared resistors bring the neighbouring mesh currents into the equation, but $V_s$, $R_1$, $R_5$ and $R_6$ are not on the boundary of mesh 2."
+    },
+    {
+     "id": "p4",
+     "type": "multipleChoice",
+     "prompt": "Going clockwise around mesh 2, which KVL equation is correct?",
+     "options": [
+      "$R_2 i_2 - V_{s2} + R_3(i_2 - i_1) = 0$",
+      "$R_2 i_2 + V_{s2} + R_3(i_2 - i_1) = 0$",
+      "$R_2 i_2 - V_{s2} + R_3(i_1 - i_2) = 0$",
+      "$R_2 i_2 - V_{s2} + R_3 i_2 = 0$"
+     ],
+     "answer": 0,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "Clockwise in mesh 2: right through $R_2$ (drop $R_2 i_2$), down through $V_{s2}$ entering at − and leaving at + (a rise, $-V_{s2}$), then up through $R_3$ where the net current in our direction is $i_2 - i_1$ (drop $R_3(i_2 - i_1)$)."
+    },
+    {
+     "id": "p5",
+     "type": "multipleChoice",
+     "prompt": "Written as $\\mathbf{R}\\mathbf{i} = \\mathbf{v}$, what is the entry $R_{12}$ of the resistance matrix?",
+     "options": [
+      "$-R_3$",
+      "$+R_3$",
+      "$R_1 + R_3$",
+      "$-R_1$"
+     ],
+     "answer": 0,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "In the mesh-1 equation $i_2$ appears only through the shared resistor: $R_3(i_1 - i_2)$ gives $-R_3\\,i_2$. So $R_{12} = R_{21} = -R_3$. The diagonal entry $R_{11} = R_1 + R_3$ is the total resistance around mesh 1."
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "prompt": "Find the power **delivered** by source $V_{s1}$.",
+     "params": {
+      "Vs1": [
+       5,
+       6,
+       9,
+       10,
+       12,
+       15,
+       20
+      ],
+      "Vs2": [
+       3,
+       5,
+       6,
+       9,
+       10,
+       12
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      }
+     },
+     "derived": {
+      "a11": "R1 + R3",
+      "a22": "R2 + R3",
+      "D": "a11*a22 - R3^2",
+      "i1": "(Vs1*a22 + R3*Vs2)/D",
+      "i2": "(a11*Vs2 + R3*Vs1)/D"
+     },
+     "answer": "Vs1*i1",
+     "unit": "W",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}",
+        "value": "{{Vs1|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "value": "{{Vs2|V}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "Clockwise KVL, summing voltage drops:\n- Mesh 1: $-V_{s1} + R_1 i_1 + R_3(i_1 - i_2) = 0$\n- Mesh 2: $R_2 i_2 - V_{s2} + R_3(i_2 - i_1) = 0$ (going down through $V_{s2}$ from − to + is a rise)\nIn kΩ and V (currents in mA):\n$$ {{a11/1e3}}\\,i_1 - {{R3/1e3}}\\,i_2 = {{Vs1}} $$\n$$ -{{R3/1e3}}\\,i_1 + {{a22/1e3}}\\,i_2 = {{Vs2}} $$\n$\\Delta$ = {{a11/1e3}}·{{a22/1e3}} − {{R3/1e3}}² = {{D/1e6}}\n$i_1 = \\frac{V_{s1}(R_2+R_3) + R_3V_{s2}}{\\Delta}$ = {{i1|A}}.\nOnly $i_1$ flows through $V_{s1}$, leaving its + terminal, so $P = V_{s1} i_1$ = {{Vs1|V}} × {{i1|A}} = **{{Vs1*i1|W}}**."
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "prompt": "The current source fixes $i_2$. With $V_s$ = {{Vs|V}}, $I_s$ = {{Is|A}}, $R_1$ = {{R1|Ω}} and $R_3$ = {{R3|Ω}}, find $i_1$.",
+     "params": {
+      "Vs": [
+       5,
+       6,
+       9,
+       10,
+       12,
+       15
+      ],
+      "Is": [
+       0.001,
+       0.002,
+       0.003
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      }
+     },
+     "answer": "(Vs + R3*Is)/(R1 + R3)",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}",
+        "flip": true
+       },
+       {
+        "type": "isource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "$I_s$ points down, the clockwise direction of mesh 2, so $i_2 = I_s$.\nMesh 1: $-V_s + R_1 i_1 + R_3(i_1 - I_s) = 0$\n$i_1 = \\frac{V_s + R_3 I_s}{R_1 + R_3}$ = ({{Vs}} + {{R3*Is}}) V / {{R1 + R3|Ω}} = **{{(Vs + R3*Is)/(R1 + R3)|A}}**\n$R_2$ does not appear: it is in series with an ideal current source."
+    },
+    {
+     "id": "p8",
+     "type": "trueFalse",
+     "prompt": "For a circuit of resistors and independent voltage sources with all mesh currents clockwise, the resistance matrix is symmetric.",
+     "answer": true,
+     "explanation": "True. The shared resistor between meshes $k$ and $j$ appears as $-R$ in both the $k$-th and the $j$-th equation, so $R_{kj} = R_{jk}$. Dependent sources or mixed current directions can break this symmetry."
+    }
+   ]
+  },
+  {
+   "id": "ct-mesh-3",
+   "title": "Supermeshes and dependent sources",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "t2",
+     "type": "tapCircuit",
+     "prompt": "Both mesh currents are clockwise. Tap every element that carries the current $i_1 - i_2$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs1",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         1.5
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "vsource",
+        "name": "Vs2",
+        "from": [
+         3,
+         3
+        ],
+        "to": [
+         3,
+         1.5
+        ],
+        "label": "V_{s2}"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         3
+        ],
+        "label": "R_4"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          3
+         ],
+         [
+          6,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         3
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1.5
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.7,
+         1.5
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "selectable": [
+      "Vs1",
+      "R1",
+      "R2",
+      "Vs2",
+      "R3",
+      "R4"
+     ],
+     "answer": [
+      "R2",
+      "Vs2"
+     ],
+     "explanation": "Only elements in the branch **shared** by both meshes carry two mesh currents. In the middle branch $i_1$ flows down and $i_2$ flows up, so the net current (downward) is $i_1 - i_2$. Both $R_2$ and $V_{s2}$ are in that branch.\n$V_{s1}$, $R_1$ belong only to mesh 1 (current $i_1$); $R_3$ and $R_4$ only to mesh 2 (current $i_2$)."
+    },
+    {
+     "id": "t3",
+     "type": "tapCircuit",
+     "prompt": "The current source sits in the branch shared by both meshes, so you use a **supermesh**. Tap every element whose voltage appears in the supermesh KVL equation.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "name": "Vs",
+        "from": [
+         0,
+         3
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R1",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "name": "R5",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         1.5
+        ],
+        "label": "R_5"
+       },
+       {
+        "type": "isource",
+        "name": "Is",
+        "from": [
+         3,
+         3
+        ],
+        "to": [
+         3,
+         1.5
+        ],
+        "label": "I_s"
+       },
+       {
+        "type": "resistor",
+        "name": "R2",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "resistor",
+        "name": "R3",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         3
+        ],
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          3
+         ],
+         [
+          3,
+          3
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "name": "R4",
+        "from": [
+         3,
+         3
+        ],
+        "to": [
+         0,
+         3
+        ],
+        "label": "R_4",
+        "flip": true
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         3
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1.5
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.7,
+         1.5
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "selectable": [
+      "Vs",
+      "R1",
+      "R5",
+      "Is",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "answer": [
+      "Vs",
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "explanation": "The voltage across a current source is unknown, so you avoid writing KVL through it. The supermesh is the **outer loop** around both meshes, skipping the shared branch:\n$$-V_s + R_1 i_1 + R_2 i_2 + R_3 i_2 + R_4 i_1 = 0$$\n$R_5$ is in series with $I_s$ in the shared branch, so it is skipped too. The second equation comes from the source: $i_2 - i_1 = I_s$ (it pushes current up, the direction of $i_2$)."
+    },
+    {
+     "id": "c1",
+     "type": "multipleChoice",
+     "prompt": "The current source sits in the branch shared by both meshes. Which pair of equations solves the circuit?",
+     "options": [
+      "$R_1 i_1 + (R_2 + R_3) i_2 = V_s$ and $i_2 - i_1 = I_s$",
+      "$R_1 i_1 + (R_2 + R_3) i_2 = V_s$ and $i_1 - i_2 = I_s$",
+      "$-V_s + R_1 i_1 = 0$ and $(R_2 + R_3) i_2 = 0$",
+      "$R_1 i_1 + (R_2 + R_3) i_2 = V_s + R_1 I_s$ and $i_2 = I_s$"
+     ],
+     "answer": 0,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2"
+       },
+       {
+        "type": "isource",
+        "from": [
+         3,
+         2
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "I_s",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "The voltage across the current source is unknown, so write KVL around the **supermesh** (the outer loop): $-V_s + R_1 i_1 + R_2 i_2 + R_3 i_2 = 0$. The source points **up**; in the middle branch $i_2$ flows up and $i_1$ flows down, so the constraint is $i_2 - i_1 = I_s$. Writing separate mesh equations ($-V_s + R_1 i_1 = 0$ and $(R_2 + R_3) i_2 = 0$) ignores the voltage across the current source, which is not zero."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "prompt": "Find $i_2$ (clockwise) for $V_s$ = {{Vs|V}}, $I_s$ = {{Is|A}}, $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}}, $R_3$ = {{R3|Ω}}.",
+     "params": {
+      "Vs": [
+       6,
+       9,
+       10,
+       12,
+       15,
+       20
+      ],
+      "Is": [
+       0.001,
+       0.002,
+       0.003
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      }
+     },
+     "derived": {
+      "Rt": "R1 + R2 + R3",
+      "i2": "(Vs + R1*Is)/Rt"
+     },
+     "answer": "i2",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "isource",
+        "from": [
+         3,
+         2
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "Supermesh KVL: $R_1 i_1 + (R_2 + R_3) i_2 = V_s$; constraint: $i_1 = i_2 - I_s$.\nSubstitute: $R_1(i_2 - I_s) + (R_2 + R_3) i_2 = V_s$, so\n$i_2 = \\frac{V_s + R_1 I_s}{R_1 + R_2 + R_3}$ = ({{Vs}} + {{R1*Is}}) V / {{Rt|Ω}} = **{{i2|A}}**"
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "prompt": "Same circuit, now with $V_s$ = {{Vs|V}}, $I_s$ = {{Is|A}}, $R_1$ = {{R1|Ω}}, $R_2$ = {{R2|Ω}}, $R_3$ = {{R3|Ω}}. Find $i_1$ (clockwise; it may be negative).",
+     "params": {
+      "Vs": [
+       6,
+       9,
+       10,
+       12,
+       15,
+       20
+      ],
+      "Is": [
+       0.001,
+       0.002,
+       0.003
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      }
+     },
+     "derived": {
+      "Rt": "R1 + R2 + R3",
+      "i2": "(Vs + R1*Is)/Rt",
+      "i1": "i2 - Is"
+     },
+     "require": "abs(Vs - (R2 + R3)*Is) - 0.5",
+     "answer": "i1",
+     "unit": "A",
+     "absTolerance": 1e-06,
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "isource",
+        "from": [
+         3,
+         2
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is|A}}",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "From the supermesh: $i_2 = \\frac{V_s + R_1 I_s}{R_1 + R_2 + R_3}$ = {{i2|A}}.\nThe source constraint $i_2 - i_1 = I_s$ gives $i_1 = i_2 - I_s$ = {{i2|A}} − {{Is|A}} = **{{i1|A}}**.\nDirectly: $i_1 = \\frac{V_s - (R_2 + R_3) I_s}{R_1 + R_2 + R_3}$. A negative value means the current in $R_1$ flows right to left."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "prompt": "The diamond is a current-controlled voltage source $r\\,i_x$ (+ at the bottom), where $i_x$ is the current through $R_1$ and $r$ = {{r|Ω}} (volts per ampere). Find $i_2$.",
+     "params": {
+      "Vs": [
+       5,
+       6,
+       9,
+       10,
+       12
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 5000,
+       "step": 1000
+      },
+      "r": [
+       500,
+       1000,
+       1500
+      ]
+     },
+     "derived": {
+      "a11": "R1 + R3",
+      "a21": "-(R3 + r)",
+      "a22": "R2 + R3",
+      "D": "a11*a22 - R3*(R3 + r)",
+      "i1": "Vs*a22/D",
+      "i2": "Vs*(R3 + r)/D"
+     },
+     "require": "(R1*R2 + R1*R3 + R2*R3 - r*R3) - 0.5*(R1*R2 + R1*R3 + R2*R3)",
+     "answer": "i2",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.1,
+         0
+        ],
+        "to": [
+         0.7,
+         0
+        ],
+        "label": "i_x"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}",
+        "flip": true
+       },
+       {
+        "type": "cvsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "r i_x",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "$i_x$ flows only in mesh 1, so $i_x = i_1$.\n- Mesh 1: $-V_s + R_1 i_1 + R_3(i_1 - i_2) = 0$\n- Mesh 2: $R_2 i_2 - r\\,i_1 + R_3(i_2 - i_1) = 0$ (down through the source from − to + is a rise)\nSo $(R_1+R_3)i_1 - R_3 i_2 = V_s$ and $-(R_3 + r)i_1 + (R_2+R_3)i_2 = 0$. In kΩ:\n$$ {{a11/1e3}}\\,i_1 - {{R3/1e3}}\\,i_2 = {{Vs}} $$\n$$ -{{(R3 + r)/1e3}}\\,i_1 + {{a22/1e3}}\\,i_2 = 0 $$\n$\\Delta$ = {{a11/1e3}}·{{a22/1e3}} − {{R3/1e3}}·{{(R3 + r)/1e3}} = {{D/1e6}} (not symmetric any more)\n$i_2 = \\frac{(R_3 + r)V_s}{\\Delta}$ = {{(R3 + r)/1e3}}·{{Vs}} / {{D/1e6}} mA = **{{i2|A}}**"
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "prompt": "Back to the two-source circuit. Find the power absorbed by $R_3$.",
+     "params": {
+      "Vs1": [
+       5,
+       6,
+       9,
+       10,
+       12,
+       15,
+       20
+      ],
+      "Vs2": [
+       3,
+       5,
+       6,
+       9,
+       10,
+       12
+      ],
+      "R1": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R2": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      },
+      "R3": {
+       "min": 1000,
+       "max": 6000,
+       "step": 1000
+      }
+     },
+     "derived": {
+      "a11": "R1 + R3",
+      "a22": "R2 + R3",
+      "D": "a11*a22 - R3^2",
+      "i1": "(Vs1*a22 + R3*Vs2)/D",
+      "i2": "(a11*Vs2 + R3*Vs1)/D"
+     },
+     "require": "abs(Vs1*R2 - Vs2*R1) - 0.05*Vs1*R2",
+     "answer": "R3*(i1 - i2)^2",
+     "unit": "W",
+     "circuit": {
+      "elements": [
+       {
+        "type": "vsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_{s1}",
+        "value": "{{Vs1|V}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R_3",
+        "value": "{{R3|Ω}}",
+        "flip": true
+       },
+       {
+        "type": "vsource",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "V_{s2}",
+        "value": "{{Vs2|V}}",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          2
+         ],
+         [
+          6,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "loop",
+        "at": [
+         1.5,
+         1
+        ],
+        "label": "i_1"
+       },
+       {
+        "type": "loop",
+        "at": [
+         4.5,
+         1
+        ],
+        "label": "i_2"
+       }
+      ]
+     },
+     "explanation": "Clockwise KVL, summing voltage drops:\n- Mesh 1: $-V_{s1} + R_1 i_1 + R_3(i_1 - i_2) = 0$\n- Mesh 2: $R_2 i_2 - V_{s2} + R_3(i_2 - i_1) = 0$ (going down through $V_{s2}$ from − to + is a rise)\nIn kΩ and V (currents in mA):\n$$ {{a11/1e3}}\\,i_1 - {{R3/1e3}}\\,i_2 = {{Vs1}} $$\n$$ -{{R3/1e3}}\\,i_1 + {{a22/1e3}}\\,i_2 = {{Vs2}} $$\n$\\Delta$ = {{a11/1e3}}·{{a22/1e3}} − {{R3/1e3}}² = {{D/1e6}}\n$i_1$ = {{i1|A}}, $i_2$ = {{i2|A}}, so the current in $R_3$ is $i_1 - i_2$ = {{i1 - i2|A}}.\n$P = R_3 (i_1 - i_2)^2$ = {{R3|Ω}} × ({{i1 - i2|A}})² = **{{R3*(i1 - i2)^2|W}}**. Using $R_3 i_1^2 + R_3 i_2^2$ would be wrong: square the **net** current."
+    },
+    {
+     "id": "c6",
+     "type": "multipleChoice",
+     "prompt": "A planar circuit has 6 nodes and 3 meshes. It contains only resistors and one voltage source, connected between the reference node and one other node. Which method needs the fewest unknowns?",
+     "options": [
+      "Mesh analysis: 3 unknowns",
+      "Node analysis: 4 unknowns",
+      "Node analysis: 5 unknowns",
+      "Both need exactly 3"
+     ],
+     "answer": 0,
+     "explanation": "Mesh analysis: one mesh current per mesh = 3 unknowns, and a voltage source adds no extra unknown. Node analysis: $6 - 1 = 5$ node voltages, minus 1 fixed directly by the grounded voltage source = 4 unknowns. Mesh analysis is less work here."
+    }
+   ]
+  }
+ ]
+}

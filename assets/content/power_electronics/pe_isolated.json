@@ -1,0 +1,1793 @@
+{
+  "id": "pe-isolated",
+  "title": "Isolated Converters",
+  "description": "Transformers in switching converters: the magnetizing-inductance model, flyback, forward, bridge and push-pull converters, turns ratios and transformer reset.",
+  "reference": "Erickson ch. 6",
+  "study": [
+    {
+      "title": "Why isolation?",
+      "body": "A transformer between input and output gives **galvanic isolation** (safety for mains-powered supplies, separate grounds), allows **large voltage ratios** without extreme duty cycles (a buck from 400 V to 5 V would need $D$ = 1.25 %), and makes **multiple outputs** easy with extra windings. Each isolated converter is a basic converter with a transformer inserted; its ratio gets an extra factor $n = N_s/N_p$.",
+      "formula": "n = \\frac{N_s}{N_p},\\qquad v_s = n\\,v_p"
+    },
+    {
+      "title": "Transformer model",
+      "body": "Model a real transformer as an ideal one plus a **magnetizing inductance** $L_M$ across the primary (and a small leakage inductance in series). $L_M$ is a real inductor: it obeys volt-second balance, so the primary voltage must average to zero over a period. Otherwise the magnetizing current, and with it the core flux, grows every period until the core **saturates**.",
+      "formula": "\\frac{di_M}{dt} = \\frac{v_p}{L_M}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              0
+            ],
+            "label": "+",
+            "flip": true
+          },
+          {
+            "type": "terminal",
+            "at": [
+              0,
+              2
+            ],
+            "label": "−",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                2,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "inductor",
+            "from": [
+              1,
+              0
+            ],
+            "to": [
+              1,
+              2
+            ],
+            "label": "L_M"
+          },
+          {
+            "type": "node",
+            "at": [
+              1,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              1,
+              2
+            ]
+          },
+          {
+            "type": "transformer",
+            "at": [
+              3,
+              1
+            ],
+            "label": "N_p : N_s"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                5,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              0
+            ],
+            "label": "+"
+          },
+          {
+            "type": "terminal",
+            "at": [
+              5,
+              2
+            ],
+            "label": "−"
+          },
+          {
+            "type": "text",
+            "at": [
+              3,
+              2.6
+            ],
+            "label": "ideal"
+          }
+        ]
+      }
+    },
+    {
+      "title": "The flyback converter",
+      "body": "A buck-boost whose inductor got a second winding: $L_M$ is the energy store. $Q_1$ on: $V_g$ across the primary, $i_M$ rises, and the opposite dots keep $D_1$ reverse biased. $Q_1$ off: the winding voltages reverse, $D_1$ conducts and the stored energy flows to the output. $Q_1$ must block $V_g$ plus the reflected output voltage $V/n$.",
+      "formula": "\\begin{aligned}& V = n\\,\\frac{D}{1 - D}\\,V_g\\\\ & v_{Q,max} = V_g + \\frac{V}{n}\\end{aligned}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_g",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "transformer",
+            "at": [
+              3,
+              1
+            ],
+            "label": "N_p : N_s",
+            "flip": true
+          },
+          {
+            "type": "switch",
+            "from": [
+              2,
+              2
+            ],
+            "to": [
+              2,
+              4
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                2,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "diode",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              6,
+              0
+            ],
+            "label": "D_1"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              2
+            ],
+            "label": "C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6,
+                0
+              ],
+              [
+                7,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              7,
+              0
+            ],
+            "to": [
+              7,
+              2
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                7,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "inductor",
+            "from": [
+              1,
+              0
+            ],
+            "to": [
+              1,
+              2
+            ],
+            "label": "L_M",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                1,
+                2
+              ],
+              [
+                2,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              1,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "The forward converter",
+      "body": "A buck with a transformer. $Q_1$ on: the secondary delivers $nV_g$, $D_2$ conducts and $L$ charges. $Q_1$ off: $D_3$ freewheels the inductor current, as in a buck. So $V = nDV_g$. The transformer stores no useful energy, but its magnetizing current must be **reset** every period, usually by a third winding $N_r$ that returns the magnetizing energy to the input (not drawn).",
+      "formula": "V = nDV_g",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_g",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "transformer",
+            "at": [
+              2,
+              1
+            ],
+            "label": "N_p : N_s"
+          },
+          {
+            "type": "switch",
+            "from": [
+              1,
+              2
+            ],
+            "to": [
+              1,
+              4
+            ],
+            "label": "Q_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                1,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "diode",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "label": "D_2"
+          },
+          {
+            "type": "diode",
+            "from": [
+              4,
+              2
+            ],
+            "to": [
+              4,
+              0
+            ],
+            "label": "D_3"
+          },
+          {
+            "type": "inductor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              6,
+              0
+            ],
+            "label": "L"
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              2
+            ],
+            "label": "C"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6,
+                0
+              ],
+              [
+                7,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              7,
+              0
+            ],
+            "to": [
+              7,
+              2
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2
+              ],
+              [
+                7,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Transformer reset",
+      "body": "With a reset winding the primary voltage is $V_g$ for $DT_s$ and $-V_gN_p/N_r$ while the core resets. Volt-second balance gives a reset time $D_2T_s = DT_sN_r/N_p$, which must fit before the next turn-on: $D + D_2 \\le 1$. With $N_r = N_p$ (the usual choice) $D \\le 0.5$ and $Q_1$ must block $2V_g$. The volt-seconds also set the peak-to-peak flux-density swing, $2\\Delta B = V_gDT_s/(N_pA_c)$ ($\\Delta B$, like $\\Delta i_L$, is half the swing).",
+      "formula": "\\begin{aligned}& D_{max} = \\frac{1}{1 + N_r/N_p}\\\\ & v_{Q,max} = V_g\\left(1 + \\frac{N_p}{N_r}\\right)\\end{aligned}"
+    },
+    {
+      "title": "Bridge and push-pull converters",
+      "body": "For higher power the transformer is driven in both directions. A **full bridge** (four switches) applies $+V_g$, 0, $-V_g$, 0 to the primary; each half of the transformer period the rectified secondary is $nV_g$ for a fraction $D$, so $V = nDV_g$. Switches block only $V_g$, and the core flux swings both ways (better use of the core). The **half bridge** applies $\\pm V_g/2$ and needs only two switches. The **push-pull** uses a center-tapped primary; its two switches must block $2V_g$.",
+      "formula": "\\begin{aligned}& V = nDV_g\\quad\\text{(full bridge, push-pull)}\\\\ & V = \\tfrac12 nDV_g\\quad\\text{(half bridge)}\\end{aligned}"
+    },
+    {
+      "title": "Worked example: flyback",
+      "body": "$V_g$ = 48 V, $V$ = 12 V at 2 A, $N_p : N_s$ = 2 : 1 ($n$ = 0.5).\n- $\\frac{D}{1-D} = \\frac{V}{nV_g}$ = 12/24 = 0.5, so $D$ = 1/3.\n- $Q_1$ blocks $V_g + V/n$ = 48 + 24 = 72 V; $D_1$ blocks $V + nV_g$ = 12 + 24 = 36 V.\n- Primary-referred magnetizing current: $I_M = nI_{out}/D'$ = 0.5 × 2 / (2/3) = 1.5 A. Check: $P_{in} = V_g D I_M$ = 48 × (1/3) × 1.5 = 24 W = $P_{out}$."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pe-isolated-1",
+      "title": "Transformer model and flyback",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The transformer in a converter",
+          "body": "Treat the transformer as an ideal one (voltages scale with $n = N_s/N_p$) plus a magnetizing inductance $L_M$ across the primary. While the primary has $V_g$ across it, the magnetizing current ramps up with slope $V_g/L_M$, exactly like the current in any inductor.",
+          "formula": "2\\Delta i_M = \\frac{V_g D T_s}{L_M}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  0
+                ],
+                "label": "+",
+                "flip": true
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  0,
+                  2
+                ],
+                "label": "−",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    2,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  1,
+                  2
+                ],
+                "label": "L_M"
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  2
+                ]
+              },
+              {
+                "type": "transformer",
+                "at": [
+                  3,
+                  1
+                ],
+                "label": "N_p : N_s"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  0
+                ],
+                "label": "+"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  5,
+                  2
+                ],
+                "label": "−"
+              },
+              {
+                "type": "text",
+                "at": [
+                  3,
+                  2.6
+                ],
+                "label": "ideal"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "trueFalse",
+          "prompt": "An ideal transformer stores energy and releases it later in the switching period.",
+          "answer": false,
+          "explanation": "An ideal transformer has infinite $L_M$: it passes power from primary to secondary instantly and stores nothing. Only the magnetizing inductance stores energy. The forward converter tries to keep that energy small; the flyback uses $L_M$ deliberately as its energy store."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "LM": [
+              0.0002,
+              0.0005,
+              0.001
+            ],
+            "Vg": [
+              48,
+              100,
+              300
+            ],
+            "D": [
+              0.3,
+              0.4,
+              0.45
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ]
+          },
+          "prompt": "A transformer primary with $L_M$ = {{LM|H}} sees {{Vg|V}} for {{D*100}} % of each {{fs|Hz}} period. By how much does the magnetizing current rise (peak-to-peak)?",
+          "answer": "Vg*D/(fs*LM)",
+          "unit": "A",
+          "explanation": "$2\\Delta i_M = \\frac{V_g}{L_M}DT_s$ = {{Vg}} V × {{D/fs|s}} / {{LM|H}} = **{{Vg*D/(fs*LM)|A}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The flyback converter",
+          "body": "$Q_1$ on: $V_g$ magnetizes $L_M$; because the dots are on opposite ends, the secondary voltage reverse-biases $D_1$ and the output capacitor feeds the load. $Q_1$ off: the magnetizing current transfers to the secondary, $D_1$ conducts and the energy goes to the output. It is a buck-boost with a turns ratio, so $V = nV_gD/D'$ (positive here thanks to the winding polarity).",
+          "formula": "V = n\\,\\frac{D}{1 - D}\\,V_g",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_g",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "transformer",
+                "at": [
+                  3,
+                  1
+                ],
+                "label": "N_p : N_s",
+                "flip": true
+              },
+              {
+                "type": "switch",
+                "from": [
+                  2,
+                  2
+                ],
+                "to": [
+                  2,
+                  4
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    2,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  6,
+                  0
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    0
+                  ],
+                  [
+                    7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  7,
+                  0
+                ],
+                "to": [
+                  7,
+                  2
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    7,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  2
+                ]
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  1,
+                  2
+                ],
+                "label": "L_M",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    2,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  1,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "k": [
+              2,
+              3,
+              4,
+              5,
+              8
+            ],
+            "Vg": [
+              48,
+              100,
+              160
+            ],
+            "D": [
+              0.3,
+              0.4,
+              0.5
+            ]
+          },
+          "prompt": "A flyback converter with $N_p : N_s$ = {{k}} : 1 runs from {{Vg|V}} at $D$ = {{D}} (CCM). Find the output voltage.",
+          "answer": "Vg*D/(k*(1-D))",
+          "unit": "V",
+          "explanation": "$n = N_s/N_p$ = 1/{{k}}. $V = n\\frac{D}{1-D}V_g$ = (1/{{k}}) × {{D}}/{{1-D||2}} × {{Vg}} V = **{{Vg*D/(k*(1-D))|V}}**."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Why are the dots of a flyback transformer on **opposite** ends of the two windings?",
+          "options": [
+            "So that $D_1$ blocks while $Q_1$ is on and conducts after $Q_1$ turns off",
+            "So that power flows to the output while $Q_1$ is on",
+            "To cancel the leakage inductance",
+            "To double the output voltage"
+          ],
+          "answer": 0,
+          "explanation": "With opposite dots, $Q_1$ on makes the diode end of the secondary negative, so no secondary current flows and $L_M$ stores energy. When $Q_1$ turns off, all winding voltages reverse and the magnetizing current continues through the secondary and $D_1$. That two-step energy transfer is what makes it a flyback (buck-boost) rather than a forward (buck) converter."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "V": [
+              5,
+              12,
+              24
+            ],
+            "Vg": [
+              48,
+              160,
+              325
+            ],
+            "k": [
+              2,
+              4,
+              6,
+              10
+            ]
+          },
+          "require": "min(Vg*0.7/k - V, V - Vg*0.1/k)",
+          "prompt": "A flyback converter makes {{V|V}} from {{Vg|V}} with $N_p : N_s$ = {{k}} : 1. What voltage must the MOSFET block while it is off (ignore leakage spikes)?",
+          "answer": "Vg + k*V",
+          "unit": "V",
+          "explanation": "With $D_1$ conducting the secondary has $V$ across it, which reflects to the primary as $V\\cdot N_p/N_s$ = {{k}} × {{V|V}} = {{k*V|V}}. The drain sits at $V_g$ plus this: **{{Vg+k*V|V}}**. In practice the leakage inductance adds a spike on top, so a clamp or snubber and extra margin are needed."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "V": [
+              5,
+              12,
+              24
+            ],
+            "Vg": [
+              48,
+              160,
+              325
+            ],
+            "k": [
+              2,
+              4,
+              6,
+              10
+            ]
+          },
+          "require": "min(Vg*0.7/k - V, V - Vg*0.1/k)",
+          "prompt": "A flyback converter with $N_p : N_s$ = {{k}} : 1 must make {{V|V}} from {{Vg|V}}. What duty cycle does it need (CCM)?",
+          "answer": "k*V/(Vg + k*V)",
+          "unit": "",
+          "explanation": "$\\frac{D}{1-D} = \\frac{V}{nV_g} = \\frac{N_p}{N_s}\\cdot\\frac{V}{V_g}$ = {{k}} × {{V}} / {{Vg}} = {{k*V/Vg||3}} → $D = \\frac{(N_p/N_s)V}{V_g + (N_p/N_s)V}$ = **{{k*V/(Vg+k*V)||3}}**."
+        }
+      ]
+    },
+    {
+      "id": "pe-isolated-2",
+      "title": "Forward converter and reset",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The forward converter",
+          "body": "While $Q_1$ is on, the secondary delivers $nV_g$ through $D_2$ to an LC filter, exactly like a buck's switch node. When $Q_1$ is off, $D_3$ carries the inductor current. The output inductor sees $nV_g - V$ and $-V$, so volt-second balance gives $V = nDV_g$.",
+          "formula": "V = nDV_g",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_g",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "transformer",
+                "at": [
+                  2,
+                  1
+                ],
+                "label": "N_p : N_s"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  1,
+                  2
+                ],
+                "to": [
+                  1,
+                  4
+                ],
+                "label": "Q_1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    1,
+                    4
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "D_2"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  4,
+                  2
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "D_3"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  6,
+                  0
+                ],
+                "label": "L"
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "C"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    0
+                  ],
+                  [
+                    7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  7,
+                  0
+                ],
+                "to": [
+                  7,
+                  2
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    7,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "k": [
+              2,
+              4,
+              5,
+              8,
+              10
+            ],
+            "Vg": [
+              48,
+              100,
+              300
+            ],
+            "D": [
+              0.2,
+              0.3,
+              0.4,
+              0.45
+            ]
+          },
+          "prompt": "A forward converter with $N_p : N_s$ = {{k}} : 1 runs from {{Vg|V}} at $D$ = {{D}}. Find $V$.",
+          "answer": "D*Vg/k",
+          "unit": "V",
+          "explanation": "$n$ = 1/{{k}}. $V = nDV_g$ = {{D}} × {{Vg}} V / {{k}} = **{{D*Vg/k|V}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "Vg": [
+              48,
+              100,
+              300
+            ],
+            "D": [
+              0.35,
+              0.4,
+              0.45
+            ]
+          },
+          "prompt": "A forward converter must make {{V|V}} from {{Vg|V}} at a duty cycle of {{D}}. What turns ratio $N_p/N_s$ does it need?",
+          "answer": "D*Vg/V",
+          "unit": "",
+          "explanation": "$V = \\frac{N_s}{N_p}DV_g$ → $\\frac{N_p}{N_s} = \\frac{DV_g}{V}$ = {{D}} × {{Vg}} / {{V}} = **{{D*Vg/V||3}}**."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Resetting the core",
+          "body": "While $Q_1$ is on, $i_M$ ramps up. After turn-off the magnetizing current flows through the reset winding back into $V_g$, which puts $-V_gN_p/N_r$ across the primary until $i_M$ is zero. A larger $N_r$ means a lower reset voltage (less switch stress) but a longer reset, so a lower maximum duty cycle.",
+          "formula": "\\begin{aligned}& D_2 = D\\,\\frac{N_r}{N_p}\\\\ & D + D_2 \\le 1\\end{aligned}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "r": [
+              0.5,
+              1,
+              1.5,
+              2
+            ],
+            "Vg": [
+              48,
+              100,
+              300
+            ]
+          },
+          "prompt": "A forward converter's reset winding has $N_r/N_p$ = {{r}}, and $V_g$ = {{Vg|V}}.",
+          "ask": [
+            {
+              "prompt": "What is the maximum duty cycle?",
+              "answer": "1/(1+r)",
+              "unit": "",
+              "explanation": "Reset takes $D_2 = D\\,N_r/N_p$, and $D + D_2 \\le 1$: $D_{max} = \\frac{1}{1 + N_r/N_p}$ = 1/(1 + {{r}}) = **{{1/(1+r)||3}}**."
+            },
+            {
+              "prompt": "What voltage must $Q_1$ block during reset?",
+              "answer": "Vg*(1 + 1/r)",
+              "unit": "V",
+              "explanation": "During reset the primary has $-V_gN_p/N_r$ = −{{Vg/r|V}} across it, so the drain is at $V_g + V_gN_p/N_r$ = {{Vg}} × (1 + 1/{{r}}) = **{{Vg*(1+1/r)|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "In a forward converter, energy is stored in the transformer while $Q_1$ is on and delivered to the output after it turns off.",
+          "answer": false,
+          "explanation": "That is the flyback. In the forward converter power flows straight through the transformer while $Q_1$ is on; the output **inductor** does the energy storage, as in a buck. The (small) magnetizing energy is returned to the input through the reset winding."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "D": [
+              0.3,
+              0.35,
+              0.4,
+              0.45
+            ]
+          },
+          "prompt": "A forward converter runs at $D$ = {{D}}. The graph shows the magnetizing current over one period for a reset winding ratio $N_r/N_p$. Choose the **largest** ratio that still resets the core before the next turn-on.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1.4,
+              "label": "t / T_s"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.2,
+              "label": "i_M / i_{M,pk}"
+            },
+            "sliders": [
+              {
+                "name": "r",
+                "label": "$N_r/N_p$",
+                "min": 0.3,
+                "max": 3,
+                "step": 0.01,
+                "value": 0.5
+              }
+            ],
+            "curves": [
+              {
+                "f": "if(D - x, x/D, max(0, 1 - (x - D)/(D*r)))"
+              }
+            ],
+            "vlines": [
+              {
+                "x": 1,
+                "label": "next on",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "reset ends at $t/T_s$",
+                "value": "D*(1 + r)",
+                "reveal": true
+              },
+              {
+                "label": "$v_{Q,max}/V_g$",
+                "value": "1 + 1/r"
+              }
+            ]
+          },
+          "answer": {
+            "r": "(1-D)/D"
+          },
+          "tolerance": 0.03,
+          "explanation": "Reset lasts $D_2T_s = D\\frac{N_r}{N_p}T_s$; it must end by $t = T_s$: $D(1 + N_r/N_p) = 1$ → $N_r/N_p = \\frac{1-D}{D}$ = **{{(1-D)/D||3}}**. The switch then blocks $V_g(1 + N_p/N_r) = \\frac{V_g}{1-D}$ = {{1/(1-D)||3}}$V_g$, the lowest possible stress at this duty cycle."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Np": [
+              10,
+              20,
+              30,
+              40
+            ],
+            "Ac": [
+              5e-05,
+              0.0001,
+              0.0002
+            ],
+            "Vg": [
+              48,
+              100,
+              300
+            ],
+            "D": [
+              0.3,
+              0.4
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ]
+          },
+          "require": "min(0.2 - Vg*D/(fs*Np*Ac), Vg*D/(fs*Np*Ac) - 0.03)",
+          "prompt": "A forward transformer has $N_p$ = {{Np}} turns on a core with $A_c$ = {{Ac*1e6}} mm². It runs from {{Vg|V}} at $D$ = {{D}} and {{fs|Hz}}. What is the peak-to-peak flux-density swing $2\\Delta B$?",
+          "answer": "Vg*D/(fs*Np*Ac)",
+          "unit": "T",
+          "explanation": "Volt-seconds: $\\lambda = V_gDT_s$ = {{Vg*D/fs|V}}·s. $2\\Delta B = \\frac{\\lambda}{N_pA_c}$ = {{Vg*D/fs}} / ({{Np}} × {{Ac}} m²) = **{{Vg*D/(fs*Np*Ac)|T}}**. Ferrites saturate around 0.3–0.4 T, so a forward converter keeps the swing well below that (core loss at high $f_s$ limits it further)."
+        }
+      ]
+    },
+    {
+      "id": "pe-isolated-3",
+      "title": "Bridges and comparison",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Full bridge, half bridge, push-pull",
+          "body": "- **Full bridge**: four switches apply $\\pm V_g$ to the primary; $V = nDV_g$; switches block $V_g$.\n- **Half bridge**: a capacitive divider gives $\\pm V_g/2$; $V = \\frac12 nDV_g$; switches block $V_g$.\n- **Push-pull**: two switches on a center-tapped primary; $V = nDV_g$; switches block $2V_g$.\nHere $D$ is the fraction of each half-period in which the rectified secondary voltage is non-zero.",
+          "formula": "V = nDV_g\\quad\\text{(full bridge)}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "k": [
+              5,
+              8,
+              10,
+              16
+            ],
+            "Vg": [
+              300,
+              400
+            ],
+            "D": [
+              0.5,
+              0.6,
+              0.7,
+              0.8
+            ]
+          },
+          "prompt": "A full-bridge converter with $N_p : N_s$ = {{k}} : 1 runs from {{Vg|V}} with $D$ = {{D}}. Find the output voltage.",
+          "answer": "D*Vg/k",
+          "unit": "V",
+          "explanation": "$V = nDV_g$ = {{D}} × {{Vg}} V / {{k}} = **{{D*Vg/k|V}}**."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "V": [
+              5,
+              12,
+              24,
+              48
+            ],
+            "Vg": [
+              300,
+              400
+            ],
+            "D": [
+              0.6,
+              0.7,
+              0.8
+            ]
+          },
+          "prompt": "A half-bridge converter must make {{V|V}} from {{Vg|V}} at $D$ = {{D}}. What turns ratio $N_p/N_s$ does it need?",
+          "answer": "D*Vg/(2*V)",
+          "unit": "",
+          "explanation": "The primary only sees $\\pm V_g/2$: $V = \\frac{N_s}{N_p}D\\frac{V_g}{2}$ → $\\frac{N_p}{N_s} = \\frac{DV_g}{2V}$ = {{D}} × {{Vg}} / (2 × {{V}}) = **{{D*Vg/(2*V)||3}}**."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "Vg": [
+              12,
+              24,
+              48
+            ]
+          },
+          "prompt": "A push-pull converter runs from {{Vg|V}}. What voltage must each of its switches block (ignoring spikes)?",
+          "options": [
+            "{{2*Vg|V}}",
+            "{{Vg|V}}",
+            "{{Vg/2|V}}",
+            "{{4*Vg|V}}"
+          ],
+          "answer": 0,
+          "explanation": "When one switch conducts, $V_g$ is across its half of the primary; by transformer action the other half also has $V_g$ across it, adding to the supply. The off switch therefore sees **{{2*Vg|V}}**, which is why push-pull suits low input voltages."
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each isolated converter to its key feature",
+          "pairs": [
+            [
+              "Flyback",
+              "Energy stored in L_M; no output inductor"
+            ],
+            [
+              "Forward",
+              "Needs a reset winding; D ≤ 0.5 when N_r = N_p"
+            ],
+            [
+              "Full bridge",
+              "Four switches; best for high power"
+            ],
+            [
+              "Push-pull",
+              "Center-tapped primary; switches block 2V_g"
+            ]
+          ],
+          "explanation": "Flybacks are the simplest (one switch, one diode per output) and dominate below ~100 W. Forward converters handle more power with a single switch but need core reset. Bridges use the core in both directions and keep switch stress at $V_g$, so they dominate at kilowatts. Push-pull suits low-voltage inputs."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              300,
+              400
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ]
+          },
+          "prompt": "You want to step {{Vg|V}} down to {{V|V}}.",
+          "ask": [
+            {
+              "prompt": "With a plain buck at {{fs|Hz}}, how long would the on-time be?",
+              "answer": "V/(Vg*fs)",
+              "unit": "s",
+              "explanation": "$D = V/V_g$ = {{V/Vg||3}}, so $t_{on} = DT_s$ = {{V/Vg||3}} × {{1/fs|s}} = **{{V/(Vg*fs)|s}}**: too short to control accurately, and the switch would need a {{Vg|V}} rating while carrying the full output current."
+            },
+            {
+              "prompt": "A full-bridge converter should run at $D$ = 0.7 instead. What $N_p/N_s$ does that need?",
+              "answer": "0.7*Vg/V",
+              "unit": "",
+              "explanation": "$V = \\frac{N_s}{N_p}DV_g$ → $\\frac{N_p}{N_s} = \\frac{0.7\\,V_g}{V}$ = 0.7 × {{Vg}} / {{V}} = **{{0.7*Vg/V||3}}**. The transformer does the bulk of the step-down."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Flyback converters are popular for low-power, multi-output supplies partly because each output needs only a winding, a diode and a capacitor.",
+          "answer": true,
+          "explanation": "The magnetizing inductance is the only energy store, so no output inductor is needed. Adding an output costs one winding, one diode and one capacitor. The price: high peak currents and switch stress, which limit flybacks to roughly 100 W and below."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              325,
+              375
+            ],
+            "V": [
+              5,
+              12,
+              19
+            ],
+            "Vds": [
+              600,
+              650,
+              800
+            ]
+          },
+          "prompt": "A flyback converter runs from {{Vg|V}} and must make {{V|V}}. The MOSFET is rated {{Vds|V}} and you allow at most 80 % of that in steady state (leakage spikes need the rest). What is the largest turns ratio $N_p/N_s$ you can use?",
+          "answer": "(0.8*Vds - Vg)/V",
+          "unit": "",
+          "explanation": "Off-state drain voltage: $V_g + \\frac{N_p}{N_s}V \\le 0.8\\,V_{DS}$ = {{0.8*Vds|V}}. So $\\frac{N_p}{N_s} \\le \\frac{0.8V_{DS} - V_g}{V}$ = ({{0.8*Vds}} − {{Vg}}) / {{V}} = **{{(0.8*Vds-Vg)/V||3}}**."
+        }
+      ]
+    },
+    {
+      "id": "pe-isolated-4",
+      "title": "Isolated converter design",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vgmin": [
+              36,
+              100,
+              200
+            ],
+            "V": [
+              5,
+              12,
+              24
+            ],
+            "r": [
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "Vgmax": "r*Vgmin",
+            "k": "Vgmin/V"
+          },
+          "prompt": "A CCM flyback converter runs from {{Vgmin|V}} to {{Vgmax|V}} and makes {{V|V}}. Its turns ratio is chosen so that the duty cycle reaches its limit of 0.5 at the lowest input voltage.",
+          "ask": [
+            {
+              "prompt": "What turns ratio $N_p/N_s$ is that?",
+              "answer": "Vgmin/V",
+              "unit": "",
+              "explanation": "At $D$ = 0.5, $D/D'$ = 1, so $V = V_{g,min}N_s/N_p$ → $\\frac{N_p}{N_s} = \\frac{V_{g,min}}{V}$ = {{Vgmin}} / {{V}} = **{{k||3}}**."
+            },
+            {
+              "prompt": "What is the duty cycle at the highest input voltage?",
+              "answer": "k*V/(Vgmax + k*V)",
+              "unit": "",
+              "explanation": "$N_p/N_s$ = {{k||3}}, so the reflected output voltage is $\\frac{N_p}{N_s}V$ = {{k*V|V}}. $D = \\frac{(N_p/N_s)V}{V_{g,max} + (N_p/N_s)V}$ = {{k*V}} / ({{Vgmax}} + {{k*V}}) = **{{k*V/(Vgmax+k*V)||3}}**."
+            },
+            {
+              "prompt": "What is the MOSFET's off-state voltage at the highest input voltage?",
+              "answer": "Vgmax + k*V",
+              "unit": "V",
+              "explanation": "$N_p/N_s$ = {{k||3}}. $v_Q = V_{g,max} + \\frac{N_p}{N_s}V$ = {{Vgmax}} + {{k*V}} = **{{Vgmax+k*V|V}}** (plus the leakage spike)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              48,
+              100
+            ],
+            "D": [
+              0.4,
+              0.5
+            ],
+            "k": [
+              2,
+              4
+            ],
+            "Io": [
+              1,
+              2,
+              4
+            ],
+            "LM": [
+              0.0001,
+              0.0002,
+              0.0005
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ]
+          },
+          "derived": {
+            "IM": "Io/(k*(1-D))",
+            "dIM": "Vg*D/(2*fs*LM)"
+          },
+          "require": "IM - dIM",
+          "prompt": "A CCM flyback converter: $V_g$ = {{Vg|V}}, $D$ = {{D}}, $N_p : N_s$ = {{k}} : 1, output current {{Io|A}}, $L_M$ = {{LM|H}}, $f_s$ = {{fs|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is the average magnetizing current (referred to the primary)?",
+              "answer": "IM",
+              "unit": "A",
+              "explanation": "During $D'T_s$ the secondary carries $i_M N_p/N_s$ = {{k}}$\\,i_M$, and its average must equal $I_{out}$: $D'\\frac{N_p}{N_s}I_M = I_{out}$ → $I_M = \\frac{I_{out}}{(N_p/N_s)(1-D)}$ = {{Io}} / ({{k}} × {{1-D||2}}) = **{{IM|A}}**."
+            },
+            {
+              "prompt": "What is the peak MOSFET current?",
+              "answer": "IM + dIM",
+              "unit": "A",
+              "explanation": "$I_M$ = {{IM|A}}, $\\Delta i_M = \\frac{V_gDT_s}{2L_M}$ = {{dIM|A}}. Peak: $I_M + \\Delta i_M$ = **{{IM+dIM|A}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vgmin": [
+              36,
+              200,
+              300
+            ],
+            "V": [
+              3.3,
+              5,
+              12
+            ],
+            "r": [
+              1.5,
+              2
+            ]
+          },
+          "derived": {
+            "Vgmax": "r*Vgmin",
+            "k": "0.45*Vgmin/V"
+          },
+          "prompt": "A single-switch forward converter ($N_r = N_p$) runs from {{Vgmin|V}} to {{Vgmax|V}} and makes {{V|V}}. Design for $D$ = 0.45 at the lowest input.",
+          "ask": [
+            {
+              "prompt": "What turns ratio $N_p/N_s$ is needed?",
+              "answer": "k",
+              "unit": "",
+              "explanation": "$V = \\frac{N_s}{N_p}DV_g$ → $\\frac{N_p}{N_s} = \\frac{0.45\\,V_{g,min}}{V}$ = 0.45 × {{Vgmin}} / {{V}} = **{{k||3}}**."
+            },
+            {
+              "prompt": "What is the duty cycle at the highest input?",
+              "answer": "0.45/r",
+              "unit": "",
+              "explanation": "$D \\propto 1/V_g$: $D = 0.45\\,\\frac{V_{g,min}}{V_{g,max}}$ = 0.45 × {{Vgmin}} / {{Vgmax}} = **{{0.45/r||3}}**."
+            },
+            {
+              "prompt": "What is the worst-case MOSFET off-state voltage?",
+              "answer": "2*Vgmax",
+              "unit": "V",
+              "explanation": "With $N_r = N_p$ the reset voltage equals $V_g$, so the switch blocks $2V_g$, worst at $V_{g,max}$: 2 × {{Vgmax}} = **{{2*Vgmax|V}}**. That is why off-line forward converters often use the two-switch variant, whose switches only block $V_g$."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "V": [
+              5,
+              12,
+              24
+            ],
+            "Vg": [
+              48,
+              160,
+              325
+            ],
+            "k": [
+              2,
+              4,
+              6,
+              10
+            ]
+          },
+          "require": "min(Vg*0.7/k - V, V - Vg*0.1/k)",
+          "prompt": "A flyback converter makes {{V|V}} from {{Vg|V}} with $N_p : N_s$ = {{k}} : 1. What reverse voltage must the output diode block while $Q_1$ is on?",
+          "options": [
+            "{{V + Vg/k|V}}",
+            "{{V|V}}",
+            "{{Vg/k|V}}",
+            "{{V + k*Vg|V}}"
+          ],
+          "answer": 0,
+          "explanation": "With $Q_1$ on, the secondary carries $V_g N_s/N_p$ = {{Vg/k|V}} with the polarity that drives the diode's anode negative, while its cathode sits at $+V$. Reverse voltage: $V + V_gN_s/N_p$ = **{{V+Vg/k|V}}**."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Doubling the magnetizing inductance of a CCM flyback converter halves the magnetizing current ripple but leaves its average value unchanged.",
+          "answer": true,
+          "explanation": "The average $I_M = \\frac{I_{out}}{(N_p/N_s)D'}$ comes from charge balance and does not involve $L_M$. The ripple $2\\Delta i_M = V_gDT_s/L_M$ is inversely proportional to $L_M$. A larger $L_M$ lowers the peak current but needs a bigger core."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              48,
+              100,
+              300
+            ],
+            "D": [
+              0.4,
+              0.45
+            ],
+            "fs": [
+              100000.0,
+              200000.0
+            ],
+            "Ac": [
+              5e-05,
+              0.0001,
+              0.0002
+            ],
+            "Bm": [
+              0.1,
+              0.15,
+              0.2
+            ]
+          },
+          "require": "min(abs(Vg*D/(fs*Bm*Ac) - round(Vg*D/(fs*Bm*Ac))) - 0.05, 60 - Vg*D/(fs*Bm*Ac))",
+          "prompt": "A forward transformer runs from {{Vg|V}} at $D_{max}$ = {{D}} and {{fs|Hz}}. The core has $A_c$ = {{Ac*1e6}} mm² and the peak-to-peak flux-density swing must stay below {{Bm}} T. What is the minimum number of primary turns (round up)?",
+          "answer": "ceil(Vg*D/(fs*Bm*Ac))",
+          "unit": "",
+          "explanation": "$N_p \\ge \\frac{V_gDT_s}{2\\Delta B\\,A_c}$ = {{Vg*D/fs}} V·s / ({{Bm}} T × {{Ac}} m²) = {{Vg*D/(fs*Bm*Ac)||3}}, so **{{ceil(Vg*D/(fs*Bm*Ac))}} turns**."
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the events of one flyback switching period in order, starting at turn-on.",
+          "items": [
+            "Q_1 turns on and V_g appears across the primary",
+            "The magnetizing current ramps up; D_1 is reverse biased",
+            "Q_1 turns off; the winding voltages reverse and D_1 starts to conduct",
+            "The leakage-inductance energy causes a short drain-voltage spike, absorbed by the clamp",
+            "The magnetizing energy flows to the output while i_M ramps down"
+          ],
+          "explanation": "Energy is first stored in $L_M$ (diode off), then released to the output (switch off). The leakage inductance does not couple to the secondary: its current cannot transfer to $D_1$, so right after turn-off it drives a short voltage spike that a clamp or snubber must absorb. For the rest of the off-time the stored magnetizing energy flows to the output."
+        }
+      ]
+    }
+  ]
+}

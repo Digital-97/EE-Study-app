@@ -1,0 +1,1565 @@
+{
+  "id": "mdc-integral",
+  "title": "Integral Action & Tracking",
+  "description": "Add an integrator to the state feedback so the output follows constant references and rejects disturbances despite model errors.",
+  "reference": "FPE §7.10",
+  "study": [
+    {
+      "title": "Why the reference gain is fragile",
+      "body": "With $u = -\\mathbf{K}\\mathbf{x} + \\bar Nr$, zero steady-state error relies on $\\bar N$ computed from the **model**. If the real plant gain differs, or a constant disturbance acts, the output settles somewhere else. **Example:** $\\dot x = -x + bu$, $y = x$, designed for $b = 2$ with $k = 2$ and $\\bar N = 2.5$. If really $b = 1.6$: $y_{ss} = \\frac{1.6\\cdot 2.5}{1 + 1.6\\cdot 2}r = 0.952r$, a 4.8 % error.",
+      "formula": "\\frac{y_{ss}}{r} = -\\mathbf{C}(\\mathbf{A} - \\mathbf{B}\\mathbf{K})^{-1}\\mathbf{B}\\bar N"
+    },
+    {
+      "title": "Add an integrator",
+      "body": "Add a state that integrates the tracking error, $\\dot x_I = y - r = \\mathbf{C}\\mathbf{x} - r$, and feed it back as well: $u = -K_Ix_I - \\mathbf{K}\\mathbf{x}$. The augmented state $[x_I \\;\\; \\mathbf{x}^T]^T$ has the matrices below, with $r$ entering only the integrator. Design $[K_I \\;\\; \\mathbf{K}]$ by pole placement on the augmented system ($n + 1$ poles).",
+      "formula": "\\mathbf{A}_a = \\begin{bmatrix} 0 & \\mathbf{C} \\\\ \\mathbf{0} & \\mathbf{A} \\end{bmatrix}, \\; \\mathbf{B}_a = \\begin{bmatrix} 0 \\\\ \\mathbf{B} \\end{bmatrix}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "signal",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                0.7,
+                0
+              ]
+            ],
+            "label": "r"
+          },
+          {
+            "type": "sum",
+            "at": [
+              1,
+              0
+            ],
+            "kind": "-+"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.3,
+                0
+              ],
+              [
+                1.9,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              2.4,
+              0
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "1/s"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.9,
+                0
+              ],
+              [
+                3.5,
+                0
+              ]
+            ],
+            "label": "x_I"
+          },
+          {
+            "type": "block",
+            "at": [
+              4,
+              0
+            ],
+            "size": [
+              1,
+              0.8
+            ],
+            "label": "K_I"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.5,
+                0
+              ],
+              [
+                5.2,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "sum",
+            "at": [
+              5.5,
+              0
+            ],
+            "kind": "--"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                5.8,
+                0
+              ],
+              [
+                6.5,
+                0
+              ]
+            ],
+            "label": "u"
+          },
+          {
+            "type": "block",
+            "at": [
+              7.6,
+              0
+            ],
+            "size": [
+              2.2,
+              0.9
+            ],
+            "label": "plant"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                8.7,
+                0
+              ],
+              [
+                9.3,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              9.3,
+              0
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                9.3,
+                0
+              ],
+              [
+                10.1,
+                0
+              ]
+            ],
+            "label": "x"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                9.3,
+                0
+              ],
+              [
+                9.3,
+                1.3
+              ],
+              [
+                7.7,
+                1.3
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              9.3,
+              1.3
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              7.2,
+              1.3
+            ],
+            "size": [
+              1,
+              0.7
+            ],
+            "label": "K"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.7,
+                1.3
+              ],
+              [
+                5.5,
+                1.3
+              ],
+              [
+                5.5,
+                0.3
+              ]
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                9.3,
+                1.3
+              ],
+              [
+                9.3,
+                2.6
+              ],
+              [
+                3.4,
+                2.6
+              ]
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              2.9,
+              2.6
+            ],
+            "size": [
+              1,
+              0.7
+            ],
+            "label": "C"
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.4,
+                2.6
+              ],
+              [
+                1,
+                2.6
+              ],
+              [
+                1,
+                0.3
+              ]
+            ],
+            "label": "y"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Why it works",
+      "body": "If the closed loop is stable and $r$ and the disturbances are constant, everything settles: all derivatives become zero, including $\\dot x_I = y - r$. So $y = r$ **exactly**, whatever the true plant parameters are. The integrator keeps adjusting $u$ until the error is gone. This is **robust tracking**: the zero error does not depend on the model, only the dynamics do.",
+      "formula": "\\dot x_I = 0 \\;\\Rightarrow\\; y_{ss} = r"
+    },
+    {
+      "title": "Designing the gains",
+      "body": "For $\\dot x = -ax + bu$, $y = x$: the augmented closed loop has polynomial $s^2 + (a + bK)s + bK_I$.\n**Example:** $a = 1$, $b = 2$, want $\\zeta = 0.7$, $\\omega_n = 4$ rad/s: $1 + 2K = 5.6$ gives $K = 2.3$, and $2K_I = 16$ gives $K_I = 8$. For the double integrator with integral action the polynomial is $s^3 + k_2s^2 + k_1s + K_I$: pick a dominant pair plus a third (integrator) pole.",
+      "formula": "a + bK = 2\\zeta\\omega_n, \\quad bK_I = \\omega_n^2"
+    },
+    {
+      "title": "Disturbance rejection",
+      "body": "A constant input disturbance $w$, $\\dot{\\mathbf{x}} = \\mathbf{A}\\mathbf{x} + \\mathbf{B}(u + w)$, shifts the output of a pure state-feedback loop. With integral action the integrator state drifts until its term $-K_Ix_I$ in $u$ cancels $w$ and supplies the rest of the input that holds $y = r$. For $\\dot x = -ax + b(u + w)$: without integral $\\Delta y_{ss} = \\frac{bw}{a + bK}$; with integral $\\Delta y_{ss} = 0$ and $u_{ss} = \\frac{a}{b}r - w$.",
+      "formula": "\\Delta y_{ss} = \\frac{bw}{a + bK} \\;\\to\\; 0"
+    },
+    {
+      "title": "Explore: model error",
+      "body": "Plant $\\dot x = -x + bu$, designed for $b = 2$: once with $k = 2$, $\\bar N = 2.5$ (pole at −5), once with integral action $K = 1.9$, $K_I = 4.5$ ($\\zeta = 0.8$, $\\omega_n = 3$ rad/s). Change the real $b$. The $\\bar N$-only design misses the target as soon as $b \\ne 2$; the integral design always ends at 1, only its speed and damping change.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.6,
+          "label": "y(t)"
+        },
+        "sliders": [
+          {
+            "name": "b",
+            "label": "actual plant gain $b$ (model: 2)",
+            "min": 0.5,
+            "max": 4,
+            "step": 0.1,
+            "value": 2
+          }
+        ],
+        "curves": [
+          {
+            "f": "(2.5*b/(1 + 2*b))*(1 - exp(-(1 + 2*b)*x))",
+            "color": "orange",
+            "label": "no integrator",
+            "labelAt": 0.1
+          },
+          {
+            "f": "step2(x, (1 + 1.9*b)/(2*sqrt(4.5*b)), sqrt(4.5*b))",
+            "label": "with integral",
+            "labelAt": 0.55
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1
+          }
+        ],
+        "readouts": [
+          {
+            "label": "final value, $\\bar N$ only",
+            "value": "2.5*b/(1 + 2*b)"
+          },
+          {
+            "label": "final value, integral",
+            "value": "1"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Beyond constants: internal models",
+      "body": "An integrator is a model of a constant signal ($1/s$). To follow other references or reject other disturbances without error, the controller must contain their model too: two integrators for ramps, a pair of poles at $\\pm j\\omega_0$ for a sinusoid at $\\omega_0$. This is the internal model principle behind FPE's error-space approach. The augmented system must stay controllable: a plant zero exactly at such a pole cancels it."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "mdc-integral-1",
+      "title": "Why integral action",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The weak spot of the reference gain",
+          "body": "$\\bar N$ is the inverse of the closed-loop DC gain, computed from the model. If the real plant gain is a bit different, or a constant disturbance pushes on the input, the DC gain changes and $y$ settles next to $r$. Pure state feedback has no mechanism that notices and removes this offset.",
+          "formula": "\\bar N = \\frac{-1}{\\mathbf{C}(\\mathbf{A} - \\mathbf{B}\\mathbf{K})^{-1}\\mathbf{B}}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b0": [
+              1,
+              2
+            ],
+            "k": [
+              2,
+              4,
+              5
+            ],
+            "b": [
+              0.6,
+              0.8,
+              1.6
+            ]
+          },
+          "require": "abs(b - b0)",
+          "prompt": "The plant $\\dot x = -ax + bu$, $y = x$ with $a$ = {{a}} was modelled with $b$ = {{b0}}. The design is $u = -kx + \\bar Nr$ with $k$ = {{k}} and $\\bar N = (a + b k)/b$ for the model. The real plant has $b$ = {{b}}. Find the steady-state error $(r - y_{ss})/r$ in percent.",
+          "answer": "100*(1 - b*(a + b0*k)/b0/(a + b*k))",
+          "unit": "%",
+          "absTolerance": 0.05,
+          "explanation": "$\\bar N$ = ({{a}} + {{b0}}·{{k}})/{{b0}} = {{(a + b0*k)/b0}}. The real closed loop $\\dot x = -(a + bk)x + b\\bar Nr$ settles at $y_{ss}/r = \\frac{b\\bar N}{a + bk}$ = {{b}}·{{(a + b0*k)/b0}}/({{a}} + {{b}}·{{k}}) = {{b*(a + b0*k)/b0/(a + b*k)}}, an error of {{100*(1 - b*(a + b0*k)/b0/(a + b*k))}} %. A larger $k$ shrinks the error but never removes it."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              1,
+              2,
+              4
+            ],
+            "k": [
+              2,
+              3,
+              5
+            ],
+            "w": [
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "$\\dot x = -ax + b(u + w)$, $y = x$, with $a$ = {{a}}, $b$ = {{b}}, $u = -kx + \\bar Nr$, $k$ = {{k}} and the correct $\\bar N$. A constant disturbance $w$ = {{w}} acts. How far is $y_{ss}$ above $r$?",
+          "answer": "b*w/(a + b*k)",
+          "unit": "",
+          "explanation": "By superposition the disturbance adds $\\frac{b}{s + a + bk}W(s)$ to the output; at DC that is $\\frac{bw}{a + bk}$ = {{b}}·{{w}}/({{a}} + {{b}}·{{k}}) = {{b*w/(a + b*k)}}. $\\bar N$ only scales $r$; it cannot cancel an unknown $w$."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Augment the state with the integral of the error",
+          "body": "Add $x_I$ with $\\dot x_I = y - r$ and use $u = -K_Ix_I - \\mathbf{K}\\mathbf{x}$. The augmented system has one more state; place its $n + 1$ poles. Note that $\\bar N$ is no longer needed: $r$ enters through the integrator.",
+          "formula": "\\mathbf{A}_a = \\begin{bmatrix} 0 & \\mathbf{C} \\\\ \\mathbf{0} & \\mathbf{A} \\end{bmatrix}, \\; \\mathbf{B}_a = \\begin{bmatrix} 0 \\\\ \\mathbf{B} \\end{bmatrix}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.7,
+                    0
+                  ]
+                ],
+                "label": "r"
+              },
+              {
+                "type": "sum",
+                "at": [
+                  1,
+                  0
+                ],
+                "kind": "-+"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.3,
+                    0
+                  ],
+                  [
+                    1.9,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2.4,
+                  0
+                ],
+                "size": [
+                  1,
+                  0.8
+                ],
+                "label": "1/s"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.9,
+                    0
+                  ],
+                  [
+                    3.5,
+                    0
+                  ]
+                ],
+                "label": "x_I"
+              },
+              {
+                "type": "block",
+                "at": [
+                  4,
+                  0
+                ],
+                "size": [
+                  1,
+                  0.8
+                ],
+                "label": "K_I"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.5,
+                    0
+                  ],
+                  [
+                    5.2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "sum",
+                "at": [
+                  5.5,
+                  0
+                ],
+                "kind": "--"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    5.8,
+                    0
+                  ],
+                  [
+                    6.5,
+                    0
+                  ]
+                ],
+                "label": "u"
+              },
+              {
+                "type": "block",
+                "at": [
+                  7.6,
+                  0
+                ],
+                "size": [
+                  2.2,
+                  0.9
+                ],
+                "label": "plant"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    8.7,
+                    0
+                  ],
+                  [
+                    9.3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  9.3,
+                  0
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    9.3,
+                    0
+                  ],
+                  [
+                    10.1,
+                    0
+                  ]
+                ],
+                "label": "x"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    9.3,
+                    0
+                  ],
+                  [
+                    9.3,
+                    1.3
+                  ],
+                  [
+                    7.7,
+                    1.3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  9.3,
+                  1.3
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  7.2,
+                  1.3
+                ],
+                "size": [
+                  1,
+                  0.7
+                ],
+                "label": "K"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.7,
+                    1.3
+                  ],
+                  [
+                    5.5,
+                    1.3
+                  ],
+                  [
+                    5.5,
+                    0.3
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    9.3,
+                    1.3
+                  ],
+                  [
+                    9.3,
+                    2.6
+                  ],
+                  [
+                    3.4,
+                    2.6
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2.9,
+                  2.6
+                ],
+                "size": [
+                  1,
+                  0.7
+                ],
+                "label": "C"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.4,
+                    2.6
+                  ],
+                  [
+                    1,
+                    2.6
+                  ],
+                  [
+                    1,
+                    0.3
+                  ]
+                ],
+                "label": "y"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "a": [
+              1,
+              2,
+              3,
+              5
+            ],
+            "b": [
+              2,
+              3
+            ]
+          },
+          "prompt": "The plant $\\dot x = -{{a}}x + {{b}}u$, $y = x$ gets integral action with state $[x_I \\;\\; x]^T$ and $\\dot x_I = y - r$. Which is $\\mathbf{A}_a$?",
+          "options": [
+            "$\\begin{bmatrix} 0 & 1 \\\\ 0 & -{{a}} \\end{bmatrix}$",
+            "$\\begin{bmatrix} 0 & 0 \\\\ 1 & -{{a}} \\end{bmatrix}$",
+            "$\\begin{bmatrix} 0 & 1 \\\\ 0 & {{a}} \\end{bmatrix}$",
+            "$\\begin{bmatrix} 1 & 0 \\\\ 0 & -{{a}} \\end{bmatrix}$"
+          ],
+          "answer": 0,
+          "explanation": "Row 1: $\\dot x_I = y - r = 1\\cdot x$ (plus the $r$ term, which sits outside $\\mathbf{A}_a$), so $[0 \\;\\; \\mathbf{C}] = [0 \\;\\; 1]$. Row 2: the plant itself, $\\dot x = -{{a}}x + {{b}}u$, which does not depend on $x_I$: $[\\mathbf{0} \\;\\; \\mathbf{A}] = [0 \\;\\; -{{a}}]$. $\\mathbf{B}_a = [0 \\;\\; {{b}}]^T$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              4
+            ],
+            "b": [
+              2,
+              5
+            ],
+            "zt": [
+              0.7,
+              0.8,
+              1
+            ],
+            "wn": [
+              5,
+              8,
+              10
+            ]
+          },
+          "prompt": "$\\dot x = -ax + bu$, $y = x$ with $a$ = {{a}}, $b$ = {{b}}, and $u = -K_Ix_I - Kx$, $\\dot x_I = y - r$. Place the closed-loop poles at $\\zeta$ = {{zt}}, $\\omega_n$ = {{wn}} rad/s.",
+          "ask": [
+            {
+              "prompt": "Find $K$.",
+              "answer": "(2*zt*wn - a)/b",
+              "unit": "",
+              "explanation": "$\\mathbf{A}_a - \\mathbf{B}_a\\mathbf{K}_a = \\begin{bmatrix} 0 & 1 \\\\ -{{b}}K_I & -{{a}} - {{b}}K \\end{bmatrix}$, polynomial $s^2 + ({{a}} + {{b}}K)s + {{b}}K_I$. Match $2\\zeta\\omega_n$ = {{2*zt*wn}}: $K$ = ({{2*zt*wn}} − {{a}})/{{b}} = {{(2*zt*wn - a)/b}}."
+            },
+            {
+              "prompt": "Find $K_I$.",
+              "answer": "wn^2/b",
+              "unit": "",
+              "explanation": "Polynomial $s^2 + ({{a}} + {{b}}K)s + {{b}}K_I$. Match $\\omega_n^2$ = {{wn^2}}: $K_I$ = {{wn^2}}/{{b}} = {{wn^2/b}}."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "With integral action, the output follows a constant reference without steady-state error even when the real plant gain is 20 % off, as long as the closed loop stays stable.",
+          "answer": true,
+          "explanation": "In steady state $\\dot x_I = y - r = 0$, so $y = r$, whatever the plant gain. The gain error only changes the closed-loop poles (speed, damping); if it is so large that the loop goes unstable, nothing settles and the argument fails."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              1,
+              2,
+              4
+            ],
+            "w": [
+              0.5,
+              1,
+              2
+            ],
+            "r": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "$\\dot x = -ax + b(u + w)$ with $a$ = {{a}}, $b$ = {{b}} and a constant disturbance $w$ = {{w}}, under integral control. What input $u_{ss}$ does the controller deliver once $y$ has settled at $r$ = {{r}}?",
+          "answer": "a*r/b - w",
+          "unit": "",
+          "absTolerance": 0.01,
+          "explanation": "In steady state $\\dot x = 0$ and $x = y = r$: $0 = -{{a}}\\cdot{{r}} + {{b}}(u_{ss} + {{w}})$, so $u_{ss} = \\frac{a}{b}r - w$ = {{a*r/b}} − {{w}} = {{a*r/b - w}}. The integrator state has drifted to exactly the value that produces this input; nobody had to know $w$."
+        }
+      ]
+    },
+    {
+      "id": "mdc-integral-2",
+      "title": "Designing integral control",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "A double integrator with integral action",
+          "body": "For $\\ddot y = u$ with states $[y \\;\\; \\dot y]$ the augmented state is $[x_I \\;\\; y \\;\\; \\dot y]$ with $\\dot x_I = y - r$. With $u = -K_Ix_I - k_1y - k_2\\dot y$ the closed loop is in companion form with polynomial $s^3 + k_2s^2 + k_1s + K_I$, so the gains are simply the coefficients of the desired third-order polynomial below: a dominant pair plus a real pole for the integrator.",
+          "formula": "\\alpha_c(s) = (s + p)(s^2 + 2\\zeta\\omega_ns + \\omega_n^2)"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "zt": [
+              0.6,
+              0.7,
+              0.8
+            ],
+            "wn": [
+              2,
+              3,
+              4
+            ],
+            "p": [
+              2,
+              4,
+              5
+            ]
+          },
+          "prompt": "Double integrator $\\ddot y = u$ with integral action. Desired poles: a pair with $\\zeta$ = {{zt}}, $\\omega_n$ = {{wn}} rad/s, and a real pole at $-{{p}}$.",
+          "ask": [
+            {
+              "prompt": "Find $K_I$.",
+              "answer": "p*wn^2",
+              "unit": "",
+              "explanation": "$(s + {{p}})(s^2 + {{2*zt*wn}}s + {{wn^2}})$ has constant term ${{p}}\\cdot{{wn^2}}$ = {{p*wn^2}}. Matching $s^3 + k_2s^2 + k_1s + K_I$: $K_I$ = {{p*wn^2}}."
+            },
+            {
+              "prompt": "Find $k_2$.",
+              "answer": "p + 2*zt*wn",
+              "unit": "",
+              "explanation": "The $s^2$ coefficient of $(s + {{p}})(s^2 + {{2*zt*wn}}s + {{wn^2}})$ is {{p}} + {{2*zt*wn}} = {{p + 2*zt*wn}} = $k_2$. (And $k_1$ = {{wn^2}} + {{p}}·{{2*zt*wn}} = {{wn^2 + 2*zt*wn*p}}.)"
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "orderSteps",
+          "prompt": "Put the steps of an integral-control design in order.",
+          "items": [
+            "Add the state $x_I$ with $\\dot x_I = y - r$",
+            "Form $\\mathbf{A}_a$ and $\\mathbf{B}_a$ and check controllability",
+            "Choose $n + 1$ closed-loop poles and compute $[K_I \\;\\; \\mathbf{K}]$ by pole placement",
+            "Implement $u = -K_Ix_I - \\mathbf{K}\\mathbf{x}$, integrating $y - r$ in the controller"
+          ],
+          "explanation": "Augmenting comes first, because the design is done on the bigger system. Controllability of $(\\mathbf{A}_a, \\mathbf{B}_a)$ fails if the plant has a zero at $s = 0$. Then it is ordinary pole placement with one extra pole, and the controller integrates the measured error in real time."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Disturbances and the integrator",
+          "body": "A constant input disturbance $w$ enters like $u$. Without integral action it leaves an offset $\\frac{bw}{a + bK}$ (first-order plant). With integral action the integrator keeps changing $u$ until $y = r$ again: the offset is removed, after a transient set by the closed-loop poles.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.7,
+                    0
+                  ]
+                ],
+                "label": "r"
+              },
+              {
+                "type": "sum",
+                "at": [
+                  1,
+                  0
+                ],
+                "kind": "-+"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.3,
+                    0
+                  ],
+                  [
+                    1.9,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2.4,
+                  0
+                ],
+                "size": [
+                  1,
+                  0.8
+                ],
+                "label": "1/s"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.9,
+                    0
+                  ],
+                  [
+                    3.5,
+                    0
+                  ]
+                ],
+                "label": "x_I"
+              },
+              {
+                "type": "block",
+                "at": [
+                  4,
+                  0
+                ],
+                "size": [
+                  1,
+                  0.8
+                ],
+                "label": "K_I"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.5,
+                    0
+                  ],
+                  [
+                    5.2,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "sum",
+                "at": [
+                  5.5,
+                  0
+                ],
+                "kind": "--"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    5.8,
+                    0
+                  ],
+                  [
+                    6.5,
+                    0
+                  ]
+                ],
+                "label": "u"
+              },
+              {
+                "type": "block",
+                "at": [
+                  7.6,
+                  0
+                ],
+                "size": [
+                  2.2,
+                  0.9
+                ],
+                "label": "plant"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    8.7,
+                    0
+                  ],
+                  [
+                    9.3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  9.3,
+                  0
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    9.3,
+                    0
+                  ],
+                  [
+                    10.1,
+                    0
+                  ]
+                ],
+                "label": "x"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    9.3,
+                    0
+                  ],
+                  [
+                    9.3,
+                    1.3
+                  ],
+                  [
+                    7.7,
+                    1.3
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  9.3,
+                  1.3
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  7.2,
+                  1.3
+                ],
+                "size": [
+                  1,
+                  0.7
+                ],
+                "label": "K"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.7,
+                    1.3
+                  ],
+                  [
+                    5.5,
+                    1.3
+                  ],
+                  [
+                    5.5,
+                    0.3
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    9.3,
+                    1.3
+                  ],
+                  [
+                    9.3,
+                    2.6
+                  ],
+                  [
+                    3.4,
+                    2.6
+                  ]
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  2.9,
+                  2.6
+                ],
+                "size": [
+                  1,
+                  0.7
+                ],
+                "label": "C"
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.4,
+                    2.6
+                  ],
+                  [
+                    1,
+                    2.6
+                  ],
+                  [
+                    1,
+                    0.3
+                  ]
+                ],
+                "label": "y"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "b": [
+              1,
+              2
+            ],
+            "c": [
+              4,
+              6
+            ],
+            "OS": [
+              5,
+              10,
+              20
+            ]
+          },
+          "derived": {
+            "zr": "-ln(OS/100)/sqrt(pi^2 + ln(OS/100)^2)"
+          },
+          "prompt": "Plant $\\dot x = -ax + bu$ with $a$ = 1 and $b$ = {{b}}, with integral action; $K$ is fixed so that $a + bK$ = {{c}}. Adjust $K_I$ so that the step response overshoots by {{OS}} %.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.8,
+              "label": "y(t)"
+            },
+            "sliders": [
+              {
+                "name": "KI",
+                "label": "$K_I$",
+                "min": 0.2,
+                "max": 60,
+                "step": 0.1,
+                "value": 0.5
+              }
+            ],
+            "let": {
+              "wn": "sqrt(b*KI)",
+              "zt": "c/(2*sqrt(b*KI))",
+              "Mp": "if(1 - zt, 100*exp(-pi*zt/sqrt(abs(1 - zt^2) + 1e-12)), 0)"
+            },
+            "curves": [
+              {
+                "f": "step2(x, zt, wn)",
+                "label": "y(t)",
+                "labelAt": 0.8
+              },
+              {
+                "f": "1 + OS/100",
+                "dash": true,
+                "color": "orange",
+                "label": "target peak",
+                "labelAt": 0.6
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1
+              }
+            ],
+            "readouts": [
+              {
+                "label": "Overshoot",
+                "value": "Mp",
+                "unit": "%",
+                "reveal": true
+              },
+              {
+                "label": "$\\zeta$",
+                "value": "zt",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "KI": "(c/(2*zr))^2/b"
+          },
+          "tolerance": 0.04,
+          "explanation": "The closed loop is $\\frac{bK_I}{s^2 + {{c}}s + bK_I}$, so $\\omega_n = \\sqrt{bK_I}$ and $2\\zeta\\omega_n$ = {{c}}. {{OS}} % overshoot needs $\\zeta$ = {{zr}}, so $\\omega_n$ = {{c}}/(2·{{zr}}) = {{c/(2*zr)}} rad/s and $K_I = \\omega_n^2/b$ = {{(c/(2*zr))^2/b}}. A larger $K_I$ pulls the offset away faster but gives more overshoot."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              1,
+              2
+            ],
+            "K": [
+              2,
+              3,
+              4
+            ],
+            "KI": [
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "$\\dot x = -ax + bu$ ($a$ = {{a}}, $b$ = {{b}}) has integral control with $K$ = {{K}} and $K_I$ = {{KI}}. Find the damping ratio of the closed loop.",
+          "answer": "(a + b*K)/(2*sqrt(b*KI))",
+          "unit": "",
+          "explanation": "Closed-loop polynomial $s^2 + (a + bK)s + bK_I = s^2 + {{a + b*K}}s + {{b*KI}}$. $\\omega_n = \\sqrt{ {{b*KI}} }$ = {{sqrt(b*KI)}} rad/s and $\\zeta = \\frac{ {{a + b*K}} }{2\\omega_n}$ = {{(a + b*K)/(2*sqrt(b*KI))}}."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "A single integrator on the tracking error guarantees zero steady-state error to a **ramp** reference, for any plant.",
+          "answer": false,
+          "explanation": "One integrator is the internal model of a **constant**. For a plant like $\\frac{b}{s + a}$ with integral control, a ramp $r = Rt$ leaves a constant error $\\frac{a + bK}{bK_I}R$. To follow ramps without error the loop needs a model of a ramp: two integrators (unless the plant already supplies one)."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each situation to the steady-state result.",
+          "pairs": [
+            [
+              "State feedback with $\\bar N$, exact model",
+              "Zero error"
+            ],
+            [
+              "State feedback with $\\bar N$, plant gain off by 10 %",
+              "Small but nonzero error"
+            ],
+            [
+              "Constant input disturbance, no integrator",
+              "Offset proportional to $w$"
+            ],
+            [
+              "Integral action, stable loop",
+              "Zero error despite gain errors and constant disturbances"
+            ]
+          ],
+          "explanation": "$\\bar N$ is a calibration: perfect only for the model it was computed from. Disturbances add an offset $\\frac{bw}{a + bK}$ that only feedback with an integrator can remove. With $\\dot x_I = y - r$ in the loop, steady state forces $y = r$."
+        }
+      ]
+    },
+    {
+      "id": "mdc-integral-3",
+      "title": "Tracking in practice",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              5
+            ],
+            "b": [
+              10,
+              20
+            ],
+            "zt": [
+              0.7,
+              0.8
+            ],
+            "wn": [
+              5,
+              8,
+              10
+            ],
+            "p": [
+              10,
+              20
+            ]
+          },
+          "prompt": "A motor $\\mathbf{A} = \\begin{bmatrix} 0 & 1 \\\\ 0 & -{{a}} \\end{bmatrix}$, $\\mathbf{B} = [0 \\;\\; {{b}}]^T$ (angle, speed) gets integral action on the angle error. Augmented polynomial: $s^3 + (a + bk_2)s^2 + bk_1s + bK_I$. Desired: $\\zeta$ = {{zt}}, $\\omega_n$ = {{wn}} rad/s and a pole at $-{{p}}$.",
+          "ask": [
+            {
+              "prompt": "Find $K_I$.",
+              "answer": "p*wn^2/b",
+              "unit": "",
+              "explanation": "Desired constant term ${{p}}\\cdot\\omega_n^2$ = {{p*wn^2}} = $bK_I$, so $K_I$ = {{p*wn^2}}/{{b}} = {{p*wn^2/b}}."
+            },
+            {
+              "prompt": "Find $k_2$.",
+              "answer": "(p + 2*zt*wn - a)/b",
+              "unit": "",
+              "explanation": "Desired $s^2$ coefficient: {{p}} + {{2*zt*wn}} = {{p + 2*zt*wn}} = $a + bk_2$, so $k_2$ = ({{p + 2*zt*wn}} − {{a}})/{{b}} = {{(p + 2*zt*wn - a)/b}}."
+            }
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b0": [
+              1,
+              2
+            ],
+            "zt": [
+              0.7,
+              0.8
+            ],
+            "wn": [
+              4,
+              5,
+              8
+            ],
+            "f": [
+              0.5,
+              1.5,
+              2
+            ]
+          },
+          "prompt": "An integral controller for $\\dot x = -ax + bu$ ($a$ = {{a}}) was designed with the model value $b$ = {{b0}} for $\\zeta$ = {{zt}}, $\\omega_n$ = {{wn}} rad/s. The real $b$ is {{f}} times larger. Find the real closed-loop damping ratio.",
+          "answer": "(a + f*b0*(2*zt*wn - a)/b0)/(2*sqrt(f*b0*wn^2/b0))",
+          "unit": "",
+          "explanation": "Design: $K = (2\\zeta\\omega_n - a)/b_0$ = {{(2*zt*wn - a)/b0}}, $K_I = \\omega_n^2/b_0$ = {{wn^2/b0}}. Real $b$ = {{f*b0}}: polynomial $s^2 + (a + bK)s + bK_I = s^2 + {{a + f*(2*zt*wn - a)}}s + {{f*wn^2}}$, so $\\zeta = \\frac{ {{a + f*(2*zt*wn - a)}} }{2\\sqrt{ {{f*wn^2}} }}$ = {{(a + f*(2*zt*wn - a))/(2*sqrt(f*wn^2))}}. The steady state is still exact; only the transient changes."
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {
+            "b": [
+              1,
+              2
+            ],
+            "w": [
+              0.5,
+              1
+            ],
+            "k": [
+              2,
+              4,
+              9
+            ]
+          },
+          "prompt": "The graph shows $y$ for the loop $\\dot x = -x + b(u + w)$ with $b$ = {{b}} and $u = -kx + \\bar Nr$ (no integrator), sitting at $y = r = 1$ when a disturbance step $w$ = {{w}} arrives at $t = 1$ s. Read the new steady-state offset and find the feedback gain $k$.",
+          "answer": "k",
+          "unit": "",
+          "tolerance": 0.1,
+          "explanation": "The offset is $\\Delta y = \\frac{bw}{1 + bk}$; the graph shows $\\Delta y \\approx$ {{b*w/(1 + b*k)}}. Solve: $1 + bk = \\frac{bw}{\\Delta y}$ = {{1 + b*k}}, so $k$ = ({{1 + b*k}} − 1)/{{b}} = {{k}}. A larger $k$ shrinks the offset but never removes it; an integrator does.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 3,
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": "1 - 0.5*b*w/(1 + b*k)",
+              "max": "1 + 1.5*b*w/(1 + b*k)",
+              "label": "y(t)"
+            },
+            "curves": [
+              {
+                "f": "1 + step(x - 1)*(b*w/(1 + b*k))*(1 - exp(-(1 + b*k)*(x - 1)))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1,
+                "label": "r"
+              }
+            ]
+          }
+        },
+        {
+          "id": "p4",
+          "type": "multipleChoice",
+          "prompt": "In the augmented model $\\dot{\\mathbf{x}}_a = \\mathbf{A}_a\\mathbf{x}_a + \\mathbf{B}_au + \\mathbf{B}_rr$ with $\\dot x_I = y - r$, what is $\\mathbf{B}_r$?",
+          "options": [
+            "$[-1 \\;\\; \\mathbf{0}^T]^T$: $r$ only enters the integrator",
+            "$[0 \\;\\; \\mathbf{B}^T]^T$: $r$ enters like $u$",
+            "$[1 \\;\\; \\mathbf{0}^T]^T$",
+            "$\\mathbf{0}$: $r$ does not enter the model"
+          ],
+          "answer": 0,
+          "explanation": "$\\dot x_I = \\mathbf{C}\\mathbf{x} - r$, so $r$ appears only in the integrator row, with a minus sign. That is why integral control needs no $\\bar N$: the reference is compared with $y$ and the integrator does the rest. (FPE also shows how to add a feedforward term for a faster reference response.)"
+        },
+        {
+          "id": "p5",
+          "type": "trueFalse",
+          "prompt": "Adding integral action raises the order of the closed loop by one.",
+          "answer": true,
+          "explanation": "The integrator is a new state $x_I$, so the augmented system has $n + 1$ states and $n + 1$ closed-loop poles. You choose one more pole; a common choice is a real pole near (or a bit faster than) the dominant pair, so the integrator removes offsets on the same time scale."
+        },
+        {
+          "id": "p6",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              1,
+              2
+            ],
+            "w": [
+              0.5,
+              1,
+              2
+            ],
+            "K": [
+              2,
+              3
+            ],
+            "KI": [
+              5,
+              10
+            ],
+            "r": [
+              1,
+              2
+            ]
+          },
+          "prompt": "$\\dot x = -ax + b(u + w)$ with $a$ = {{a}}, $b$ = {{b}} and $w$ = {{w}}, under integral control $u = -K_Ix_I - Kx$ with $K$ = {{K}}, $K_I$ = {{KI}}. The output has settled at $r$ = {{r}}. Find the integrator state $x_I$.",
+          "answer": "-(a*r/b - w + K*r)/KI",
+          "unit": "",
+          "absTolerance": 0.005,
+          "explanation": "Steady state: $x = r$ and $u_{ss} = \\frac{a}{b}r - w$ = {{a*r/b - w}}. From $u_{ss} = -K_Ix_I - Kr$: $x_I = -\\frac{u_{ss} + Kr}{K_I}$ = −({{a*r/b - w}} + {{K*r}})/{{KI}} = {{-(a*r/b - w + K*r)/KI}}. The integrator has accumulated exactly what is needed to cancel $w$; with a different $w$ it settles at a different value."
+        }
+      ]
+    },
+    {
+      "id": "mdc-integral-4",
+      "title": "Robust tracking",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              1,
+              2,
+              4
+            ],
+            "b0": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "Without an integrator, how large must the feedback gain be? Plant $\\dot x = -ax + bu$ with $a$ = {{a}}, designed with $b_0$ = {{b0}} and $\\bar N = (a + b_0k)/b_0$. Find the smallest $k$ for which a plant gain 20 % below the model ($b = 0.8b_0$) still gives at most 2 % steady-state error.",
+          "answer": "11.25*a/b0",
+          "unit": "",
+          "explanation": "$\\frac{y_{ss}}{r} = \\frac{b\\bar N}{a + bk} = \\frac{0.8(a + b_0k)}{a + 0.8b_0k}$. Set it to 0.98: $0.8a + 0.8b_0k = 0.98a + 0.784b_0k$, so $0.016b_0k = 0.18a$ and $k = 11.25\\,a/b_0$ = {{11.25*a/b0}}. The closed-loop pole is then at $-(a + b_0k)$ = {{-(a + 11.25*a)}}: high gain buys robustness at the cost of a very fast, actuator-hungry loop. An integrator achieves zero error with modest gains."
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              1,
+              2
+            ],
+            "K": [
+              2,
+              3
+            ],
+            "KI": [
+              8,
+              10,
+              20
+            ],
+            "R": [
+              0.5,
+              2,
+              5
+            ]
+          },
+          "prompt": "The first-order plant $\\dot x = -ax + bu$ ($a$ = {{a}}, $b$ = {{b}}) has integral control with $K$ = {{K}}, $K_I$ = {{KI}}. The reference is a ramp, $r(t)$ = {{R}}$\\,t$. Find the steady-state tracking error $r - y$.",
+          "answer": "R*(a + b*K)/(b*KI)",
+          "unit": "",
+          "explanation": "$\\frac{Y}{R} = \\frac{bK_I}{s^2 + (a + bK)s + bK_I}$, so $\\frac{R - Y}{R} = \\frac{s^2 + (a + bK)s}{s^2 + (a + bK)s + bK_I}$. With $R(s) = {{R}}/s^2$ the final-value theorem gives $e_{ss} = {{R}}\\cdot\\frac{a + bK}{bK_I}$ = {{R}} × {{a + b*K}}/{{b*KI}} = {{R*(a + b*K)/(b*KI)}}. Finite, not zero: one integrator handles constants, not ramps."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "OS": [
+              5,
+              10,
+              15
+            ],
+            "Ts": [
+              2,
+              4
+            ],
+            "c": [
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "z": "-ln(OS/100)/sqrt(pi^2 + ln(OS/100)^2)",
+            "sg": "4/Ts",
+            "wn": "sg/z"
+          },
+          "prompt": "Double integrator $\\ddot y = u$ with integral action. Specs: {{OS}} % overshoot, a 2 % settling time of {{Ts|s}}, and the integrator pole on the real axis {{c}} times further left than the real part of the dominant pair. Find $K_I$.",
+          "answer": "c*sg*wn^2",
+          "unit": "",
+          "explanation": "$\\zeta$ = {{z}} (from the overshoot), $\\sigma = 4/T_s$ = {{sg}}, $\\omega_n = \\sigma/\\zeta$ = {{wn}} rad/s, third pole at $-${{c*sg}}. The closed-loop polynomial $s^3 + k_2s^2 + k_1s + K_I$ must equal $(s + {{c*sg}})(s^2 + {{2*sg}}s + {{wn^2||4}})$, whose constant term is $K_I$ = {{c*sg}} × {{wn^2||4}} = {{c*sg*wn^2}}."
+        },
+        {
+          "id": "c4",
+          "type": "multipleChoice",
+          "prompt": "A motor must follow $r(t) = \\sin(\\omega_0t)$ with zero steady-state error, for any small model error. What must the controller contain?",
+          "options": [
+            "A pair of poles at $s = \\pm j\\omega_0$ (a model of the sinusoid)",
+            "A single integrator",
+            "A very high proportional gain",
+            "A real pole at $s = -\\omega_0$"
+          ],
+          "answer": 0,
+          "explanation": "By the internal model principle the controller must be able to generate the signal on its own: an oscillator with poles at $\\pm j\\omega_0$, just as an integrator (pole at 0) generates a constant. FPE's error-space design augments the plant with exactly these dynamics. A single integrator only handles constants; high gain only shrinks the error."
+        },
+        {
+          "id": "c5",
+          "type": "trueFalse",
+          "prompt": "Integral control can fix any plant offset, even when the plant has a zero at $s = 0$ (for example $G(s) = \\frac{s}{s + 1}$).",
+          "answer": false,
+          "explanation": "A zero at $s = 0$ means the plant blocks DC: no constant input can hold a constant nonzero output, so $y = r$ is impossible in steady state. In the state-space picture the augmented pair $(\\mathbf{A}_a, \\mathbf{B}_a)$ loses controllability: the plant zero cancels the integrator pole."
+        },
+        {
+          "id": "c6",
+          "type": "trueFalse",
+          "prompt": "When the actuator saturates for a long time (for example after a large reference step), the integrator state keeps growing, and the output overshoots badly once the actuator comes out of saturation.",
+          "answer": true,
+          "explanation": "During saturation the loop is effectively open: $u$ is stuck at its limit, but $\\dot x_I = y - r$ keeps integrating the (large) error. This **integrator windup** stores a huge $x_I$ that must be unwound by an error of the opposite sign, which means overshoot. Digital controllers fix it with anti-windup logic (unit 8)."
+        }
+      ]
+    }
+  ]
+}

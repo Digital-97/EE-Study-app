@@ -1,0 +1,753 @@
+{
+  "id": "sx-laplace",
+  "title": "Laplace Transform",
+  "description": "Transform signals into the s-domain, invert by partial fractions and solve differential equations with algebra.",
+  "reference": "Phillips §7.1–7.6",
+  "study": [
+    {
+      "title": "Definition and region of convergence",
+      "body": "The (one-sided) Laplace transform weights $x(t)$ with $e^{-st}$, where $s = \\sigma + j\\omega$ is a complex frequency. The integral converges only for some values of $s$: the **region of convergence** (ROC). For $e^{-at}u(t)$ the ROC is $\\mathrm{Re}\\{s\\} > -a$. When the ROC contains the $j\\omega$ axis, $X(j\\omega)$ is the Fourier transform.",
+      "formula": "X(s) = \\int_{0^-}^{\\infty} x(t)\\,e^{-st}\\,dt"
+    },
+    {
+      "title": "Table of transforms",
+      "body": "All signals start at $t = 0$ (multiplied by $u(t)$):\n- $\\delta(t) \\to 1$, $\\;u(t) \\to \\frac{1}{s}$, $\\;t \\to \\frac{1}{s^2}$\n- $e^{-at} \\to \\frac{1}{s + a}$, $\\;t e^{-at} \\to \\frac{1}{(s + a)^2}$\n- $\\sin\\omega t \\to \\frac{\\omega}{s^2 + \\omega^2}$, $\\;\\cos\\omega t \\to \\frac{s}{s^2 + \\omega^2}$\n- $e^{-at}\\cos\\omega t \\to \\frac{s + a}{(s + a)^2 + \\omega^2}$, $\\;e^{-at}\\sin\\omega t \\to \\frac{\\omega}{(s + a)^2 + \\omega^2}$",
+      "formula": "e^{-at}u(t) \\;\\leftrightarrow\\; \\frac{1}{s + a}"
+    },
+    {
+      "title": "Properties",
+      "body": "- Linearity: $a x_1 + b x_2 \\to a X_1 + b X_2$\n- Derivative: $\\frac{dx}{dt} \\to sX(s) - x(0^-)$; $\\;\\frac{d^2x}{dt^2} \\to s^2X - s\\,x(0^-) - x'(0^-)$\n- Integral: $\\int_0^t x\\,d\\tau \\to \\frac{X(s)}{s}$\n- Time shift: $x(t - t_0)u(t - t_0) \\to e^{-st_0}X(s)$\n- Frequency shift: $e^{-at}x(t) \\to X(s + a)$\nThe derivative rule builds the initial conditions into the algebra.",
+      "formula": "\\mathcal{L}\\left\\{\\frac{dx}{dt}\\right\\} = sX(s) - x(0^-)"
+    },
+    {
+      "title": "Inverse by partial fractions",
+      "body": "Write a proper rational $X(s)$ with distinct real poles as a sum of terms $\\frac{K_i}{s + p_i}$; each inverts to $K_i e^{-p_i t}$. Find each coefficient with the **cover-up rule**: multiply by $(s + p_i)$ and set $s = -p_i$.\nExample: $\\frac{s + 3}{(s + 1)(s + 2)}$: $K_1 = \\frac{-1 + 3}{-1 + 2} = 2$, $K_2 = \\frac{-2 + 3}{-2 + 1} = -1$, so $x(t) = 2e^{-t} - e^{-2t}$.",
+      "formula": "K_i = (s + p_i)X(s)\\big|_{s = -p_i}"
+    },
+    {
+      "title": "Solving differential equations",
+      "body": "Transform the equation (initial conditions enter through the derivative rule), solve the algebraic equation for $Y(s)$, expand in partial fractions and invert.\nExample: $y' + 2y = 4u(t)$, $y(0) = 1$: $sY - 1 + 2Y = \\frac{4}{s}$, so $Y = \\frac{s + 4}{s(s + 2)} = \\frac{2}{s} - \\frac{1}{s + 2}$ and $y(t) = 2 - e^{-2t}$.",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 3,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": 0,
+          "max": 2.4,
+          "label": "y(t)"
+        },
+        "curves": [
+          {
+            "f": "2-exp(-2*x)",
+            "label": "y(t) = 2 − e^{−2t}",
+            "labelAt": 0.45
+          }
+        ],
+        "hlines": [
+          {
+            "y": 2,
+            "label": "final value 2"
+          }
+        ],
+        "points": [
+          {
+            "x": 0,
+            "y": 1,
+            "label": "y(0) = 1",
+            "guides": false
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sx-laplace-1",
+      "title": "Into the s-domain",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The Laplace transform",
+          "body": "The Laplace transform generalises the Fourier transform: it multiplies $x(t)$ by $e^{-st}$ with a **complex frequency** $s = \\sigma + j\\omega$. The extra damping $e^{-\\sigma t}$ makes the integral converge even for signals like steps and growing exponentials. Circuits switched on at $t = 0$ use the one-sided version.",
+          "formula": "X(s) = \\int_{0^-}^{\\infty} x(t)\\,e^{-st}\\,dt"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {
+            "a": [
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "What is the Laplace transform of $x(t) = e^{-{{a}}t}u(t)$, with its region of convergence?",
+          "options": [
+            "$\\frac{1}{s + {{a}}}$, $\\mathrm{Re}\\{s\\} > -{{a}}$",
+            "$\\frac{1}{s - {{a}}}$, $\\mathrm{Re}\\{s\\} > {{a}}$",
+            "$\\frac{1}{s + {{a}}}$, $\\mathrm{Re}\\{s\\} < -{{a}}$",
+            "$\\frac{s}{s + {{a}}}$, $\\mathrm{Re}\\{s\\} > -{{a}}$"
+          ],
+          "answer": 0,
+          "explanation": "$\\int_0^\\infty e^{-{{a}}t}e^{-st}dt = \\int_0^\\infty e^{-(s + {{a}})t}dt = \\frac{1}{s + {{a}}}$, provided $e^{-(s + {{a}})t}$ decays, i.e. $\\mathrm{Re}\\{s\\} > -{{a}}$. The ROC lies to the right of the pole at $s = -{{a}}$."
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "For $x(t) = e^{-at}u(t)$ with $a > 0$, setting $s = j\\omega$ in $X(s)$ gives the Fourier transform $X(j\\omega) = \\frac{1}{a + j\\omega}$.",
+          "answer": true,
+          "explanation": "The ROC $\\mathrm{Re}\\{s\\} > -a$ includes the $j\\omega$ axis ($\\sigma = 0$) when $a > 0$, so the Fourier integral converges and equals $X(s)$ at $s = j\\omega$. For a growing exponential ($a < 0$) this fails: it has a Laplace transform but no Fourier transform."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "A small table goes a long way",
+          "body": "Most transforms you need follow from a handful of pairs plus the properties. Note the pattern: multiplying by $e^{-at}$ replaces $s$ by $s + a$.\n- $u(t) \\to \\frac{1}{s}$, $\\;e^{-at} \\to \\frac{1}{s + a}$\n- $\\cos\\omega t \\to \\frac{s}{s^2 + \\omega^2}$, $\\;e^{-at}\\cos\\omega t \\to \\frac{s + a}{(s + a)^2 + \\omega^2}$"
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each signal (for $t \\geq 0$) to its Laplace transform.",
+          "pairs": [
+            [
+              "$\\delta(t)$",
+              "$1$"
+            ],
+            [
+              "$u(t)$",
+              "$\\dfrac{1}{s}$"
+            ],
+            [
+              "$t$",
+              "$\\dfrac{1}{s^2}$"
+            ],
+            [
+              "$e^{-at}$",
+              "$\\dfrac{1}{s + a}$"
+            ],
+            [
+              "$\\sin\\omega t$",
+              "$\\dfrac{\\omega}{s^2 + \\omega^2}$"
+            ]
+          ],
+          "explanation": "These five pairs are worth memorising. The impulse has transform 1, integrating once divides by $s$ (step $\\to 1/s$, ramp $\\to 1/s^2$), and $e^{-at}$ puts a pole at $s = -a$. A sinusoid has a pair of poles on the $j\\omega$ axis at $\\pm j\\omega$."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "A": [
+              2,
+              3,
+              5
+            ],
+            "a": [
+              1,
+              2,
+              3
+            ],
+            "w": [
+              2,
+              4,
+              5
+            ]
+          },
+          "prompt": "Find the Laplace transform of $x(t) = {{A}}e^{-{{a}}t}\\cos({{w}}t)\\,u(t)$.",
+          "options": [
+            "$\\dfrac{{{A}}(s + {{a}})}{(s + {{a}})^2 + {{w^2}}}$",
+            "$\\dfrac{{{A*w}}}{(s + {{a}})^2 + {{w^2}}}$",
+            "$\\dfrac{{{A}}(s + {{a}})}{s^2 + {{w^2}}}$",
+            "$\\dfrac{{{A}}s}{(s + {{a}})^2 + {{w^2}}}$"
+          ],
+          "answer": 0,
+          "explanation": "$\\cos({{w}}t) \\to \\frac{s}{s^2 + {{w^2}}}$. The factor $e^{-{{a}}t}$ shifts in frequency: replace every $s$ by $s + {{a}}$. Linearity scales by {{A}}:\n$X(s) = \\frac{{{A}}(s + {{a}})}{(s + {{a}})^2 + {{w^2}}}$. (The option with {{A*w}} in the numerator is the sine version.)"
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Derivatives become multiplications",
+          "body": "Integrating by parts turns a derivative into a multiplication by $s$, minus the initial value. This is what makes the Laplace transform so useful for circuits: differential equations become algebra, and the initial conditions come along automatically. Integration divides by $s$.",
+          "formula": "\\mathcal{L}\\left\\{\\frac{dx}{dt}\\right\\} = sX(s) - x(0^-)"
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "A capacitor voltage has $v(0^-) = V_0$. What is the Laplace transform of $\\frac{dv}{dt}$?",
+          "options": [
+            "$sV(s) - V_0$",
+            "$sV(s) + V_0$",
+            "$\\frac{V(s)}{s}$",
+            "$sV(s)$"
+          ],
+          "answer": 0,
+          "explanation": "Derivative rule: $\\mathcal{L}\\{dv/dt\\} = sV(s) - v(0^-)$. The minus sign comes from integrating by parts: $\\int_0^\\infty v'e^{-st}dt = [ve^{-st}]_0^\\infty + s\\int_0^\\infty ve^{-st}dt = -v(0^-) + sV(s)$. Only with zero initial conditions is it simply $sV(s)$; $V(s)/s$ is the transform of the **integral**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              5,
+              10
+            ],
+            "a": [
+              1,
+              2,
+              5,
+              10
+            ],
+            "t1": [
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "prompt": "Find $x(t)$ at $t$ = {{t1|s}} if $X(s) = \\frac{{{K}}}{s + {{a}}}$.",
+          "answer": "K*exp(-a*t1)",
+          "unit": "",
+          "explanation": "$\\frac{K}{s + a} \\to Ke^{-at}$, so $x(t) = {{K}}e^{-{{a}}t}$.\nAt $t$ = {{t1|s}}: {{K}} × $e^{-{{a*t1}}}$ = {{K*exp(-a*t1)}}."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "params": {
+            "t0": [
+              2,
+              3,
+              5
+            ]
+          },
+          "prompt": "What is the Laplace transform of a unit step delayed by {{t0}} s, $u(t - {{t0}})$?",
+          "options": [
+            "$\\dfrac{e^{-{{t0}}s}}{s}$",
+            "$\\dfrac{e^{{{t0}}s}}{s}$",
+            "$\\dfrac{1}{s - {{t0}}}$",
+            "$\\dfrac{1}{s} - {{t0}}$"
+          ],
+          "answer": 0,
+          "explanation": "Time shift: $x(t - t_0)u(t - t_0) \\to e^{-st_0}X(s)$. With $u(t) \\to 1/s$ and $t_0$ = {{t0}} s: $\\frac{e^{-{{t0}}s}}{s}$. A delay multiplies by $e^{-st_0}$; it does not move the pole."
+        }
+      ]
+    },
+    {
+      "id": "sx-laplace-2",
+      "title": "Partial fractions",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              4,
+              6,
+              10
+            ],
+            "a": [
+              1,
+              2,
+              3
+            ],
+            "b": [
+              4,
+              5,
+              6
+            ]
+          },
+          "prompt": "Expand $X(s) = \\frac{{{K}}}{(s + {{a}})(s + {{b}})} = \\frac{A}{s + {{a}}} + \\frac{B}{s + {{b}}}$.",
+          "ask": [
+            {
+              "prompt": "Find $A$.",
+              "answer": "K/(b-a)",
+              "unit": "",
+              "explanation": "Cover-up: $A = (s + {{a}})X(s)\\big|_{s = -{{a}}} = \\frac{{{K}}}{-{{a}} + {{b}}}$ = {{K/(b-a)}}."
+            },
+            {
+              "prompt": "Find $B$.",
+              "answer": "K/(a-b)",
+              "unit": "",
+              "explanation": "Cover-up: $B = (s + {{b}})X(s)\\big|_{s = -{{b}}} = \\frac{{{K}}}{-{{b}} + {{a}}}$ = {{K/(a-b)}}. Check: $A + B = 0$, as it must be since the numerator has no $s$ term."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              3,
+              4,
+              5
+            ],
+            "c": [
+              6,
+              8,
+              10
+            ],
+            "t1": [
+              0.1,
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "Find $x(t)$ at $t$ = {{t1|s}} for $X(s) = \\frac{s + {{c}}}{(s + {{a}})(s + {{b}})}$.",
+          "answer": "((c-a)/(b-a))*exp(-a*t1)+((c-b)/(a-b))*exp(-b*t1)",
+          "unit": "",
+          "explanation": "Cover-up: $K_1 = \\frac{-{{a}} + {{c}}}{-{{a}} + {{b}}}$ = {{(c-a)/(b-a)}}, $K_2 = \\frac{-{{b}} + {{c}}}{-{{b}} + {{a}}}$ = {{(c-b)/(a-b)}}.\n$x(t)$ = {{(c-a)/(b-a)}} $e^{-{{a}}t}$ + ({{(c-b)/(a-b)}}) $e^{-{{b}}t}$.\nAt {{t1|s}}: {{(c-a)/(b-a)}} × {{exp(-a*t1)}} + ({{(c-b)/(a-b)}}) × {{exp(-b*t1)}} = {{((c-a)/(b-a))*exp(-a*t1)+((c-b)/(a-b))*exp(-b*t1)}}."
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {
+            "A": [
+              2,
+              4,
+              6,
+              10
+            ],
+            "a": [
+              2,
+              4,
+              5
+            ]
+          },
+          "require": "abs(A-a)",
+          "prompt": "What is the inverse transform of $X(s) = \\frac{{{A}}}{s(s + {{a}})}$?",
+          "options": [
+            "${{A/a}}\\,(1 - e^{-{{a}}t})$",
+            "${{A}}\\,(1 - e^{-{{a}}t})$",
+            "${{A/a}}\\,e^{-{{a}}t}$",
+            "${{A/a}}\\,(1 + e^{-{{a}}t})$"
+          ],
+          "answer": 0,
+          "explanation": "$\\frac{{{A}}}{s(s + {{a}})} = \\frac{K_0}{s} + \\frac{K_1}{s + {{a}}}$ with $K_0 = \\frac{{{A}}}{{{a}}}$ = {{A/a}} and $K_1 = \\frac{{{A}}}{-{{a}}}$ = {{-A/a}}.\nSo $x(t)$ = {{A/a}} − {{A/a}}$e^{-{{a}}t}$ = {{A/a}}$(1 - e^{-{{a}}t})$. It starts at 0 and rises to {{A/a}}, the typical step response of a first-order system."
+        },
+        {
+          "id": "g1",
+          "type": "multipleChoice",
+          "params": {
+            "A": [
+              2,
+              4,
+              5
+            ],
+            "a": [
+              0.5,
+              2,
+              5
+            ]
+          },
+          "prompt": "The graph shows a signal $x(t)$ for $t \\geq 0$. Which Laplace transform does it have?",
+          "options": [
+            "$\\dfrac{{{A*a}}}{s(s + {{a}})}$",
+            "$\\dfrac{{{A}}}{s(s + {{a}})}$",
+            "$\\dfrac{{{A}}}{s + {{a}}}$",
+            "$\\dfrac{{{A*a}}}{s(s + {{1/a}})}$"
+          ],
+          "answer": 0,
+          "explanation": "The curve rises from 0 towards the final value {{A}} and reaches 63 % of it ({{0.632*A}}) at $t = \\tau$ = {{1/a|s}}. So $x(t) = {{A}}(1 - e^{-{{a}}t})$ with $a = 1/\\tau$ = {{a}}.\nTransform: ${{A}}\\left(\\frac{1}{s} - \\frac{1}{s + {{a}}}\\right) = \\frac{{{A*a}}}{s(s + {{a}})}$. (Check with the final-value theorem: $sX(s) \\to {{A*a}}/{{a}}$ = {{A}}.) The pole is at $-1/\\tau$, not at $-\\tau$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "5/a",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.2*A",
+              "label": "x(t)"
+            },
+            "curves": [
+              {
+                "f": "A*(1-exp(-a*x))",
+                "label": "x(t)",
+                "labelAt": 0.5
+              }
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "K": [
+              6,
+              12,
+              24,
+              30
+            ],
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              3,
+              4,
+              6
+            ]
+          },
+          "prompt": "$X(s) = \\frac{{{K}}}{s(s + {{a}})(s + {{b}})}$ has the partial-fraction form $\\frac{K_0}{s} + \\frac{K_1}{s + {{a}}} + \\frac{K_2}{s + {{b}}}$.",
+          "ask": [
+            {
+              "prompt": "Find $K_0$, the constant that $x(t)$ settles to.",
+              "answer": "K/(a*b)",
+              "unit": "",
+              "explanation": "Cover up $s$ and set $s = 0$: $K_0 = \\frac{{{K}}}{(0 + {{a}})(0 + {{b}})}$ = {{K/(a*b)}}. The $1/s$ term inverts to a constant, so $x(t) \\to$ {{K/(a*b)}}."
+            },
+            {
+              "prompt": "Find $K_1$, the coefficient of $e^{-{{a}}t}$.",
+              "answer": "-K/(a*(b-a))",
+              "unit": "",
+              "explanation": "Cover up $(s + {{a}})$ and set $s = -{{a}}$: $K_1 = \\frac{{{K}}}{(-{{a}})(-{{a}} + {{b}})}$ = {{-K/(a*(b-a))}}."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Put the steps of an inverse Laplace transform by partial fractions in order.",
+          "items": [
+            "Check that $X(s)$ is proper (divide first if it is not)",
+            "Factor the denominator to find the poles",
+            "Write one term $\\frac{K_i}{s + p_i}$ per pole",
+            "Find each $K_i$ with the cover-up rule",
+            "Invert each term to $K_i e^{-p_i t}$ and add"
+          ],
+          "explanation": "Partial fractions work only for proper rational functions (numerator degree < denominator degree). The poles fix the exponentials that appear; the cover-up rule fixes their weights."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "K": [
+              2,
+              5
+            ],
+            "a": [
+              1,
+              2,
+              5
+            ],
+            "t0": [
+              0.5,
+              1
+            ],
+            "dt": [
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "Find $x(t)$ for $X(s) = \\frac{{{K}}e^{-{{t0}}s}}{s + {{a}}}$.",
+          "ask": [
+            {
+              "prompt": "Find $x(t)$ at $t$ = {{t0+dt|s}}.",
+              "answer": "K*exp(-a*dt)",
+              "unit": "",
+              "explanation": "$\\frac{{{K}}}{s + {{a}}} \\to {{K}}e^{-{{a}}t}$, and $e^{-{{t0}}s}$ delays it by {{t0}} s: $x(t) = {{K}}e^{-{{a}}(t - {{t0}})}u(t - {{t0}})$.\nAt $t$ = {{t0+dt|s}}: {{K}} × $e^{-{{a*dt}}}$ = {{K*exp(-a*dt)}}."
+            },
+            {
+              "prompt": "Find $x(t)$ at $t$ = {{t0/2|s}}.",
+              "answer": "0",
+              "unit": "",
+              "explanation": "$e^{-{{t0}}s}$ delays the signal $Ke^{-at}$ by {{t0}} s: $x(t) = {{K}}e^{-{{a}}(t - {{t0}})}u(t - {{t0}})$. At $t$ = {{t0/2|s}} the delayed signal has not started yet, so $x$ = 0.",
+              "absTolerance": 0.001
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "params": {
+            "a": [
+              2,
+              3,
+              5
+            ]
+          },
+          "prompt": "What is the inverse transform of $\\frac{1}{(s + {{a}})^2}$?",
+          "options": [
+            "$t\\,e^{-{{a}}t}$",
+            "$e^{-{{a}}t}$",
+            "$\\tfrac{1}{2}t^2 e^{-{{a}}t}$",
+            "$e^{-{{2*a}}t}$"
+          ],
+          "answer": 0,
+          "explanation": "$\\frac{1}{s^2} \\to t$, and the frequency shift $s \\to s + {{a}}$ multiplies by $e^{-{{a}}t}$: $\\frac{1}{(s + {{a}})^2} \\to t\\,e^{-{{a}}t}$. A repeated pole gives a factor $t$; it is not the same as $e^{-{{2*a}}t}$, whose transform is $\\frac{1}{s + {{2*a}}}$."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "Partial fractions can be applied directly to $X(s) = \\frac{s^2 + 1}{(s + 1)(s + 2)}$.",
+          "answer": false,
+          "explanation": "The numerator and denominator have the same degree, so $X(s)$ is not proper. First divide: $X(s) = 1 + \\frac{-3s - 1}{(s + 1)(s + 2)}$. The constant 1 inverts to an impulse $\\delta(t)$; only the remainder is expanded in partial fractions."
+        }
+      ]
+    },
+    {
+      "id": "sx-laplace-3",
+      "title": "Solving ODEs",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "Transform $\\frac{dy}{dt} + ay = b\\,u(t)$ with $y(0^-) = y_0$. What is $Y(s)$?",
+          "options": [
+            "$\\dfrac{y_0 s + b}{s(s + a)}$",
+            "$\\dfrac{b}{s(s + a)}$",
+            "$\\dfrac{y_0 s - b}{s(s + a)}$",
+            "$\\dfrac{y_0 + b}{s + a}$"
+          ],
+          "answer": 0,
+          "explanation": "Term by term: $sY - y_0 + aY = \\frac{b}{s}$. So $(s + a)Y = y_0 + \\frac{b}{s} = \\frac{y_0 s + b}{s}$ and $Y = \\frac{y_0 s + b}{s(s + a)}$. Forgetting the initial condition gives $\\frac{b}{s(s + a)}$ (the zero-state part only)."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              2,
+              4,
+              5,
+              10
+            ],
+            "b": [
+              10,
+              20,
+              40
+            ],
+            "y0": [
+              -2,
+              0,
+              1,
+              3
+            ],
+            "t1": [
+              0.1,
+              0.2,
+              0.5
+            ]
+          },
+          "require": "abs(b/a+(y0-b/a)*exp(-a*t1))-0.15",
+          "prompt": "Solve $\\frac{dy}{dt} + {{a}}y = {{b}}u(t)$ with $y(0^-)$ = {{y0}}. Find $y$ at $t$ = {{t1|s}}.",
+          "answer": "b/a+(y0-b/a)*exp(-a*t1)",
+          "unit": "",
+          "explanation": "$Y(s) = \\frac{{{y0}}s + {{b}}}{s(s + {{a}})}$. Cover-up: $K_0 = \\frac{{{b}}}{{{a}}}$ = {{b/a}}, $K_1 = \\frac{{{y0}}(-{{a}}) + {{b}}}{-{{a}}}$ = {{y0-b/a}}.\n$y(t)$ = {{b/a}} + ({{y0-b/a}})$e^{-{{a}}t}$. At {{t1|s}}: {{b/a}} + ({{y0-b/a}}) × {{exp(-a*t1)}} = {{b/a+(y0-b/a)*exp(-a*t1)}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              1,
+              2
+            ],
+            "p2": [
+              3,
+              4,
+              5
+            ],
+            "K": [
+              6,
+              12,
+              24,
+              60
+            ],
+            "t1": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "prompt": "Solve $y'' + {{p1+p2}}y' + {{p1*p2}}y = {{K}}u(t)$ with zero initial conditions.",
+          "ask": [
+            {
+              "prompt": "Find $y$ at $t$ = {{t1|s}}.",
+              "answer": "K/(p1*p2)+K/(p1*(p1-p2))*exp(-p1*t1)+K/(p2*(p2-p1))*exp(-p2*t1)",
+              "unit": "",
+              "explanation": "$Y(s) = \\frac{{{K}}}{s(s + {{p1}})(s + {{p2}})}$ (the characteristic polynomial factors as $(s + {{p1}})(s + {{p2}})$).\nCover-up: $K_0$ = {{K/(p1*p2)}}, $K_1 = \\frac{{{K}}}{(-{{p1}})(-{{p1}} + {{p2}})}$ = {{K/(p1*(p1-p2))}}, $K_2 = \\frac{{{K}}}{(-{{p2}})(-{{p2}} + {{p1}})}$ = {{K/(p2*(p2-p1))}}.\n$y$({{t1}}) = {{K/(p1*p2)}} + ({{K/(p1*(p1-p2))}})({{exp(-p1*t1)}}) + ({{K/(p2*(p2-p1))}})({{exp(-p2*t1)}}) = {{K/(p1*p2)+K/(p1*(p1-p2))*exp(-p1*t1)+K/(p2*(p2-p1))*exp(-p2*t1)}}."
+            },
+            {
+              "prompt": "Find the final value $y(\\infty)$.",
+              "answer": "K/(p1*p2)",
+              "unit": "",
+              "explanation": "$Y(s) = \\frac{{{K}}}{s(s + {{p1}})(s + {{p2}})}$. The exponential terms die out, leaving the $1/s$ term: $K_0 = \\frac{{{K}}}{{{p1}} \\times {{p2}}}$ = {{K/(p1*p2)}}. (Check with the ODE: in steady state $y' = y'' = 0$, so {{p1*p2}}$y$ = {{K}}.)"
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              3,
+              4,
+              5
+            ],
+            "y0": [
+              1,
+              2,
+              5
+            ],
+            "t1": [
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "Solve $y'' + {{a+b}}y' + {{a*b}}y = 0$ with $y(0^-)$ = {{y0}} and $y'(0^-) = 0$. Find $y$ at $t$ = {{t1|s}}.",
+          "answer": "y0*(b*exp(-a*t1)-a*exp(-b*t1))/(b-a)",
+          "unit": "",
+          "explanation": "Transform: $s^2Y - s y_0 + {{a+b}}(sY - y_0) + {{a*b}}Y = 0$, so $Y = \\frac{{{y0}}(s + {{a+b}})}{(s + {{a}})(s + {{b}})}$.\nCover-up: at $s = -{{a}}$: {{y0}} × {{b}}/{{b-a}} = {{y0*b/(b-a)}}; at $s = -{{b}}$: {{y0}} × {{a}}/({{a-b}}) = {{-y0*a/(b-a)}}.\n$y$({{t1}}) = {{y0*b/(b-a)}} × {{exp(-a*t1)}} + ({{-y0*a/(b-a)}}) × {{exp(-b*t1)}} = {{y0*(b*exp(-a*t1)-a*exp(-b*t1))/(b-a)}}."
+        },
+        {
+          "id": "q5",
+          "type": "orderSteps",
+          "prompt": "Put the steps for solving a linear ODE with the Laplace transform in order.",
+          "items": [
+            "Transform both sides, using the derivative rule with the initial conditions",
+            "Solve the algebraic equation for $Y(s)$",
+            "Expand $Y(s)$ in partial fractions",
+            "Invert each term with the table to get $y(t)$"
+          ],
+          "explanation": "The transform turns the differential equation into algebra. All the calculus is hidden in the table and the derivative rule, and the initial conditions are included from the start, so no constants need fitting afterwards."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows the solution of $y' + 2y = 4u(t)$ with $y(0) = 5$? (Grid: 1 unit vertically, 0.5 s horizontally.)",
+          "answer": 0,
+          "explanation": "$Y = \\frac{5s + 4}{s(s + 2)} = \\frac{2}{s} + \\frac{3}{s + 2}$, so $y(t) = 2 + 3e^{-2t}$: it starts at 5 and decays to 2 with time constant 0.5 s. $2(1 - e^{-2t})$ ignores the initial condition, $5e^{-2t}$ ignores the input, and $2 + 3e^{-0.5t}$ has the wrong time constant.",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 6,
+                "label": "y"
+              },
+              "curves": [
+                {
+                  "f": "2+3*exp(-2*x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 6,
+                "label": "y"
+              },
+              "curves": [
+                {
+                  "f": "2*(1-exp(-2*x))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 6,
+                "label": "y"
+              },
+              "curves": [
+                {
+                  "f": "5*exp(-2*x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 3,
+                "label": "t"
+              },
+              "y": {
+                "min": 0,
+                "max": 6,
+                "label": "y"
+              },
+              "curves": [
+                {
+                  "f": "2+3*exp(-0.5*x)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2
+            ],
+            "b": [
+              3,
+              4,
+              5
+            ],
+            "v0": [
+              2,
+              5,
+              10
+            ],
+            "t1": [
+              0.2,
+              0.5
+            ]
+          },
+          "prompt": "A system obeys $y'' + {{a+b}}y' + {{a*b}}y = 0$ and is kicked at $t = 0$ so that $y(0^-) = 0$ and $y'(0^-)$ = {{v0}}.",
+          "ask": [
+            {
+              "prompt": "Find $y$ at $t$ = {{t1|s}}.",
+              "answer": "v0*(exp(-a*t1)-exp(-b*t1))/(b-a)",
+              "unit": "",
+              "explanation": "Transform: $s^2Y - {{v0}} + {{a+b}}sY + {{a*b}}Y = 0$, so $Y = \\frac{{{v0}}}{(s + {{a}})(s + {{b}})}$.\nCover-up gives $\\pm\\frac{{{v0}}}{{{b-a}}}$: $y(t)$ = {{v0/(b-a)}}$(e^{-{{a}}t} - e^{-{{b}}t})$.\nAt {{t1|s}}: {{v0/(b-a)}} × ({{exp(-a*t1)}} − {{exp(-b*t1)}}) = {{v0*(exp(-a*t1)-exp(-b*t1))/(b-a)}}."
+            },
+            {
+              "prompt": "At what time does $y(t)$ reach its maximum?",
+              "answer": "ln(b/a)/(b-a)",
+              "unit": "s",
+              "explanation": "$Y = \\frac{{{v0}}}{(s + {{a}})(s + {{b}})}$ gives $y(t)$ = {{v0/(b-a)}}$(e^{-{{a}}t} - e^{-{{b}}t})$.\nSet $y' = 0$: ${{b}}e^{-{{b}}t} = {{a}}e^{-{{a}}t}$, so $e^{{{b-a}}t} = {{b}}/{{a}}$ and $t = \\frac{\\ln({{b}}/{{a}})}{{{b-a}}}$ = {{ln(b/a)/(b-a)|s}}."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

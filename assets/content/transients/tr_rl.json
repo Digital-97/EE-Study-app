@@ -1,0 +1,1951 @@
+{
+  "id": "tr-rl",
+  "title": "RL Transients",
+  "description": "How inductor currents build up and decay with time constant L/R, and the general first-order solution.",
+  "reference": "Hambley §4.3–4.4",
+  "study": [
+    {
+      "title": "Current build-up",
+      "body": "The switch closes at $t = 0$, connecting a DC source through $R$ to an inductor with $i(0^-) = 0$. The inductor current cannot jump, so it starts at 0 and rises exponentially towards its DC steady-state value $V_s/R$ (inductor = short).",
+      "formula": "i(t) = \\frac{V_s}{R}\\left(1 - e^{-t/\\tau}\\right), \\qquad \\tau = \\frac{L}{R}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_s"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "switch",
+            "from": [
+              1,
+              0
+            ],
+            "to": [
+              3,
+              0
+            ],
+            "label": "t = 0"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              5,
+              0
+            ],
+            "label": "R"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                5,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "arrow",
+            "from": [
+              5.1,
+              0
+            ],
+            "to": [
+              5.8,
+              0
+            ],
+            "label": "i"
+          },
+          {
+            "type": "inductor",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              2
+            ],
+            "label": "L",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Inductor voltage",
+      "body": "At $t = 0^+$ the current is still 0, so there is no drop across $R$ and the full source voltage appears across the inductor (it acts like an **open circuit**). The voltage then decays as the current builds up.",
+      "formula": "v_L(t) = L\\frac{di}{dt} = V_s\\,e^{-t/\\tau}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "t / τ",
+          "ticks": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 1.1,
+          "label": "fraction of V_s or V_s/R"
+        },
+        "curves": [
+          {
+            "f": "exp(-x)",
+            "label": "v_L"
+          },
+          {
+            "f": "1-exp(-x)",
+            "label": "i",
+            "color": "orange"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Current decay",
+      "body": "An inductor carrying $I_0$ that is switched across a resistance $R$ keeps the current flowing in the same direction while it decays to zero. All the stored energy $\\tfrac12LI_0^2$ ends up as heat in the resistance.",
+      "formula": "i(t) = I_0\\,e^{-t/\\tau}, \\qquad \\tau = \\frac{L}{R}"
+    },
+    {
+      "title": "General first-order solution",
+      "body": "The solution of a first-order circuit is the sum of a **particular** (forced) solution $x_p(t)$, which follows the source, and a **complementary** (natural) part $Ke^{-t/\\tau}$. With DC sources $x_p$ is the constant final value, and $K$ comes from the initial condition. This works for any current or voltage in the circuit.",
+      "formula": "x(t) = x(\\infty) + \\left[x(0^+) - x(\\infty)\\right]e^{-t/\\tau}"
+    },
+    {
+      "title": "Initial values with switches",
+      "body": "- Find $i_L(0^-)$ from the DC steady state **before** switching (inductor = short).\n- Continuity: $i_L(0^+) = i_L(0^-)$.\n- Other quantities (resistor voltages, $v_L$) may jump. Find them at $0^+$ by replacing the inductor with a current source of value $i_L(0^+)$.\n- $\\tau = L/R_t$ with $R_t$ the Thévenin resistance seen by the inductor **after** switching."
+    },
+    {
+      "title": "Common pitfalls",
+      "body": "- $\\tau = L/R$, **not** $LR$: a larger resistance makes an RL circuit **faster** (the opposite of RC).\n- The continuous quantity is the inductor **current**, not its voltage.\n- Interrupting an inductor current into a large resistance gives a large voltage spike $i_L(0^+)\\cdot R$. Real circuits add a flyback diode across relay coils for this reason."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "tr-rl-1",
+      "title": "Building up current",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Closing the switch",
+          "body": "The switch closes at $t = 0$. The inductor current starts at 0 (it cannot jump) and rises exponentially towards $V_s/R$, where the inductor finally acts as a short circuit. The time constant of an RL circuit is $\\tau = L/R$.",
+          "formula": "i(t) = \\frac{V_s}{R}\\left(1 - e^{-tR/L}\\right)",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "switch",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "t = 0"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  5,
+                  0
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  5.1,
+                  0
+                ],
+                "to": [
+                  5.8,
+                  0
+                ],
+                "label": "i"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "L",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "L": [
+              0.01,
+              0.05,
+              0.1,
+              0.2
+            ],
+            "R": [
+              10,
+              47,
+              100,
+              220
+            ]
+          },
+          "prompt": "Find the time constant of an RL circuit with $L$ = {{L|H}} and $R$ = {{R|Ω}}.",
+          "answer": "L/R",
+          "unit": "s",
+          "explanation": "$\\tau = L/R$ = {{L|H}} / {{R|Ω}} = {{L/R|s}}."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "The switch closes at $t = 0$. What is the inductor current a long time after the switch closes?",
+          "options": [
+            "$V_s/R$",
+            "$0$",
+            "$V_sL/R$"
+          ],
+          "answer": 0,
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "switch",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "t = 0"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  5,
+                  0
+                ],
+                "label": "R"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  5.1,
+                  0
+                ],
+                "to": [
+                  5.8,
+                  0
+                ],
+                "label": "i"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "L",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "explanation": "In DC steady state the inductor is a short circuit, so only $R$ limits the current: $i(\\infty) = V_s/R$."
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "Just after the switch closes ($t = 0^+$), an inductor that carried no current behaves like an open circuit.",
+          "answer": true,
+          "explanation": "True. Its current is still 0 at $t = 0^+$ (continuity), yet it has a voltage across it: zero current with a voltage is an open circuit. In fact $v_L(0^+) = V_s$."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The inductor voltage decays",
+          "body": "Because $i$ rises along an exponential, its slope, and therefore $v_L = L\\,di/dt$, decays: it starts at $V_s$ and falls to zero. KVL checks out at every instant: $Ri + v_L = V_s$.",
+          "formula": "v_L(t) = V_s\\,e^{-t/\\tau}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              5,
+              10,
+              12
+            ],
+            "R": [
+              10,
+              22,
+              47,
+              100
+            ],
+            "L": [
+              0.01,
+              0.047,
+              0.1
+            ],
+            "k": [
+              0.3,
+              0.5,
+              1,
+              1.5,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "tau": "L/R",
+            "t": "k*tau"
+          },
+          "prompt": "The switch closes at $t = 0$ ($i(0^-) = 0$). Find the current $i$ at $t$ = {{t|s}}.",
+          "answer": "Vs/R*(1-exp(-t/tau))",
+          "unit": "A",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "switch",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "t = 0"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  5,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  5.1,
+                  0
+                ],
+                "to": [
+                  5.8,
+                  0
+                ],
+                "label": "i"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "L",
+                "value": "{{L|H}}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "explanation": "$\\tau = L/R$ = {{L|H}} / {{R|Ω}} = {{tau|s}}, so $t/\\tau$ = {{t/tau}}. Final current $V_s/R$ = {{Vs/R|A}}. $i = \\frac{V_s}{R}(1 - e^{-t/\\tau})$ = {{Vs/R|A}} × (1 − {{exp(-t/tau)}}) = {{Vs/R*(1-exp(-t/tau))|A}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              5,
+              10,
+              12
+            ],
+            "R": [
+              10,
+              22,
+              47,
+              100
+            ],
+            "L": [
+              0.01,
+              0.047,
+              0.1
+            ],
+            "k": [
+              0.3,
+              0.5,
+              1,
+              1.5,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "tau": "L/R",
+            "t": "k*tau"
+          },
+          "prompt": "Same kind of circuit: the switch closes at $t = 0$. Find the inductor voltage $v_L$ (polarity as shown) at $t$ = {{t|s}}.",
+          "answer": "Vs*exp(-t/tau)",
+          "unit": "V",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "switch",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "t = 0"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  5,
+                  0
+                ],
+                "label": "R",
+                "value": "{{R|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  5.1,
+                  0
+                ],
+                "to": [
+                  5.8,
+                  0
+                ],
+                "label": "i"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ],
+                "label": "L",
+                "value": "{{L|H}}",
+                "flip": true,
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          },
+          "explanation": "$\\tau = L/R$ = {{tau|s}}, $t/\\tau$ = {{t/tau}}. $v_L = V_se^{-t/\\tau}$ = {{Vs|V}} × {{exp(-t/tau)}} = {{Vs*exp(-t/tau)|V}}. Check with KVL: the resistor has {{Vs*(1-exp(-t/tau))|V}}, and the two add up to {{Vs|V}}."
+        },
+        {
+          "id": "g1",
+          "type": "multipleChoice",
+          "prompt": "The switch closes at $t = 0$ and connects a DC source $V_s$ through $R$ to an inductor with $i(0^-) = 0$. Which graph shows the inductor voltage $v_L(t)$?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 5,
+                "label": ""
+              },
+              "y": {
+                "min": -0.15,
+                "max": 1.2,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "exp(-x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 5,
+                "label": ""
+              },
+              "y": {
+                "min": -0.15,
+                "max": 1.2,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1-exp(-x)"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 5,
+                "label": ""
+              },
+              "y": {
+                "min": -0.15,
+                "max": 1.2,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "1"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 5,
+                "label": ""
+              },
+              "y": {
+                "min": -0.15,
+                "max": 1.2,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "x*exp(1-x)"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "The inductor current cannot jump, so at $0^+$ it is still 0 and there is no voltage across $R$: the full $V_s$ appears across $L$ (it acts like an open circuit). As the current builds up, more voltage drops across $R$, and $v_L = V_se^{-t/\\tau}$ decays to 0 (in DC steady state the inductor is a short). The rising curve is the current $i(t)$."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which expression is the time constant of a series RL circuit?",
+          "options": [
+            "$L/R$",
+            "$LR$",
+            "$R/L$"
+          ],
+          "answer": 0,
+          "explanation": "$\\tau = L/R$ (henries/ohms = seconds). Check with intuition: a bigger $L$ resists change more and slows things down; a bigger $R$ makes the final current smaller, so it is reached sooner."
+        }
+      ]
+    },
+    {
+      "id": "tr-rl-2",
+      "title": "RL transient calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "I0": [
+              0.5,
+              1,
+              2
+            ],
+            "R": [
+              10,
+              20,
+              50
+            ],
+            "L": [
+              0.05,
+              0.1,
+              0.2
+            ],
+            "T": [
+              0.001,
+              0.002,
+              0.005
+            ]
+          },
+          "prompt": "An inductor $L$ = {{L|H}} carrying {{I0|A}} at $t = 0$ is switched across a resistor $R$ = {{R|Ω}}. Find the current at $t$ = {{T|s}}.",
+          "answer": "I0*exp(-T*R/L)",
+          "unit": "A",
+          "explanation": "$\\tau = L/R$ = {{L/R|s}}. Decay: $i = I_0e^{-t/\\tau}$ = {{I0|A}} × $e^{-{{T*R/L}}}$ = {{I0|A}} × {{exp(-T*R/L)}} = {{I0*exp(-T*R/L)|A}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              10,
+              12
+            ],
+            "R1": [
+              10,
+              22,
+              47
+            ],
+            "R2": [
+              10,
+              33,
+              100
+            ],
+            "L": [
+              0.01,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "The switch closes at $t = 0$. Find the time constant of the circuit after switching.",
+          "answer": "L/par(R1,R2)",
+          "unit": "s",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "t = 0",
+                "closed": false
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  5.9,
+                  0
+                ],
+                "to": [
+                  6.8,
+                  0
+                ],
+                "label": "i_L"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  7,
+                  0
+                ],
+                "to": [
+                  7,
+                  2
+                ],
+                "label": "L",
+                "value": "{{L|H}}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          "explanation": "Zero the source (short it) and look from the inductor: $R_1$ and $R_2$ are in parallel, $R_t$ = {{par(R1,R2)|Ω}}. $\\tau = L/R_t$ = {{L|H}} / {{par(R1,R2)|Ω}} = {{L/par(R1,R2)|s}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              10,
+              12
+            ],
+            "R1": [
+              10,
+              22,
+              47
+            ],
+            "R2": [
+              10,
+              33,
+              100
+            ],
+            "L": [
+              0.01,
+              0.05,
+              0.1
+            ],
+            "k": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "tau": "L/par(R1,R2)",
+            "t": "k*tau"
+          },
+          "prompt": "The switch closes at $t = 0$ ($i_L(0^-) = 0$). Find $i_L$ at $t$ = {{t|s}}.",
+          "answer": "Vs/R1*(1-exp(-t/tau))",
+          "unit": "A",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "t = 0",
+                "closed": false
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  5.9,
+                  0
+                ],
+                "to": [
+                  6.8,
+                  0
+                ],
+                "label": "i_L"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  7,
+                  0
+                ],
+                "to": [
+                  7,
+                  2
+                ],
+                "label": "L",
+                "value": "{{L|H}}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          "explanation": "Final value: the inductor shorts out $R_2$, so $i_L(\\infty) = V_s/R_1$ = {{Vs/R1|A}}. $R_t = R_1 \\parallel R_2$ = {{par(R1,R2)|Ω}}, $\\tau$ = {{tau|s}}.\n$i_L = i_L(\\infty)(1 - e^{-t/\\tau})$ = {{Vs/R1|A}} × (1 − {{exp(-t/tau)}}) = {{Vs/R1*(1-exp(-t/tau))|A}}."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "L": [
+              0.01,
+              0.05,
+              0.1
+            ],
+            "R": [
+              10,
+              47,
+              100
+            ],
+            "p": [
+              0.5,
+              0.9,
+              0.95,
+              0.99
+            ]
+          },
+          "prompt": "In a series RL circuit ($L$ = {{L|H}}, $R$ = {{R|Ω}}) a DC source is switched on at $t = 0$ with zero initial current. How long until the current reaches {{p*100}} % of its final value?",
+          "answer": "-L/R*ln(1-p)",
+          "unit": "s",
+          "explanation": "$1 - e^{-t/\\tau} = p$ gives $t = -\\tau\\ln(1-p)$. $\\tau = L/R$ = {{L/R|s}}, so $t$ = {{L/R|s}} × ln(1/{{1-p}}) = {{-L/R*ln(1-p)|s}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Ii": [
+              0.5,
+              1,
+              2
+            ],
+            "If": [
+              0,
+              3,
+              4
+            ],
+            "tau": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "t": [
+              0.001,
+              0.002,
+              0.003
+            ]
+          },
+          "prompt": "After a switching event at $t = 0$, an inductor current has $i(0^+)$ = {{Ii|A}}, final value $i(\\infty)$ = {{If|A}} and time constant $\\tau$ = {{tau|s}}. Find $i$ at $t$ = {{t|s}}.",
+          "answer": "If + (Ii-If)*exp(-t/tau)",
+          "unit": "A",
+          "absTolerance": 0.0001,
+          "explanation": "$i(t) = i(\\infty) + [i(0^+) - i(\\infty)]e^{-t/\\tau}$ = {{If}} + ({{Ii}} − {{If}}) × $e^{-{{t/tau}}}$ = {{If}} + ({{Ii-If}}) × {{exp(-t/tau)}} = {{If + (Ii-If)*exp(-t/tau)|A}}."
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match RC and RL facts",
+          "pairs": [
+            [
+              "RC time constant",
+              "$RC$"
+            ],
+            [
+              "RL time constant",
+              "$L/R$"
+            ],
+            [
+              "Continuous in an RC circuit",
+              "capacitor voltage"
+            ],
+            [
+              "Continuous in an RL circuit",
+              "inductor current"
+            ]
+          ],
+          "explanation": "Capacitor voltage and inductor current are the quantities tied to stored energy ($\\frac12Cv^2$, $\\frac12Li^2$), so they cannot jump. The time constants are $RC$ and $L/R$."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "L": [
+              0.01,
+              0.05,
+              0.1,
+              0.5
+            ],
+            "I0": [
+              0.5,
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "An inductor $L$ = {{L|H}} carries {{I0|A}} when it is switched across a resistor. How much energy does the resistor dissipate until the current has decayed to zero?",
+          "answer": "0.5*L*I0^2",
+          "unit": "J",
+          "explanation": "All of the inductor's stored energy ends up as heat: $w = \\tfrac12LI_0^2$ = 0.5 × {{L|H}} × ({{I0|A}})² = {{0.5*L*I0^2|J}}. The resistance value only changes how quickly that happens."
+        },
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              5,
+              10,
+              20
+            ],
+            "If": [
+              0.1,
+              0.2,
+              0.5,
+              1,
+              2
+            ],
+            "tauMs": [
+              1,
+              2,
+              5
+            ]
+          },
+          "derived": {
+            "tau": "tauMs/1000",
+            "R": "Vs/If"
+          },
+          "prompt": "A {{Vs|V}} DC source is switched on at $t = 0$ across $R$ and $L$ in series ($i(0^-) = 0$). The graph shows the current. Find $L$.",
+          "hint": "The final current gives $R$; the time to reach 63 % of it gives $\\tau$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "5*tau",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": "1.2*If",
+              "label": "current i",
+              "unit": "A"
+            },
+            "curves": [
+              {
+                "f": "If*(1-exp(-x/tau))",
+                "label": "i(t)"
+              }
+            ]
+          },
+          "answer": "tau*R",
+          "unit": "H",
+          "tolerance": 0.1,
+          "explanation": "Final value: $i(\\infty) = V_s/R$ = {{If|A}}, so $R$ = {{Vs}} V / {{If|A}} = {{R|Ω}}. The current reaches 63.2 % of that, {{0.632*If|A}}, at $t = \\tau$ = {{tau|s}}. Since $\\tau = L/R$: $L = \\tau R$ = {{tau|s}} × {{R|Ω}} = {{tau*R|H}}."
+        }
+      ]
+    },
+    {
+      "id": "tr-rl-3",
+      "title": "Switching problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              10,
+              12
+            ],
+            "R1": [
+              10,
+              22,
+              47
+            ],
+            "R2": [
+              100,
+              220,
+              470
+            ],
+            "L": [
+              0.01,
+              0.1
+            ]
+          },
+          "prompt": "The switch has been **closed** for a long time and **opens** at $t = 0$. Find the voltage $v_a(0^+)$ of node a with respect to ground just after the switch opens. Include the sign.",
+          "answer": "-Vs*R2/R1",
+          "unit": "V",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "opens at t = 0",
+                "closed": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  5.9,
+                  0
+                ],
+                "to": [
+                  6.8,
+                  0
+                ],
+                "label": "i_L"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  7,
+                  0
+                ],
+                "to": [
+                  7,
+                  2
+                ],
+                "label": "L",
+                "value": "{{L|H}}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ],
+                "label": "a"
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          "explanation": "Before opening, $L$ shorts $R_2$: $i_L(0^-) = V_s/R_1$ = {{Vs/R1|A}} (downward through $L$). After opening, this current must keep flowing; its only path is the loop $L$–$R_2$, so it flows **upward** through $R_2$. Hence $v_a(0^+) = -i_L(0^+)R_2$ = −{{Vs/R1|A}} × {{R2|Ω}} = {{-Vs*R2/R1|V}}. In magnitude that is {{R2/R1}} times $V_s$: the inductive kick."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              10,
+              12
+            ],
+            "R1": [
+              10,
+              22,
+              47
+            ],
+            "R2": [
+              100,
+              220,
+              470
+            ],
+            "L": [
+              0.01,
+              0.1
+            ],
+            "k": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "tau": "L/R2",
+            "t": "k*tau"
+          },
+          "prompt": "Same circuit: the switch has been closed for a long time and opens at $t = 0$. Find $i_L$ (direction shown) at $t$ = {{t|s}}.",
+          "answer": "Vs/R1*exp(-t/tau)",
+          "unit": "A",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "opens at t = 0",
+                "closed": true
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  4,
+                  0
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  5.9,
+                  0
+                ],
+                "to": [
+                  6.8,
+                  0
+                ],
+                "label": "i_L"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  7,
+                  0
+                ],
+                "to": [
+                  7,
+                  2
+                ],
+                "label": "L",
+                "value": "{{L|H}}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ],
+                "label": "a"
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          "explanation": "$i_L(0^+) = i_L(0^-) = V_s/R_1$ = {{Vs/R1|A}}. After opening, $L$ sees only $R_2$: $\\tau = L/R_2$ = {{tau|s}}, and $i_L(\\infty) = 0$. $i_L$ = {{Vs/R1|A}} × {{exp(-t/tau)}} = {{Vs/R1*exp(-t/tau)|A}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              10,
+              12,
+              24
+            ],
+            "R1": [
+              10,
+              22,
+              47
+            ],
+            "R2": [
+              10,
+              33,
+              100
+            ],
+            "L": [
+              0.01,
+              0.05,
+              0.1
+            ],
+            "k": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "tau": "L/R1",
+            "t": "k*tau"
+          },
+          "prompt": "The switch (across $R_2$) has been open for a long time and **closes** at $t = 0$. Find the current $i$ at $t$ = {{t|s}}.",
+          "answer": "Vs/R1 + (Vs/(R1+R2) - Vs/R1)*exp(-t/tau)",
+          "unit": "A",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "arrow",
+                "from": [
+                  0.1,
+                  0
+                ],
+                "to": [
+                  0.9,
+                  0
+                ],
+                "label": "i"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  1,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "inductor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  5,
+                  0
+                ],
+                "label": "L",
+                "value": "{{L|H}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    5,
+                    0
+                  ],
+                  [
+                    7.5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5.5,
+                  0
+                ],
+                "to": [
+                  5.5,
+                  2
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "switch",
+                "from": [
+                  7.5,
+                  0
+                ],
+                "to": [
+                  7.5,
+                  2
+                ],
+                "label": "t = 0"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    7.5,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  5.5,
+                  2
+                ]
+              }
+            ]
+          },
+          "explanation": "Initial: $i(0^+) = i(0^-) = \\frac{V_s}{R_1+R_2}$ = {{Vs/(R1+R2)|A}}. Final: $R_2$ is shorted, $i(\\infty) = V_s/R_1$ = {{Vs/R1|A}}. Time constant after switching: $\\tau = L/R_1$ = {{tau|s}}.\n$i = i(\\infty) + [i(0^+) - i(\\infty)]e^{-t/\\tau}$ = {{Vs/R1|A}} − {{Vs/R1 - Vs/(R1+R2)|A}} × {{exp(-t/tau)}} = {{Vs/R1 + (Vs/(R1+R2) - Vs/R1)*exp(-t/tau)|A}}."
+        },
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {
+            "Ii": [
+              -1,
+              2,
+              3
+            ],
+            "If": [
+              0,
+              1,
+              4
+            ],
+            "tauMs": [
+              0.5,
+              1,
+              2,
+              3,
+              5
+            ],
+            "L": [
+              0.01,
+              0.05,
+              0.1
+            ]
+          },
+          "derived": {
+            "tau": "tauMs/1000"
+          },
+          "require": "abs(If-Ii)-0.9",
+          "prompt": "After a switch operates at $t = 0$, the inductor current follows the graph. With $L$ = {{L|H}}, find the Thévenin resistance $R_t$ the inductor sees after switching.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "5*tau",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": "min(Ii,If)-0.5",
+              "max": "max(Ii,If)+0.5",
+              "label": "current i_L",
+              "unit": "A"
+            },
+            "curves": [
+              {
+                "f": "If+(Ii-If)*exp(-x/tau)",
+                "label": "i_L(t)"
+              }
+            ]
+          },
+          "answer": "L/tau",
+          "unit": "Ω",
+          "tolerance": 0.1,
+          "explanation": "Read $i_L(0^+)$ = {{Ii|A}} and $i_L(\\infty)$ = {{If|A}}. After one time constant 63.2 % of the change is done: $i_L(\\tau) = i_L(\\infty) + 0.368\\,[i_L(0^+) - i_L(\\infty)]$ = {{If+0.368*(Ii-If)|A}}, which the curve reaches at $t$ = {{tau|s}}. Then $R_t = L/\\tau$ = {{L|H}} / {{tau|s}} = {{L/tau|Ω}}."
+        },
+        {
+          "id": "q4",
+          "type": "orderSteps",
+          "prompt": "Put the steps for finding $i_L(t)$ after a switch operates in order",
+          "items": [
+            "Find $i_L(0^-)$ with the inductor as a short (circuit before switching)",
+            "Use continuity: $i_L(0^+) = i_L(0^-)$",
+            "Find $i_L(\\infty)$ in the circuit after switching",
+            "Find $R_t$ seen by the inductor and $\\tau = L/R_t$",
+            "Write $i_L(t) = i_L(\\infty) + [i_L(0^+) - i_L(\\infty)]e^{-t/\\tau}$"
+          ],
+          "explanation": "Same recipe as for RC circuits, with the inductor current as the continuous quantity and $\\tau = L/R_t$ instead of $R_tC$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "I0": [
+              0.5,
+              1,
+              2
+            ],
+            "If": [
+              1,
+              2,
+              3
+            ],
+            "L": [
+              0.01,
+              0.05
+            ],
+            "R": [
+              10,
+              20,
+              50
+            ]
+          },
+          "prompt": "After switching at $t = 0$, an RL circuit ($L$ = {{L|H}}, $R_t$ = {{R|Ω}}) has $i_L(0^+)$ = −{{I0|A}} and $i_L(\\infty)$ = +{{If|A}}. At what time does $i_L$ pass through zero?",
+          "answer": "L/R*ln((I0+If)/If)",
+          "unit": "s",
+          "explanation": "Set $0 = I_f + (-I_0 - I_f)e^{-t/\\tau}$, which gives $t = \\tau\\ln\\frac{I_0+I_f}{I_f}$. With $\\tau = L/R_t$ = {{L/R|s}}: $t$ = {{L/R|s}} × ln({{(I0+If)/If}}) = {{L/R*ln((I0+If)/If)|s}}."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "The voltage across an inductor can change instantaneously when a switch operates.",
+          "answer": true,
+          "explanation": "True. Only the inductor **current** must be continuous. The voltage $L\\,di/dt$ can jump, for example from 0 to $V_s$ when a source is switched on, or to a large negative value when the current is interrupted."
+        }
+      ]
+    }
+  ]
+}

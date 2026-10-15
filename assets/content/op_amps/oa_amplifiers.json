@@ -1,0 +1,1406 @@
+{
+  "id": "oa-amplifiers",
+  "title": "Amplifier Basics",
+  "description": "Model a real amplifier by its input resistance, output resistance and open-circuit gain, and compute gains, loading, cascades and efficiency.",
+  "reference": "Hambley §11.1–11.3",
+  "study": [
+    {
+      "title": "Voltage gain",
+      "body": "An amplifier takes an input signal $v_i(t)$ and delivers $v_o(t) = A_v v_i(t)$ with the same waveshape. If $A_v > 0$ it is **noninverting**; if $A_v < 0$ it is **inverting** (the output is the input flipped upside down). One input terminal and one output terminal are usually tied to a common ground.",
+      "formula": "v_o(t) = A_v\\, v_i(t)"
+    },
+    {
+      "title": "Voltage-amplifier model",
+      "body": "A real amplifier is modelled by three parameters: the **input resistance** $R_i$ (seen looking into the input), a voltage-controlled source $A_{voc}v_i$, and the **output resistance** $R_o$ in series with the output. $A_{voc}$ is the **open-circuit voltage gain**: the gain when no load is connected (no current in $R_o$).",
+      "formula": "v_o\\big|_{R_L=\\infty} = A_{voc}\\, v_i",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              3
+            ],
+            "to": [
+              0,
+              1
+            ],
+            "label": "v_s"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              1
+            ],
+            "to": [
+              2,
+              1
+            ],
+            "label": "R_s"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              1
+            ],
+            "to": [
+              2,
+              3
+            ],
+            "label": "R_i",
+            "polarity": "+-"
+          },
+          {
+            "type": "cvsource",
+            "from": [
+              4,
+              3
+            ],
+            "to": [
+              4,
+              1
+            ],
+            "label": "A_{voc}v_i"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              1
+            ],
+            "to": [
+              6,
+              1
+            ],
+            "label": "R_o"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              6,
+              1
+            ],
+            "to": [
+              6,
+              3
+            ],
+            "label": "R_L",
+            "polarity": "+-"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                3
+              ],
+              [
+                6,
+                3
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                6,
+                1
+              ],
+              [
+                7,
+                1
+              ]
+            ]
+          },
+          {
+            "type": "terminal",
+            "at": [
+              7,
+              1
+            ],
+            "label": "v_o"
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              3
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              3
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              6,
+              1
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Loading effects",
+      "body": "Two voltage dividers reduce the gain you actually get. At the input, $R_s$ and $R_i$ divide $v_s$; at the output, $R_o$ and $R_L$ divide $A_{voc}v_i$. So the loaded gain $A_v = v_o/v_i$ and the overall gain $A_{vs} = v_o/v_s$ are smaller than $A_{voc}$. An **ideal voltage amplifier** has $R_i \\to \\infty$ and $R_o \\to 0$, so there is no loading at all.",
+      "formula": "A_{vs} = \\frac{v_o}{v_s} = \\frac{R_i}{R_s+R_i}\\,A_{voc}\\,\\frac{R_L}{R_o+R_L}"
+    },
+    {
+      "title": "Current gain, power gain and decibels",
+      "body": "With $i_i = v_i/R_i$ and $i_o = v_o/R_L$ the current gain is $A_i = A_v R_i/R_L$, and the power gain is $G = P_o/P_i = A_v A_i$. Gains are often given in decibels: $|A_v|_{dB} = 20\\log_{10}|A_v|$ for voltage (or current) ratios, $G_{dB} = 10\\log_{10}G$ for power ratios. Example: $A_v = 100$ is 40 dB; $G = 10^6$ is 60 dB.",
+      "formula": "A_i = A_v\\frac{R_i}{R_L},\\qquad G = A_v^2\\,\\frac{R_i}{R_L}"
+    },
+    {
+      "title": "Cascaded amplifiers",
+      "body": "When stage 1 drives stage 2, the overall gain is the product of the stage gains, $A_v = A_{v1}A_{v2}$ (so dB values add). Each stage gain must include loading: the input resistance $R_{i2}$ of stage 2 is the load of stage 1. The simplified model of the cascade has $R_i = R_{i1}$, $R_o = R_{o,last}$ and $A_{voc}$ computed with the last stage open-circuited.",
+      "formula": "A_v = A_{v1}A_{v2},\\quad A_{v1} = A_{voc1}\\frac{R_{i2}}{R_{o1}+R_{i2}}"
+    },
+    {
+      "title": "Power supplies and efficiency",
+      "body": "The extra output power comes from the dc supplies: $P_s = V_{AA}I_A + V_{BB}I_B$. Power balance: $P_i + P_s = P_o + P_d$, where $P_d$ is dissipated as heat. The input power $P_i$ is usually negligible. Efficiency is the fraction of supply power that reaches the load.",
+      "formula": "\\eta = \\frac{P_o}{P_s}\\times 100\\%"
+    }
+  ],
+  "lessons": [
+    {
+      "title": "The amplifier model",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "What an amplifier does",
+          "body": "An amplifier makes a signal bigger without changing its shape: $v_o(t) = A_v v_i(t)$.\n- $A_v > 0$: **noninverting**, output in phase with the input.\n- $A_v < 0$: **inverting**, output is the input flipped upside down.",
+          "formula": "v_o(t) = A_v\\, v_i(t)"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "An amplifier has voltage gain $A_v$ = {{A}}. The input is $v_i(t) = {{Vm}}\\sin(\\omega t)$ V. What is the output?",
+          "options": [
+            "$v_o(t) = {{A*Vm}}\\sin(\\omega t)$ V",
+            "$v_o(t) = {{-A*Vm}}\\sin(\\omega t)$ V",
+            "$v_o(t) = {{Vm/A}}\\sin(\\omega t)$ V"
+          ],
+          "answer": 0,
+          "explanation": "Multiply the input by the gain: $v_o = A_v v_i$ = ({{A}}) × {{Vm}} $\\sin(\\omega t)$ = {{A*Vm}} $\\sin(\\omega t)$ V. The minus sign means this is an inverting amplifier: the output is an upside-down, larger copy of the input.",
+          "params": {
+            "A": [
+              -50,
+              -20,
+              -10
+            ],
+            "Vm": [
+              0.05,
+              0.1,
+              0.2
+            ]
+          }
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The voltage-amplifier model",
+          "body": "A real amplifier draws some current from the source and its output voltage sags under load. We model it with:\n- $R_i$: the **input resistance** across the input terminals\n- $A_{voc}v_i$: a voltage-controlled voltage source\n- $R_o$: the **output resistance** in series with the output\nWith the output open ($R_L = \\infty$) no current flows in $R_o$, so $v_o = A_{voc}v_i$: $A_{voc}$ is the **open-circuit voltage gain**.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  1
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  2,
+                  1
+                ],
+                "label": "R_s"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "R_i",
+                "polarity": "+-"
+              },
+              {
+                "type": "cvsource",
+                "from": [
+                  4,
+                  3
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "A_{voc}v_i"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  6,
+                  1
+                ],
+                "label": "R_o"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  1
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "R_L",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    1
+                  ],
+                  [
+                    7,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  7,
+                  1
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  1
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "A voltage amplifier is connected between a signal source and a load. Tap the resistors that belong to the **amplifier model** itself.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "name": "vs",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  1
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "resistor",
+                "name": "Rs",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  2,
+                  1
+                ],
+                "label": "R_1"
+              },
+              {
+                "type": "resistor",
+                "name": "Ri",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "R_2",
+                "polarity": "+-",
+                "value": "v_i"
+              },
+              {
+                "type": "cvsource",
+                "name": "A",
+                "from": [
+                  4,
+                  3
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "A_{voc}v_i"
+              },
+              {
+                "type": "resistor",
+                "name": "Ro",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  6,
+                  1
+                ],
+                "label": "R_3"
+              },
+              {
+                "type": "resistor",
+                "name": "RL",
+                "from": [
+                  6,
+                  1
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "R_4",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    1
+                  ],
+                  [
+                    7,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  7,
+                  1
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  1
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "Rs",
+            "Ri",
+            "Ro",
+            "RL"
+          ],
+          "answer": [
+            "Ri",
+            "Ro"
+          ],
+          "explanation": "The amplifier model has three parts: the **input resistance** across its input terminals ($R_2$, the voltage across it is $v_i$), a controlled source $A_{voc}v_i$, and the **output resistance** in series with that source ($R_3$).\n$R_1$ is the internal resistance of the signal source and $R_4$ is the load; they are outside the amplifier."
+        },
+        {
+          "id": "q2",
+          "type": "matchPairs",
+          "prompt": "Match each model element to its meaning",
+          "pairs": [
+            [
+              "$R_i$",
+              "Resistance seen looking into the input"
+            ],
+            [
+              "$R_o$",
+              "Makes $v_o$ drop when load current flows"
+            ],
+            [
+              "$A_{voc}$",
+              "Gain with the output open-circuited"
+            ],
+            [
+              "$R_s$",
+              "Internal resistance of the signal source"
+            ]
+          ],
+          "explanation": "$R_i$ and $R_o$ describe the amplifier's terminals, $A_{voc}$ its internal gain, and $R_s$ belongs to the source, not the amplifier. Together they let you predict the gain for any source and load."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Loading effects",
+          "body": "Not all of $v_s$ reaches the amplifier input and not all of $A_{voc}v_i$ reaches the load. Two voltage dividers are at work:\n- input: $v_i = v_s\\frac{R_i}{R_s+R_i}$\n- output: $v_o = A_{voc}v_i\\frac{R_L}{R_o+R_L}$\nThese reductions are called **loading effects**.",
+          "formula": "A_v = \\frac{v_o}{v_i} = A_{voc}\\frac{R_L}{R_o+R_L}"
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "Connecting a load $R_L$ to an amplifier with $R_o > 0$ makes the voltage gain $A_v = v_o/v_i$ smaller in magnitude than $A_{voc}$.",
+          "answer": true,
+          "explanation": "True. Load current causes a drop across $R_o$, so $A_v = A_{voc}R_L/(R_o+R_L)$, which is less than $A_{voc}$ for any finite $R_L$. Only with $R_L \\to \\infty$ (open circuit) does $A_v$ equal $A_{voc}$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "An amplifier has $A_{voc}$ = {{Avoc}} and $R_o$ = {{Ro|Ω}}. A load $R_L$ = {{RL|Ω}} is connected. Find the loaded voltage gain $A_v = v_o/v_i$.",
+          "answer": "Avoc*RL/(Ro+RL)",
+          "unit": "",
+          "explanation": "$R_o$ and $R_L$ form a voltage divider at the output:\n$A_v = A_{voc}\\frac{R_L}{R_o+R_L}$ = {{Avoc}} × {{RL|Ω}} / ({{Ro|Ω}} + {{RL|Ω}}) = {{Avoc*RL/(Ro+RL)}}.",
+          "params": {
+            "Avoc": [
+              50,
+              100,
+              200
+            ],
+            "Ro": [
+              10,
+              25,
+              50,
+              100
+            ],
+            "RL": [
+              100,
+              150,
+              220,
+              470
+            ]
+          },
+          "circuit": {
+            "elements": [
+              {
+                "type": "cvsource",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  1
+                ],
+                "label": "{{Avoc}}v_i"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  2,
+                  1
+                ],
+                "label": "R_o",
+                "value": "{{Ro|Ω}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "R_L",
+                "value": "{{RL|Ω}}",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    1
+                  ],
+                  [
+                    3,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  3,
+                  1
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  1
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "For an ideal voltage amplifier (no loading at input or output), the input and output resistances should be:",
+          "options": [
+            "$R_i \\to \\infty$, $R_o \\to 0$",
+            "$R_i \\to 0$, $R_o \\to \\infty$",
+            "$R_i \\to \\infty$, $R_o \\to \\infty$",
+            "$R_i \\to 0$, $R_o \\to 0$"
+          ],
+          "answer": 0,
+          "explanation": "With $R_i \\to \\infty$ the input divider $R_i/(R_s+R_i) \\to 1$, so the full source voltage reaches the input. With $R_o \\to 0$ the output divider $R_L/(R_o+R_L) \\to 1$, so the output voltage does not depend on the load."
+        },
+        {
+          "id": "g1", "type": "numeric",
+          "params": {"A": [-50, -20, -10, 10, 20, 50], "vim": [0.05, 0.1, 0.2]},
+          "require": "10.5 - abs(A)*vim",
+          "prompt": "An amplifier is driven by $v_i$ = {{vim*1000}} sin(2000π$t$) mV, which goes positive just after $t$ = 0. The graph shows the output $v_o$. Find the voltage gain $A_v$ (with its sign).",
+          "plot": {
+            "x": {"min": 0, "max": 0.002, "label": "t", "unit": "s"},
+            "y": {"min": "-1.25*abs(A)*vim", "max": "1.25*abs(A)*vim", "label": "v_o", "unit": "V"},
+            "curves": [{"f": "A*vim*sin(2*pi*1000*x)"}]
+          },
+          "answer": "A",
+          "unit": "",
+          "tolerance": 0.05,
+          "explanation": "The output peak is {{abs(A)*vim|V}} and the input peak {{vim|V}}, so $|A_v|$ = {{abs(A)*vim|V}} / {{vim|V}} = {{abs(A)}}. For the sign, compare the start: if the output first goes **down** while the input goes up, the amplifier is inverting and $A_v$ is negative. Here $A_v$ = {{A}}."
+        }
+      ],
+      "id": "oa-amplifiers-1"
+    },
+    {
+      "title": "Gains, decibels and efficiency",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "prompt": "A source $V_s$ = {{Vs|V}} rms with $R_s$ = {{Rs|Ω}} drives an amplifier with $R_i$ = {{Ri|Ω}}, $A_{voc}$ = {{Avoc}} and $R_o$ = {{Ro|Ω}}. The load is $R_L$ = {{RL|Ω}}. Find the rms output voltage $V_o$.",
+          "answer": "Vo",
+          "unit": "V",
+          "explanation": "Input divider: $V_i = V_s\\frac{R_i}{R_s+R_i}$ = {{Vs|V}} × {{Ri|Ω}}/({{Rs|Ω}} + {{Ri|Ω}}) = {{Vi|V}}.\nControlled source: $A_{voc}V_i$ = {{Avoc*Vi|V}}.\nOutput divider: $V_o = A_{voc}V_i\\frac{R_L}{R_o+R_L}$ = {{Avoc*Vi|V}} × {{RL|Ω}}/({{Ro|Ω}} + {{RL|Ω}}) = {{Vo|V}}.",
+          "params": {
+            "Vs": [
+              0.001,
+              0.002,
+              0.005
+            ],
+            "Rs": [
+              1000,
+              2000,
+              5000
+            ],
+            "Ri": [
+              10000,
+              20000,
+              50000
+            ],
+            "Avoc": [
+              200,
+              500,
+              1000
+            ],
+            "Ro": [
+              10,
+              20,
+              50
+            ],
+            "RL": [
+              100,
+              200,
+              500
+            ]
+          },
+          "derived": {
+            "Vi": "Vs*Ri/(Rs+Ri)",
+            "Vo": "Avoc*Vi*RL/(Ro+RL)"
+          },
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  1
+                ],
+                "label": "V_s",
+                "value": "{{Vs|V}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  2,
+                  1
+                ],
+                "label": "R_s",
+                "value": "{{Rs|Ω}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "R_i",
+                "value": "{{Ri|Ω}}",
+                "polarity": "+-"
+              },
+              {
+                "type": "cvsource",
+                "from": [
+                  4,
+                  3
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "{{Avoc}}v_i"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  6,
+                  1
+                ],
+                "label": "R_o",
+                "value": "{{Ro|Ω}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  6,
+                  1
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "R_L",
+                "value": "{{RL|Ω}}",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    1
+                  ],
+                  [
+                    7,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  7,
+                  1
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  1
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "prompt": "An amplifier with input resistance $R_i$ = {{Ri|Ω}} drives a load $R_L$ = {{RL|Ω}} with a loaded voltage gain $A_v$ = {{Av}}. Find the current gain $A_i = i_o/i_i$.",
+          "answer": "Av*Ri/RL",
+          "unit": "",
+          "explanation": "$i_i = v_i/R_i$ and $i_o = v_o/R_L$, so $A_i = \\frac{v_o/R_L}{v_i/R_i} = A_v\\frac{R_i}{R_L}$ = {{Av}} × {{Ri|Ω}}/{{RL|Ω}} = {{Av*Ri/RL}}. A large $R_i$ keeps the input current tiny, so current gains are often huge.",
+          "params": {
+            "Av": [
+              20,
+              50,
+              100
+            ],
+            "Ri": [
+              10000,
+              47000,
+              100000
+            ],
+            "RL": [
+              10,
+              50,
+              100
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "prompt": "An amplifier has $A_v$ = {{Av}}, $R_i$ = {{Ri|Ω}} and drives a loudspeaker $R_L$ = {{RL|Ω}}. Find the power gain in decibels, $G_{dB}$.",
+          "answer": "10*log10(Av^2*Ri/RL)",
+          "unit": "dB",
+          "explanation": "$G = A_vA_i = A_v^2\\frac{R_i}{R_L}$ = {{Av}}² × {{Ri|Ω}}/{{RL|Ω}} = {{Av^2*Ri/RL}}.\nPower ratio → use $10\\log_{10}$: $G_{dB} = 10\\log_{10}$({{Av^2*Ri/RL}}) = {{10*log10(Av^2*Ri/RL)|dB}}.",
+          "params": {
+            "Av": [
+              20,
+              50,
+              100
+            ],
+            "Ri": [
+              10000,
+              100000
+            ],
+            "RL": [
+              4,
+              8,
+              16
+            ]
+          }
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "An amplifier has a voltage gain magnitude $|A_v|$ = {{Av}}. What is its voltage gain in decibels?",
+          "options": [
+            "{{20*log10(Av)|dB}}",
+            "{{10*log10(Av)|dB}}",
+            "{{log10(Av)|dB}}"
+          ],
+          "answer": 0,
+          "explanation": "For a voltage ratio use 20 log: $|A_v|_{dB} = 20\\log_{10}$({{Av}}) = {{20*log10(Av)|dB}}. Using 10 log (the power-ratio rule) is the classic mistake; it gives {{10*log10(Av)|dB}}.",
+          "params": {
+            "Av": [
+              10,
+              50,
+              100,
+              200,
+              1000
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "prompt": "Two amplifiers are cascaded. Stage 1: $A_{voc1}$ = {{A1}}, $R_{o1}$ = {{Ro1|Ω}}. Stage 2: $R_{i2}$ = {{Ri2|Ω}}, $A_{voc2}$ = {{A2}}, $R_{o2}$ = {{Ro2|Ω}}. Stage 2 drives $R_L$ = {{RL|Ω}}. Find the overall voltage gain $v_{o2}/v_{i1}$.",
+          "answer": "A1*Ri2/(Ri2+Ro1)*A2*RL/(RL+Ro2)",
+          "unit": "",
+          "explanation": "Stage 1 is loaded by $R_{i2}$: $A_{v1} = A_{voc1}\\frac{R_{i2}}{R_{o1}+R_{i2}}$ = {{A1*Ri2/(Ri2+Ro1)}}.\nStage 2 is loaded by $R_L$: $A_{v2} = A_{voc2}\\frac{R_L}{R_{o2}+R_L}$ = {{A2*RL/(RL+Ro2)}}.\nOverall: $A_v = A_{v1}A_{v2}$ = {{A1*Ri2/(Ri2+Ro1)*A2*RL/(RL+Ro2)}}.",
+          "params": {
+            "A1": [
+              20,
+              50,
+              100
+            ],
+            "Ro1": [
+              500,
+              1000,
+              2000
+            ],
+            "Ri2": [
+              2000,
+              5000,
+              10000
+            ],
+            "A2": [
+              10,
+              20,
+              50
+            ],
+            "Ro2": [
+              50,
+              100
+            ],
+            "RL": [
+              100,
+              470,
+              1000
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "prompt": "An amplifier is powered by two supplies of {{V|V}} each (positive and negative rail). They deliver average currents $I_A$ = {{IA|A}} and $I_B$ = {{IB|A}}. The amplifier delivers $P_o$ = {{Po|W}} to the load. Find the efficiency $\\eta$.",
+          "answer": "Po/(V*(IA+IB))*100",
+          "unit": "%",
+          "explanation": "Supply power: $P_s = V_{AA}I_A + V_{BB}I_B$ = {{V}} × {{IA}} + {{V}} × {{IB}} = {{V*(IA+IB)|W}}.\n$\\eta = \\frac{P_o}{P_s}\\times 100\\%$ = {{Po}}/{{V*(IA+IB)}} × 100% = {{Po/(V*(IA+IB))*100|%}}.",
+          "params": {
+            "V": [
+              12,
+              15,
+              18
+            ],
+            "IA": [
+              0.5,
+              1,
+              1.5
+            ],
+            "IB": [
+              0.5,
+              1,
+              1.5
+            ],
+            "Po": [
+              2,
+              4,
+              6,
+              8
+            ]
+          }
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "prompt": "A single {{V|V}} supply delivers {{I|A}} to an amplifier, which delivers $P_o$ = {{Po|W}} to its load. The input signal power is negligible. How much power $P_d$ is dissipated as heat in the amplifier?",
+          "answer": "V*I-Po",
+          "unit": "W",
+          "explanation": "Power balance: $P_i + P_s = P_o + P_d$ with $P_i \\approx 0$.\n$P_s = VI$ = {{V}} × {{I}} = {{V*I|W}}, so $P_d = P_s - P_o$ = {{V*I|W}} − {{Po|W}} = {{V*I-Po|W}}.",
+          "params": {
+            "V": [
+              12,
+              15,
+              24
+            ],
+            "I": [
+              0.5,
+              1,
+              1.5
+            ],
+            "Po": [
+              2,
+              3,
+              5
+            ]
+          }
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "prompt": "An amplifier delivers far more signal power to its load than it takes from the signal source. Where does the extra power come from?",
+          "options": [
+            "The dc power supply",
+            "The input signal source",
+            "The load resistor",
+            "The amplifier's output resistance"
+          ],
+          "answer": 0,
+          "explanation": "Power is conserved: $P_i + P_s = P_o + P_d$. The amplifier converts part of the dc supply power $P_s$ into signal power; the rest becomes heat $P_d$. The input only controls how that power is released."
+        },
+        {
+          "id": "q9",
+          "type": "trueFalse",
+          "prompt": "If two cascaded stages have voltage gains of 20 dB and 34 dB, the overall gain is 54 dB.",
+          "answer": true,
+          "explanation": "True. Linear gains multiply ($A_v = A_{v1}A_{v2}$), and the log of a product is the sum of the logs, so dB gains add: 20 dB + 34 dB = 54 dB (a factor 10 × 50 = 500). The stage gains must already include loading."
+        }
+      ],
+      "id": "oa-amplifiers-2"
+    },
+    {
+      "title": "Loading and cascades",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "Tap the resistors that should be as **large** as possible so that $v_o$ comes close to $A_{voc}v_s$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "name": "vs",
+                "from": [
+                  0,
+                  3
+                ],
+                "to": [
+                  0,
+                  1
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "resistor",
+                "name": "Rs",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  2,
+                  1
+                ],
+                "label": "R_s"
+              },
+              {
+                "type": "resistor",
+                "name": "Ri",
+                "from": [
+                  2,
+                  1
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "R_i",
+                "polarity": "+-",
+                "value": "v_i"
+              },
+              {
+                "type": "cvsource",
+                "name": "A",
+                "from": [
+                  4,
+                  3
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "A_{voc}v_i"
+              },
+              {
+                "type": "resistor",
+                "name": "Ro",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  6,
+                  1
+                ],
+                "label": "R_o"
+              },
+              {
+                "type": "resistor",
+                "name": "RL",
+                "from": [
+                  6,
+                  1
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "R_L",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    6,
+                    1
+                  ],
+                  [
+                    7,
+                    1
+                  ]
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  7,
+                  1
+                ],
+                "label": "v_o"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  1
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "Rs",
+            "Ri",
+            "Ro",
+            "RL"
+          ],
+          "answer": [
+            "Ri",
+            "RL"
+          ],
+          "explanation": "Two voltage dividers cause the loading:\n$$v_o = A_{voc}v_s\\cdot\\frac{R_i}{R_s + R_i}\\cdot\\frac{R_L}{R_o + R_L}$$\nBoth fractions approach 1 when $R_i \\gg R_s$ and $R_L \\gg R_o$. So $R_i$ and $R_L$ should be large, while $R_s$ and $R_o$ should be small (an ideal voltage amplifier has $R_i = \\infty$ and $R_o = 0$)."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "prompt": "An amplifier has $R_i$ = {{Ri|Ω}}, $A_{voc}$ = {{Avoc}}, $R_o$ = {{Ro|Ω}} and drives $R_L$ = {{RL|Ω}}. Find the power gain $G = P_o/P_i$ (as a ratio).",
+          "answer": "Av^2*Ri/RL",
+          "unit": "",
+          "explanation": "First the loaded voltage gain: $A_v = A_{voc}\\frac{R_L}{R_o+R_L}$ = {{Av}}.\nThen $A_i = A_v\\frac{R_i}{R_L}$ = {{Av*Ri/RL}} and $G = A_vA_i = A_v^2\\frac{R_i}{R_L}$ = {{Av^2*Ri/RL}} (= {{10*log10(Av^2*Ri/RL)|dB}}).",
+          "params": {
+            "Avoc": [
+              100,
+              200,
+              500
+            ],
+            "Ri": [
+              10000,
+              50000
+            ],
+            "Ro": [
+              10,
+              50
+            ],
+            "RL": [
+              50,
+              100,
+              200
+            ]
+          },
+          "derived": {
+            "Av": "Avoc*RL/(Ro+RL)"
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "prompt": "Stage 1 ($A_{voc1}$ = {{A1}}, $R_{o1}$ = {{Ro1|Ω}}) drives stage 2 ($R_{i2}$ = {{Ri2|Ω}}, $A_{voc2}$ = {{A2}}). Find the open-circuit voltage gain $A_{voc}$ of the simplified model of the cascade.",
+          "answer": "A1*Ri2/(Ri2+Ro1)*A2",
+          "unit": "",
+          "explanation": "Open-circuit gain means the **last** stage has no load, but stage 1 is still loaded by $R_{i2}$.\n$A_{v1} = A_{voc1}\\frac{R_{i2}}{R_{o1}+R_{i2}}$ = {{A1}} × {{Ri2|Ω}}/({{Ro1|Ω}} + {{Ri2|Ω}}) = {{A1*Ri2/(Ri2+Ro1)}}.\n$A_{voc} = A_{v1}A_{voc2}$ = {{A1*Ri2/(Ri2+Ro1)}} × {{A2}} = {{A1*Ri2/(Ri2+Ro1)*A2}}.",
+          "params": {
+            "A1": [
+              10,
+              20,
+              50
+            ],
+            "Ro1": [
+              100,
+              200,
+              500
+            ],
+            "Ri2": [
+              1000,
+              2000,
+              5000
+            ],
+            "A2": [
+              10,
+              20,
+              30
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "prompt": "In the simplified model of a two-stage cascade, the input resistance $R_i$ and output resistance $R_o$ are:",
+          "options": [
+            "$R_i = R_{i1}$, $R_o = R_{o2}$",
+            "$R_i = R_{i2}$, $R_o = R_{o1}$",
+            "$R_i = R_{i1}+R_{i2}$, $R_o = R_{o1}+R_{o2}$",
+            "$R_i = R_{i1}\\parallel R_{i2}$, $R_o = R_{o1}\\parallel R_{o2}$"
+          ],
+          "answer": 0,
+          "explanation": "The source only sees the input of the first stage, so $R_i = R_{i1}$. The load only sees the output of the last stage, so $R_o = R_{o2}$. The inner resistances $R_{o1}$ and $R_{i2}$ only affect the overall gain $A_{voc}$."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "prompt": "An amplifier produces $A_{voc}V_i$ = {{Avoc*Vi|V}} rms internally ($A_{voc}$ = {{Avoc}}, $V_i$ = {{Vi|V}}) and has $R_o$ = {{Ro|Ω}}. You may choose $R_L$ freely. What is the largest average power that can be delivered to the load?",
+          "answer": "(Avoc*Vi)^2/(4*Ro)",
+          "unit": "W",
+          "explanation": "The output side is a Thévenin source $A_{voc}V_i$ with $R_t = R_o$, so maximum power transfer occurs for $R_L = R_o$ = {{Ro|Ω}}. Then $V_o = A_{voc}V_i/2$ = {{Avoc*Vi/2|V}} and $P_{o,max} = \\frac{(A_{voc}V_i)^2}{4R_o}$ = {{Avoc*Vi|V}}²/(4 × {{Ro|Ω}}) = {{(Avoc*Vi)^2/(4*Ro)|W}}.",
+          "params": {
+            "Avoc": [
+              50,
+              100
+            ],
+            "Vi": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "Ro": [
+              4,
+              8,
+              16
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "prompt": "A sensor ($V_s$ = {{Vs|V}}, $R_s$ = {{Rs|Ω}}) feeds an amplifier with $R_i$ = {{Ri|Ω}} and $R_o$ = {{Ro|Ω}} that drives $R_L$ = {{RL|Ω}}. What open-circuit gain $A_{voc}$ is needed to get $V_o$ = {{Vo|V}}?",
+          "answer": "Vo/(Vs*Ri/(Rs+Ri)*RL/(Ro+RL))",
+          "unit": "",
+          "explanation": "Write the overall gain with both dividers: $V_o = V_s\\frac{R_i}{R_s+R_i}A_{voc}\\frac{R_L}{R_o+R_L}$.\nInput factor: {{Ri/(Rs+Ri)||4}}; output factor: {{RL/(Ro+RL)||4}}.\n$A_{voc} = \\frac{V_o/V_s}{(\\text{input factor})(\\text{output factor})}$ = {{Vo/Vs}}/({{Ri/(Rs+Ri)*RL/(Ro+RL)||4}}) = {{Vo/(Vs*Ri/(Rs+Ri)*RL/(Ro+RL))}}.",
+          "params": {
+            "Vs": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "Vo": [
+              1,
+              2,
+              5
+            ],
+            "Rs": [
+              1000,
+              5000,
+              10000
+            ],
+            "Ri": [
+              20000,
+              50000,
+              100000
+            ],
+            "Ro": [
+              50,
+              100
+            ],
+            "RL": [
+              1000,
+              2000
+            ]
+          }
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "prompt": "A microphone preamp has a voltage gain of {{g1|dB}} and is followed by a stage with {{g2|dB}} (both include loading). What is the overall voltage gain magnitude as a plain ratio $|v_o/v_i|$?",
+          "answer": "10^((g1+g2)/20)",
+          "unit": "",
+          "explanation": "dB gains add: {{g1}} + {{g2}} = {{g1+g2|dB}}.\nConvert back with $|A_v| = 10^{A_{dB}/20}$ = 10^({{g1+g2}}/20) = {{10^((g1+g2)/20)}}.",
+          "params": {
+            "g1": [
+              20,
+              26,
+              30,
+              40
+            ],
+            "g2": [
+              6,
+              12,
+              20,
+              34
+            ]
+          }
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "prompt": "An audio amplifier delivers $V_o$ = {{Vo|V}} rms to an $R_L$ = {{RL|Ω}} speaker. It runs from ±{{V|V}} supplies, each delivering an average current of {{I|A}}. Find the efficiency $\\eta$.",
+          "answer": "(Vo^2/RL)/(2*V*I)*100",
+          "unit": "%",
+          "explanation": "Output power: $P_o = V_o^2/R_L$ = {{Vo}}²/{{RL}} = {{Vo^2/RL|W}}.\nSupply power: $P_s = 2VI$ = 2 × {{V}} × {{I}} = {{2*V*I|W}}.\n$\\eta = P_o/P_s \\times 100\\%$ = {{(Vo^2/RL)/(2*V*I)*100|%}}. The rest, {{2*V*I-Vo^2/RL|W}}, heats the amplifier.",
+          "params": {
+            "Vo": [
+              4,
+              6,
+              8
+            ],
+            "RL": [
+              8,
+              16
+            ],
+            "V": [
+              15,
+              20
+            ],
+            "I": [
+              0.5,
+              0.8,
+              1
+            ]
+          }
+        }
+      ],
+      "id": "oa-amplifiers-3"
+    }
+  ]
+}

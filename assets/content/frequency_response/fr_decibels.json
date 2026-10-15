@@ -1,0 +1,592 @@
+{
+  "id": "fr-decibels",
+  "title": "Decibels & Bode Plots",
+  "description": "Express gains in dB, use logarithmic frequency scales and sketch straight-line Bode plots.",
+  "reference": "Hambley §6.3–6.4",
+  "study": [
+    {
+      "title": "Decibels",
+      "body": "A transfer-function magnitude (a voltage ratio) is converted to decibels with 20 log; power ratios use 10 log. Magnitudes above 1 give positive dB, below 1 negative dB, and $|H| = 1$ is 0 dB. Going back: $|H| = 10^{|H|_{dB}/20}$.\nUseful values: 10 → 20 dB, 2 → 6 dB, $\\sqrt 2$ → 3 dB, $1/\\sqrt 2$ → −3 dB, 0.1 → −20 dB, 0.01 → −40 dB.",
+      "formula": "|H(f)|_{dB} = 20\\log_{10}|H(f)|"
+    },
+    {
+      "title": "Cascade connection",
+      "body": "When the output of one two-port drives the input of the next, the overall transfer function is the product of the stage transfer functions, so in decibels the stage gains simply **add**. Pitfall: each $H_i$ must be found with the following stage attached, because loading changes it.",
+      "formula": "H = H_1 H_2 \\;\\Rightarrow\\; |H|_{dB} = |H_1|_{dB} + |H_2|_{dB}"
+    },
+    {
+      "title": "Logarithmic frequency scales",
+      "body": "On a log axis equal distances mean equal frequency **ratios**. A **decade** is a factor 10 (e.g. 30 Hz to 300 Hz), an **octave** a factor 2 (e.g. 1 kHz to 2 kHz). The point halfway between $f_1$ and $f_2$ on a log axis is the geometric mean $\\sqrt{f_1 f_2}$, not the arithmetic mean.",
+      "formula": "\\text{decades} = \\log_{10}\\frac{f_2}{f_1},\\qquad \\text{octaves} = \\frac{\\log_{10}(f_2/f_1)}{\\log_{10}2}"
+    },
+    {
+      "title": "Bode magnitude plot",
+      "body": "A Bode plot shows $|H|_{dB}$ versus log frequency. For the first-order lowpass $H = 1/(1 + jf/f_B)$ the curve follows two asymptotes: **0 dB** for $f \\ll f_B$ and a line falling **−20 dB/decade** (−6 dB/octave) for $f \\gg f_B$. They meet at the corner (break) frequency $f_B$, where the true curve is 3 dB below them.",
+      "formula": "|H|_{dB} \\approx -20\\log_{10}\\frac{f}{f_B}\\quad (f \\gg f_B)",
+      "plot": {
+        "x": {
+          "min": 10,
+          "max": 100000,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": -45,
+          "max": 5,
+          "label": "|H| (dB)"
+        },
+        "curves": [
+          {
+            "f": "-10*log10(1+(x/1000)^2)"
+          },
+          {
+            "f": "0",
+            "to": 1000,
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "-20*log10(x/1000)",
+            "from": 1000,
+            "color": "grey",
+            "dash": true
+          }
+        ],
+        "vlines": [
+          {
+            "x": 1000,
+            "label": "f_B"
+          }
+        ],
+        "points": [
+          {
+            "x": 1000,
+            "y": -3,
+            "guides": false
+          }
+        ]
+      }
+    },
+    {
+      "title": "Bode phase plot",
+      "body": "Straight-line approximation of the lowpass phase $-\\arctan(f/f_B)$: 0° below $f_B/10$, a line dropping 45° per decade from $f_B/10$ to $10f_B$ (−45° at $f_B$), and −90° above $10f_B$. The error is less than about 6°. A first-order **highpass** is the mirror image: magnitude rises +20 dB/decade below $f_B$ and is 0 dB above; phase goes from +90° to 0° (+45° at $f_B$).",
+      "formula": "\\angle H \\approx -45^\\circ\\left(1 + \\log_{10}\\frac{f}{f_B}\\right),\\quad \\frac{f_B}{10} \\le f \\le 10f_B",
+      "plot": {
+        "x": {
+          "min": 10,
+          "max": 100000,
+          "label": "f",
+          "unit": "Hz",
+          "log": true
+        },
+        "y": {
+          "min": -100,
+          "max": 10,
+          "label": "phase of H (°)",
+          "ticks": [-90, -45, 0]
+        },
+        "curves": [
+          {
+            "f": "-deg(atan(x/1000))"
+          },
+          {
+            "f": "0",
+            "to": 100,
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "-45*(1+log10(x/1000))",
+            "from": 100,
+            "to": 10000,
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "-90",
+            "from": 10000,
+            "color": "grey",
+            "dash": true
+          }
+        ],
+        "vlines": [
+          {
+            "x": 1000,
+            "label": "f_B"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Using the slope for design",
+      "body": "Because a first-order filter falls 20 dB per decade, an attenuation of $A$ dB needs the break frequency $A/20$ decades away from the unwanted component.\n**Example:** to weaken a 50 kHz component by 40 dB with a lowpass, put $f_B$ two decades lower: 500 Hz. This also affects wanted signals nearby — sharper filters need higher order.",
+      "formula": "f_B = \\frac{f}{10^{A/20}}\\quad\\text{(lowpass)}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "fr-decibels-1",
+      "title": "Decibels and log scales",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Decibels",
+          "body": "Filter magnitudes can range from 100 down to 0.0001, so we express them in decibels. Magnitudes above 1 give positive dB, below 1 negative dB, and $|H| = 1$ is 0 dB. (Power ratios use 10 log instead of 20 log.)",
+          "formula": "|H(f)|_{dB} = 20\\log_{10}|H(f)|"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"H": [2, 5, 20, 50, 0.2, 0.05, 300, 0.004]},
+          "prompt": "Express a transfer-function magnitude $|H| = {{H}}$ in decibels.",
+          "answer": "20*log10(H)",
+          "unit": "dB",
+          "absTolerance": 0.1,
+          "explanation": "$|H|_{dB} = 20\\log_{10}|H|$ = 20 × log10({{H}}) = 20 × ({{log10(H)}}) = {{20*log10(H)|dB}}."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {"D": [-60, -40, -20, 20, 40]},
+          "prompt": "A filter's magnitude is {{D|dB}} at some frequency. What is $|H|$?",
+          "options": ["{{10^(D/20)}}", "{{10^(D/10)}}", "{{D/20}}"],
+          "answer": 0,
+          "explanation": "Invert the definition: $|H| = 10^{|H|_{dB}/20}$ = 10^({{D}}/20) = 10^({{D/20}}) = {{10^(D/20)}}. Dividing by 10 instead of 20 is the power-ratio formula, which does not apply to voltage ratios."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Cascades add in dB",
+          "body": "When stage 1 drives stage 2, the overall transfer function is the product $H = H_1H_2$. The log of a product is a sum of logs, so the dB values simply **add**. Caution: find $H_1$ with stage 2 connected, since loading changes it.",
+          "formula": "|H|_{dB} = |H_1|_{dB} + |H_2|_{dB}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"a": [0.5, 5, 10, 20, 50], "G2": [-30, -20, -12, -6, 6]},
+          "prompt": "Two stages are cascaded. Stage 1 has $|H_1| = {{a}}$ (with stage 2 connected) and stage 2 has $|H_2|_{dB}$ = {{G2|dB}}. Find $|H|_{dB}$ of the cascade.",
+          "answer": "20*log10(a)+G2",
+          "unit": "dB",
+          "absTolerance": 0.1,
+          "explanation": "First convert stage 1: 20 log10({{a}}) = {{20*log10(a)|dB}}. In dB the stages add: {{20*log10(a)|dB}} + ({{G2|dB}}) = {{20*log10(a)+G2|dB}}."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Logarithmic frequency scales",
+          "body": "On a log frequency axis, equal distances mean equal **ratios**. A **decade** is a factor of 10 in frequency; an **octave** is a factor of 2. Log scales let you see 10 Hz–20 Hz and 10 MHz–20 MHz on one plot.",
+          "formula": "\\text{decades} = \\log_{10}\\frac{f_2}{f_1},\\qquad \\text{octaves} = \\frac{\\log_{10}(f_2/f_1)}{\\log_{10}2}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"f1": [20, 50, 100, 300], "f2": [5000, 15000, 20000, 1000000]},
+          "prompt": "How many decades lie between {{f1|Hz}} and {{f2|Hz}}?",
+          "answer": "log10(f2/f1)",
+          "unit": "",
+          "explanation": "Number of decades = log10($f_2/f_1$) = log10({{f2/f1}}) = {{log10(f2/f1)}}."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each magnitude to its value in decibels.",
+          "pairs": [["$|H| = 10$", "20 dB"], ["$|H| = 0.1$", "−20 dB"], ["$|H| = 2$", "6 dB"], ["$|H| = 1/\\sqrt{2}$", "−3 dB"], ["$|H| = 1$", "0 dB"]],
+          "explanation": "20 log10(10) = 20, 20 log10(0.1) = −20, 20 log10(2) = 6.02, 20 log10(0.707) = −3.01 and 20 log10(1) = 0. Each factor of 10 is 20 dB, each factor of 2 about 6 dB."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {"f": [50, 100, 250, 1000], "n": [3, 4]},
+          "prompt": "Which frequency is {{n}} octaves above {{f|Hz}}?",
+          "options": ["{{f*2^n|Hz}}", "{{f*10^n|Hz}}", "{{f*2*n|Hz}}"],
+          "answer": 0,
+          "explanation": "Each octave doubles the frequency: {{f|Hz}} × 2^{{n}} = {{f|Hz}} × {{2^n}} = {{f*2^n|Hz}}. Multiplying by 10^{{n}} would be {{n}} decades; multiplying by 2 × {{n}} adds instead of compounding."
+        }
+      ]
+    },
+    {
+      "id": "fr-decibels-2",
+      "title": "Straight-line Bode plots",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Bode magnitude plot",
+          "body": "A Bode plot shows $|H|_{dB}$ on a log frequency axis. For the first-order lowpass $H = 1/(1 + jf/f_B)$ the curve follows two straight asymptotes: **0 dB** for $f \\ll f_B$ and a line falling **−20 dB/decade** for $f \\gg f_B$. They meet at the corner (break) frequency $f_B$.",
+          "formula": "|H|_{dB} \\approx -20\\log_{10}\\frac{f}{f_B}\\quad (f \\gg f_B)"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"fB": [50, 100, 1000, 2000], "k": [10, 30, 100, 1000]},
+          "derived": {"f": "k*fB"},
+          "prompt": "A first-order lowpass has $f_B$ = {{fB|Hz}}. Using the straight-line asymptote, estimate $|H|_{dB}$ at {{f|Hz}}.",
+          "answer": "-20*log10(k)",
+          "unit": "dB",
+          "absTolerance": 0.1,
+          "explanation": "{{f|Hz}} is {{k}}·$f_B$, i.e. log10({{k}}) = {{log10(k)}} decades above $f_B$. At −20 dB/decade: −20 × {{log10(k)}} = {{-20*log10(k)|dB}}."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Well above $f_B$, the magnitude of a first-order lowpass falls at a rate of …",
+          "options": ["−20 dB/decade (≈ −6 dB/octave)", "−6 dB/decade", "−3 dB/decade", "−40 dB/decade"],
+          "answer": 0,
+          "explanation": "For $f \\gg f_B$, $|H| \\approx f_B/f$. A factor 10 in frequency divides $|H|$ by 10, which is −20 dB; a factor 2 divides it by 2, about −6 dB. So −20 dB/decade = −6 dB/octave. (−40 dB/decade belongs to second-order filters.)"
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Corner error and phase",
+          "body": "The true curve is 3 dB below the asymptotes' corner at $f_B$ (and about 1 dB below at $f_B/2$ and $2f_B$). The phase $-\\arctan(f/f_B)$ is approximated by: 0° below $f_B/10$, a line falling 45° per decade from $f_B/10$ to $10f_B$ (−45° at $f_B$), and −90° above $10f_B$.",
+          "formula": "\\angle H \\approx -45^\\circ\\left(1 + \\log_{10}\\frac{f}{f_B}\\right),\\quad \\frac{f_B}{10} \\le f \\le 10f_B"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"fB": [200, 1000, 5000], "m": [0.2, 0.5, 2, 5]},
+          "derived": {"f": "m*fB"},
+          "prompt": "A first-order lowpass has $f_B$ = {{fB|Hz}}. Use the **straight-line** phase approximation to estimate $\\angle H$ at {{f|Hz}}, in degrees.",
+          "answer": "-45*(1+log10(m))",
+          "unit": "°",
+          "absTolerance": 1,
+          "explanation": "$f/f_B$ = {{m}}, so log10({{m}}) = {{log10(m)}} decades from $f_B$. The line passes −45° at $f_B$ with −45° per decade: $\\angle H \\approx$ −45° × (1 + {{log10(m)}}) = {{-45*(1+log10(m))}}°. (Exact: −arctan({{m}}) = {{-deg(atan(m))}}°.)"
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "The straight-line magnitude plot of a first-order lowpass is in error most at the break frequency, where the actual curve is 3 dB below the asymptotes.",
+          "answer": true,
+          "explanation": "At $f = f_B$: $|H| = 1/\\sqrt 2$, i.e. −3.01 dB, while both asymptotes give 0 dB. Moving away from $f_B$ the true curve approaches the asymptotes (≈ 1 dB error at $f_B/2$ and $2f_B$)."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each feature of a first-order **lowpass** Bode plot to its value.",
+          "pairs": [["Magnitude for $f \\ll f_B$", "0 dB"], ["Magnitude at $f_B$", "−3 dB"], ["Phase at $f_B$", "−45°"], ["Phase for $f \\gg f_B$", "−90°"], ["Slope for $f \\gg f_B$", "−20 dB/decade"]],
+          "explanation": "$H = 1/(1 + jf/f_B)$: at low $f$, $H \\approx 1$ (0 dB, 0°); at $f_B$, $H = 1/(1+j)$ = 0.707∠−45° (−3 dB); at high $f$, $H \\approx -jf_B/f$, falling 20 dB/decade with phase −90°."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Highpass: the mirror image",
+          "body": "The first-order highpass $H = \\frac{jf/f_B}{1 + jf/f_B}$ has the mirrored Bode plot: a low-frequency asymptote **rising +20 dB/decade** up to $f_B$, then 0 dB. Its phase goes from +90° (low $f$) through +45° at $f_B$ to 0°.",
+          "formula": "|H|_{dB} \\approx 20\\log_{10}\\frac{f}{f_B}\\quad (f \\ll f_B)"
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {"fB": [1000, 2000, 5000], "n": [1, 2]},
+          "derived": {"f": "fB/10^n"},
+          "prompt": "A first-order highpass has $f_B$ = {{fB|Hz}}. According to its asymptotes, what is $|H|_{dB}$ at {{f|Hz}}?",
+          "options": ["{{-20*n|dB}}", "{{20*n|dB}}", "−3 dB", "0 dB"],
+          "answer": 0,
+          "explanation": "{{f|Hz}} is {{n}} decade(s) **below** $f_B$. Below $f_B$ the highpass asymptote rises at +20 dB/decade toward 0 dB at $f_B$, so going down {{n}} decade(s) gives {{-20*n|dB}}. (0 dB would be the passband; −3 dB applies only at $f_B$.)"
+        }
+      ]
+    },
+    {
+      "id": "fr-decibels-3",
+      "title": "dB and Bode calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "p1",
+          "type": "numeric",
+          "params": {"D": [-35, -12, -8, 15, 26, 46]},
+          "prompt": "A transfer-function magnitude is {{D|dB}}. Find $|H|$ as a plain ratio.",
+          "answer": "10^(D/20)",
+          "unit": "",
+          "explanation": "$|H| = 10^{|H|_{dB}/20}$ = 10^({{D}}/20) = 10^({{D/20}}) = {{10^(D/20)}}."
+        },
+        {
+          "id": "p2",
+          "type": "numeric",
+          "params": {"fB": [500, 1000, 3000], "f": [250, 1000, 2000, 8000, 30000]},
+          "prompt": "A first-order lowpass has $f_B$ = {{fB|Hz}}. Find the **exact** $|H|_{dB}$ at {{f|Hz}}.",
+          "answer": "-10*log10(1+(f/fB)^2)",
+          "unit": "dB",
+          "absTolerance": 0.1,
+          "explanation": "$|H| = 1/\\sqrt{1 + (f/f_B)^2}$, so $|H|_{dB} = -10\\log_{10}[1 + (f/f_B)^2]$. With $f/f_B$ = {{f/fB}}: −10 log10(1 + {{(f/fB)^2}}) = {{-10*log10(1+(f/fB)^2)|dB}}."
+        },
+        {
+          "id": "p3",
+          "type": "numeric",
+          "params": {"f1": [20, 100, 440, 1000], "f2": [8000, 16000, 20000]},
+          "prompt": "How many octaves lie between {{f1|Hz}} and {{f2|Hz}}?",
+          "answer": "log10(f2/f1)/log10(2)",
+          "unit": "",
+          "explanation": "Octaves = log2($f_2/f_1$) = log10({{f2/f1}})/log10(2) = {{log10(f2/f1)}}/0.301 = {{log10(f2/f1)/log10(2)}}."
+        },
+        {
+          "id": "p4",
+          "type": "numeric",
+          "params": {"f1": [10, 20, 50, 100], "f2": [1000, 5000, 10000, 20000]},
+          "prompt": "Which frequency lies exactly halfway between {{f1|Hz}} and {{f2|Hz}} on a **logarithmic** frequency axis?",
+          "answer": "sqrt(f1*f2)",
+          "unit": "Hz",
+          "explanation": "Halfway on a log axis means equal ratios on both sides: $f_m/f_1 = f_2/f_m$, so $f_m = \\sqrt{f_1 f_2}$ = √({{f1}} × {{f2}}) = {{sqrt(f1*f2)|Hz}}. (The linear midpoint {{(f1+f2)/2|Hz}} is not halfway on a log plot.)"
+        },
+        {
+          "id": "p5",
+          "type": "numeric",
+          "params": {"f": [1000, 5000, 20000, 60000], "A": [20, 30, 40, 50]},
+          "prompt": "A first-order lowpass must reduce a {{f|Hz}} noise component by {{A}} dB. Using the −20 dB/decade asymptote, what break frequency $f_B$ is needed?",
+          "answer": "f/10^(A/20)",
+          "unit": "Hz",
+          "explanation": "{{A}} dB at 20 dB/decade is {{A/20}} decades, so $f_B$ must be a factor 10^{{A/20}} = {{10^(A/20)}} below the noise: $f_B$ = {{f|Hz}}/{{10^(A/20)}} = {{f/10^(A/20)|Hz}}."
+        },
+        {
+          "id": "p6",
+          "type": "numeric",
+          "params": {"fB": [500, 1000, 2000], "f": [1000, 2000, 5000, 10000], "n": [2, 3]},
+          "prompt": "{{n}} identical first-order lowpass stages, each with $f_B$ = {{fB|Hz}}, are cascaded with buffers between them so they do not load each other. Find the overall $|H|_{dB}$ at {{f|Hz}}.",
+          "answer": "-10*n*log10(1+(f/fB)^2)",
+          "unit": "dB",
+          "absTolerance": 0.1,
+          "explanation": "One stage: $-10\\log_{10}[1 + (f/f_B)^2]$ = −10 log10(1 + {{(f/fB)^2}}) = {{-10*log10(1+(f/fB)^2)|dB}}. Cascaded stages add in dB: {{n}} × ({{-10*log10(1+(f/fB)^2)|dB}}) = {{-10*n*log10(1+(f/fB)^2)|dB}}."
+        },
+        {
+          "id": "p7",
+          "type": "multipleChoice",
+          "prompt": "Measured on its own, stage 1 has −6 dB and stage 2 has −10 dB at some frequency. Connected directly (no buffer), the cascade measures −19 dB. What is the best explanation?",
+          "options": [
+            "Stage 2 loads stage 1, so $H_1$ with stage 2 attached is not the stand-alone value",
+            "dB values of cascaded stages multiply instead of add",
+            "Decibels can only be added for power gains, not voltage gains",
+            "The measurement must be wrong; the cascade is always −16 dB"
+          ],
+          "answer": 0,
+          "explanation": "$|H|_{dB} = |H_1|_{dB} + |H_2|_{dB}$ is always true, but $H_1$ must be evaluated **with stage 2 connected**. The input impedance of stage 2 loads stage 1 and here lowers its gain by an extra 3 dB. A buffer (e.g. a voltage follower) between the stages avoids this."
+        },
+        {
+          "id": "p8",
+          "type": "numeric",
+          "params": {"Vi": [0.01, 0.05, 0.2], "Vo": [1, 2, 5, 10]},
+          "prompt": "A sinusoid with amplitude {{Vi|V}} at the input of an amplifier gives an output amplitude of {{Vo|V}}. What is the voltage gain in dB?",
+          "answer": "20*log10(Vo/Vi)",
+          "unit": "dB",
+          "explanation": "$|H| = V_{out}/V_{in}$ = {{Vo|V}}/{{Vi|V}} = {{Vo/Vi}}. In dB: 20 log10({{Vo/Vi}}) = {{20*log10(Vo/Vi)|dB}}."
+        }
+      ]
+    },
+    {
+      "id": "fr-decibels-4",
+      "title": "Reading Bode plots",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "g1",
+          "type": "numeric",
+          "params": {"fB": [200, 500, 1000, 2000, 5000, 20000], "K": [0, 10, 20]},
+          "derived": {"lo": "10^(floor(log10(fB))-1)"},
+          "prompt": "The graph is the Bode magnitude plot of a first-order lowpass filter. Read its break frequency $f_B$.",
+          "hint": "At $f_B$ the magnitude is 3 dB below its low-frequency level.",
+          "plot": {
+            "x": {
+              "min": "lo",
+              "max": "lo*10000",
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": "K-70",
+              "max": "K+10",
+              "label": "|H| (dB)"
+            },
+            "curves": [
+              {
+                "f": "K-10*log10(1+(x/fB)^2)"
+              }
+            ]
+          },
+          "answer": "fB",
+          "unit": "Hz",
+          "tolerance": 0.1,
+          "explanation": "The low-frequency (passband) level is {{K}} dB. At the break frequency the magnitude is 3 dB lower, {{K-3}} dB ($|H|$ down by a factor $1/\\sqrt2$). The curve passes {{K-3}} dB at $f_B$ = {{fB|Hz}}. Check: one decade higher, at {{10*fB|Hz}}, it is about 20 dB below the passband ({{K-20}} dB)."
+        },
+        {
+          "id": "g2",
+          "type": "multipleChoice",
+          "params": {"n": [1, 2, 3], "fB": [100, 1000]},
+          "prompt": "The graph shows the Bode magnitude plot of a lowpass filter. How steeply does it fall well above the corner frequency?",
+          "plot": {
+            "x": {
+              "min": "fB/10",
+              "max": "fB*1000",
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": "-60*n-10",
+              "max": 10,
+              "label": "|H| (dB)"
+            },
+            "curves": [
+              {
+                "f": "-10*n*log10(1+(x/fB)^2)"
+              }
+            ]
+          },
+          "options": ["−20 dB/decade (first order)", "−40 dB/decade (second order)", "−60 dB/decade (third order)"],
+          "answer": "n-1",
+          "explanation": "Measure the drop over one decade well above the corner: from {{10*fB|Hz}} to {{100*fB|Hz}} the curve falls from about {{-20*n}} dB to {{-40*n}} dB, i.e. {{20*n}} dB per decade. Each first-order stage contributes −20 dB/decade, so this filter is of order {{n}}."
+        },
+        {
+          "id": "g3",
+          "type": "numeric",
+          "params": {"fB": [1000, 2000, 5000, 10000], "m": [0.1, 0.01], "A": [1, 2, 5, 10]},
+          "derived": {"f": "m*fB", "H": "m/sqrt(1+m^2)"},
+          "prompt": "The graph is the Bode magnitude plot of a filter. The input is a sinusoid with amplitude {{A|V}} at the marked frequency $f_{in}$ = {{f|Hz}}. Find the amplitude of the output.",
+          "plot": {
+            "x": {
+              "min": "fB/1000",
+              "max": "fB*100",
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": -70,
+              "max": 10,
+              "label": "|H| (dB)"
+            },
+            "curves": [
+              {
+                "f": "20*log10(x/fB)-10*log10(1+(x/fB)^2)"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "f",
+                "label": "f_{in}"
+              }
+            ]
+          },
+          "answer": "A*H",
+          "unit": "V",
+          "tolerance": 0.1,
+          "explanation": "At $f_{in}$ the curve reads {{20*log10(H)}} dB. Convert to a ratio: $|H| = 10^{|H|_{dB}/20}$ = {{H}}. The output amplitude is $|H|\\cdot V_{in}$ = {{H}} × {{A|V}} = {{A*H|V}}. (This is a highpass: below its corner it rises at +20 dB/decade, so a component {{-log10(m)}} decade(s) below the corner is attenuated by about {{-20*log10(m)}} dB.)"
+        },
+        {
+          "id": "g4",
+          "type": "numeric",
+          "params": {"fB": [200, 500, 1000, 2000, 5000]},
+          "derived": {"lo": "10^(floor(log10(fB))-1)"},
+          "prompt": "The graph is the Bode **phase** plot of a first-order lowpass filter. Read its break frequency $f_B$.",
+          "plot": {
+            "x": {
+              "min": "lo",
+              "max": "lo*10000",
+              "label": "f",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": -100,
+              "max": 10,
+              "label": "phase of H (°)",
+              "ticks": [-90, -45, 0]
+            },
+            "curves": [
+              {
+                "f": "-deg(atan(x/fB))"
+              }
+            ]
+          },
+          "answer": "fB",
+          "unit": "Hz",
+          "tolerance": 0.1,
+          "explanation": "For a first-order lowpass $\\angle H = -\\arctan(f/f_B)$: 0° far below $f_B$, −90° far above, and exactly −45° at $f = f_B$. The curve crosses −45° at $f_B$ = {{fB|Hz}}."
+        },
+        {
+          "id": "g5",
+          "type": "multipleChoice",
+          "prompt": "Which graph is the **phase** $\\angle H$ of a first-order **highpass** filter? (Log frequency axis; the horizontal axis is 0°, the top and bottom edges are ±100°.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 1,
+                "max": 10000,
+                "label": "",
+                "log": true
+              },
+              "y": {
+                "min": -100,
+                "max": 100,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "90-deg(atan(x/100))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 1,
+                "max": 10000,
+                "label": "",
+                "log": true
+              },
+              "y": {
+                "min": -100,
+                "max": 100,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "-deg(atan(x/100))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 1,
+                "max": 10000,
+                "label": "",
+                "log": true
+              },
+              "y": {
+                "min": -100,
+                "max": 100,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "deg(atan(x/100))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 1,
+                "max": 10000,
+                "label": "",
+                "log": true
+              },
+              "y": {
+                "min": -100,
+                "max": 100,
+                "label": ""
+              },
+              "curves": [
+                {
+                  "f": "-90+deg(atan(x/100))"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "$H = \\frac{jf/f_B}{1 + jf/f_B}$ has angle $90^\\circ - \\arctan(f/f_B)$: +90° far below $f_B$ (the output leads), +45° at $f_B$ and 0° far above. The curve from 0° down to −90° is the lowpass."
+        }
+      ]
+    }
+  ]
+}

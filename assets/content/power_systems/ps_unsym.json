@@ -1,0 +1,1334 @@
+{
+ "id": "ps-unsym",
+ "title": "Symmetrical Components & Unbalanced Faults",
+ "description": "The operator a, positive-, negative- and zero-sequence components, sequence networks, transformer grounding and the currents of line-to-ground, line-to-line and double line-to-ground faults.",
+ "reference": "Glover ch. 8–9",
+ "study": [
+  {
+   "title": "Symmetrical components",
+   "body": "Any set of three unbalanced phasors can be written as the sum of three **balanced** sets (Fortescue): a **positive-sequence** set (abc order, like normal operation), a **negative-sequence** set (acb order) and a **zero-sequence** set (three equal phasors in phase). The operator $a = 1\\angle120°$ rotates a phasor by 120°; note $a^2 = 1\\angle240°$ and $1 + a + a^2 = 0$.",
+   "formula": "\\begin{aligned}V_a &= V_0 + V_1 + V_2\\\\ V_b &= V_0 + a^2V_1 + aV_2\\\\ V_c &= V_0 + aV_1 + a^2V_2\\end{aligned}"
+  },
+  {
+   "title": "Finding the components",
+   "body": "Inverting the relations above gives the sequence components of phase a (those of b and c follow by rotation). The zero-sequence current is a third of the **neutral** current, $I_n = I_a + I_b + I_c = 3I_0$: without a neutral or ground path there is no zero-sequence current.",
+   "formula": "\\begin{aligned}V_0 &= \\tfrac13(V_a + V_b + V_c)\\\\ V_1 &= \\tfrac13(V_a + aV_b + a^2V_c)\\\\ V_2 &= \\tfrac13(V_a + a^2V_b + aV_c)\\end{aligned}"
+  },
+  {
+   "title": "Explore: building an unbalanced set",
+   "body": "A positive-sequence set of 1.0 pu plus an adjustable negative-sequence $V_2$ and zero-sequence $V_0$ (in phase with the real axis). With only $V_1$ the three phasors are balanced on the unit circle. A negative-sequence component makes the magnitudes unequal and the angles no longer 120° apart; a zero-sequence component shifts all three by the same phasor.",
+   "plot": {
+    "x": {
+     "min": -1.6,
+     "max": 1.6,
+     "label": "Re"
+    },
+    "y": {
+     "min": -1.6,
+     "max": 1.6,
+     "label": "Im"
+    },
+    "equal": true,
+    "height": 260,
+    "sliders": [
+     {
+      "name": "m2",
+      "label": "$|V_2|$",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.05,
+      "value": 0.2,
+      "unit": "pu"
+     },
+     {
+      "name": "p2",
+      "label": "angle of $V_2$",
+      "min": 0,
+      "max": 360,
+      "step": 15,
+      "value": 0,
+      "unit": "°"
+     },
+     {
+      "name": "m0",
+      "label": "$|V_0|$",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.05,
+      "value": 0,
+      "unit": "pu"
+     }
+    ],
+    "let": {
+     "ar": "m0 + 1 + m2*cos(rad(p2))",
+     "ai": "m2*sin(rad(p2))",
+     "br": "m0 - 0.5 + m2*cos(rad(p2 + 120))",
+     "bi": "-0.866 + m2*sin(rad(p2 + 120))",
+     "cr": "m0 - 0.5 + m2*cos(rad(p2 + 240))",
+     "ci": "0.866 + m2*sin(rad(p2 + 240))"
+    },
+    "curves": [
+     {
+      "x": "cos(t)",
+      "y": "sin(t)",
+      "t": [
+       0,
+       "2*pi"
+      ],
+      "color": "grey",
+      "dash": true
+     },
+     {
+      "x": "ar*t",
+      "y": "ai*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "red"
+     },
+     {
+      "x": "br*t",
+      "y": "bi*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "blue"
+     },
+     {
+      "x": "cr*t",
+      "y": "ci*t",
+      "t": [
+       0,
+       1
+      ],
+      "color": "green"
+     }
+    ],
+    "points": [
+     {
+      "x": "ar",
+      "y": "ai",
+      "label": "V_a",
+      "color": "red",
+      "guides": false
+     },
+     {
+      "x": "br",
+      "y": "bi",
+      "label": "V_b",
+      "color": "blue",
+      "guides": false
+     },
+     {
+      "x": "cr",
+      "y": "ci",
+      "label": "V_c",
+      "color": "green",
+      "guides": false
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$|V_a|$",
+      "value": "sqrt(ar^2+ai^2)",
+      "unit": "pu"
+     },
+     {
+      "label": "$|V_b|$",
+      "value": "sqrt(br^2+bi^2)",
+      "unit": "pu"
+     },
+     {
+      "label": "$|V_c|$",
+      "value": "sqrt(cr^2+ci^2)",
+      "unit": "pu"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Sequence networks",
+   "body": "For balanced equipment the three sequences do not interact, so each has its own per-phase network: the **positive-sequence** network is the normal one and contains the generator EMFs; the **negative-** and **zero-sequence** networks contain only impedances. Typical values:\n- generators: $Z_1 = jX''_d$, $Z_2 \\approx jX''_d$, small $Z_0$, plus $3Z_n$ for a neutral grounding impedance $Z_n$;\n- lines: $Z_2 = Z_1$, $Z_0$ typically 2–4 times $Z_1$ (the return path through ground);\n- transformers: $Z_1 = Z_2 = Z_0$ = leakage impedance, but the zero-sequence connection depends on the windings.",
+   "formula": "Z_{0,gen} = Z_{g0} + 3Z_n"
+  },
+  {
+   "title": "Transformer zero-sequence paths",
+   "body": "Zero-sequence currents are three equal in-phase currents; they need a neutral connection to flow.\n- **Yg–Yg**: passes zero-sequence current from one side to the other (series $Z_0$).\n- **Yg–Δ**: the in-phase currents circulate inside the delta, so the grounded-Y side sees a path to ground through $Z_0$, while the delta side is **open**.\n- **ungrounded Y** or **Δ–Δ**: open on both sides.\nA grounding impedance $Z_n$ in a Y neutral appears as $3Z_n$, because all three phase currents pass through it. (Y–Δ units also shift positive-sequence quantities by ±30° and negative-sequence by ∓30°.)"
+  },
+  {
+   "title": "Single line-to-ground fault",
+   "body": "Phase a to ground through $Z_F$: $I_b = I_c = 0$ forces $I_0 = I_1 = I_2$, so the three sequence networks (Thévenin impedances at the fault, $Z_1$, $Z_2$, $Z_0$) are connected **in series** with $3Z_F$. The fault current is $3I_0$. With $Z_2 = Z_1$ it exceeds the three-phase fault current when $Z_0 < Z_1$, e.g. at a solidly grounded generator.",
+   "formula": "\\begin{aligned}I_0 = I_1 = I_2 &= \\frac{V_F}{Z_0 + Z_1 + Z_2 + 3Z_F}\\\\ I_a &= 3I_0\\end{aligned}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       4
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_F",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "inductor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "Z_1"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       3,
+       0
+      ],
+      "to": [
+       5,
+       0
+      ],
+      "label": "Z_2"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       5,
+       0
+      ],
+      "to": [
+       7,
+       0
+      ],
+      "label": "Z_0"
+     },
+     {
+      "type": "resistor",
+      "from": [
+       7,
+       0
+      ],
+      "to": [
+       7,
+       4
+      ],
+      "label": "3Z_F"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        7,
+        4
+       ],
+       [
+        0,
+        4
+       ]
+      ]
+     },
+     {
+      "type": "arrow",
+      "from": [
+       0.1,
+       0
+      ],
+      "to": [
+       0.9,
+       0
+      ],
+      "label": "I_1"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Line-to-line and double line-to-ground faults",
+   "body": "**Line-to-line** (b to c through $Z_F$): no ground involved, so $I_0 = 0$; positive and negative networks in parallel-opposition: $I_1 = -I_2$, and $I_b = -I_c = -j\\sqrt3\\,I_1$. **Double line-to-ground** (b and c to ground): all three networks in **parallel** at the fault; the ground current is $3I_0$.",
+   "formula": "\\begin{aligned}\\text{LL: } I_1 &= \\frac{V_F}{Z_1 + Z_2 + Z_F}\\\\ \\text{DLG: } I_1 &= \\frac{V_F}{Z_1 + Z_2\\parallel(Z_0 + 3Z_F)}\\\\ I_0 &= -I_1\\frac{Z_2}{Z_2 + Z_0 + 3Z_F}\\end{aligned}"
+  },
+  {
+   "title": "Worked example: four fault types",
+   "body": "Bolted faults at a bus with $Z_1 = Z_2$ = j0.25 pu and $Z_0$ = j0.15 pu, $V_F$ = 1.0 pu:\n- three-phase: 1/0.25 = 4.0 pu;\n- line-to-ground: $3/(0.25 + 0.25 + 0.15)$ = 4.62 pu, more than the three-phase fault because $Z_0 < Z_1$;\n- line-to-line: $\\sqrt3/(0.25 + 0.25)$ = 3.46 pu = 0.866 × the three-phase value;\n- double line-to-ground: $I_1$ = 1/(0.25 + 0.25∥0.15) = 2.91 pu, $I_0$ = 2.91 × 0.25/0.40 = 1.82 pu, ground current $3I_0$ = 5.45 pu."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ps-unsym-1",
+   "title": "The operator a and sequence components",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Three balanced sets",
+     "body": "Any unbalanced set of three phasors is the sum of a **positive-sequence** set (abc), a **negative-sequence** set (acb) and a **zero-sequence** set (all in phase). The operator $a = 1\\angle120° = -0.5 + j0.866$ rotates by 120°:",
+     "formula": "\\begin{aligned}V_a &= V_0 + V_1 + V_2\\\\ V_b &= V_0 + a^2V_1 + aV_2\\\\ V_c &= V_0 + aV_1 + a^2V_2\\end{aligned}"
+    },
+    {
+     "id": "q1",
+     "type": "multipleChoice",
+     "prompt": "What is $a^2$?",
+     "options": [
+      "$1\\angle240° = -0.5 - j0.866$",
+      "$1\\angle120° = -0.5 + j0.866$",
+      "$-1$",
+      "$1\\angle60° = 0.5 + j0.866$"
+     ],
+     "answer": 0,
+     "explanation": "Rotating twice by 120° gives 240° (the same as −120°): $a^2 = -0.5 - j0.866$. Then $1 + a + a^2$ = 1 − 0.5 − 0.5 + j(0.866 − 0.866) = 0, the identity used throughout."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "V": [
+       120,
+       230,
+       7970,
+       66400
+      ]
+     },
+     "prompt": "A balanced positive-sequence set has $V_a$ = {{V|V}}∠0° and $V_b = a^2V_a$. Find $|V_a - V_b|$, the line-to-line voltage.",
+     "answer": "sqrt(3)*V",
+     "unit": "V",
+     "explanation": "$V_a - V_b = V_a(1 - a^2)$ with $1 - a^2$ = 1 + 0.5 + j0.866 = 1.5 + j0.866 = √3∠30°. So $|V_{ab}|$ = √3 × {{V|V}} = {{sqrt(3)*V|V}}, leading $V_a$ by 30°."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Finding the components",
+     "body": "Inverting the relations gives the sequence components. The zero-sequence current is a third of the neutral current.",
+     "formula": "\\begin{aligned}I_0 &= \\tfrac13(I_a + I_b + I_c)\\\\ I_1 &= \\tfrac13(I_a + aI_b + a^2I_c)\\\\ I_2 &= \\tfrac13(I_a + a^2I_b + aI_c)\\end{aligned}"
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "A": [
+       80,
+       100,
+       120
+      ],
+      "B": [
+       60,
+       80,
+       100
+      ],
+      "C": [
+       40,
+       60,
+       90
+      ]
+     },
+     "require": "abs(A - B) + abs(B - C)",
+     "derived": {
+      "m": "sqrt((A - B/2 - C/2)^2 + 0.75*(B - C)^2)/3"
+     },
+     "prompt": "The phase currents are $I_a$ = {{A}}∠0°, $I_b$ = {{B}}∠−120° and $I_c$ = {{C}}∠120° A: 120° apart, but with unequal magnitudes.",
+     "ask": [
+      {
+       "prompt": "Find $|I_1|$.",
+       "answer": "(A + B + C)/3",
+       "unit": "A",
+       "explanation": "$aI_b$ = {{B}}∠0° and $a^2I_c$ = {{C}}∠360° = {{C}}∠0°: all in phase with $I_a$. $I_1 = (I_a + aI_b + a^2I_c)/3$ = ({{A}} + {{B}} + {{C}})/3 = {{(A+B+C)/3|A}}."
+      },
+      {
+       "prompt": "Find $|I_0|$.",
+       "answer": "m",
+       "unit": "A",
+       "explanation": "$I_0 = (I_a + I_b + I_c)/3$. Real part: {{A}} − {{B}}/2 − {{C}}/2 = {{A - B/2 - C/2}}; imaginary: 0.866 × ({{C}} − {{B}}) = {{0.866*(C - B)}}. $|I_0|$ = {{3*m}}/3 = {{m|A}}, so a neutral current of {{3*m|A}} flows."
+      }
+     ]
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Explore: an unbalanced set",
+     "body": "A 1.0-pu positive-sequence set plus a negative-sequence component $V_2$ and a zero-sequence component $V_0$. Watch the magnitudes become unequal.",
+     "plot": {
+      "x": {
+       "min": -1.6,
+       "max": 1.6,
+       "label": "Re"
+      },
+      "y": {
+       "min": -1.6,
+       "max": 1.6,
+       "label": "Im"
+      },
+      "equal": true,
+      "height": 260,
+      "sliders": [
+       {
+        "name": "m2",
+        "label": "$|V_2|$",
+        "min": 0,
+        "max": 0.5,
+        "step": 0.05,
+        "value": 0.2,
+        "unit": "pu"
+       },
+       {
+        "name": "p2",
+        "label": "angle of $V_2$",
+        "min": 0,
+        "max": 360,
+        "step": 15,
+        "value": 0,
+        "unit": "°"
+       },
+       {
+        "name": "m0",
+        "label": "$|V_0|$",
+        "min": 0,
+        "max": 0.5,
+        "step": 0.05,
+        "value": 0,
+        "unit": "pu"
+       }
+      ],
+      "let": {
+       "ar": "m0 + 1 + m2*cos(rad(p2))",
+       "ai": "m2*sin(rad(p2))",
+       "br": "m0 - 0.5 + m2*cos(rad(p2 + 120))",
+       "bi": "-0.866 + m2*sin(rad(p2 + 120))",
+       "cr": "m0 - 0.5 + m2*cos(rad(p2 + 240))",
+       "ci": "0.866 + m2*sin(rad(p2 + 240))"
+      },
+      "curves": [
+       {
+        "x": "cos(t)",
+        "y": "sin(t)",
+        "t": [
+         0,
+         "2*pi"
+        ],
+        "color": "grey",
+        "dash": true
+       },
+       {
+        "x": "ar*t",
+        "y": "ai*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "red"
+       },
+       {
+        "x": "br*t",
+        "y": "bi*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "blue"
+       },
+       {
+        "x": "cr*t",
+        "y": "ci*t",
+        "t": [
+         0,
+         1
+        ],
+        "color": "green"
+       }
+      ],
+      "points": [
+       {
+        "x": "ar",
+        "y": "ai",
+        "label": "V_a",
+        "color": "red",
+        "guides": false
+       },
+       {
+        "x": "br",
+        "y": "bi",
+        "label": "V_b",
+        "color": "blue",
+        "guides": false
+       },
+       {
+        "x": "cr",
+        "y": "ci",
+        "label": "V_c",
+        "color": "green",
+        "guides": false
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$|V_a|$",
+        "value": "sqrt(ar^2+ai^2)",
+        "unit": "pu"
+       },
+       {
+        "label": "$|V_b|$",
+        "value": "sqrt(br^2+bi^2)",
+        "unit": "pu"
+       },
+       {
+        "label": "$|V_c|$",
+        "value": "sqrt(cr^2+ci^2)",
+        "unit": "pu"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "A balanced set in abc order has no negative- or zero-sequence components.",
+     "answer": true,
+     "explanation": "With $V_b = a^2V_a$ and $V_c = aV_a$: $V_0 = V_a(1 + a^2 + a)/3 = 0$ and $V_2$ = $V_a(1 + a^4 + a^2)/3$ = $V_a(1 + a + a^2)/3$ = $0$ (since $a^3 = 1$). Only $V_1 = V_a$ remains."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "A": [
+       100,
+       150,
+       200
+      ],
+      "B": [
+       80,
+       120,
+       160
+      ]
+     },
+     "prompt": "Phase c of a grounded-wye load is disconnected, leaving $I_a$ = {{A}}∠0° A, $I_b$ = {{B}}∠−120° A and $I_c$ = 0. Find the neutral current.",
+     "answer": "sqrt((A - B/2)^2 + 0.75*B^2)",
+     "unit": "A",
+     "explanation": "$I_n = I_a + I_b + I_c = 3I_0$. $I_b$ = {{B}}(−0.5 − j0.866) = −{{B/2}} − j{{0.866*B}}. Sum: {{A - B/2}} − j{{0.866*B}}, $|I_n|$ = {{sqrt((A - B/2)^2 + 0.75*B^2)|A}}, so $|I_0|$ = {{sqrt((A - B/2)^2 + 0.75*B^2)/3|A}}."
+    },
+    {
+     "id": "q6",
+     "type": "matchPairs",
+     "prompt": "Match each sequence to its description.",
+     "pairs": [
+      [
+       "Positive sequence",
+       "abc order, like normal operation"
+      ],
+      [
+       "Negative sequence",
+       "acb order, heats motor rotors"
+      ],
+      [
+       "Zero sequence",
+       "Three equal in-phase phasors"
+      ],
+      [
+       "Neutral current",
+       "$3I_0$"
+      ]
+     ],
+     "explanation": "Positive sequence is the normal balanced set; negative sequence rotates the other way and induces double-frequency currents in machine rotors; zero sequence is in phase in all three phases and returns through the neutral or ground as $3I_0$."
+    }
+   ]
+  },
+  {
+   "id": "ps-unsym-2",
+   "title": "Sequence networks and faults",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Sequence networks",
+     "body": "Balanced equipment does not mix sequences, so each sequence has its own per-phase network. Only the **positive** network contains the generator EMFs. A neutral grounding impedance $Z_n$ carries $3I_0$, so it appears as $3Z_n$ in the zero-sequence network."
+    },
+    {
+     "id": "q1",
+     "type": "multipleChoice",
+     "prompt": "A generator's neutral is grounded through a reactance $X_n$. How does it appear in the generator's sequence networks?",
+     "options": [
+      "As $3X_n$ in the zero-sequence network only",
+      "As $X_n$ in all three networks",
+      "As $3X_n$ in the positive-sequence network",
+      "As $X_n/3$ in the zero-sequence network"
+     ],
+     "answer": 0,
+     "explanation": "Positive- and negative-sequence currents sum to zero in the neutral, so $X_n$ carries no current for them. The three zero-sequence currents all flow through it: the voltage $3I_0X_n$ per phase means an impedance of $3X_n$ in the zero-sequence network."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Xg0": [
+       0.05,
+       0.06,
+       0.08
+      ],
+      "Xn": [
+       0.5,
+       1.0,
+       1.5,
+       2.0
+      ]
+     },
+     "prompt": "A 100-MVA, 13.8-kV generator has $X_{g0}$ = {{Xg0}} pu and its neutral is grounded through {{Xn}} Ω. Find its total zero-sequence reactance in per unit (100-MVA, 13.8-kV base).",
+     "answer": "Xg0 + 3*Xn/(13.8^2/100)",
+     "unit": "pu",
+     "explanation": "$Z_{base}$ = 13.8²/100 = 1.904 Ω, so $X_n$ = {{Xn}}/1.904 = {{Xn/(13.8^2/100)}} pu. $X_0 = X_{g0} + 3X_n$ = {{Xg0}} + 3 × {{Xn/(13.8^2/100)}} = {{Xg0 + 3*Xn/(13.8^2/100)|pu}}."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Transformer zero-sequence paths",
+     "body": "- **Yg–Yg**: zero-sequence current passes through (series $Z_0$).\n- **Yg–Δ**: path to ground on the Y side (the currents circulate in the delta); the Δ side is open.\n- **Δ–Δ** or ungrounded Y: open, no zero-sequence current in the lines.\nPositive- and negative-sequence currents pass through all of them."
+    },
+    {
+     "id": "q3",
+     "type": "matchPairs",
+     "prompt": "Match each transformer connection to its zero-sequence behaviour seen from the lines.",
+     "pairs": [
+      [
+       "Yg–Yg",
+       "Passes $I_0$ through to the other side"
+      ],
+      [
+       "Yg–Δ",
+       "Ground path on the Y side only"
+      ],
+      [
+       "Δ–Δ",
+       "No zero-sequence path on either side"
+      ]
+     ],
+     "explanation": "A delta winding lets in-phase currents circulate inside it but offers no neutral to the lines. A grounded wye provides a neutral; it can pass $I_0$ to the other side only if that side also has a grounded neutral."
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "During a ground fault on the grounded-Y side of a Yg–Δ transformer, zero-sequence current flows in its Y windings although none flows in the lines on the Δ side.",
+     "answer": true,
+     "explanation": "The zero-sequence currents in the Y windings induce in-phase currents in the three delta windings, which simply circulate around the delta. The line currents on the delta side are differences of winding currents, so their zero-sequence part cancels."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Single line-to-ground fault",
+     "body": "For phase a to ground through $Z_F$, $I_b = I_c = 0$ gives $I_0 = I_1 = I_2$: the three sequence networks (Thévenin impedances $Z_1$, $Z_2$, $Z_0$ at the fault) are in **series**.",
+     "formula": "\\begin{aligned}I_0 = I_1 = I_2 &= \\frac{V_F}{Z_0 + Z_1 + Z_2 + 3Z_F}\\\\ I_a &= 3I_0\\end{aligned}",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         4
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_F",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "Z_1"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "Z_2"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         7,
+         0
+        ],
+        "label": "Z_0"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         7,
+         0
+        ],
+        "to": [
+         7,
+         4
+        ],
+        "label": "3Z_F"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          7,
+          4
+         ],
+         [
+          0,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.1,
+         0
+        ],
+        "to": [
+         0.9,
+         0
+        ],
+        "label": "I_1"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X2": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X0": [
+       0.05,
+       0.1,
+       0.3,
+       0.5
+      ]
+     },
+     "prompt": "At a bus, $Z_1$ = j{{X1}}, $Z_2$ = j{{X2}} and $Z_0$ = j{{X0}} pu. Find the current of a bolted single line-to-ground fault ($V_F$ = 1.0 pu).",
+     "answer": "3/(X1 + X2 + X0)",
+     "unit": "pu",
+     "explanation": "$I_0$ = $1/[j({{X1}} + {{X2}} + {{X0}})]$ = −j{{1/(X1+X2+X0)}} pu, and $I_a = 3I_0$, magnitude {{3/(X1 + X2 + X0)|pu}}. A three-phase fault would give 1/{{X1}} = {{1/X1}} pu."
+    },
+    {
+     "id": "i4",
+     "type": "info",
+     "title": "Line-to-line and double line-to-ground",
+     "body": "**LL** (b–c): no zero sequence; $I_1 = -I_2 = V_F/(Z_1 + Z_2 + Z_F)$ and $|I_b| = \\sqrt3|I_1|$. **DLG** (b and c to ground): the three networks are in parallel at the fault, and the ground current is $3I_0$.",
+     "formula": "\\begin{aligned}I_{1,DLG} &= \\frac{V_F}{Z_1 + Z_2\\parallel(Z_0 + 3Z_F)}\\\\ I_0 &= -I_1\\frac{Z_2}{Z_2 + Z_0 + 3Z_F}\\end{aligned}"
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X2": [
+       0.15,
+       0.2,
+       0.25
+      ]
+     },
+     "prompt": "Find the fault current of a bolted line-to-line fault at a bus with $Z_1$ = j{{X1}} and $Z_2$ = j{{X2}} pu ($V_F$ = 1.0 pu).",
+     "answer": "sqrt(3)/(X1 + X2)",
+     "unit": "pu",
+     "explanation": "$I_1 = 1/[j({{X1}} + {{X2}})]$ = −j{{1/(X1+X2)}}, $I_2 = -I_1$. $I_b$ = $a^2I_1 + aI_2$ = $(a^2 - a)I_1$ = $-j\\sqrt3\\,I_1$, so $|I_b|$ = √3 × {{1/(X1+X2)}} = {{sqrt(3)/(X1 + X2)|pu}}."
+    }
+   ]
+  },
+  {
+   "id": "ps-unsym-3",
+   "title": "Unbalanced fault currents",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "X0": [
+       0.2,
+       0.3,
+       0.4
+      ],
+      "V": [
+       69000.0,
+       138000.0,
+       230000.0
+      ]
+     },
+     "prompt": "At a {{V|V}} bus (100-MVA base), $Z_1 = Z_2$ = j{{X1}} pu and $Z_0$ = j{{X0}} pu. Find the current of a bolted single line-to-ground fault.",
+     "answer": "3/(2*X1 + X0)*1e8/(sqrt(3)*V)",
+     "unit": "A",
+     "explanation": "$I_a = 3V_F/(Z_1 + Z_2 + Z_0)$ = 3/{{2*X1 + X0}} = {{3/(2*X1 + X0)}} pu. $I_{base}$ = 100 MVA/(√3 × {{V|V}}) = {{1e8/(sqrt(3)*V)|A}}, so $I_a$ = {{3/(2*X1 + X0)*1e8/(sqrt(3)*V)|A}}."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "V": [
+       69000.0,
+       138000.0,
+       230000.0
+      ]
+     },
+     "prompt": "At a {{V|V}} bus (100-MVA base), $Z_1 = Z_2$ = j{{X1}} pu. Find the current of a bolted line-to-line fault.",
+     "answer": "sqrt(3)/(2*X1)*1e8/(sqrt(3)*V)",
+     "unit": "A",
+     "explanation": "$|I_b| = \\sqrt3/(Z_1 + Z_2)$ = 1.732/{{2*X1}} = {{sqrt(3)/(2*X1)}} pu, i.e. 0.866 times the three-phase value. In amperes: × {{1e8/(sqrt(3)*V)|A}} = {{sqrt(3)/(2*X1)*1e8/(sqrt(3)*V)|A}}."
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X2": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X0": [
+       0.1,
+       0.2,
+       0.3,
+       0.5
+      ]
+     },
+     "derived": {
+      "Xp": "X2*X0/(X2 + X0)",
+      "I1": "1/(X1 + X2*X0/(X2 + X0))"
+     },
+     "prompt": "A bolted double line-to-ground fault (b and c to ground) occurs at a bus with $Z_1$ = j{{X1}}, $Z_2$ = j{{X2}} and $Z_0$ = j{{X0}} pu. Find the current flowing into the ground.",
+     "answer": "3*I1*X2/(X2 + X0)",
+     "unit": "pu",
+     "explanation": "$Z_2 \\parallel Z_0$ = j{{Xp||3}}, so $|I_1|$ = 1/({{X1}} + {{Xp||3}}) = {{I1||3}} pu. Current division: $|I_0| = |I_1|\\,Z_2/(Z_2 + Z_0)$ = {{I1*X2/(X2 + X0)||3}} pu. Ground current $3|I_0|$ = {{3*I1*X2/(X2 + X0)|pu}}."
+    },
+    {
+     "id": "p4",
+     "type": "multipleChoice",
+     "params": {
+      "X1": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X0": [
+       0.05,
+       0.08,
+       0.3,
+       0.4
+      ]
+     },
+     "require": "abs(X1 - X0) - 0.02",
+     "prompt": "At a bus with $Z_1 = Z_2$ = j{{X1}} pu and $Z_0$ = j{{X0}} pu, which bolted fault draws the larger current from phase a?",
+     "options": [
+      "Single line-to-ground",
+      "Three-phase"
+     ],
+     "shuffle": false,
+     "answer": "if(X1 - X0, 0, 1)",
+     "explanation": "Three-phase: 1/{{X1}} = {{1/X1}} pu. Line-to-ground: 3/(2 × {{X1}} + {{X0}}) = {{3/(2*X1 + X0)}} pu. The ground fault is larger exactly when $Z_0 < Z_1$, typical at the terminals of solidly grounded generators and at Yg–Δ transformers."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.15,
+       0.2
+      ],
+      "X0": [
+       0.3,
+       0.5
+      ],
+      "RF": [
+       0.05,
+       0.1,
+       0.2,
+       0.3
+      ]
+     },
+     "prompt": "A line-to-ground fault through an arc resistance $R_F$ = {{RF}} pu occurs at a bus with $Z_1 = Z_2$ = j{{X1}} and $Z_0$ = j{{X0}} pu. Find the magnitude of the fault current.",
+     "answer": "3/sqrt((3*RF)^2 + (2*X1 + X0)^2)",
+     "unit": "pu",
+     "explanation": "$I_0 = V_F/(Z_0 + Z_1 + Z_2 + 3Z_F)$ = 1/({{3*RF}} + j{{2*X1 + X0}}), $|I_0|$ = 1/√({{3*RF}}² + {{2*X1 + X0}}²) = {{1/sqrt((3*RF)^2 + (2*X1 + X0)^2)||3}} pu. $|I_a| = 3|I_0|$ = {{3/sqrt((3*RF)^2 + (2*X1 + X0)^2)|pu}}. Note that $R_F$ counts three times."
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X0": [
+       0.3,
+       0.45,
+       0.6,
+       0.9
+      ]
+     },
+     "derived": {
+      "S": "2*X1 + X0",
+      "v0": "-X0/(2*X1 + X0)",
+      "v1": "1 - X1/(2*X1 + X0)",
+      "v2": "-X1/(2*X1 + X0)"
+     },
+     "prompt": "A bolted line-to-ground fault on phase a occurs at a bus with $Z_1 = Z_2$ = j{{X1}} and $Z_0$ = j{{X0}} pu ($V_F$ = 1.0 pu). Find the magnitude of the voltage of the healthy phase b during the fault.",
+     "answer": "sqrt((v0 - 0.5*(v1 + v2))^2 + 0.75*(v2 - v1)^2)",
+     "unit": "pu",
+     "tolerance": 0.01,
+     "explanation": "$I_0 = I_1 = I_2$ = −j/{{S}}. Sequence voltages: $V_1 = 1 - Z_1I_1$ = {{v1}}, $V_2 = -Z_2I_2$ = {{v2}}, $V_0 = -Z_0I_0$ = {{v0}} (all real). $V_b = V_0 + a^2V_1 + aV_2$ = {{v0 - 0.5*(v1 + v2)}} + j({{0.866*(v2 - v1)}}), so $|V_b|$ = {{sqrt((v0 - 0.5*(v1 + v2))^2 + 0.75*(v2 - v1)^2)|pu}}: the healthy phases rise above 1 pu when $Z_0 > Z_1$."
+    },
+    {
+     "id": "p7",
+     "type": "trueFalse",
+     "prompt": "A line-to-line fault produces no zero-sequence current.",
+     "answer": true,
+     "explanation": "Ground is not involved: $I_a = 0$ and $I_b = -I_c$, so $I_a + I_b + I_c = 0 = 3I_0$. Only the positive- and negative-sequence networks take part, connected in parallel-opposition ($I_1 = -I_2$)."
+    }
+   ]
+  },
+  {
+   "id": "ps-unsym-4",
+   "title": "Grounding and unbalanced networks",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.12,
+       0.15,
+       0.18,
+       0.2
+      ],
+      "X0": [
+       0.04,
+       0.05,
+       0.06
+      ]
+     },
+     "prompt": "A 100-MVA, 13.8-kV generator has $X_1 = X_2$ = {{X1}} pu and $X_{g0}$ = {{X0}} pu (own base). What neutral grounding reactance, in ohms, limits its terminal line-to-ground fault current to the three-phase value?",
+     "answer": "(X1 - X0)/3*13.8^2/100",
+     "unit": "Ω",
+     "explanation": "Equal currents: $3/(2X_1 + X_{g0} + 3X_n) = 1/X_1$, so $3X_n = X_1 - X_{g0}$ and $X_n$ = ({{X1}} − {{X0}})/3 = {{(X1 - X0)/3||3}} pu. With $Z_{base}$ = 13.8²/100 = 1.904 Ω: $X_n$ = {{(X1 - X0)/3*13.8^2/100|Ω}}."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "Va": [
+       1.0,
+       1.02
+      ],
+      "Vb": [
+       0.95,
+       0.97,
+       0.98
+      ],
+      "Vc": [
+       1.0,
+       1.02,
+       1.03
+      ],
+      "tb": [
+       -122,
+       -118
+      ],
+      "tc": [
+       118,
+       122
+      ]
+     },
+     "derived": {
+      "ar": "Va",
+      "ai": "0",
+      "br": "Vb*cos(rad(tb))",
+      "bi": "Vb*sin(rad(tb))",
+      "cr": "Vc*cos(rad(tc))",
+      "ci": "Vc*sin(rad(tc))",
+      "v2r": "(Va + Vb*cos(rad(tb + 240)) + Vc*cos(rad(tc + 120)))/3",
+      "v2i": "(Vb*sin(rad(tb + 240)) + Vc*sin(rad(tc + 120)))/3",
+      "v1r": "(Va + Vb*cos(rad(tb + 120)) + Vc*cos(rad(tc + 240)))/3",
+      "v1i": "(Vb*sin(rad(tb + 120)) + Vc*sin(rad(tc + 240)))/3"
+     },
+     "require": "100*sqrt(v2r^2 + v2i^2)/sqrt(v1r^2 + v1i^2) - 0.6",
+     "prompt": "Measured phase voltages: $V_a$ = {{Va}}∠0°, $V_b$ = {{Vb}}∠{{tb}}° and $V_c$ = {{Vc}}∠{{tc}}° pu.",
+     "ask": [
+      {
+       "prompt": "Find the negative-sequence voltage $|V_2|$ in per unit.",
+       "answer": "sqrt(v2r^2 + v2i^2)",
+       "unit": "pu",
+       "tolerance": 0.04,
+       "explanation": "$a^2V_b$ = {{Vb}}∠{{tb + 240}}° and $aV_c$ = {{Vc}}∠{{tc + 120}}°. $V_2 = (V_a + a^2V_b + aV_c)/3$ = {{v2r||3}} + j({{v2i||3}}), so $|V_2|$ = {{sqrt(v2r^2 + v2i^2)||3}} pu. The three terms nearly cancel, so carry four decimals. ($|V_1|$, by contrast, is almost exactly the average of the three magnitudes when the unbalance is small.)"
+      },
+      {
+       "prompt": "Find the voltage unbalance factor $|V_2|/|V_1|$ in per cent.",
+       "answer": "100*sqrt(v2r^2 + v2i^2)/sqrt(v1r^2 + v1i^2)",
+       "unit": "%",
+       "tolerance": 0.03,
+       "explanation": "$V_1 = (V_a + aV_b + a^2V_c)/3$ = {{v1r||4}} + j({{v1i||3}}); $V_2 = (V_a + a^2V_b + aV_c)/3$ with $a^2V_b$ = {{Vb}}∠{{tb + 240}}° and $aV_c$ = {{Vc}}∠{{tc + 120}}°: {{v2r||3}} + j({{v2i||3}}). Ratio: {{sqrt(v2r^2 + v2i^2)||3}}/{{sqrt(v1r^2 + v1i^2)||4}} = {{100*sqrt(v2r^2 + v2i^2)/sqrt(v1r^2 + v1i^2)|%}}. Motors are usually derated above about 1 %."
+      }
+     ]
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "X1": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X2": [
+       0.15,
+       0.2,
+       0.25
+      ],
+      "X0": [
+       0.1,
+       0.2,
+       0.4
+      ]
+     },
+     "derived": {
+      "p": "1/(X1 + X2*X0/(X2 + X0))",
+      "q": "X0/(X2 + X0)/(X1 + X2*X0/(X2 + X0))",
+      "r": "X2/(X2 + X0)/(X1 + X2*X0/(X2 + X0))"
+     },
+     "prompt": "A bolted double line-to-ground fault (phases b and c) occurs at a bus with $Z_1$ = j{{X1}}, $Z_2$ = j{{X2}}, $Z_0$ = j{{X0}} pu. Find $|I_b|$.",
+     "answer": "sqrt(0.75*(p + q)^2 + (r + 0.5*(p - q))^2)",
+     "unit": "pu",
+     "tolerance": 0.01,
+     "explanation": "$I_1$ = −j{{p||3}}, $I_2 = -I_1Z_0/(Z_2 + Z_0)$ = +j{{q||3}}, $I_0 = -I_1Z_2/(Z_2 + Z_0)$ = +j{{r||3}} pu. $I_b = I_0 + a^2I_1 + aI_2$: $a^2I_1$ = {{p||3}}(−0.866 + j0.5) and $aI_2$ = {{q||3}}(−0.866 − j0.5). Sum: −{{0.866*(p + q)||3}} + j{{r + 0.5*(p - q)||3}}, $|I_b|$ = {{sqrt(0.75*(p + q)^2 + (r + 0.5*(p - q))^2)|pu}}."
+    },
+    {
+     "id": "c4",
+     "type": "multipleChoice",
+     "prompt": "Which phasor diagram shows a **negative-sequence** set?",
+     "optionPlots": [
+      {
+       "x": {
+        "min": -1.3,
+        "max": 1.3
+       },
+       "y": {
+        "min": -1.3,
+        "max": 1.3
+       },
+       "equal": true,
+       "height": 150,
+       "curves": [
+        {
+         "x": "1*cos(rad(0))*t",
+         "y": "1*sin(rad(0))*t",
+         "t": [
+          0,
+          1
+         ],
+         "color": "red"
+        },
+        {
+         "x": "1*cos(rad(120))*t",
+         "y": "1*sin(rad(120))*t",
+         "t": [
+          0,
+          1
+         ],
+         "color": "blue"
+        },
+        {
+         "x": "1*cos(rad(-120))*t",
+         "y": "1*sin(rad(-120))*t",
+         "t": [
+          0,
+          1
+         ],
+         "color": "green"
+        }
+       ],
+       "points": [
+        {
+         "x": "1*cos(rad(0))",
+         "y": "1*sin(rad(0))",
+         "label": "a",
+         "color": "red",
+         "guides": false
+        },
+        {
+         "x": "1*cos(rad(120))",
+         "y": "1*sin(rad(120))",
+         "label": "b",
+         "color": "blue",
+         "guides": false
+        },
+        {
+         "x": "1*cos(rad(-120))",
+         "y": "1*sin(rad(-120))",
+         "label": "c",
+         "color": "green",
+         "guides": false
+        }
+       ]
+      },
+      {
+       "x": {
+        "min": -1.3,
+        "max": 1.3
+       },
+       "y": {
+        "min": -1.3,
+        "max": 1.3
+       },
+       "equal": true,
+       "height": 150,
+       "curves": [
+        {
+         "x": "1*cos(rad(0))*t",
+         "y": "1*sin(rad(0))*t",
+         "t": [
+          0,
+          1
+         ],
+         "color": "red"
+        },
+        {
+         "x": "1*cos(rad(-120))*t",
+         "y": "1*sin(rad(-120))*t",
+         "t": [
+          0,
+          1
+         ],
+         "color": "blue"
+        },
+        {
+         "x": "1*cos(rad(120))*t",
+         "y": "1*sin(rad(120))*t",
+         "t": [
+          0,
+          1
+         ],
+         "color": "green"
+        }
+       ],
+       "points": [
+        {
+         "x": "1*cos(rad(0))",
+         "y": "1*sin(rad(0))",
+         "label": "a",
+         "color": "red",
+         "guides": false
+        },
+        {
+         "x": "1*cos(rad(-120))",
+         "y": "1*sin(rad(-120))",
+         "label": "b",
+         "color": "blue",
+         "guides": false
+        },
+        {
+         "x": "1*cos(rad(120))",
+         "y": "1*sin(rad(120))",
+         "label": "c",
+         "color": "green",
+         "guides": false
+        }
+       ]
+      },
+      {
+       "x": {
+        "min": -1.3,
+        "max": 1.3
+       },
+       "y": {
+        "min": -1.3,
+        "max": 1.3
+       },
+       "equal": true,
+       "height": 150,
+       "curves": [
+        {
+         "x": "1*cos(rad(0))*t",
+         "y": "1*sin(rad(0))*t",
+         "t": [
+          0,
+          1
+         ],
+         "color": "red"
+        },
+        {
+         "x": "1*cos(rad(-90))*t",
+         "y": "1*sin(rad(-90))*t",
+         "t": [
+          0,
+          1
+         ],
+         "color": "blue"
+        },
+        {
+         "x": "1*cos(rad(150))*t",
+         "y": "1*sin(rad(150))*t",
+         "t": [
+          0,
+          1
+         ],
+         "color": "green"
+        }
+       ],
+       "points": [
+        {
+         "x": "1*cos(rad(0))",
+         "y": "1*sin(rad(0))",
+         "label": "a",
+         "color": "red",
+         "guides": false
+        },
+        {
+         "x": "1*cos(rad(-90))",
+         "y": "1*sin(rad(-90))",
+         "label": "b",
+         "color": "blue",
+         "guides": false
+        },
+        {
+         "x": "1*cos(rad(150))",
+         "y": "1*sin(rad(150))",
+         "label": "c",
+         "color": "green",
+         "guides": false
+        }
+       ]
+      }
+     ],
+     "answer": 0,
+     "explanation": "In a negative-sequence set the phasors are equal and 120° apart, but in acb order: $V_b$ **leads** $V_a$ by 120° ($V_b = aV_a$) and $V_c$ lags by 120°. The abc set ($V_b$ lagging $V_a$ by 120°) is positive sequence, and phasors that are not 120° apart form an unbalanced set containing several sequences."
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "Xg": [
+       0.15,
+       0.2
+      ],
+      "XT": [
+       0.08,
+       0.1
+      ],
+      "XL1": [
+       0.1,
+       0.15,
+       0.2
+      ],
+      "k0": [
+       2.5,
+       3,
+       3.5
+      ],
+      "V": [
+       138000.0,
+       230000.0
+      ]
+     },
+     "derived": {
+      "Z1": "Xg + XT + XL1",
+      "Z0": "XT + k0*XL1"
+     },
+     "prompt": "A generator ($X'' = X_2$ = {{Xg}} pu, any $X_0$) feeds a {{V|V}} line through a Δ–Yg step-up transformer (Δ on the generator side, Yg on the line side, $X_T$ = {{XT}} pu). The line has $X_1$ = {{XL1}} pu and $X_0$ = {{k0*XL1}} pu (100-MVA base). Find the current of a bolted line-to-ground fault at the far end of the line.",
+     "answer": "3/(2*Z1 + Z0)*1e8/(sqrt(3)*V)",
+     "unit": "A",
+     "explanation": "$Z_1 = Z_2$ = {{Xg}} + {{XT}} + {{XL1}} = {{Z1}} pu. Zero sequence: the delta isolates the generator, and the Yg winding gives a path to ground through $X_T$, so $Z_0$ = {{XT}} + {{k0*XL1}} = {{Z0}} pu. $I_a = 3/(2Z_1 + Z_0)$ = {{3/(2*Z1 + Z0)}} pu × {{1e8/(sqrt(3)*V)|A}} = {{3/(2*Z1 + Z0)*1e8/(sqrt(3)*V)|A}}."
+    },
+    {
+     "id": "c6",
+     "type": "orderSteps",
+     "prompt": "Put the steps for computing a single line-to-ground fault current in order.",
+     "items": [
+      "Build the positive-, negative- and zero-sequence networks",
+      "Find $Z_1$, $Z_2$ and $Z_0$ seen from the fault bus",
+      "Connect the three networks in series with $3Z_F$",
+      "Compute $I_0 = I_1 = I_2$",
+      "Find the phase currents: $I_a = 3I_0$"
+     ],
+     "explanation": "The sequence networks come first (with each transformer's zero-sequence connection), then their Thévenin impedances at the fault. The fault's boundary conditions decide how they connect; for a line-to-ground fault they are in series."
+    }
+   ]
+  }
+ ]
+}

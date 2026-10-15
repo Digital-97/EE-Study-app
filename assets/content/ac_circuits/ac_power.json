@@ -1,0 +1,1086 @@
+{
+ "id": "ac-power",
+ "title": "AC Power",
+ "description": "Average, reactive, apparent and complex power, power factor correction and maximum power transfer.",
+ "reference": "Hambley §5.5–5.6",
+ "study": [
+  {
+   "title": "Instantaneous and average power",
+   "body": "The instantaneous power $p(t) = v(t)\\,i(t)$ oscillates at twice the signal frequency. Its average depends on the **power angle** $\\theta = \\theta_v - \\theta_i$, which equals the angle of the load impedance. Note the factor $\\tfrac12$ when you use peak values; with rms values it disappears. Drag $\\theta$ ($V_m$ = 10 V, $I_m$ = 2 A): at $0^\\circ$ $p(t)$ never goes negative; towards $\\pm 90^\\circ$ it dips below zero for longer (energy flows back to the source) and the average falls to zero.",
+   "formula": "P = V_{rms}I_{rms}\\cos\\theta = \\frac{V_mI_m}{2}\\cos\\theta, \\quad \\theta = \\theta_v - \\theta_i",
+   "plot": {
+    "x": {
+     "min": 0,
+     "max": 0.0392,
+     "label": "t",
+     "unit": "s"
+    },
+    "y": {
+     "min": -12,
+     "max": 22,
+     "label": "p (W)"
+    },
+    "sliders": [
+     {
+      "name": "th",
+      "label": "power angle $\\theta$",
+      "min": -90,
+      "max": 90,
+      "step": 5,
+      "value": 60,
+      "unit": "°"
+     }
+    ],
+    "let": {
+     "P": "10*cos(rad(th))"
+    },
+    "curves": [
+     {
+      "f": "P + 10*cos(4*pi*50*x - rad(th))",
+      "label": "p(t)",
+      "labelAt": 0.55
+     }
+    ],
+    "hlines": [
+     {
+      "y": "P",
+      "label": "average P"
+     },
+     {
+      "y": 0
+     }
+    ],
+    "readouts": [
+     {
+      "label": "$P$",
+      "value": "P",
+      "unit": "W"
+     },
+     {
+      "label": "$Q$",
+      "value": "10*sin(rad(th))",
+      "unit": "VAR"
+     },
+     {
+      "label": "PF",
+      "value": "cos(rad(th))"
+     }
+    ]
+   }
+  },
+  {
+   "title": "Power factor",
+   "body": "$PF = \\cos\\theta$, often given as a percentage. If the current lags the voltage (inductive load, $\\theta > 0$) the power factor is **lagging**; if it leads (capacitive load, $\\theta < 0$) it is **leading**. A resistor has PF = 1; an ideal L or C has PF = 0 and absorbs no average power.",
+   "formula": "PF = \\cos\\theta = \\frac{R}{|Z|}"
+  },
+  {
+   "title": "Reactive and apparent power",
+   "body": "**Reactive power** $Q = V_{rms}I_{rms}\\sin\\theta$, in VAR, measures energy swapped back and forth with inductances and capacitances each cycle: positive for inductive loads, negative for capacitive ones. **Apparent power** $V_{rms}I_{rms}$, in VA, sets the current rating of cables and transformers. For a load $Z = R + jX$: $P = I_{rms}^2R$ and $Q = I_{rms}^2X$ (keep the sign of $X$).",
+   "formula": "Q = V_{rms}I_{rms}\\sin\\theta = I_{rms}^2X, \\qquad |\\mathbf{S}| = V_{rms}I_{rms}"
+  },
+  {
+   "title": "Complex power and the power triangle",
+   "body": "With peak phasors, the complex power is $\\mathbf{S} = \\tfrac12\\mathbf{V}\\mathbf{I}^*$ (with rms phasors, $\\mathbf{V}_{rms}\\mathbf{I}_{rms}^*$). Its real part is $P$, its imaginary part is $Q$, and its magnitude is the apparent power: a right triangle with angle $\\theta$. For several loads, add the $P$'s and the $Q$'s separately; apparent powers generally do **not** add.",
+   "formula": "\\mathbf{S} = \\tfrac12\\mathbf{V}\\mathbf{I}^* = P + jQ, \\qquad |\\mathbf{S}|^2 = P^2 + Q^2"
+  },
+  {
+   "title": "Power-factor correction",
+   "body": "Industrial loads are mostly inductive (lagging). A capacitor in parallel with the load supplies negative $Q$, so the line carries less reactive power and less current, while the load's $P$ is unchanged. Recipe: $Q_{old} = P\\tan\\theta_{old}$, $Q_{new} = P\\tan\\theta_{new}$, $Q_C = Q_{new} - Q_{old} < 0$, and a capacitor absorbs $Q_C = -\\omega C V_{rms}^2$.",
+   "formula": "C = \\frac{P\\,(\\tan\\theta_{old} - \\tan\\theta_{new})}{\\omega V_{rms}^2}"
+  },
+  {
+   "title": "Maximum power transfer",
+   "body": "A source with Thévenin impedance $Z_t = R_t + jX_t$ delivers the most average power to a load that can take any value when $Z_L = Z_t^* = R_t - jX_t$: the reactances cancel and $R_L = R_t$. Then $P_{max} = |\\mathbf{V}_t|^2/(8R_t)$ with a peak phasor $\\mathbf{V}_t$, i.e. $V_{t,rms}^2/(4R_t)$. If the load must be a pure resistance, the best choice is $R_L = |Z_t|$.",
+   "formula": "Z_L = Z_t^*, \\qquad P_{max} = \\frac{V_{t,rms}^2}{4R_t}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_t",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "Z_t",
+      "value": "R_t + jX_t"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        0
+       ],
+       [
+        6,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       6,
+       0
+      ],
+      "to": [
+       6,
+       2
+      ],
+      "label": "Z_L",
+      "value": "R_t − jX_t",
+      "flip": true
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        6,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ac-power-1",
+   "title": "Average, reactive and apparent power",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Average power",
+     "body": "Only the part of the current in phase with the voltage delivers net energy. With $\\theta = \\theta_v - \\theta_i$ (the power angle), the average power uses rms values, or peak values with a factor $\\tfrac12$.",
+     "formula": "P = V_{rms}I_{rms}\\cos\\theta = \\frac{V_mI_m}{2}\\cos\\theta"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       100,
+       170,
+       325
+      ],
+      "Im": [
+       1,
+       2,
+       5
+      ],
+      "tv": [
+       0,
+       10,
+       30
+      ],
+      "ti": [
+       -50,
+       -20,
+       0,
+       15
+      ]
+     },
+     "prompt": "$v(t) = {{Vm}}\\cos(\\omega t + {{tv}}^\\circ)$ V and $i(t) = {{Im}}\\cos(\\omega t + ({{ti}}^\\circ))$ A (passive reference configuration). Find the average power absorbed.",
+     "answer": "Vm*Im/2*cos(rad(tv-ti))",
+     "unit": "W",
+     "explanation": "$\\theta = \\theta_v - \\theta_i = {{tv}}^\\circ - ({{ti}}^\\circ) = {{tv-ti}}^\\circ$.\n$P = \\frac{V_mI_m}{2}\\cos\\theta = \\frac{ {{Vm}}\\times{{Im}} }{2}\\cos({{tv-ti}}^\\circ)$ = {{Vm*Im/2*cos(rad(tv-ti))|W}}."
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "What average power does an ideal inductor absorb in sinusoidal steady state?",
+     "options": [
+      "0",
+      "$V_{rms}I_{rms}$",
+      "$V_mI_m/2$",
+      "$V_mI_m$"
+     ],
+     "answer": 0,
+     "explanation": "In an inductor the current lags the voltage by $90^\\circ$, so $P = V_{rms}I_{rms}\\cos 90^\\circ = 0$. Energy flows in during half of each cycle and back out during the other half. The same holds for an ideal capacitor ($\\theta = -90^\\circ$)."
+    },
+    {
+     "id": "i4",
+     "type": "info",
+     "title": "Try it: the power angle",
+     "body": "Here $v = 10\\cos(\\omega t)$ V and $i = 2\\cos(\\omega t - \\theta)$ A. Drag $\\theta$. The power always pulses at twice the signal frequency with the same swing, but its **average** $P = \\frac{V_mI_m}{2}\\cos\\theta$ moves: the full 10 W in phase, zero for a pure inductance ($+90^\\circ$) or capacitance ($-90^\\circ$).",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 0.0392,
+       "label": "t",
+       "unit": "s"
+      },
+      "y": {
+       "min": -12,
+       "max": 22,
+       "label": "p (W)"
+      },
+      "sliders": [
+       {
+        "name": "th",
+        "label": "power angle $\\theta$",
+        "min": -90,
+        "max": 90,
+        "step": 5,
+        "value": 60,
+        "unit": "°"
+       }
+      ],
+      "let": {
+       "P": "10*cos(rad(th))"
+      },
+      "curves": [
+       {
+        "f": "P + 10*cos(4*pi*50*x - rad(th))",
+        "label": "p(t)",
+        "labelAt": 0.55
+       }
+      ],
+      "hlines": [
+       {
+        "y": "P",
+        "label": "average P"
+       },
+       {
+        "y": 0
+       }
+      ],
+      "readouts": [
+       {
+        "label": "$P$",
+        "value": "P",
+        "unit": "W"
+       },
+       {
+        "label": "$Q$",
+        "value": "10*sin(rad(th))",
+        "unit": "VAR"
+       },
+       {
+        "label": "PF",
+        "value": "cos(rad(th))"
+       }
+      ]
+     }
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "Power factor",
+     "body": "$PF = \\cos\\theta$. Inductive loads (current lags): **lagging** PF. Capacitive loads (current leads): **leading** PF. A low power factor means more current for the same useful power.",
+     "formula": "PF = \\cos\\theta = \\frac{R}{|Z|}"
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "R": [
+       30,
+       40,
+       60,
+       80,
+       100
+      ],
+      "X": [
+       -60,
+       -40,
+       20,
+       30,
+       45,
+       80
+      ]
+     },
+     "prompt": "Find the power factor (as a decimal) of a load with impedance $Z = {{R}} + j({{X}})$ Ω.",
+     "answer": "R/sqrt(R^2+X^2)",
+     "unit": "",
+     "explanation": "$|Z| = \\sqrt{ {{R}}^2 + ({{X}})^2} = {{sqrt(R^2+X^2)}}$ Ω, so $PF = \\cos\\theta = \\frac{R}{|Z|} = \\frac{ {{R}} }{ {{sqrt(R^2+X^2)}} } = {{R/sqrt(R^2+X^2)}}$, i.e. {{100*R/sqrt(R^2+X^2)|%}}. The angle is $\\theta = {{deg(atan(X/R))}}^\\circ$: lagging if $X > 0$ (inductive), leading if $X < 0$ (capacitive)."
+    },
+    {
+     "id": "q4",
+     "type": "multipleChoice",
+     "params": {
+      "R": [
+       10,
+       30
+      ],
+      "X": [
+       10,
+       40
+      ]
+     },
+     "prompt": "A load has $Z = {{R}} - j{{X}}$ Ω. Its power factor is:",
+     "options": [
+      "Leading (capacitive)",
+      "Lagging (inductive)",
+      "Unity"
+     ],
+     "answer": 0,
+     "explanation": "Negative reactance means capacitive: $\\theta = \\arctan(-{{X}}/{{R}}) = {{-deg(atan(X/R))}}^\\circ < 0$, so the current leads the voltage and the power factor $\\cos\\theta = {{R/sqrt(R^2+X^2)}}$ is **leading**."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Q, apparent power and the triangle",
+     "body": "**Reactive power** $Q = V_{rms}I_{rms}\\sin\\theta$ (VAR) is positive for inductive and negative for capacitive loads. **Apparent power** $V_{rms}I_{rms}$ (VA) is the hypotenuse of the power triangle with legs $P$ and $Q$.",
+     "formula": "P^2 + Q^2 = (V_{rms}I_{rms})^2"
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "P": [
+       3000,
+       4000,
+       8000,
+       12000
+      ],
+      "Q": [
+       -6000,
+       -3000,
+       4000,
+       5000,
+       9000
+      ]
+     },
+     "prompt": "A load absorbs $P$ = {{P|W}} and $Q$ = {{Q|VAR}}. Find its apparent power.",
+     "answer": "sqrt(P^2+Q^2)",
+     "unit": "VA",
+     "explanation": "$|\\mathbf{S}| = \\sqrt{P^2 + Q^2} = \\sqrt{ {{P}}^2 + ({{Q}})^2}$ = {{sqrt(P^2+Q^2)|VA}}. The power factor is $P/|\\mathbf{S}|$ = {{P/sqrt(P^2+Q^2)}}."
+    },
+    {
+     "id": "q6",
+     "type": "matchPairs",
+     "prompt": "Match each quantity to its unit.",
+     "pairs": [
+      [
+       "Average power $P$",
+       "W"
+      ],
+      [
+       "Reactive power $Q$",
+       "VAR"
+      ],
+      [
+       "Apparent power $|\\mathbf{S}|$",
+       "VA"
+      ],
+      [
+       "Power factor",
+       "no unit"
+      ]
+     ],
+     "explanation": "All three powers are physically volts × amperes, but different unit names tell you which one is meant: watts for average power, VAR for reactive power, VA for apparent power. The power factor is a ratio, $P/|\\mathbf{S}|$."
+    },
+    {
+     "id": "q7",
+     "type": "numeric",
+     "params": {
+      "I": [
+       2,
+       5,
+       10
+      ],
+      "R": [
+       6,
+       10
+      ],
+      "X": [
+       5,
+       8,
+       12,
+       20
+      ]
+     },
+     "prompt": "A current of {{I}} A rms flows through $Z = {{R}} + j{{X}}$ Ω. Find the reactive power $Q$ absorbed.",
+     "answer": "I^2*X",
+     "unit": "VAR",
+     "explanation": "$Q = I_{rms}^2X = {{I}}^2\\times{{X}}$ = {{I^2*X|VAR}} (positive: inductive). Similarly $P = I_{rms}^2R$ = {{I^2*R|W}}. Only the reactance enters $Q$, only the resistance enters $P$."
+    }
+   ]
+  },
+  {
+   "id": "ac-power-2",
+   "title": "Power calculations",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "V": [
+       120,
+       230,
+       240
+      ],
+      "R": [
+       10,
+       20,
+       40,
+       60
+      ],
+      "X": [
+       10,
+       30,
+       -20,
+       -45
+      ]
+     },
+     "prompt": "A {{V}} V rms source feeds the load $Z = {{R}} + j({{X}})$ Ω. Find the average power absorbed by the load.",
+     "answer": "V^2*R/(R^2+X^2)",
+     "unit": "W",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{V}} V rms",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "Z",
+        "value": "{{R}} + j({{X}}) Ω",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         1.5,
+         0
+        ],
+        "to": [
+         2.5,
+         0
+        ],
+        "label": "I"
+       }
+      ]
+     },
+     "explanation": "$|Z| = \\sqrt{ {{R}}^2 + ({{X}})^2} = {{sqrt(R^2+X^2)}}$ Ω, so $I_{rms} = {{V}}/{{sqrt(R^2+X^2)}}$ = {{V/sqrt(R^2+X^2)|A}}.\n$P = I_{rms}^2R$ = {{V^2*R/(R^2+X^2)|W}}. Careful: $V_{rms}^2/R$ would be wrong here, because the full source voltage is not across the resistance."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "I": [
+       1,
+       2,
+       4
+      ],
+      "R": [
+       10,
+       20
+      ],
+      "Xc": [
+       10,
+       25,
+       50
+      ]
+     },
+     "prompt": "A current of {{I}} A rms flows through $Z = {{R}} - j{{Xc}}$ Ω. Find the reactive power $Q$ absorbed, with its sign.",
+     "answer": "-I^2*Xc",
+     "unit": "VAR",
+     "explanation": "$Q = I_{rms}^2X$ with $X = -{{Xc}}$ Ω: $Q = {{I}}^2\\times(-{{Xc}})$ = {{-I^2*Xc|VAR}}. Capacitive loads absorb negative reactive power, i.e. they **supply** reactive power."
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "P": [
+       10000.0,
+       20000.0,
+       50000.0
+      ],
+      "pf": [
+       0.6,
+       0.7,
+       0.8,
+       0.9
+      ]
+     },
+     "prompt": "A load absorbs {{P|W}} at a power factor of {{pf}} lagging. Find its reactive power $Q$.",
+     "answer": "P*tan(acos(pf))",
+     "unit": "VAR",
+     "explanation": "$\\theta = \\arccos({{pf}}) = {{deg(acos(pf))}}^\\circ$ (positive, because lagging). From the power triangle, $Q = P\\tan\\theta = {{P}}\\times\\tan({{deg(acos(pf))}}^\\circ)$ = {{P*tan(acos(pf))|VAR}}. The apparent power is $P/PF$ = {{P/pf|VA}}."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       100,
+       170,
+       340
+      ],
+      "Im": [
+       2,
+       5,
+       10
+      ],
+      "tv": [
+       0,
+       20,
+       45
+      ],
+      "ti": [
+       -40,
+       -10,
+       10,
+       60
+      ]
+     },
+     "prompt": "A load has (peak) phasors $\\mathbf{V} = {{Vm}}\\angle {{tv}}^\\circ$ V and $\\mathbf{I} = {{Im}}\\angle {{ti}}^\\circ$ A. Find its reactive power $Q$, with sign.",
+     "answer": "Vm*Im/2*sin(rad(tv-ti))",
+     "unit": "VAR",
+     "explanation": "$\\mathbf{S} = \\tfrac12\\mathbf{V}\\mathbf{I}^* = \\tfrac12({{Vm}}\\angle {{tv}}^\\circ)({{Im}}\\angle {{-ti}}^\\circ) = {{Vm*Im/2}}\\angle {{tv-ti}}^\\circ$ VA.\n$Q = \\mathrm{Im}(\\mathbf{S}) = {{Vm*Im/2}}\\sin({{tv-ti}}^\\circ)$ = {{Vm*Im/2*sin(rad(tv-ti))|VAR}} and $P$ = {{Vm*Im/2*cos(rad(tv-ti))|W}}."
+    },
+    {
+     "id": "p5",
+     "type": "multipleChoice",
+     "params": {
+      "P1": [
+       10000.0,
+       20000.0,
+       30000.0
+      ],
+      "Q1": [
+       10000.0,
+       15000.0,
+       20000.0
+      ],
+      "P2": [
+       5000.0,
+       10000.0,
+       20000.0
+      ],
+      "Q2": [
+       -5000.0,
+       -10000.0,
+       -25000.0
+      ]
+     },
+     "require": "min(abs(Q1*P2+Q2*P1), abs(Q1+Q2))",
+     "prompt": "Load A absorbs {{P1|W}} and {{Q1|VAR}}; load B, in parallel, absorbs {{P2|W}} and {{Q2|VAR}}. What is the total apparent power delivered by the source?",
+     "options": [
+      "{{sqrt((P1+P2)^2+(Q1+Q2)^2)|VA}}",
+      "{{sqrt(P1^2+Q1^2)+sqrt(P2^2+Q2^2)|VA}}",
+      "{{P1+P2+abs(Q1+Q2)|VA}}",
+      "{{P1+P2|VA}}"
+     ],
+     "answer": 0,
+     "explanation": "Add powers as complex numbers: $P = {{P1}} + {{P2}}$ = {{P1+P2|W}} and $Q = {{Q1}} + ({{Q2}})$ = {{Q1+Q2|VAR}}. Then $|\\mathbf{S}| = \\sqrt{P^2 + Q^2}$ = {{sqrt((P1+P2)^2+(Q1+Q2)^2)|VA}}. Adding the separate apparent powers ({{sqrt(P1^2+Q1^2)+sqrt(P2^2+Q2^2)|VA}}) ignores that B's negative $Q$ partly cancels A's."
+    },
+    {
+     "id": "p6",
+     "type": "numeric",
+     "params": {
+      "P": [
+       2000.0,
+       5000.0,
+       10000.0
+      ],
+      "V": [
+       120,
+       230,
+       400
+      ],
+      "pf": [
+       0.7,
+       0.8,
+       0.9
+      ]
+     },
+     "prompt": "A motor absorbs {{P|W}} from a {{V}} V rms line at a power factor of {{pf}} lagging. What rms current does it draw?",
+     "answer": "P/(V*pf)",
+     "unit": "A",
+     "explanation": "$P = V_{rms}I_{rms}\\cdot PF$, so $I_{rms} = \\frac{P}{V_{rms}\\,PF} = \\frac{ {{P}} }{ {{V}}\\times{{pf}} }$ = {{P/(V*pf)|A}}. At unity power factor it would only need {{P/V|A}}."
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "params": {
+      "P": [
+       10000.0,
+       20000.0,
+       50000.0
+      ],
+      "V": [
+       230,
+       400,
+       480
+      ],
+      "f": [
+       50,
+       60
+      ],
+      "pf1": [
+       0.6,
+       0.7,
+       0.75
+      ],
+      "pf2": [
+       0.9,
+       0.95
+      ]
+     },
+     "derived": {
+      "Q1": "P*tan(acos(pf1))",
+      "Q2": "P*tan(acos(pf2))"
+     },
+     "prompt": "A {{P|W}} load on a {{V}} V rms, {{f|Hz}} line has a power factor of {{pf1}} lagging. Which capacitance in parallel raises the power factor to {{pf2}} lagging?",
+     "answer": "(Q1-Q2)/(2*pi*f*V^2)",
+     "unit": "F",
+     "explanation": "- $Q_{old} = P\\tan(\\arccos {{pf1}})$ = {{Q1|VAR}}\n- $Q_{new} = P\\tan(\\arccos {{pf2}})$ = {{Q2|VAR}}\n- The capacitor must absorb $Q_C = Q_{new} - Q_{old}$ = {{Q2-Q1|VAR}}\n- $|Q_C| = \\omega CV_{rms}^2 \\Rightarrow C = \\frac{ {{Q1-Q2}} }{2\\pi\\times{{f}}\\times{{V}}^2}$ = {{(Q1-Q2)/(2*pi*f*V^2)|F}}"
+    },
+    {
+     "id": "p8",
+     "type": "trueFalse",
+     "prompt": "Adding a capacitor in parallel with an inductive load changes the average power absorbed by the load.",
+     "answer": false,
+     "explanation": "The load still sees the same voltage, so its current, $P$ and $Q$ are unchanged. The capacitor (which absorbs no average power) only supplies part of the load's reactive power locally, which reduces the **line** current."
+    },
+    {
+     "id": "g1",
+     "type": "numeric",
+     "params": {
+      "S": [
+       100,
+       200,
+       500
+      ],
+      "th": [
+       30,
+       45,
+       60,
+       70
+      ]
+     },
+     "derived": {
+      "P": "S*cos(rad(th))"
+     },
+     "prompt": "The graph shows the instantaneous power $p(t)$ absorbed by a load at 50 Hz.",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 0.04,
+       "label": "t",
+       "unit": "s"
+      },
+      "y": {
+       "min": "-S",
+       "max": "2.2*S",
+       "label": "power p",
+       "unit": "W"
+      },
+      "curves": [
+       {
+        "f": "P+S*cos(4*pi*50*x-rad(th))"
+       }
+      ]
+     },
+     "tolerance": 0.1,
+     "ask": [
+      {
+       "prompt": "Find the average power $P$.",
+       "answer": "P",
+       "unit": "W",
+       "explanation": "$p(t) = P + |\\mathbf{S}|\\cos(2\\omega t + \\dots)$ oscillates symmetrically around its average. Read $p_{max}$ = {{P+S|W}} and $p_{min}$ = {{P-S|W}}: $P = (p_{max} + p_{min})/2$ = {{P|W}}. The negative part means the load returns energy to the source for part of each cycle."
+      },
+      {
+       "prompt": "Find the power factor of the load.",
+       "answer": "cos(rad(th))",
+       "unit": "",
+       "explanation": "Average: $P = (p_{max} + p_{min})/2$ = {{P|W}}. The oscillation amplitude is the apparent power: $|\\mathbf{S}| = V_{rms}I_{rms} = (p_{max} - p_{min})/2$ = {{S|VA}}. So $PF = P/|\\mathbf{S}|$ = {{cos(rad(th))}} (θ = {{th}}°)."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ac-power-3",
+   "title": "Correction and maximum power",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "Vt": [
+       10,
+       20,
+       50,
+       100
+      ],
+      "Rt": [
+       5,
+       10,
+       25,
+       50
+      ],
+      "Xt": [
+       -20,
+       10,
+       30
+      ]
+     },
+     "prompt": "A source has $\\mathbf{V}_t = {{Vt}}\\angle 0^\\circ$ V (peak) and $Z_t = {{Rt}} + j({{Xt}})$ Ω. Find the maximum average power it can deliver to a load $Z_L$ of any value.",
+     "answer": "Vt^2/(8*Rt)",
+     "unit": "W",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_t",
+        "value": "{{Vt}} V (peak)",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "Z_t",
+        "value": "{{Rt}} + j({{Xt}}) Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "Z_L",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     },
+     "explanation": "Choose $Z_L = Z_t^* = {{Rt}} - j({{Xt}})$ Ω. The total impedance is $2R_t = {{2*Rt}}$ Ω, so $I_m = {{Vt}}/{{2*Rt}}$ = {{Vt/(2*Rt)|A}} and\n$$P = \\frac{I_m^2}{2}R_L = \\frac{|\\mathbf{V}_t|^2}{8R_t} = \\frac{ {{Vt}}^2}{8\\times{{Rt}} } = {{Vt^2/(8*Rt)}}\\ \\mathrm{W}$$"
+    },
+    {
+     "id": "c2",
+     "type": "multipleChoice",
+     "params": {
+      "Rt": [
+       10,
+       25,
+       50
+      ],
+      "Xt": [
+       10,
+       30,
+       40
+      ]
+     },
+     "prompt": "A source has $Z_t = {{Rt}} + j{{Xt}}$ Ω. Which load impedance, of any value, absorbs the most average power?",
+     "options": [
+      "${{Rt}} - j{{Xt}}$ Ω",
+      "${{Rt}} + j{{Xt}}$ Ω",
+      "${{sqrt(Rt^2+Xt^2)}}$ Ω (pure resistance)",
+      "${{Rt}}$ Ω (pure resistance)"
+     ],
+     "answer": 0,
+     "explanation": "The optimum is the complex conjugate $Z_L = Z_t^* = {{Rt}} - j{{Xt}}$ Ω: the load reactance cancels the source reactance and $R_L = R_t$. ${{sqrt(Rt^2+Xt^2)}}$ Ω $= |Z_t|$ is only the best choice when the load must be purely resistive."
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "Vt": [
+       10,
+       20,
+       50
+      ],
+      "Rt": [
+       10,
+       20,
+       30
+      ],
+      "Xt": [
+       10,
+       20,
+       40
+      ]
+     },
+     "derived": {
+      "RL": "sqrt(Rt^2+Xt^2)"
+     },
+     "prompt": "A source with $\\mathbf{V}_t = {{Vt}}\\angle 0^\\circ$ V (peak) and $Z_t = {{Rt}} + j{{Xt}}$ Ω drives the best possible **pure resistance** $R_L = |Z_t|$. Find the power delivered to $R_L$.",
+     "answer": "0.5*Vt^2*RL/((Rt+RL)^2+Xt^2)",
+     "unit": "W",
+     "explanation": "$R_L = |Z_t| = {{RL}}$ Ω. The loop impedance is $({{Rt}} + {{RL}}) + j{{Xt}}$ Ω, so $I_m = \\frac{ {{Vt}} }{\\sqrt{ {{Rt+RL}}^2 + {{Xt}}^2} }$ = {{Vt/sqrt((Rt+RL)^2+Xt^2)|A}}.\n$P = \\tfrac12 I_m^2R_L$ = {{0.5*Vt^2*RL/((Rt+RL)^2+Xt^2)|W}}, less than the conjugate-match maximum {{Vt^2/(8*Rt)|W}}."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "P": [
+       10000.0,
+       20000.0
+      ],
+      "V": [
+       230,
+       400
+      ],
+      "pf1": [
+       0.6,
+       0.7
+      ],
+      "pf2": [
+       0.95,
+       1.0
+      ]
+     },
+     "prompt": "A {{P|W}} load on a {{V}} V rms line has PF = {{pf1}} lagging. After power-factor correction to {{pf2}}, what rms current does the line carry?",
+     "answer": "P/(V*pf2)",
+     "unit": "A",
+     "explanation": "$P$ is unchanged by the parallel capacitor, so $I_{rms} = \\frac{P}{V_{rms}\\,PF}$. Before: {{P/(V*pf1)|A}}. After: $\\frac{ {{P}} }{ {{V}}\\times{{pf2}} }$ = {{P/(V*pf2)|A}}, a reduction of {{100*(1-pf1/pf2)|%}}."
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "V": [
+       120,
+       230
+      ],
+      "P": [
+       500,
+       1000,
+       2000
+      ],
+      "Q": [
+       300,
+       800,
+       -600,
+       1500
+      ]
+     },
+     "prompt": "A load connected to {{V}} V rms absorbs $\\mathbf{S} = {{P}} + j({{Q}})$ VA. Model it as $Z = R + jX$ and find $R$.",
+     "answer": "V^2*P/(P^2+Q^2)",
+     "unit": "Ω",
+     "hint": "With rms phasors, $\\mathbf{S} = \\mathbf{V}\\mathbf{I}^* = |\\mathbf{V}|^2/Z^*$.",
+     "explanation": "$\\mathbf{S} = \\mathbf{V}\\mathbf{I}^* = \\frac{|\\mathbf{V}|^2}{Z^*}$, so $Z = \\frac{|\\mathbf{V}|^2}{\\mathbf{S}^*} = \\frac{V_{rms}^2(P + jQ)}{P^2 + Q^2}$.\n$R = \\frac{ {{V}}^2\\times{{P}} }{ {{P}}^2 + ({{Q}})^2}$ = {{V^2*P/(P^2+Q^2)|Ω}} (and $X$ = {{V^2*Q/(P^2+Q^2)|Ω}})."
+    },
+    {
+     "id": "c6",
+     "type": "numeric",
+     "params": {
+      "V": [
+       120,
+       230
+      ],
+      "P": [
+       500,
+       1000,
+       2000
+      ],
+      "Q": [
+       300,
+       800,
+       -600,
+       -1500
+      ]
+     },
+     "prompt": "A load connected to {{V}} V rms absorbs $\\mathbf{S} = {{P}} + j({{Q}})$ VA. Model it as $Z = R + jX$ and find $X$ (with sign).",
+     "answer": "V^2*Q/(P^2+Q^2)",
+     "unit": "Ω",
+     "explanation": "$Z = \\frac{V_{rms}^2}{\\mathbf{S}^*} = \\frac{V_{rms}^2(P + jQ)}{P^2 + Q^2}$, so $X = \\frac{ {{V}}^2\\times({{Q}})}{ {{P}}^2 + ({{Q}})^2}$ = {{V^2*Q/(P^2+Q^2)|Ω}}. The sign of $X$ follows the sign of $Q$: positive $Q$ means inductive."
+    },
+    {
+     "id": "c7",
+     "type": "orderSteps",
+     "prompt": "Put the steps for sizing a power-factor correction capacitor in order.",
+     "items": [
+      "Find $\\theta_{old} = \\arccos(PF_{old})$ and $Q_{old} = P\\tan\\theta_{old}$",
+      "Find $\\theta_{new} = \\arccos(PF_{new})$ and $Q_{new} = P\\tan\\theta_{new}$",
+      "Compute $Q_C = Q_{new} - Q_{old}$ (negative)",
+      "Compute the capacitor reactance $X_C = V_{rms}^2/Q_C$ (negative)",
+      "Compute $C = 1/(\\omega|X_C|)$"
+     ],
+     "explanation": "$P$ stays the same, so the triangle shrinks only vertically. The capacitor must supply the difference in reactive power; its reactance follows from $Q_C = V_{rms}^2/X_C$, so $X_C < 0$, and then $C = 1/(\\omega|X_C|)$."
+    },
+    {
+     "id": "g1",
+     "type": "multipleChoice",
+     "params": {
+      "k": [
+       0,
+       1,
+       2
+      ],
+      "S": [
+       100,
+       500
+      ]
+     },
+     "derived": {
+      "s1": "max(0,1-abs(k-1))",
+      "s2": "max(0,1-abs(k-2))",
+      "th": "90*s1+50*s2",
+      "P": "S*cos(rad(th))*(1-s1)"
+     },
+     "prompt": "The graph shows the instantaneous power $p(t)$ absorbed by a load. What kind of load is it?",
+     "plot": {
+      "x": {
+       "min": 0,
+       "max": 0.04,
+       "label": "t",
+       "unit": "s"
+      },
+      "y": {
+       "min": "-1.2*S",
+       "max": "2.2*S",
+       "label": "power p",
+       "unit": "W"
+      },
+      "curves": [
+       {
+        "f": "P+S*cos(4*pi*50*x-rad(th))"
+       }
+      ]
+     },
+     "options": [
+      "A pure resistance",
+      "A pure inductance or capacitance",
+      "A load with both resistance and reactance"
+     ],
+     "answer": "k",
+     "explanation": "$p(t)$ oscillates at twice the signal frequency around its average $P = |\\mathbf{S}|\\cos\\theta$. If $p$ never goes negative and its minimum is 0, $\\theta = 0$: a resistance. If it swings symmetrically around 0, $P = 0$ and $\\theta = \\pm 90^\\circ$: a pure inductance or capacitance (you cannot tell which from $p(t)$ alone). In between ($0 < P < |\\mathbf{S}|$, partly negative) the load has both R and X. Here $P$ = {{P|W}} and $|\\mathbf{S}|$ = {{S|VA}}."
+    }
+   ]
+  }
+ ]
+}

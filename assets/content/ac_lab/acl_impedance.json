@@ -1,0 +1,3380 @@
+{
+ "id": "acl-impedance",
+ "title": "Impedance Networks",
+ "description": "Impedances of R, L and C, series and parallel networks, and series RLC resonance on randomized circuits.",
+ "reference": "Hambley §5.3–5.4, §6.6, App. A",
+ "study": [
+  {
+   "title": "Impedances of R, L and C",
+   "body": "At angular frequency $\\omega = 2\\pi f$ each element has a complex impedance. An inductor's impedance grows with frequency, a capacitor's falls: $Z_R = R$, and $Z_C = 1/(j\\omega C) = -j/(\\omega C)$ has a **negative** imaginary part. Always check whether you were given $f$ (Hz) or $\\omega$ (rad/s).",
+   "formula": "Z_L = j\\omega L \\qquad Z_C = \\frac{1}{j\\omega C}"
+  },
+  {
+   "title": "Combining impedances",
+   "body": "Series impedances add; parallel ones combine like resistors. Write the result as $Z = R + jX = |Z|\\angle\\theta$ with $|Z| = \\sqrt{R^2 + X^2}$ and $\\theta = \\arctan(X/R)$ (since $R > 0$, $\\theta$ lies between −90° and +90°). Add in rectangular form, multiply and divide in polar form.",
+   "formula": "Z_s = Z_1 + Z_2 \\qquad Z_p = \\frac{Z_1 Z_2}{Z_1 + Z_2}"
+  },
+  {
+   "title": "Inductive or capacitive",
+   "body": "$X > 0$ (angle positive): inductive, the current lags the voltage. $X < 0$: capacitive, the current leads. A series RLC network has $X = \\omega L - 1/(\\omega C)$: capacitive below $\\omega_0$, inductive above, purely resistive at $\\omega_0$, where $|Z| = R$ is minimal.",
+   "formula": "\\omega_0 = \\frac{1}{\\sqrt{LC}}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       0
+      ],
+      "label": "a",
+      "flip": true
+     },
+     {
+      "type": "terminal",
+      "at": [
+       0,
+       2
+      ],
+      "label": "b",
+      "flip": true
+     },
+     {
+      "type": "resistor",
+      "from": [
+       0,
+       0
+      ],
+      "to": [
+       2,
+       0
+      ],
+      "label": "R"
+     },
+     {
+      "type": "inductor",
+      "from": [
+       2,
+       0
+      ],
+      "to": [
+       4,
+       0
+      ],
+      "label": "L"
+     },
+     {
+      "type": "capacitor",
+      "from": [
+       4,
+       0
+      ],
+      "to": [
+       4,
+       2
+      ],
+      "label": "C"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Common mistakes",
+   "body": "- Adding magnitudes: 30 Ω + j40 Ω is 50 Ω, not 70 Ω.\n- Taking the resistor value as the real part of a **parallel** combination: $R \\parallel jX_L$ has real part $RX_L^2/(R^2 + X_L^2) < R$.\n- Forgetting the minus sign of $1/(j\\omega C) = -j/(\\omega C)$.\n- Using $f$ where $\\omega$ is needed (a factor $2\\pi$)."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "acl-impedance-1",
+   "title": "Series impedances",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Impedance in one line",
+     "body": "At one frequency every R, L and C becomes a complex impedance $Z = R + jX$ ($Z_R = R$ for a resistor). Series impedances add; nothing else changes compared with resistor networks, except that you add **complex numbers**, never magnitudes.",
+     "formula": "Z_L = j\\omega L \\qquad Z_C = \\frac{1}{j\\omega C}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "L": [
+       0.0047,
+       0.0068,
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "f": [
+       50,
+       100,
+       200,
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "XL": "2*pi*f*L",
+      "Zeq_re": "R",
+      "Zeq_im": "XL",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "min(abs(Zeq_ph) - 8, 82 - abs(Zeq_ph))",
+     "prompt": "The network between a and b is used at $f$ = {{f|Hz}}.",
+     "ask": [
+      {
+       "prompt": "Find the magnitude $|Z_{eq}|$ of its impedance.",
+       "answer": "Zeq",
+       "unit": "Ω",
+       "explanation": "$\\omega = 2\\pi f$ = {{2*pi*f|rad/s}}, so $X_L = \\omega L$ = {{XL|Ω}}. Series: $Z_{eq} = R + jX_L$, and $|Z_{eq}| = \\sqrt{R^2 + X_L^2}$ = **{{Zeq|Ω}}**."
+      },
+      {
+       "prompt": "Find the angle of $Z_{eq}$ in degrees.",
+       "answer": "Zeq_ph",
+       "unit": "°",
+       "explanation": "$X_L = 2\\pi f L$ = {{XL|Ω}}. $\\theta = \\arctan(X_L/R)$ = arctan({{XL|Ω}} / {{R|Ω}}) = **{{Zeq_ph|°}}** (positive: inductive).",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the reactance $X$ in $Z_{eq} = R + jX$ (with sign).",
+       "answer": "Zeq_im",
+       "unit": "Ω",
+       "explanation": "Only the inductor contributes reactance: $X = \\omega L = 2\\pi$ · {{f|Hz}} · {{L|H}} = **{{Zeq_im|Ω}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "C": [
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05,
+       6.8e-05,
+       0.0001
+      ],
+      "f": [
+       50,
+       100,
+       200,
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "XC": "1/(2*pi*f*C)",
+      "Zeq_re": "R",
+      "Zeq_im": "-XC",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "min(abs(Zeq_ph) - 8, 82 - abs(Zeq_ph))",
+     "prompt": "The network between a and b is used at $f$ = {{f|Hz}}.",
+     "ask": [
+      {
+       "prompt": "Find the magnitude $|Z_{eq}|$ of its impedance.",
+       "answer": "Zeq",
+       "unit": "Ω",
+       "explanation": "$\\frac{1}{\\omega C} = \\frac{1}{2\\pi f C}$ = {{XC|Ω}}, so $Z_{eq} = R - j$ {{XC|Ω}} and $|Z_{eq}| = \\sqrt{R^2 + (1/\\omega C)^2}$ = **{{Zeq|Ω}}**."
+      },
+      {
+       "prompt": "Find the angle of $Z_{eq}$ in degrees.",
+       "answer": "Zeq_ph",
+       "unit": "°",
+       "explanation": "$X = -\\frac{1}{\\omega C}$ = {{-XC|Ω}}. $\\theta = \\arctan(X/R)$ = arctan({{-XC|Ω}} / {{R|Ω}}) = **{{Zeq_ph|°}}**: negative, the network is capacitive.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the reactance $X$ in $Z_{eq} = R + jX$ (with sign).",
+       "answer": "Zeq_im",
+       "unit": "Ω",
+       "explanation": "$Z_C = \\frac{1}{j\\omega C} = -j\\frac{1}{\\omega C}$, so $X = -\\frac{1}{2\\pi f C}$ = **{{Zeq_im|Ω}}**. A capacitor's reactance is negative."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "params": {
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "L": [
+       0.0047,
+       0.0068,
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05,
+       6.8e-05,
+       0.0001
+      ],
+      "f": [
+       50,
+       100,
+       200,
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "XL": "2*pi*f*L",
+      "XC": "1/(2*pi*f*C)",
+      "Zeq_re": "R",
+      "Zeq_im": "XL - XC",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "abs(Zeq_ph) - 8",
+     "prompt": "At $f$ = {{f|Hz}}, is this series RLC network inductive or capacitive?",
+     "options": [
+      "Inductive: $X > 0$, the current lags the voltage",
+      "Capacitive: $X < 0$, the current leads the voltage",
+      "Purely resistive: $X = 0$"
+     ],
+     "answer": "if(Zeq_im, 0, 1)",
+     "explanation": "$X = \\omega L - \\frac{1}{\\omega C}$ = {{XL|Ω}} − {{XC|Ω}} = **{{Zeq_im|Ω}}**. Positive $X$ means inductive, negative capacitive; it would be resistive only exactly at resonance. Here $\\angle Z_{eq}$ = {{Zeq_ph|°}}.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "matchPairs",
+     "prompt": "Match each element or network with the angle of its impedance.",
+     "pairs": [
+      [
+       "Resistor",
+       "$0^\\circ$"
+      ],
+      [
+       "Inductor",
+       "$+90^\\circ$"
+      ],
+      [
+       "Capacitor",
+       "$-90^\\circ$"
+      ],
+      [
+       "Series R and L",
+       "between $0^\\circ$ and $+90^\\circ$"
+      ],
+      [
+       "Series R and C",
+       "between $-90^\\circ$ and $0^\\circ$"
+      ]
+     ],
+     "explanation": "$Z_L = j\\omega L = \\omega L\\angle 90^\\circ$ and $Z_C = -j/(\\omega C) = (1/\\omega C)\\angle{-90^\\circ}$. Adding a positive real part $R$ pulls the angle towards $0^\\circ$ but keeps the sign of $X$."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000,
+       10000
+      ]
+     },
+     "derived": {
+      "XL": "w*L",
+      "XC": "1/(w*C)",
+      "Zeq_re": "R",
+      "Zeq_im": "XL - XC",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "min(abs(Zeq_ph) - 10, 80 - abs(Zeq_ph))",
+     "prompt": "The network is used at $\\omega$ = {{w}} rad/s.",
+     "ask": [
+      {
+       "prompt": "Find $|Z_{eq}|$.",
+       "answer": "Zeq",
+       "unit": "Ω",
+       "explanation": "$\\omega L$ = {{XL|Ω}}, $\\frac{1}{\\omega C}$ = {{XC|Ω}}, so $X = \\omega L - \\frac{1}{\\omega C}$ = {{Zeq_im|Ω}}. $|Z_{eq}| = \\sqrt{R^2 + X^2}$ = **{{Zeq|Ω}}**."
+      },
+      {
+       "prompt": "Find the angle of $Z_{eq}$ in degrees.",
+       "answer": "Zeq_ph",
+       "unit": "°",
+       "explanation": "$X = \\omega L - \\frac{1}{\\omega C}$ = {{XL|Ω}} − {{XC|Ω}} = {{Zeq_im|Ω}}. $\\theta = \\arctan(X/R)$ = **{{Zeq_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the reactance $X$ of $Z_{eq} = R + jX$ (with sign).",
+       "answer": "Zeq_im",
+       "unit": "Ω",
+       "explanation": "The reactances of L and C are in series and partly cancel: $X = \\omega L - \\frac{1}{\\omega C}$ = {{XL|Ω}} − {{XC|Ω}} = **{{Zeq_im|Ω}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q6",
+     "type": "trueFalse",
+     "prompt": "Doubling the frequency doubles the magnitude $|Z|$ of a series RL network.",
+     "answer": false,
+     "explanation": "Only the reactance doubles: $|Z| = \\sqrt{R^2 + (2\\omega L)^2}$, which is **less** than $2\\sqrt{R^2 + (\\omega L)^2}$ because $R$ does not change. Example: $R$ = 30 Ω, $\\omega L$ = 40 Ω gives 50 Ω; at $2\\omega$ it is $\\sqrt{30^2 + 80^2}$ ≈ 85.4 Ω, not 100 Ω."
+    },
+    {
+     "id": "q7",
+     "type": "numeric",
+     "params": {
+      "Zm": [
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "th": {
+       "min": 20,
+       "max": 70,
+       "step": 5
+      },
+      "f": [
+       50,
+       100,
+       200,
+       500,
+       1000
+      ]
+     },
+     "prompt": "A series RL network has $|Z|$ = {{Zm|Ω}} and $\\angle Z$ = {{th}}° at $f$ = {{f|Hz}}.",
+     "ask": [
+      {
+       "prompt": "Find $R$.",
+       "answer": "Zm*cos(rad(th))",
+       "unit": "Ω",
+       "explanation": "In rectangular form $Z = |Z|\\cos\\theta + j|Z|\\sin\\theta$. So $R = |Z|\\cos\\theta$ = {{Zm|Ω}} · cos {{th}}° = **{{Zm*cos(rad(th))|Ω}}**."
+      },
+      {
+       "prompt": "Find $L$.",
+       "answer": "Zm*sin(rad(th))/(2*pi*f)",
+       "unit": "H",
+       "explanation": "$X_L = |Z|\\sin\\theta$ = {{Zm*sin(rad(th))|Ω}}, and $L = X_L/\\omega = X_L/(2\\pi f)$ = **{{Zm*sin(rad(th))/(2*pi*f)|H}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "L"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "acl-impedance-2",
+   "title": "Parallel and series-parallel",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "R": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0,
+       2700.0,
+       3300.0,
+       3900.0,
+       4700.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "f": [
+       100,
+       200,
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "XL": "2*pi*f*L",
+      "Zeq_re": "R*XL^2/(R^2 + XL^2)",
+      "Zeq_im": "R^2*XL/(R^2 + XL^2)",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "min(abs(Zeq_ph) - 10, 80 - abs(Zeq_ph))",
+     "prompt": "$R$ and $L$ are in parallel between a and b, at $f$ = {{f|Hz}}.",
+     "ask": [
+      {
+       "prompt": "Find $|Z_{eq}|$.",
+       "answer": "Zeq",
+       "unit": "Ω",
+       "explanation": "$X_L = 2\\pi f L$ = {{XL|Ω}}. $Z_{eq} = \\frac{R\\,(jX_L)}{R + jX_L}$, so $|Z_{eq}| = \\frac{R X_L}{\\sqrt{R^2 + X_L^2}}$ = **{{Zeq|Ω}}** — smaller than both $R$ and $X_L$."
+      },
+      {
+       "prompt": "Find the angle of $Z_{eq}$ in degrees.",
+       "answer": "Zeq_ph",
+       "unit": "°",
+       "explanation": "$\\angle Z_{eq} = \\angle(jX_L) - \\angle(R + jX_L) = 90^\\circ - \\arctan(X_L/R)$ with $X_L$ = {{XL|Ω}}: **{{Zeq_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the resistance (real part) of $Z_{eq} = R_{eq} + jX_{eq}$.",
+       "answer": "Zeq_re",
+       "unit": "Ω",
+       "explanation": "Multiply by the conjugate: $Z_{eq} = \\frac{R X_L^2}{R^2 + X_L^2} + j\\frac{R^2 X_L}{R^2 + X_L^2}$. With $X_L$ = {{XL|Ω}}: $R_{eq}$ = **{{Zeq_re|Ω}}** (less than $R$ = {{R|Ω}})."
+      },
+      {
+       "prompt": "Find the reactance (imaginary part) of $Z_{eq} = R_{eq} + jX_{eq}$.",
+       "answer": "Zeq_im",
+       "unit": "Ω",
+       "explanation": "$X_{eq} = \\frac{R^2 X_L}{R^2 + X_L^2}$ with $X_L$ = {{XL|Ω}}: **{{Zeq_im|Ω}}** (less than $X_L$)."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "multipleChoice",
+     "prompt": "A resistor $R$ is in parallel with an inductor. The parallel combination is written as $Z_{eq} = R_{eq} + jX_{eq}$. How does $R_{eq}$ compare with $R$?",
+     "options": [
+      "$R_{eq} < R$",
+      "$R_{eq} = R$",
+      "$R_{eq} > R$"
+     ],
+     "answer": 0,
+     "explanation": "$R_{eq} = \\frac{R X_L^2}{R^2 + X_L^2} = R\\cdot\\frac{X_L^2}{R^2 + X_L^2}$, and the fraction is below 1. The real part of a parallel combination is **not** the resistor's value: the series-equivalent resistance depends on frequency. E.g. $R$ = 100 Ω ∥ $X_L$ = 100 Ω gives $Z_{eq}$ = 50 + j50 Ω."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "R": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0,
+       2700.0,
+       3300.0,
+       3900.0,
+       4700.0,
+       5600.0,
+       6800.0,
+       8200.0,
+       10000.0
+      ],
+      "C": [
+       1e-08,
+       1.5e-08,
+       2.2e-08,
+       3.3e-08,
+       4.7e-08,
+       6.8e-08,
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05
+      ],
+      "f": [
+       100,
+       200,
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "XC": "1/(2*pi*f*C)",
+      "Zeq_re": "R*XC^2/(R^2 + XC^2)",
+      "Zeq_im": "-R^2*XC/(R^2 + XC^2)",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "min(abs(Zeq_ph) - 10, 80 - abs(Zeq_ph))",
+     "prompt": "$R$ and $C$ are in parallel between a and b, at $f$ = {{f|Hz}}.",
+     "ask": [
+      {
+       "prompt": "Find $|Z_{eq}|$.",
+       "answer": "Zeq",
+       "unit": "Ω",
+       "explanation": "$\\frac{1}{\\omega C}$ = {{XC|Ω}}. $Z_{eq} = \\frac{R\\,(-jX_C)}{R - jX_C}$ with $X_C = 1/\\omega C$, so $|Z_{eq}| = \\frac{R X_C}{\\sqrt{R^2 + X_C^2}}$ = **{{Zeq|Ω}}**."
+      },
+      {
+       "prompt": "Find the angle of $Z_{eq}$ in degrees.",
+       "answer": "Zeq_ph",
+       "unit": "°",
+       "explanation": "$\\angle Z_{eq} = -90^\\circ + \\arctan(X_C/R)$ with $X_C = 1/\\omega C$ = {{XC|Ω}}: **{{Zeq_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the reactance (imaginary part, with sign) of $Z_{eq}$.",
+       "answer": "Zeq_im",
+       "unit": "Ω",
+       "explanation": "$Z_{eq} = \\frac{R X_C^2}{R^2 + X_C^2} - j\\frac{R^2 X_C}{R^2 + X_C^2}$ with $X_C$ = {{XC|Ω}}: $X_{eq}$ = **{{Zeq_im|Ω}}**."
+      },
+      {
+       "prompt": "Find the resistance (real part) of $Z_{eq}$.",
+       "answer": "Zeq_re",
+       "unit": "Ω",
+       "explanation": "$R_{eq} = \\frac{R X_C^2}{R^2 + X_C^2}$ with $X_C = 1/\\omega C$ = {{XC|Ω}}: **{{Zeq_re|Ω}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "tapCircuit",
+     "prompt": "Tap every element that is in **parallel** with $C_1$.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "name": "R1",
+        "label": "R_1"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "name": "C1",
+        "label": "C_1"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "name": "R2",
+        "label": "R_2"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "L1",
+        "label": "L_1"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "R3",
+        "label": "R_3"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       }
+      ]
+     },
+     "selectable": [
+      "R1",
+      "R2",
+      "L1",
+      "R3"
+     ],
+     "answer": [
+      "R2"
+     ],
+     "explanation": "Parallel elements share **both** nodes. $R_2$ connects the same two nodes as $C_1$. $L_1$ and $R_3$ are in series with each other; only their combination $L_1 + R_3$ is in parallel with $C_1$. $R_1$ is in series with the rest. So $Z_{eq} = R_1 + Z_{C_1} \\parallel R_2 \\parallel (Z_{L_1} + R_3)$."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "R1": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "R2": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0,
+       2700.0,
+       3300.0,
+       3900.0,
+       4700.0
+      ],
+      "C": [
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05
+      ],
+      "f": [
+       100,
+       200,
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "XC": "1/(2*pi*f*C)",
+      "Zeq_re": "R1 + R2*XC^2/(R2^2 + XC^2)",
+      "Zeq_im": "-R2^2*XC/(R2^2 + XC^2)",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "min(abs(Zeq_ph) - 6, 80 - abs(Zeq_ph))",
+     "prompt": "The network is used at $f$ = {{f|Hz}}.",
+     "ask": [
+      {
+       "prompt": "Find $|Z_{eq}|$.",
+       "answer": "Zeq",
+       "unit": "Ω",
+       "explanation": "$Z_C = -j$ {{XC|Ω}}. $R_2 \\parallel Z_C = \\frac{R_2 Z_C}{R_2 + Z_C}$ = {{Zeq_re-R1|Ω}} + j({{Zeq_im|Ω}}). Add $R_1$: $Z_{eq}$ = {{Zeq_re|Ω}} + j({{Zeq_im|Ω}}), $|Z_{eq}|$ = **{{Zeq|Ω}}**."
+      },
+      {
+       "prompt": "Find the angle of $Z_{eq}$ in degrees.",
+       "answer": "Zeq_ph",
+       "unit": "°",
+       "explanation": "$R_2 \\parallel Z_C$ = {{Zeq_re-R1|Ω}} + j({{Zeq_im|Ω}}) with $Z_C = -j$ {{XC|Ω}}. Adding $R_1$ gives $Z_{eq}$ = {{Zeq_re|Ω}} + j({{Zeq_im|Ω}}), angle **{{Zeq_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the resistance (real part) of $Z_{eq}$.",
+       "answer": "Zeq_re",
+       "unit": "Ω",
+       "explanation": "$\\mathrm{Re}\\{R_2 \\parallel Z_C\\} = \\frac{R_2 X_C^2}{R_2^2 + X_C^2}$ = {{Zeq_re-R1|Ω}} with $X_C$ = {{XC|Ω}}. Plus $R_1$: **{{Zeq_re|Ω}}**."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q6",
+     "type": "multipleChoice",
+     "params": {
+      "R": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0
+      ],
+      "L": [
+       0.0047,
+       0.0068,
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22
+      ],
+      "C": [
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05
+      ],
+      "f": [
+       200,
+       500,
+       1000,
+       2000
+      ]
+     },
+     "derived": {
+      "XL": "2*pi*f*L",
+      "XC": "1/(2*pi*f*C)",
+      "Zeq_re": "R*XC^2/(R^2 + XC^2)",
+      "Zeq_im": "XL - R^2*XC/(R^2 + XC^2)",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "abs(Zeq_ph) - 8",
+     "prompt": "At $f$ = {{f|Hz}}, is this network inductive or capacitive?",
+     "options": [
+      "Inductive ($X_{eq} > 0$)",
+      "Capacitive ($X_{eq} < 0$)",
+      "Purely resistive"
+     ],
+     "answer": "if(Zeq_im, 0, 1)",
+     "explanation": "$X_L = \\omega L$ = {{XL|Ω}}. The parallel part $R \\parallel Z_C$ (with $1/\\omega C$ = {{XC|Ω}}) has reactance {{Zeq_im-XL|Ω}}. Total $X_{eq}$ = {{XL|Ω}} + ({{Zeq_im-XL|Ω}}) = **{{Zeq_im|Ω}}**, so $\\angle Z_{eq}$ = {{Zeq_ph|°}}. Positive is inductive, negative capacitive. Note that you must use the reactance of the **whole** parallel part, not $1/\\omega C$ alone.",
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "inductor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q7",
+     "type": "numeric",
+     "params": {
+      "R1": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "R2": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "Z1r": "R1",
+      "Z1i": "w*L",
+      "Z2i": "-1/(w*C)",
+      "pNr": "(R1)*(R2) - (Z1i)*(Z2i)",
+      "pNi": "(R1)*(Z2i) + (Z1i)*(R2)",
+      "pDr": "(R1) + (R2)",
+      "pDi": "(Z1i) + (Z2i)",
+      "Zeq_re": "(pNr*pDr + pNi*pDi)/(pDr^2 + pDi^2)",
+      "Zeq_im": "(pNi*pDr - pNr*pDi)/(pDr^2 + pDi^2)",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "min(abs(Zeq_ph) - 5, 80 - abs(Zeq_ph))",
+     "prompt": "The network is used at $\\omega$ = {{w}} rad/s.",
+     "ask": [
+      {
+       "prompt": "Find $|Z_{eq}|$.",
+       "answer": "Zeq",
+       "unit": "Ω",
+       "explanation": "Branch impedances: $Z_1 = R_1 + j\\omega L$ = {{R1|Ω}} + j{{Z1i|Ω}}, $Z_2 = R_2 - j/(\\omega C)$ = {{R2|Ω}} − j{{-Z2i|Ω}}. $Z_{eq} = \\frac{Z_1 Z_2}{Z_1 + Z_2}$ = {{Zeq_re|Ω}} + j({{Zeq_im|Ω}}), so $|Z_{eq}|$ = **{{Zeq|Ω}}**."
+      },
+      {
+       "prompt": "Find the angle of $Z_{eq}$ in degrees.",
+       "answer": "Zeq_ph",
+       "unit": "°",
+       "explanation": "$Z_1$ = {{R1|Ω}} + j{{Z1i|Ω}}, $Z_2$ = {{R2|Ω}} − j{{-Z2i|Ω}}. $Z_{eq} = \\frac{Z_1 Z_2}{Z_1 + Z_2}$ = {{Zeq|Ω}} ∠ **{{Zeq_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the resistance (real part) of $Z_{eq}$.",
+       "answer": "Zeq_re",
+       "unit": "Ω",
+       "explanation": "$Z_1$ = {{R1|Ω}} + j{{Z1i|Ω}}, $Z_2$ = {{R2|Ω}} − j{{-Z2i|Ω}}. $Z_{eq} = \\frac{Z_1 Z_2}{Z_1 + Z_2}$ = **{{Zeq_re|Ω}}** + j({{Zeq_im|Ω}})."
+      },
+      {
+       "prompt": "Find the reactance (imaginary part, with sign) of $Z_{eq}$.",
+       "answer": "Zeq_im",
+       "unit": "Ω",
+       "explanation": "$Z_1$ = {{R1|Ω}} + j{{Z1i|Ω}}, $Z_2$ = {{R2|Ω}} − j{{-Z2i|Ω}}. $Z_{eq} = \\frac{Z_1 Z_2}{Z_1 + Z_2}$ = {{Zeq_re|Ω}} + j(**{{Zeq_im|Ω}}**)."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         4
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R_1",
+        "value": "{{R1|Ω}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         2
+        ],
+        "to": [
+         2,
+         4
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "resistor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "R_2",
+        "value": "{{R2|Ω}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         2
+        ],
+        "to": [
+         4,
+         4
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          4
+         ],
+         [
+          0,
+          4
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         4
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q8",
+     "type": "numeric",
+     "params": {
+      "R": [
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0,
+       1200.0,
+       1500.0,
+       1800.0,
+       2200.0,
+       2700.0,
+       3300.0,
+       3900.0,
+       4700.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05
+      ],
+      "f": [
+       100,
+       200,
+       500,
+       1000,
+       2000
+      ]
+     },
+     "derived": {
+      "XL": "2*pi*f*L",
+      "XC": "1/(2*pi*f*C)",
+      "B": "2*pi*f*C - 1/(2*pi*f*L)",
+      "Zeq_re": "(1/R)/((1/R)^2 + B^2)",
+      "Zeq_im": "-B/((1/R)^2 + B^2)",
+      "Zeq": "sqrt(Zeq_re^2 + Zeq_im^2)",
+      "Zeq_ph": "atan2(Zeq_im, Zeq_re)*180/pi"
+     },
+     "require": "min(abs(Zeq_ph) - 10, 80 - abs(Zeq_ph))",
+     "prompt": "$R$, $L$ and $C$ are in parallel, at $f$ = {{f|Hz}}.",
+     "ask": [
+      {
+       "prompt": "Find $|Z_{eq}|$.",
+       "answer": "Zeq",
+       "unit": "Ω",
+       "explanation": "Add the admittances: $\\frac{1}{Z_{eq}} = \\frac{1}{R} + \\frac{1}{j\\omega L} + j\\omega C = \\frac{1}{R} + j\\left(\\omega C - \\frac{1}{\\omega L}\\right)$ = {{1/R|S}} + j({{B|S}}). Then $|Z_{eq}| = 1/\\sqrt{(1/R)^2 + (\\omega C - 1/\\omega L)^2}$ = **{{Zeq|Ω}}**."
+      },
+      {
+       "prompt": "Find the angle of $Z_{eq}$ in degrees.",
+       "answer": "Zeq_ph",
+       "unit": "°",
+       "explanation": "$\\frac{1}{Z_{eq}}$ = {{1/R|S}} + j({{B|S}}), whose angle is {{-Zeq_ph|°}}. $Z_{eq}$ has the opposite angle: **{{Zeq_ph|°}}**. In parallel, the **smaller** reactance dominates: here $\\omega L$ = {{XL|Ω}} and $1/\\omega C$ = {{XC|Ω}}.",
+       "absTolerance": 1.5
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         2,
+         2
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         2,
+         2
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         4,
+         2
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "acl-impedance-3",
+   "title": "Series RLC and resonance",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Series resonance",
+     "body": "In a series RLC circuit the reactances cancel when $\\omega L = 1/(\\omega C)$. At this frequency $\\omega_0$ the impedance is purely resistive and smallest ($Z = R$), so the current is largest and in phase with the source. Below $\\omega_0$ the circuit is capacitive (current leads), above it inductive (current lags).",
+     "formula": "\\omega_0 = \\frac{1}{\\sqrt{LC}} \\qquad f_0 = \\frac{1}{2\\pi\\sqrt{LC}}"
+    },
+    {
+     "id": "q1",
+     "type": "numeric",
+     "params": {
+      "L": [
+       0.001,
+       0.0015,
+       0.0022,
+       0.0033,
+       0.0047,
+       0.0068,
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-08,
+       1.5e-08,
+       2.2e-08,
+       3.3e-08,
+       4.7e-08,
+       6.8e-08,
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05,
+       6.8e-05,
+       0.0001
+      ]
+     },
+     "derived": {
+      "w0": "1/sqrt(L*C)"
+     },
+     "require": "min(w0 - 300, 60000 - w0)",
+     "prompt": "Series RLC circuit with $L$ = {{L|H}} and $C$ = {{C|F}}.",
+     "ask": [
+      {
+       "prompt": "Find the resonant frequency $f_0$.",
+       "answer": "w0/(2*pi)",
+       "unit": "Hz",
+       "explanation": "$\\omega_0 = \\frac{1}{\\sqrt{LC}}$ = {{w0|rad/s}}, and $f_0 = \\frac{\\omega_0}{2\\pi}$ = **{{w0/(2*pi)|Hz}}**. $R$ does not affect the resonant frequency."
+      },
+      {
+       "prompt": "Find the resonant angular frequency $\\omega_0$.",
+       "answer": "w0",
+       "unit": "rad/s",
+       "explanation": "With $L$ = {{L|H}} and $C$ = {{C|F}}: $\\omega_0 = \\frac{1}{\\sqrt{LC}}$ = **{{w0|rad/s}}** (and $f_0 = \\omega_0/2\\pi$ = {{w0/(2*pi)|Hz}})."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_s"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         5,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Vm": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th": [
+       -60,
+       -45,
+       -30,
+       0,
+       30,
+       45,
+       60
+      ],
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "X": "w*L - 1/(w*C)",
+      "thz": "atan2(w*L - 1/(w*C), R)*180/pi"
+     },
+     "require": "min(abs(thz) - 10, 80 - abs(thz), 3*Vm - V_C1, 3*Vm - V_L1, V_C1 - 0.05*Vm, V_L1 - 0.05*Vm)",
+     "prompt": "$v_s(t) = {{Vm}}\\cos({{w}}t + \\theta)$ V with $\\theta$ = {{th}}°. The current $i$ is taken clockwise, as shown.",
+     "ask": [
+      {
+       "prompt": "Find the amplitude $I_m$ of $i(t)$.",
+       "answer": "I_Vs",
+       "unit": "A",
+       "explanation": "$X = \\omega L - \\frac{1}{\\omega C}$ = {{X|Ω}}, so $Z = R + jX$ = {{sqrt(R^2+X^2)|Ω}} ∠ {{thz|°}}. $I_m = V_m/|Z|$ = **{{I_Vs|A}}**."
+      },
+      {
+       "prompt": "Find the phase of $i(t)$ in degrees (cosine reference).",
+       "answer": "I_Vs_ph",
+       "unit": "°",
+       "explanation": "$\\mathbf{I} = \\mathbf{V}_s/Z$, so the angles subtract: $\\theta_I = \\theta_V - \\angle Z$ = {{th}}° − ({{thz|°}}) = **{{I_Vs_ph|°}}**.",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of the capacitor voltage.",
+       "answer": "V_C1",
+       "unit": "V",
+       "explanation": "$I_m = V_m/|Z|$ = {{I_Vs|A}} with $|Z|$ = {{sqrt(R^2+X^2)|Ω}}. $|\\mathbf{V}_C| = I_m \\cdot \\frac{1}{\\omega C}$ = {{I_Vs|A}} · {{1/(w*C)|Ω}} = **{{V_C1|V}}**."
+      },
+      {
+       "prompt": "Find the amplitude of the inductor voltage.",
+       "answer": "V_L1",
+       "unit": "V",
+       "explanation": "$I_m = V_m/|Z|$ = {{I_Vs|A}} with $|Z|$ = {{sqrt(R^2+X^2)|Ω}}. $|\\mathbf{V}_L| = I_m\\,\\omega L$ = {{I_Vs|A}} · {{w*L|Ω}} = **{{V_L1|V}}**."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "th",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.6,
+         0
+        ],
+        "to": [
+         1.4,
+         0
+        ],
+        "label": "i"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q3",
+     "type": "multipleChoice",
+     "params": {
+      "Vm": [
+       10
+      ],
+      "th": [
+       0
+      ],
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "w": [
+       500,
+       1000,
+       2000,
+       5000
+      ]
+     },
+     "derived": {
+      "w0": "1/sqrt(L*C)"
+     },
+     "require": "abs(ln(w/w0)) - 0.2",
+     "prompt": "The source runs at $\\omega$ = {{w}} rad/s. Compared with the resonant frequency, where is it, and how is the current phased relative to $v_s$?",
+     "options": [
+      "Above $\\omega_0$; the current lags $v_s$",
+      "Above $\\omega_0$; the current leads $v_s$",
+      "Below $\\omega_0$; the current lags $v_s$",
+      "Below $\\omega_0$; the current leads $v_s$"
+     ],
+     "answer": "if(w - w0, 0, 3)",
+     "explanation": "$\\omega_0 = 1/\\sqrt{LC}$ = {{w0|rad/s}}. At {{w}} rad/s, $\\omega L$ = {{w*L|Ω}} and $1/\\omega C$ = {{1/(w*C)|Ω}}, so $X$ = {{w*L-1/(w*C)|Ω}}. Above resonance $X > 0$ (inductive, current lags); below resonance $X < 0$ (capacitive, current leads). Here the current phase is {{I_Vs_ph|°}}.",
+     "circuit": {
+      "ac": {
+       "omega": "w"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "th",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q4",
+     "type": "numeric",
+     "params": {
+      "Vm": {
+       "min": 1,
+       "max": 10,
+       "step": 1
+      },
+      "th": [
+       0
+      ],
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0,
+       560.0,
+       680.0,
+       820.0,
+       1000.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-07,
+       1.5e-07,
+       2.2e-07,
+       3.3e-07,
+       4.7e-07,
+       6.8e-07,
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ]
+     },
+     "derived": {
+      "w0": "1/sqrt(L*C)",
+      "Qf": "w0*L/R"
+     },
+     "require": "min(Qf - 0.5, 5 - Qf)",
+     "prompt": "The source amplitude is $V_m$ = {{Vm}} V, and its frequency is tuned to the **resonant frequency** of the circuit.",
+     "ask": [
+      {
+       "prompt": "Find $\\omega_0$.",
+       "answer": "w0",
+       "unit": "rad/s",
+       "explanation": "$\\omega_0 = 1/\\sqrt{LC}$ = **{{w0|rad/s}}**."
+      },
+      {
+       "prompt": "Find the amplitude of the current.",
+       "answer": "I_Vs",
+       "unit": "A",
+       "explanation": "At resonance $\\omega_0 L = 1/(\\omega_0 C)$, so $Z = R$ and $I_m = V_m/R$ = {{Vm}} V / {{R|Ω}} = **{{I_Vs|A}}**, the largest current at any frequency."
+      },
+      {
+       "prompt": "Find the amplitude of the inductor voltage.",
+       "answer": "V_L1",
+       "unit": "V",
+       "explanation": "$\\omega_0 = 1/\\sqrt{LC}$ = {{w0|rad/s}}, $I_m = V_m/R$ = {{I_Vs|A}}. $|\\mathbf{V}_L| = I_m \\omega_0 L$ = {{I_Vs|A}} · {{w0*L|Ω}} = **{{V_L1|V}}** ($= Q V_m$ with $Q = \\omega_0 L/R$ = {{Qf}}). The capacitor voltage has the same amplitude and cancels it."
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "omega": "w0"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "th",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q5",
+     "type": "trueFalse",
+     "prompt": "In a series RLC circuit at resonance, the amplitude of the capacitor voltage can be larger than the source amplitude.",
+     "answer": true,
+     "explanation": "At resonance $\\mathbf{V}_L$ and $\\mathbf{V}_C$ are equal in size and opposite in phase, so they cancel in KVL and the full source voltage appears across $R$. Each one alone is $Q V_m$ with $Q = \\omega_0 L / R$, which can be much larger than 1 for a small $R$. Example: $Q$ = 5 and $V_m$ = 10 V give 50 V across $C$."
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ]
+     },
+     "derived": {
+      "w0": "1/sqrt(L*C)",
+      "wp": "(R + sqrt(R^2 + 4*L/C))/(2*L)",
+      "wm": "(-R + sqrt(R^2 + 4*L/C))/(2*L)"
+     },
+     "require": "min(w0 - 100, 50000 - w0, R/(w0*L) - 0.1)",
+     "prompt": "Series RLC network with $R$ = {{R|Ω}}, $L$ = {{L|H}} and $C$ = {{C|F}}.",
+     "ask": [
+      {
+       "prompt": "At which angular frequency is $\\angle Z = +45^\\circ$?",
+       "answer": "wp",
+       "unit": "rad/s",
+       "explanation": "$\\angle Z = +45^\\circ$ when $X = +R$: $\\omega L - \\frac{1}{\\omega C} = R$, i.e. $LC\\omega^2 - RC\\omega - 1 = 0$. The positive root is $\\omega = \\frac{R + \\sqrt{R^2 + 4L/C}}{2L}$ = **{{wp|rad/s}}** (above $\\omega_0$ = {{w0|rad/s}}, as it must be for an inductive angle)."
+      },
+      {
+       "prompt": "At which angular frequency is $\\angle Z = -45^\\circ$?",
+       "answer": "wm",
+       "unit": "rad/s",
+       "explanation": "$\\angle Z = -45^\\circ$ when $X = -R$: $\\omega L - \\frac{1}{\\omega C} = -R$, i.e. $LC\\omega^2 + RC\\omega - 1 = 0$. The positive root is $\\omega = \\frac{-R + \\sqrt{R^2 + 4L/C}}{2L}$ = **{{wm|rad/s}}** (below $\\omega_0$ = {{w0|rad/s}})."
+      }
+     ],
+     "circuit": {
+      "elements": [
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         0
+        ],
+        "label": "a",
+        "flip": true
+       },
+       {
+        "type": "terminal",
+        "at": [
+         0,
+         2
+        ],
+        "label": "b",
+        "flip": true
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         2,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "id": "q7",
+     "type": "numeric",
+     "params": {
+      "Vm": {
+       "min": 2,
+       "max": 20,
+       "step": 1
+      },
+      "th": [
+       0,
+       30,
+       45,
+       60,
+       90,
+       -30,
+       -90
+      ],
+      "R": [
+       10.0,
+       12.0,
+       15.0,
+       18.0,
+       22.0,
+       27.0,
+       33.0,
+       39.0,
+       47.0,
+       56.0,
+       68.0,
+       82.0,
+       100.0,
+       120.0,
+       150.0,
+       180.0,
+       220.0,
+       270.0,
+       330.0,
+       390.0,
+       470.0
+      ],
+      "L": [
+       0.01,
+       0.015,
+       0.022,
+       0.033,
+       0.047,
+       0.068,
+       0.1,
+       0.15,
+       0.22,
+       0.33,
+       0.47
+      ],
+      "C": [
+       1e-06,
+       1.5e-06,
+       2.2e-06,
+       3.3e-06,
+       4.7e-06,
+       6.8e-06,
+       1e-05,
+       1.5e-05,
+       2.2e-05,
+       3.3e-05,
+       4.7e-05
+      ],
+      "f": [
+       50,
+       100,
+       200,
+       500,
+       1000
+      ]
+     },
+     "derived": {
+      "X": "2*pi*f*L - 1/(2*pi*f*C)",
+      "thz": "atan2(2*pi*f*L - 1/(2*pi*f*C), R)*180/pi"
+     },
+     "require": "min(abs(thz) - 10, 80 - abs(thz))",
+     "prompt": "$v_s(t) = {{Vm}}\\cos(2\\pi\\cdot{{f}}\\,t + \\theta)$ V with $\\theta$ = {{th}}°. $v_C$ is the capacitor voltage with the polarity shown.",
+     "ask": [
+      {
+       "prompt": "Find the phase of $v_C(t)$ in degrees.",
+       "answer": "V_C1_ph",
+       "unit": "°",
+       "explanation": "$\\mathbf{I} = \\mathbf{V}_s/Z$ with $Z = R + jX$, $X$ = {{X|Ω}}, $\\angle Z$ = {{thz|°}}: $\\theta_I$ = {{I_R1_ph|°}}. $\\mathbf{V}_C = \\mathbf{I}\\cdot\\frac{-j}{\\omega C}$ lags the current by 90°: $\\theta_C$ = {{I_R1_ph|°}} − 90° = **{{V_C1_ph|°}}** (wrapped to ±180°).",
+       "absTolerance": 1.5
+      },
+      {
+       "prompt": "Find the amplitude of $v_R$, the voltage across $R$.",
+       "answer": "V_R1",
+       "unit": "V",
+       "explanation": "$|Z| = \\sqrt{R^2 + X^2}$ with $X = \\omega L - 1/\\omega C$ = {{X|Ω}}: $|Z|$ = {{sqrt(R^2+X^2)|Ω}}. $I_m$ = {{I_R1|A}}, so $|\\mathbf{V}_R| = R I_m$ = **{{V_R1|V}}**."
+      },
+      {
+       "prompt": "Find the phase of $v_C(t)$ relative to the current $i$, i.e. $\\theta_C - \\theta_I$ in degrees.",
+       "answer": "mod(V_C1_ph - I_R1_ph + 180, 360) - 180",
+       "unit": "°",
+       "explanation": "For a capacitor $\\mathbf{V}_C = \\mathbf{I}/(j\\omega C)$ and $1/j = 1\\angle{-90^\\circ}$, so the capacitor voltage always lags its current by **90°** (here {{V_C1_ph|°}} vs {{I_R1_ph|°}}).",
+       "absTolerance": 1.5
+      }
+     ],
+     "circuit": {
+      "ac": {
+       "f": "f"
+      },
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "name": "Vs",
+        "val": "Vm",
+        "phase": "th",
+        "label": "v_s",
+        "polarity": "-+",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         2,
+         0
+        ],
+        "to": [
+         4,
+         0
+        ],
+        "name": "R1",
+        "val": "R",
+        "label": "R"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         6,
+         0
+        ],
+        "name": "L1",
+        "val": "L",
+        "label": "L"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "name": "C1",
+        "val": "C",
+        "label": "C",
+        "polarity": "+-"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0.6,
+         0
+        ],
+        "to": [
+         1.4,
+         0
+        ],
+        "label": "i"
+       }
+      ]
+     }
+    },
+    {
+     "id": "q8",
+     "type": "orderSteps",
+     "prompt": "Put the steps for finding $i(t)$ in a series RLC circuit in order.",
+     "items": [
+      "Write the source as a phasor $V_m\\angle\\theta$",
+      "Compute $\\omega$ and the impedances $j\\omega L$ and $1/(j\\omega C)$",
+      "Add the impedances: $Z = R + j(\\omega L - 1/\\omega C)$",
+      "Divide: $\\mathbf{I} = \\mathbf{V}_s / Z$ (divide magnitudes, subtract angles)",
+      "Write $i(t) = I_m\\cos(\\omega t + \\theta_I)$"
+     ],
+     "explanation": "Phasor method: time domain → phasors and impedances → complex algebra (here Ohm's law with the total series impedance) → back to the time domain. The frequency $\\omega$ is carried along unchanged."
+    }
+   ]
+  }
+ ]
+}

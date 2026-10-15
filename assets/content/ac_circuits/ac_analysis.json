@@ -1,0 +1,1877 @@
+{
+ "id": "ac-analysis",
+ "title": "AC Circuit Analysis",
+ "description": "Solve steady-state AC circuits with phasors, impedances and the familiar DC techniques.",
+ "reference": "Hambley §5.4, §5.6",
+ "study": [
+  {
+   "title": "The phasor method",
+   "body": "For sinusoidal steady state with all sources at the **same frequency**:\n- replace every source by its phasor,\n- replace R, L and C by their impedances $R$, $j\\omega L$, $1/(j\\omega C)$,\n- solve exactly as a DC resistive circuit, but with complex arithmetic,\n- convert the phasor answers back to time functions.\nThe transient (natural) response is not included: phasors give only the steady state."
+  },
+  {
+   "title": "Ohm's law, KVL and KCL",
+   "body": "All the DC laws hold for **phasors**: $\\mathbf{V} = Z\\mathbf{I}$, the phasor voltages around any loop sum to zero and the phasor currents into any node sum to zero. They do **not** hold for peak or rms magnitudes alone: in a series RC circuit $|\\mathbf{V}_R| + |\\mathbf{V}_C| > |\\mathbf{V}_s|$, because the two voltages are $90^\\circ$ apart.",
+   "formula": "\\sum_{loop} \\mathbf{V} = 0, \\qquad \\sum_{node} \\mathbf{I}_{in} = 0"
+  },
+  {
+   "title": "Voltage and current dividers",
+   "body": "Dividers work with impedances exactly as with resistances. Example, an RC divider with the output across $C$: $\\mathbf{V}_C = \\mathbf{V}_s\\frac{1/(j\\omega C)}{R + 1/(j\\omega C)} = \\frac{\\mathbf{V}_s}{1 + j\\omega RC}$. For a current divider (two parallel branches fed by $\\mathbf{I}_s$): $\\mathbf{I}_1 = \\mathbf{I}_s\\frac{Z_2}{Z_1 + Z_2}$.",
+   "formula": "\\mathbf{V}_2 = \\mathbf{V}_s\\frac{Z_2}{Z_1 + Z_2}",
+   "circuit": {
+    "elements": [
+     {
+      "type": "acsource",
+      "from": [
+       0,
+       2
+      ],
+      "to": [
+       0,
+       0
+      ],
+      "label": "V_s",
+      "polarity": "-+"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        0,
+        0
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       1,
+       0
+      ],
+      "to": [
+       3,
+       0
+      ],
+      "label": "Z_1"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        3,
+        0
+       ],
+       [
+        4,
+        0
+       ]
+      ]
+     },
+     {
+      "type": "resistor",
+      "from": [
+       4,
+       0
+      ],
+      "to": [
+       4,
+       2
+      ],
+      "label": "Z_2",
+      "flip": false,
+      "polarity": "+-"
+     },
+     {
+      "type": "wire",
+      "points": [
+       [
+        4,
+        2
+       ],
+       [
+        0,
+        2
+       ]
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "title": "Node-voltage analysis",
+   "body": "Choose a reference node, label the phasor node voltages, write KCL at each node with branch currents like $(\\mathbf{V}_1 - \\mathbf{V}_2)/Z$, and solve the linear equations; the coefficients are now complex. Dividing by $Z$ is the same as multiplying by the admittance $Y = 1/Z$; for a capacitor $Y_C = j\\omega C$, for an inductor $Y_L = 1/(j\\omega L) = -j/(\\omega L)$."
+  },
+  {
+   "title": "Thévenin and Norton equivalents",
+   "body": "At one frequency, any linear two-terminal AC circuit is equivalent to a phasor source $\\mathbf{V}_t$ in series with an impedance $Z_t$, or to $\\mathbf{I}_n$ in parallel with $Z_t$. Find two of $\\mathbf{V}_{oc}$, $\\mathbf{I}_{sc}$ and $Z_t$. $Z_t$ is also the impedance seen into the terminals with the independent sources zeroed (voltage source → short, current source → open; dependent sources stay).",
+   "formula": "\\mathbf{V}_t = \\mathbf{V}_{oc}, \\quad \\mathbf{I}_n = \\mathbf{I}_{sc}, \\quad Z_t = \\frac{\\mathbf{V}_{oc}}{\\mathbf{I}_{sc}}"
+  },
+  {
+   "title": "Worked example",
+   "body": "Source $10\\angle 0^\\circ$ V, series $R$ = 40 Ω and $\\omega L$ = 30 Ω. $Z = 40 + j30 = 50\\angle 36.87^\\circ$ Ω, so $\\mathbf{I} = 0.2\\angle(-36.87^\\circ)$ A. Then $\\mathbf{V}_R = 8\\angle(-36.87^\\circ)$ V and $\\mathbf{V}_L = j30\\,\\mathbf{I} = 6\\angle 53.13^\\circ$ V.\nKVL check: $(6.4 - j4.8) + (3.6 + j4.8) = 10$, as it must be, even though $8 + 6 \\neq 10$."
+  }
+ ],
+ "lessons": [
+  {
+   "id": "ac-analysis-1",
+   "title": "Solving circuits with phasors",
+   "kind": "learn",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "One recipe for every AC circuit",
+     "body": "Turn sources into phasors and elements into impedances. Then every DC tool — Ohm's law, KVL, KCL, series/parallel, dividers, node analysis, Thévenin — works unchanged, just with complex numbers. Finally convert the answer back to a sinusoid."
+    },
+    {
+     "id": "q1",
+     "type": "orderSteps",
+     "prompt": "Put the steps of the phasor method in order.",
+     "items": [
+      "Convert the sources to phasors",
+      "Replace R, L and C by their impedances",
+      "Solve with KVL/KCL, dividers or node analysis using complex arithmetic",
+      "Convert the result back to a function of time"
+     ],
+     "explanation": "Phasors and impedances first, so that the circuit becomes a 'complex resistive' circuit; solve it with the usual techniques; finally write the answer as $V_m\\cos(\\omega t + \\theta)$."
+    },
+    {
+     "id": "q2",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       5,
+       10,
+       20
+      ],
+      "R": [
+       10,
+       50,
+       100
+      ],
+      "L": [
+       0.01,
+       0.05,
+       0.1
+      ],
+      "w": [
+       500,
+       1000,
+       2000
+      ]
+     },
+     "prompt": "Find the peak value of the current $i(t)$ in the series RL circuit.",
+     "answer": "Vm/sqrt(R^2+(w*L)^2)",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_s",
+        "value": "{{Vm}} cos({{w}}t) V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "L",
+        "value": "{{L|H}}",
+        "flip": false
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         1,
+         0
+        ],
+        "label": "i"
+       }
+      ]
+     },
+     "explanation": "$Z = R + j\\omega L = {{R}} + j{{w*L}}$ Ω $= {{sqrt(R^2+(w*L)^2)}}\\angle {{deg(atan(w*L/R))}}^\\circ$ Ω.\n$\\mathbf{I} = \\frac{\\mathbf{V}_s}{Z} = \\frac{ {{Vm}}\\angle 0^\\circ}{ {{sqrt(R^2+(w*L)^2)}}\\angle {{deg(atan(w*L/R))}}^\\circ} = {{Vm/sqrt(R^2+(w*L)^2)}}\\angle {{-deg(atan(w*L/R))}}^\\circ$ A. The peak current is {{Vm/sqrt(R^2+(w*L)^2)|A}}."
+    },
+    {
+     "id": "q3",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       5,
+       10,
+       20
+      ],
+      "R": [
+       10,
+       50,
+       100
+      ],
+      "L": [
+       0.01,
+       0.05,
+       0.1
+      ],
+      "w": [
+       500,
+       1000,
+       2000
+      ]
+     },
+     "prompt": "In the series RL circuit, what is the phase angle of $i(t)$ in degrees (cosine reference)?",
+     "answer": "-deg(atan(w*L/R))",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_s",
+        "value": "{{Vm}} cos({{w}}t) V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "inductor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "L",
+        "value": "{{L|H}}",
+        "flip": false
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         1,
+         0
+        ],
+        "label": "i"
+       }
+      ]
+     },
+     "explanation": "The angle of $\\mathbf{I} = \\mathbf{V}_s/Z$ is $0^\\circ - \\theta_Z$, with $\\theta_Z = \\arctan\\frac{\\omega L}{R} = \\arctan\\frac{ {{w*L}} }{ {{R}} } = {{deg(atan(w*L/R))}}^\\circ$. So $\\theta_i = {{-deg(atan(w*L/R))}}^\\circ$: the current lags the source voltage, as expected for an inductive circuit."
+    },
+    {
+     "id": "i2",
+     "type": "info",
+     "title": "KVL works on phasors, not on magnitudes",
+     "body": "In a series RC circuit, $\\mathbf{V}_R$ is in phase with the current while $\\mathbf{V}_C$ lags it by $90^\\circ$. The two phasors are perpendicular, so their magnitudes combine like the sides of a right triangle, not by simple addition."
+    },
+    {
+     "id": "q4",
+     "type": "trueFalse",
+     "prompt": "In a series RC circuit driven by a sinusoidal source, the peak voltage across R plus the peak voltage across C equals the peak source voltage.",
+     "answer": false,
+     "explanation": "KVL holds for the phasors, $\\mathbf{V}_s = \\mathbf{V}_R + \\mathbf{V}_C$, but $\\mathbf{V}_R$ and $\\mathbf{V}_C$ are $90^\\circ$ apart, so $|\\mathbf{V}_s| = \\sqrt{|\\mathbf{V}_R|^2 + |\\mathbf{V}_C|^2}$, which is less than $|\\mathbf{V}_R| + |\\mathbf{V}_C|$."
+    },
+    {
+     "id": "q5",
+     "type": "numeric",
+     "params": {
+      "VR": [
+       3,
+       6,
+       8,
+       12
+      ],
+      "VC": [
+       4,
+       5,
+       6,
+       8
+      ]
+     },
+     "prompt": "In a series RC circuit you measure {{VR}} V rms across R and {{VC}} V rms across C. What is the rms source voltage?",
+     "answer": "sqrt(VR^2+VC^2)",
+     "unit": "V",
+     "explanation": "$\\mathbf{V}_R$ (in phase with $\\mathbf{I}$) and $\\mathbf{V}_C$ (lagging $\\mathbf{I}$ by $90^\\circ$) are perpendicular: $V_s = \\sqrt{ {{VR}}^2 + {{VC}}^2}$ = {{sqrt(VR^2+VC^2)|V}} rms, not ${{VR+VC}}$ V."
+    },
+    {
+     "id": "i3",
+     "type": "info",
+     "title": "Voltage divider with impedances",
+     "body": "With two impedances in series, the voltage across $Z_2$ is $\\mathbf{V}_s Z_2/(Z_1 + Z_2)$. For $R$ followed by $C$, with the output across $C$, this simplifies nicely.",
+     "formula": "\\mathbf{V}_C = \\mathbf{V}_s\\frac{1/(j\\omega C)}{R + 1/(j\\omega C)} = \\frac{\\mathbf{V}_s}{1 + j\\omega RC}"
+    },
+    {
+     "id": "q6",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       5,
+       10
+      ],
+      "R": [
+       1000,
+       2200,
+       4700
+      ],
+      "C": [
+       1e-07,
+       1e-06
+      ],
+      "w": [
+       100,
+       1000,
+       5000
+      ]
+     },
+     "prompt": "Find the peak value of $v_C(t)$, the voltage across $C$ (+ at the top), in the RC divider.",
+     "answer": "Vm/sqrt(1+(w*R*C)^2)",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_s",
+        "value": "{{Vm}} cos({{w}}t) V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}",
+        "flip": false
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     },
+     "explanation": "$\\omega RC = {{w}}\\times{{R}}\\times{{C}} = {{w*R*C}}$. $\\mathbf{V}_C = \\frac{\\mathbf{V}_s}{1 + j\\omega RC} = \\frac{ {{Vm}}\\angle 0^\\circ}{1 + j{{w*R*C}} }$, so $|\\mathbf{V}_C| = \\frac{ {{Vm}} }{\\sqrt{1 + {{w*R*C}}^2} }$ = {{Vm/sqrt(1+(w*R*C)^2)|V}}."
+    }
+   ]
+  },
+  {
+   "id": "ac-analysis-2",
+   "title": "Dividers, KCL and nodes",
+   "kind": "practice",
+   "steps": [
+    {
+     "id": "p1",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       5,
+       10
+      ],
+      "R": [
+       1000,
+       2200,
+       4700
+      ],
+      "C": [
+       1e-07,
+       1e-06
+      ],
+      "w": [
+       100,
+       1000,
+       5000
+      ]
+     },
+     "prompt": "Find the phase angle (in degrees) of $v_C(t)$, the voltage across $C$ (+ at the top), in the RC divider.",
+     "answer": "-deg(atan(w*R*C))",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_s",
+        "value": "{{Vm}} cos({{w}}t) V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          4,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         4,
+         0
+        ],
+        "to": [
+         4,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}",
+        "flip": false
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     },
+     "explanation": "$\\mathbf{V}_C = \\frac{\\mathbf{V}_s}{1 + j\\omega RC}$. The source has angle $0^\\circ$ and the denominator has angle $\\arctan(\\omega RC) = \\arctan({{w*R*C}}) = {{deg(atan(w*R*C))}}^\\circ$. So $\\mathbf{V}_C$ has angle ${{-deg(atan(w*R*C))}}^\\circ$: the output lags the input."
+    },
+    {
+     "id": "p2",
+     "type": "numeric",
+     "params": {
+      "Is": [
+       1,
+       2,
+       5
+      ],
+      "R": [
+       10,
+       20,
+       50
+      ],
+      "XL": [
+       10,
+       30,
+       40,
+       100
+      ]
+     },
+     "prompt": "The current source is $\\mathbf{I}_s = {{Is}}\\angle 0^\\circ$ A. Find the peak value of the current through $R$.",
+     "answer": "Is*XL/sqrt(R^2+XL^2)",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "isource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is}} A"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "R",
+        "value": "{{R}} Ω"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         5,
+         2
+        ],
+        "label": "Z_L",
+        "value": "j{{XL}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "Current divider: $\\mathbf{I}_R = \\mathbf{I}_s\\frac{Z_L}{R + Z_L} = {{Is}}\\angle 0^\\circ\\times\\frac{j{{XL}} }{ {{R}} + j{{XL}} }$.\n$|\\mathbf{I}_R| = {{Is}}\\times\\frac{ {{XL}} }{\\sqrt{ {{R}}^2 + {{XL}}^2} }$ = {{Is*XL/sqrt(R^2+XL^2)|A}}. Note: the **other** branch's impedance goes in the numerator."
+    },
+    {
+     "id": "p3",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       5,
+       10
+      ],
+      "th": [
+       -60,
+       -30,
+       0,
+       20,
+       45
+      ],
+      "C": [
+       1e-06,
+       1e-05
+      ],
+      "w": [
+       100,
+       1000
+      ]
+     },
+     "prompt": "The voltage across a {{C|F}} capacitor has phasor $\\mathbf{V} = {{Vm}}\\angle {{th}}^\\circ$ V at $\\omega$ = {{w}} rad/s. What is the angle of the current phasor $\\mathbf{I}$ (passive reference), in degrees?",
+     "answer": "th+90",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "explanation": "$\\mathbf{I} = \\mathbf{V}/Z_C = j\\omega C\\,\\mathbf{V} = ({{w*C}}\\angle 90^\\circ)({{Vm}}\\angle {{th}}^\\circ) = {{w*C*Vm}}\\angle {{th+90}}^\\circ$ A. A capacitor's current leads its voltage by $90^\\circ$; the values of $C$ and $\\omega$ only set the magnitude."
+    },
+    {
+     "id": "p4",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       10,
+       20
+      ],
+      "R": [
+       5,
+       10,
+       20
+      ],
+      "Xc": [
+       5,
+       10,
+       20
+      ],
+      "Is": [
+       0.5,
+       1,
+       2
+      ]
+     },
+     "prompt": "Use node analysis to find the peak value $|\\mathbf{V}|$ of the node voltage $\\mathbf{V}$. ($\\mathbf{V}_s = {{Vs}}\\angle 0^\\circ$ V, $\\mathbf{I}_s = {{Is}}\\angle 0^\\circ$ A.)",
+     "answer": "(Is+Vs/R)/sqrt(1/R^2+1/Xc^2)",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs}} V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0.5,
+         0
+        ],
+        "to": [
+         2.5,
+         0
+        ],
+        "label": "R",
+        "value": "{{R}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2.5,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ],
+        "label": "V"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "Z_C",
+        "value": "−j{{Xc}} Ω"
+       },
+       {
+        "type": "isource",
+        "from": [
+         5,
+         2
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is}} A"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "KCL at the node (currents leaving = current entering from $I_s$):\n$$\\frac{\\mathbf{V} - {{Vs}} }{ {{R}} } + \\frac{\\mathbf{V}}{-j{{Xc}} } = {{Is}}$$\nSince $1/(-j{{Xc}}) = j/{{Xc}}$: $\\mathbf{V}\\left(\\frac{1}{ {{R}} } + \\frac{j}{ {{Xc}} }\\right) = {{Is}} + \\frac{ {{Vs}} }{ {{R}} } = {{Is+Vs/R}}$.\n$|\\mathbf{V}| = \\frac{ {{Is+Vs/R}} }{\\sqrt{ {{1/R}}^2 + {{1/Xc}}^2} }$ = {{(Is+Vs/R)/sqrt(1/R^2+1/Xc^2)|V}}."
+    },
+    {
+     "id": "p5",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       10,
+       20
+      ],
+      "R": [
+       5,
+       10,
+       20
+      ],
+      "Xc": [
+       5,
+       10,
+       20,
+       40
+      ],
+      "Is": [
+       0.5,
+       1,
+       2
+      ]
+     },
+     "prompt": "Use node analysis to find the angle (in degrees) of the node voltage $\\mathbf{V}$. ($\\mathbf{V}_s = {{Vs}}\\angle 0^\\circ$ V, $\\mathbf{I}_s = {{Is}}\\angle 0^\\circ$ A.)",
+     "answer": "-deg(atan(R/Xc))",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs}} V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0.5,
+         0
+        ],
+        "to": [
+         2.5,
+         0
+        ],
+        "label": "R",
+        "value": "{{R}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2.5,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ],
+        "label": "V"
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "Z_C",
+        "value": "−j{{Xc}} Ω"
+       },
+       {
+        "type": "isource",
+        "from": [
+         5,
+         2
+        ],
+        "to": [
+         5,
+         0
+        ],
+        "label": "I_s",
+        "value": "{{Is}} A"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "ground",
+        "at": [
+         3,
+         2
+        ]
+       }
+      ]
+     },
+     "explanation": "KCL gives $\\mathbf{V}\\left(\\frac{1}{ {{R}} } + \\frac{j}{ {{Xc}} }\\right) = {{Is+Vs/R}}$ (a positive real number). The bracket has angle $\\arctan\\frac{1/{{Xc}} }{1/{{R}} } = \\arctan\\frac{ {{R}} }{ {{Xc}} } = {{deg(atan(R/Xc))}}^\\circ$, so $\\mathbf{V}$ has angle ${{-deg(atan(R/Xc))}}^\\circ$."
+    },
+    {
+     "id": "p6",
+     "type": "multipleChoice",
+     "prompt": "In node analysis with phasors, the current flowing from node 1 to node 2 through an impedance $Z$ is:",
+     "options": [
+      "$(\\mathbf{V}_1 - \\mathbf{V}_2)/Z$",
+      "$(\\mathbf{V}_1 - \\mathbf{V}_2)\\,Z$",
+      "$(\\mathbf{V}_2 - \\mathbf{V}_1)/Z$",
+      "$(|\\mathbf{V}_1| - |\\mathbf{V}_2|)/|Z|$"
+     ],
+     "answer": 0,
+     "explanation": "Ohm's law for phasors, $\\mathbf{I} = \\mathbf{V}/Z$, with the voltage across $Z$ taken as $\\mathbf{V}_1 - \\mathbf{V}_2$ (+ at node 1, the end where the current enters). Working with magnitudes only loses the phase information."
+    },
+    {
+     "id": "p7",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       10,
+       20
+      ],
+      "R": [
+       10,
+       20,
+       50
+      ],
+      "L": [
+       0.01,
+       0.05
+      ],
+      "C": [
+       1e-05,
+       5e-05,
+       0.0001
+      ],
+      "w": [
+       500,
+       1000
+      ]
+     },
+     "prompt": "Find the peak value of the current in the series RLC circuit.",
+     "answer": "Vm/sqrt(R^2+(w*L-1/(w*C))^2)",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "v_s",
+        "value": "{{Vm}} cos({{w}}t) V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0.5,
+         0
+        ],
+        "to": [
+         2.5,
+         0
+        ],
+        "label": "R",
+        "value": "{{R|Ω}}"
+       },
+       {
+        "type": "inductor",
+        "from": [
+         2.5,
+         0
+        ],
+        "to": [
+         4.5,
+         0
+        ],
+        "label": "L",
+        "value": "{{L|H}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          4.5,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         5,
+         0
+        ],
+        "to": [
+         5,
+         2
+        ],
+        "label": "C",
+        "value": "{{C|F}}"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       }
+      ]
+     },
+     "explanation": "$Z = R + j\\left(\\omega L - \\frac{1}{\\omega C}\\right) = {{R}} + j({{w*L}} - {{1/(w*C)}}) = {{R}} + j({{w*L-1/(w*C)}})$ Ω.\n$|Z| = {{sqrt(R^2+(w*L-1/(w*C))^2)}}$ Ω, so $I_m = {{Vm}}/{{sqrt(R^2+(w*L-1/(w*C))^2)}}$ = {{Vm/sqrt(R^2+(w*L-1/(w*C))^2)|A}}."
+    },
+    {
+     "id": "p8",
+     "type": "trueFalse",
+     "prompt": "A circuit with a 50 Hz source and a 1 kHz source can be solved in a single phasor analysis with both sources active.",
+     "answer": false,
+     "explanation": "Impedances depend on $\\omega$, and phasors of different frequencies cannot be combined. Use **superposition**: solve once per frequency (with the other source zeroed) and add the resulting **time functions**."
+    }
+   ]
+  },
+  {
+   "id": "ac-analysis-3",
+   "title": "Thévenin & Norton in AC",
+   "kind": "challenge",
+   "steps": [
+    {
+     "id": "i1",
+     "type": "info",
+     "title": "Equivalent circuits with phasors",
+     "body": "$\\mathbf{V}_t = \\mathbf{V}_{oc}$ (open-circuit phasor voltage), $\\mathbf{I}_n = \\mathbf{I}_{sc}$ (short-circuit phasor current) and $Z_t = \\mathbf{V}_{oc}/\\mathbf{I}_{sc}$, or the impedance seen into the terminals with the independent sources zeroed. The equivalent is valid only at the frequency used to compute the impedances.",
+     "formula": "Z_t = \\frac{\\mathbf{V}_{oc}}{\\mathbf{I}_{sc}}"
+    },
+    {
+     "id": "c1",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       10,
+       20,
+       50
+      ],
+      "R": [
+       10,
+       20,
+       50,
+       100
+      ],
+      "Xc": [
+       10,
+       25,
+       50,
+       100
+      ]
+     },
+     "prompt": "Find the magnitude of the Thévenin voltage $\\mathbf{V}_t$ at terminals a–b. ($\\mathbf{V}_s = {{Vs}}\\angle 0^\\circ$ V.)",
+     "answer": "Vs*Xc/sqrt(R^2+Xc^2)",
+     "unit": "V",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs}} V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0.5,
+         0
+        ],
+        "to": [
+         2.5,
+         0
+        ],
+        "label": "R",
+        "value": "{{R}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2.5,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "Z_C",
+        "value": "−j{{Xc}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         2
+        ],
+        "label": "b"
+       }
+      ]
+     },
+     "explanation": "With a–b open, $R$ and $Z_C$ form a divider: $\\mathbf{V}_{oc} = {{Vs}}\\angle 0^\\circ\\cdot\\frac{-j{{Xc}} }{ {{R}} - j{{Xc}} }$.\n$|\\mathbf{V}_t| = {{Vs}}\\times\\frac{ {{Xc}} }{\\sqrt{ {{R}}^2 + {{Xc}}^2} }$ = {{Vs*Xc/sqrt(R^2+Xc^2)|V}}, at an angle of ${{-90+deg(atan(Xc/R))}}^\\circ$."
+    },
+    {
+     "id": "c2",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       10,
+       20,
+       50
+      ],
+      "R": [
+       10,
+       20,
+       50,
+       100
+      ],
+      "Xc": [
+       10,
+       25,
+       50,
+       100
+      ]
+     },
+     "prompt": "Find the real part $R_t$ of the Thévenin impedance $Z_t = R_t + jX_t$ at terminals a–b. ($\\mathbf{V}_s = {{Vs}}\\angle 0^\\circ$ V.)",
+     "answer": "R*Xc^2/(R^2+Xc^2)",
+     "unit": "Ω",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs}} V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0.5,
+         0
+        ],
+        "to": [
+         2.5,
+         0
+        ],
+        "label": "R",
+        "value": "{{R}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2.5,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "Z_C",
+        "value": "−j{{Xc}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         2
+        ],
+        "label": "b"
+       }
+      ]
+     },
+     "explanation": "Zero the source (short circuit): looking into a–b, $R$ is in parallel with $Z_C$.\n$$Z_t = \\frac{ {{R}}(-j{{Xc}})}{ {{R}} - j{{Xc}} } = \\frac{-j{{R*Xc}}\\,({{R}} + j{{Xc}})}{ {{R}}^2 + {{Xc}}^2} = \\frac{ {{R*Xc^2}} - j{{R^2*Xc}} }{ {{R^2+Xc^2}} }$$\nSo $R_t$ = {{R*Xc^2/(R^2+Xc^2)|Ω}} and $X_t$ = {{-R^2*Xc/(R^2+Xc^2)|Ω}}."
+    },
+    {
+     "id": "c3",
+     "type": "numeric",
+     "params": {
+      "Vs": [
+       10,
+       20,
+       50
+      ],
+      "R": [
+       10,
+       20,
+       50,
+       100
+      ],
+      "Xc": [
+       10,
+       25,
+       50,
+       100
+      ]
+     },
+     "prompt": "Find the imaginary part $X_t$ (with sign) of the Thévenin impedance $Z_t = R_t + jX_t$ at terminals a–b. ($\\mathbf{V}_s = {{Vs}}\\angle 0^\\circ$ V.)",
+     "answer": "-R^2*Xc/(R^2+Xc^2)",
+     "unit": "Ω",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_s",
+        "value": "{{Vs}} V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          0.5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         0.5,
+         0
+        ],
+        "to": [
+         2.5,
+         0
+        ],
+        "label": "R",
+        "value": "{{R}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          2.5,
+          0
+         ],
+         [
+          5,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "capacitor",
+        "from": [
+         3,
+         0
+        ],
+        "to": [
+         3,
+         2
+        ],
+        "label": "Z_C",
+        "value": "−j{{Xc}} Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          5,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         0
+        ]
+       },
+       {
+        "type": "node",
+        "at": [
+         3,
+         2
+        ]
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         0
+        ],
+        "label": "a"
+       },
+       {
+        "type": "terminal",
+        "at": [
+         5,
+         2
+        ],
+        "label": "b"
+       }
+      ]
+     },
+     "explanation": "With the source zeroed, $Z_t = R \\parallel Z_C = \\frac{ {{R}}(-j{{Xc}})}{ {{R}} - j{{Xc}} } = \\frac{ {{R*Xc^2}} - j{{R^2*Xc}} }{ {{R^2+Xc^2}} }$ Ω.\n$X_t = -\\frac{ {{R^2*Xc}} }{ {{R^2+Xc^2}} }$ = {{-R^2*Xc/(R^2+Xc^2)|Ω}} (negative: capacitive)."
+    },
+    {
+     "id": "c4",
+     "type": "numeric",
+     "params": {
+      "A": [
+       10,
+       20
+      ],
+      "th": [
+       0,
+       30,
+       60
+      ],
+      "Rt": [
+       10,
+       20,
+       40
+      ],
+      "Xt": [
+       -30,
+       -10,
+       10,
+       20,
+       40
+      ]
+     },
+     "prompt": "A circuit has $\\mathbf{V}_t = {{A}}\\angle {{th}}^\\circ$ V and $Z_t = {{Rt}} + j({{Xt}})$ Ω. Find the angle of the Norton current $\\mathbf{I}_n$, in degrees.",
+     "answer": "th-deg(atan2(Xt,Rt))",
+     "unit": "°",
+     "tolerance": 0.01,
+     "absTolerance": 0.5,
+     "explanation": "$\\mathbf{I}_n = \\mathbf{V}_t/Z_t$. $Z_t = {{sqrt(Rt^2+Xt^2)}}\\angle {{deg(atan2(Xt,Rt))}}^\\circ$ Ω, so $\\mathbf{I}_n = \\frac{ {{A}} }{ {{sqrt(Rt^2+Xt^2)}} }\\angle({{th}}^\\circ - ({{deg(atan2(Xt,Rt))}}^\\circ)) = {{A/sqrt(Rt^2+Xt^2)}}\\angle {{th-deg(atan2(Xt,Rt))}}^\\circ$ A."
+    },
+    {
+     "id": "c5",
+     "type": "numeric",
+     "params": {
+      "Vm": [
+       10,
+       20,
+       50
+      ],
+      "Rt": [
+       10,
+       20,
+       50
+      ],
+      "Xt": [
+       20,
+       30,
+       -40
+      ],
+      "RL": [
+       10,
+       40,
+       50
+      ],
+      "XL": [
+       -20,
+       10,
+       30,
+       40
+      ]
+     },
+     "prompt": "A Thévenin equivalent with $\\mathbf{V}_t = {{Vm}}\\angle 0^\\circ$ V and $Z_t = {{Rt}} + j({{Xt}})$ Ω drives the load $Z_L = {{RL}} + j({{XL}})$ Ω. Find the peak value of the load current $\\mathbf{I}$.",
+     "answer": "Vm/sqrt((Rt+RL)^2+(Xt+XL)^2)",
+     "unit": "A",
+     "circuit": {
+      "elements": [
+       {
+        "type": "acsource",
+        "from": [
+         0,
+         2
+        ],
+        "to": [
+         0,
+         0
+        ],
+        "label": "V_t",
+        "value": "{{Vm}} V",
+        "polarity": "-+"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          1,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         1,
+         0
+        ],
+        "to": [
+         3,
+         0
+        ],
+        "label": "Z_t",
+        "value": "{{Rt}} + j({{Xt}}) Ω"
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          3,
+          0
+         ],
+         [
+          6,
+          0
+         ]
+        ]
+       },
+       {
+        "type": "resistor",
+        "from": [
+         6,
+         0
+        ],
+        "to": [
+         6,
+         2
+        ],
+        "label": "Z_L",
+        "value": "{{RL}} + j({{XL}}) Ω",
+        "flip": true
+       },
+       {
+        "type": "wire",
+        "points": [
+         [
+          6,
+          2
+         ],
+         [
+          0,
+          2
+         ]
+        ]
+       },
+       {
+        "type": "arrow",
+        "from": [
+         0,
+         0
+        ],
+        "to": [
+         1,
+         0
+        ],
+        "label": "I"
+       }
+      ]
+     },
+     "explanation": "Series loop: $Z_t + Z_L = ({{Rt}} + {{RL}}) + j({{Xt}} + ({{XL}})) = {{Rt+RL}} + j({{Xt+XL}})$ Ω.\n$|\\mathbf{I}| = \\frac{ {{Vm}} }{\\sqrt{ {{Rt+RL}}^2 + ({{Xt+XL}})^2} }$ = {{Vm/sqrt((Rt+RL)^2+(Xt+XL)^2)|A}}."
+    },
+    {
+     "id": "c6",
+     "type": "multipleChoice",
+     "prompt": "To find $Z_t$ by zeroing the sources of a circuit that contains only independent sources, you:",
+     "options": [
+      "Replace voltage sources by short circuits and current sources by open circuits",
+      "Replace voltage sources by open circuits and current sources by short circuits",
+      "Replace every source by a short circuit",
+      "Replace every source by a 1 Ω resistor"
+     ],
+     "answer": 0,
+     "explanation": "A zero voltage source keeps 0 V across itself: a short circuit. A zero current source passes 0 A: an open circuit. (Dependent sources must stay in the circuit; then use $Z_t = \\mathbf{V}_{oc}/\\mathbf{I}_{sc}$ or a test source.)"
+    },
+    {
+     "id": "c7",
+     "type": "trueFalse",
+     "prompt": "A Thévenin equivalent (V_t and Z_t) computed at 50 Hz is also valid at 60 Hz.",
+     "answer": false,
+     "explanation": "The impedances $j\\omega L$ and $1/(j\\omega C)$ change with frequency, so both $Z_t$ and $\\mathbf{V}_t$ generally change. An AC Thévenin equivalent holds only at the frequency it was computed for (unless the circuit is purely resistive)."
+    }
+   ]
+  }
+ ]
+}

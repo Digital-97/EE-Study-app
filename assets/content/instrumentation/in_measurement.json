@@ -1,0 +1,1271 @@
+{
+  "id": "in-measurement",
+  "title": "Measurement Basics",
+  "description": "Errors, accuracy, precision and resolution, error propagation and how meters load the circuits they measure.",
+  "reference": "Hambley §9.1",
+  "study": [
+    {
+      "title": "Error, accuracy, precision, resolution",
+      "body": "The **error** of a measurement is the measured value minus the true value; it is often quoted as a percentage of the full-scale value $x_{full}$.\n- **Accuracy**: the largest expected difference between measured and true value.\n- **Precision**: how closely repeated readings of a constant measurand agree (small random error).\n- **Resolution**: the smallest change the instrument can show (e.g. one display digit).\nThe readings below are precise but not accurate: tightly grouped, all about 0.5 V too high.",
+      "formula": "\\%\\,\\text{error} = \\frac{x_m - x_{true}}{x_{full}}\\times 100\\,\\%",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 9,
+          "label": "reading no.",
+          "ticks": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        "y": {
+          "min": 9,
+          "max": 11,
+          "label": "v (V)"
+        },
+        "hlines": [
+          {
+            "y": 10,
+            "label": "true value 10 V"
+          }
+        ],
+        "points": [
+          {
+            "x": 1,
+            "y": 10.53,
+            "guides": false
+          },
+          {
+            "x": 2,
+            "y": 10.46,
+            "guides": false
+          },
+          {
+            "x": 3,
+            "y": 10.51,
+            "guides": false
+          },
+          {
+            "x": 4,
+            "y": 10.545,
+            "guides": false
+          },
+          {
+            "x": 5,
+            "y": 10.48,
+            "guides": false
+          },
+          {
+            "x": 6,
+            "y": 10.455,
+            "guides": false
+          },
+          {
+            "x": 7,
+            "y": 10.525,
+            "guides": false
+          },
+          {
+            "x": 8,
+            "y": 10.495,
+            "guides": false
+          }
+        ],
+        "height": 150
+      }
+    },
+    {
+      "title": "Systematic and random errors",
+      "body": "**Systematic (bias) errors** are the same every time you repeat the measurement: offset, scale (gain) error, nonlinearity and hysteresis. They can be found and removed by **calibration** against a better standard, but they drift with temperature and age.\n**Random errors** differ from reading to reading and average to zero. They are reduced by **averaging** repeated readings, never by calibration. (Dashed line: ideal instrument.)",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 10,
+          "label": "x_{true}"
+        },
+        "y": {
+          "min": 0,
+          "max": 12,
+          "label": "x_m"
+        },
+        "curves": [
+          {
+            "f": "x",
+            "color": "grey",
+            "dash": true
+          },
+          {
+            "f": "x+1.5",
+            "label": "offset",
+            "color": "red",
+            "labelAt": 0.3
+          },
+          {
+            "f": "1.2*x",
+            "label": "scale error",
+            "color": "blue",
+            "labelAt": 0.8
+          }
+        ],
+        "height": 170
+      }
+    },
+    {
+      "title": "Propagation of errors",
+      "body": "When a result is computed from several measured quantities, their uncertainties combine.\n- **Sum or difference**: the **absolute** uncertainties add.\n- **Product or quotient**: the **relative** (%) uncertainties add; a power $x^n$ multiplies the relative uncertainty by $|n|$.\nThese worst-case rules assume all errors line up. For independent random errors the root-sum-square (e.g. $\\sqrt{3^2 + 4^2} = 5\\,\\%$) is a more realistic estimate.\n**Pitfall:** the difference of two nearly equal readings has a large **relative** uncertainty.",
+      "formula": "\\frac{\\Delta(ab)}{ab} = \\frac{\\Delta a}{a} + \\frac{\\Delta b}{b}"
+    },
+    {
+      "title": "Loading by a voltmeter",
+      "body": "A real voltmeter is an ideal meter in parallel with its input resistance $R_V$. Connected across $R_2$ of a divider it puts $R_V$ in parallel with $R_2$, so it reads **less** than the true voltage. The error is small only when $R_V \\gg$ the Thévenin resistance seen at the measurement points ($R_1 \\parallel R_2$ here).\nAn ammeter adds its internal resistance in series, so it reads too little current unless that resistance is small compared with the circuit resistance.",
+      "formula": "v_{meas} = V_s\\,\\frac{R_2 \\parallel R_V}{R_1 + R_2 \\parallel R_V}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_s"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "R_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              2,
+              0
+            ],
+            "to": [
+              2,
+              2
+            ],
+            "label": "R_2",
+            "polarity": "+-"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "R_V"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                0
+              ],
+              [
+                6,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "voltmeter",
+            "from": [
+              6,
+              0
+            ],
+            "to": [
+              6,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                6,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              2,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              4,
+              2
+            ]
+          },
+          {
+            "type": "text",
+            "at": [
+              5,
+              -0.6
+            ],
+            "label": "meter"
+          },
+          {
+            "type": "ground",
+            "at": [
+              0,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Meter specifications",
+      "body": "Digital meter accuracy is usually given as $\\pm$(% of reading + number of digits). One **digit** (count) is one step of the last displayed digit, i.e. the resolution of the range in use.\nExample: a meter showing 12.00 V on its 20 V range (resolution 0.01 V) with spec $\\pm(0.5\\,\\% + 2)$: $\\Delta = 0.005 \\times 12.00 + 2 \\times 0.01 = 0.08$ V.\nA $3\\tfrac12$-digit meter displays up to 1999 counts, so use the lowest range that still fits the reading.",
+      "formula": "\\Delta v = \\frac{p}{100}\\,v_{reading} + n \\cdot \\text{(resolution)}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "in-measurement-1",
+      "title": "Errors and their names",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "What is an error?",
+          "body": "Every measurement differs a little from the true value. The **error** is $x_m - x_{true}$ (measured minus true). Instrument makers usually quote it as a percentage of the **full-scale** value $x_{full}$, the largest value the system is designed to measure.",
+          "formula": "\\%\\,\\text{error} = \\frac{x_m - x_{true}}{x_{full}} \\times 100\\,\\%"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "xf": [
+              10,
+              20,
+              50,
+              100
+            ],
+            "f": {
+              "min": 0.3,
+              "max": 0.9,
+              "step": 0.1
+            },
+            "d": [
+              -3,
+              -2,
+              -1,
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "xt": "round(f*xf*10)/10",
+            "xm": "xt + d*xf/200"
+          },
+          "prompt": "A pressure gauge with full scale {{xf}} bar reads {{xm||4}} bar when the true pressure is {{xt||4}} bar. Find the (signed) error as a percentage of full scale.",
+          "answer": "(xm - xt)/xf*100",
+          "unit": "%",
+          "absTolerance": 0.02,
+          "explanation": "$\\%\\,\\text{error} = \\frac{x_m - x_{true}}{x_{full}}\\times 100\\,\\%$ = ({{xm||4}} − {{xt||4}}) / {{xf}} × 100 % = **{{(xm-xt)/xf*100|%}}**. A positive value means the gauge reads high."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Accuracy, precision, resolution",
+          "body": "Three different ideas:\n- **Accuracy**: how close readings are to the true value.\n- **Precision**: how well repeated readings of the same quantity agree with each other.\n- **Resolution**: the smallest change the instrument can display.\nA meter can be precise without being accurate: every reading is the same, but all are wrong by the same amount."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "k": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "b": "0.6*(1-min(1,k)) + 0.6*max(0,k-2)",
+            "s": "0.05 + 0.45*mod(k,2)"
+          },
+          "prompt": "Eight readings of a constant 10 V source are plotted below. How would you describe this voltmeter?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 9,
+              "label": "reading no.",
+              "ticks": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ]
+            },
+            "y": {
+              "min": 8.5,
+              "max": 11.5,
+              "label": "v (V)"
+            },
+            "hlines": [
+              {
+                "y": 10,
+                "label": "true 10 V"
+              }
+            ],
+            "points": [
+              {
+                "x": 1,
+                "y": "10 + b + s*(0.6)",
+                "guides": false
+              },
+              {
+                "x": 2,
+                "y": "10 + b + s*(-0.8)",
+                "guides": false
+              },
+              {
+                "x": 3,
+                "y": "10 + b + s*(0.2)",
+                "guides": false
+              },
+              {
+                "x": 4,
+                "y": "10 + b + s*(0.9)",
+                "guides": false
+              },
+              {
+                "x": 5,
+                "y": "10 + b + s*(-0.4)",
+                "guides": false
+              },
+              {
+                "x": 6,
+                "y": "10 + b + s*(-0.9)",
+                "guides": false
+              },
+              {
+                "x": 7,
+                "y": "10 + b + s*(0.5)",
+                "guides": false
+              },
+              {
+                "x": 8,
+                "y": "10 + b + s*(-0.1)",
+                "guides": false
+              }
+            ],
+            "height": 170
+          },
+          "options": [
+            "Precise but not accurate",
+            "Accurate on average but not precise",
+            "Accurate and precise",
+            "Neither accurate nor precise"
+          ],
+          "answer": "k",
+          "explanation": "Look at two things: the **spread** of the readings (precision) and how far their **average** is from the true value (accuracy). Here the spread is about ±{{s|V}} and the average is off by about {{b|V}}. Tight spread = precise; average on the true value = accurate."
+        },
+        {
+          "id": "q3",
+          "type": "matchPairs",
+          "prompt": "Match each term to its meaning",
+          "pairs": [
+            [
+              "Accuracy",
+              "Closeness to the true value"
+            ],
+            [
+              "Precision",
+              "Agreement of repeated readings"
+            ],
+            [
+              "Resolution",
+              "Smallest displayable change"
+            ],
+            [
+              "Full scale",
+              "Largest value the range measures"
+            ]
+          ],
+          "explanation": "Accuracy compares with the **true** value, precision compares readings **with each other**, resolution is a property of the **display/converter** step size, and full scale sets the range that percentage-of-full-scale errors refer to."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Systematic vs random",
+          "body": "**Systematic** (bias) errors repeat identically: an offset, a wrong gain (scale error), a curved characteristic (nonlinearity) or hysteresis. Calibration against a known standard removes them.\n**Random** errors change from reading to reading with zero average, e.g. noise or vibration. Averaging many readings reduces them."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Which graph of measured value $x_m$ against true value $x_{true}$ shows a **pure scale error**? (The grey dashed line is the ideal $x_m = x_{true}$.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 10,
+                "label": "x_{true}"
+              },
+              "y": {
+                "min": 0,
+                "max": 12,
+                "label": "x_m"
+              },
+              "curves": [
+                {
+                  "f": "x",
+                  "color": "grey",
+                  "dash": true
+                },
+                {
+                  "f": "x+1.5"
+                }
+              ],
+              "height": 150
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 10,
+                "label": "x_{true}"
+              },
+              "y": {
+                "min": 0,
+                "max": 12,
+                "label": "x_m"
+              },
+              "curves": [
+                {
+                  "f": "x",
+                  "color": "grey",
+                  "dash": true
+                },
+                {
+                  "f": "1.2*x"
+                }
+              ],
+              "height": 150
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 10,
+                "label": "x_{true}"
+              },
+              "y": {
+                "min": 0,
+                "max": 12,
+                "label": "x_m"
+              },
+              "curves": [
+                {
+                  "f": "x",
+                  "color": "grey",
+                  "dash": true
+                },
+                {
+                  "f": "x + 0.08*x*(10-x)"
+                }
+              ],
+              "height": 150
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 10,
+                "label": "x_{true}"
+              },
+              "y": {
+                "min": 0,
+                "max": 12,
+                "label": "x_m"
+              },
+              "curves": [
+                {
+                  "f": "x",
+                  "color": "grey",
+                  "dash": true
+                },
+                {
+                  "f": "x - 1.2*sin(pi*x/10)"
+                },
+                {
+                  "f": "x + 1.2*sin(pi*x/10)",
+                  "color": "orange"
+                }
+              ],
+              "height": 150
+            }
+          ],
+          "answer": 1,
+          "explanation": "A scale error makes the reading proportional to the true value but with the wrong slope: $x_m = k\\,x_{true}$ with $k \\ne 1$, so the error grows with the measurand and is zero at zero. A parallel shifted line is an **offset**, a curve is **nonlinearity**, and two branches depending on direction are **hysteresis**."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Averaging many repeated readings removes a constant offset error of the instrument.",
+          "answer": false,
+          "explanation": "Averaging only reduces **random** errors, which have zero mean. A constant offset is a systematic error: every reading, and therefore the average, contains it. It has to be removed by calibration."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "A meter with a 5-digit display is always more accurate than an otherwise similar meter with a 3-digit display.",
+          "answer": false,
+          "explanation": "More digits means better **resolution**, not necessarily better accuracy. A 5-digit display can show the wrong value very finely if the meter has a calibration (bias) error."
+        }
+      ]
+    },
+    {
+      "id": "in-measurement-2",
+      "title": "Uncertainty and loading",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Combining uncertainties",
+          "body": "Worst case: absolute uncertainties add for sums and differences, relative uncertainties add for products and quotients, and a power $x^n$ multiplies the relative uncertainty by $n$.",
+          "formula": "P = \\frac{V^2}{R}:\\quad \\frac{\\Delta P}{P} = 2\\frac{\\Delta V}{V} + \\frac{\\Delta R}{R}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R1": [
+              470,
+              680,
+              1000,
+              1500,
+              2200
+            ],
+            "R2": [
+              330,
+              560,
+              820,
+              1200,
+              3300
+            ],
+            "t1": [
+              1,
+              2,
+              5
+            ],
+            "t2": [
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "Resistors $R_1$ = {{R1|Ω}} ± {{t1}} % and $R_2$ = {{R2|Ω}} ± {{t2}} % are connected in series. Find the worst-case absolute uncertainty of the total resistance (± how many ohms?).",
+          "answer": "R1*t1/100 + R2*t2/100",
+          "unit": "Ω",
+          "explanation": "For a sum the **absolute** uncertainties add. $\\Delta R_1$ = {{t1}} % × {{R1|Ω}} = {{R1*t1/100|Ω}}, $\\Delta R_2$ = {{t2}} % × {{R2|Ω}} = {{R2*t2/100|Ω}}, so $\\Delta R$ = **{{R1*t1/100+R2*t2/100|Ω}}** on a total of {{R1+R2|Ω}} ({{(R1*t1+R2*t2)/(R1+R2)||3}} %)."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "dV": [
+              0.5,
+              1,
+              1.5,
+              2
+            ],
+            "dI": [
+              0.5,
+              1,
+              2,
+              3
+            ]
+          },
+          "prompt": "Power is found as $P = VI$ from a voltage reading with uncertainty ±{{dV}} % and a current reading with uncertainty ±{{dI}} %. Find the worst-case relative uncertainty of $P$.",
+          "answer": "dV + dI",
+          "unit": "%",
+          "explanation": "For a product the **relative** uncertainties add: $\\frac{\\Delta P}{P} = \\frac{\\Delta V}{V} + \\frac{\\Delta I}{I}$ = {{dV}} % + {{dI}} % = **{{dV+dI|%}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "dV": [
+              0.5,
+              1,
+              1.5,
+              2
+            ],
+            "dR": [
+              0.5,
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "The power in a resistor is calculated as $P = V^2/R$, with $V$ known to ±{{dV}} % and $R$ to ±{{dR}} %. Find the worst-case relative uncertainty of $P$.",
+          "answer": "2*dV + dR",
+          "unit": "%",
+          "explanation": "$V^2$ doubles the relative uncertainty of $V$, and dividing by $R$ adds that of $R$: $\\frac{\\Delta P}{P} = 2\\frac{\\Delta V}{V} + \\frac{\\Delta R}{R}$ = 2 × {{dV}} % + {{dR}} % = **{{2*dV+dR|%}}**. (Forgetting the factor 2 gives {{dV+dR|%}}.)"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "a": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "b": [
+              2,
+              3,
+              4,
+              6,
+              8
+            ]
+          },
+          "prompt": "A quantity is the product of two measurements with **independent random** uncertainties of {{a}} % and {{b}} %. Estimate the combined relative uncertainty using the root-sum-square rule.",
+          "answer": "sqrt(a^2 + b^2)",
+          "unit": "%",
+          "explanation": "Independent random errors rarely line up, so combine them as $\\sqrt{a^2 + b^2}$ = $\\sqrt{{{a}}^2 + {{b}}^2}$ = **{{sqrt(a^2+b^2)|%}}**, less than the worst case {{a+b|%}}."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "v": {
+              "min": 3,
+              "max": 19,
+              "step": 0.01
+            },
+            "p": [
+              0.5,
+              0.8,
+              1
+            ],
+            "n": [
+              1,
+              2,
+              3,
+              5
+            ]
+          },
+          "derived": {
+            "vr": "round(v*100)/100"
+          },
+          "prompt": "A digital multimeter on its 20 V range (resolution 0.01 V) displays {{vr||4}} V. Its accuracy is ±({{p}} % of reading + {{n}} digits). Find the uncertainty of this reading (± how many volts?).",
+          "answer": "p/100*vr + n*0.01",
+          "unit": "V",
+          "explanation": "% of reading: {{p}} % × {{vr||4}} V = {{p/100*vr|V}}. Digits: {{n}} × 0.01 V = {{n*0.01|V}}. Total: $\\Delta v$ = **{{p/100*vr+n*0.01|V}}**, so the true value lies between {{vr-p/100*vr-n*0.01||5}} V and {{vr+p/100*vr+n*0.01||5}} V."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vs": {
+              "min": 10,
+              "max": 24,
+              "step": 2
+            },
+            "R1": [
+              100000,
+              220000,
+              470000,
+              1000000
+            ],
+            "R2": [
+              100000,
+              220000,
+              470000,
+              1000000
+            ],
+            "RV": [
+              1000000,
+              10000000
+            ]
+          },
+          "computed": {
+            "Vt": "Vs*R2/(R1+R2)"
+          },
+          "prompt": "A voltmeter with input resistance $R_V$ measures the voltage across $R_2$.",
+          "ask": [
+            {
+              "prompt": "What does it read?",
+              "answer": "abs(V_RV)",
+              "unit": "V",
+              "explanation": "The meter puts $R_V$ in parallel with $R_2$: $R_2 \\parallel R_V$ = {{par(R2,RV)|Ω}}. Divider: $v = V_s\\frac{R_2\\parallel R_V}{R_1 + R_2\\parallel R_V}$ = **{{abs(V_RV)|V}}**, while the unloaded voltage is {{Vt|V}}."
+            },
+            {
+              "prompt": "Find the loading error (reading − true)/true in percent.",
+              "answer": "(abs(V_RV) - Vt)/Vt*100",
+              "unit": "%",
+              "explanation": "True (unloaded) voltage: $V_s R_2/(R_1+R_2)$ = {{Vt|V}}. With the meter: {{abs(V_RV)|V}} (from $R_2\\parallel R_V$ = {{par(R2,RV)|Ω}}). Error = ({{abs(V_RV)|V}} − {{Vt|V}}) / {{Vt|V}} = **{{(abs(V_RV)-Vt)/Vt*100|%}}**. It is negative: a voltmeter always loads the circuit down."
+            }
+          ],
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "name": "Vs",
+                "val": "Vs"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "R_1",
+                "name": "R1",
+                "val": "R1"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_2",
+                "name": "R2",
+                "val": "R2",
+                "polarity": "+-"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_V",
+                "name": "RV",
+                "val": "RV"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "voltmeter",
+                "from": [
+                  6,
+                  0
+                ],
+                "to": [
+                  6,
+                  2
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    6,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  2
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  5,
+                  -0.6
+                ],
+                "label": "meter"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              5,
+              9,
+              12
+            ],
+            "R": [
+              10,
+              22,
+              47,
+              100,
+              220
+            ],
+            "RA": [
+              0.5,
+              1,
+              2,
+              5
+            ]
+          },
+          "prompt": "An ammeter with internal resistance {{RA|Ω}} is inserted in series with a {{R|Ω}} resistor connected to an ideal {{Vs|V}} source. Find the measurement error (reading − true)/true in percent.",
+          "answer": "-RA/(R+RA)*100",
+          "unit": "%",
+          "explanation": "True current: $V_s/R$ = {{Vs/R|A}}. With the meter: $V_s/(R + R_A)$ = {{Vs/(R+RA)|A}}. Error = $\\frac{R}{R+R_A} - 1 = -\\frac{R_A}{R+R_A}$ = **{{-RA/(R+RA)*100|%}}**. Small only when $R_A \\ll R$."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "To keep loading errors small, a voltmeter should have a very **high** internal resistance and an ammeter a very **low** one.",
+          "answer": true,
+          "explanation": "A voltmeter is connected in **parallel**, so it should draw almost no current: $R_V \\to \\infty$. An ammeter is connected in **series**, so it should drop almost no voltage: $R_A \\to 0$."
+        }
+      ]
+    },
+    {
+      "id": "in-measurement-3",
+      "title": "Measurement problems",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Rt": [
+              1000,
+              2000,
+              5000,
+              10000,
+              50000
+            ],
+            "e": [
+              0.1,
+              0.2,
+              0.5,
+              1
+            ]
+          },
+          "prompt": "A sensor has Thévenin resistance $R_t$ = {{Rt|Ω}}. What is the minimum input resistance of the amplifier connected to it if the loading error must be at most {{e}} %?",
+          "answer": "Rt*(1 - e/100)/(e/100)",
+          "unit": "Ω",
+          "explanation": "The amplifier sees $v_{in} = v_{sensor}\\frac{R_{in}}{R_{in}+R_t}$. Require $\\frac{R_{in}}{R_{in}+R_t} \\ge 1 - \\varepsilon$ with $\\varepsilon$ = {{e/100||3}}. Solving: $R_{in} \\ge R_t\\frac{1-\\varepsilon}{\\varepsilon}$ = {{Rt|Ω}} × {{(1-e/100)/(e/100)||4}} = **{{Rt*(1-e/100)/(e/100)|Ω}}**. Rule of thumb: about $R_t/\\varepsilon$."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Ra": [
+              1000,
+              2000,
+              5000
+            ],
+            "Rb": [
+              10000,
+              15000,
+              20000
+            ],
+            "Rin": [
+              100000,
+              470000,
+              1000000
+            ]
+          },
+          "prompt": "A flow sensor's open-circuit voltage is proportional to flow, but its internal resistance changes between {{Ra|Ω}} and {{Rb|Ω}} with fluid conditions. It feeds an amplifier with $R_{in}$ = {{Rin|Ω}}. By how many percent does the overall sensitivity drop when the sensor resistance goes from {{Ra|Ω}} to {{Rb|Ω}}?",
+          "answer": "(1 - (Ra+Rin)/(Rb+Rin))*100",
+          "unit": "%",
+          "explanation": "Sensitivity is proportional to $\\frac{R_{in}}{R_{in}+R_{sensor}}$: {{Rin/(Rin+Ra)||5}} at {{Ra|Ω}} and {{Rin/(Rin+Rb)||5}} at {{Rb|Ω}}. Relative drop = $1 - \\frac{R_a + R_{in}}{R_b + R_{in}}$ = **{{(1-(Ra+Rin)/(Rb+Rin))*100|%}}**. A larger $R_{in}$ makes the sensitivity independent of the sensor resistance."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "v": [
+              2.4,
+              4.8,
+              6.2,
+              9.1
+            ],
+            "i": [
+              0.0012,
+              0.0021,
+              0.0035,
+              0.0047
+            ],
+            "dv": [
+              0.5,
+              1
+            ],
+            "di": [
+              1,
+              1.5,
+              2
+            ]
+          },
+          "prompt": "A resistance is found as $R = V/I$ from $V$ = {{v|V}} ± {{dv}} % and $I$ = {{i|A}} ± {{di}} %.",
+          "ask": [
+            {
+              "prompt": "Find $R$.",
+              "answer": "v/i",
+              "unit": "Ω",
+              "explanation": "$R = V/I$ = {{v|V}} / {{i|A}} = **{{v/i|Ω}}**."
+            },
+            {
+              "prompt": "Find the worst-case absolute uncertainty of $R$ (± how many ohms?).",
+              "answer": "v/i*(dv+di)/100",
+              "unit": "Ω",
+              "explanation": "For a quotient the relative uncertainties add: {{dv}} % + {{di}} % = {{dv+di|%}}. $R$ = {{v/i|Ω}}, so $\\Delta R$ = {{(dv+di)/100||3}} × {{v/i|Ω}} = **{{v/i*(dv+di)/100|Ω}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "v": {
+              "min": 0.15,
+              "max": 1.9,
+              "step": 0.001
+            },
+            "res": [
+              0.001,
+              0.01
+            ],
+            "p": [
+              0.5,
+              1
+            ],
+            "n": [
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "vr": "round(v/res)*res",
+            "rng": "2000*res"
+          },
+          "prompt": "A $3\\tfrac12$-digit meter with accuracy ±({{p}} % of reading + {{n}} digits) measures a {{vr|V|4}} signal on its {{rng|V}} range (resolution {{res|V}}). Find the relative uncertainty of the reading in percent.",
+          "answer": "(p/100*vr + n*res)/vr*100",
+          "unit": "%",
+          "explanation": "$\\Delta v$ = {{p}} % × {{vr|V|4}} + {{n}} × {{res|V}} = {{p/100*vr+n*res|V}}. Relative: {{p/100*vr+n*res|V}} / {{vr|V|4}} = **{{(p/100*vr+n*res)/vr*100|%}}**. The digit term matters a lot when the reading is small compared with the range, so pick the lowest range that fits."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "v2": [
+              4.8,
+              5.0,
+              5.2,
+              7.5
+            ],
+            "d": [
+              0.1,
+              0.2,
+              0.3,
+              0.5
+            ],
+            "u": [
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "derived": {
+            "v1": "v2 + d"
+          },
+          "prompt": "Two node voltages are measured as $v_1$ = {{v1|V}} ± {{u|V}} and $v_2$ = {{v2|V}} ± {{u|V}}. Find the worst-case relative uncertainty of $v_1 - v_2$ in percent.",
+          "answer": "2*u/d*100",
+          "unit": "%",
+          "explanation": "For a difference the **absolute** uncertainties add: ±{{2*u|V}} on $v_1 - v_2$ = {{d|V}}. Relative: {{2*u|V}} / {{d|V}} = **{{2*u/d*100|%}}**, although each reading alone is good to about {{u/v2*100|%}}. Measure small differences directly (differential measurement) instead."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              5,
+              10
+            ],
+            "Rx": [
+              10000,
+              47000,
+              100000,
+              220000
+            ],
+            "RV": [
+              1000000,
+              10000000
+            ]
+          },
+          "prompt": "To measure $R_x$, the voltmeter (drawn as its input resistance $R_V$) is connected directly across $R_x$ and an ideal ammeter measures the source current. The result is calculated as $R = v/i$ from the two readings.",
+          "ask": [
+            {
+              "prompt": "What resistance is calculated?",
+              "answer": "Vs/I_Vs",
+              "unit": "Ω",
+              "explanation": "The voltmeter reads $V_s$ = {{Vs|V}}, but the ammeter carries the current of $R_x$ **and** of $R_V$: $i$ = {{I_Vs|A}}. So $v/i = R_x \\parallel R_V$ = **{{Vs/I_Vs|Ω}}**."
+            },
+            {
+              "prompt": "Find the error of this result (calculated − true)/true in percent.",
+              "answer": "(par(Rx,RV) - Rx)/Rx*100",
+              "unit": "%",
+              "explanation": "$v/i = R_x\\parallel R_V$ = {{par(Rx,RV)|Ω}} instead of {{Rx|Ω}}: error = $-\\frac{R_x}{R_x + R_V}$ = **{{(par(Rx,RV)-Rx)/Rx*100|%}}**. This connection suits **small** $R_x$; for large $R_x$ put the ammeter directly in series with $R_x$ instead."
+            }
+          ],
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_s",
+                "name": "Vs",
+                "val": "Vs"
+              },
+              {
+                "type": "ammeter",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_x",
+                "name": "Rx",
+                "val": "Rx"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_V",
+                "name": "RV",
+                "val": "RV"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "A scale reads 0.3 kg with nothing on it, and every reading of a test mass is between 2.29 and 2.31 kg when the true mass is 2.00 kg. What is the best way to improve the result?",
+          "options": [
+            "Calibrate: subtract the 0.3 kg offset",
+            "Average many readings",
+            "Use a display with more digits",
+            "Nothing: the readings are precise, so they are accurate"
+          ],
+          "answer": 0,
+          "explanation": "The readings agree within ±0.01 kg (precise) but are all about 0.3 kg high: a **systematic offset**, which is exactly the zero reading. Calibration removes it. Averaging only reduces random scatter, and more digits only improve resolution."
+        }
+      ]
+    }
+  ]
+}

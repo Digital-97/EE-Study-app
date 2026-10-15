@@ -1,0 +1,2152 @@
+{
+  "id": "cm-digital",
+  "title": "Digital Data Transmission",
+  "description": "Turn signals into bits with PCM, share links with TDM, choose line codes and digital modulations, and check rates against Nyquist, Shannon and the bit error rate.",
+  "reference": "Frenzel ch. 7, 10–11",
+  "study": [
+    {
+      "title": "Explore: bits, symbols and channel capacity",
+      "body": "A symbol with $M$ possible states (levels, phases, …) carries $\\log_2 M$ bits, so the bit rate is $R_b = R_s\\log_2 M$; the symbol rate $R_s$ is the **baud rate**. Hartley/Nyquist: a noiseless channel of bandwidth $B$ carries at most $2B$ symbols per second. Shannon gives the hard limit for a noisy channel; use $S/N$ as a power **ratio** (30 dB = 1000), never in dB. Drag the S/N: at high S/N every extra 3 dB buys about 1 bps/Hz.",
+      "formula": "\\begin{aligned} C &= 2B\\log_2 M\\quad\\text{(noiseless)}\\\\ C &= B\\log_2\\left(1 + \\frac{S}{N}\\right)\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": -10,
+          "max": 40,
+          "label": "S/N (dB)"
+        },
+        "y": {
+          "min": 0,
+          "max": 14,
+          "label": "C/B (bps/Hz)"
+        },
+        "sliders": [
+          {
+            "name": "snr",
+            "label": "$S/N$",
+            "min": -10,
+            "max": 40,
+            "step": 1,
+            "value": 20,
+            "unit": "dB"
+          }
+        ],
+        "let": {
+          "r": "10^(snr/10)",
+          "cb": "ln(1 + r)/ln(2)"
+        },
+        "curves": [
+          {
+            "f": "ln(1 + 10^(x/10))/ln(2)",
+            "label": "Shannon limit",
+            "labelAt": 0.3
+          },
+          {
+            "f": "x/3.01",
+            "color": "grey",
+            "dash": true,
+            "from": 6,
+            "to": 40
+          }
+        ],
+        "points": [
+          {
+            "x": "snr",
+            "y": "cb"
+          }
+        ],
+        "labels": [
+          {
+            "x": 24,
+            "y": 2.2,
+            "text": "dashed: S/N_{dB} / 3",
+            "color": "grey"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$S/N$ as a ratio",
+            "value": "r"
+          },
+          {
+            "label": "$C/B$ (bps/Hz)",
+            "value": "cb"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: PCM, companding and TDM",
+      "body": "PCM samples at $f_s > 2f_{max}$ (telephony: 8 kHz), quantises each sample to one of $2^n$ levels and sends the $n$-bit code; each extra bit adds about 6 dB of signal-to-quantisation-noise ratio. **Companding** boosts small signals before a uniform quantiser (drag $\\mu$; μ-law with μ = 255 in North America and Japan, A-law with A = 87.6 in Europe), so 8 bits give speech the quality of 12–13 linear bits. **TDM** sends the words of several channels in turn, one 125 µs frame per sample period: E1 = 32 slots × 8 bits × 8000 = 2.048 Mbps; T1 = (24 × 8 + 1) × 8000 = 1.544 Mbps.",
+      "formula": "\\begin{aligned} R_b &= f_s\\, n\\, N_{ch}\\\\ \\text{SNR}_q &\\approx 6.02n + 1.76\\ \\text{dB}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "v_{in} / V_{max}"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.05,
+          "label": "v_{out} / V_{max}"
+        },
+        "sliders": [
+          {
+            "name": "mu",
+            "label": "$\\mu$",
+            "min": 1,
+            "max": 1000,
+            "value": 255,
+            "log": true
+          }
+        ],
+        "curves": [
+          {
+            "f": "ln(1 + mu*x)/ln(1 + mu)",
+            "label": "μ-law",
+            "labelAt": 0.12
+          },
+          {
+            "f": "x",
+            "color": "grey",
+            "dash": true,
+            "label": "linear",
+            "labelAt": 0.75
+          }
+        ],
+        "readouts": [
+          {
+            "label": "gain for small signals",
+            "value": "20*log10(mu/ln(1 + mu))",
+            "unit": "dB"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: line codes",
+      "body": "**NRZ** holds the level for the whole bit: the fastest pattern (1010…) has a fundamental of only $R_b/2$, but long runs of equal bits give no transitions for clock recovery and unipolar NRZ has a DC component. **RZ** returns to zero halfway through each 1. **Manchester** (biphase) has a transition in the middle of every bit, here 1 = high→low and 0 = low→high as in Frenzel (Ethernet uses the opposite): easy clock recovery and no DC, at twice the bandwidth. Drag to send another byte.",
+      "formula": "B_{NRZ} \\approx \\frac{R_b}{2},\\qquad B_{Manchester} \\approx R_b",
+      "plot": {
+        "x": {
+          "min": -1.9,
+          "max": 8,
+          "label": "t / T_b",
+          "ticks": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        "y": {
+          "min": -0.2,
+          "max": 6.4,
+          "label": "",
+          "ticks": []
+        },
+        "sliders": [
+          {
+            "name": "P",
+            "label": "byte (decimal)",
+            "min": 0,
+            "max": 255,
+            "step": 1,
+            "value": 178
+          }
+        ],
+        "curves": [
+          {
+            "f": "4.3 + mod(floor((P)/2^(7-floor(x))), 2)",
+            "from": 0,
+            "to": 7.999
+          },
+          {
+            "f": "2.3 + mod(floor((P)/2^(7-floor(x))), 2)*if(0.5 - mod(x, 1), 1, 0)",
+            "from": 0,
+            "to": 7.999,
+            "color": "blue"
+          },
+          {
+            "f": "0.3 + 0.5 + 0.5*(2*mod(floor((P)/2^(7-floor(x))), 2) - 1)*if(0.5 - mod(x, 1), 1, -1)",
+            "from": 0,
+            "to": 7.999,
+            "color": "purple"
+          }
+        ],
+        "labels": [
+          {
+            "x": -1.85,
+            "y": 4.8,
+            "text": "NRZ"
+          },
+          {
+            "x": -1.85,
+            "y": 2.8,
+            "text": "RZ"
+          },
+          {
+            "x": -1.85,
+            "y": 0.8,
+            "text": "Manch."
+          },
+          {
+            "x": 0.4,
+            "y": 5.95,
+            "text": "{{mod(floor(P/2^7), 2)}}",
+            "color": "primary"
+          },
+          {
+            "x": 1.4,
+            "y": 5.95,
+            "text": "{{mod(floor(P/2^6), 2)}}",
+            "color": "primary"
+          },
+          {
+            "x": 2.4,
+            "y": 5.95,
+            "text": "{{mod(floor(P/2^5), 2)}}",
+            "color": "primary"
+          },
+          {
+            "x": 3.4,
+            "y": 5.95,
+            "text": "{{mod(floor(P/2^4), 2)}}",
+            "color": "primary"
+          },
+          {
+            "x": 4.4,
+            "y": 5.95,
+            "text": "{{mod(floor(P/2^3), 2)}}",
+            "color": "primary"
+          },
+          {
+            "x": 5.4,
+            "y": 5.95,
+            "text": "{{mod(floor(P/2^2), 2)}}",
+            "color": "primary"
+          },
+          {
+            "x": 6.4,
+            "y": 5.95,
+            "text": "{{mod(floor(P/2^1), 2)}}",
+            "color": "primary"
+          },
+          {
+            "x": 7.4,
+            "y": 5.95,
+            "text": "{{mod(floor(P/2^0), 2)}}",
+            "color": "primary"
+          }
+        ],
+        "height": 240
+      }
+    },
+    {
+      "title": "Explore: digital modulation",
+      "body": "Digital modulation keys the carrier's amplitude (**ASK**, on-off keying **OOK**), frequency (**FSK**) or phase (**PSK**); **QAM** varies amplitude and phase together. Each point in the I/Q **constellation** is one symbol of $\\log_2 M$ bits: BPSK 1, QPSK 2, 8-PSK 3, 16-QAM 4, 64-QAM 6. Denser constellations put the points closer together, so they need more S/N for the same bit error rate: for BER = $10^{-6}$ roughly 11 dB C/N for BPSK but 20 dB for 16-QAM. Drag the bits per symbol.",
+      "formula": "\\text{bits per symbol} = \\log_2 M",
+      "plot": {
+        "x": {
+          "min": -1.5,
+          "max": 1.5,
+          "label": "I",
+          "ticks": [
+            -1,
+            0,
+            1
+          ]
+        },
+        "y": {
+          "min": -1.25,
+          "max": 1.25,
+          "label": "Q",
+          "ticks": [
+            -1,
+            0,
+            1
+          ]
+        },
+        "curves": [
+          {
+            "f": "sqrt(max(0, 1 - x^2))",
+            "color": "grey",
+            "dash": true,
+            "from": -1,
+            "to": 1
+          },
+          {
+            "f": "-sqrt(max(0, 1 - x^2))",
+            "color": "grey",
+            "dash": true,
+            "from": -1,
+            "to": 1
+          }
+        ],
+        "points": [
+          {
+            "x": "if(b - 3.5, (2*mod(0, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(0, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(0/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(0, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(1, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(1, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(1/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(1, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(2, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(2, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(2/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(2, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(3, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(3, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(3/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(3, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(4, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(4, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(4/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(4, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(5, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(5, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(5/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(5, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(6, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(6, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(6/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(6, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(7, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(7, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(7/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(7, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(8, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(8, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(8/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(8, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(9, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(9, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(9/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(9, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(10, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(10, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(10/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(10, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(11, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(11, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(11/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(11, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(12, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(12, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(12/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(12, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(13, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(13, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(13/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(13, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(14, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(14, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(14/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(14, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          },
+          {
+            "x": "if(b - 3.5, (2*mod(15, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(15, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "y": "if(b - 3.5, (2*floor(15/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(15, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+            "guides": false,
+            "color": "primary"
+          }
+        ],
+        "height": 240,
+        "sliders": [
+          {
+            "name": "b",
+            "label": "bits per symbol",
+            "min": 1,
+            "max": 4,
+            "step": 1,
+            "value": 2
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$M$ (points)",
+            "value": "2^b"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Explore: bandwidth and spectral efficiency",
+      "body": "Nyquist: $R_s$ symbols per second need at least $R_s/2$ of baseband bandwidth, or $R_s$ around a carrier (two sidebands). Practical **raised-cosine** filters with roll-off $\\alpha$ (0 to 1) need $(1 + \\alpha)$ times that, but cause no intersymbol interference. Spectral efficiency $R_b/B$ (bps/Hz) grows with $\\log_2 M$. To compare modulations independent of bandwidth, use $E_b/N_0$, the energy per bit over the noise density. Drag $\\alpha$.",
+      "formula": "\\begin{aligned} B &= (1 + \\alpha)R_s\\quad\\text{(passband)}\\\\ \\frac{S}{N} &= \\frac{E_b}{N_0}\\cdot\\frac{R_b}{B}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1.1,
+          "label": "f / R_s (baseband)"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.2,
+          "label": "|H(f)|"
+        },
+        "sliders": [
+          {
+            "name": "a",
+            "label": "roll-off $\\alpha$",
+            "min": 0.05,
+            "max": 1,
+            "step": 0.05,
+            "value": 0.35
+          }
+        ],
+        "curves": [
+          {
+            "f": "0.5*(1 + cos(pi*clamp((x - (1 - a)/2)/a, 0, 1)))"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0.5,
+            "label": "R_s/2"
+          },
+          {
+            "x": "(1 + a)/2",
+            "label": "B"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$B/R_s$ baseband",
+            "value": "(1 + a)/2"
+          },
+          {
+            "label": "$B/R_s$ passband",
+            "value": "1 + a"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Spread spectrum and OFDM",
+      "body": "**Spread spectrum** deliberately uses far more bandwidth than the data need. **FHSS** hops the carrier over many channels in a pseudorandom order; **DSSS** multiplies each bit by a fast pseudorandom chip sequence. Despreading with the same code collapses the wanted signal back to the data bandwidth while spreading interference out: the **processing gain** is the chip rate over the bit rate, and users with different codes can share one band (CDMA). **OFDM** splits a fast stream over many slow, orthogonal subcarriers spaced $1/T_u$ apart (the useful symbol time), which makes it robust against multipath (Wi-Fi, LTE, DAB).",
+      "formula": "G_p = \\frac{R_c}{R_b},\\qquad G_p\\,(\\text{dB}) = 10\\log_{10}\\frac{R_c}{R_b}"
+    },
+    {
+      "title": "Error detection and correction",
+      "body": "A **parity** bit makes the number of 1s even (or odd), which detects any single-bit error. A **checksum** adds up the bytes of a block; a **CRC** divides the block by a generator polynomial and sends the remainder, which catches practically all burst errors. **Forward error correction** (FEC) adds enough redundancy for the receiver to correct errors itself, without a retransmission. A Hamming code with $p$ check bits corrects one error in $m$ data bits when $2^p \\geq m + p + 1$; the code rate is $m/(m + p)$.",
+      "formula": "2^p \\geq m + p + 1"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "cm-digital-1",
+      "title": "Bits, symbols and codes",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Bits and bauds",
+          "body": "Parallel transmission sends all bits of a word at once on separate wires: fast, but only over short distances. Longer links send the data **serially**, one symbol after another. The **baud rate** $R_s$ counts symbols per second. A symbol with $M$ distinct states (voltage levels, phases, …) carries $\\log_2 M$ bits.",
+          "formula": "R_b = R_s\\log_2 M"
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {
+            "Rs": [
+              1200,
+              2400,
+              3200
+            ],
+            "M": [
+              4,
+              8,
+              16,
+              64
+            ]
+          },
+          "derived": {
+            "b": "round(ln(M)/ln(2))"
+          },
+          "prompt": "A modem sends {{Rs|baud}} with {{M}} different symbols. What is its bit rate?",
+          "options": [
+            "{{Rs*b|bps}}",
+            "{{Rs*M|bps}}",
+            "{{Rs/b|bps}}",
+            "{{Rs|bps}}"
+          ],
+          "answer": 0,
+          "explanation": "{{M}} symbols carry $\\log_2$ {{M}} = {{b}} bits each, so $R_b = R_s\\log_2 M$ = {{Rs|baud}} × {{b}} = **{{Rs*b|bps}}**. Bit rate equals baud rate only for binary (2-state) symbols."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "How fast can a channel go?",
+          "body": "Without noise, a channel of bandwidth $B$ carries at most $2B$ symbols per second (Hartley/Nyquist), so more levels mean more bits. Noise sets a hard limit, found by Shannon. In his formula $S/N$ is a power **ratio**: convert from dB first with $10^{dB/10}$.",
+          "formula": "C = B\\log_2\\left(1 + \\frac{S}{N}\\right)"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "B": [
+              3100,
+              4000,
+              1000000.0,
+              6000000.0
+            ],
+            "snr": [
+              20,
+              25,
+              30,
+              40
+            ]
+          },
+          "derived": {
+            "r": "10^(snr/10)"
+          },
+          "prompt": "A channel has a bandwidth of {{B|Hz}} and a signal-to-noise ratio of {{snr}} dB. What is its Shannon capacity?",
+          "answer": "B*ln(1 + r)/ln(2)",
+          "unit": "bps",
+          "explanation": "First convert: $S/N = 10^{ {{snr}}/10}$ = {{r||4}} (not {{snr}}!). $C = B\\log_2(1 + S/N)$ = {{B|Hz}} × $\\log_2$({{1+r||5}}) = {{B|Hz}} × {{ln(1+r)/ln(2)||4}} = **{{B*ln(1+r)/ln(2)|bps}}**."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Pulse-code modulation",
+          "body": "PCM turns an analog signal into bits in three steps: **sample** it (faster than twice the highest frequency), **quantise** each sample to one of $2^n$ levels and **encode** the level as an $n$-bit word. The words of all channels are then sent serially.",
+          "formula": "R_b = f_s\\cdot n\\cdot N_{ch}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "fs": [
+              8000,
+              16000,
+              44100,
+              48000
+            ],
+            "n": [
+              8,
+              16,
+              24
+            ],
+            "ch": [
+              1,
+              2
+            ]
+          },
+          "prompt": "A PCM recorder samples {{ch}} channel(s) at {{fs|Hz}} with {{n}}-bit samples. What is the bit rate?",
+          "answer": "fs*n*ch",
+          "unit": "bps",
+          "explanation": "$R_b = f_s n N_{ch}$ = {{fs|Hz}} × {{n}} × {{ch}} = **{{fs*n*ch|bps|4}}**."
+        },
+        {
+          "id": "q4",
+          "type": "orderSteps",
+          "prompt": "Put the stages of a PCM transmitter in order.",
+          "items": [
+            "Anti-aliasing low-pass filter",
+            "Sample-and-hold",
+            "Quantise to $2^n$ levels",
+            "Encode as an $n$-bit word",
+            "Parallel-to-serial conversion"
+          ],
+          "explanation": "The filter removes everything above $f_s/2$ **before** sampling, the S/H freezes the value, the ADC quantises and encodes it, and a shift register sends the bits serially (usually interleaved with other channels in a TDM frame)."
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Line codes",
+          "body": "Before the bits go onto a cable they are given a shape. Shown for the byte 10110010: **NRZ** holds the level for the whole bit; **RZ** returns to zero halfway through each 1; **Manchester** always switches in the middle of the bit (1 = high→low, 0 = low→high), so the receiver can recover the clock from any data.",
+          "plot": {
+            "x": {
+              "min": -1.9,
+              "max": 8,
+              "label": "t / T_b",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ]
+            },
+            "y": {
+              "min": -0.2,
+              "max": 6.4,
+              "label": "",
+              "ticks": []
+            },
+            "curves": [
+              {
+                "f": "4.3 + mod(floor((178)/2^(7-floor(x))), 2)",
+                "from": 0,
+                "to": 7.999
+              },
+              {
+                "f": "2.3 + mod(floor((178)/2^(7-floor(x))), 2)*if(0.5 - mod(x, 1), 1, 0)",
+                "from": 0,
+                "to": 7.999,
+                "color": "blue"
+              },
+              {
+                "f": "0.3 + 0.5 + 0.5*(2*mod(floor((178)/2^(7-floor(x))), 2) - 1)*if(0.5 - mod(x, 1), 1, -1)",
+                "from": 0,
+                "to": 7.999,
+                "color": "purple"
+              }
+            ],
+            "labels": [
+              {
+                "x": -1.85,
+                "y": 4.8,
+                "text": "NRZ"
+              },
+              {
+                "x": -1.85,
+                "y": 2.8,
+                "text": "RZ"
+              },
+              {
+                "x": -1.85,
+                "y": 0.8,
+                "text": "Manch."
+              },
+              {
+                "x": 0.4,
+                "y": 5.95,
+                "text": "1",
+                "color": "primary"
+              },
+              {
+                "x": 1.4,
+                "y": 5.95,
+                "text": "0",
+                "color": "primary"
+              },
+              {
+                "x": 2.4,
+                "y": 5.95,
+                "text": "1",
+                "color": "primary"
+              },
+              {
+                "x": 3.4,
+                "y": 5.95,
+                "text": "1",
+                "color": "primary"
+              },
+              {
+                "x": 4.4,
+                "y": 5.95,
+                "text": "0",
+                "color": "primary"
+              },
+              {
+                "x": 5.4,
+                "y": 5.95,
+                "text": "0",
+                "color": "primary"
+              },
+              {
+                "x": 6.4,
+                "y": 5.95,
+                "text": "1",
+                "color": "primary"
+              },
+              {
+                "x": 7.4,
+                "y": 5.95,
+                "text": "0",
+                "color": "primary"
+              }
+            ],
+            "height": 240
+          }
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "P": [
+              178,
+              105,
+              202,
+              77,
+              150,
+              228
+            ]
+          },
+          "prompt": "Which graph shows the byte {{P|bin|8}} in Manchester code (1 = high→low, 0 = low→high in the middle of the bit)?",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 8,
+                "label": "t / T_b",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              },
+              "y": {
+                "min": -0.3,
+                "max": 1.4,
+                "label": "",
+                "ticks": [
+                  0,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "0 + 0.5 + 0.5*(2*mod(floor((P)/2^(7-floor(x))), 2) - 1)*if(0.5 - mod(x, 1), 1, -1)",
+                  "from": 0,
+                  "to": 7.999
+                }
+              ],
+              "height": 120
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 8,
+                "label": "t / T_b",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              },
+              "y": {
+                "min": -0.3,
+                "max": 1.4,
+                "label": "",
+                "ticks": [
+                  0,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "0 + mod(floor((P)/2^(7-floor(x))), 2)",
+                  "from": 0,
+                  "to": 7.999
+                }
+              ],
+              "height": 120
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 8,
+                "label": "t / T_b",
+                "ticks": [
+                  0,
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              },
+              "y": {
+                "min": -0.3,
+                "max": 1.4,
+                "label": "",
+                "ticks": [
+                  0,
+                  1
+                ]
+              },
+              "curves": [
+                {
+                  "f": "0 + mod(floor((P)/2^(7-floor(x))), 2)*if(0.5 - mod(x, 1), 1, 0)",
+                  "from": 0,
+                  "to": 7.999
+                }
+              ],
+              "height": 120
+            }
+          ],
+          "answer": 0,
+          "explanation": "Manchester has a transition in the **middle of every bit**: a 1 starts high and drops, a 0 starts low and rises. The graph with only bit-boundary changes is NRZ, the one with short pulses for the 1s only is RZ."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "At the same bit rate, Manchester code needs about twice the bandwidth of NRZ.",
+          "answer": true,
+          "explanation": "True. The fastest NRZ pattern 1010… makes one cycle per **two** bits ($f = R_b/2$); Manchester can change level every half bit, so its fastest pattern makes one cycle per bit ($f = R_b$). The price buys clock recovery and zero DC."
+        }
+      ]
+    },
+    {
+      "id": "cm-digital-2",
+      "title": "PCM, TDM and capacity",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "fm": [
+              3400.0,
+              4000.0,
+              15000.0,
+              20000.0
+            ],
+            "k": [
+              1.25,
+              1.5,
+              2
+            ],
+            "n": [
+              8,
+              10,
+              12,
+              16
+            ]
+          },
+          "derived": {
+            "fs": "2*k*fm"
+          },
+          "prompt": "A signal with frequencies up to {{fm|Hz}} is digitized with PCM at {{k}} times the Nyquist rate, using {{n}}-bit samples.",
+          "ask": [
+            {
+              "prompt": "What is the bit rate?",
+              "answer": "fs*n",
+              "unit": "bps",
+              "explanation": "Nyquist rate = $2f_{max}$ = {{2*fm|Hz}}, so $f_s$ = {{k}} × {{2*fm|Hz}} = {{fs|Hz}}. $R_b = f_s n$ = {{fs|Hz}} × {{n}} = **{{fs*n|bps}}**."
+            },
+            {
+              "prompt": "What is the signal-to-quantisation-noise ratio for a full-scale sine?",
+              "answer": "6.02*n + 1.76",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$\\text{SNR}_q \\approx 6.02n + 1.76$ = 6.02 × {{n}} + 1.76 = **{{6.02*n+1.76||4}} dB**. The sample rate does not matter here (oversampling with filtering would add a little)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "S": [
+              40,
+              45,
+              55,
+              60,
+              70,
+              75,
+              90
+            ]
+          },
+          "derived": {
+            "n": "ceil((S - 1.76)/6.02)"
+          },
+          "prompt": "A PCM system must reach a signal-to-quantisation-noise ratio of at least {{S}} dB for a full-scale sine ($\\text{SNR}_q = 6.02n + 1.76$ dB). How many bits per sample are needed?",
+          "answer": "n",
+          "unit": "",
+          "tolerance": 0.0001,
+          "absTolerance": 0.4,
+          "explanation": "$6.02n + 1.76 \\geq$ {{S}} → $n \\geq$ ({{S}} − 1.76)/6.02 = {{(S-1.76)/6.02||4}} → **{{n}} bits** (round up). Check: 6.02 × {{n}} + 1.76 = {{6.02*n+1.76||4}} dB."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "N": [
+              24,
+              30,
+              32,
+              48,
+              96
+            ],
+            "F": [
+              1,
+              8,
+              16
+            ]
+          },
+          "prompt": "A TDM system carries {{N}} PCM voice channels (8 kHz sampling, 8 bits per sample). Each frame also contains {{F}} framing/signalling bit(s).",
+          "ask": [
+            {
+              "prompt": "How many bits does one frame contain?",
+              "answer": "8*N + F",
+              "unit": "",
+              "tolerance": 0.0001,
+              "absTolerance": 0.4,
+              "explanation": "Each channel contributes one 8-bit sample per frame: {{N}} × 8 + {{F}} = **{{8*N+F||5}} bits**."
+            },
+            {
+              "prompt": "What is the line bit rate?",
+              "answer": "(8*N + F)*8000",
+              "unit": "bps",
+              "explanation": "One frame per sample period (125 µs): $R$ = {{8*N+F||5}} bits × 8000 frames/s = **{{(8*N+F)*8000|bps|4}}**."
+            },
+            {
+              "prompt": "How long does one bit last on the line?",
+              "answer": "1/((8*N + F)*8000)",
+              "unit": "s",
+              "explanation": "$R$ = {{8*N+F||5}} × 8000 = {{(8*N+F)*8000|bps|4}}, so $T_b = 1/R$ = **{{1/((8*N+F)*8000)|s}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "A European E1 frame has 32 time slots of 8 bits (30 voice channels, slot 0 for framing, slot 16 for signalling) and is repeated 8000 times per second. What is the E1 line rate?",
+          "options": [
+            "2.048 Mbps",
+            "1.92 Mbps",
+            "1.544 Mbps",
+            "256 kbps"
+          ],
+          "answer": 0,
+          "explanation": "32 × 8 = 256 bits per frame, × 8000 frames/s = **2.048 Mbps**. 1.92 Mbps counts only the 30 voice slots; 1.544 Mbps is the North-American T1 ((24 × 8 + 1) × 8000); 256 kbps forgets the 8000 frames per second."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "B": [
+              3000,
+              4000,
+              1000000.0,
+              5000000.0
+            ],
+            "M": [
+              4,
+              8,
+              16
+            ],
+            "x": [
+              1.5,
+              2.5,
+              3.5
+            ]
+          },
+          "prompt": "A noiseless channel has a bandwidth of {{B|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is its maximum bit rate with {{M}}-level symbols (Hartley)?",
+              "answer": "2*B*ln(M)/ln(2)",
+              "unit": "bps",
+              "explanation": "$C = 2B\\log_2 M$ = 2 × {{B|Hz}} × {{ln(M)/ln(2)}} = **{{2*B*ln(M)/ln(2)|bps}}**."
+            },
+            {
+              "prompt": "How many levels $M$ are needed at least to carry {{2*B*x|bps}}, if $M$ must be a power of two?",
+              "answer": "2^ceil(x)",
+              "unit": "",
+              "tolerance": 0.0001,
+              "absTolerance": 0.4,
+              "explanation": "$\\log_2 M \\geq \\frac{C}{2B}$ = {{2*B*x|bps}} / {{2*B|Hz}} = {{x}} bits per symbol → round up to {{ceil(x)}} bits: $M = 2^{ {{ceil(x)}} }$ = **{{2^ceil(x)}}**."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "B": [
+              3100,
+              1000000.0,
+              20000000.0
+            ],
+            "snr": [
+              10,
+              20,
+              30
+            ],
+            "eff": [
+              2,
+              4,
+              6
+            ]
+          },
+          "derived": {
+            "r": "10^(snr/10)"
+          },
+          "prompt": "A channel has a bandwidth of {{B|Hz}}.",
+          "ask": [
+            {
+              "prompt": "What is its Shannon capacity at $S/N$ = {{snr}} dB?",
+              "answer": "B*ln(1 + r)/ln(2)",
+              "unit": "bps",
+              "explanation": "$S/N$ = $10^{ {{snr}}/10}$ = {{r||4}}. $C$ = {{B|Hz}} × $\\log_2$({{1+r||5}}) = {{B|Hz}} × {{ln(1+r)/ln(2)||4}} = **{{B*ln(1+r)/ln(2)|bps}}**."
+            },
+            {
+              "prompt": "What $S/N$ (in dB) is needed at least to carry {{eff*B|bps}}?",
+              "answer": "10*log10(2^eff - 1)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$C/B$ = {{eff}} bps/Hz, so $1 + S/N = 2^{ {{eff}} }$ → $S/N$ = {{2^eff-1}} = **{{10*log10(2^eff-1)||3}} dB**. Real modems need several dB more than this limit."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Rb": [
+              64000.0,
+              1000000.0,
+              10000000.0,
+              100000000.0
+            ]
+          },
+          "prompt": "Data at {{Rb|bps}} is sent as a baseband line code. The fastest pattern sets the fundamental frequency the cable must pass.",
+          "ask": [
+            {
+              "prompt": "What is that fundamental frequency for NRZ?",
+              "answer": "Rb/2",
+              "unit": "Hz",
+              "explanation": "The pattern 1010… gives one period per two bits: $f = R_b/2$ = **{{Rb/2|Hz}}** (Hartley: $C = 2B$). For clean edges allow several times more."
+            },
+            {
+              "prompt": "What is that fundamental frequency for Manchester code?",
+              "answer": "Rb",
+              "unit": "Hz",
+              "explanation": "Manchester can change level every half bit, so its fastest pattern (a run of equal bits) has one period per bit: $f = R_b$ = **{{Rb|Hz}}**, twice NRZ."
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              1,
+              2,
+              5
+            ],
+            "r": [
+              0.01,
+              0.02,
+              0.05,
+              0.1,
+              0.25,
+              0.5
+            ]
+          },
+          "derived": {
+            "vin": "r*Vm",
+            "vo": "Vm*ln(1 + 255*r)/ln(256)"
+          },
+          "prompt": "A μ-law compressor ($\\mu$ = 255, $V_{max}$ = {{Vm|V}}) gets an input of {{vin|V}}. Use the μ-law with $x = v_{in}/V_{max}$:\n$$v_{out} = V_{max}\\frac{\\ln(1 + \\mu x)}{\\ln(1 + \\mu)}$$\n",
+          "ask": [
+            {
+              "prompt": "What is the output voltage?",
+              "answer": "vo",
+              "unit": "V",
+              "explanation": "$v_{in}/V_{max}$ = {{r}}. $v_{out}$ = {{Vm|V}} × ln(1 + 255 × {{r}}) / ln(256) = {{Vm|V}} × {{ln(1+255*r)||4}} / {{ln(256)||4}} = **{{vo|V}}**."
+            },
+            {
+              "prompt": "What is the gain of the compressor at this level, in dB?",
+              "answer": "20*log10(vo/vin)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$v_{out}$ = {{vo|V}}, so $A$ = {{vo|V}} / {{vin|V}} = {{vo/vin||3}} = **{{20*log10(vo/vin)||3}} dB**. Small inputs get much more gain than large ones; the expander at the receiver undoes this."
+            }
+          ]
+        },
+        {
+          "id": "q9",
+          "type": "multipleChoice",
+          "params": {
+            "P": [
+              178,
+              105,
+              202,
+              77,
+              150
+            ],
+            "k": [
+              0,
+              1,
+              2
+            ]
+          },
+          "prompt": "The byte {{P|bin|8}} is sent with the line code below. Which code is it?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 8,
+              "label": "t / T_b",
+              "ticks": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ]
+            },
+            "y": {
+              "min": -0.3,
+              "max": 1.4,
+              "label": "",
+              "ticks": [
+                0,
+                1
+              ]
+            },
+            "curves": [
+              {
+                "f": "if(k - 1.5, 0 + 0.5 + 0.5*(2*mod(floor((P)/2^(7-floor(x))), 2) - 1)*if(0.5 - mod(x, 1), 1, -1), if(k - 0.5, 0 + mod(floor((P)/2^(7-floor(x))), 2)*if(0.5 - mod(x, 1), 1, 0), 0 + mod(floor((P)/2^(7-floor(x))), 2)))",
+                "from": 0,
+                "to": 7.999
+              }
+            ],
+            "height": 120
+          },
+          "options": [
+            "NRZ",
+            "RZ",
+            "Manchester"
+          ],
+          "answer": "k",
+          "explanation": "NRZ only changes at bit boundaries and holds the level for a whole bit. RZ sends a half-bit pulse for each 1 and returns to zero. Manchester has a transition in the middle of **every** bit, whatever the data."
+        },
+        {
+          "id": "q10",
+          "type": "trueFalse",
+          "prompt": "A 3 kHz channel with $S/N$ = 30 dB can carry at most $3000\\log_2(1 + 30)$ ≈ 14.9 kbps.",
+          "answer": false,
+          "explanation": "False: 30 dB must first be converted to a power ratio, $10^{30/10}$ = 1000. Then $C$ = 3000 × $\\log_2$(1001) = 3000 × 9.97 ≈ **29.9 kbps**."
+        }
+      ]
+    },
+    {
+      "id": "cm-digital-3",
+      "title": "Modulation, bandwidth and errors",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Constellations",
+          "body": "Plot each symbol as a point: the distance from the origin is the carrier amplitude, the angle its phase (I and Q are the in-phase and quadrature components). $M$ points carry $\\log_2 M$ bits per symbol. Drag through BPSK, QPSK, 8-PSK and 16-QAM.",
+          "formula": "R_b = R_s\\log_2 M",
+          "plot": {
+            "x": {
+              "min": -1.5,
+              "max": 1.5,
+              "label": "I",
+              "ticks": [
+                -1,
+                0,
+                1
+              ]
+            },
+            "y": {
+              "min": -1.25,
+              "max": 1.25,
+              "label": "Q",
+              "ticks": [
+                -1,
+                0,
+                1
+              ]
+            },
+            "curves": [
+              {
+                "f": "sqrt(max(0, 1 - x^2))",
+                "color": "grey",
+                "dash": true,
+                "from": -1,
+                "to": 1
+              },
+              {
+                "f": "-sqrt(max(0, 1 - x^2))",
+                "color": "grey",
+                "dash": true,
+                "from": -1,
+                "to": 1
+              }
+            ],
+            "points": [
+              {
+                "x": "if(b - 3.5, (2*mod(0, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(0, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(0/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(0, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(1, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(1, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(1/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(1, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(2, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(2, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(2/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(2, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(3, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(3, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(3/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(3, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(4, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(4, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(4/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(4, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(5, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(5, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(5/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(5, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(6, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(6, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(6/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(6, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(7, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(7, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(7/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(7, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(8, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(8, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(8/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(8, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(9, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(9, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(9/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(9, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(10, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(10, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(10/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(10, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(11, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(11, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(11/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(11, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(12, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(12, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(12/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(12, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(13, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(13, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(13/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(13, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(14, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(14, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(14/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(14, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(15, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(15, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(15/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(15, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              }
+            ],
+            "height": 240,
+            "sliders": [
+              {
+                "name": "b",
+                "label": "bits per symbol",
+                "min": 1,
+                "max": 4,
+                "step": 1,
+                "value": 1
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$M$ (points)",
+                "value": "2^b"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each modulation to its number of bits per symbol.",
+          "pairs": [
+            [
+              "BPSK",
+              "1"
+            ],
+            [
+              "QPSK",
+              "2"
+            ],
+            [
+              "8-PSK",
+              "3"
+            ],
+            [
+              "16-QAM",
+              "4"
+            ],
+            [
+              "64-QAM",
+              "6"
+            ]
+          ],
+          "explanation": "Bits per symbol = $\\log_2 M$: 2, 4, 8, 16 and 64 points give 1, 2, 3, 4 and 6 bits. At the same symbol rate (and bandwidth) 64-QAM therefore carries 6× the data of BPSK, but it needs a far better S/N."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "b": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "Rs": [
+              1000000.0,
+              2500000.0,
+              5000000.0
+            ]
+          },
+          "prompt": "The constellation of a modulator running at {{Rs|baud}} is shown below.",
+          "plot": {
+            "x": {
+              "min": -1.5,
+              "max": 1.5,
+              "label": "I",
+              "ticks": [
+                -1,
+                0,
+                1
+              ]
+            },
+            "y": {
+              "min": -1.25,
+              "max": 1.25,
+              "label": "Q",
+              "ticks": [
+                -1,
+                0,
+                1
+              ]
+            },
+            "curves": [
+              {
+                "f": "sqrt(max(0, 1 - x^2))",
+                "color": "grey",
+                "dash": true,
+                "from": -1,
+                "to": 1
+              },
+              {
+                "f": "-sqrt(max(0, 1 - x^2))",
+                "color": "grey",
+                "dash": true,
+                "from": -1,
+                "to": 1
+              }
+            ],
+            "points": [
+              {
+                "x": "if(b - 3.5, (2*mod(0, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(0, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(0/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(0, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(1, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(1, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(1/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(1, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(2, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(2, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(2/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(2, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(3, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(3, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(3/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(3, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(4, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(4, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(4/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(4, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(5, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(5, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(5/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(5, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(6, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(6, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(6/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(6, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(7, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(7, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(7/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(7, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(8, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(8, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(8/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(8, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(9, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(9, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(9/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(9, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(10, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(10, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(10/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(10, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(11, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(11, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(11/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(11, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(12, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(12, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(12/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(12, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(13, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(13, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(13/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(13, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(14, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(14, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(14/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(14, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              },
+              {
+                "x": "if(b - 3.5, (2*mod(15, 4) - 3)/(3*sqrt(2)), cos(2*pi*mod(15, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "y": "if(b - 3.5, (2*floor(15/4) - 3)/(3*sqrt(2)), sin(2*pi*mod(15, 2^b)/2^b + if(b - 1.5, pi/2^b, 0)))",
+                "guides": false,
+                "color": "primary"
+              }
+            ],
+            "height": 240
+          },
+          "ask": [
+            {
+              "prompt": "How many bits does each symbol carry?",
+              "answer": "b",
+              "unit": "",
+              "tolerance": 0.0001,
+              "absTolerance": 0.4,
+              "explanation": "Count the points: $M$ = {{2^b}}. Bits per symbol = $\\log_2$ {{2^b}} = **{{b}}**."
+            },
+            {
+              "prompt": "What is the bit rate?",
+              "answer": "b*Rs",
+              "unit": "bps",
+              "explanation": "$M$ = {{2^b}} points → {{b}} bits per symbol. $R_b = R_s\\log_2 M$ = {{Rs|baud}} × {{b}} = **{{b*Rs|bps}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "b": [
+              2,
+              4,
+              6
+            ],
+            "Rb": [
+              10000000.0,
+              20000000.0,
+              54000000.0,
+              100000000.0
+            ],
+            "a": [
+              0.2,
+              0.25,
+              0.35,
+              0.5
+            ]
+          },
+          "derived": {
+            "Rs": "Rb/b"
+          },
+          "prompt": "A {{Rb|bps}} stream is sent with {{2^b}}-QAM and raised-cosine filtering with roll-off $\\alpha$ = {{a}}.",
+          "ask": [
+            {
+              "prompt": "What is the symbol rate?",
+              "answer": "Rs",
+              "unit": "baud",
+              "explanation": "{{2^b}}-QAM carries {{b}} bits per symbol: $R_s = R_b/\\log_2 M$ = {{Rb|bps}} / {{b}} = **{{Rs|baud}}**."
+            },
+            {
+              "prompt": "What RF bandwidth does the signal occupy?",
+              "answer": "(1 + a)*Rs",
+              "unit": "Hz",
+              "explanation": "$R_s$ = {{Rs|baud}}. Passband: $B = (1 + \\alpha)R_s$ = {{1+a}} × {{Rs|baud}} = **{{(1+a)*Rs|Hz}}**."
+            },
+            {
+              "prompt": "What is the spectral efficiency?",
+              "answer": "b/(1 + a)",
+              "unit": "bps/Hz",
+              "explanation": "$B$ = {{1+a}} × {{Rs|baud}} = {{(1+a)*Rs|Hz}}. $\\eta = R_b/B$ = {{Rb|bps}} / {{(1+a)*Rs|Hz}} = **{{b/(1+a)||3}} bps/Hz** (= $\\log_2 M/(1 + \\alpha)$)."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Rb": [
+              1000000.0,
+              2000000.0,
+              10000000.0
+            ],
+            "eff": [
+              1,
+              2,
+              4,
+              6
+            ],
+            "cn": [
+              10,
+              15,
+              20,
+              25
+            ],
+            "eb": [
+              8,
+              10,
+              12
+            ]
+          },
+          "derived": {
+            "B": "Rb/eff"
+          },
+          "prompt": "A link carries {{Rb|bps}} in a noise bandwidth of {{B|Hz}}. Use $S/N = (E_b/N_0)(R_b/B)$.",
+          "ask": [
+            {
+              "prompt": "The measured $C/N$ is {{cn}} dB. What is $E_b/N_0$ in dB?",
+              "answer": "cn - 10*log10(eff)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$R_b/B$ = {{eff}}, i.e. {{10*log10(eff)||3}} dB. $E_b/N_0 = C/N - 10\\log_{10}(R_b/B)$ = {{cn}} − {{10*log10(eff)||3}} = **{{cn-10*log10(eff)||3}} dB**."
+            },
+            {
+              "prompt": "The modulation needs $E_b/N_0$ = {{eb}} dB. What $C/N$ is needed?",
+              "answer": "eb + 10*log10(eff)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$R_b/B$ = {{eff}} → {{10*log10(eff)||3}} dB. $C/N = E_b/N_0 + 10\\log_{10}(R_b/B)$ = {{eb}} + {{10*log10(eff)||3}} = **{{eb+10*log10(eff)||3}} dB**. Packing more bits per hertz costs C/N."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Rb": [
+              9600.0,
+              13000.0,
+              19200.0,
+              100000.0
+            ],
+            "Rc": [
+              1228800.0,
+              3840000.0,
+              11000000.0
+            ],
+            "j": [
+              5,
+              10,
+              15
+            ]
+          },
+          "derived": {
+            "G": "10*log10(Rc/Rb)"
+          },
+          "require": "G - j - 3",
+          "prompt": "A DSSS system spreads {{Rb|bps}} of data with a chip rate of {{Rc|chip/s|5}}. In the spread bandwidth the signal arrives {{j}} dB **below** the noise.",
+          "ask": [
+            {
+              "prompt": "What is the processing gain in dB?",
+              "answer": "G",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$G_p = R_c/R_b$ = {{Rc|chip/s|5}} / {{Rb|bps}} = {{Rc/Rb||4}} → $10\\log_{10}$ = **{{G||3}} dB**."
+            },
+            {
+              "prompt": "What is the S/N after despreading?",
+              "answer": "G - j",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$G_p$ = $10\\log_{10}$({{Rc/Rb||4}}) = {{G||3}} dB. Despreading lifts the S/N by the processing gain: −{{j}} + {{G||3}} = **{{G-j||3}} dB**. That is how a signal hidden below the noise can be received."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "m": [
+              4,
+              8,
+              11,
+              16,
+              26,
+              32,
+              57,
+              64
+            ]
+          },
+          "derived": {
+            "p": "1 + sum(k, 1, 10, if(m + k + 1 - 2^k, 1, 0))"
+          },
+          "prompt": "Data words of {{m}} bits are protected with a single-error-correcting Hamming code.",
+          "ask": [
+            {
+              "prompt": "How many check bits $p$ are needed?",
+              "answer": "p",
+              "unit": "",
+              "tolerance": 0.0001,
+              "absTolerance": 0.4,
+              "explanation": "Need $2^p \\geq m + p + 1$. $p$ = {{p-1}}: $2^{ {{p-1}} }$ = {{2^(p-1)||4}} < {{m+p}}, too few. $p$ = {{p}}: $2^{ {{p}} }$ = {{2^p||4}} ≥ {{m+p+1}}. So **{{p}} check bits**."
+            },
+            {
+              "prompt": "What is the code rate (data bits / transmitted bits)?",
+              "answer": "m/(m + p)",
+              "unit": "",
+              "explanation": "With $p$ = {{p}} check bits ($2^{ {{p}} }$ = {{2^p||4}} ≥ {{m+p+1}}), each codeword has {{m+p}} bits: rate = {{m}}/{{m+p}} = **{{m/(m+p)||3}}**. Longer words need relatively fewer check bits."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Rb": [
+              1000000.0,
+              10000000.0,
+              100000000.0
+            ],
+            "nb": [
+              6,
+              7,
+              9
+            ],
+            "T": [
+              60,
+              3600
+            ]
+          },
+          "require": "Rb*ber*T - 1",
+          "prompt": "A {{Rb|bps}} link has a bit error rate of $10^{-{{nb}}}$.",
+          "ask": [
+            {
+              "prompt": "How many bit errors occur on average in {{T}} s?",
+              "answer": "Rb*ber*T",
+              "unit": "",
+              "explanation": "Bits sent = {{Rb|bps}} × {{T}} s = {{Rb*T|bit}}. Errors = BER × bits = $10^{-{{nb}}}$ × {{Rb*T|bit}} = **{{Rb*ber*T||3}}**."
+            },
+            {
+              "prompt": "What is the average time between two bit errors?",
+              "answer": "1/(Rb*ber)",
+              "unit": "s",
+              "explanation": "Errors per second = {{Rb|bps}} × $10^{-{{nb}}}$ = {{Rb*ber||3}}, so on average one error every 1 / {{Rb*ber||3}} = **{{1/(Rb*ber)|s}}**."
+            }
+          ],
+          "derived": {
+            "ber": "10^(-nb)"
+          }
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "params": {
+            "c": [
+              65,
+              66,
+              67,
+              72,
+              77,
+              83,
+              90,
+              97,
+              101,
+              116
+            ]
+          },
+          "derived": {
+            "ones": "sum(k, 0, 6, mod(floor(c/2^k), 2))"
+          },
+          "prompt": "With **even** parity, which parity bit is appended to the 7-bit ASCII code {{c|bin|7}}?",
+          "options": [
+            "0",
+            "1"
+          ],
+          "answer": "mod(ones, 2)",
+          "explanation": "{{c|bin|7}} contains {{ones}} ones. Even parity makes the total number of 1s even, so the parity bit is **{{mod(ones, 2)}}** (total {{ones+mod(ones,2)}} ones). The receiver flags an error when it counts an odd number."
+        },
+        {
+          "id": "q9",
+          "type": "trueFalse",
+          "prompt": "A single parity bit detects any error in which two bits of the word are flipped.",
+          "answer": false,
+          "explanation": "False. Flipping two bits changes the number of 1s by 0 or ±2, so the parity stays correct and the error passes unnoticed. Parity only detects an **odd** number of bit errors; CRCs and Hamming codes do better."
+        }
+      ]
+    },
+    {
+      "id": "cm-digital-4",
+      "title": "Designing a digital link",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "N": [
+              24,
+              30,
+              120,
+              480
+            ],
+            "b": [
+              2,
+              4,
+              6
+            ],
+            "a": [
+              0.25,
+              0.35,
+              0.5
+            ]
+          },
+          "derived": {
+            "R": "64e3*N"
+          },
+          "prompt": "A radio link carries {{N}} telephone channels (PCM: 8 kHz × 8 bits each, ignore framing overhead) with {{2^b}}-QAM and raised-cosine roll-off $\\alpha$ = {{a}}.",
+          "ask": [
+            {
+              "prompt": "What is the symbol rate?",
+              "answer": "R/b",
+              "unit": "baud",
+              "explanation": "$R_b$ = {{N}} × 64 kbps = {{R|bps|4}}. {{2^b}}-QAM: {{b}} bits/symbol, so $R_s$ = {{R|bps|4}} / {{b}} = **{{R/b|baud}}**."
+            },
+            {
+              "prompt": "What RF bandwidth does the link occupy?",
+              "answer": "(1 + a)*R/b",
+              "unit": "Hz",
+              "explanation": "$R_b$ = {{R|bps|4}}, $R_s = R_b/{{b}}$ = {{R/b|baud}}. $B = (1 + \\alpha)R_s$ = {{1+a}} × {{R/b|baud}} = **{{(1+a)*R/b|Hz}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "eta": [
+              2,
+              3,
+              4,
+              6,
+              8
+            ],
+            "B": [
+              1000000.0,
+              5000000.0,
+              20000000.0
+            ]
+          },
+          "prompt": "A designer wants to send {{eta*B|bps}} through a {{B|Hz}} channel. Use Shannon's limit.",
+          "ask": [
+            {
+              "prompt": "What is the minimum $S/N$ in dB?",
+              "answer": "10*log10(2^eta - 1)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$C/B$ = {{eta}} bps/Hz → $S/N = 2^{ {{eta}} } - 1$ = {{2^eta-1}} = **{{10*log10(2^eta-1)||3}} dB**."
+            },
+            {
+              "prompt": "What is the corresponding minimum $E_b/N_0$ in dB?",
+              "answer": "10*log10((2^eta - 1)/eta)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$S/N$ = {{2^eta-1}}. $E_b/N_0 = (S/N)(B/R_b)$ = {{2^eta-1}} / {{eta}} = {{(2^eta-1)/eta||3}} = **{{10*log10((2^eta-1)/eta)||3}} dB**. Even at very low rates it never drops below −1.6 dB, the ultimate Shannon limit."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "B": [
+              1000000.0,
+              5000000.0,
+              20000000.0
+            ],
+            "x": [
+              1.6,
+              2.4,
+              3.3,
+              4.5,
+              5.2
+            ],
+            "a": [
+              0.2,
+              0.35,
+              0.5
+            ]
+          },
+          "derived": {
+            "Rb": "x*B/(1 + a)",
+            "n": "ceil(x)"
+          },
+          "prompt": "A {{Rb|bps}} stream must fit into a {{B|Hz}} radio channel with raised-cosine roll-off $\\alpha$ = {{a}}.",
+          "ask": [
+            {
+              "prompt": "How many bits per symbol are needed at least?",
+              "answer": "n",
+              "unit": "",
+              "tolerance": 0.0001,
+              "absTolerance": 0.4,
+              "explanation": "Maximum symbol rate: $R_s = B/(1 + \\alpha)$ = {{B|Hz}} / {{1+a}} = {{B/(1+a)|baud}}. Bits per symbol ≥ {{Rb|bps}} / {{B/(1+a)|baud}} = {{x||3}} → **{{n}}** (round up)."
+            },
+            {
+              "prompt": "How many points does the constellation then have?",
+              "answer": "2^n",
+              "unit": "",
+              "tolerance": 0.0001,
+              "absTolerance": 0.4,
+              "explanation": "Needed: $R_b(1 + \\alpha)/B$ = {{x||3}} bits per symbol → {{n}} bits → $M = 2^{ {{n}} }$ = **{{2^n}}** points."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Pr": [
+              -100,
+              -95,
+              -90,
+              -85
+            ],
+            "Rb": [
+              100000.0,
+              1000000.0,
+              10000000.0
+            ],
+            "NF": [
+              3,
+              5,
+              8
+            ]
+          },
+          "derived": {
+            "eb": "Pr - 10*log10(Rb) + 174 - NF"
+          },
+          "require": "abs(eb - 10.5) - 1",
+          "prompt": "A receiver with a noise figure of {{NF}} dB receives {{Pr}} dBm of a {{Rb|bps}} BPSK signal. The noise density is $N_0$ = −174 dBm/Hz + NF; $E_b = P_r/R_b$.",
+          "ask": [
+            {
+              "prompt": "What is $E_b/N_0$ in dB?",
+              "answer": "eb",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.3,
+              "explanation": "$E_b$ = {{Pr}} dBm − $10\\log_{10}R_b$ = {{Pr}} − {{10*log10(Rb)||3}} = {{Pr-10*log10(Rb)||4}} dBm/Hz (W·s = W/Hz). $N_0$ = −174 + {{NF}} = {{-174+NF}} dBm/Hz. $E_b/N_0$ = {{Pr-10*log10(Rb)||4}} − ({{-174+NF}}) = **{{eb||3}} dB**."
+            },
+            {
+              "prompt": "BPSK needs $E_b/N_0$ = 10.5 dB for a BER of $10^{-6}$. What is the margin (negative if the link fails)?",
+              "answer": "eb - 10.5",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.3,
+              "explanation": "$E_b/N_0$ = {{Pr}} − {{10*log10(Rb)||3}} + 174 − {{NF}} = {{eb||3}} dB. Margin = {{eb||3}} − 10.5 = **{{eb-10.5||3}} dB**. Every 10× higher bit rate costs 10 dB."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Nsc": [
+              48,
+              96
+            ],
+            "b": [
+              2,
+              4,
+              6
+            ],
+            "Ts": [
+              4e-06,
+              8e-06
+            ],
+            "cr": [
+              0.5,
+              0.75
+            ]
+          },
+          "prompt": "An OFDM system sends {{Nsc}} data subcarriers in parallel, each with {{2^b}}-QAM. One OFDM symbol, including the guard interval, lasts {{Ts|s}}; the FEC code rate is {{cr}}.",
+          "ask": [
+            {
+              "prompt": "What is the raw bit rate (before FEC)?",
+              "answer": "Nsc*b/Ts",
+              "unit": "bps",
+              "explanation": "Per OFDM symbol: {{Nsc}} subcarriers × {{b}} bits = {{Nsc*b}} bits. $R$ = {{Nsc*b}} / {{Ts|s}} = **{{Nsc*b/Ts|bps}}**."
+            },
+            {
+              "prompt": "What is the user data rate after FEC?",
+              "answer": "Nsc*b/Ts*cr",
+              "unit": "bps",
+              "explanation": "Raw: {{Nsc}} × {{b}} / {{Ts|s}} = {{Nsc*b/Ts|bps}}. Only the fraction {{cr}} is data: **{{Nsc*b/Ts*cr|bps}}**. (48 subcarriers, 64-QAM, 4 µs and rate 3/4 is the 54 Mbps mode of Wi-Fi 802.11a/g.)"
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Rb": [
+              50,
+              100,
+              1000
+            ],
+            "Rc": [
+              1023000.0,
+              10230000.0
+            ],
+            "j": [
+              15,
+              20,
+              25
+            ]
+          },
+          "derived": {
+            "G": "10*log10(Rc/Rb)"
+          },
+          "prompt": "A satellite navigation signal carries {{Rb}} bps of data spread with a chip rate of {{Rc|chip/s|4}}. At the antenna it is {{j}} dB below the thermal noise in the spread bandwidth.",
+          "ask": [
+            {
+              "prompt": "What is the processing gain in dB?",
+              "answer": "G",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$G_p = R_c/R_b$ = {{Rc|chip/s|4}} / {{Rb}} bps = {{Rc/Rb||4}} → **{{G||3}} dB**."
+            },
+            {
+              "prompt": "What is the S/N of the data after despreading?",
+              "answer": "G - j",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.2,
+              "explanation": "$G_p$ = 10 log({{Rc/Rb||4}}) = {{G||3}} dB. S/N = −{{j}} + {{G||3}} = **{{G-j||3}} dB**: plenty, thanks to the very low data rate."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "m": [
+              4,
+              8,
+              16,
+              32,
+              57
+            ],
+            "R": [
+              9600,
+              115200,
+              1000000.0
+            ]
+          },
+          "derived": {
+            "p": "1 + sum(k, 1, 10, if(m + k + 1 - 2^k, 1, 0))"
+          },
+          "prompt": "Words of {{m}} data bits get the minimum number of Hamming check bits for single-error correction and are sent at a line rate of {{R|bps|4}}. What is the useful data rate?",
+          "answer": "R*m/(m + p)",
+          "unit": "bps",
+          "explanation": "Check bits: $2^p \\geq m + p + 1$ → $p$ = {{p}} ($2^{ {{p}} }$ = {{2^p||4}} ≥ {{m+p+1}}). Code rate = {{m}}/{{m+p}} = {{m/(m+p)||3}}. Data rate = {{R|bps|4}} × {{m/(m+p)||3}} = **{{R*m/(m+p)|bps}}**."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "Rs": [
+              1000000.0,
+              2000000.0,
+              4000000.0
+            ],
+            "ratio": [
+              1.2,
+              1.25,
+              1.35,
+              1.5
+            ]
+          },
+          "derived": {
+            "B": "ratio*Rs"
+          },
+          "prompt": "A {{Rs|baud}} QPSK signal must fit into a {{B|Hz}} channel. Set the **largest** raised-cosine roll-off that still fits (gentler filters are cheaper).",
+          "plot": {
+            "x": {
+              "min": "-0.9*B",
+              "max": "0.9*B",
+              "label": "f − f_c",
+              "unit": "Hz"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.25,
+              "label": "|H(f)|"
+            },
+            "sliders": [
+              {
+                "name": "a",
+                "label": "roll-off $\\alpha$",
+                "min": 0.05,
+                "max": 1,
+                "step": 0.01,
+                "value": 1
+              }
+            ],
+            "curves": [
+              {
+                "f": "0.5*(1 + cos(pi*clamp((abs(x)/Rs - (1 - a)/2)/a, 0, 1)))"
+              }
+            ],
+            "vlines": [
+              {
+                "x": "-B/2",
+                "label": "edge"
+              },
+              {
+                "x": "B/2",
+                "label": "edge"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "occupied bandwidth",
+                "value": "(1 + a)*Rs",
+                "unit": "Hz",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "a": "ratio - 1"
+          },
+          "tolerance": 0.04,
+          "absTolerance": 0.015,
+          "explanation": "Passband: $B = (1 + \\alpha)R_s$ → $\\alpha = B/R_s - 1$ = {{B|Hz}} / {{Rs|baud}} − 1 = **{{ratio-1}}**. Then the spectrum ends exactly at the channel edges ±{{B/2|Hz}}."
+        }
+      ]
+    }
+  ]
+}

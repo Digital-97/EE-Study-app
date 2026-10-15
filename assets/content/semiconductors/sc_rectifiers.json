@@ -1,0 +1,1971 @@
+{
+  "id": "sc-rectifiers",
+  "title": "Rectifiers",
+  "description": "Turn AC into DC with half-wave and full-wave rectifiers, and smooth the result with a capacitor.",
+  "reference": "Hambley §10.6; H&H §1.26–1.28",
+  "study": [
+    {
+      "title": "Half-wave rectifier",
+      "body": "With $v_s = V_m\\sin\\omega t$, the diode conducts only during the positive half-cycles. With a resistive load the output follows $v_s$ (minus about 0.7 V) when the diode is on, and is zero during the negative half-cycles. Peak output: $V_m - 0.7$ V (or $V_m$ for an ideal diode).",
+      "circuit": {
+        "elements": [
+          {
+            "type": "acsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "v_s"
+          },
+          {
+            "type": "diode",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "D"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "R_L",
+            "value": "v_o",
+            "polarity": "+-"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          }
+        ]
+      },
+      "plot": {
+        "x": {"min": 0, "max": 0.05, "label": "t", "unit": "s"},
+        "y": {"min": -12, "max": 12, "label": "v (V)"},
+        "curves": [
+          {"f": "10*sin(2*pi*50*x)", "color": "grey", "dash": true, "label": "v_s"},
+          {"f": "max(0, 10*sin(2*pi*50*x) - 0.7)", "label": "v_o"}
+        ]
+      }
+    },
+    {
+      "title": "Smoothing capacitor and ripple",
+      "body": "A capacitor across the load charges to the peak voltage, then supplies the load current $I_L$ while the diode is off, discharging slowly until the next peak. The peak-to-peak **ripple** $V_r$ follows from $Q = I_L T = C V_r$, with $T = 1/f$. The average load voltage is about $V_{peak} - V_r/2$. Drag $C$ (ideal diode, $V_m$ = 10 V): doubling $C$ halves the ripple, because the same charge $I_LT$ is drawn from a larger capacitance.",
+      "formula": "V_r \\approx \\frac{I_L T}{C}\\ \\text{(half-wave)}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "acsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "v_s"
+          },
+          {
+            "type": "diode",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              2,
+              0
+            ],
+            "label": "D"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "capacitor",
+            "from": [
+              3,
+              0
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "C"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4,
+              0
+            ],
+            "to": [
+              4,
+              2
+            ],
+            "label": "R_L"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                4,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              2
+            ]
+          }
+        ]
+      },
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 0.06,
+          "label": "t",
+          "unit": "s"
+        },
+        "y": {
+          "min": -12,
+          "max": 12,
+          "label": "v (V)"
+        },
+        "sliders": [
+          {
+            "name": "C",
+            "label": "$C$ ($I_L$ = 0.1 A, 50 Hz)",
+            "min": 0.00047,
+            "max": 0.0047,
+            "log": true,
+            "value": 0.001,
+            "unit": "F"
+          }
+        ],
+        "let": {
+          "Vr": "0.1*0.02/C"
+        },
+        "curves": [
+          {
+            "f": "10*sin(2*pi*50*x)",
+            "color": "grey",
+            "dash": true,
+            "label": "v_s"
+          },
+          {
+            "f": "max(10*sin(2*pi*50*x), 10 - (0.1/C)*mod(x - 0.005, 0.02))",
+            "label": "v_o"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 10
+          },
+          {
+            "y": "10 - Vr"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$V_r = I_LT/C$",
+            "value": "Vr",
+            "unit": "V"
+          },
+          {
+            "label": "Average $v_o$",
+            "value": "10 - Vr/2",
+            "unit": "V"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Center-tapped full-wave rectifier",
+      "body": "A center-tapped transformer gives two voltages $v_s$ in opposite phase. $D_1$ conducts on one half-cycle, $D_2$ on the other, so the load gets a pulse every half period. Peak output $V_m - 0.7$ V, where $V_m$ is the peak of **each half** of the secondary. The capacitor is recharged twice per cycle:",
+      "formula": "V_r \\approx \\frac{I_L T}{2C}\\ \\text{(full-wave)}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "acsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "v_s"
+          },
+          {
+            "type": "acsource",
+            "from": [
+              0,
+              4
+            ],
+            "to": [
+              0,
+              2
+            ],
+            "label": "v_s"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                -0.8,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              -0.8,
+              2
+            ],
+            "rotation": 90
+          },
+          {
+            "type": "node",
+            "at": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "diode",
+            "from": [
+              1,
+              0
+            ],
+            "to": [
+              2.5,
+              0
+            ],
+            "label": "D_1"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                2.5,
+                0
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                2.5,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                4
+              ],
+              [
+                1,
+                4
+              ]
+            ]
+          },
+          {
+            "type": "diode",
+            "from": [
+              1,
+              4
+            ],
+            "to": [
+              2.5,
+              4
+            ],
+            "label": "D_2"
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              2
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2
+              ],
+              [
+                4.5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              4.5,
+              2
+            ],
+            "to": [
+              4.5,
+              4
+            ],
+            "label": "R_L"
+          },
+          {
+            "type": "ground",
+            "at": [
+              4.5,
+              4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Bridge rectifier",
+      "body": "Four diodes; on each half-cycle two of them conduct in series with the load, so no center tap is needed. Here $D_2$ and $D_3$ conduct when the right side of the source is positive, $D_1$ and $D_4$ when the left side is. Peak output: $V_m - 1.4$ V (two diode drops). Ripple as for any full-wave rectifier: $V_r \\approx I_L T/(2C)$.",
+      "circuit": {
+        "elements": [
+          {
+            "type": "acsource",
+            "from": [
+              0,
+              1
+            ],
+            "to": [
+              3,
+              1
+            ],
+            "label": "v_s"
+          },
+          {
+            "type": "diode",
+            "from": [
+              0,
+              1
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "D_1",
+            "flip": true
+          },
+          {
+            "type": "diode",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              1
+            ],
+            "label": "D_3",
+            "flip": true
+          },
+          {
+            "type": "diode",
+            "from": [
+              3,
+              1
+            ],
+            "to": [
+              3,
+              0
+            ],
+            "label": "D_2"
+          },
+          {
+            "type": "diode",
+            "from": [
+              3,
+              2
+            ],
+            "to": [
+              3,
+              1
+            ],
+            "label": "D_4"
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                5,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                0,
+                2
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              5,
+              0
+            ],
+            "to": [
+              5,
+              2
+            ],
+            "label": "R_L",
+            "polarity": "+-"
+          },
+          {
+            "type": "node",
+            "at": [
+              0,
+              1
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              1
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              0
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              3,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Peak inverse voltage (PIV)",
+      "body": "The PIV is the largest reverse voltage a diode sees; the diode's breakdown voltage must exceed it. With ideal diodes:\n- Half-wave, resistive load: $V_m$\n- Half-wave with smoothing capacitor: about $2V_m$ (capacitor holds $+V_m$ while the source swings to $-V_m$)\n- Center-tapped full-wave: $2V_m$\n- Bridge: $V_m$"
+    },
+    {
+      "title": "Design recipe",
+      "body": "- Load current $I_L = V_L/R_L$.\n- Pick the ripple $V_r$; then $C = I_L T/V_r$ (half-wave) or $C = I_L T/(2V_r)$ (full-wave).\n- Required source peak: $V_m = V_{L,avg} + V_r/2 +$ diode drops (0.7 V half-wave or center-tap, 1.4 V bridge).\n- Transformer rating: $V_{rms} = V_m/\\sqrt{2}$.\n**Example:** bridge, $V_L$ = 12 V avg, $V_r$ = 1 V: $V_m$ = 12 + 0.5 + 1.4 = 13.9 V."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sc-rectifiers-1",
+      "title": "From AC to DC",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "The half-wave rectifier",
+          "body": "The source is $v_s = V_m\\sin\\omega t$. During positive half-cycles the diode is forward biased and $v_o \\approx v_s - 0.7$ V. During negative half-cycles it is reverse biased and blocks.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "D"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "R_L",
+                "value": "v_o",
+                "polarity": "+-"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "prompt": "In the half-wave rectifier with a resistive load, what is $v_o$ during the negative half-cycles of $v_s$?",
+          "options": [
+            "0 V: the diode is off",
+            "$v_s$: the diode passes it",
+            "−0.7 V",
+            "$-V_m$ constantly"
+          ],
+          "answer": 0,
+          "explanation": "During the negative half-cycle the anode is below the cathode, so the diode is off. No current flows through $R_L$, so $v_o = 0$ and the whole source voltage appears across the diode."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              5,
+              10,
+              12,
+              17
+            ]
+          },
+          "prompt": "A half-wave rectifier with a resistive load is driven by $v_s$ = {{Vm}} sin(ωt) V. Using the 0.7 V diode model, find the peak output voltage.",
+          "answer": "Vm-0.7",
+          "unit": "V",
+          "explanation": "At the positive peak the diode conducts and drops 0.7 V:\n$V_{o,peak} = V_m - 0.7$ = {{Vm}} − 0.7 = {{Vm-0.7|V}}."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Smoothing with a capacitor",
+          "body": "A capacitor across the load charges to the peak, then feeds the load while the diode is off. The output now only dips a little before the next peak: that dip is the **ripple** $V_r$ (peak to peak). The capacitor supplies charge $I_L T$ per cycle, so $CV_r \\approx I_L T$.",
+          "formula": "V_r \\approx \\frac{I_L T}{C}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  2,
+                  0
+                ],
+                "label": "D"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "capacitor",
+                "from": [
+                  3,
+                  0
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "C"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  4,
+                  0
+                ],
+                "to": [
+                  4,
+                  2
+                ],
+                "label": "R_L"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    4,
+                    2
+                  ],
+                  [
+                    0,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "IL": [
+              0.05,
+              0.1,
+              0.2,
+              0.5
+            ],
+            "f": [
+              50,
+              60
+            ],
+            "C": [
+              0.001,
+              0.0022,
+              0.0047
+            ]
+          },
+          "prompt": "A half-wave rectifier at {{f}} Hz with a {{C|F}} smoothing capacitor supplies a load current of {{IL|A}}. Estimate the peak-to-peak ripple voltage.",
+          "answer": "IL/(f*C)",
+          "unit": "V",
+          "explanation": "$T = 1/f$ = {{1/f|s}}. Half-wave: $V_r \\approx \\frac{I_L T}{C} = \\frac{ {{IL}}\\times{{1/f}} }{ {{C}} }$ = {{IL/(f*C)|V}}."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "For the same load current, a larger smoothing capacitor gives a smaller ripple.",
+          "answer": true,
+          "explanation": "$V_r \\approx I_L T/C$: the capacitor loses the same charge $I_L T$ each cycle, and a larger $C$ means a smaller voltage drop for that charge."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Full-wave rectifiers",
+          "body": "Full-wave rectifiers use **both** half-cycles. The **center-tapped** version uses two diodes and a transformer with a center tap; the **bridge** uses four diodes, two of which conduct in series on each half-cycle (peak output $V_m - 1.4$ V). The capacitor is recharged twice per cycle, so the ripple halves: $V_r \\approx I_L T/(2C)$.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  3,
+                  1
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "D_1",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  1
+                ],
+                "label": "D_3",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  1
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "D_2"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  2
+                ],
+                "to": [
+                  3,
+                  1
+                ],
+                "label": "D_4"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  0
+                ],
+                "to": [
+                  5,
+                  2
+                ],
+                "label": "R_L",
+                "polarity": "+-"
+              },
+              {
+                "type": "node",
+                "at": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each rectifier with its description",
+          "pairs": [
+            [
+              "Half-wave",
+              "One diode, conducts on half of each cycle"
+            ],
+            [
+              "Center-tapped full-wave",
+              "Two diodes and a center-tapped transformer"
+            ],
+            [
+              "Bridge full-wave",
+              "Four diodes, two conducting at a time"
+            ]
+          ],
+          "explanation": "The half-wave rectifier wastes the negative half-cycles. Both full-wave types use the whole cycle: the center-tapped one needs a special transformer but only one diode drop; the bridge needs no center tap but has two diode drops in the current path."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "f": [
+              50,
+              60
+            ]
+          },
+          "prompt": "A full-wave rectifier runs from the {{f}} Hz mains. What is the frequency of the ripple on its output?",
+          "options": [
+            "{{2*f}} Hz",
+            "{{f}} Hz",
+            "{{f/2}} Hz",
+            "{{4*f}} Hz"
+          ],
+          "answer": 0,
+          "explanation": "The capacitor is recharged on every half-cycle, i.e. twice per period, so the ripple repeats at $2f$ = {{2*f}} Hz. (For a half-wave rectifier it would be {{f}} Hz.)"
+        }
+      ]
+    },
+    {
+      "id": "sc-rectifiers-2",
+      "title": "Rectifier numbers",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "Bridge rectifier. During the half cycle in which the **top** terminal of the source is positive, tap the diodes that conduct.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "vs",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  2
+                ],
+                "label": "v_s",
+                "polarity": "-+"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    1,
+                    3
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    0,
+                    6
+                  ],
+                  [
+                    7,
+                    6
+                  ],
+                  [
+                    7,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "name": "D1",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "diode",
+                "name": "D2",
+                "from": [
+                  4,
+                  5
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "D_2",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "name": "D3",
+                "from": [
+                  4,
+                  5
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "D_3",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "name": "D4",
+                "from": [
+                  6,
+                  3
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "D_4"
+              },
+              {
+                "type": "resistor",
+                "name": "RL",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  4,
+                  5
+                ],
+                "label": "R_L"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  5
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "D1",
+            "D2",
+            "D3",
+            "D4"
+          ],
+          "answer": [
+            "D1",
+            "D3"
+          ],
+          "explanation": "Follow the current out of the + terminal (top): it reaches the left corner, where only $D_1$ points away from it, up to the top corner. From there it flows down through $R_L$ to the bottom corner, through $D_3$ to the right corner and back into the source's bottom terminal. $D_2$ and $D_4$ are reverse biased. Two diodes conduct in series, so the output peak is about $V_m - 1.4$ V."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              10,
+              12,
+              15,
+              20
+            ]
+          },
+          "prompt": "A bridge rectifier with a resistive load is driven by $v_s$ = {{Vm}} sin(ωt) V. Using the 0.7 V diode model, find the peak load voltage.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  3,
+                  1
+                ],
+                "label": "v_s"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  1
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "D_1",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  1
+                ],
+                "label": "D_3",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  1
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "D_2"
+              },
+              {
+                "type": "diode",
+                "from": [
+                  3,
+                  2
+                ],
+                "to": [
+                  3,
+                  1
+                ],
+                "label": "D_4"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  0
+                ],
+                "to": [
+                  5,
+                  2
+                ],
+                "label": "R_L",
+                "polarity": "+-"
+              },
+              {
+                "type": "node",
+                "at": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  3,
+                  2
+                ]
+              }
+            ]
+          },
+          "answer": "Vm-1.4",
+          "unit": "V",
+          "explanation": "On each half-cycle the current passes through **two** diodes in series with the load (e.g. $D_2$ and $D_3$):\n$V_{L,peak} = V_m - 2(0.7)$ = {{Vm}} − 1.4 = {{Vm-1.4|V}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              10,
+              12,
+              15
+            ],
+            "RL": [
+              100,
+              220,
+              470
+            ],
+            "C": [
+              0.001,
+              0.0022,
+              0.0047
+            ]
+          },
+          "derived": {
+            "IL": "(Vm-0.7)/RL"
+          },
+          "prompt": "A 60 Hz half-wave rectifier ($V_m$ = {{Vm|V}}, 0.7 V diode) feeds $R_L$ = {{RL|Ω}} in parallel with $C$ = {{C|F}}. Estimate the ripple, using the peak load voltage to find $I_L$.",
+          "answer": "IL/(60*C)",
+          "unit": "V",
+          "explanation": "$I_L \\approx (V_m - 0.7)/R_L = {{Vm-0.7}}/{{RL}}$ = {{IL|A}}.\n$V_r \\approx \\frac{I_L T}{C} = \\frac{ {{IL}} }{60\\times{{C}} }$ = {{IL/(60*C)|V}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "IL": [
+              0.1,
+              0.2,
+              0.5,
+              1
+            ],
+            "Vr": [
+              0.2,
+              0.5,
+              1
+            ],
+            "f": [
+              50,
+              60
+            ]
+          },
+          "prompt": "A full-wave rectifier at {{f}} Hz must supply {{IL|A}} with at most {{Vr|V}} peak-to-peak ripple. What capacitance is needed?",
+          "answer": "IL/(2*f*Vr)",
+          "unit": "F",
+          "explanation": "Full-wave: $V_r \\approx \\frac{I_L T}{2C}$, so\n$C = \\frac{I_L T}{2V_r} = \\frac{ {{IL}} }{2\\times{{f}}\\times{{Vr}} }$ = {{IL/(2*f*Vr)|F}}."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              12,
+              15,
+              18
+            ],
+            "Vr": [
+              0.4,
+              1,
+              2
+            ]
+          },
+          "prompt": "A bridge rectifier with a smoothing capacitor has $V_m$ = {{Vm|V}} and a ripple of {{Vr|V}} peak to peak. Using the 0.7 V model, estimate the average load voltage.",
+          "answer": "Vm-1.4-Vr/2",
+          "unit": "V",
+          "explanation": "The capacitor charges to $V_m - 1.4$ = {{Vm-1.4|V}} and sags by $V_r$, so the average is about halfway:\n$V_{L,avg} \\approx V_m - 1.4 - V_r/2$ = {{Vm-1.4-Vr/2|V}}."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "Vm": [
+              10,
+              15,
+              20
+            ]
+          },
+          "prompt": "In a center-tapped full-wave rectifier, each half of the secondary has a peak voltage of {{Vm|V}}. What is the peak inverse voltage across each (ideal) diode?",
+          "options": [
+            "{{2*Vm|V}}",
+            "{{Vm|V}}",
+            "{{Vm/2|V}}",
+            "{{4*Vm|V}}"
+          ],
+          "answer": 0,
+          "explanation": "When $D_1$ conducts, the output (cathode of $D_2$) is at $+V_m$ while the anode of $D_2$ is at $-V_m$ (the other end of the secondary). So $D_2$ sees $2V_m$ = {{2*Vm|V}} in reverse."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vm": [
+              10,
+              15,
+              20,
+              25
+            ]
+          },
+          "prompt": "A bridge rectifier is driven by a source with peak {{Vm|V}}. Treating the diodes as ideal, what is the peak inverse voltage across each diode?",
+          "answer": "Vm",
+          "unit": "V",
+          "explanation": "When $D_2$ and $D_3$ conduct (ideal, so 0 V), each of $D_1$ and $D_4$ is connected directly across the source in reverse. The PIV is $V_m$ = {{Vm|V}}: half of what the center-tapped circuit needs."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "Vrms": [
+              6,
+              9,
+              12,
+              18
+            ]
+          },
+          "prompt": "A transformer secondary is rated {{Vrms}} V rms and feeds a bridge rectifier with a resistive load. Using the 0.7 V model, find the peak load voltage.",
+          "answer": "sqrt(2)*Vrms-1.4",
+          "unit": "V",
+          "explanation": "The peak of a sinusoid is $\\sqrt{2}$ times its rms value: $V_m = \\sqrt{2}\\times{{Vrms}}$ = {{sqrt(2)*Vrms|V}}.\nSubtract two diode drops: {{sqrt(2)*Vrms}} − 1.4 = {{sqrt(2)*Vrms-1.4|V}}."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "For the same load current and capacitor, a full-wave rectifier has about half the ripple of a half-wave rectifier.",
+          "answer": true,
+          "explanation": "The full-wave rectifier recharges the capacitor every $T/2$ instead of every $T$, so it only has to supply the load for half as long: $V_r \\approx I_L T/(2C)$ versus $I_L T/C$."
+        }
+      ]
+    },
+    {
+      "id": "sc-rectifiers-3",
+      "title": "Power supply design",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "t1",
+          "type": "tapCircuit",
+          "prompt": "Bridge rectifier. During the half cycle in which the **bottom** terminal of the source is positive, tap the diodes that conduct.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "acsource",
+                "name": "vs",
+                "from": [
+                  0,
+                  4
+                ],
+                "to": [
+                  0,
+                  2
+                ],
+                "label": "v_s",
+                "polarity": "-+"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    1,
+                    2
+                  ],
+                  [
+                    1,
+                    3
+                  ],
+                  [
+                    2,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    4
+                  ],
+                  [
+                    0,
+                    6
+                  ],
+                  [
+                    7,
+                    6
+                  ],
+                  [
+                    7,
+                    3
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ]
+              },
+              {
+                "type": "diode",
+                "name": "D1",
+                "from": [
+                  2,
+                  3
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "D_1"
+              },
+              {
+                "type": "diode",
+                "name": "D2",
+                "from": [
+                  4,
+                  5
+                ],
+                "to": [
+                  2,
+                  3
+                ],
+                "label": "D_2",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "name": "D3",
+                "from": [
+                  4,
+                  5
+                ],
+                "to": [
+                  6,
+                  3
+                ],
+                "label": "D_3",
+                "flip": true
+              },
+              {
+                "type": "diode",
+                "name": "D4",
+                "from": [
+                  6,
+                  3
+                ],
+                "to": [
+                  4,
+                  1
+                ],
+                "label": "D_4"
+              },
+              {
+                "type": "resistor",
+                "name": "RL",
+                "from": [
+                  4,
+                  1
+                ],
+                "to": [
+                  4,
+                  5
+                ],
+                "label": "R_L"
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  1
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  6,
+                  3
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  4,
+                  5
+                ]
+              }
+            ]
+          },
+          "selectable": [
+            "D1",
+            "D2",
+            "D3",
+            "D4"
+          ],
+          "answer": [
+            "D2",
+            "D4"
+          ],
+          "explanation": "Now the current leaves the bottom terminal and runs around to the right corner. $D_4$ carries it to the top corner, it flows down through $R_L$ (in the **same** direction as in the other half cycle) and returns through $D_2$ to the left corner and the source's top terminal. $D_1$ and $D_3$ are reverse biased. That is the point of the bridge: $R_L$ always sees current from top to bottom, so both half cycles are used."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "VL": [
+              5,
+              9,
+              12,
+              15
+            ],
+            "Vr": [
+              0.2,
+              0.4,
+              1
+            ]
+          },
+          "prompt": "A half-wave rectifier with a smoothing capacitor must give an **average** load voltage of {{VL|V}} with {{Vr|V}} peak-to-peak ripple. Using the 0.7 V model, what source peak $V_m$ is needed?",
+          "answer": "VL+Vr/2+0.7",
+          "unit": "V",
+          "explanation": "The load voltage peaks at $V_{L,avg} + V_r/2$ = {{VL+Vr/2|V}}, and the diode drops 0.7 V on top of that:\n$V_m = {{VL}} + {{Vr/2}} + 0.7$ = {{VL+Vr/2+0.7|V}}."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "IL": [
+              0.1,
+              0.25,
+              0.5
+            ],
+            "f": [
+              50,
+              60
+            ],
+            "Vr": [
+              0.4,
+              1
+            ]
+          },
+          "prompt": "The same half-wave supply at {{f}} Hz delivers {{IL|A}} with {{Vr|V}} ripple. What smoothing capacitance does it need?",
+          "answer": "IL/(f*Vr)",
+          "unit": "F",
+          "explanation": "Half-wave: $C = \\frac{I_L T}{V_r} = \\frac{ {{IL}} }{ {{f}}\\times{{Vr}} }$ = {{IL/(f*Vr)|F}}.\nA full-wave circuit would need only half: {{IL/(2*f*Vr)|F}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "VL": [
+              5,
+              9,
+              12,
+              15
+            ],
+            "Vr": [
+              0.2,
+              0.4,
+              1
+            ]
+          },
+          "prompt": "A **bridge** rectifier with a smoothing capacitor must give an average load voltage of {{VL|V}} with {{Vr|V}} ripple. Using the 0.7 V model, what source peak $V_m$ is needed?",
+          "answer": "VL+Vr/2+1.4",
+          "unit": "V",
+          "explanation": "Peak load voltage $V_{L,avg} + V_r/2$ = {{VL+Vr/2|V}}, plus **two** diode drops in a bridge:\n$V_m = {{VL+Vr/2}} + 1.4$ = {{VL+Vr/2+1.4|V}}."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "VL": [
+              5,
+              12
+            ],
+            "RL": [
+              50,
+              100,
+              240
+            ],
+            "Vr": [
+              0.25,
+              0.5
+            ],
+            "f": [
+              50,
+              60
+            ]
+          },
+          "derived": {
+            "IL": "VL/RL"
+          },
+          "prompt": "A bridge rectifier at {{f}} Hz feeds a {{RL|Ω}} load at about {{VL|V}}. Find the capacitance for a ripple of {{Vr|V}}.",
+          "answer": "IL/(2*f*Vr)",
+          "unit": "F",
+          "explanation": "$I_L = V_L/R_L = {{VL}}/{{RL}}$ = {{IL|A}}.\nFull-wave: $C = \\frac{I_L T}{2V_r} = \\frac{ {{IL}} }{2\\times{{f}}\\times{{Vr}} }$ = {{IL/(2*f*Vr)|F}}."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "Vm": [
+              12,
+              17,
+              24
+            ]
+          },
+          "prompt": "A half-wave rectifier with a large smoothing capacitor and a light load is driven by a {{Vm|V}} peak source. What is the approximate peak inverse voltage across the (ideal) diode?",
+          "options": [
+            "{{2*Vm|V}}",
+            "{{Vm|V}}",
+            "{{Vm/2|V}}",
+            "{{Vm*sqrt(2)|V}}"
+          ],
+          "answer": 0,
+          "explanation": "The capacitor stays charged near $+V_m$ (cathode side). At the negative peak the anode is at $-V_m$, so the diode sees $V_m - (-V_m) = 2V_m$ = {{2*Vm|V}}. Without the capacitor the PIV would be only $V_m$."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "VL": [
+              5,
+              12,
+              15
+            ],
+            "Vr": [
+              0.5,
+              1
+            ]
+          },
+          "derived": {
+            "Vm": "VL+Vr/2+0.7"
+          },
+          "prompt": "A center-tapped full-wave supply must give an average {{VL|V}} with {{Vr|V}} ripple. Using the 0.7 V model, what rms voltage must **each half** of the secondary provide?",
+          "answer": "Vm/sqrt(2)",
+          "unit": "V",
+          "explanation": "Only one diode is in the current path: $V_m = V_{L,avg} + V_r/2 + 0.7$ = {{Vm|V}}.\nEach half of the secondary: $V_{rms} = V_m/\\sqrt{2}$ = {{Vm/sqrt(2)|V}} (so {{2*Vm/sqrt(2)|V}} rms end to end)."
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the steps of designing a capacitor-filtered rectifier supply in order",
+          "items": [
+            "Find the load current $I_L = V_L/R_L$",
+            "Choose the ripple $V_r$ and compute $C$",
+            "Find the required peak $V_m$ including $V_r/2$ and the diode drops",
+            "Choose the transformer rating $V_{rms} = V_m/\\sqrt{2}$",
+            "Check the diode PIV and current ratings"
+          ],
+          "explanation": "The load sets $I_L$; with the allowed ripple that gives $C$. The ripple and diode drops then set how large the source peak must be, which fixes the transformer. Finally make sure the diodes can withstand the PIV."
+        }
+      ]
+    },
+    {
+      "id": "sc-rectifiers-4",
+      "title": "Rectifier waveforms",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "g1", "type": "multipleChoice",
+          "prompt": "The source voltage is a sine wave. Which graph shows the load voltage of a **full-wave** rectifier with a resistive load (no capacitor)? All graphs use the same axes.",
+          "optionPlots": [
+            {"x": {"min": 0, "max": 2}, "y": {"min": -1.2, "max": 1.2}, "curves": [{"f": "abs(sin(2*pi*x))"}]},
+            {"x": {"min": 0, "max": 2}, "y": {"min": -1.2, "max": 1.2}, "curves": [{"f": "max(0, sin(2*pi*x))"}]},
+            {"x": {"min": 0, "max": 2}, "y": {"min": -1.2, "max": 1.2}, "curves": [{"f": "sin(2*pi*x)"}]},
+            {
+              "x": {"min": 0, "max": 2},
+              "y": {"min": -1.2, "max": 1.2},
+              "curves": [{"f": "max(sin(2*pi*x), 1 - 0.9*mod(x-0.25, 1))"}]
+            }
+          ],
+          "answer": 0,
+          "explanation": "A full-wave rectifier passes the positive half-cycles and **flips** the negative ones, so the load sees $|v_s|$: two positive humps per period. A half-wave rectifier leaves gaps of zero during the negative half-cycles; the plain sine is the unrectified source, and the slowly sagging waveform needs a smoothing capacitor."
+        },
+        {
+          "id": "g2", "type": "multipleChoice",
+          "params": {"f": [50, 60], "m": [1, 2], "Vp": [10, 12, 15], "Vra": [1, 1.5, 2]},
+          "derived": {"T": "1/f", "w": "2*pi*f", "Tp": "T/m", "P": "2*pi/m", "phi": "acos(1 - Vra/Vp)", "kk": "Vra/(P - phi)"},
+          "prompt": "The graph shows the output of a rectifier with a smoothing capacitor, fed from a {{f}} Hz source. Which kind of rectifier is it?",
+          "plot": {
+            "x": {"min": 0, "max": "3*T", "label": "t", "unit": "s"},
+            "y": {"min": 0, "max": "1.2*Vp", "label": "v_o", "unit": "V"},
+            "curves": [{"f": "max(Vp*((2-m)*max(0, sin(w*x)) + (m-1)*abs(sin(w*x))), Vp - kk*w*mod(x - T/4, Tp))"}]
+          },
+          "options": ["Half-wave", "Full-wave"],
+          "answer": "m-1",
+          "explanation": "The capacitor is recharged at every peak of the rectified voltage. A half-wave rectifier gives one peak per period $T = 1/f$ = {{T|s}}; a full-wave rectifier gives two, one every $T/2$ = {{T/2|s}}. Measure the distance between successive peaks on the time axis: here it is {{Tp|s}}."
+        },
+        {
+          "id": "g3", "type": "numeric",
+          "params": {"f": [50, 60], "m": [1, 2], "Vp": [10, 12, 15], "Vra": [1, 1.5, 2, 2.5]},
+          "derived": {"T": "1/f", "w": "2*pi*f", "Tp": "T/m", "P": "2*pi/m", "phi": "acos(1 - Vra/Vp)", "kk": "Vra/(P - phi)"},
+          "prompt": "The graph shows the output of a rectifier with a smoothing capacitor (zoomed in on the top). Read the peak-to-peak ripple voltage $V_r$.",
+          "plot": {
+            "x": {"min": 0, "max": "3*T", "label": "t", "unit": "s"},
+            "y": {"min": "Vp-4", "max": "Vp+1", "label": "v_o", "unit": "V"},
+            "curves": [{"f": "max(Vp*((2-m)*max(0, sin(w*x)) + (m-1)*abs(sin(w*x))), Vp - kk*w*mod(x - T/4, Tp))"}]
+          },
+          "answer": "Vra",
+          "unit": "V",
+          "tolerance": 0.1,
+          "explanation": "The output peaks at {{Vp|V}} each time the capacitor is recharged and sags to {{Vp-Vra|V}} just before the next recharge. $V_r$ = {{Vp|V}} − {{Vp-Vra|V}} = {{Vra|V}}. The average output is about $V_{peak} - V_r/2$ = {{Vp-Vra/2|V}}. Note that the vertical axis does not start at zero."
+        },
+        {
+          "id": "g4", "type": "numeric",
+          "params": {"f": [50, 60], "m": [1, 2], "Vp": [10, 12, 15], "Vra": [1, 1.5, 2, 2.5], "IL": [0.1, 0.2, 0.5]},
+          "derived": {"T": "1/f", "w": "2*pi*f", "Tp": "T/m", "P": "2*pi/m", "phi": "acos(1 - Vra/Vp)", "kk": "Vra/(P - phi)"},
+          "prompt": "This rectifier runs from a {{f}} Hz source and its load draws a practically constant {{IL|A}}. Use the graph to estimate the smoothing capacitance $C$.",
+          "hint": "You need two readings: how often the capacitor is recharged, and the ripple $V_r$.",
+          "plot": {
+            "x": {"min": 0, "max": "3*T", "label": "t", "unit": "s"},
+            "y": {"min": "Vp-4", "max": "Vp+1", "label": "v_o", "unit": "V"},
+            "curves": [{"f": "max(Vp*((2-m)*max(0, sin(w*x)) + (m-1)*abs(sin(w*x))), Vp - kk*w*mod(x - T/4, Tp))"}]
+          },
+          "answer": "IL*Tp/Vra",
+          "unit": "F",
+          "tolerance": 0.1,
+          "explanation": "The peaks are {{Tp|s}} apart (the source period is {{T|s}}: one recharge per period means half-wave, two means full-wave) and the ripple is $V_r$ ≈ {{Vra|V}}. Between recharges the capacitor alone supplies the load, so $C V_r = I_L \\times$ {{Tp|s}}: $C$ = {{IL|A}} × {{Tp|s}} / {{Vra|V}} = {{IL*Tp/Vra|F}}."
+        },
+        {
+          "id": "g5", "type": "multipleChoice",
+          "params": {"Vp": [10, 12], "Vra": [2, 2.5, 3], "p": [0, 1]},
+          "derived": {
+            "f": "50",
+            "m": "1",
+            "T": "1/f",
+            "w": "2*pi*f",
+            "Tp": "T/m",
+            "P": "2*pi/m",
+            "phi": "acos(1 - Vra/Vp)",
+            "kk": "Vra/(P - phi)",
+            "th": "2*pi + pi/2 - (1-p)*phi/2 + p*pi",
+            "tp": "th/w",
+            "py": "(1-p)*Vp*sin(th) + p*(Vp - kk*pi)"
+          },
+          "prompt": "A half-wave rectifier with a smoothing capacitor: the dashed curve is the source voltage $v_s$, the solid curve the output $v_o$. What is the diode doing at point P?",
+          "plot": {
+            "x": {"min": 0, "max": "3*T", "label": "t", "unit": "s"},
+            "y": {"min": "-1.2*Vp", "max": "1.3*Vp", "label": "v", "unit": "V"},
+            "curves": [
+              {"f": "Vp*sin(w*x)", "color": "grey", "dash": true},
+              {"f": "max(Vp*((2-m)*max(0, sin(w*x)) + (m-1)*abs(sin(w*x))), Vp - kk*w*mod(x - T/4, Tp))"}
+            ],
+            "points": [{"x": "tp", "y": "py", "label": "P", "guides": false}]
+          },
+          "options": ["It conducts: the source recharges $C$", "It is off: $C$ alone supplies the load"],
+          "answer": "p",
+          "explanation": "The diode can only conduct while the source is above the capacitor voltage. That happens during the short intervals just before each peak, where $v_o$ follows the sine. During the long, slow decay $v_s$ is below $v_o$: the diode is reverse biased and the capacitor supplies the load current on its own."
+        },
+        {
+          "id": "g6", "type": "numeric",
+          "params": {"f": [50, 60, 100, 400]},
+          "prompt": "The graph shows the load voltage of a full-wave rectifier with a resistive load. Find the frequency of the AC source.",
+          "plot": {
+            "x": {"min": 0, "max": "3/f", "label": "t", "unit": "s"},
+            "y": {"min": 0, "max": 12, "label": "v_o", "unit": "V"},
+            "curves": [{"f": "10*abs(sin(2*pi*f*x))"}]
+          },
+          "answer": "f",
+          "unit": "Hz",
+          "tolerance": 0.07,
+          "explanation": "The output repeats every {{1/(2*f)|s}}, but a full-wave rectifier makes **two** humps per source period (one from each half-cycle). So the source period is $T$ = 2 × {{1/(2*f)|s}} = {{1/f|s}} and $f = 1/T$ = {{f|Hz}}. That is also why the ripple of a full-wave rectifier has frequency $2f$."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "f": [
+              50,
+              60
+            ],
+            "IL": [
+              0.1,
+              0.2,
+              0.5
+            ],
+            "Vr": [
+              0.5,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "T": "1/f",
+            "Ct": "IL*T/(2*Vr)"
+          },
+          "prompt": "A bridge rectifier ($V_m$ = 12 V, 0.7 V diodes, {{f|Hz}}) feeds a load drawing about {{IL|A}}. Choose the smoothing capacitor for a peak-to-peak ripple of {{Vr|V}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": "3/f",
+              "label": "t",
+              "unit": "s"
+            },
+            "y": {
+              "min": 0,
+              "max": 12,
+              "label": "v_o",
+              "unit": "V"
+            },
+            "sliders": [
+              {
+                "name": "C",
+                "label": "$C$",
+                "min": 0.0001,
+                "max": 0.022,
+                "log": true,
+                "value": 0.0001,
+                "unit": "F"
+              }
+            ],
+            "curves": [
+              {
+                "f": "max(abs(12*sin(2*pi*f*x)) - 1.4, 10.6 - (IL/C)*mod(x - T/4, T/2))",
+                "label": "v_o",
+                "labelAt": 0.9
+              }
+            ],
+            "hlines": [
+              {
+                "y": 10.6,
+                "label": "10.6 V"
+              },
+              {
+                "y": "10.6 - Vr",
+                "label": "target trough",
+                "reveal": true
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$V_r$",
+                "value": "IL*T/(2*C)",
+                "unit": "V",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "C": "Ct"
+          },
+          "tolerance": 0.05,
+          "absTolerance": 1e-09,
+          "hint": "Between peaks the capacitor supplies $I_L$ for half a period.",
+          "explanation": "In a full-wave rectifier the capacitor is recharged every half period, so it supplies the load for $T/2$: $C V_r = I_L T/2$, i.e.\n$C = \\frac{I_L T}{2V_r}$ = {{IL|A}} × {{T|s}} / (2 × {{Vr|V}}) = **{{Ct|F}}**.\nThe output peaks at $V_m - 1.4$ = 10.6 V (two diodes conduct) and sags by about {{Vr|V}} before the next peak."
+        }
+      ]
+    }
+  ]
+}

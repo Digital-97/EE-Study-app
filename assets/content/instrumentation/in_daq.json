@@ -1,0 +1,1266 @@
+{
+  "id": "in-daq",
+  "title": "Data Acquisition & Noise",
+  "description": "The DAQ signal chain, input configurations, ground loops, shielding and averaging, and how fast data piles up.",
+  "reference": "Hambley §9.1, §9.2, §9.4; Ott ch. 2–3",
+  "study": [
+    {
+      "title": "The DAQ chain",
+      "body": "A computer-based measurement system: **sensor** $\\to$ **signal conditioner** (excitation, amplification, filtering) $\\to$ **sample-and-hold** (freezes each value) $\\to$ **multiplexer** (connects one channel at a time) $\\to$ **ADC** $\\to$ **computer** (processing, display, storage). One ADC is shared by all channels, so its rate is split between them: per-channel rate = $f_{ADC}/n_{ch}$.",
+      "circuit": {
+        "elements": [
+          {
+            "type": "block",
+            "at": [
+              1,
+              0
+            ],
+            "label": "Sensor",
+            "size": [
+              1.8,
+              0.8
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.6,
+              0
+            ],
+            "label": "Cond.",
+            "size": [
+              1.8,
+              0.8
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              6.2,
+              0
+            ],
+            "label": "S/H",
+            "size": [
+              1.8,
+              0.8
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              6.2,
+              2
+            ],
+            "label": "MUX",
+            "size": [
+              1.8,
+              0.8
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              3.6,
+              2
+            ],
+            "label": "ADC",
+            "size": [
+              1.8,
+              0.8
+            ]
+          },
+          {
+            "type": "block",
+            "at": [
+              1,
+              2
+            ],
+            "label": "PC",
+            "size": [
+              1.8,
+              0.8
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                1.9,
+                0
+              ],
+              [
+                2.7,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                4.5,
+                0
+              ],
+              [
+                5.3,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                6.2,
+                0.4
+              ],
+              [
+                6.2,
+                1.6
+              ]
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                5.3,
+                2
+              ],
+              [
+                4.5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "signal",
+            "points": [
+              [
+                2.7,
+                2
+              ],
+              [
+                1.9,
+                2
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Single-ended vs differential inputs",
+      "body": "A **single-ended** input measures against the DAQ's own ground. A **differential** input measures $v_1 - v_2$ between two wires and rejects voltage common to both.\n- Grounded sensor + single-ended input: **avoid** (ground loop).\n- Floating sensor + single-ended: fine.\n- Grounded sensor + differential: fine; the ground difference is common mode.\n- Floating sensor + differential: add two large resistors to ground for the amplifier's bias current."
+    },
+    {
+      "title": "Ground loops",
+      "body": "Ground points a few metres apart are never at exactly the same voltage: currents $I_g$ from other equipment flow in the ground wires. If the sensor is grounded **and** the amplifier is grounded, part of that current flows in the cable's return conductor and its drop adds to the signal. With millivolt signals this can swamp the measurement (and gives the familiar 50/60 Hz hum). Cure: ground at **one** point only (floating sensor) or use a differential input.",
+      "formula": "v_{in} \\approx v_{sensor} - I_g R_{cable}",
+      "circuit": {
+        "elements": [
+          {
+            "type": "vsource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              0
+            ],
+            "label": "V_{sensor}"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              0
+            ],
+            "to": [
+              3,
+              0
+            ],
+            "label": "R_{cable}"
+          },
+          {
+            "type": "resistor",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              3,
+              2
+            ],
+            "label": "R_{cable}",
+            "flip": true
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                0
+              ],
+              [
+                5,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "wire",
+            "points": [
+              [
+                3,
+                2
+              ],
+              [
+                5,
+                2
+              ]
+            ]
+          },
+          {
+            "type": "resistor",
+            "from": [
+              5,
+              0
+            ],
+            "to": [
+              5,
+              2
+            ],
+            "label": "R_{in}",
+            "value": "",
+            "polarity": "+-"
+          },
+          {
+            "type": "isource",
+            "from": [
+              0,
+              2
+            ],
+            "to": [
+              0,
+              4
+            ],
+            "label": "I_g",
+            "flip": true
+          },
+          {
+            "type": "ground",
+            "at": [
+              0,
+              4
+            ]
+          },
+          {
+            "type": "ground",
+            "at": [
+              5,
+              2
+            ]
+          },
+          {
+            "type": "node",
+            "at": [
+              0,
+              2
+            ]
+          },
+          {
+            "type": "text",
+            "at": [
+              1.9,
+              4.3
+            ],
+            "label": "sensor ground"
+          },
+          {
+            "type": "text",
+            "at": [
+              5,
+              3.0
+            ],
+            "label": "amplifier ground"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Shielding and twisted pairs",
+      "body": "- **Electric-field (capacitive) coupling**: nearby voltages inject current through stray capacitance; the induced noise grows with the source impedance. Cure: a **shielded** cable, shield grounded at **one** end (the sensor end), so the shield itself carries no ground-loop current.\n- **Magnetic (inductive) coupling**: a changing field induces $e = d\\Phi/dt$ in the loop formed by the two wires. Cure: shrink the loop area with **twisted pairs** or coax; twists make successive induced voltages cancel."
+    },
+    {
+      "title": "Averaging",
+      "body": "Averaging $N$ readings with independent random noise reduces the noise rms by $\\sqrt N$ (the signal stays), so the SNR improves by $10\\log_{10}N$ dB: 100 samples $\\to$ 10× less noise, +20 dB. Averaging cannot remove systematic errors, and it costs time: $N$ samples at rate $f_s$ take $N/f_s$. Averaging over an integer number of mains periods also cancels hum.",
+      "formula": "\\sigma_{avg} = \\frac{\\sigma}{\\sqrt N}",
+      "plot": {
+        "x": {
+          "min": 1,
+          "max": 100,
+          "label": "N"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.05,
+          "label": "σ_{avg} / σ"
+        },
+        "curves": [
+          {
+            "f": "1/sqrt(x)"
+          }
+        ],
+        "points": [
+          {
+            "x": 4,
+            "y": 0.5,
+            "label": "N = 4: 1/2"
+          },
+          {
+            "x": 25,
+            "y": 0.2,
+            "label": "N = 25: 1/5"
+          },
+          {
+            "x": 100,
+            "y": 0.1,
+            "label": "100: 1/10"
+          }
+        ],
+        "height": 160
+      }
+    },
+    {
+      "title": "Data rates and virtual instruments",
+      "body": "Data accumulates quickly: $n_{ch}$ channels × $f_s$ samples/s × bytes per sample (2 for a 12–16-bit ADC). Example: 8 channels at 10 kS/s × 2 B = 160 kB/s, about 576 MB per hour.\nA **virtual instrument** (e.g. LabVIEW) is software running on the computer that turns a DAQ board into a custom instrument: a **front panel** (controls and indicators) and a **block diagram** (graphical code with wires carrying data).",
+      "formula": "\\text{memory} = n_{ch}\\,f_s\\,b\\,T"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "in-daq-1",
+      "title": "The measurement chain",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "From sensor to computer",
+          "body": "A DAQ system conditions each sensor signal, freezes it with a sample-and-hold (S/H), lets a multiplexer (MUX) pick one channel at a time for the single ADC, and hands the numbers to a computer.",
+          "circuit": {
+            "elements": [
+              {
+                "type": "block",
+                "at": [
+                  1,
+                  0
+                ],
+                "label": "Sensor",
+                "size": [
+                  1.8,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.6,
+                  0
+                ],
+                "label": "Cond.",
+                "size": [
+                  1.8,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  6.2,
+                  0
+                ],
+                "label": "S/H",
+                "size": [
+                  1.8,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  6.2,
+                  2
+                ],
+                "label": "MUX",
+                "size": [
+                  1.8,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  3.6,
+                  2
+                ],
+                "label": "ADC",
+                "size": [
+                  1.8,
+                  0.8
+                ]
+              },
+              {
+                "type": "block",
+                "at": [
+                  1,
+                  2
+                ],
+                "label": "PC",
+                "size": [
+                  1.8,
+                  0.8
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    1.9,
+                    0
+                  ],
+                  [
+                    2.7,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    4.5,
+                    0
+                  ],
+                  [
+                    5.3,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    6.2,
+                    0.4
+                  ],
+                  [
+                    6.2,
+                    1.6
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    5.3,
+                    2
+                  ],
+                  [
+                    4.5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "signal",
+                "points": [
+                  [
+                    2.7,
+                    2
+                  ],
+                  [
+                    1.9,
+                    2
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q1",
+          "type": "orderSteps",
+          "prompt": "Put the stages of a multichannel DAQ system in signal order",
+          "items": [
+            "Sensor",
+            "Signal conditioner (amplify, filter)",
+            "Sample-and-hold",
+            "Multiplexer",
+            "ADC",
+            "Computer"
+          ],
+          "explanation": "The measurand is converted by the sensor, conditioned to a clean, large voltage, frozen by the S/H, routed by the MUX to the shared ADC, converted, and finally processed by the computer. Filtering happens in the conditioner, **before** sampling."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Single-ended or differential?",
+          "body": "A **single-ended** input measures each signal against the DAQ ground. A **differential** input measures the difference between two wires, so any voltage common to both (such as a ground-potential difference) is rejected. Sensors can be **grounded** (one terminal tied to local ground) or **floating**."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Which sensor/input combination should be avoided because it creates a ground loop?",
+          "options": [
+            "Grounded sensor with a single-ended input",
+            "Floating sensor with a single-ended input",
+            "Grounded sensor with a differential input",
+            "Floating sensor with a differential input"
+          ],
+          "answer": 0,
+          "explanation": "With both the sensor and the single-ended input grounded, ground current flows through the signal return wire and its voltage drop adds directly to the reading. A floating sensor breaks the loop; a differential input sees the ground difference as common mode and rejects it."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Ground loops",
+          "body": "Here the sensor is grounded at its location and the amplifier at its own. A ground current $I_g$ between the two ground points flows through the return conductor of the cable, and its drop subtracts from the sensor voltage.",
+          "formula": "v_{in} \\approx v_{sensor} - I_g R_{cable}",
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{sensor}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R_{cable}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "R_{cable}",
+                "flip": true
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  0
+                ],
+                "to": [
+                  5,
+                  2
+                ],
+                "label": "R_{in}",
+                "value": "",
+                "polarity": "+-"
+              },
+              {
+                "type": "isource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  4
+                ],
+                "label": "I_g",
+                "flip": true
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  5,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  1.9,
+                  4.3
+                ],
+                "label": "sensor ground"
+              },
+              {
+                "type": "text",
+                "at": [
+                  5,
+                  3.0
+                ],
+                "label": "amplifier ground"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              0.002,
+              0.005,
+              0.01
+            ],
+            "Rc": [
+              0.1,
+              0.2,
+              0.5
+            ],
+            "Ig": [
+              0.005,
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "A grounded sensor drives a grounded amplifier input ($R_{in}$ = 1 MΩ) through a cable. A ground current $I_g$ = {{Ig|A}} flows between the two ground points.",
+          "ask": [
+            {
+              "prompt": "Find the amplifier input voltage $v_{in}$ (polarity as marked).",
+              "answer": "V_Rin",
+              "unit": "V",
+              "explanation": "Almost all of $I_g$ returns through the lower cable conductor (the 1 MΩ path carries next to nothing), dropping $I_gR_{cable}$ = {{Ig*Rc|V}}. $v_{in} \\approx V_{sensor} - I_gR_{cable}$ = {{Vs|V}} − {{Ig*Rc|V}} = **{{V_Rin|V}}**."
+            },
+            {
+              "prompt": "By what percentage does $v_{in}$ differ from $V_{sensor}$? (Give a positive number.)",
+              "answer": "abs(V_Rin - Vs)/Vs*100",
+              "unit": "%",
+              "explanation": "The ground current drops $I_gR_{cable}$ = {{Ig*Rc|V}} across the return conductor: $v_{in}$ = {{V_Rin|V}} instead of {{Vs|V}}, an error of **{{abs(V_Rin-Vs)/Vs*100|%}}**. Breaking one ground connection removes it."
+            }
+          ],
+          "circuit": {
+            "elements": [
+              {
+                "type": "vsource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  0
+                ],
+                "label": "V_{sensor}",
+                "name": "Vs",
+                "val": "Vs"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  3,
+                  0
+                ],
+                "label": "R_{cable}",
+                "name": "Rc1",
+                "val": "Rc"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  3,
+                  2
+                ],
+                "label": "R_{cable}",
+                "flip": true,
+                "name": "Rc2",
+                "val": "Rc"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    0
+                  ],
+                  [
+                    5,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    3,
+                    2
+                  ],
+                  [
+                    5,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  5,
+                  0
+                ],
+                "to": [
+                  5,
+                  2
+                ],
+                "label": "R_{in}",
+                "polarity": "+-",
+                "name": "Rin",
+                "val": "1e6"
+              },
+              {
+                "type": "isource",
+                "from": [
+                  0,
+                  2
+                ],
+                "to": [
+                  0,
+                  4
+                ],
+                "label": "I_g",
+                "flip": true,
+                "name": "Ig",
+                "val": "Ig"
+              },
+              {
+                "type": "ground",
+                "at": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "type": "ground",
+                "at": [
+                  5,
+                  2
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "type": "text",
+                "at": [
+                  1.9,
+                  4.3
+                ],
+                "label": "sensor ground"
+              },
+              {
+                "type": "text",
+                "at": [
+                  5,
+                  3.0
+                ],
+                "label": "amplifier ground"
+              }
+            ]
+          }
+        },
+        {
+          "id": "i4",
+          "type": "info",
+          "title": "Shields and twisted pairs",
+          "body": "Noise also couples in from nearby circuits:\n- through **electric fields** (stray capacitance): stopped by a grounded **shield** around the signal wires;\n- through **magnetic fields** (induced voltage in the loop formed by the wires): reduced by making the loop area small with a **twisted pair** or coaxial cable."
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each problem to its usual cure",
+          "pairs": [
+            [
+              "Ground loop",
+              "Floating sensor or differential input"
+            ],
+            [
+              "Capacitive pickup",
+              "Grounded shield"
+            ],
+            [
+              "Magnetic pickup",
+              "Twisted pair"
+            ],
+            [
+              "Aliasing",
+              "Anti-alias low-pass filter"
+            ],
+            [
+              "Random noise",
+              "Averaging many samples"
+            ]
+          ],
+          "explanation": "Each noise mechanism has its own remedy: break the loop for ground currents, divert capacitive currents with a shield, cancel induced voltages by twisting, filter before sampling to prevent aliasing, and average to reduce random noise."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "For the best noise protection, a cable shield should be grounded at both ends.",
+          "answer": false,
+          "explanation": "Grounding the shield at both ends creates a ground loop: ground current then flows in the shield and couples into the signal wires. For low-frequency instrumentation the shield is grounded at **one** end only, usually the sensor end."
+        }
+      ]
+    },
+    {
+      "id": "in-daq-2",
+      "title": "Noise and data calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Two useful formulas",
+          "body": "Averaging $N$ samples with independent random noise divides the noise rms by $\\sqrt N$ (SNR + $10\\log_{10}N$ dB). A DAQ produces $n_{ch} \\times f_s \\times b$ bytes per second, with $b$ bytes per sample.",
+          "formula": "\\sigma_{avg} = \\frac{\\sigma}{\\sqrt N}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0.001,
+              0.002,
+              0.005,
+              0.01
+            ],
+            "N": [
+              4,
+              16,
+              25,
+              64,
+              100
+            ]
+          },
+          "prompt": "Single readings of a constant voltage have random noise with rms value {{s|V}}. What is the noise rms of the average of {{N}} readings?",
+          "answer": "s/sqrt(N)",
+          "unit": "V",
+          "explanation": "$\\sigma_{avg} = \\sigma/\\sqrt N$ = {{s|V}} / $\\sqrt{ {{N}} }$ = {{s|V}} / {{sqrt(N)||3}} = **{{s/sqrt(N)|V}}**. (Dividing by $N$ instead of $\\sqrt N$ is far too optimistic.)"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "k": [
+              2,
+              3,
+              5,
+              10,
+              20
+            ]
+          },
+          "prompt": "How many readings must be averaged to reduce random noise by a factor of {{k}}?",
+          "answer": "k^2",
+          "unit": "",
+          "tolerance": 0.001,
+          "explanation": "Noise falls as $1/\\sqrt N$, so $\\sqrt N$ = {{k}} $\\to$ $N$ = {{k}} × {{k}} = **{{k^2}}**. Halving the noise costs 4× the measuring time."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "n": [
+              4,
+              8,
+              16
+            ],
+            "fs": [
+              1000,
+              10000,
+              50000
+            ],
+            "T": [
+              10,
+              60,
+              3600
+            ]
+          },
+          "prompt": "A DAQ records {{n}} channels at {{fs|S/s}} per channel with 16-bit samples (2 bytes each).",
+          "ask": [
+            {
+              "prompt": "Find the data rate in bytes per second.",
+              "answer": "n*fs*2",
+              "unit": "B/s",
+              "explanation": "Rate = $n_{ch} f_s b$ = {{n}} × {{fs|S/s}} × 2 B = **{{n*fs*2|B/s}}**."
+            },
+            {
+              "prompt": "How much memory does a {{T}} s recording take (in bytes)?",
+              "answer": "n*fs*2*T",
+              "unit": "B",
+              "explanation": "Rate = {{n}} × {{fs|S/s}} × 2 B = {{n*fs*2|B/s}}. Over {{T}} s: **{{n*fs*2*T|B}}**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "fa": [
+              100000,
+              250000,
+              500000,
+              1000000
+            ],
+            "n": [
+              4,
+              8,
+              16
+            ]
+          },
+          "prompt": "One ADC running at {{fa|S/s}} is multiplexed over {{n}} channels.",
+          "ask": [
+            {
+              "prompt": "What is the sample rate per channel?",
+              "answer": "fa/n",
+              "unit": "S/s",
+              "explanation": "The ADC's samples are shared: {{fa|S/s}} / {{n}} = **{{fa/n|S/s}}** per channel."
+            },
+            {
+              "prompt": "What is the theoretical maximum signal frequency per channel (Nyquist)?",
+              "answer": "fa/(2*n)",
+              "unit": "Hz",
+              "explanation": "Per channel {{fa/n|S/s}}; the Nyquist limit is half of that: **{{fa/(2*n)|Hz}}**. In practice stay well below it to leave room for the anti-alias filter."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Vg": [
+              0.1,
+              0.5,
+              1
+            ],
+            "C": [
+              60,
+              80,
+              100
+            ]
+          },
+          "prompt": "A grounded sensor sits {{Vg|V}} above the DAQ ground. With a single-ended input this full {{Vg|V}} adds to the reading. If a differential input with CMRR = {{C}} dB is used instead, how large is the remaining error, referred to the input?",
+          "answer": "Vg/10^(C/20)",
+          "unit": "V",
+          "explanation": "The ground difference is now common mode. Error = $v_{cm}/\\text{CMRR}$ = {{Vg|V}} / 10^({{C}}/20) = {{Vg|V}} / {{10^(C/20)||3}} = **{{Vg/10^(C/20)|V}}**."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "k": [
+              0,
+              1,
+              2
+            ]
+          },
+          "derived": {
+            "fh": "50 + 10*k + 15*k*(k-1)"
+          },
+          "prompt": "A slowly rising sensor signal is disturbed by interference, as recorded below. What is the frequency of the interference?",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.06,
+              "label": "t",
+              "unit": "s",
+              "ticks": [
+                0,
+                0.01,
+                0.02,
+                0.03,
+                0.04,
+                0.05,
+                0.06
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 2.5,
+              "label": "v (V)"
+            },
+            "curves": [
+              {
+                "f": "1 + 8*x + 0.3*sin(2*pi*fh*x)"
+              }
+            ],
+            "height": 180
+          },
+          "options": [
+            "50 Hz (mains)",
+            "60 Hz (mains)",
+            "100 Hz (rectifier ripple)",
+            "25 Hz"
+          ],
+          "answer": "k",
+          "explanation": "Count the periods: in 60 ms there are {{fh*0.06||2}} cycles, so one period is {{1000/fh||3}} ms and $f$ = 1 / {{1/fh|s}} = **{{fh|Hz}}**. Mains frequencies (50 or 60 Hz) and their doubles (from rectifiers) are the classic ground-loop and pickup suspects."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "S0": [
+              10,
+              20,
+              30,
+              40
+            ],
+            "N": [
+              10,
+              100,
+              1000
+            ]
+          },
+          "prompt": "A single measurement has an SNR of {{S0}} dB. What is the SNR after averaging {{N}} measurements (random, independent noise)?",
+          "answer": "S0 + 10*log10(N)",
+          "unit": "dB",
+          "explanation": "Noise rms falls by $\\sqrt N$, i.e. the noise **power** by $N$: + 10 $\\log_{10}$({{N}}) = +{{10*log10(N)|dB}}. SNR = {{S0}} + {{10*log10(N)}} = **{{S0+10*log10(N)|dB}}**."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "Averaging $N$ independent noisy readings reduces the rms noise by a factor $N$.",
+          "answer": false,
+          "explanation": "Only by $\\sqrt N$: the noise powers add as $N\\sigma^2$ while the signal adds as $N$ times itself, so the averaged noise is $\\sigma\\sqrt N/N = \\sigma/\\sqrt N$. 100 readings give a 10× improvement, not 100×."
+        }
+      ]
+    },
+    {
+      "id": "in-daq-3",
+      "title": "Designing a DAQ setup",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "s": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "t": [
+              0.0005,
+              0.001,
+              0.002
+            ],
+            "fs": [
+              1000,
+              10000
+            ]
+          },
+          "require": "s/t - 2.5",
+          "prompt": "Each reading has {{s|V}} rms random noise, but the result must have at most {{t|V}} rms noise. The DAQ samples at {{fs|S/s}}.",
+          "ask": [
+            {
+              "prompt": "How many readings must be averaged?",
+              "answer": "ceil((s/t)^2 - 1e-6)",
+              "unit": "",
+              "tolerance": 0.0001,
+              "absTolerance": 0.5,
+              "explanation": "Need $\\sigma/\\sqrt N \\le$ {{t|V}}: $\\sqrt N \\ge$ {{s/t||3}}, so $N \\ge$ {{(s/t)^2||4}} $\\to$ **{{ceil((s/t)^2-1e-6)}}** readings."
+            },
+            {
+              "prompt": "How long does collecting them take?",
+              "answer": "ceil((s/t)^2 - 1e-6)/fs",
+              "unit": "s",
+              "explanation": "$N = (\\sigma/\\sigma_{max})^2$ = {{ceil((s/t)^2-1e-6)}} readings at {{fs|S/s}}: $T = N/f_s$ = **{{ceil((s/t)^2-1e-6)/fs|s}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "fm": [
+              1000,
+              5000,
+              20000
+            ],
+            "n": [
+              2,
+              4,
+              8
+            ],
+            "T": [
+              60,
+              600
+            ]
+          },
+          "prompt": "{{n}} channels carry signals up to {{fm|Hz}}. Each channel is sampled at 2.5 × the highest frequency, with 2 bytes per sample. How much memory does a {{T}} s recording need (in bytes)?",
+          "answer": "n*2.5*fm*2*T",
+          "unit": "B",
+          "explanation": "$f_s$ = 2.5 × {{fm|Hz}} = {{2.5*fm|S/s}} per channel. Rate = {{n}} × {{2.5*fm|S/s}} × 2 B = {{n*5*fm|B/s}}. Memory = rate × {{T}} s = **{{n*5*fm*T|B}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Cc": [
+              5e-12,
+              1e-11,
+              2e-11
+            ],
+            "R": [
+              10000,
+              100000,
+              1000000
+            ]
+          },
+          "prompt": "A 230 V, 50 Hz mains wire couples into a sensor lead through a stray capacitance of {{Cc|F}}. The lead connects to a node with resistance {{R|Ω}} to ground (the sensor's Thévenin resistance). Estimate the rms noise voltage, using $v_n \\approx \\omega C R\\,V_{mains}$ (valid because $R \\ll 1/\\omega C$).",
+          "answer": "2*pi*50*Cc*R*230",
+          "unit": "V",
+          "explanation": "The stray capacitance has $1/\\omega C$ = {{1/(2*pi*50*Cc)|Ω}} $\\gg$ $R$, so it drives a current $\\approx \\omega C V$ = {{2*pi*50*Cc*230|A}} into $R$: $v_n$ ≈ {{2*pi*50*Cc*230|A}} × {{R|Ω}} = **{{2*pi*50*Cc*R*230|V}}**. High-impedance sensors pick up much more: shield them."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "B": [
+              1e-06,
+              5e-06,
+              1e-05
+            ],
+            "A": [
+              0.001,
+              0.005,
+              0.01
+            ]
+          },
+          "prompt": "A 50 Hz magnetic field with peak flux density {{B|T}} passes perpendicularly through the loop formed by an untwisted pair of sensor wires, enclosing {{A*1e4}} cm$^2$. Find the peak induced voltage.",
+          "answer": "2*pi*50*B*A",
+          "unit": "V",
+          "explanation": "$\\Phi = BA\\sin\\omega t$, so $e = d\\Phi/dt$ has peak $\\omega BA$ = 2π × 50 × {{B|T}} × {{A}} m$^2$ = **{{2*pi*50*B*A|V}}**, comparable to a thermocouple signal. Twisting the pair shrinks the effective area to almost zero."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match the parts of a LabVIEW virtual instrument (VI) to their role",
+          "pairs": [
+            [
+              "Front panel",
+              "User interface of the instrument"
+            ],
+            [
+              "Block diagram",
+              "Graphical program code"
+            ],
+            [
+              "Control",
+              "Input set by the user"
+            ],
+            [
+              "Indicator",
+              "Output shown to the user"
+            ]
+          ],
+          "explanation": "A VI looks like an instrument on screen (front panel with controls such as knobs and indicators such as graphs) and is programmed graphically in the block diagram, where wires carry data between function icons."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "An integrating DAQ averages each reading over a time $T$. What is the shortest $T$ that rejects both 50 Hz and 60 Hz mains interference completely?",
+          "options": [
+            "100 ms",
+            "20 ms",
+            "16.7 ms",
+            "36.7 ms"
+          ],
+          "answer": 0,
+          "explanation": "A sinusoid averages to zero over a whole number of periods. 50 Hz needs a multiple of 20 ms, 60 Hz a multiple of 16.67 ms. The smallest common multiple is 100 ms (5 periods of 50 Hz, 6 of 60 Hz)."
+        },
+        {
+          "id": "q7",
+          "type": "orderSteps",
+          "prompt": "Put the steps of specifying a DAQ system in a sensible order",
+          "items": [
+            "Find the highest signal frequency of interest",
+            "Choose the anti-alias filter cutoff",
+            "Choose the sample rate (well above twice that frequency)",
+            "Calculate the data rate and storage"
+          ],
+          "explanation": "The signal bandwidth fixes the filter, the filter's roll-off fixes the sample rate, and rate × word size × time gives the storage. (The word length follows from the resolution requirement on its own, so it can be chosen at any point before the storage calculation.)"
+        }
+      ]
+    }
+  ]
+}

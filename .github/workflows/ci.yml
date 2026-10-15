@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed to publish the release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - name: Tests (incl. content validation)
+        run: flutter test
+
+      # The signing key is not in the repository; restore it from secrets.
+      # Published builds must use it (Android only installs an update signed
+      # with the same key); other builds fall back to the debug key.
+      - name: Restore release signing key
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          SIGNING_PROPERTIES: ${{ secrets.RELEASE_SIGNING_PROPERTIES }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$SIGNING_PROPERTIES" ]; then
+            echo "::error::Release signing secrets are missing"; exit 1
+          fi
+          mkdir -p ~/.ee-study
+          echo "$KEYSTORE_BASE64" | base64 -d > ~/.ee-study/ee-study-release.jks
+          printf '%s
+' "$SIGNING_PROPERTIES" > ~/.ee-study/release-signing.properties
+
+      # The build number becomes the Android version code, so every build can
+      # be installed over the previous one. The +100 keeps it above the builds
+      # (up to 81) published before the repository was recreated.
+      - name: Build Android APK
+        run: |
+          BUILD_NUMBER=$((GITHUB_RUN_NUMBER + 100))
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+          flutter build apk --release --build-number=$BUILD_NUMBER
+          cp build/app/outputs/flutter-apk/app-release.apk EE-Study.apk
+          # Show the signing certificate: it must be the same for every build.
+          "$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/apksigner" verify --print-certs EE-Study.apk | grep SHA-256 | tee certs.txt
+
+      # Refuse to publish an APK signed with any other key.
+      - name: Check release signing certificate
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: grep -qi "75a6f30aab63a047e3c9fdb30c43ba92a0860a01c791d52a3d928256a012450b" certs.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ee-study-apk
+          path: EE-Study.apk
+
+      # Publish each pushed build as a GitHub Release with the APK attached, so
+      # it can be downloaded and installed straight from a phone.
+      - name: Publish release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ env.BUILD_NUMBER }}
+          target_commitish: ${{ github.sha }}
+          name: EE Study build ${{ env.BUILD_NUMBER }}
+          make_latest: true
+          files: EE-Study.apk
+          body: |
+            Install on Android: download **EE-Study.apk** below, open it, and allow
+            installing from this source when asked. Installing over a previous
+            build keeps your progress.
+
+            Built from `${{ github.ref_name }}` at ${{ github.sha }}.

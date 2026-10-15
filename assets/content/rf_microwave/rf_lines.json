@@ -1,0 +1,591 @@
+{
+  "id": "rf-lines",
+  "title": "Reflections & Input Impedance",
+  "description": "The complex reflection coefficient, return and mismatch loss, and the input impedance of terminated lines and stubs.",
+  "reference": "Pozar §2.3",
+  "study": [
+    {
+      "title": "Complex loads, complex Γ",
+      "body": "Communication Systems used Γ and VSWR for resistive loads. Real loads (antennas, transistor inputs) are complex, $Z_L = R_L + jX_L$, so $\\Gamma_L$ is a complex number. Its **magnitude** says how much of the wave reflects, its **phase** θ where the standing-wave maxima and minima sit. Compute it as a complex division: divide the moduli of numerator $(R_L - Z_0) + jX_L$ and denominator $(R_L + Z_0) + jX_L$, and subtract their angles. θ has the sign of $X_L$: positive for inductive, negative for capacitive loads.",
+      "formula": "\\begin{aligned}& \\Gamma_L = \\frac{Z_L - Z_0}{Z_L + Z_0} = |\\Gamma_L|e^{j\\theta}\\\\ & |\\Gamma_L| = \\frac{\\sqrt{(R_L-Z_0)^2 + X_L^2}}{\\sqrt{(R_L+Z_0)^2 + X_L^2}}\\end{aligned}"
+    },
+    {
+      "title": "Explore: the standing wave of a complex load",
+      "body": "At distance ℓ from the load the voltage is $|V(\\ell)| = |V_0^+|\\,|1 + \\Gamma_L e^{-j2\\beta\\ell}|$. It swings between $1 + |\\Gamma|$ and $1 - |\\Gamma|$ and repeats every λ/2; the reflected wave travels the extra distance twice, hence the **2βℓ**. The phase θ shifts the pattern: the first maximum lies at $\\theta\\lambda/4\\pi$ (for θ ≥ 0) and the first minimum at $(\\theta + \\pi)\\lambda/4\\pi$. Drag |Γ| and θ.",
+      "formula": "\\begin{aligned}& VSWR = \\frac{1+|\\Gamma_L|}{1-|\\Gamma_L|}\\\\ & \\ell_{min} = \\frac{\\theta + \\pi}{4\\pi}\\lambda\\end{aligned}",
+      "plot": {
+        "x": {"min": 0, "max": 1, "label": "ℓ / λ (from the load)"},
+        "y": {"min": 0, "max": 2.1, "label": "|V| / |V_i|"},
+        "sliders": [
+          {"name": "G", "label": "$|\\Gamma_L|$", "min": 0, "max": 0.9, "step": 0.05, "value": 0.5},
+          {"name": "th", "label": "$\\theta$", "min": -180, "max": 180, "step": 5, "value": 60, "unit": "°"}
+        ],
+        "let": {"lm": "mod((rad(th)+pi)/(4*pi), 0.5)"},
+        "curves": [{"f": "sqrt(1+G^2+2*G*cos(rad(th)-4*pi*x))"}],
+        "hlines": [{"y": 1, "color": "grey"}],
+        "points": [{"x": "lm", "y": "1-G", "label": "first min", "guides": false}],
+        "readouts": [
+          {"label": "VSWR", "value": "(1+G)/(1-G)"},
+          {"label": "first minimum at ℓ/λ", "value": "lm"}
+        ]
+      }
+    },
+    {
+      "title": "Return loss, mismatch loss, VSWR",
+      "body": "Three ways to state one number, |Γ|. **Return loss** says how far the reflected wave is below the incident one (larger is better); **mismatch loss** how much less power the load gets than a matched load would. |Γ| is a voltage ratio, so use **20 log** for it and **10 log** for power ratios such as $1 - |\\Gamma|^2$. Typical specs: RL = 10 dB means |Γ| = 0.32, VSWR 1.92, 10 % reflected and ML = 0.46 dB; RL = 20 dB means |Γ| = 0.1, VSWR 1.22, 1 % and 0.04 dB.",
+      "formula": "\\begin{aligned}& RL = -20\\log|\\Gamma|,\\quad |\\Gamma| = 10^{-RL/20}\\\\ & ML = -10\\log\\left(1 - |\\Gamma|^2\\right)\\\\ & P_L = P_{inc}\\left(1 - |\\Gamma|^2\\right)\\end{aligned}"
+    },
+    {
+      "title": "Input impedance of a terminated line",
+      "body": "A lossless line of length ℓ transforms $Z_L$ into $Z_{in}$; only the electrical length βℓ = 2πℓ/λ matters. By hand, put $t = \\tan\\beta\\ell$, split numerator $N$ and denominator $D$ into real and imaginary parts and divide: $N/D = N D^*/|D|^2$. Equivalently, rotate the reflection coefficient, $\\Gamma_{in} = \\Gamma_L e^{-j2\\beta\\ell}$, and convert back with $Z_{in} = Z_0(1+\\Gamma_{in})/(1-\\Gamma_{in})$.",
+      "formula": "\\begin{aligned}& Z_{in} = Z_0\\,\\frac{Z_L + jZ_0\\tan\\beta\\ell}{Z_0 + jZ_L\\tan\\beta\\ell}\\\\ & N = R_L + j(X_L + Z_0t)\\\\ & D = (Z_0 - X_Lt) + jR_Lt\\end{aligned}"
+    },
+    {
+      "title": "Worked example",
+      "body": "$Z_0$ = 50 Ω, $Z_L$ = 100 + j50 Ω, ℓ = 0.1 λ.\n- $\\Gamma_L$ = (50 + j50)/(150 + j50) = 0.447∠26.6°: VSWR 2.62, RL 7.0 dB\n- βℓ = 0.1 × 360° = 36°, so $t$ = tan 36° = 0.727\n- $N$ = 100 + j(50 + 36.3) = 100 + j86.3\n- $D$ = (50 − 36.3) + j72.7 = 13.7 + j72.7\n- $N/D$ = 1.40 − j1.11, so $Z_{in}$ = 69.9 − j55.7 Ω\n- Check: $\\Gamma_{in}$ = 0.447∠(26.6° − 72°) = 0.447∠−45.4° converts to the same $Z_{in}$."
+    },
+    {
+      "title": "λ/2 and λ/4 lines",
+      "body": "At ℓ = λ/2, tan βℓ = 0 and the line repeats the load for any $Z_0$ (at that one frequency). At ℓ = λ/4 the tangent is infinite and the line **inverts** the impedance: a short becomes an open, a low resistance a high one, and a capacitive load looks inductive, because $1/(R + jX)$ flips the sign of the reactance. Example: a 50 Ω λ/4 line turns 25 − j25 Ω into 2500/(25 − j25) = 50 + j50 Ω.",
+      "formula": "Z_{in}(\\lambda/2) = Z_L, \\qquad Z_{in}(\\lambda/4) = \\frac{Z_0^2}{Z_L}"
+    },
+    {
+      "title": "Stubs as reactances",
+      "body": "A shorted or open line has a purely imaginary input impedance, so at microwave frequencies a stub replaces an inductor or capacitor. Its reactance follows tan βℓ instead of ωL, so it changes faster with frequency and repeats every λ/2: a shorted stub that is λ/8 long at $f_0$ (X = +$Z_0$) is λ/4 long at $2f_0$, where it looks like an open circuit. The graph shows $X_{in}/Z_0$ of a shorted (blue) and an open (orange) stub.",
+      "formula": "\\begin{aligned}& Z_{sc} = jZ_0\\tan\\beta\\ell\\\\ & Z_{oc} = -jZ_0\\cot\\beta\\ell\\\\ & L_{eq} = \\frac{X}{\\omega},\\quad C_{eq} = \\frac{-1}{\\omega X}\\end{aligned}",
+      "plot": {
+        "x": {"min": 0, "max": 0.5, "label": "ℓ / λ"},
+        "y": {"min": -4, "max": 4, "label": "X_in / Z_0"},
+        "curves": [
+          {"f": "clamp(tan(2*pi*x), -10, 10)", "from": 0, "to": 0.2495, "color": "blue", "label": "short", "labelAt": 0.75},
+          {"f": "clamp(tan(2*pi*x), -10, 10)", "from": 0.2505, "to": 0.5, "color": "blue"},
+          {"f": "clamp(-1/tan(2*pi*x), -10, 10)", "from": 0.003, "to": 0.497, "color": "orange", "label": "open", "labelAt": 0.3}
+        ],
+        "hlines": [{"y": 0, "color": "grey"}],
+        "vlines": [{"x": 0.25, "label": "λ/4"}]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "rf-lines-1",
+      "title": "The complex reflection coefficient",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Γ of a complex load",
+          "body": "For $Z_L = R_L + jX_L$ on a line $Z_0$, the reflection coefficient is a complex number. Numerator and denominator are $(R_L - Z_0) + jX_L$ and $(R_L + Z_0) + jX_L$: divide their magnitudes for $|\\Gamma_L|$ and subtract their angles for θ. A passive load ($R_L \\geq 0$) always gives $|\\Gamma_L| \\leq 1$.",
+          "formula": "\\Gamma_L = \\frac{(R_L - Z_0) + jX_L}{(R_L + Z_0) + jX_L} = |\\Gamma_L|e^{j\\theta}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"Z0": [50, 75], "RL": {"min": 15, "max": 150, "step": 5}, "XL": [-80, -60, -40, -25, 25, 40, 60, 80]},
+          "derived": {
+            "num": "sqrt((RL-Z0)^2+XL^2)",
+            "den": "sqrt((RL+Z0)^2+XL^2)",
+            "a1": "deg(atan2(XL, RL-Z0))",
+            "a2": "deg(atan2(XL, RL+Z0))",
+            "th": "mod(a1-a2+180, 360)-180"
+          },
+          "prompt": "A {{Z0}} Ω line ends in a load with $R_L$ = {{RL|Ω}} and $X_L$ = {{XL|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find $|\\Gamma_L|$.",
+              "answer": "num/den",
+              "unit": "",
+              "explanation": "$|\\Gamma_L| = \\frac{|Z_L - Z_0|}{|Z_L + Z_0|}$ = √(({{RL-Z0}})² + ({{XL}})²) / √({{RL+Z0}}² + ({{XL}})²) = {{num}} / {{den}} = **{{num/den}}**."
+            },
+            {
+              "prompt": "Find the phase θ of $\\Gamma_L$ in degrees.",
+              "answer": "th",
+              "unit": "°",
+              "absTolerance": 1,
+              "explanation": "Angle of the numerator $(R_L - Z_0) + jX_L$ = ({{RL-Z0}}) + j({{XL}}): {{a1}}°. Angle of the denominator {{RL+Z0}} + j({{XL}}): {{a2}}°. θ = {{a1}}° − ({{a2}}°) = **{{th}}°**. It has the sign of $X_L$: positive for an inductive, negative for a capacitive load."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "From |Γ| to VSWR, return loss and delivered power",
+          "body": "Only the magnitude counts for these: two loads with the same |Γ| but a different θ give the same VSWR and return loss. |Γ| is a ratio of voltages, so return loss uses 20 log; the power that reaches the load is a fraction $1 - |\\Gamma|^2$ of the incident power, so mismatch loss uses 10 log.",
+          "formula": "\\begin{aligned}& VSWR = \\frac{1+|\\Gamma|}{1-|\\Gamma|}\\\\ & RL = -20\\log|\\Gamma|\\\\ & ML = -10\\log\\left(1-|\\Gamma|^2\\right)\\end{aligned}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"RL": {"min": 15, "max": 150, "step": 5}, "XL": [-75, -50, -30, 30, 50, 75]},
+          "derived": {"G": "sqrt((RL-50)^2+XL^2)/sqrt((RL+50)^2+XL^2)"},
+          "prompt": "An antenna presents $R_L$ = {{RL|Ω}}, $X_L$ = {{XL|Ω}} to a 50 Ω feed line.",
+          "ask": [
+            {
+              "prompt": "Find the VSWR on the line.",
+              "answer": "(1+G)/(1-G)",
+              "unit": "",
+              "explanation": "$|\\Gamma|$ = √(({{RL-50}})² + ({{XL}})²) / √({{RL+50}}² + ({{XL}})²) = {{G}}. VSWR = (1 + {{G}})/(1 − {{G}}) = **{{(1+G)/(1-G)}}**. With a reactive load the VSWR is not simply $R_L/Z_0$."
+            },
+            {
+              "prompt": "Find the return loss in dB.",
+              "answer": "-20*log10(G)",
+              "unit": "dB",
+              "explanation": "$|\\Gamma|$ = √(({{RL-50}})² + ({{XL}})²) / √({{RL+50}}² + ({{XL}})²) = {{G}}. RL = −20 log({{G}}) = **{{-20*log10(G)}} dB**."
+            },
+            {
+              "prompt": "What percentage of the incident power reaches the antenna?",
+              "answer": "100*(1-G^2)",
+              "unit": "%",
+              "explanation": "$|\\Gamma|$ = {{G}}, so $|\\Gamma|^2$ = {{100*G^2}} % is reflected and **{{100*(1-G^2)}} %** is delivered (mismatch loss {{-10*log10(1-G^2)}} dB)."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "multipleChoice",
+          "params": {"RL": [6, 10, 14, 20, 25]},
+          "derived": {"G": "10^(-RL/20)", "Gw": "10^(-RL/10)"},
+          "prompt": "A network analyzer shows a return loss of {{RL}} dB for an antenna. What is the VSWR?",
+          "options": ["{{(1+G)/(1-G)}}", "{{(1+Gw)/(1-Gw)}}", "{{1+G}}", "{{1/G}}"],
+          "answer": 0,
+          "explanation": "|Γ| is a voltage ratio: $|\\Gamma| = 10^{-RL/20}$ = {{G}}, and VSWR = (1 + |Γ|)/(1 − |Γ|) = **{{(1+G)/(1-G)}}**. Using $10^{-RL/10}$ = {{Gw}} would treat |Γ| as a power ratio and give {{(1+Gw)/(1-Gw)}}; 1 + |Γ| is only $V_{max}$ relative to the incident wave."
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each reflection coefficient magnitude to its return loss.",
+          "pairs": [["$|\\Gamma|$ = 0.1", "20 dB"], ["$|\\Gamma|$ = 0.316", "10 dB"], ["$|\\Gamma|$ = 0.5", "6 dB"], ["$|\\Gamma|$ = 1", "0 dB"]],
+          "explanation": "RL = −20 log|Γ|: 0.1 → 20 dB, 0.316 = $10^{-0.5}$ → 10 dB, 0.5 → 6.02 dB, and a short or open (|Γ| = 1) → 0 dB: everything comes back."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "Two loads with the same $|\\Gamma_L|$ but a different phase θ give the same VSWR and the same return loss.",
+          "answer": true,
+          "explanation": "True. VSWR and return loss depend only on |Γ|. The phase θ only shifts the standing-wave pattern along the line: it decides where the maxima and minima lie."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {"P": [10, 20, 27, 30, 33], "S": [1.3, 1.5, 2, 2.5, 3, 4]},
+          "derived": {"G": "(S-1)/(S+1)"},
+          "prompt": "A transmitter sends {{P}} dBm of incident power down a lossless line into a load with VSWR {{S}}. How much power does the load absorb, in dBm?",
+          "answer": "P+10*log10(1-G^2)",
+          "unit": "dBm",
+          "absTolerance": 0.05,
+          "explanation": "|Γ| = (VSWR − 1)/(VSWR + 1) = {{S-1}}/{{S+1}} = {{G}}. The load absorbs $1 - |\\Gamma|^2$ = {{1-G^2}} of the incident power, i.e. {{10*log10(1-G^2)}} dB: $P_L$ = {{P}} − {{-10*log10(1-G^2)}} = **{{P+10*log10(1-G^2)}} dBm**."
+        }
+      ]
+    },
+    {
+      "id": "rf-lines-2",
+      "title": "Input impedance, λ/4 lines and stubs",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Input impedance",
+          "body": "A line of length ℓ between the load and the point where you look changes the impedance you see. Put $t = \\tan(2\\pi\\ell/\\lambda)$, write numerator $N = R_L + j(X_L + Z_0t)$ and denominator $D = (Z_0 - X_Lt) + jR_Lt$, and divide: $Z_{in} = Z_0 N D^*/|D|^2$.",
+          "formula": "Z_{in} = Z_0\\,\\frac{Z_L + jZ_0\\tan\\beta\\ell}{Z_0 + jZ_L\\tan\\beta\\ell}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"RL": [20, 25, 30, 75, 100, 150], "lf": [0.05, 0.1, 0.15, 0.2, 0.3, 0.35, 0.4]},
+          "derived": {
+            "t": "tan(2*pi*lf)",
+            "den": "2500+RL^2*t^2",
+            "Rin": "2500*RL*(1+t^2)/den",
+            "Xin": "50*t*(2500-RL^2)/den"
+          },
+          "prompt": "A {{RL|Ω}} resistor terminates a lossless 50 Ω line that is {{lf}} λ long.",
+          "ask": [
+            {
+              "prompt": "Find the real part of $Z_{in}$.",
+              "answer": "Rin",
+              "unit": "Ω",
+              "explanation": "βℓ = {{360*lf}}°, $t$ = {{t}}. $N$ = {{RL}} + j({{50*t}}), $D$ = 50 + j({{RL*t}}). $Z_{in} = 50\\,N D^*/|D|^2$ with $|D|^2$ = {{den||4}}: Re = 50 × ({{RL}} × 50 + ({{50*t}}) × ({{RL*t}})) / {{den||4}} = **{{Rin|Ω}}** (and $X_{in}$ = {{Xin|Ω}})."
+            },
+            {
+              "prompt": "Find the imaginary part of $Z_{in}$ (with sign).",
+              "answer": "Xin",
+              "unit": "Ω",
+              "explanation": "βℓ = {{360*lf}}°, $t$ = {{t}}. $N$ = {{RL}} + j({{50*t}}), $D$ = 50 + j({{RL*t}}). Im{$N D^*$} = ({{50*t}}) × 50 − {{RL}} × ({{RL*t}}) = {{50*t*50-RL*RL*t}}, so $X_{in}$ = 50 × ({{50*t*50-RL*RL*t}}) / {{den||4}} = **{{Xin|Ω}}** (and $R_{in}$ = {{Rin|Ω}})."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "λ/2 and λ/4",
+          "body": "A λ/2 line repeats the load: $Z_{in} = Z_L$. A λ/4 line inverts it: $Z_{in} = Z_0^2/Z_L$. The inversion also flips the sign of the reactance, so through a λ/4 line a capacitor looks like an inductor and a short looks like an open.",
+          "formula": "Z_{in}(\\lambda/4) = \\frac{Z_0^2}{Z_L} = \\frac{Z_0^2(R_L - jX_L)}{R_L^2 + X_L^2}"
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {"X": [10, 20, 25, 40, 100, 125]},
+          "prompt": "A lossless 50 Ω line that is exactly λ/4 long ends in a capacitor with reactance $X_L$ = −{{X}} Ω. What does the input of the line look like?",
+          "options": ["An inductor, $X_{in}$ = +{{2500/X}} Ω", "A capacitor, $X_{in}$ = −{{2500/X}} Ω", "A capacitor, $X_{in}$ = −{{X}} Ω", "An open circuit"],
+          "answer": 0,
+          "explanation": "$Z_{in} = Z_0^2/Z_L$ = 2500/(−j{{X}}) = +j{{2500/X}} Ω: an **inductor**. Dividing by −j gives +j, so a λ/4 line turns a capacitive load into an inductive input. Only a short at the end would become an open."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"Z0": [50, 75], "R": [20, 30, 40, 60, 80, 100], "X": [-60, -40, -20, 20, 40, 60]},
+          "derived": {"m2": "R^2+X^2"},
+          "prompt": "A λ/4 section of {{Z0}} Ω line is terminated in $R_L$ = {{R|Ω}}, $X_L$ = {{X|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find $R_{in}$.",
+              "answer": "Z0^2*R/m2",
+              "unit": "Ω",
+              "explanation": "$Z_{in} = Z_0^2/Z_L = Z_0^2(R_L - jX_L)/(R_L^2 + X_L^2)$ with $R_L^2 + X_L^2$ = {{m2||5}}: $R_{in}$ = {{Z0^2||4}} × {{R}} / {{m2||5}} = **{{Z0^2*R/m2|Ω}}**."
+            },
+            {
+              "prompt": "Find $X_{in}$ (with sign).",
+              "answer": "-Z0^2*X/m2",
+              "unit": "Ω",
+              "explanation": "$Z_{in} = Z_0^2(R_L - jX_L)/(R_L^2 + X_L^2)$ with $R_L^2 + X_L^2$ = {{m2||5}}: $X_{in}$ = −{{Z0^2||4}} × ({{X}}) / {{m2||5}} = **{{-Z0^2*X/m2|Ω}}**. The sign flips: the λ/4 line swaps inductive and capacitive."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Stubs replace L and C",
+          "body": "A shorted stub shorter than λ/4 is inductive; an open stub shorter than λ/4 is capacitive. To build a reactance $X$, solve the stub formula for βℓ. In microstrip, open stubs are popular because they need no via to ground.",
+          "formula": "\\begin{aligned}& \\text{short: } \\tan\\beta\\ell = \\frac{X}{Z_0}\\\\ & \\text{open: } \\tan\\beta\\ell = \\frac{-Z_0}{X} = \\omega C Z_0\\end{aligned}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {"f": [1000000000.0, 2400000000.0, 5000000000.0], "C": [5e-13, 1e-12, 1.5e-12, 2e-12]},
+          "derived": {"w": "2*pi*f", "k": "2*pi*f*C*50", "bl": "atan(2*pi*f*C*50)"},
+          "prompt": "At {{f|Hz}} you want to replace a {{C|F}} capacitor to ground by an open-circuited 50 Ω stub. How long must the stub be, as a fraction of a wavelength (ℓ/λ)?",
+          "answer": "bl/(2*pi)",
+          "unit": "",
+          "explanation": "The open stub gives $-jZ_0\\cot\\beta\\ell$, which must equal $-j/(\\omega C)$: $\\tan\\beta\\ell = \\omega C Z_0$ = 2π × {{f|Hz}} × {{C|F}} × 50 = {{k}}. βℓ = arctan({{k}}) = {{bl}} rad = {{deg(bl)}}°, so ℓ/λ = {{deg(bl)}}/360 = **{{bl/(2*pi)}}**."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "A shorted stub that is λ/8 long at 1 GHz looks like an open circuit at 2 GHz.",
+          "answer": true,
+          "explanation": "True. The physical length is fixed, so at 2 GHz the stub is twice as many wavelengths long: λ/4. Then $jZ_0\\tan 90°$ is infinite, an open circuit. At 1 GHz it was $jZ_0\\tan 45° = +jZ_0$. Stubs are only equivalent to a given L or C near their design frequency."
+        },
+        {
+          "id": "q6",
+          "type": "slider",
+          "params": {"rl": [0.5, 0.6, 1, 1.5, 2], "xl": [-1, -0.8, -0.5, 0.5, 0.8, 1]},
+          "derived": {
+            "dd": "(rl+1)^2+xl^2",
+            "gr": "(rl^2+xl^2-1)/dd",
+            "gi": "2*xl/dd",
+            "G": "sqrt(gr^2+gi^2)",
+            "th": "atan2(gi, gr)",
+            "lmax": "mod(th/(4*pi), 0.5)"
+          },
+          "prompt": "The graph shows the normalized input resistance $r_{in}$ (blue) and reactance $x_{in}$ (orange) of a lossless line ending in $z_L = r_L + jx_L$ with $r_L$ = {{rl}} and $x_L$ = {{xl}}, versus the line length. Drag ℓ to the length where $z_{in}$ is **purely real and larger than 1**.",
+          "plot": {
+            "x": {"min": 0, "max": 0.5, "label": "ℓ / λ"},
+            "y": {"min": -3, "max": 5, "label": "z_in"},
+            "sliders": [{"name": "l", "label": "$\\ell/\\lambda$", "min": 0, "max": 0.5, "step": 0.002, "value": 0}],
+            "let": {
+              "ph": "th-4*pi*l",
+              "q": "1-2*G*cos(ph)+G^2"
+            },
+            "curves": [
+              {"f": "(1-G^2)/(1-2*G*cos(th-4*pi*x)+G^2)", "color": "blue", "label": "r_in"},
+              {"f": "2*G*sin(th-4*pi*x)/(1-2*G*cos(th-4*pi*x)+G^2)", "color": "orange", "label": "x_in", "labelAt": 0.3}
+            ],
+            "hlines": [{"y": 0, "color": "grey"}, {"y": 1, "color": "grey"}],
+            "vlines": [{"x": "l"}],
+            "readouts": [
+              {"label": "$r_{in}$", "value": "(1-G^2)/q"},
+              {"label": "$x_{in}$", "value": "2*G*sin(ph)/q"}
+            ]
+          },
+          "answer": {"l": "lmax"},
+          "tolerance": 0.001,
+          "absTolerance": 0.006,
+          "explanation": "$z_{in}$ is real where $\\Gamma_{in} = \\Gamma_L e^{-j2\\beta\\ell}$ lies on the real axis. $\\Gamma_L$ = {{G}}∠{{deg(th)}}°; it reaches angle 0 (a voltage **maximum**, $r_{in}$ = VSWR = {{(1+G)/(1-G)}}) after 2βℓ = θ, i.e. ℓ/λ = θ/720° = **{{lmax}}** (adding 0.5 if negative). λ/4 further on, $z_{in}$ is real again but smaller than 1: a voltage minimum."
+        }
+      ]
+    },
+    {
+      "id": "rf-lines-3",
+      "title": "Terminated lines in practice",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {"RL": {"min": 20, "max": 120, "step": 10}, "XL": [-60, -40, -20, 20, 40, 60], "lf": [0.05, 0.08, 0.1, 0.125, 0.15, 0.2, 0.3, 0.375]},
+          "derived": {
+            "t": "tan(2*pi*lf)",
+            "Nr": "RL",
+            "Ni": "XL+50*t",
+            "Dr": "50-XL*t",
+            "Di": "RL*t",
+            "den": "Dr^2+Di^2",
+            "Rin": "50*(Nr*Dr+Ni*Di)/den",
+            "Xin": "50*(Ni*Dr-Nr*Di)/den"
+          },
+          "prompt": "A 50 Ω line of length {{lf}} λ ends in $R_L$ = {{RL|Ω}}, $X_L$ = {{XL|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find $R_{in}$.",
+              "answer": "Rin",
+              "unit": "Ω",
+              "absTolerance": 0.5,
+              "explanation": "$t$ = tan({{360*lf}}°) = {{t}}. $N$ = {{Nr}} + j({{XL}} + 50 × ({{t}})) = {{Nr}} + j({{Ni}}); $D$ = (50 − ({{XL}}) × ({{t}})) + j{{RL}} × ({{t}}) = ({{Dr}}) + j({{Di}}). Re{$N D^*$} = {{Nr}} × ({{Dr}}) + ({{Ni}}) × ({{Di}}) = {{Nr*Dr+Ni*Di}}, $|D|^2$ = {{den}}, so $R_{in}$ = 50 × ({{Nr*Dr+Ni*Di}}) / {{den}} = **{{Rin|Ω}}** (and $X_{in}$ = {{Xin|Ω}})."
+            },
+            {
+              "prompt": "Find $X_{in}$ (with sign).",
+              "answer": "Xin",
+              "unit": "Ω",
+              "absTolerance": 0.5,
+              "explanation": "$t$ = tan({{360*lf}}°) = {{t}}. $N$ = {{Nr}} + j({{Ni}}), $D$ = ({{Dr}}) + j({{Di}}). Im{$N D^*$} = ({{Ni}}) × ({{Dr}}) − {{Nr}} × ({{Di}}) = {{Ni*Dr-Nr*Di}}, $|D|^2$ = {{den}}, so $X_{in}$ = 50 × ({{Ni*Dr-Nr*Di}}) / {{den}} = **{{Xin|Ω}}** (and $R_{in}$ = {{Rin|Ω}})."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {"f": [1000000000.0, 2000000000.0, 2450000000.0, 5800000000.0], "VF": [0.66, 0.7, 1], "RL": [25, 40, 75, 100], "XL": [-50, -30, 30, 50]},
+          "derived": {
+            "lam": "VF*3e8/f",
+            "gr": "((RL^2+XL^2)-2500)/((RL+50)^2+XL^2)",
+            "gi": "100*XL/((RL+50)^2+XL^2)",
+            "th": "atan2(gi, gr)",
+            "lm": "mod((th+pi)/(4*pi), 0.5)"
+          },
+          "prompt": "At {{f|Hz}} a 50 Ω cable with velocity factor {{VF}} feeds a load with $R_L$ = {{RL|Ω}}, $X_L$ = {{XL|Ω}}. How far from the load is the first voltage **minimum**?",
+          "answer": "lm*lam",
+          "unit": "m",
+          "explanation": "$\\Gamma_L = (Z_L - 50)/(Z_L + 50)$ = {{gr}} + j({{gi}}), so θ = {{deg(th)}}°. The first minimum sits where θ − 2βℓ = −180°: ℓ/λ = (θ + 180°)/720° = {{lm}}. On the cable λ = {{VF}} × 3 × $10^8$ / {{f|Hz}} = {{lam|m}}, so ℓ = **{{lm*lam|m}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {"S": [1.5, 2, 2.5, 3, 4], "lm": [0.05, 0.1, 0.15, 0.2, 0.3, 0.35, 0.4, 0.45]},
+          "derived": {
+            "G": "(S-1)/(S+1)",
+            "th": "4*pi*lm-pi",
+            "q": "1-2*G*cos(th)+G^2"
+          },
+          "prompt": "Slotted-line measurement on a 50 Ω line: the VSWR is {{S}} and the first voltage minimum lies {{lm}} λ from the load.",
+          "ask": [
+            {
+              "prompt": "Find $R_L$.",
+              "answer": "50*(1-G^2)/q",
+              "unit": "Ω",
+              "explanation": "|Γ| = ({{S}} − 1)/({{S}} + 1) = {{G}}. At the minimum θ − 2βℓ = −180°, so θ = 720° × {{lm}} − 180° = {{deg(th)}}°. With $Z_L = Z_0(1+\\Gamma)/(1-\\Gamma)$: $R_L = Z_0(1-|\\Gamma|^2)/|1-\\Gamma|^2$, where $|1-\\Gamma|^2 = 1 - 2|\\Gamma|\\cos\\theta + |\\Gamma|^2$ = {{q}}. $R_L$ = 50 × {{1-G^2}} / {{q}} = **{{50*(1-G^2)/q|Ω}}**."
+            },
+            {
+              "prompt": "Find $X_L$ (with sign).",
+              "answer": "50*2*G*sin(th)/q",
+              "unit": "Ω",
+              "explanation": "|Γ| = {{G}} and θ = 720° × {{lm}} − 180° = {{deg(th)}}°. $X_L = Z_0\\cdot 2|\\Gamma|\\sin\\theta/|1-\\Gamma|^2$ with $|1-\\Gamma|^2$ = {{q}}: $X_L$ = 50 × 2 × {{G}} × sin({{deg(th)}}°) / {{q}} = **{{100*G*sin(th)/q|Ω}}**. A first minimum within λ/4 of the load means a capacitive load, one between λ/4 and λ/2 an inductive load."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "A 50 Ω line ends in an **inductive** load $z_L$ = 0.6 + j0.8, so $\\Gamma_L$ = 0.5∠+90°. Which graph shows |V| versus the distance ℓ from the load? (Each graph runs from the load, ℓ = 0, on the left to ℓ = λ/2 on the right.)",
+          "optionPlots": [
+            {"x": {"min": 0, "max": 0.5, "label": "ℓ / λ"}, "y": {"min": 0, "max": 1.7, "label": "|V|"}, "curves": [{"f": "sqrt(1.25+cos(pi/2-4*pi*x))"}]},
+            {"x": {"min": 0, "max": 0.5, "label": "ℓ / λ"}, "y": {"min": 0, "max": 1.7, "label": "|V|"}, "curves": [{"f": "sqrt(1.25+cos(-pi/2-4*pi*x))"}]},
+            {"x": {"min": 0, "max": 0.5, "label": "ℓ / λ"}, "y": {"min": 0, "max": 1.7, "label": "|V|"}, "curves": [{"f": "sqrt(1.25+cos(4*pi*x))"}]},
+            {"x": {"min": 0, "max": 0.5, "label": "ℓ / λ"}, "y": {"min": 0, "max": 1.7, "label": "|V|"}, "curves": [{"f": "sqrt(1.25-cos(4*pi*x))"}]}
+          ],
+          "answer": 0,
+          "explanation": "$|V| \\propto |1 + \\Gamma_L e^{-j2\\beta\\ell}|$ peaks where θ − 2βℓ = 0: ℓ = θλ/4π = 90°/720° λ = **λ/8**, with the minimum λ/4 further on (at 3λ/8). An inductive load always puts a maximum first (within λ/4), a capacitive load a minimum first. A maximum right at the load means a resistance above $Z_0$, a minimum at the load one below $Z_0$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {"f": [1000000000.0, 2000000000.0, 3000000000.0], "len": [0.005, 0.01, 0.015, 0.02], "Z0": [50, 75]},
+          "derived": {"bl": "2*pi*f*len/3e8", "X": "Z0*tan(2*pi*f*len/3e8)"},
+          "prompt": "A shorted {{Z0}} Ω air line is {{len*1000}} mm long. At {{f|Hz}}:",
+          "ask": [
+            {
+              "prompt": "what is its input reactance?",
+              "answer": "X",
+              "unit": "Ω",
+              "explanation": "In air λ = c/f = {{3e8/f|m}}, so βℓ = 360° × {{len|m}} / {{3e8/f|m}} = {{deg(bl)}}°. $X_{in} = Z_0\\tan\\beta\\ell$ = {{Z0}} × tan({{deg(bl)}}°) = **{{X|Ω}}** (inductive, since ℓ < λ/4)."
+            },
+            {
+              "prompt": "which inductance has the same reactance at this frequency?",
+              "answer": "X/(2*pi*f)",
+              "unit": "H",
+              "explanation": "βℓ = {{deg(bl)}}°, so $X_{in}$ = {{Z0}} × tan({{deg(bl)}}°) = {{X|Ω}}. $L_{eq} = X/\\omega$ = {{X}} / (2π × {{f|Hz}}) = **{{X/(2*pi*f)|H}}**. It only matches the stub near this frequency."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match the phase θ of $\\Gamma_L$ to the kind of load.",
+          "pairs": [["θ = 0°", "Resistive, $R_L > Z_0$"], ["θ = 180°", "Resistive, $R_L < Z_0$"], ["0° < θ < 180°", "Inductive"], ["−180° < θ < 0°", "Capacitive"]],
+          "explanation": "Im Γ has the sign of $X_L$, so the upper half (θ between 0° and 180°) holds inductive loads and the lower half capacitive ones. On the real axis the load is resistive: Γ > 0 for $R_L > Z_0$ (θ = 0°), Γ < 0 for $R_L < Z_0$ (θ = 180°)."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "A matched generator ($Z_g = Z_0$) feeds a mismatched load through a lossless line. The power delivered to the load depends on the length of the line.",
+          "answer": false,
+          "explanation": "False. The generator sees a different $Z_{in}$ for every length, but with $Z_g = Z_0$ the incident wave is always the same and nothing re-reflects at the generator. The load absorbs $P_{avs}(1 - |\\Gamma_L|^2)$ for any length. Only with $Z_g \\neq Z_0$ do re-reflections make the delivered power length-dependent."
+        },
+        {
+          "id": "q8",
+          "type": "numeric",
+          "params": {"RL": [20, 30, 80, 120], "XL": [-60, -40, 40, 60], "P": [0, 10, 20]},
+          "derived": {"G": "sqrt((RL-50)^2+XL^2)/sqrt((RL+50)^2+XL^2)"},
+          "prompt": "A matched signal source with an available power of {{P}} dBm drives a 50 Ω line ending in $R_L$ = {{RL|Ω}}, $X_L$ = {{XL|Ω}}. Find the mismatch loss in dB.",
+          "answer": "-10*log10(1-G^2)",
+          "unit": "dB",
+          "explanation": "$|\\Gamma_L|$ = √(({{RL-50}})² + ({{XL}})²) / √({{RL+50}}² + ({{XL}})²) = {{G}}. ML = −10 log(1 − {{G^2}}) = **{{-10*log10(1-G^2)}} dB**, so the load receives {{P+10*log10(1-G^2)}} dBm instead of {{P}} dBm, whatever the line length."
+        }
+      ]
+    },
+    {
+      "id": "rf-lines-4",
+      "title": "Line challenge",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {"RL": [25, 100, 150, 200], "k": [0.8, 0.9, 1.1, 1.2, 1.3]},
+          "derived": {
+            "Z1": "sqrt(50*RL)",
+            "t": "tan(pi*k/2)",
+            "Dr": "Z1",
+            "Di": "RL*t",
+            "Ni": "Z1*t",
+            "den": "Dr^2+Di^2",
+            "Rin": "Z1*(RL*Dr+Ni*Di)/den",
+            "Xin": "Z1*(Ni*Dr-RL*Di)/den",
+            "G": "sqrt((Rin-50)^2+Xin^2)/sqrt((Rin+50)^2+Xin^2)"
+          },
+          "prompt": "A λ/4 transformer of $Z_1$ = √(50 × {{RL}}) Ω matches a {{RL|Ω}} resistor to a 50 Ω line at $f_0$. The frequency is now {{k}} $f_0$.",
+          "ask": [
+            {
+              "prompt": "Find $|\\Gamma_{in}|$ seen from the 50 Ω line.",
+              "answer": "G",
+              "unit": "",
+              "explanation": "$Z_1$ = {{Z1|Ω}}. At {{k}} $f_0$ the section is {{90*k}}° long: $t$ = tan({{90*k}}°) = {{t}}. $Z_{in} = Z_1\\frac{R_L + jZ_1t}{Z_1 + jR_Lt}$ = {{Rin|Ω}} + j({{Xin|Ω}}). $|\\Gamma_{in}| = |Z_{in} - 50|/|Z_{in} + 50|$ = **{{G}}**."
+            },
+            {
+              "prompt": "Find the return loss in dB.",
+              "answer": "-20*log10(G)",
+              "unit": "dB",
+              "explanation": "At {{k}} $f_0$: βℓ = {{90*k}}°, $Z_{in}$ = {{Rin|Ω}} + j({{Xin|Ω}}) (with $Z_1$ = {{Z1|Ω}}), so $|\\Gamma_{in}|$ = {{G}} and RL = −20 log({{G}}) = **{{-20*log10(G)}} dB**. At $f_0$ the return loss would be infinite."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {"Z0": [50, 75, 93], "bl": [20, 30, 40, 50, 60, 70]},
+          "derived": {"Xs": "Z0*tan(rad(bl))", "Xo": "-Z0/tan(rad(bl))"},
+          "prompt": "You measure the input of an unknown lossless cable with its far end shorted and then open: $Z_{sc}$ = j{{Xs|Ω}} and $Z_{oc}$ = −j{{abs(Xo)|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find its characteristic impedance.",
+              "answer": "Z0",
+              "unit": "Ω",
+              "explanation": "$Z_{sc}Z_{oc} = (jZ_0\\tan\\beta\\ell)(-jZ_0\\cot\\beta\\ell) = Z_0^2$, so $Z_0 = \\sqrt{Z_{sc}Z_{oc}}$ = √({{Xs}} × {{abs(Xo)}}) = **{{Z0|Ω}}**."
+            },
+            {
+              "prompt": "Find its electrical length βℓ in degrees (between 0° and 90°).",
+              "answer": "bl",
+              "unit": "°",
+              "absTolerance": 0.5,
+              "explanation": "$Z_{sc}/Z_{oc} = -\\tan^2\\beta\\ell$, so $\\tan\\beta\\ell = \\sqrt{X_{sc}/|X_{oc}|}$ = √({{Xs}}/{{abs(Xo)}}) = {{tan(rad(bl))}} and βℓ = **{{bl}}°**. (Check: $Z_0$ = √({{Xs}} × {{abs(Xo)}}) = {{Z0}} Ω and {{Z0}} × tan {{bl}}° = {{Xs}} Ω.)"
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {"Xc": [10, 20, 30, 50, 80], "lf": [0.04, 0.06, 0.08, 0.1, 0.12, 0.15, 0.2]},
+          "derived": {"t": "tan(2*pi*lf)", "Xin": "50*(-Xc+50*t)/(50+Xc*t)"},
+          "require": "abs(Xin)-5",
+          "prompt": "A capacitor with reactance −{{Xc}} Ω terminates a lossless 50 Ω line that is {{lf}} λ long. The input impedance is purely reactive. Find $X_{in}$ (with sign).",
+          "answer": "Xin",
+          "unit": "Ω",
+          "absTolerance": 0.3,
+          "explanation": "With $Z_L = jX_L$ the formula stays imaginary: $Z_{in} = jZ_0\\frac{X_L + Z_0t}{Z_0 - X_Lt}$. $t$ = tan({{360*lf}}°) = {{t}}, so $X_{in}$ = 50 × (−{{Xc}} + 50 × {{t}}) / (50 + {{Xc}} × {{t}}) = **{{Xin|Ω}}**. A lossless line with a reactive load is just another reactance, like a stub."
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {"len": [0.01, 0.015, 0.02, 0.025, 0.03, 0.05], "VF": [0.66, 0.7, 1]},
+          "prompt": "A shorted cable stub is {{len*1000}} mm long and has a velocity factor of {{VF}}.",
+          "ask": [
+            {
+              "prompt": "At what lowest frequency does its input look like an open circuit?",
+              "answer": "VF*3e8/(4*len)",
+              "unit": "Hz",
+              "explanation": "A shorted stub looks open when it is λ/4 long: $\\lambda$ = 4 × {{len*1000}} mm, so $f = v_p/\\lambda$ = {{VF}} × 3 × $10^8$ / (4 × {{len|m}}) = **{{VF*3e8/(4*len)|Hz}}**."
+            },
+            {
+              "prompt": "At what lowest frequency is its input reactance $+Z_0$?",
+              "answer": "VF*3e8/(8*len)",
+              "unit": "Hz",
+              "explanation": "$Z_0\\tan\\beta\\ell = Z_0$ needs βℓ = 45°, i.e. ℓ = λ/8: λ = 8 × {{len*1000}} mm and $f$ = {{VF}} × 3 × $10^8$ / (8 × {{len|m}}) = **{{VF*3e8/(8*len)|Hz}}**."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {"Vp": [5, 10, 20], "RL": [20, 30, 80, 120], "XL": [-50, -25, 25, 50]},
+          "derived": {"G": "sqrt((RL-50)^2+XL^2)/sqrt((RL+50)^2+XL^2)"},
+          "prompt": "An incident wave of {{Vp|V}} amplitude travels on a 50 Ω line toward a load with $R_L$ = {{RL|Ω}}, $X_L$ = {{XL|Ω}}.",
+          "ask": [
+            {
+              "prompt": "What is the largest voltage amplitude anywhere on the line?",
+              "answer": "Vp*(1+G)",
+              "unit": "V",
+              "explanation": "$|\\Gamma_L|$ = √(({{RL-50}})² + ({{XL}})²) / √({{RL+50}}² + ({{XL}})²) = {{G}}. Where incident and reflected waves are in phase: $V_{max} = |V_0^+|(1 + |\\Gamma|)$ = {{Vp}} × {{1+G}} = **{{Vp*(1+G)|V}}**."
+            },
+            {
+              "prompt": "What is the smallest voltage amplitude on the line?",
+              "answer": "Vp*(1-G)",
+              "unit": "V",
+              "explanation": "$|\\Gamma_L|$ = {{G}}. Where the waves are in antiphase: $V_{min} = |V_0^+|(1 - |\\Gamma|)$ = {{Vp}} × {{1-G}} = **{{Vp*(1-G)|V}}**. Ratio: VSWR = {{(1+G)/(1-G)}}."
+            }
+          ]
+        },
+        {
+          "id": "c6",
+          "type": "orderSteps",
+          "prompt": "Put the steps in order to compute $Z_{in}$ of a terminated line by hand.",
+          "items": [
+            "Find the electrical length βℓ = 360° · ℓ/λ",
+            "Compute $t = \\tan\\beta\\ell$",
+            "Form $N = R_L + j(X_L + Z_0t)$ and $D = (Z_0 - X_Lt) + jR_Lt$",
+            "Divide: $N/D = ND^*/|D|^2$",
+            "Multiply by $Z_0$"
+          ],
+          "explanation": "Everything depends on the electrical length, so start there. Then the tangent, then numerator and denominator as real and imaginary parts, a complex division (multiply by the conjugate of D) and finally scale by $Z_0$. Cross-check by rotating Γ by −2βℓ."
+        },
+        {
+          "id": "c7",
+          "type": "trueFalse",
+          "prompt": "A shorted stub that replaces a 2 nH inductor at 2 GHz also behaves like a 2 nH inductor at 4 GHz.",
+          "answer": false,
+          "explanation": "False. A stub's reactance is $Z_0\\tan\\beta\\ell$, and βℓ doubles when the frequency doubles. A lumped inductor's reactance grows linearly with f, but tan grows faster and becomes infinite at λ/4, so the 'equivalent inductance' $X/\\omega$ changes with frequency. Stubs mimic L and C only near the design frequency."
+        }
+      ]
+    }
+  ]
+}

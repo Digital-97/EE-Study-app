@@ -1,0 +1,1247 @@
+{
+  "id": "emc-noise",
+  "title": "Intrinsic Noise & Noise Figure",
+  "description": "Thermal, shot and 1/f noise, noise bandwidth, noise figure and the Vn–In model for low-noise amplifier design.",
+  "reference": "Ott ch. 8–9",
+  "study": [
+    {
+      "title": "Thermal (Johnson) noise",
+      "body": "Every resistance produces a random open-circuit noise voltage from the thermal motion of its electrons, whatever it is made of. Model it as a noiseless resistor with a series source $V_t$ (Thévenin) or a parallel current source $I_t = \\sqrt{4kTB/R}$ (Norton). This unit uses $k = 1.38\\times10^{-23}$ J/K and $T$ = 290 K, so $4kT = 1.6\\times10^{-20}$ W/Hz: 1 kΩ gives **4 nV/√Hz**. The noise grows with $\\sqrt{R}$ and $\\sqrt{B}$.",
+      "formula": "V_t = \\sqrt{4kTRB}",
+      "plot": {
+        "x": {
+          "min": 10,
+          "max": 1000000.0,
+          "label": "R",
+          "unit": "Ω",
+          "log": true
+        },
+        "y": {
+          "min": 1e-08,
+          "max": 0.001,
+          "label": "V_t",
+          "unit": "V",
+          "log": true
+        },
+        "sliders": [
+          {
+            "name": "B",
+            "label": "$B$",
+            "min": 100,
+            "max": 10000000.0,
+            "log": true,
+            "value": 10000,
+            "unit": "Hz"
+          }
+        ],
+        "curves": [
+          {
+            "f": "sqrt(1.6008e-20*x*B)",
+            "label": "V_t",
+            "labelAt": 0.75
+          }
+        ],
+        "points": [
+          {
+            "x": 1000,
+            "y": "sqrt(1.6008e-20*1000*B)",
+            "label": "1 kΩ",
+            "color": "orange"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$V_t$ of 1 kΩ",
+            "value": "sqrt(1.6008e-20*1000*B)",
+            "unit": "V"
+          },
+          {
+            "label": "$V_t$ of 100 kΩ",
+            "value": "sqrt(1.6008e-20*100000*B)",
+            "unit": "V"
+          }
+        ]
+      }
+    },
+    {
+      "title": "What makes noise, and what doesn't",
+      "body": "Only elements that dissipate energy produce thermal noise: an ideal L or C is noiseless. The thermal noise of any passive network equals that of a resistor $\\mathrm{Re}\\{Z\\}$, so two resistors in parallel are as noisy as $R_1 \\parallel R_2$. The **available noise power** (delivered into a matched load) is $kTB$, independent of $R$: $4\\times10^{-21}$ W per hertz, i.e. **−174 dBm/Hz**.",
+      "formula": "kTB = -174\\,\\text{dBm} + 10\\log B"
+    },
+    {
+      "title": "Equivalent noise bandwidth",
+      "body": "$B$ is the width of an ideal brick-wall filter that passes the same noise power as the real response $|A(f)|^2$. A single-pole low-pass has $B = \\frac{\\pi}{2}f_{3dB} \\approx 1.57 f_{3dB}$; two poles 1.22, three 1.15, and for many poles $B \\approx f_{3dB}$. For an RC low-pass this gives $B = 1/(4RC)$, so its output noise is $\\sqrt{kT/C}$, independent of $R$.",
+      "formula": "B = \\frac{1}{|A_0|^2}\\int_0^\\infty |A(f)|^2\\,df",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 5,
+          "label": "f / f_{3dB}",
+          "ticks": [
+            0,
+            1,
+            1.57,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "y": {
+          "min": 0,
+          "max": 1.2,
+          "label": "|A|²"
+        },
+        "curves": [
+          {
+            "f": "1/(1+x^2)",
+            "label": "single pole",
+            "labelAt": 0.55
+          },
+          {
+            "f": "step(pi/2-x)",
+            "dash": true,
+            "color": "orange",
+            "label": "same area",
+            "labelAt": 0.3
+          }
+        ],
+        "height": 170
+      }
+    },
+    {
+      "title": "Shot, contact (1/f) and popcorn noise",
+      "body": "- **Shot noise**: a DC current crossing a potential barrier (a pn junction) consists of individual charges; white, with $q = 1.6\\times10^{-19}$ C.\n- **Contact (flicker, 1/f) noise**: fluctuating conductivity of imperfect contacts, carbon resistors and semiconductors; proportional to $I_{dc}$, power density $\\propto 1/f$ (equal power per decade), so it dominates at low frequencies.\n- **Popcorn (burst) noise**: random steps in the output caused by a junction defect; a manufacturing problem, worst in high-impedance circuits.",
+      "formula": "I_{sh} = \\sqrt{2qI_{dc}B}"
+    },
+    {
+      "title": "Adding and measuring noise",
+      "body": "Uncorrelated noise sources add as powers: take the root of the sum of squares (RSS). Fully correlated sources would add linearly. Thermal noise is Gaussian, so its peak value is unbounded; peaks exceeding $4V_{rms}$ occur only 0.006 % of the time, so a **crest factor of 4** is used. On an oscilloscope, $V_{rms} \\approx V_{pp}/8$ (ignore the odd extreme peak); a true-rms meter needs a bandwidth of at least 10× the noise bandwidth.",
+      "formula": "V_{total} = \\sqrt{V_1^2 + V_2^2 + \\dots + V_m^2}"
+    },
+    {
+      "title": "Noise factor, noise figure, noise temperature",
+      "body": "The **noise factor** $F$ compares an amplifier with a noiseless one fed by the same resistive source $R_s$ at 290 K; $F = 1$ is perfect; the noise figure is $NF = 10\\log_{10}F$ dB. Equivalent: total input noise $V_{nt} = \\sqrt{4kTBR_sF}$, or a source heated by $T_e$. $F$ depends on $R_s$, so compare figures only at the same $R_s$. For cascaded stages (Friis) $F = F_1 + \\frac{F_2-1}{G_1} + \\frac{F_3-1}{G_1G_2} + \\dots$ (power gains): a high-gain first stage sets the noise.",
+      "formula": "F = \\frac{S_i/N_i}{S_o/N_o} = 1 + \\frac{T_e}{290\\ \\text{K}}"
+    },
+    {
+      "title": "The $V_n$–$I_n$ amplifier model",
+      "body": "Any amplifier's noise can be modelled by a voltage source $v_n$ and a current source $i_n$ at a noiseless input (densities in V/√Hz and A/√Hz; multiply by $\\sqrt B$ for rms). $i_n$ flows through $R_s$, so $v_n$ dominates at low $R_s$ and $i_nR_s$ at high $R_s$. $R_{opt} = v_n/i_n$ gives the **lowest noise factor**, $F_{min} = 1 + v_ni_n/(2kT)$, but the lowest total noise is always at the lowest $R_s$. Bipolar inputs: low $v_n$ (low-$R_s$ sources); JFET inputs: tiny $i_n$ (high-$R_s$ sources); op amps are noisier than a discrete stage (two input transistors, ≈ √2 more).",
+      "formula": "V_{nt}^2 = \\left(4kTR_s + v_n^2 + i_n^2R_s^2\\right)B",
+      "plot": {
+        "x": {
+          "min": 10,
+          "max": 10000000.0,
+          "label": "R_s",
+          "unit": "Ω",
+          "log": true
+        },
+        "y": {
+          "min": 1e-10,
+          "max": 1e-06,
+          "label": "density",
+          "unit": "V/√Hz",
+          "log": true
+        },
+        "sliders": [
+          {
+            "name": "vn",
+            "label": "$v_n$",
+            "min": 1e-09,
+            "max": 1e-07,
+            "log": true,
+            "value": 4e-09,
+            "unit": "V/√Hz"
+          },
+          {
+            "name": "ip",
+            "label": "$i_n$ (pA/√Hz)",
+            "min": 0.001,
+            "max": 10,
+            "log": true,
+            "value": 1
+          }
+        ],
+        "let": {
+          "In": "ip*1e-12"
+        },
+        "curves": [
+          {
+            "f": "sqrt(1.6008e-20*x)",
+            "color": "grey",
+            "dash": true,
+            "label": "source √(4kTR_s)",
+            "labelAt": 0.93
+          },
+          {
+            "f": "vn",
+            "color": "blue",
+            "dash": true,
+            "label": "v_n",
+            "labelAt": 0.05
+          },
+          {
+            "f": "In*x",
+            "color": "orange",
+            "dash": true,
+            "label": "i_n R_s",
+            "labelAt": 0.88
+          },
+          {
+            "f": "sqrt(1.6008e-20*x + vn^2 + (In*x)^2)",
+            "label": "total",
+            "labelAt": 0.6
+          }
+        ],
+        "vlines": [
+          {
+            "x": "vn/In",
+            "label": "R_{opt}"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$R_{opt} = v_n/i_n$",
+            "value": "vn/In",
+            "unit": "Ω"
+          },
+          {
+            "label": "$NF_{min}$",
+            "value": "10*log10(1 + vn*In/(2*4.002e-21))",
+            "unit": "dB"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "emc-noise-1",
+      "title": "Where intrinsic noise comes from",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Thermal noise",
+          "body": "Any resistor at temperature $T$ generates a random rms voltage $V_t$ across its open terminals, even with no current flowing. $B$ is the noise bandwidth of the system that observes it. With $k = 1.38\\times10^{-23}$ J/K and $T$ = 290 K, $4kT = 1.6\\times10^{-20}$ W/Hz.",
+          "formula": "V_t = \\sqrt{4kTRB}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R": [
+              1000,
+              4700,
+              10000,
+              47000,
+              100000,
+              1000000
+            ],
+            "B": [
+              1000,
+              10000,
+              20000,
+              100000,
+              1000000
+            ]
+          },
+          "prompt": "Find the rms thermal noise voltage of a {{R|Ω}} resistor observed in a noise bandwidth of {{B|Hz}} (T = 290 K).",
+          "answer": "sqrt(1.6008e-20*R*B)",
+          "unit": "V",
+          "explanation": "$V_t = \\sqrt{4kTRB}$ = √(1.6×10⁻²⁰ × {{R|Ω}} × {{B|Hz}}) = **{{sqrt(1.6008e-20*R*B)|V}}**. As a density that is {{sqrt(1.6008e-20*R)|V/√Hz}}."
+        },
+        {
+          "id": "q2",
+          "type": "trueFalse",
+          "prompt": "A 100 nF capacitor placed in parallel with a 10 kΩ resistor adds its own thermal noise voltage to the circuit.",
+          "answer": false,
+          "explanation": "An ideal capacitor cannot dissipate energy, so it cannot generate thermal noise. It only **shapes** the resistor's noise: the RC limits the noise bandwidth. In general the noise of a passive network equals the thermal noise of $\\mathrm{Re}\\{Z\\}$."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Noise bandwidth",
+          "body": "Real filters roll off gradually, so noise beyond $f_{3dB}$ still gets through. The **equivalent noise bandwidth** $B$ is the width of an ideal filter with the same area under $|A|^2$. For a single pole it is $\\frac{\\pi}{2}f_{3dB}$; for three or more poles $B \\approx f_{3dB}$.",
+          "formula": "B_{1\\,pole} = \\frac{\\pi}{2}f_{3dB} = 1.57\\,f_{3dB}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 5,
+              "label": "f / f_{3dB}",
+              "ticks": [
+                0,
+                1,
+                1.57,
+                2,
+                3,
+                4,
+                5
+              ]
+            },
+            "y": {
+              "min": 0,
+              "max": 1.2,
+              "label": "|A|²"
+            },
+            "curves": [
+              {
+                "f": "1/(1+x^2)",
+                "label": "single pole",
+                "labelAt": 0.55
+              },
+              {
+                "f": "step(pi/2-x)",
+                "dash": true,
+                "color": "orange",
+                "label": "same area",
+                "labelAt": 0.3
+              }
+            ],
+            "height": 160
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "R": [
+              1000,
+              2200,
+              10000,
+              47000
+            ],
+            "C": [
+              1e-09,
+              4.7e-09,
+              1e-08,
+              1e-07
+            ]
+          },
+          "derived": {
+            "f0": "1/(2*pi*R*C)",
+            "Bn": "pi/2*f0"
+          },
+          "prompt": "A resistor $R$ = {{R|Ω}} is shunted by $C$ = {{C|F}} (an RC low-pass at T = 290 K).",
+          "ask": [
+            {
+              "prompt": "Find the equivalent noise bandwidth $B$.",
+              "answer": "Bn",
+              "unit": "Hz",
+              "explanation": "$f_{3dB} = \\frac{1}{2\\pi RC}$ = {{f0|Hz}}. Single pole: $B = \\frac{\\pi}{2}f_{3dB}$ = 1.57 × {{f0|Hz}} = **{{Bn|Hz}}** (which equals $1/(4RC)$)."
+            },
+            {
+              "prompt": "Find the total rms noise voltage across the capacitor.",
+              "answer": "sqrt(4.002e-21/C)",
+              "unit": "V",
+              "explanation": "$B = \\frac{\\pi}{2}\\cdot\\frac{1}{2\\pi RC} = \\frac{1}{4RC}$ = {{Bn|Hz}}, so $V = \\sqrt{4kTR\\cdot\\frac{1}{4RC}} = \\sqrt{kT/C}$ = √(4.0×10⁻²¹ / {{C|F}}) = **{{sqrt(4.002e-21/C)|V}}**. $R$ cancels: a larger $R$ is noisier but narrows the bandwidth by the same factor."
+            }
+          ]
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Other intrinsic noise sources",
+          "body": "- **Shot noise**: DC current crossing a junction is a stream of discrete charges, $I_{sh} = \\sqrt{2qI_{dc}B}$ (white).\n- **Contact or 1/f noise**: imperfect contacts and semiconductors; proportional to the DC current, power density $\\propto 1/f$, so it rules at low frequencies.\n- **Popcorn noise**: random steps caused by a junction defect; better manufacturing removes it."
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each noise type to its cause",
+          "pairs": [
+            [
+              "Thermal noise",
+              "Any resistance, even without current"
+            ],
+            [
+              "Shot noise",
+              "DC current crossing a pn junction"
+            ],
+            [
+              "Contact (1/f) noise",
+              "Imperfect contacts; grows at low f"
+            ],
+            [
+              "Popcorn noise",
+              "Bursts from a junction defect"
+            ]
+          ],
+          "explanation": "Thermal noise needs only resistance and temperature. Shot noise needs current across a potential barrier. Contact noise needs current through an imperfect (non-homogeneous) conductor and has a 1/f power density. Popcorn noise comes from defects (often metallic impurities) in a junction."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "I": [
+              1e-06,
+              1e-05,
+              0.0001,
+              0.001
+            ],
+            "B": [
+              10000,
+              100000,
+              1000000
+            ]
+          },
+          "prompt": "A diode carries a DC current of {{I|A}}. Find the rms shot noise current in a noise bandwidth of {{B|Hz}}.",
+          "answer": "sqrt(2*1.6e-19*I*B)",
+          "unit": "A",
+          "explanation": "$I_{sh} = \\sqrt{2qI_{dc}B}$ = √(2 × 1.6×10⁻¹⁹ × {{I|A}} × {{B|Hz}}) = **{{sqrt(2*1.6e-19*I*B)|A}}**. Because it depends only on $I_{dc}$, a diode makes a handy calibrated white-noise source."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "V1": [
+              3e-06,
+              4e-06,
+              5e-06,
+              8e-06
+            ],
+            "V2": [
+              2e-06,
+              3e-06,
+              6e-06,
+              1.2e-05
+            ]
+          },
+          "require": "abs(V1-V2)",
+          "prompt": "Two uncorrelated noise sources of {{V1|V}} and {{V2|V}} rms appear in series. What is the total rms noise?",
+          "options": [
+            "{{sqrt(V1^2+V2^2)|V}}",
+            "{{V1+V2|V}}",
+            "{{max(V1,V2)|V}}"
+          ],
+          "answer": 0,
+          "explanation": "Uncorrelated noise adds as power: $V = \\sqrt{V_1^2 + V_2^2}$ = √(({{V1|V}})² + ({{V2|V}})²) = **{{sqrt(V1^2+V2^2)|V}}**. Adding the rms values linearly ({{V1+V2|V}}) is only right for fully correlated sources."
+        }
+      ]
+    },
+    {
+      "id": "emc-noise-2",
+      "title": "Thermal and shot noise calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "R1": [
+              1000,
+              2200,
+              4700,
+              10000
+            ],
+            "R2": [
+              1000,
+              3300,
+              6800,
+              22000
+            ],
+            "B": [
+              10000,
+              20000,
+              100000
+            ]
+          },
+          "derived": {
+            "Rp": "par(R1, R2)"
+          },
+          "require": "abs(R1-R2)",
+          "prompt": "Two resistors at 290 K are connected in parallel between terminals a and b.",
+          "ask": [
+            {
+              "prompt": "Find the noise voltage density at the open terminals.",
+              "answer": "sqrt(1.6008e-20*Rp)",
+              "unit": "V/√Hz",
+              "explanation": "The network is as noisy as one resistor $R_1 \\parallel R_2$ = {{Rp|Ω}}: $\\sqrt{4kTR}$ = √(1.6×10⁻²⁰ × {{Rp|Ω}}) = **{{sqrt(1.6008e-20*Rp)|V/√Hz}}**."
+            },
+            {
+              "prompt": "Find the rms open-circuit noise voltage in a bandwidth of {{B|Hz}}.",
+              "answer": "sqrt(1.6008e-20*Rp*B)",
+              "unit": "V",
+              "explanation": "$R_1 \\parallel R_2$ = {{Rp|Ω}}, so $V_t = \\sqrt{4kTRB}$ = √(1.6×10⁻²⁰ × {{Rp|Ω}} × {{B|Hz}}) = **{{sqrt(1.6008e-20*Rp*B)|V}}**."
+            },
+            {
+              "prompt": "Find the rms Norton noise current (terminals shorted) in a bandwidth of {{B|Hz}}.",
+              "answer": "sqrt(1.6008e-20*B/Rp)",
+              "unit": "A",
+              "explanation": "$I_t = \\sqrt{4kTB/R}$ with $R = R_1\\parallel R_2$ = {{Rp|Ω}}: √(1.6×10⁻²⁰ × {{B|Hz}} / {{Rp|Ω}}) = **{{sqrt(1.6008e-20*B/Rp)|A}}**. (Equivalently, the two Norton currents add in RSS.)"
+            }
+          ],
+          "circuit": {
+            "elements": [
+              {
+                "type": "resistor",
+                "from": [
+                  0,
+                  0
+                ],
+                "to": [
+                  0,
+                  2
+                ],
+                "label": "R_1",
+                "value": "{{R1|Ω}}"
+              },
+              {
+                "type": "resistor",
+                "from": [
+                  2,
+                  0
+                ],
+                "to": [
+                  2,
+                  2
+                ],
+                "label": "R_2",
+                "value": "{{R2|Ω}}"
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    4,
+                    0
+                  ]
+                ]
+              },
+              {
+                "type": "wire",
+                "points": [
+                  [
+                    0,
+                    2
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  0
+                ]
+              },
+              {
+                "type": "node",
+                "at": [
+                  2,
+                  2
+                ]
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  4,
+                  0
+                ],
+                "label": "a"
+              },
+              {
+                "type": "terminal",
+                "at": [
+                  4,
+                  2
+                ],
+                "label": "b"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "B": [
+              1000,
+              10000,
+              200000,
+              1000000,
+              6000000,
+              20000000
+            ]
+          },
+          "prompt": "Find the available thermal noise power $kTB$ (T = 290 K) in a bandwidth of {{B|Hz}}, in dBm.",
+          "answer": "10*log10(4.002e-21*B/1e-3)",
+          "unit": "dB",
+          "tolerance": 0.004,
+          "absTolerance": 0.3,
+          "explanation": "$kT$ = 4.0×10⁻²¹ W/Hz = −174 dBm/Hz. Add $10\\log_{10}B$ = {{10*log10(B)||3}} dB: $P_n$ = −174 + {{10*log10(B)||3}} = **{{10*log10(4.002e-21*B/1e-3)||4}} dBm**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "vn": [
+              2e-09,
+              5e-09,
+              1e-08,
+              2e-08
+            ],
+            "f3": [
+              10000,
+              20000,
+              100000,
+              1000000
+            ]
+          },
+          "prompt": "An amplifier has a white input noise density of {{vn|V/√Hz}} and a single-pole response with $f_{3dB}$ = {{f3|Hz}}. Find the total rms input-referred noise.",
+          "answer": "vn*sqrt(pi/2*f3)",
+          "unit": "V",
+          "explanation": "Noise bandwidth $B = 1.57 f_{3dB}$ = {{pi/2*f3|Hz}}. $V_n = v_n\\sqrt B$ = {{vn|V/√Hz}} × √({{pi/2*f3|Hz}}) = **{{vn*sqrt(pi/2*f3)|V}}**. Using $f_{3dB}$ itself would underestimate it by 20 % ({{vn*sqrt(f3)|V}})."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Vpp": [
+              0.04,
+              0.08,
+              0.12,
+              0.2,
+              0.32
+            ],
+            "A": [
+              100,
+              1000
+            ]
+          },
+          "prompt": "An oscilloscope on the output of an amplifier with voltage gain {{A}} shows random noise of about {{Vpp|V}} peak-to-peak (ignoring a few rare peaks). Estimate the equivalent rms input noise.",
+          "answer": "Vpp/(8*A)",
+          "unit": "V",
+          "explanation": "With a crest factor of 4, $V_{rms} \\approx V_{pp}/8$ = {{Vpp/8|V}} at the output. Divide by the gain: {{Vpp/8|V}} / {{A}} = **{{Vpp/(8*A)|V}}** at the input."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Idc": [
+              1e-06,
+              1e-05,
+              5e-05
+            ],
+            "Rf": [
+              10000,
+              100000,
+              1000000
+            ],
+            "B": [
+              10000,
+              100000
+            ]
+          },
+          "derived": {
+            "Vsh": "sqrt(2*1.6e-19*Idc*B)*Rf",
+            "Vth": "sqrt(1.6008e-20*Rf*B)"
+          },
+          "require": "5 - Idc*Rf",
+          "prompt": "A photodiode current $I_{dc}$ = {{Idc|A}} flows through the feedback resistor $R_f$ = {{Rf|Ω}} of a transimpedance amplifier (B = {{B|Hz}}, T = 290 K).",
+          "ask": [
+            {
+              "prompt": "Find the rms output noise voltage caused by the photodiode's shot noise.",
+              "answer": "Vsh",
+              "unit": "V",
+              "explanation": "$I_{sh} = \\sqrt{2qI_{dc}B}$ = {{sqrt(2*1.6e-19*Idc*B)|A}}; it flows through $R_f$: $V = I_{sh}R_f$ = **{{Vsh|V}}**."
+            },
+            {
+              "prompt": "Find the rms output noise voltage caused by the thermal noise of $R_f$.",
+              "answer": "Vth",
+              "unit": "V",
+              "explanation": "$V_t = \\sqrt{4kTR_fB}$ = √(1.6×10⁻²⁰ × {{Rf|Ω}} × {{B|Hz}}) = **{{Vth|V}}**."
+            },
+            {
+              "prompt": "Find the total rms output noise from these two sources.",
+              "answer": "sqrt(Vsh^2+Vth^2)",
+              "unit": "V",
+              "explanation": "Shot: $\\sqrt{2qI_{dc}B}\\,R_f$ = {{Vsh|V}}; thermal: $\\sqrt{4kTR_fB}$ = {{Vth|V}}. Uncorrelated, so RSS: **{{sqrt(Vsh^2+Vth^2)|V}}**. Shot noise dominates once $I_{dc}R_f > 2kT/q \\approx$ 50 mV."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              1e-06,
+              1e-05,
+              0.0001
+            ],
+            "R": [
+              1000,
+              10000,
+              100000
+            ],
+            "B": [
+              1000,
+              10000,
+              100000
+            ]
+          },
+          "derived": {
+            "Vt": "sqrt(1.6008e-20*R*B)"
+          },
+          "require": "abs(ln(Vs/Vt)) - 0.05",
+          "prompt": "A sensor with $R_s$ = {{R|Ω}} delivers an rms signal of {{Vs|V}}. Only its own thermal noise matters, in a noise bandwidth of {{B|Hz}}. Find the signal-to-noise ratio in dB.",
+          "answer": "20*log10(Vs/Vt)",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.3,
+          "explanation": "$V_t = \\sqrt{4kTRB}$ = {{Vt|V}}. $S/N = 20\\log_{10}(V_s/V_t)$ = 20 log({{Vs|V}} / {{Vt|V}}) = **{{20*log10(Vs/Vt)||3}} dB**."
+        },
+        {
+          "id": "s1",
+          "type": "slider",
+          "params": {
+            "R": [
+              1000,
+              10000,
+              100000
+            ],
+            "Vtar": [
+              1e-06,
+              2e-06,
+              5e-06
+            ]
+          },
+          "derived": {
+            "Bt": "Vtar^2/(1.6008e-20*R)"
+          },
+          "prompt": "Set the noise bandwidth so that the {{R|Ω}} resistor produces {{Vtar|V}} rms of thermal noise.",
+          "plot": {
+            "x": {
+              "min": 10,
+              "max": 10000000.0,
+              "label": "B",
+              "unit": "Hz",
+              "log": true
+            },
+            "y": {
+              "min": 1e-08,
+              "max": 0.0001,
+              "label": "V_t",
+              "unit": "V",
+              "log": true
+            },
+            "sliders": [
+              {
+                "name": "Bw",
+                "label": "$B$",
+                "min": 10,
+                "max": 10000000.0,
+                "log": true,
+                "value": 100,
+                "unit": "Hz"
+              }
+            ],
+            "curves": [
+              {
+                "f": "sqrt(1.6008e-20*R*x)",
+                "label": "V_t",
+                "labelAt": 0.25
+              }
+            ],
+            "hlines": [
+              {
+                "y": "Vtar",
+                "label": "target",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "Bw",
+                "y": "sqrt(1.6008e-20*R*Bw)",
+                "color": "orange"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$V_t$",
+                "value": "sqrt(1.6008e-20*R*Bw)",
+                "unit": "V",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "Bw": "Bt"
+          },
+          "tolerance": 0.06,
+          "explanation": "Solve $V_t = \\sqrt{4kTRB}$ for $B$: $B = \\frac{V_t^2}{4kTR}$ = ({{Vtar|V}})² / (1.6×10⁻²⁰ × {{R|Ω}}) = **{{Bt|Hz}}**. On the log–log plot the curve is a straight line with slope ½."
+        }
+      ]
+    },
+    {
+      "id": "emc-noise-3",
+      "title": "Noise figure and amplifier noise",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Three ways to state amplifier noise",
+          "body": "- Noise factor $F$ (or figure $NF = 10\\log F$), always for a stated $R_s$.\n- Noise temperature $T_e = 290(F-1)$: handy for very low-noise (radio) amplifiers.\n- Noise sources $v_n$ and $i_n$: work for any source impedance; op-amp and FET data sheets use these.",
+          "formula": "V_{nt}^2 = \\left(4kTR_s + v_n^2 + i_n^2R_s^2\\right)B"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "NF": [
+              0.5,
+              1,
+              1.5,
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "An amplifier has a noise figure of {{NF}} dB.",
+          "ask": [
+            {
+              "prompt": "Find its noise factor $F$.",
+              "answer": "10^(NF/10)",
+              "unit": "",
+              "explanation": "$F = 10^{NF/10}$ = 10^({{NF}}/10) = **{{10^(NF/10)||3}}**."
+            },
+            {
+              "prompt": "Find its equivalent input noise temperature $T_e$ in kelvin.",
+              "answer": "290*(10^(NF/10)-1)",
+              "unit": "K",
+              "explanation": "$F = 10^{NF/10}$ = {{10^(NF/10)||3}}, so $T_e = 290(F-1)$ = 290 × {{10^(NF/10)-1||3}} = **{{290*(10^(NF/10)-1)||3}} K**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Vs": [
+              5e-06,
+              1e-05,
+              5e-05
+            ],
+            "Rs": [
+              50,
+              600,
+              1000
+            ],
+            "B": [
+              10000,
+              20000
+            ],
+            "NF": [
+              2,
+              3,
+              6
+            ]
+          },
+          "derived": {
+            "Vt": "sqrt(1.6008e-20*Rs*B)",
+            "SNi": "20*log10(Vs/Vt)"
+          },
+          "prompt": "A {{Vs|V}} rms signal from a {{Rs|Ω}} source drives an amplifier with NF = {{NF}} dB (measured at this $R_s$). The noise bandwidth is {{B|Hz}}. Find the output signal-to-noise ratio in dB.",
+          "answer": "SNi - NF",
+          "unit": "dB",
+          "tolerance": 0.01,
+          "absTolerance": 0.3,
+          "explanation": "Source noise $V_t = \\sqrt{4kTR_sB}$ = {{Vt|V}}, so $(S/N)_{in}$ = 20 log({{Vs|V}} / {{Vt|V}}) = {{SNi||3}} dB. The amplifier degrades this by its noise figure: {{SNi||3}} − {{NF}} = **{{SNi-NF||3}} dB**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "vn": [
+              2e-09,
+              4e-09,
+              1e-08
+            ],
+            "In": [
+              1e-12,
+              2e-12,
+              3e-12
+            ],
+            "Rs": [
+              100,
+              1000,
+              10000
+            ],
+            "B": [
+              1000,
+              10000
+            ]
+          },
+          "derived": {
+            "th": "1.6008e-20*Rs",
+            "den": "sqrt(1.6008e-20*Rs + vn^2 + (In*Rs)^2)"
+          },
+          "prompt": "An amplifier with $v_n$ = {{vn|V/√Hz}} and $i_n$ = {{In*1e12||2}} pA/√Hz is driven from $R_s$ = {{Rs|Ω}} (T = 290 K).",
+          "ask": [
+            {
+              "prompt": "Find the total equivalent input noise density.",
+              "answer": "den",
+              "unit": "V/√Hz",
+              "explanation": "$\\sqrt{4kTR_s}$ = {{sqrt(th)|V/√Hz}}, $v_n$ = {{vn|V/√Hz}}, $i_nR_s$ = {{In*Rs|V/√Hz}}. RSS: **{{den|V/√Hz}}**."
+            },
+            {
+              "prompt": "Find the total rms equivalent input noise in a {{B|Hz}} noise bandwidth.",
+              "answer": "den*sqrt(B)",
+              "unit": "V",
+              "explanation": "Density: √(({{sqrt(th)|V/√Hz}})² + ({{vn|V/√Hz}})² + ({{In*Rs|V/√Hz}})²) = {{den|V/√Hz}}. Times $\\sqrt B$ = √{{B||3}}: **{{den*sqrt(B)|V}}**."
+            },
+            {
+              "prompt": "Find the source resistance that gives the minimum noise factor.",
+              "answer": "vn/In",
+              "unit": "Ω",
+              "explanation": "$R_{opt} = v_n/i_n$ = {{vn|V/√Hz}} / {{In*1e12||2}} pA/√Hz = **{{vn/In|Ω}}**."
+            },
+            {
+              "prompt": "Find the noise figure at this source resistance.",
+              "answer": "10*log10(1 + (vn^2 + (In*Rs)^2)/th)",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.05,
+              "explanation": "$F = 1 + \\frac{v_n^2 + (i_nR_s)^2}{4kTR_s}$ with $v_n$ = {{vn|V/√Hz}}, $i_nR_s$ = {{In*Rs|V/√Hz}} and $\\sqrt{4kTR_s}$ = {{sqrt(th)|V/√Hz}}: $F$ = {{1 + (vn^2 + (In*Rs)^2)/th||3}}, so $NF$ = **{{10*log10(1 + (vn^2 + (In*Rs)^2)/th)||3}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "vn": [
+              1e-09,
+              3e-09,
+              1e-08,
+              3e-08
+            ],
+            "In": [
+              1e-14,
+              1e-13,
+              1e-12,
+              5e-12
+            ],
+            "Rs": [
+              50,
+              500,
+              5000,
+              50000,
+              500000
+            ]
+          },
+          "derived": {
+            "t": "sqrt(1.6008e-20*Rs)",
+            "c": "In*Rs"
+          },
+          "require": "min(abs(ln(t/vn)), min(abs(ln(t/c)), abs(ln(vn/c)))) - 0.4",
+          "prompt": "An amplifier with $v_n$ = {{vn|V/√Hz}} and $i_n$ = {{In*1e12||2}} pA/√Hz is driven from $R_s$ = {{Rs|Ω}}. Which contribution dominates the total input noise?",
+          "options": [
+            "Thermal noise of $R_s$",
+            "The amplifier's voltage noise $v_n$",
+            "The amplifier's current noise ($i_nR_s$)"
+          ],
+          "answer": "if(t - max(vn, c), 0, if(vn - c, 1, 2))",
+          "explanation": "Compare the three densities: $\\sqrt{4kTR_s}$ = {{t*1e9||2}} nV/√Hz, $v_n$ = {{vn*1e9||2}} nV/√Hz, $i_nR_s$ = {{c*1e9||2}} nV/√Hz. The largest dominates because they add in RSS. Low $R_s$ favours $v_n$, high $R_s$ favours $i_nR_s$."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "NF1": [
+              0.8,
+              1,
+              1.5,
+              2
+            ],
+            "G1": [
+              10,
+              15,
+              20
+            ],
+            "NF2": [
+              6,
+              8,
+              10,
+              12
+            ]
+          },
+          "derived": {
+            "F1": "10^(NF1/10)",
+            "F2": "10^(NF2/10)",
+            "g": "10^(G1/10)",
+            "F": "F1 + (F2-1)/g"
+          },
+          "prompt": "A preamplifier (NF = {{NF1}} dB, power gain {{G1}} dB) drives a second stage with NF = {{NF2}} dB. Find the overall noise figure.",
+          "answer": "10*log10(F)",
+          "unit": "dB",
+          "tolerance": 0.02,
+          "absTolerance": 0.05,
+          "explanation": "Convert to ratios: $F_1$ = {{F1||3}}, $F_2$ = {{F2||3}}, $G_1$ = {{g||3}}. Friis: $F = F_1 + \\frac{F_2-1}{G_1}$ = {{F1||3}} + {{F2-1||3}}/{{g||3}} = {{F||3}}, so **{{10*log10(F)||3}} dB**."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which input stage gives the lowest noise for a piezo sensor with a 1 MΩ source resistance?",
+          "options": [
+            "A JFET-input stage (very low $i_n$)",
+            "A low-noise bipolar stage (very low $v_n$)",
+            "Any op amp, with a series resistor to match $R_{opt}$"
+          ],
+          "answer": 0,
+          "explanation": "At 1 MΩ the term $i_nR_s$ dominates: a bipolar input with $i_n$ = 1 pA/√Hz gives 1 µV/√Hz, far above the source's own 0.13 µV/√Hz. A JFET's gate leakage gives $i_n$ in the fA/√Hz range. Adding resistance never helps."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "If the source resistance is below $R_{opt} = v_n/i_n$, adding a series resistor to bring it up to $R_{opt}$ improves the signal-to-noise ratio.",
+          "answer": false,
+          "explanation": "The noise factor drops, but the total noise rises: the extra resistor adds its own thermal noise and more $i_nR$ noise while the signal stays the same. Minimum $F$ is not maximum S/N. Only a (nearly lossless) **transformer** can raise the source resistance seen by the amplifier and improve S/N."
+        }
+      ]
+    },
+    {
+      "id": "emc-noise-4",
+      "title": "Designing a low-noise front end",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Rs": [
+              120,
+              350,
+              1000
+            ],
+            "vn": [
+              1e-09,
+              3e-09,
+              8e-09
+            ],
+            "In": [
+              1e-12,
+              2e-12
+            ],
+            "B": [
+              100,
+              1000,
+              10000
+            ],
+            "Vs": [
+              1e-06,
+              5e-06,
+              2e-05
+            ]
+          },
+          "derived": {
+            "den": "sqrt(1.6008e-20*Rs + vn^2 + (In*Rs)^2)",
+            "Vnt": "den*sqrt(B)"
+          },
+          "require": "abs(ln(Vs/Vnt)) - 0.05",
+          "prompt": "A strain-gauge bridge ($R_s$ = {{Rs|Ω}}) delivers {{Vs|V}} rms to a preamplifier with $v_n$ = {{vn|V/√Hz}} and $i_n$ = {{In*1e12||2}} pA/√Hz. The noise bandwidth is {{B|Hz}} (T = 290 K).",
+          "ask": [
+            {
+              "prompt": "Find the total equivalent input noise voltage $V_{nt}$.",
+              "answer": "Vnt",
+              "unit": "V",
+              "explanation": "$\\sqrt{4kTR_s}$ = {{sqrt(1.6008e-20*Rs)|V/√Hz}}, $v_n$ = {{vn|V/√Hz}}, $i_nR_s$ = {{In*Rs|V/√Hz}}; RSS = {{den|V/√Hz}}. Times $\\sqrt B$: $V_{nt}$ = **{{Vnt|V}}**."
+            },
+            {
+              "prompt": "Find the output signal-to-noise ratio in dB.",
+              "answer": "20*log10(Vs/Vnt)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.3,
+              "explanation": "$V_{nt}$ = {{den|V/√Hz}} × √{{B||3}} = {{Vnt|V}}. $S/N = 20\\log(V_s/V_{nt})$ = 20 log({{Vs|V}} / {{Vnt|V}}) = **{{20*log10(Vs/Vnt)||3}} dB**."
+            },
+            {
+              "prompt": "By what factor must the bandwidth shrink to raise S/N by 6 dB (noise halved)?",
+              "answer": "4",
+              "unit": "",
+              "explanation": "All terms scale with $\\sqrt B$, so halving the noise voltage needs **4×** less bandwidth: $\\sqrt{1/4} = 1/2$, i.e. +6 dB."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Rs": [
+              10,
+              25,
+              50
+            ],
+            "vn": [
+              3e-09,
+              5e-09,
+              1e-08
+            ],
+            "In": [
+              1e-12,
+              2e-12,
+              4e-12
+            ]
+          },
+          "derived": {
+            "Ro": "vn/In",
+            "Fw": "1 + (vn^2 + (In*Rs)^2)/(1.6008e-20*Rs)",
+            "Fm": "1 + vn*In/(2*4.002e-21)"
+          },
+          "prompt": "A {{Rs|Ω}} source (e.g. a moving-coil pickup) drives an amplifier with $v_n$ = {{vn|V/√Hz}} and $i_n$ = {{In*1e12||2}} pA/√Hz. An ideal transformer may be inserted between them.",
+          "ask": [
+            {
+              "prompt": "Find the noise figure without a transformer.",
+              "answer": "10*log10(Fw)",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.05,
+              "explanation": "$F = 1 + \\frac{v_n^2 + i_n^2R_s^2}{4kTR_s}$ = {{Fw||3}}, so $NF$ = **{{10*log10(Fw)||3}} dB**. $v_n$ is large compared with the source's own {{sqrt(1.6008e-20*Rs)|V/√Hz}}."
+            },
+            {
+              "prompt": "Find the turns ratio $n = N_2/N_1$ that transforms $R_s$ to $R_{opt}$.",
+              "answer": "sqrt(Ro/Rs)",
+              "unit": "",
+              "explanation": "$R_{opt} = v_n/i_n$ = {{Ro|Ω}}. The transformer multiplies the source resistance by $n^2$: $n = \\sqrt{R_{opt}/R_s}$ = √({{Ro|Ω}} / {{Rs|Ω}}) = **{{sqrt(Ro/Rs)||3}}**."
+            },
+            {
+              "prompt": "Find the signal-to-noise improvement (in dB) obtained with that transformer.",
+              "answer": "10*log10(Fw/Fm)",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.1,
+              "explanation": "With the transformer $F = F_{min} = 1 + \\frac{v_ni_n}{2kT}$ = {{Fm||3}}. The source S/N is unchanged by an ideal transformer, so the improvement is $F_{without}/F_{with}$ = {{Fw||3}}/{{Fm||3}}, i.e. **{{10*log10(Fw/Fm)||3}} dB** (ignoring winding resistance)."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "NF1": [
+              0.8,
+              1,
+              1.5
+            ],
+            "G1": [
+              15,
+              20,
+              25
+            ],
+            "Lc": [
+              3,
+              4,
+              6,
+              8
+            ],
+            "NF3": [
+              6,
+              8,
+              10
+            ]
+          },
+          "derived": {
+            "F1": "10^(NF1/10)",
+            "g": "10^(G1/10)",
+            "L": "10^(Lc/10)",
+            "F3": "10^(NF3/10)",
+            "Fa": "F1 + (L-1)/g + (F3-1)*L/g",
+            "Fb": "L*F1 + (F3-1)*L/g"
+          },
+          "prompt": "An antenna feeds a receiver (NF = {{NF3}} dB) through a matched cable with {{Lc}} dB loss. A low-noise amplifier (NF = {{NF1}} dB, gain {{G1}} dB) is added. A matched lossy cable has $F = L$ and $G = 1/L$.",
+          "ask": [
+            {
+              "prompt": "Find the system noise figure with the LNA mounted **at the antenna** (before the cable).",
+              "answer": "10*log10(Fa)",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.05,
+              "explanation": "Ratios: $F_1$ = {{F1||3}}, $G_1$ = {{g||3}}, $L$ = {{L||3}}, $F_3$ = {{F3||3}}. Friis: $F = F_1 + \\frac{L-1}{G_1} + \\frac{F_3-1}{G_1/L}$ = {{F1||3}} + {{(L-1)/g||3}} + {{(F3-1)*L/g||3}} = {{Fa||3}} → **{{10*log10(Fa)||3}} dB**."
+            },
+            {
+              "prompt": "Find the system noise figure with the LNA at the **receiver end** (after the cable).",
+              "answer": "10*log10(Fb)",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.05,
+              "explanation": "Now the cable is first: $F = L + \\frac{F_1-1}{1/L} + \\frac{F_3-1}{G_1/L} = L F_1 + \\frac{(F_3-1)L}{G_1}$ = {{L*F1||3}} + {{(F3-1)*L/g||3}} = {{Fb||3}} → **{{10*log10(Fb)||3}} dB**. The cable loss adds directly to the noise figure, so put the LNA at the antenna."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "B": [
+              10000,
+              200000,
+              1000000,
+              6000000
+            ],
+            "NF": [
+              3,
+              5,
+              8
+            ],
+            "SNR": [
+              6,
+              10,
+              15
+            ]
+          },
+          "derived": {
+            "P": "10*log10(4.002e-18*B) + NF + SNR"
+          },
+          "prompt": "A receiver has a noise bandwidth of {{B|Hz}} and NF = {{NF}} dB. The demodulator needs S/N = {{SNR}} dB.",
+          "ask": [
+            {
+              "prompt": "Find the minimum input signal power (sensitivity) in dBm.",
+              "answer": "P",
+              "unit": "dB",
+              "tolerance": 0.004,
+              "absTolerance": 0.3,
+              "explanation": "Noise floor: −174 dBm/Hz + 10 log B ({{10*log10(B)||3}} dB) + NF ({{NF}} dB) = {{P-SNR||4}} dBm. Add the required S/N: **{{P||4}} dBm**."
+            },
+            {
+              "prompt": "Express that sensitivity as an rms voltage across the 50 Ω input.",
+              "answer": "sqrt(50*10^((P-30)/10))",
+              "unit": "V",
+              "explanation": "Convert to watts: $P = 10^{(P_{dBm}-30)/10}$ W with $P_{dBm}$ = {{P||4}}. Then $V = \\sqrt{PR}$ = $\\sqrt{50\\,\\Omega \\cdot P}$ = **{{sqrt(50*10^((P-30)/10))|V}}**."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Rs": [
+              50,
+              75
+            ],
+            "Idc": [
+              0.0015,
+              0.002,
+              0.003,
+              0.005
+            ]
+          },
+          "prompt": "To measure noise factor, a shot-noise diode is placed across the amplifier input with $R_s$ = {{Rs|Ω}}. The output noise power doubles (+3 dB) at a diode current of {{Idc|A}}. Find the noise figure.",
+          "answer": "10*log10(20*Idc*Rs)",
+          "unit": "dB",
+          "tolerance": 0.02,
+          "absTolerance": 0.05,
+          "explanation": "Doubling the output power means the diode's noise $I_{sh}R_s$ equals all the existing input noise, $\\sqrt{4kTBR_sF}$. So $2qI_{dc}BR_s^2 = 4kTBR_sF$ and $F = \\frac{2q}{4kT}I_{dc}R_s = 20\\,I_{dc}R_s$ (at 290 K) = 20 × {{Idc|A}} × {{Rs|Ω}} = {{20*Idc*Rs||3}}, i.e. **{{10*log10(20*Idc*Rs)||3}} dB**. Neither the gain nor $B$ needs to be known."
+        }
+      ]
+    }
+  ]
+}

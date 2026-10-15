@@ -1,0 +1,860 @@
+{
+  "id": "it-entropy",
+  "title": "Information & Entropy",
+  "description": "Measure information as surprise and find the average information a source produces.",
+  "reference": "C&T §2.1, §2.6; ch. 6",
+  "study": [
+    {
+      "title": "Self-information",
+      "body": "An outcome with probability $p$ carries $-\\log_2 p$ bits of information: the rarer the event, the bigger the surprise when it happens. A fair coin flip gives 1 bit, one of 8 equally likely outcomes 3 bits, and a certain event 0 bits. For **independent** events the probabilities multiply, so their informations add.",
+      "formula": "I(x) = -\\log_2 p(x) = \\log_2\\frac{1}{p(x)}\\ \\ \\text{bits}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "p"
+        },
+        "y": {
+          "min": 0,
+          "max": 7,
+          "label": "I (bits)"
+        },
+        "curves": [
+          {
+            "f": "-log2(x)",
+            "from": 0.008,
+            "to": 1,
+            "label": "−log_2 p",
+            "labelAt": 0.3
+          }
+        ],
+        "points": [
+          {
+            "x": 0.5,
+            "y": 1,
+            "label": "1 bit"
+          },
+          {
+            "x": 0.125,
+            "y": 3,
+            "label": "3 bits"
+          }
+        ],
+        "height": 170
+      }
+    },
+    {
+      "title": "Entropy of a source",
+      "body": "A source emits symbols $x_i$ with probabilities $p_i$. Its **entropy** is the average information per symbol, the expected surprise. It is about the least average number of yes/no questions needed to identify a symbol and, as the source-coding unit shows, the fewest bits per symbol that any lossless code can reach. Symbols with $p_i = 0$ add nothing (take $0\\log 0 = 0$).",
+      "formula": "H(X) = -\\sum_i p_i\\log_2 p_i\\ \\ \\text{bits/symbol}"
+    },
+    {
+      "title": "Explore: the binary entropy function",
+      "body": "A binary source sends a 1 with probability $p$ and a 0 with probability $1-p$. Its entropy $H(p)$ is 0 when the output is certain ($p$ = 0 or 1) and reaches its maximum of 1 bit at $p$ = 0.5. The curve is symmetric and steep near the ends: $p$ = 0.11 already gives 0.5 bit. Drag $p$ and compare the information of a 1 and of a 0 with their average.",
+      "formula": "\\begin{aligned} H(p) = &-p\\log_2 p\\\\ &-(1-p)\\log_2(1-p)\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "p"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.15,
+          "label": "H(p) (bits)"
+        },
+        "sliders": [
+          {
+            "name": "q",
+            "label": "$p$",
+            "min": 0.01,
+            "max": 0.99,
+            "step": 0.01,
+            "value": 0.2
+          }
+        ],
+        "let": {
+          "Hq": "(-(q)*log2(max(q, 1e-12)) - (1-(q))*log2(max(1-(q), 1e-12)))"
+        },
+        "curves": [
+          {
+            "f": "(-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12)))",
+            "label": "H(p)",
+            "labelAt": 0.75
+          }
+        ],
+        "points": [
+          {
+            "x": "q",
+            "y": "Hq"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$H(p)$ (bits)",
+            "value": "Hq"
+          },
+          {
+            "label": "$-\\log_2 p$ (info in a 1)",
+            "value": "-log2(q)"
+          },
+          {
+            "label": "$-\\log_2(1-p)$ (info in a 0)",
+            "value": "-log2(1-q)"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Bounds on entropy",
+      "body": "For a source with $M$ symbols the entropy lies between 0 and $\\log_2 M$. It is 0 only when one symbol is certain, and it is $\\log_2 M$ only when all $M$ symbols are **equally likely**: any imbalance makes the output more predictable. So a 12-bit ADC delivers at most 12 bits of information per sample, and only if all 4096 codes are equally likely.",
+      "formula": "0 \\le H(X) \\le \\log_2 M"
+    },
+    {
+      "title": "Bits, nats and hartleys",
+      "body": "The base of the logarithm only sets the unit: base 2 gives **bits**, base $e$ gives **nats** (common in derivations), base 10 gives **hartleys**. Convert like any logarithm: 1 nat = $\\log_2 e$ = 1.443 bits and 1 hartley = $\\log_2 10$ = 3.322 bits. Using $\\log_{10}$ in a formula meant for bits is a classic mistake: it gives an answer 3.32 times too small.",
+      "formula": "H_{\\text{bits}} = \\frac{H_{\\text{nats}}}{\\ln 2} = \\frac{H_{\\text{hartleys}}}{\\log_{10} 2}"
+    },
+    {
+      "title": "Worked example: a four-symbol source",
+      "body": "A source sends A, B, C and D with probabilities 1/2, 1/4, 1/8 and 1/8, at 1000 symbols per second.\n- Information per symbol: 1, 2, 3 and 3 bits.\n- Entropy: $H$ = 0.5·1 + 0.25·2 + 0.125·3 + 0.125·3 = **1.75 bits/symbol**, less than the 2 bits of a fixed two-bit code.\n- Information rate: $R = r_s H$ = 1000 × 1.75 = **1750 bit/s**.",
+      "formula": "R = r_s\\,H\\quad\\text{(bit/s)}"
+    },
+    {
+      "title": "Real sources: text and sensors",
+      "body": "With 26 letters and a space, a uniform model gives $\\log_2 27$ = 4.75 bits per character. Real letter frequencies (E is common, Z rare) bring this down to about 4.1 bits, and using the preceding letters as context lowers it much further: prediction experiments suggest roughly 1 to 1.5 bits per letter for English. Sensor data behave the same way: a slowly varying temperature read by a 12-bit ADC gives nearly the same code every sample, so the **differences** between samples have a small entropy, which is what compressors exploit."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "it-entropy-1",
+      "title": "Surprise and information",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "How much does an outcome tell you?",
+          "body": "Information measures surprise. Learning something that was certain tells you nothing; learning that a very unlikely event happened tells you a lot. Shannon's measure for an outcome with probability $p$ is $-\\log_2 p$ bits: a fair coin gives 1 bit, one of four equally likely outcomes 2 bits.",
+          "formula": "I = -\\log_2 p\\ \\ \\text{bits}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "k": [
+              2,
+              4,
+              8,
+              16,
+              32,
+              64,
+              128,
+              256,
+              1024
+            ]
+          },
+          "prompt": "One of {{k||4}} equally likely messages is sent. How much information does receiving it give?",
+          "answer": "log2(k)",
+          "unit": "bits",
+          "explanation": "Each message has $p$ = 1/{{k||4}}, so $I = -\\log_2(1/{{k||4}}) = \\log_2 {{k||4}}$ = **{{log2(k)}} bits**. Indeed, {{log2(k)}} yes/no questions, each halving the remaining possibilities, single out one of {{k||4}} messages."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "params": {
+            "N": [
+              6,
+              10,
+              12,
+              20
+            ]
+          },
+          "prompt": "A fair {{N}}-sided die is rolled. How much information does the result give?",
+          "options": [
+            "{{log2(N)}} bits",
+            "{{log10(N)}} bits",
+            "{{ln(N)}} bits",
+            "{{ceil(log2(N))}} bits"
+          ],
+          "answer": 0,
+          "explanation": "Each face has $p$ = 1/{{N}}: $I = \\log_2 {{N}}$ = **{{log2(N)}} bits**. {{log10(N)}} uses $\\log_{10}$ (hartleys) and {{ln(N)}} uses $\\ln$ (nats). {{ceil(log2(N))}} bits is what a fixed-length binary code needs per roll, which is more than the information."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Information adds up",
+          "body": "For independent events the probabilities multiply, $p(x, y) = p(x)\\,p(y)$, and the logarithm turns that product into a sum. Drawing a card from a deck tells you its suit ($\\log_2 4$ = 2 bits) and its rank ($\\log_2 13$ = 3.70 bits): together $\\log_2 52$ = 5.70 bits.",
+          "formula": "-\\log_2\\big[p(x)\\,p(y)\\big] = -\\log_2 p(x) - \\log_2 p(y)"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "A": [
+              10,
+              26,
+              36,
+              62,
+              94
+            ],
+            "n": [
+              4,
+              6,
+              8,
+              10,
+              12
+            ]
+          },
+          "prompt": "Each character of a password is chosen uniformly and independently from {{A}} possible symbols. How much information does a {{n}}-character password contain?",
+          "answer": "n*log2(A)",
+          "unit": "bits",
+          "explanation": "Per character: $\\log_2 {{A}}$ = {{log2(A)}} bits. Independent characters add: {{n}} × {{log2(A)}} = **{{n*log2(A)}} bits**, the same as $\\log_2({{A}}^{ {{n}} })$ for the ${{A}}^{ {{n}} }$ equally likely passwords."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.001,
+              0.002,
+              0.01,
+              0.02,
+              0.05
+            ]
+          },
+          "prompt": "A smoke detector reports an alarm with probability {{p}} per reading.",
+          "ask": [
+            {
+              "prompt": "How much information does an **alarm** reading carry?",
+              "answer": "-log2(p)",
+              "unit": "bits",
+              "explanation": "$I = -\\log_2 p = -\\log_2 {{p}}$ = **{{-log2(p)}} bits**. Rare events are very informative."
+            },
+            {
+              "prompt": "How much information does a **normal** reading carry?",
+              "answer": "-log2(1-p)",
+              "unit": "bits",
+              "explanation": "$P(\\text{normal}) = 1 - {{p}}$ = {{1-p||4}}, so $I = -\\log_2({{1-p||4}})$ = **{{-log2(1-p)||3}} bits**: almost nothing, because you expected it."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "prompt": "An event that is certain to happen carries 1 bit of information.",
+          "answer": false,
+          "explanation": "False. With $p$ = 1, $I = -\\log_2 1$ = **0 bits**: you learn nothing from being told what you already knew. 1 bit is the information of an event with $p$ = 1/2."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Bits and nats",
+          "body": "The base of the logarithm only sets the unit: $\\log_2$ gives bits, $\\ln$ gives nats, $\\log_{10}$ gives hartleys. 1 nat is $1/\\ln 2$ = 1.443 bits.",
+          "formula": "I_{\\text{bits}} = \\frac{I_{\\text{nats}}}{\\ln 2}"
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "x": [
+              0.5,
+              1.5,
+              2,
+              2.5,
+              3,
+              4
+            ]
+          },
+          "prompt": "An outcome carries {{x}} nats of information.",
+          "ask": [
+            {
+              "prompt": "How many bits is that?",
+              "answer": "x/ln(2)",
+              "unit": "bits",
+              "explanation": "$I_{\\text{bits}} = I_{\\text{nats}}/\\ln 2$ = {{x}} / 0.693 = **{{x/ln(2)}} bits**."
+            },
+            {
+              "prompt": "What was the probability of the outcome?",
+              "answer": "exp(-x)",
+              "unit": "",
+              "explanation": "In nats $I = -\\ln p$, so $p = e^{-I} = e^{-{{x}}}$ = **{{exp(-x)}}**. (Check in bits: $2^{-{{x/ln(2)}}}$ gives the same.)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "it-entropy-2",
+      "title": "Entropy of a source",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Average surprise",
+          "body": "Average the information over all outcomes, weighted by how often each one occurs: that is the **entropy** $H(X)$ in bits per symbol. A source that nearly always sends the same symbol has a low entropy, even though its rare symbol is very informative when it does appear.",
+          "formula": "H(X) = -\\sum_i p_i \\log_2 p_i"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.1,
+              "max": 0.7,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.1,
+              "max": 0.6,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "c": "round((1 - a - b)*100)/100"
+          },
+          "require": "c - 0.049",
+          "prompt": "A source emits A, B and C with probabilities {{a}}, {{b}} and {{c}}. What is its entropy?",
+          "answer": "-a*log2(a) - b*log2(b) - c*log2(c)",
+          "unit": "bits",
+          "explanation": "$H = -\\sum p_i\\log_2 p_i$ = {{a}} × {{-log2(a)}} + {{b}} × {{-log2(b)}} + {{c}} × {{-log2(c)}} = **{{-a*log2(a) - b*log2(b) - c*log2(c)}} bits/symbol** (each term is probability × information). The maximum for 3 symbols would be $\\log_2 3$ = 1.585 bits."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Each source below has four symbols with the probabilities shown. Which one has the **highest** entropy?",
+          "options": [
+            "(0.25, 0.25, 0.25, 0.25)",
+            "(0.4, 0.3, 0.2, 0.1)",
+            "(0.7, 0.1, 0.1, 0.1)",
+            "(0.5, 0.5, 0, 0)"
+          ],
+          "answer": 0,
+          "explanation": "Equal probabilities give the maximum, $\\log_2 4$ = **2 bits**. The others: (0.4, 0.3, 0.2, 0.1) gives 1.85 bits, (0.7, 0.1, 0.1, 0.1) gives 1.36 bits, and (0.5, 0.5, 0, 0) is really a 2-symbol source with 1 bit."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The binary entropy function",
+          "body": "For a binary source with $P(1) = p$ the entropy is a function of $p$ alone, written $H(p)$. It is 0 at $p$ = 0 and $p$ = 1 and peaks at 1 bit for $p$ = 0.5. Drag $p$.",
+          "formula": "\\begin{aligned} H(p) = &-p\\log_2 p\\\\ &-(1-p)\\log_2(1-p)\\end{aligned}",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "p"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.15,
+              "label": "H(p) (bits)"
+            },
+            "sliders": [
+              {
+                "name": "q",
+                "label": "$p$",
+                "min": 0.01,
+                "max": 0.99,
+                "step": 0.01,
+                "value": 0.2
+              }
+            ],
+            "let": {
+              "Hq": "(-(q)*log2(max(q, 1e-12)) - (1-(q))*log2(max(1-(q), 1e-12)))"
+            },
+            "curves": [
+              {
+                "f": "(-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12)))",
+                "label": "H(p)",
+                "labelAt": 0.75
+              }
+            ],
+            "points": [
+              {
+                "x": "q",
+                "y": "Hq"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$H(p)$ (bits)",
+                "value": "Hq"
+              },
+              {
+                "label": "$-\\log_2 p$ (info in a 1)",
+                "value": "-log2(q)"
+              },
+              {
+                "label": "$-\\log_2(1-p)$ (info in a 0)",
+                "value": "-log2(1-q)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.05,
+              0.1,
+              0.15,
+              0.2,
+              0.25,
+              0.3,
+              0.4,
+              0.6,
+              0.7,
+              0.8,
+              0.9
+            ]
+          },
+          "prompt": "A binary source sends a 1 with probability {{p}}. What is its entropy?",
+          "answer": "(-p*log2(p) - (1-p)*log2(1-p))",
+          "unit": "bits",
+          "explanation": "$H(p) = -p\\log_2 p - (1-p)\\log_2(1-p)$ = {{p}} × {{-log2(p)}} + {{1-p}} × {{-log2(1-p)}} = **{{(-p*log2(p) - (1-p)*log2(1-p))}} bits/symbol**."
+        },
+        {
+          "id": "q4",
+          "type": "slider",
+          "params": {
+            "h": [
+              0.3,
+              0.4,
+              0.5,
+              0.6,
+              0.7,
+              0.8,
+              0.9
+            ]
+          },
+          "derived": {
+            "p0": "(1 - sqrt(1 - h^(4/3)))/2",
+            "p1": "p0 - (-p0*log2(p0) - (1-p0)*log2(1-p0) - h)/log2((1-p0)/p0)",
+            "p2": "p1 - (-p1*log2(p1) - (1-p1)*log2(1-p1) - h)/log2((1-p1)/p1)",
+            "pt": "p2 - (-p2*log2(p2) - (1-p2)*log2(1-p2) - h)/log2((1-p2)/p2)"
+          },
+          "prompt": "Drag $p$ (at most 0.5) until the binary source has an entropy of {{h}} bit.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.5,
+              "label": "p"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.15,
+              "label": "H(p) (bits)"
+            },
+            "sliders": [
+              {
+                "name": "q",
+                "label": "$p$",
+                "min": 0.005,
+                "max": 0.5,
+                "step": 0.005,
+                "value": 0.5
+              }
+            ],
+            "let": {
+              "Hq": "(-(q)*log2(max(q, 1e-12)) - (1-(q))*log2(max(1-(q), 1e-12)))"
+            },
+            "curves": [
+              {
+                "f": "(-(x)*log2(max(x, 1e-12)) - (1-(x))*log2(max(1-(x), 1e-12)))",
+                "label": "H(p)",
+                "labelAt": 0.3
+              }
+            ],
+            "hlines": [
+              {
+                "y": "h",
+                "label": "target",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "q",
+                "y": "Hq"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$H(p)$ (bits)",
+                "value": "Hq",
+                "reveal": true
+              }
+            ]
+          },
+          "check": "0.015 - abs(Hq - h)",
+          "solution": "$p$ ≈ {{pt||2}}",
+          "explanation": "$H(p)$ = {{h}} bit for $p$ ≈ **{{pt||2}}** (and, by symmetry, for 1 − {{pt||2}} = {{1-pt||2}}). Check: {{pt||3}} × {{-log2(pt)||3}} + {{1-pt||3}} × {{-log2(1-pt)||3}} ≈ {{h}}. Note how far from 0.5 you must go: the curve is flat near its peak."
+        },
+        {
+          "id": "q5",
+          "type": "trueFalse",
+          "params": {
+            "M": [
+              4,
+              8,
+              16,
+              32
+            ],
+            "d": [
+              -0.5,
+              0.5
+            ]
+          },
+          "prompt": "A source with {{M}} symbols can have an entropy of {{log2(M) + d}} bits/symbol.",
+          "answer": "-d",
+          "explanation": "The entropy of {{M}} symbols can be anything from 0 up to $\\log_2 {{M}}$ = {{log2(M)}} bits (all symbols equally likely), but never more. So {{log2(M)+d}} bits/symbol is possible exactly when it does not exceed {{log2(M)}} bits."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Maximum entropy",
+          "body": "With $M$ symbols the entropy is largest when all symbols are equally likely: then every symbol is equally surprising and nothing can be predicted. The maximum is $\\log_2 M$. Any bias lowers it, down to 0 for a source that always sends the same symbol.",
+          "formula": "H_{max} = \\log_2 M"
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "M": [
+              3,
+              5,
+              6,
+              7,
+              10,
+              12,
+              20,
+              26
+            ]
+          },
+          "prompt": "A keypad sends one of {{M}} keys. What is the largest possible entropy per key press?",
+          "answer": "log2(M)",
+          "unit": "bits",
+          "explanation": "The maximum is reached when all {{M}} keys are equally likely: $H_{max} = \\log_2 {{M}}$ = **{{log2(M)}} bits**. Note that this need not be a whole number of bits."
+        }
+      ]
+    },
+    {
+      "id": "it-entropy-3",
+      "title": "Entropy calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "a": {
+              "min": 0.1,
+              "max": 0.5,
+              "step": 0.05
+            },
+            "b": {
+              "min": 0.05,
+              "max": 0.4,
+              "step": 0.05
+            },
+            "c": {
+              "min": 0.05,
+              "max": 0.3,
+              "step": 0.05
+            }
+          },
+          "derived": {
+            "d": "round((1 - a - b - c)*100)/100"
+          },
+          "require": "d - 0.049",
+          "prompt": "A source emits A, B, C and D with probabilities {{a}}, {{b}}, {{c}} and {{d}}. What is its entropy?",
+          "answer": "-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)",
+          "unit": "bits",
+          "explanation": "$H$ = {{a}} × {{-log2(a)}} + {{b}} × {{-log2(b)}} + {{c}} × {{-log2(c)}} + {{d}} × {{-log2(d)}} = **{{-a*log2(a) - b*log2(b) - c*log2(c) - d*log2(d)}} bits/symbol** (maximum for 4 symbols: 2 bits)."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "a": [
+              0.5,
+              0.6,
+              0.7
+            ],
+            "b": [
+              0.2,
+              0.25
+            ],
+            "rs": [
+              10,
+              50,
+              100,
+              500
+            ]
+          },
+          "derived": {
+            "c": "round((1 - a - b)*100)/100",
+            "Hs": "-a*log2(a) - b*log2(b) - c*log2(c)"
+          },
+          "prompt": "A weather station sends one of three states per reading: sunny ({{a}}), cloudy ({{b}}) or rain ({{c}}), at {{rs}} readings per second.",
+          "ask": [
+            {
+              "prompt": "What is the entropy per reading?",
+              "answer": "Hs",
+              "unit": "bits",
+              "explanation": "$H$ = {{a}} × {{-log2(a)}} + {{b}} × {{-log2(b)}} + {{c}} × {{-log2(c)}} = **{{Hs}} bits/reading**."
+            },
+            {
+              "prompt": "What is the information rate?",
+              "answer": "rs*Hs",
+              "unit": "bit/s",
+              "explanation": "$H$ = {{Hs}} bits per reading, so $R = r_s H$ = {{rs}} × {{Hs}} = **{{rs*Hs|bit/s}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.02,
+              0.05,
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "prompt": "A binary sensor outputs a 1 with probability {{p}}. Its readings are stored with 1 bit each. What fraction of the stored bits is redundant, $1 - H/1\\ \\text{bit}$?",
+          "answer": "1 - (-p*log2(p) - (1-p)*log2(1-p))",
+          "unit": "",
+          "explanation": "$H({{p}})$ = {{(-p*log2(p) - (1-p)*log2(1-p))}} bit, so a fraction 1 − {{(-p*log2(p) - (1-p)*log2(1-p))}} = **{{1 - (-p*log2(p) - (1-p)*log2(1-p))}}** of the stored bits carries no information. A good compressor could remove it."
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "prompt": "Two fair dice are rolled. Compare the information in the ordered pair (first, second) with the information in only their sum.",
+          "options": [
+            "Pair 5.17 bits, sum 3.27 bits",
+            "Both 5.17 bits",
+            "Pair 5.17 bits, sum 3.46 bits",
+            "Pair 2.58 bits, sum 3.27 bits"
+          ],
+          "answer": 0,
+          "explanation": "The pair has 36 equally likely outcomes: $\\log_2 36$ = **5.17 bits**. The sum takes 11 values with probabilities 1/36, 2/36, …, 6/36, …, 1/36, so $H = -\\sum p\\log_2 p$ = **3.27 bits**, less than $\\log_2 11$ = 3.46 bits because the sums are not equally likely. 2.58 bits is the information of one die only. Throwing away which die showed what loses information."
+        },
+        {
+          "id": "q5",
+          "type": "matchPairs",
+          "prompt": "Match each source (its symbol probabilities) to its entropy.",
+          "pairs": [
+            [
+              "(1/2, 1/2)",
+              "1 bit"
+            ],
+            [
+              "(1/2, 1/4, 1/4)",
+              "1.5 bits"
+            ],
+            [
+              "(1/4, 1/4, 1/4, 1/4)",
+              "2 bits"
+            ],
+            [
+              "(1/2, 1/4, 1/8, 1/8)",
+              "1.75 bits"
+            ],
+            [
+              "(1, 0)",
+              "0 bits"
+            ]
+          ],
+          "explanation": "With powers of 1/2 every term is easy: $-\\log_2$ of 1/2, 1/4, 1/8 is 1, 2, 3 bits. E.g. (1/2, 1/4, 1/4): 0.5·1 + 0.25·2 + 0.25·2 = 1.5 bits. A certain outcome gives 0 bits."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.1,
+              0.2,
+              0.3,
+              0.4,
+              0.5
+            ]
+          },
+          "prompt": "A binary source sends a 1 with probability {{p}}. What is its entropy in **nats**?",
+          "answer": "((-p*log2(p) - (1-p)*log2(1-p)))*ln(2)",
+          "unit": "",
+          "explanation": "In bits, $H$ = {{(-p*log2(p) - (1-p)*log2(1-p))}}. One bit is $\\ln 2$ = 0.693 nat, so $H$ = {{(-p*log2(p) - (1-p)*log2(1-p))}} × 0.693 = **{{((-p*log2(p) - (1-p)*log2(1-p)))*ln(2)}} nats**. (Or directly with $\\ln$: $-p\\ln p - (1-p)\\ln(1-p)$.)"
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.05,
+              0.1,
+              0.2,
+              0.3
+            ],
+            "Rb": [
+              1200,
+              9600,
+              19200
+            ]
+          },
+          "prompt": "A link carries {{Rb|bit/s}}. With ideal compression, how many readings per second of a binary sensor with $P(1)$ = {{p}} can it carry?",
+          "answer": "Rb/(-p*log2(p) - (1-p)*log2(1-p))",
+          "unit": "",
+          "explanation": "Ideal compression needs $H({{p}})$ = {{(-p*log2(p) - (1-p)*log2(1-p))}} bit per reading on average (instead of 1 bit). Readings per second = {{Rb|bit/s}} / {{(-p*log2(p) - (1-p)*log2(1-p))}} bit = **{{Rb/(-p*log2(p) - (1-p)*log2(1-p))||3}}**."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "Doubling the number of equally likely symbols adds exactly 1 bit to the entropy.",
+          "answer": true,
+          "explanation": "True. $\\log_2(2M) = \\log_2 M + 1$: one extra yes/no question (which half?) is needed."
+        }
+      ]
+    },
+    {
+      "id": "it-entropy-4",
+      "title": "Real sources",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "How much information is in English?",
+          "body": "A uniform model of 26 letters plus space gives $\\log_2 27$ = 4.75 bits per character. Single-letter frequencies lower this to about 4.1 bits. Context helps far more: after 'informatio' the next letter is almost certainly 'n'. Prediction experiments put English at roughly 1 to 1.5 bits per letter, which is why text compresses so well."
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "b": [
+              1.6,
+              2,
+              2.2,
+              2.5,
+              3
+            ]
+          },
+          "prompt": "A compressor stores English text at {{b}} bits per character. The original file uses 8-bit ASCII. What compression ratio (original size / compressed size) does it reach?",
+          "answer": "8/b",
+          "unit": "",
+          "explanation": "Ratio = 8 bits / {{b}} bits = **{{8/b}}**. Better models of the language (longer context) push $b$ further towards the 1 to 1.5 bits/letter that English really contains."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "q": [
+              0.05,
+              0.1,
+              0.15,
+              0.2,
+              0.25
+            ]
+          },
+          "derived": {
+            "Hd": "-2*q*log2(q) - (1-2*q)*log2(1-2*q)"
+          },
+          "prompt": "A temperature sensor is read by a 12-bit ADC. Between consecutive samples the code changes by −1, 0 or +1 with probabilities {{q}}, {{1-2*q}} and {{q}} (larger steps never occur).",
+          "ask": [
+            {
+              "prompt": "What is the entropy of the differences?",
+              "answer": "Hd",
+              "unit": "bits",
+              "explanation": "$H = -2q\\log_2 q - (1-2q)\\log_2(1-2q)$ = 2 × {{q}} × {{-log2(q)}} + {{1-2*q}} × {{-log2(1-2*q)}} = **{{Hd}} bits/sample**."
+            },
+            {
+              "prompt": "By what factor could ideal coding of the differences shrink the data, compared with sending every 12-bit sample?",
+              "answer": "12/Hd",
+              "unit": "",
+              "explanation": "The differences carry only $H$ = {{Hd}} bits per sample (the first sample is sent once in full). Factor = 12 / {{Hd}} = **{{12/Hd}}**."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "n": [
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "{{n}} fair coins are tossed, and you are told only **how many** came up heads. How much information does that give on average?",
+          "answer": "-sum(k, 0, n, choose(n, k)/2^n*log2(choose(n, k)/2^n))",
+          "unit": "bits",
+          "hint": "List $P(k)$ for $k$ = 0 … {{n}}, e.g. for 2 coins: 1/4, 1/2, 1/4.",
+          "explanation": "The number of heads $k$ is binomial: $P(k) = \\binom{ {{n}} }{k}/2^{ {{n}} }$. Then $H = -\\sum_k P(k)\\log_2 P(k)$ = **{{-sum(k, 0, n, choose(n, k)/2^n*log2(choose(n, k)/2^n))}} bits**, much less than the {{n}} bits of the full sequence: the count does not say **which** coins were heads."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.5,
+              0.4,
+              0.25,
+              0.2,
+              0.1
+            ]
+          },
+          "prompt": "A coin with $P(\\text{heads})$ = {{p}} is flipped until the first head appears. What is the entropy of the number of flips $X$?",
+          "answer": "((-p*log2(p) - (1-p)*log2(1-p)))/p",
+          "unit": "bits",
+          "hint": "Average $-\\log_2 P(X = k)$ with $P(X = k) = (1-p)^{k-1}p$ and $E[X] = 1/p$; the result simplifies to $H(p)/p$.",
+          "explanation": "$X$ is geometric: $P(X = k) = (1-p)^{k-1}p$. Averaging $-\\log_2 P(X)$ gives $-\\log_2 p - (E[X] - 1)\\log_2(1-p)$ with $E[X] = 1/p$, which simplifies to $H(p)/p$. Here $H({{p}})$ = {{(-p*log2(p) - (1-p)*log2(1-p))}} bit, so $H(X)$ = {{(-p*log2(p) - (1-p)*log2(1-p))}} / {{p}} = **{{((-p*log2(p) - (1-p)*log2(1-p)))/p}} bits**. Although $X$ has infinitely many values, its entropy is finite."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.05,
+              0.1,
+              0.2,
+              0.3
+            ],
+            "n": [
+              100,
+              1000,
+              8000
+            ]
+          },
+          "prompt": "A binary source with $P(1)$ = {{p}} produces a block of {{n}} independent bits. What is the entropy of the whole block?",
+          "answer": "n*(-p*log2(p) - (1-p)*log2(1-p))",
+          "unit": "bits",
+          "explanation": "For independent symbols the entropies add: $H = nH(p)$ = {{n}} × {{(-p*log2(p) - (1-p)*log2(1-p))}} = **{{n*(-p*log2(p) - (1-p)*log2(1-p))}} bits**, against {{n}} bits for a uniform source. Almost all of the probability sits on roughly $2^{nH(p)}$ 'typical' blocks, a tiny fraction of the $2^{ {{n}} }$ possible ones; that is why such data compress to about $nH(p)$ bits."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "Which statement about entropy is correct?",
+          "options": [
+            "It depends only on the probabilities, not on the symbol values",
+            "Relabelling the symbols with larger numbers increases it",
+            "It is always a whole number of bits",
+            "A source with more symbols always has a higher entropy"
+          ],
+          "answer": 0,
+          "explanation": "$H = -\\sum p_i\\log_2 p_i$ uses only the probabilities: renaming symbols changes nothing. It is rarely a whole number (e.g. 1.585 bits for 3 equally likely symbols), and a 100-symbol source that almost always sends one symbol has a lower entropy than a fair coin."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Storing English text as 8-bit ASCII is redundant even under the crudest model, a uniform choice among 27 characters.",
+          "answer": true,
+          "explanation": "True. A uniform model needs only $\\log_2 27$ = 4.75 bits per character, so at least 8 − 4.75 = 3.25 of every 8 bits are redundant, and real English (about 1 to 1.5 bits/letter) is far more redundant still."
+        }
+      ]
+    }
+  ]
+}

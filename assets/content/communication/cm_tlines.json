@@ -1,0 +1,1541 @@
+{
+  "id": "cm-tlines",
+  "title": "Transmission Lines",
+  "description": "Characteristic impedance, velocity factor, reflections and SWR, stubs, matching and the Smith chart.",
+  "reference": "Frenzel ch. 13",
+  "study": [
+    {
+      "title": "When a line is a transmission line",
+      "body": "A transmission line guides a wave along two conductors: **coax** (unbalanced, shielded), **twin-lead** and twisted pair (balanced), **microstrip** (PCB trace over a ground plane) and **stripline** (trace between two ground planes). A short connection simply carries a voltage. Once a pair of conductors is at least about **0.1 λ** long at the signal frequency, it must be treated as a transmission line: the signal travels as a wave, reflects at a mismatched end and arrives shifted in phase.",
+      "formula": "\\lambda = \\frac{c}{f} = \\frac{300}{f_{MHz}}\\ \\mathrm{m}, \\qquad \\ell \\geq 0.1\\,\\lambda"
+    },
+    {
+      "title": "Characteristic impedance",
+      "body": "Every metre of line has series inductance $L$ and shunt capacitance $C$. A travelling wave sees the ratio $V/I = Z_0 = \\sqrt{L/C}$, which does not depend on the line length. For coax, $Z_0$ follows from the ratio of shield diameter $D$ to inner-conductor diameter $d$ and the dielectric. Common values: 50 Ω (RF, test equipment), 75 Ω (TV, video), 100–120 Ω (twisted pair), 300 Ω (twin-lead).",
+      "formula": "\\begin{aligned}& Z_0 = \\sqrt{\\frac{L}{C}}\\\\ & Z_{0,coax} = \\frac{138}{\\sqrt{\\varepsilon_r}}\\log_{10}\\frac{D}{d}\\end{aligned}"
+    },
+    {
+      "title": "Velocity factor, delay and loss",
+      "body": "In a dielectric the wave travels at $v_p = VF\\cdot c$ with $VF = 1/\\sqrt{\\varepsilon_r}$ (solid PE ≈ 0.66, foam ≈ 0.8), so the wavelength on the line is VF times shorter than in air. A line of length $\\ell$ delays the signal by $t_d = \\ell/v_p$, a phase lag of $360° \\cdot f t_d$. Loss is specified in dB per 100 m (or per 100 ft) at a given frequency; it grows linearly with length and rises with frequency.",
+      "formula": "\\begin{aligned}& \\lambda_{line} = \\frac{VF\\cdot c}{f}, \\quad t_d = \\frac{\\ell}{VF\\cdot c}\\\\ & P_L = P_{in}\\cdot 10^{-A/10}\\end{aligned}"
+    },
+    {
+      "title": "Explore: reflections and standing waves",
+      "body": "A load $Z_L \\neq Z_0$ reflects part of the incident wave; the reflection coefficient Γ is the ratio of reflected to incident voltage. The two waves add to a **standing wave** whose pattern repeats every λ/2; $V_{max}/V_{min}$ is the standing-wave ratio. For a resistive load, SWR = $Z_L/Z_0$ or $Z_0/Z_L$, whichever is larger than 1. Drag the load: below $Z_0$ the load sits at a voltage minimum, above $Z_0$ at a maximum.",
+      "formula": "\\begin{aligned}& \\Gamma = \\frac{Z_L - Z_0}{Z_L + Z_0}\\\\ & SWR = \\frac{V_{max}}{V_{min}} = \\frac{1+|\\Gamma|}{1-|\\Gamma|}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "distance from load / λ"
+        },
+        "y": {
+          "min": 0,
+          "max": 2.1,
+          "label": "|V| / |V_i|"
+        },
+        "sliders": [
+          {
+            "name": "r",
+            "label": "$R_L/Z_0$",
+            "min": 0.1,
+            "max": 10,
+            "log": true,
+            "value": 3
+          }
+        ],
+        "let": {
+          "G": "(r-1)/(r+1)"
+        },
+        "curves": [
+          {
+            "f": "sqrt(1+G^2+2*G*cos(4*pi*x))"
+          }
+        ],
+        "hlines": [
+          {
+            "y": 1,
+            "color": "grey"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$\\Gamma$",
+            "value": "G"
+          },
+          {
+            "label": "SWR",
+            "value": "max(r, 1/r)"
+          },
+          {
+            "label": "reflected power",
+            "value": "100*G^2",
+            "unit": "%"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Reflected power, return loss, mismatch loss",
+      "body": "A fraction $|\\Gamma|^2$ of the forward power is reflected; the rest reaches the load. **Return loss** says how weak the reflection is (larger is better), **mismatch loss** how much load power the reflection costs. SWR 1.5 reflects 4 % (RL 14 dB); SWR 2 reflects 11 % (RL 9.5 dB, mismatch loss 0.5 dB). A directional wattmeter reads $P_f$ and $P_r$, which gives the SWR.",
+      "formula": "\\begin{aligned}& P_r = |\\Gamma|^2 P_f\\\\ & RL = -20\\log|\\Gamma|\\\\ & ML = -10\\log\\left(1-|\\Gamma|^2\\right)\\end{aligned}"
+    },
+    {
+      "title": "Lines as circuit elements",
+      "body": "A lossless line transforms impedances. A **shorted stub** gives $+jZ_0\\tan\\beta\\ell$: inductive below λ/4, an open circuit at λ/4 (parallel resonance), capacitive between λ/4 and λ/2; an open stub behaves the other way round. A λ/2 line repeats the load, and a **λ/4 transformer** with $Z_0' = \\sqrt{Z_{in}Z_L}$ matches two resistances. A **balun** connects a balanced antenna to unbalanced coax.",
+      "formula": "\\begin{aligned}& Z_{sc} = jZ_0\\tan\\frac{2\\pi\\ell}{\\lambda}\\\\ & Z_{oc} = -jZ_0\\cot\\frac{2\\pi\\ell}{\\lambda}\\\\ & Z_0' = \\sqrt{Z_{in}Z_L}\\end{aligned}"
+    },
+    {
+      "title": "The Smith chart",
+      "body": "The Smith chart plots Γ in the complex plane, labelled with the normalised impedance $z = Z/Z_0 = r + jx$. The centre is $z = 1$ (matched), the left end a short, the right end an open; the outer circle $|\\Gamma| = 1$ holds pure reactances, inductive in the upper half and capacitive in the lower half. Moving along a lossless line keeps |Γ| (the SWR) constant: the point turns on a circle around the centre, **clockwise toward the generator**, one full turn per λ/2.",
+      "formula": "z = \\frac{Z}{Z_0}, \\qquad \\Gamma = \\frac{z-1}{z+1}",
+      "plot": {
+        "x": {
+          "min": -1.15,
+          "max": 1.15,
+          "label": "Re Γ",
+          "ticks": [
+            -1,
+            -0.5,
+            0,
+            0.5,
+            1
+          ]
+        },
+        "y": {
+          "min": -1.15,
+          "max": 1.15,
+          "label": "Im Γ",
+          "ticks": [
+            -1,
+            0,
+            1
+          ]
+        },
+        "height": 300,
+        "curves": [
+          {
+            "f": "sqrt(max(0,1-x^2))",
+            "color": "grey"
+          },
+          {
+            "f": "-sqrt(max(0,1-x^2))",
+            "color": "grey"
+          },
+          {
+            "f": "sqrt(max(0,0.25-(x-0.5)^2))",
+            "color": "grey",
+            "from": 0,
+            "to": 1
+          },
+          {
+            "f": "-sqrt(max(0,0.25-(x-0.5)^2))",
+            "color": "grey",
+            "from": 0,
+            "to": 1
+          },
+          {
+            "f": "1-sqrt(max(0,1-(x-1)^2))",
+            "color": "grey",
+            "from": 0,
+            "to": 1
+          },
+          {
+            "f": "-1+sqrt(max(0,1-(x-1)^2))",
+            "color": "grey",
+            "from": 0,
+            "to": 1
+          },
+          {
+            "f": "sqrt(max(0,1/9-x^2))",
+            "color": "orange",
+            "dash": true,
+            "from": -0.3334,
+            "to": 0.3334
+          },
+          {
+            "f": "-sqrt(max(0,1/9-x^2))",
+            "color": "orange",
+            "dash": true,
+            "from": -0.3334,
+            "to": 0.3334
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0,
+            "color": "grey"
+          }
+        ],
+        "points": [
+          {
+            "x": -1,
+            "y": 0,
+            "label": "short",
+            "guides": false
+          },
+          {
+            "x": 1,
+            "y": 0,
+            "label": "open",
+            "guides": false
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "label": "z = 1",
+            "guides": false
+          }
+        ],
+        "labels": [
+          {
+            "x": -0.8,
+            "y": 0.5,
+            "text": "inductive",
+            "color": "grey"
+          },
+          {
+            "x": -0.8,
+            "y": -0.5,
+            "text": "capacitive",
+            "color": "grey"
+          },
+          {
+            "x": 0.38,
+            "y": 0.6,
+            "text": "r = 1",
+            "color": "grey"
+          },
+          {
+            "x": -0.68,
+            "y": -0.12,
+            "text": "SWR 2",
+            "color": "orange"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "cm-tlines-1",
+      "title": "Lines, $Z_0$ and velocity factor",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "When is a cable a transmission line?",
+          "body": "At low frequencies a cable simply carries a voltage from one end to the other. Once its length is a noticeable fraction of a wavelength, the travel time matters: the signal runs along the line as a wave, reflects at a mismatched end and arrives shifted in phase. Rule of thumb: a pair of conductors acts as a transmission line once it is at least **0.1 λ** long.",
+          "formula": "\\lambda = \\frac{c}{f} = \\frac{300}{f_{MHz}}\\ \\mathrm{m}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "f": [
+              50000000.0,
+              100000000.0,
+              144000000.0,
+              433000000.0,
+              868000000.0,
+              2400000000.0
+            ]
+          },
+          "prompt": "A pair of conductors carries a signal of {{f|Hz}}. From what length on must you treat it as a transmission line? Use the 0.1 λ rule with the free-space wavelength.",
+          "answer": "0.1*3e8/f",
+          "unit": "m",
+          "explanation": "$\\lambda = c/f$ = 3 × $10^8$ / {{f|Hz}} = {{3e8/f|m}}. The pair is a transmission line from $0.1\\lambda$ = **{{0.1*3e8/f|m}}** on; shorter connections behave as ordinary wires."
+        },
+        {
+          "id": "q2",
+          "type": "matchPairs",
+          "prompt": "Match each line type to its description.",
+          "pairs": [
+            [
+              "Coaxial cable",
+              "Unbalanced; the shield encloses the field"
+            ],
+            [
+              "Twin-lead",
+              "Balanced parallel wires, typically 300 Ω"
+            ],
+            [
+              "Microstrip",
+              "PCB trace above one ground plane"
+            ],
+            [
+              "Stripline",
+              "PCB trace between two ground planes"
+            ]
+          ],
+          "explanation": "Coax keeps the field between centre conductor and shield, so it is shielded and unbalanced (shield at ground). Twin-lead is a balanced pair, 300 Ω for the classic TV type. Microstrip and stripline are PCB lines; stripline has ground on both sides, so it hardly radiates but is harder to make."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Characteristic impedance",
+          "body": "Each metre of line has series inductance $L$ and shunt capacitance $C$. A wave travelling on the line sees a constant ratio $V/I = Z_0$, whatever the length. Terminate the line in $R_L = Z_0$ and the whole wave is absorbed: the generator then sees $Z_0$ for any line length.",
+          "formula": "Z_0 = \\sqrt{\\frac{L}{C}}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "Lpm": {
+              "min": 2e-07,
+              "max": 4e-07,
+              "step": 1e-08
+            },
+            "Cpm": [
+              5e-11,
+              6.7e-11,
+              8e-11,
+              1e-10
+            ]
+          },
+          "prompt": "A cable has {{Lpm|H}} of inductance and {{Cpm|F}} of capacitance per metre. Find its characteristic impedance.",
+          "answer": "sqrt(Lpm/Cpm)",
+          "unit": "Ω",
+          "explanation": "$Z_0 = \\sqrt{L/C}$ = √({{Lpm|H}} / {{Cpm|F}}) = **{{sqrt(Lpm/Cpm)|Ω}}**. The length does not matter: a longer cable has more L and more C in the same ratio."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "er": [
+              1.5,
+              2.1,
+              2.25
+            ],
+            "d": [
+              0.0009,
+              0.001,
+              0.0015,
+              0.002
+            ],
+            "k": [
+              2.5,
+              3.0,
+              3.5,
+              4.0,
+              6.0
+            ]
+          },
+          "derived": {
+            "D": "k*d"
+          },
+          "prompt": "A coax has an inner conductor of {{d*1e3}} mm diameter, a shield of {{D*1e3}} mm inner diameter and a dielectric with $\\varepsilon_r$ = {{er}}. Find $Z_0$.",
+          "answer": "138/sqrt(er)*log10(D/d)",
+          "unit": "Ω",
+          "explanation": "$Z_0 = \\frac{138}{\\sqrt{\\varepsilon_r}}\\log_{10}\\frac{D}{d}$ = 138/√{{er}} × $\\log_{10}$({{k}}) = {{138/sqrt(er)||4}} × {{log10(k)}} = **{{138/sqrt(er)*log10(D/d)|Ω}}**."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Velocity factor",
+          "body": "A wave on a line travels at $v_p = VF\\cdot c$. With a dielectric of relative permittivity $\\varepsilon_r$ around the conductors, $VF = 1/\\sqrt{\\varepsilon_r}$: about 0.66 for solid polyethylene, 0.8–0.85 for foam and close to 1 for an air line. Everything that depends on wavelength, such as a λ/4 section, is VF times shorter in the cable than in air.",
+          "formula": "\\begin{aligned}& VF = \\frac{v_p}{c} = \\frac{1}{\\sqrt{\\varepsilon_r}}\\\\ & \\lambda_{line} = VF\\cdot\\frac{c}{f}\\end{aligned}"
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "f": [
+              50000000.0,
+              100000000.0,
+              145000000.0,
+              433000000.0
+            ],
+            "er": [
+              1.5,
+              2.1,
+              2.25
+            ]
+          },
+          "derived": {
+            "VF": "1/sqrt(er)"
+          },
+          "prompt": "You need a λ/4 section at {{f|Hz}}, cut from coax with a dielectric of $\\varepsilon_r$ = {{er}}. How long is it physically?",
+          "answer": "VF*3e8/f/4",
+          "unit": "m",
+          "explanation": "$VF = 1/\\sqrt{\\varepsilon_r}$ = 1/√{{er}} = {{VF}}. $\\lambda_{line} = VF\\cdot c/f$ = {{VF}} × 3 × $10^8$ / {{f|Hz}} = {{VF*3e8/f|m}}, so λ/4 = **{{VF*3e8/f/4|m}}**. In air it would be {{3e8/f/4|m}}."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "prompt": "Cutting a 50 Ω coax cable in half gives two cables with a characteristic impedance of 25 Ω each.",
+          "answer": false,
+          "explanation": "False. $Z_0 = \\sqrt{L/C}$ uses the inductance and capacitance **per metre**, which do not change when you cut the cable. Each half is still a 50 Ω cable; only its delay and loss halve."
+        },
+        {
+          "id": "q8",
+          "type": "multipleChoice",
+          "prompt": "Which change **raises** the characteristic impedance of a coax cable?",
+          "options": [
+            "A thinner inner conductor with the same shield",
+            "A thicker inner conductor with the same shield",
+            "A dielectric with a higher $\\varepsilon_r$",
+            "A longer cable"
+          ],
+          "answer": 0,
+          "explanation": "$Z_0 = \\frac{138}{\\sqrt{\\varepsilon_r}}\\log_{10}(D/d)$. A thinner inner conductor increases $D/d$ (less capacitance, more inductance per metre), so $Z_0$ rises. A thicker inner conductor or a higher $\\varepsilon_r$ lowers $Z_0$; the length has no effect."
+        }
+      ]
+    },
+    {
+      "id": "cm-tlines-2",
+      "title": "Delay, loss and SWR",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "A100": [
+              4,
+              8,
+              12,
+              17,
+              22
+            ],
+            "len": [
+              15,
+              20,
+              30,
+              45,
+              60
+            ],
+            "Pin": [
+              10,
+              25,
+              50,
+              100
+            ]
+          },
+          "derived": {
+            "A": "A100*len/100",
+            "PL": "Pin*10^(-A/10)"
+          },
+          "prompt": "A {{len|m}} cable run has a loss of {{A100}} dB per 100 m at the operating frequency. A transmitter puts {{Pin|W}} into it.",
+          "ask": [
+            {
+              "prompt": "What is the total cable loss in dB?",
+              "answer": "A",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.05,
+              "explanation": "Loss is proportional to length: $A$ = {{A100}} dB/100 m × {{len|m}} = **{{A}} dB**."
+            },
+            {
+              "prompt": "How much power reaches the far end?",
+              "answer": "PL",
+              "unit": "W",
+              "explanation": "$A$ = {{A100}} × {{len}}/100 = {{A}} dB, so $P_L = P_{in}\\cdot10^{-A/10}$ = {{Pin|W}} × 10^(−{{A}}/10) = **{{PL|W}}**. The other {{Pin-PL|W}} heats the cable."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "VF": [
+              0.66,
+              0.8,
+              0.85
+            ],
+            "t": [
+              1e-07,
+              1.5e-07,
+              2.4e-07,
+              4e-07,
+              6e-07
+            ]
+          },
+          "prompt": "A time-domain reflectometer (TDR) sends a fast step into a coax with VF = {{VF}}. The echo from a damaged spot returns {{t|s}} after the step. How far away is the damage?",
+          "answer": "VF*3e8*t/2",
+          "unit": "m",
+          "explanation": "The echo travels there **and back**: $d = v_p t/2$ = {{VF}} × 3 × $10^8$ × {{t|s}} / 2 = **{{VF*3e8*t/2|m}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "len": [
+              3,
+              5,
+              10,
+              20,
+              30
+            ],
+            "VF": [
+              0.66,
+              0.8,
+              0.85
+            ],
+            "f": [
+              1000000.0,
+              5000000.0,
+              10000000.0,
+              25000000.0
+            ]
+          },
+          "derived": {
+            "td": "len/(VF*3e8)",
+            "ph": "360*f*td"
+          },
+          "prompt": "A sine wave of {{f|Hz}} passes through {{len|m}} of cable with VF = {{VF}}.",
+          "ask": [
+            {
+              "prompt": "Find the time delay of the cable.",
+              "answer": "td",
+              "unit": "s",
+              "explanation": "$t_d = \\ell/(VF\\cdot c)$ = {{len}} / ({{VF}} × 3 × $10^8$) = **{{td|s}}**."
+            },
+            {
+              "prompt": "By how many degrees does the output lag the input (0–360°)?",
+              "answer": "mod(ph, 360)",
+              "unit": "°",
+              "tolerance": 0.005,
+              "absTolerance": 2,
+              "explanation": "$t_d$ = {{td|s}} and $T = 1/f$ = {{1/f|s}}. $\\theta = 360°\\cdot t_d/T$ = 360° × {{f*td}} = {{ph}}°, which is **{{mod(ph,360)}}°** after removing whole cycles."
+            }
+          ]
+        },
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Reflection coefficient and SWR",
+          "body": "A load $Z_L \\neq Z_0$ reflects a fraction Γ of the incident voltage. Incident and reflected wave form a standing wave with $SWR = V_{max}/V_{min}$. Γ > 0 (load above $Z_0$) puts a voltage maximum at the load, Γ < 0 a minimum. A matched line has Γ = 0 and SWR 1; an open or short gives |Γ| = 1 and an infinite SWR.",
+          "formula": "\\begin{aligned}& \\Gamma = \\frac{Z_L-Z_0}{Z_L+Z_0}\\\\ & SWR = \\frac{1+|\\Gamma|}{1-|\\Gamma|}\\end{aligned}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "Z0": [
+              50,
+              75
+            ],
+            "ZL": [
+              12.5,
+              25,
+              30,
+              100,
+              150,
+              200,
+              300,
+              600
+            ]
+          },
+          "require": "abs(ZL-Z0)-10",
+          "prompt": "A {{Z0}} Ω line is terminated in a {{ZL|Ω}} resistor. Find the reflection coefficient Γ (with its sign).",
+          "answer": "(ZL-Z0)/(ZL+Z0)",
+          "unit": "",
+          "absTolerance": 0.005,
+          "explanation": "$\\Gamma = \\frac{Z_L - Z_0}{Z_L + Z_0}$ = ({{ZL}} − {{Z0}}) / ({{ZL}} + {{Z0}}) = **{{(ZL-Z0)/(ZL+Z0)}}**. A negative Γ means the reflected voltage is inverted (load below $Z_0$)."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "Z0": [
+              50,
+              75
+            ],
+            "RL": [
+              10,
+              20,
+              25,
+              35,
+              100,
+              120,
+              150,
+              250
+            ]
+          },
+          "require": "abs(RL-Z0)-5",
+          "derived": {
+            "G": "abs(RL-Z0)/(RL+Z0)"
+          },
+          "prompt": "A {{Z0}} Ω line feeds a resistive load of {{RL|Ω}}.",
+          "ask": [
+            {
+              "prompt": "Find the SWR.",
+              "answer": "max(RL/Z0, Z0/RL)",
+              "unit": "",
+              "explanation": "For a resistive load, SWR is the larger impedance over the smaller: SWR = {{max(RL,Z0)}} / {{min(RL,Z0)}} = **{{max(RL/Z0, Z0/RL)}}**."
+            },
+            {
+              "prompt": "Find the magnitude of the reflection coefficient.",
+              "answer": "G",
+              "unit": "",
+              "explanation": "$|\\Gamma| = |Z_L - Z_0|/(Z_L + Z_0)$ = {{abs(RL-Z0)}} / {{RL+Z0}} = **{{G}}**. Check: (1 + |Γ|)/(1 − |Γ|) = {{(1+G)/(1-G)}} = SWR."
+            },
+            {
+              "prompt": "What percentage of the forward power is reflected?",
+              "answer": "100*G^2",
+              "unit": "%",
+              "explanation": "$|\\Gamma|$ = {{abs(RL-Z0)}} / {{RL+Z0}} = {{G}}; the reflected fraction is $|\\Gamma|^2$ = **{{100*G^2}} %**."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "Pf": [
+              20,
+              50,
+              100,
+              200
+            ],
+            "q": [
+              0.01,
+              0.02,
+              0.04,
+              0.0625,
+              0.1,
+              0.16,
+              0.25
+            ]
+          },
+          "derived": {
+            "Pr": "q*Pf",
+            "G": "sqrt(q)"
+          },
+          "prompt": "A directional wattmeter in the feed line reads {{Pf|W}} forward and {{Pr|W}} reflected.",
+          "ask": [
+            {
+              "prompt": "Find the SWR.",
+              "answer": "(1+G)/(1-G)",
+              "unit": "",
+              "explanation": "$|\\Gamma| = \\sqrt{P_r/P_f}$ = √({{Pr}}/{{Pf}}) = {{G}}. SWR = (1 + |Γ|)/(1 − |Γ|) = {{1+G}} / {{1-G}} = **{{(1+G)/(1-G)}}**."
+            },
+            {
+              "prompt": "How much power does the load absorb?",
+              "answer": "Pf-Pr",
+              "unit": "W",
+              "explanation": "Whatever is not reflected is absorbed: $P_L = P_f - P_r$ = {{Pf}} − {{Pr}} = **{{Pf-Pr|W}}** (lossless line)."
+            }
+          ]
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "S": [
+              1.2,
+              1.5,
+              1.8,
+              2,
+              2.5,
+              3,
+              4
+            ]
+          },
+          "derived": {
+            "G": "(S-1)/(S+1)"
+          },
+          "prompt": "An antenna feed line has an SWR of {{S}}.",
+          "ask": [
+            {
+              "prompt": "Find the return loss.",
+              "answer": "-20*log10(G)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "$|\\Gamma| = (SWR-1)/(SWR+1)$ = {{S-1}}/{{S+1}} = {{G}}. $RL = -20\\log|\\Gamma|$ = **{{-20*log10(G)}} dB**."
+            },
+            {
+              "prompt": "Find the mismatch loss.",
+              "answer": "-10*log10(1-G^2)",
+              "unit": "dB",
+              "tolerance": 0.02,
+              "absTolerance": 0.002,
+              "explanation": "$|\\Gamma|$ = {{G}}, so the load receives $1 - |\\Gamma|^2$ = {{1-G^2}} of the forward power: $ML = -10\\log(1-|\\Gamma|^2)$ = **{{-10*log10(1-G^2)}} dB**."
+            },
+            {
+              "prompt": "What percentage of the forward power is reflected?",
+              "answer": "100*G^2",
+              "unit": "%",
+              "explanation": "$|\\Gamma|$ = ({{S}} − 1)/({{S}} + 1) = {{G}}; $|\\Gamma|^2$ = **{{100*G^2}} %** is reflected."
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "type": "slider",
+          "params": {
+            "S": [
+              1.5,
+              2,
+              2.5,
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "The graph shows |V| along the line versus the distance from the load. Drag $R_L/Z_0$ until the SWR is {{S}}, with $R_L > Z_0$.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 1,
+              "label": "distance from load / λ"
+            },
+            "y": {
+              "min": 0,
+              "max": 2.1,
+              "label": "|V| / |V_i|"
+            },
+            "sliders": [
+              {
+                "name": "r",
+                "label": "$R_L/Z_0$",
+                "min": 0.1,
+                "max": 10,
+                "log": true,
+                "value": 1
+              }
+            ],
+            "let": {
+              "G": "(r-1)/(r+1)"
+            },
+            "curves": [
+              {
+                "f": "sqrt(1+G^2+2*G*cos(4*pi*x))"
+              }
+            ],
+            "hlines": [
+              {
+                "y": 1,
+                "color": "grey"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$V_{max}$",
+                "value": "1+abs(G)"
+              },
+              {
+                "label": "$V_{min}$",
+                "value": "1-abs(G)"
+              },
+              {
+                "label": "SWR",
+                "value": "max(r,1/r)",
+                "reveal": true
+              }
+            ]
+          },
+          "answer": {
+            "r": "S"
+          },
+          "tolerance": 0.04,
+          "explanation": "SWR = $V_{max}/V_{min}$; for a resistive load above $Z_0$ it equals $R_L/Z_0$, so set $R_L/Z_0$ = **{{S}}**. Then Γ = ({{S}} − 1)/({{S}} + 1) = {{(S-1)/(S+1)}}, $V_{max}$ = 1 + Γ = {{1+(S-1)/(S+1)}} and $V_{min}$ = 1 − Γ = {{1-(S-1)/(S+1)}}. With Γ > 0 the load sits at a voltage maximum."
+        },
+        {
+          "id": "q9",
+          "type": "trueFalse",
+          "prompt": "A 50 Ω line terminated in 100 Ω and the same line terminated in 25 Ω have the same SWR.",
+          "answer": true,
+          "explanation": "True: 100/50 = 2 and 50/25 = 2. Γ is +1/3 for 100 Ω and −1/3 for 25 Ω, so |Γ| and the SWR are equal. Only the position of the pattern differs: 100 Ω puts a voltage maximum at the load, 25 Ω a minimum (λ/4 further along)."
+        }
+      ]
+    },
+    {
+      "id": "cm-tlines-3",
+      "title": "Stubs, matching and the Smith chart",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Lines as components",
+          "body": "A lossless line of length ℓ transforms the load impedance. A shorted stub has input impedance $jZ_0\\tan(2\\pi\\ell/\\lambda)$: inductive for ℓ < λ/4, an open circuit at λ/4, capacitive between λ/4 and λ/2. An open stub does the opposite: $-jZ_0\\cot(2\\pi\\ell/\\lambda)$ is capacitive below λ/4. At UHF and microwave frequencies such stubs replace coils and capacitors.",
+          "formula": "\\begin{aligned}& Z_{sc} = jZ_0\\tan\\frac{2\\pi\\ell}{\\lambda}\\\\ & Z_{oc} = -jZ_0\\cot\\frac{2\\pi\\ell}{\\lambda}\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "matchPairs",
+          "prompt": "Match each lossless line to what the generator sees at its input.",
+          "pairs": [
+            [
+              "Shorted, λ/8 long",
+              "Inductive, $X = +Z_0$"
+            ],
+            [
+              "Shorted, λ/4 long",
+              "Open circuit"
+            ],
+            [
+              "Open, λ/4 long",
+              "Short circuit"
+            ],
+            [
+              "Open, λ/8 long",
+              "Capacitive, $X = -Z_0$"
+            ],
+            [
+              "Any load, λ/2 long",
+              "The load impedance itself"
+            ]
+          ],
+          "explanation": "With $2\\pi\\ell/\\lambda$ = 45° (λ/8): shorted $jZ_0\\tan45° = +jZ_0$, open $-jZ_0\\cot45° = -jZ_0$. At λ/4 (90°) the tangent is infinite: a shorted stub looks open, an open stub looks shorted. A λ/2 line turns the impedance once around the Smith chart and repeats the load."
+        },
+        {
+          "id": "q2",
+          "type": "multipleChoice",
+          "prompt": "Which graph shows |V| along a line terminated in a **short circuit**? ($d$ = distance from the load.)",
+          "optionPlots": [
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "d / λ"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.2,
+                "label": "|V|"
+              },
+              "curves": [
+                {
+                  "f": "2*abs(sin(2*pi*x))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "d / λ"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.2,
+                "label": "|V|"
+              },
+              "curves": [
+                {
+                  "f": "2*abs(cos(2*pi*x))"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "d / λ"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.2,
+                "label": "|V|"
+              },
+              "curves": [
+                {
+                  "f": "1+0*x"
+                }
+              ]
+            },
+            {
+              "x": {
+                "min": 0,
+                "max": 1,
+                "label": "d / λ"
+              },
+              "y": {
+                "min": 0,
+                "max": 2.2,
+                "label": "|V|"
+              },
+              "curves": [
+                {
+                  "f": "sqrt(1.25-cos(4*pi*x))"
+                }
+              ]
+            }
+          ],
+          "answer": 0,
+          "explanation": "A short forces $V = 0$ at the load, and with |Γ| = 1 the voltage drops to zero every λ/2: $|V| = 2|\\sin(2\\pi d/\\lambda)|$. The pattern with a maximum at the load is the open line, the flat one a matched line, and the one with non-zero minima a partial mismatch (here Γ = −0.5)."
+        },
+        {
+          "id": "q3",
+          "type": "slider",
+          "params": {
+            "Z0": [
+              50,
+              75
+            ],
+            "X": [
+              25,
+              40,
+              50,
+              75,
+              100,
+              150
+            ],
+            "sg": [
+              0,
+              1
+            ]
+          },
+          "derived": {
+            "Xs": "(2*sg-1)*X",
+            "lt": "if(sg, atan(X/Z0)/(2*pi), 0.5-atan(X/Z0)/(2*pi))"
+          },
+          "prompt": "Set the length of a shorted {{Z0}} Ω stub so that its input reactance is {{Xs}} Ω (positive: inductive, negative: capacitive). The orange line marks the target.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.5,
+              "label": "ℓ / λ"
+            },
+            "y": {
+              "min": -4,
+              "max": 4,
+              "label": "X_in / Z_0"
+            },
+            "sliders": [
+              {
+                "name": "l",
+                "label": "$\\ell/\\lambda$",
+                "min": 0,
+                "max": 0.5,
+                "step": 0.001,
+                "value": 0.02
+              }
+            ],
+            "curves": [
+              {
+                "f": "clamp(tan(2*pi*x), -10, 10)",
+                "from": 0,
+                "to": 0.2495
+              },
+              {
+                "f": "clamp(tan(2*pi*x), -10, 10)",
+                "from": 0.2505,
+                "to": 0.5
+              }
+            ],
+            "hlines": [
+              {
+                "y": "Xs/Z0",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "l",
+                "y": "clamp(tan(2*pi*l), -10, 10)",
+                "guides": false
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$X_{in}$",
+                "value": "Z0*tan(2*pi*l)",
+                "unit": "Ω"
+              }
+            ]
+          },
+          "answer": {
+            "l": "lt"
+          },
+          "tolerance": 0.03,
+          "explanation": "Solve $\\tan(2\\pi\\ell/\\lambda) = X_{in}/Z_0$ = {{Xs/Z0}}. The arctangent gives {{atan(Xs/Z0)}} rad (add π when negative), so ℓ/λ = **{{lt}}**. Below λ/4 a shorted stub is inductive, between λ/4 and λ/2 capacitive."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "RL": [
+              12.5,
+              25,
+              100,
+              150,
+              200,
+              300
+            ]
+          },
+          "prompt": "A resistive load of {{RL|Ω}} is to be fed from a 50 Ω line through a quarter-wave section.",
+          "ask": [
+            {
+              "prompt": "Which characteristic impedance must the λ/4 section have for a perfect match?",
+              "answer": "sqrt(50*RL)",
+              "unit": "Ω",
+              "explanation": "A λ/4 line transforms $Z_L$ into $Z_0'^2/Z_L$. For 50 Ω at the input: $Z_0' = \\sqrt{Z_{in}Z_L}$ = √(50 × {{RL}}) = **{{sqrt(50*RL)|Ω}}**."
+            },
+            {
+              "prompt": "If you use 75 Ω cable for the λ/4 section, what impedance does the 50 Ω line see?",
+              "answer": "75^2/RL",
+              "unit": "Ω",
+              "explanation": "$Z_{in} = Z_0'^2/Z_L$ = 75² / {{RL}} = **{{75^2/RL|Ω}}** (a perfect match needs {{sqrt(50*RL)|Ω}})."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "params": {
+            "Z0": [
+              50,
+              75
+            ],
+            "ZL": [
+              25,
+              100,
+              150
+            ],
+            "n": [
+              0,
+              1
+            ]
+          },
+          "require": "abs(ZL-Z0)",
+          "prompt": "A lossless {{Z0}} Ω line is exactly {{0.5-0.25*n}} λ long and terminated in {{ZL|Ω}}. What impedance do you see at its input?",
+          "options": [
+            "{{ZL|Ω}}",
+            "{{Z0^2/ZL|Ω}}",
+            "{{Z0|Ω}}",
+            "{{ZL+Z0|Ω}}"
+          ],
+          "answer": "n",
+          "explanation": "A λ/2 line repeats the load, because the impedance pattern repeats every λ/2. A λ/4 line inverts it: $Z_{in} = Z_0^2/Z_L$ = {{Z0}}² / {{ZL}} = {{Z0^2/ZL|Ω}}. This line is {{0.5-0.25*n}} λ long, so $Z_{in}$ = **{{if(n, Z0^2/ZL, ZL)|Ω}}**."
+        },
+        {
+          "id": "q6",
+          "type": "numeric",
+          "params": {
+            "R": [
+              20,
+              30,
+              36,
+              60,
+              80,
+              100
+            ],
+            "X": [
+              -40,
+              -25,
+              20,
+              35,
+              50
+            ]
+          },
+          "derived": {
+            "G": "sqrt((R-50)^2+X^2)/sqrt((R+50)^2+X^2)"
+          },
+          "prompt": "An antenna with $Z_L = R + jX$, where $R$ = {{R}} Ω and $X$ = {{X}} Ω, is fed by 50 Ω coax.",
+          "ask": [
+            {
+              "prompt": "Find |Γ|.",
+              "answer": "G",
+              "unit": "",
+              "explanation": "$|\\Gamma| = \\frac{|Z_L - Z_0|}{|Z_L + Z_0|}$ = √(({{R-50}})² + ({{X}})²) / √({{R+50}}² + ({{X}})²) = {{sqrt((R-50)^2+X^2)}} / {{sqrt((R+50)^2+X^2)}} = **{{G}}**."
+            },
+            {
+              "prompt": "Find the SWR on the cable.",
+              "answer": "(1+G)/(1-G)",
+              "unit": "",
+              "explanation": "$|\\Gamma|$ = {{sqrt((R-50)^2+X^2)}} / {{sqrt((R+50)^2+X^2)}} = {{G}}. SWR = (1 + |Γ|)/(1 − |Γ|) = **{{(1+G)/(1-G)}}**. With a reactive load, SWR ≠ R/$Z_0$."
+            }
+          ]
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The Smith chart",
+          "body": "The Smith chart is a map of Γ, labelled in normalised impedance $z = Z/Z_0 = r + jx$. The centre is a perfect match, the left end a short, the right end an open. Circles of constant $r$ touch the right end; the one through the centre is $r = 1$. Inductive impedances lie in the upper half, capacitive ones in the lower half, pure reactances on the outer circle. A line of length ℓ turns the point clockwise (toward the generator) on its SWR circle, a full turn per λ/2.",
+          "formula": "z = \\frac{Z}{Z_0}, \\qquad \\Gamma = \\frac{z-1}{z+1}",
+          "plot": {
+            "x": {
+              "min": -1.15,
+              "max": 1.15,
+              "label": "Re Γ",
+              "ticks": [
+                -1,
+                -0.5,
+                0,
+                0.5,
+                1
+              ]
+            },
+            "y": {
+              "min": -1.15,
+              "max": 1.15,
+              "label": "Im Γ",
+              "ticks": [
+                -1,
+                0,
+                1
+              ]
+            },
+            "height": 300,
+            "curves": [
+              {
+                "f": "sqrt(max(0,1-x^2))",
+                "color": "grey"
+              },
+              {
+                "f": "-sqrt(max(0,1-x^2))",
+                "color": "grey"
+              },
+              {
+                "f": "sqrt(max(0,0.25-(x-0.5)^2))",
+                "color": "grey",
+                "from": 0,
+                "to": 1
+              },
+              {
+                "f": "-sqrt(max(0,0.25-(x-0.5)^2))",
+                "color": "grey",
+                "from": 0,
+                "to": 1
+              },
+              {
+                "f": "1-sqrt(max(0,1-(x-1)^2))",
+                "color": "grey",
+                "from": 0,
+                "to": 1
+              },
+              {
+                "f": "-1+sqrt(max(0,1-(x-1)^2))",
+                "color": "grey",
+                "from": 0,
+                "to": 1
+              },
+              {
+                "f": "sqrt(max(0,1/9-x^2))",
+                "color": "orange",
+                "dash": true,
+                "from": -0.3334,
+                "to": 0.3334
+              },
+              {
+                "f": "-sqrt(max(0,1/9-x^2))",
+                "color": "orange",
+                "dash": true,
+                "from": -0.3334,
+                "to": 0.3334
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0,
+                "color": "grey"
+              }
+            ],
+            "points": [
+              {
+                "x": -1,
+                "y": 0,
+                "label": "short",
+                "guides": false
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "label": "open",
+                "guides": false
+              },
+              {
+                "x": 0,
+                "y": 0,
+                "label": "z = 1",
+                "guides": false
+              }
+            ],
+            "labels": [
+              {
+                "x": -0.8,
+                "y": 0.5,
+                "text": "inductive",
+                "color": "grey"
+              },
+              {
+                "x": -0.8,
+                "y": -0.5,
+                "text": "capacitive",
+                "color": "grey"
+              },
+              {
+                "x": 0.38,
+                "y": 0.6,
+                "text": "r = 1",
+                "color": "grey"
+              },
+              {
+                "x": -0.68,
+                "y": -0.12,
+                "text": "SWR 2",
+                "color": "orange"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "params": {
+            "k": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "derived": {
+            "r": "1.6-1.2*floor(k/2)",
+            "xx": "(1.2-0.4*floor(k/2))*(1-2*mod(k,2))",
+            "den": "(r+1)^2+xx^2",
+            "u": "(r^2-1+xx^2)/den",
+            "v": "2*xx/den"
+          },
+          "prompt": "The dot marks a load on a Smith chart (grey: outer circle, the $r = 1$ circle and the $x = \\pm1$ arcs). What kind of load is it?",
+          "plot": {
+            "x": {
+              "min": -1.15,
+              "max": 1.15,
+              "label": "Re Γ",
+              "ticks": [
+                -1,
+                -0.5,
+                0,
+                0.5,
+                1
+              ]
+            },
+            "y": {
+              "min": -1.15,
+              "max": 1.15,
+              "label": "Im Γ",
+              "ticks": [
+                -1,
+                0,
+                1
+              ]
+            },
+            "height": 300,
+            "curves": [
+              {
+                "f": "sqrt(max(0,1-x^2))",
+                "color": "grey"
+              },
+              {
+                "f": "-sqrt(max(0,1-x^2))",
+                "color": "grey"
+              },
+              {
+                "f": "sqrt(max(0,0.25-(x-0.5)^2))",
+                "color": "grey",
+                "from": 0,
+                "to": 1
+              },
+              {
+                "f": "-sqrt(max(0,0.25-(x-0.5)^2))",
+                "color": "grey",
+                "from": 0,
+                "to": 1
+              },
+              {
+                "f": "1-sqrt(max(0,1-(x-1)^2))",
+                "color": "grey",
+                "from": 0,
+                "to": 1
+              },
+              {
+                "f": "-1+sqrt(max(0,1-(x-1)^2))",
+                "color": "grey",
+                "from": 0,
+                "to": 1
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0,
+                "color": "grey"
+              }
+            ],
+            "points": [
+              {
+                "x": "u",
+                "y": "v",
+                "guides": false,
+                "color": "red"
+              }
+            ],
+            "labels": [
+              {
+                "x": 0.38,
+                "y": 0.6,
+                "text": "r = 1",
+                "color": "grey"
+              }
+            ]
+          },
+          "options": [
+            "$R > Z_0$, inductive",
+            "$R > Z_0$, capacitive",
+            "$R < Z_0$, inductive",
+            "$R < Z_0$, capacitive"
+          ],
+          "answer": "k",
+          "explanation": "Points **inside** the $r = 1$ circle (the circle through the centre and the open end) have $R > Z_0$; points outside it, toward the short, have $R < Z_0$. The upper half is inductive, the lower half capacitive. The dot is $z$ = {{r}} + j({{xx}}), i.e. {{50*r}} + j({{50*xx}}) Ω on a 50 Ω chart."
+        },
+        {
+          "id": "q8",
+          "type": "trueFalse",
+          "prompt": "On a lossless line, moving the measuring point a quarter wavelength toward the generator moves the impedance half a turn around the Smith chart.",
+          "answer": true,
+          "explanation": "True. One full turn is λ/2, so λ/4 is half a turn: the point jumps to the opposite side of its SWR circle. That is the λ/4 transformer: $z$ becomes $1/z$, a short becomes an open."
+        }
+      ]
+    },
+    {
+      "id": "cm-tlines-4",
+      "title": "Feeding an antenna",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "P": [
+              25,
+              50,
+              100
+            ],
+            "len": [
+              20,
+              30,
+              40,
+              50
+            ],
+            "A100": [
+              4,
+              6,
+              9,
+              12
+            ],
+            "RL": [
+              25,
+              36,
+              100,
+              150
+            ]
+          },
+          "derived": {
+            "A": "A100*len/100",
+            "Pf": "P*10^(-A/10)",
+            "G": "(RL-50)/(RL+50)",
+            "Pa": "Pf*(1-G^2)"
+          },
+          "prompt": "A {{P|W}} transmitter feeds a resistive antenna of {{RL|Ω}} through {{len|m}} of 50 Ω coax with {{A100}} dB/100 m loss. Ignore re-reflections at the transmitter.",
+          "ask": [
+            {
+              "prompt": "How much power does the antenna accept?",
+              "answer": "Pa",
+              "unit": "W",
+              "explanation": "Cable: $A$ = {{A100}} × {{len}}/100 = {{A}} dB, so {{P}} W × 10^(−{{A}}/10) = {{Pf|W}} arrives at the antenna. Γ = ({{RL}} − 50)/({{RL}} + 50) = {{G}}, so the antenna accepts $1 - \\Gamma^2$ = {{1-G^2}} of it: **{{Pa|W}}**."
+            },
+            {
+              "prompt": "What is the total loss from transmitter to antenna (cable plus mismatch)?",
+              "answer": "10*log10(P/Pa)",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "Cable loss {{A}} dB plus mismatch loss $-10\\log(1-\\Gamma^2)$ = {{-10*log10(1-G^2)}} dB (Γ = {{G}}) gives **{{10*log10(P/Pa)}} dB**: {{P|W}} in, {{Pa|W}} accepted."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "Z0": [
+              50,
+              75
+            ],
+            "G": [
+              -0.6,
+              -0.4,
+              -0.2,
+              0.2,
+              0.4,
+              0.5
+            ]
+          },
+          "prompt": "A TDR drives a {{Z0}} Ω cable with a 1 V incident step. When the echo from the far-end termination returns, the trace changes by {{G|V}}. What resistance terminates the cable?",
+          "answer": "Z0*(1+G)/(1-G)",
+          "unit": "Ω",
+          "explanation": "The echo is the reflected wave: Γ = $V_r/V_i$ = {{G}}. Solving $\\Gamma = (Z_L - Z_0)/(Z_L + Z_0)$ for $Z_L$: $Z_L = Z_0\\frac{1+\\Gamma}{1-\\Gamma}$ = {{Z0}} × {{1+G}}/{{1-G}} = **{{Z0*(1+G)/(1-G)|Ω}}**. A positive echo means $Z_L > Z_0$, a negative one $Z_L < Z_0$."
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "f": [
+              100000000.0,
+              200000000.0,
+              433000000.0
+            ],
+            "Lw": [
+              1e-08,
+              2.2e-08,
+              4.7e-08
+            ],
+            "VF": [
+              0.66,
+              0.8
+            ]
+          },
+          "derived": {
+            "XL": "2*pi*f*Lw",
+            "bl": "atan(XL/50)",
+            "lam": "VF*3e8/f",
+            "len": "lam*bl/(2*pi)"
+          },
+          "prompt": "At {{f|Hz}} you want to replace a {{Lw|H}} inductor by a shorted stub of 50 Ω coax with VF = {{VF}}.",
+          "ask": [
+            {
+              "prompt": "How long must the stub be?",
+              "answer": "len",
+              "unit": "m",
+              "explanation": "$X_L = 2\\pi fL$ = {{XL|Ω}}. A shorted stub gives $Z_0\\tan\\beta\\ell$, so $\\beta\\ell = \\arctan(X_L/Z_0)$ = arctan({{XL/50}}) = {{bl}} rad. $\\lambda_{line}$ = {{VF}} × 3 × $10^8$ / {{f|Hz}} = {{lam|m}}, so $\\ell = \\lambda_{line}\\cdot\\beta\\ell/2\\pi$ = **{{len|m}}**."
+            },
+            {
+              "prompt": "What is its electrical length in degrees?",
+              "answer": "deg(bl)",
+              "unit": "°",
+              "tolerance": 0.005,
+              "absTolerance": 0.5,
+              "explanation": "$X_L = 2\\pi fL$ = {{XL|Ω}}; $\\beta\\ell = \\arctan(X_L/Z_0)$ = arctan({{XL}}/50) = **{{deg(bl)}}°**, i.e. {{deg(bl)/360}} λ."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "numeric",
+          "params": {
+            "RL": [
+              80,
+              100,
+              120,
+              150
+            ],
+            "Zq": [
+              75,
+              93
+            ]
+          },
+          "derived": {
+            "Zin": "Zq^2/RL"
+          },
+          "prompt": "A resistive load of {{RL|Ω}} must be matched to 50 Ω coax with a λ/4 section, but only {{Zq}} Ω cable is available for the section.",
+          "ask": [
+            {
+              "prompt": "What impedance does the 50 Ω line see?",
+              "answer": "Zin",
+              "unit": "Ω",
+              "explanation": "Ideal would be √(50 × {{RL}}) = {{sqrt(50*RL)|Ω}}. With {{Zq}} Ω: $Z_{in} = Z_0'^2/Z_L$ = {{Zq}}² / {{RL}} = **{{Zin|Ω}}**."
+            },
+            {
+              "prompt": "What SWR remains on the 50 Ω line?",
+              "answer": "max(Zin/50, 50/Zin)",
+              "unit": "",
+              "explanation": "$Z_{in}$ = {{Zq}}²/{{RL}} = {{Zin|Ω}} (resistive), so SWR = larger/smaller = **{{max(Zin/50, 50/Zin)}}**, compared with {{RL/50}} without the section."
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "Z0": [
+              50,
+              75,
+              93
+            ],
+            "VF": [
+              0.66,
+              0.78,
+              0.84
+            ]
+          },
+          "derived": {
+            "vp": "VF*3e8"
+          },
+          "prompt": "A coax cable has $Z_0$ = {{Z0}} Ω and a velocity factor of {{VF}}.",
+          "ask": [
+            {
+              "prompt": "What is its capacitance per metre?",
+              "answer": "1/(Z0*vp)",
+              "unit": "F",
+              "explanation": "$Z_0 = \\sqrt{L/C}$ and $v_p = 1/\\sqrt{LC}$ give $C = 1/(Z_0 v_p)$. With $v_p$ = {{VF}} × 3 × $10^8$ = {{vp/1e8}} × $10^8$ m/s: $C$ = 1/({{Z0}} × {{vp/1e8}} × $10^8$) = **{{1/(Z0*vp)|F}}** per metre."
+            },
+            {
+              "prompt": "What is its inductance per metre?",
+              "answer": "Z0/vp",
+              "unit": "H",
+              "explanation": "$Z_0 = \\sqrt{L/C}$ and $v_p = 1/\\sqrt{LC}$ give $L = Z_0/v_p$ = {{Z0}} / ({{vp/1e8}} × $10^8$) = **{{Z0/vp|H}}** per metre."
+            }
+          ]
+        },
+        {
+          "id": "c6",
+          "type": "multipleChoice",
+          "params": {
+            "Vmax": [
+              40,
+              52,
+              60,
+              80
+            ],
+            "Vmin": [
+              10,
+              15,
+              20
+            ]
+          },
+          "prompt": "On a 50 Ω line with a resistive load you measure $V_{max}$ = {{Vmax|V}} and $V_{min}$ = {{Vmin|V}}, with a voltage **minimum** right at the load. What is the load resistance?",
+          "options": [
+            "{{50*Vmin/Vmax|Ω}}",
+            "{{50*Vmax/Vmin|Ω}}",
+            "{{50*(Vmax-Vmin)/(Vmax+Vmin)|Ω}}",
+            "50 Ω"
+          ],
+          "answer": 0,
+          "explanation": "SWR = $V_{max}/V_{min}$ = {{Vmax/Vmin}}. A voltage minimum at the load means Γ < 0, so $R_L < Z_0$: $R_L = Z_0/SWR$ = 50 / {{Vmax/Vmin}} = **{{50*Vmin/Vmax|Ω}}**. ({{50*Vmax/Vmin|Ω}} would put a maximum at the load; ({{Vmax}} − {{Vmin}})/({{Vmax}} + {{Vmin}}) is |Γ|, not an impedance ratio.)"
+        },
+        {
+          "id": "c7",
+          "type": "orderSteps",
+          "prompt": "Put the steps in order to find the input impedance of a mismatched line with a Smith chart.",
+          "items": [
+            "Normalise the load: $z_L = Z_L/Z_0$",
+            "Plot $z_L$ on the chart",
+            "Draw the SWR circle through $z_L$ around the centre",
+            "Rotate clockwise (toward the generator) by ℓ/λ",
+            "Read $z_{in}$ and multiply by $Z_0$"
+          ],
+          "explanation": "The chart works with normalised values, so first divide by $Z_0$ and plot. Along a lossless line |Γ| stays constant, so the impedance moves on the SWR circle; ℓ/λ toward the generator is a clockwise rotation (a full turn per λ/2). Finally convert the normalised result back to ohms."
+        },
+        {
+          "id": "c8",
+          "type": "multipleChoice",
+          "prompt": "A half-wave dipole (balanced, about 73 Ω) is fed directly with 75 Ω coax. What should be added at the feed point, and why?",
+          "options": [
+            "A 1:1 balun, so no current flows back on the outside of the shield",
+            "A 4:1 balun, to step 73 Ω up to 300 Ω",
+            "A λ/4 section of 75 Ω cable, to match 73 Ω to 75 Ω",
+            "Nothing: coax is already a balanced line"
+          ],
+          "answer": 0,
+          "explanation": "The impedances already match (SWR ≈ 1.03), but coax is **unbalanced** and the dipole is balanced. Without a balun, part of the current returns on the outside of the shield: the feed line radiates and the pattern is distorted. A 1:1 balun forces equal and opposite currents in the two dipole halves."
+        }
+      ]
+    }
+  ]
+}

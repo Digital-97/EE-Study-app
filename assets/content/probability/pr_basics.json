@@ -1,0 +1,869 @@
+{
+  "id": "pr-basics",
+  "title": "Probability Basics",
+  "description": "Sample spaces, the axioms, counting, conditional probability, independence and Bayes' rule, applied to bits on noisy channels.",
+  "reference": "Leon-Garcia ch. 2",
+  "study": [
+    {
+      "title": "Experiments, outcomes and events",
+      "body": "A **random experiment** has an outcome we cannot predict, such as the error pattern of a 3-bit word sent over a noisy link (a 1 marks a flipped bit). The **sample space** $S$ lists every possible outcome, here the $2^3 = 8$ patterns 000 … 111. An **event** is any subset of $S$, e.g. $A$ = 'exactly one bit wrong' = {001, 010, 100}. Events combine like sets: $A\\cup B$ (A or B), $A\\cap B$ (A and B) and the complement $A^c$ (not A).",
+      "formula": "P(A^c) = 1 - P(A)"
+    },
+    {
+      "title": "The axioms of probability",
+      "body": "Every probability assignment obeys three axioms: $P(A) \\ge 0$, $P(S) = 1$, and for **mutually exclusive** events ($A\\cap B = \\emptyset$) the probabilities add. Everything else follows: $P(\\emptyset) = 0$, $P(A^c) = 1 - P(A)$, and for any two events the inclusion–exclusion rule below. Dropping the last term gives the **union bound** $P(A\\cup B) \\le P(A) + P(B)$, often used to bound error probabilities.",
+      "formula": "\\begin{aligned} P(A\\cup B) &= P(A) + P(B) \\\\ &\\quad {} - P(A\\cap B) \\end{aligned}"
+    },
+    {
+      "title": "Counting equally likely outcomes",
+      "body": "When all $N$ outcomes are equally likely, $P(A) = N_A/N$: just count. Ordered choices of $k$ items out of $n$ with replacement: $n^k$; without replacement: $n!/(n-k)!$. Unordered choices without replacement: the binomial coefficient. Example: $\\binom{8}{2} = 28$ of the 256 bytes contain exactly two 1s, so a random byte has two 1s with probability 28/256 = 0.109.",
+      "formula": "\\binom{n}{k} = \\frac{n!}{k!\\,(n-k)!}"
+    },
+    {
+      "title": "Conditional probability",
+      "body": "Knowing that $B$ occurred shrinks the sample space to $B$: $P(A|B)$ is the fraction of $B$ that also lies in $A$. Rearranged, it gives the **multiplication rule** $P(A\\cap B) = P(A|B)\\,P(B)$. $P(A|B)$ and $P(B|A)$ are different numbers: the probability that a faulty board fails a test is not the probability that a failing board is faulty.",
+      "formula": "P(A|B) = \\frac{P(A\\cap B)}{P(B)}"
+    },
+    {
+      "title": "Independence",
+      "body": "$A$ and $B$ are **independent** if knowing one tells nothing about the other: $P(A|B) = P(A)$, or equivalently $P(A\\cap B) = P(A)P(B)$. Bit errors on a memoryless channel are independent, so an $n$-bit packet with bit-error probability $p$ arrives intact with probability $(1-p)^n$. Mutually exclusive events with nonzero probabilities are never independent. Drag $p$: long packets fail surprisingly often, and the union bound $np$ only works while $np \\ll 1$.",
+      "formula": "P(\\text{packet OK}) = (1-p)^n",
+      "plot": {
+        "x": {
+          "min": 1,
+          "max": 100000,
+          "label": "packet length n (bits)",
+          "log": true
+        },
+        "y": {
+          "min": 0,
+          "max": 1.05,
+          "label": "P(≥ 1 error)"
+        },
+        "sliders": [
+          {
+            "name": "p",
+            "label": "$p$",
+            "min": 1e-07,
+            "max": 0.01,
+            "log": true,
+            "value": 0.0001,
+            "sig": 2
+          }
+        ],
+        "curves": [
+          {
+            "f": "1 - (1 - p)^x"
+          }
+        ],
+        "points": [
+          {
+            "x": 12000,
+            "y": "1 - (1 - p)^12000",
+            "label": "1500 bytes"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$P$(≥ 1 error), 12 000-bit packet",
+            "value": "1 - (1 - p)^12000"
+          },
+          {
+            "label": "union bound $np$",
+            "value": "12000*p"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Total probability and Bayes' rule",
+      "body": "If the events $A_1, \\dots, A_n$ split $S$ into non-overlapping pieces (e.g. '0 sent' and '1 sent'), the probability of any event $B$ is the weighted sum $P(B) = \\sum_i P(B|A_i)P(A_i)$: the **total probability theorem**. **Bayes' rule** turns this around: it gives the probability of a cause $A_j$ after the effect $B$ has been observed. The $P(A_j)$ are the **prior** probabilities, the $P(A_j|B)$ the **posterior** ones.",
+      "formula": "P(A_j|B) = \\frac{P(B|A_j)\\,P(A_j)}{\\sum_i P(B|A_i)\\,P(A_i)}"
+    },
+    {
+      "title": "Example: the binary symmetric channel",
+      "body": "A binary symmetric channel (BSC) flips each bit with probability $\\varepsilon$. With $P(1_s) = 0.4$ and $\\varepsilon = 0.1$: $P(1_r) = 0.9\\cdot0.4 + 0.1\\cdot0.6 = 0.42$, so $P(1_s|1_r) = 0.36/0.42 = 0.857$. A received 1 is not proof that a 1 was sent; for rare symbols on a bad channel the posterior can even drop below ½. Drag $\\varepsilon$: at $\\varepsilon = 0.5$ the output says nothing and the posterior equals the prior.",
+      "formula": "P(1_s|1_r) = \\frac{(1-\\varepsilon)\\,P(1_s)}{(1-\\varepsilon)\\,P(1_s) + \\varepsilon\\,P(0_s)}",
+      "plot": {
+        "x": {
+          "min": 0,
+          "max": 1,
+          "label": "prior P(1 sent)"
+        },
+        "y": {
+          "min": 0,
+          "max": 1.05,
+          "label": "P(1 sent | 1 rcvd)"
+        },
+        "sliders": [
+          {
+            "name": "ep",
+            "label": "$\\varepsilon$",
+            "min": 0.01,
+            "max": 0.5,
+            "step": 0.01,
+            "value": 0.1
+          }
+        ],
+        "curves": [
+          {
+            "f": "(1 - ep)*x/((1 - ep)*x + ep*(1 - x))",
+            "label": "posterior",
+            "labelAt": 0.55
+          },
+          {
+            "f": "x",
+            "dash": true,
+            "color": "grey",
+            "label": "prior",
+            "labelAt": 0.8
+          }
+        ],
+        "points": [
+          {
+            "x": 0.4,
+            "y": "0.4*(1 - ep)/(0.4*(1 - ep) + 0.6*ep)"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$P(1_s|1_r)$ for $P(1_s) = 0.4$",
+            "value": "0.4*(1 - ep)/(0.4*(1 - ep) + 0.6*ep)"
+          }
+        ]
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "id": "pr-basics-1",
+      "title": "Events, axioms and counting",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Sample space and events",
+          "body": "Sending a word of $n$ bits over a noisy link is a random experiment. One way to describe its outcome is the **error pattern**: a 1 wherever a bit was flipped. The **sample space** $S$ is the set of all possible outcomes; an **event** is any subset of $S$. For $n$ = 3: $S$ = {000, 001, …, 111}, and 'exactly one error' is the event {001, 010, 100}."
+        },
+        {
+          "id": "q1",
+          "type": "multipleChoice",
+          "params": {
+            "n": [
+              5,
+              6,
+              8,
+              10
+            ]
+          },
+          "prompt": "A {{n}}-bit word is sent and the receiver records its error pattern (which bits were flipped). How many outcomes does the sample space have?",
+          "options": [
+            "{{2^n||5}}",
+            "{{n}}",
+            "{{2*n}}",
+            "{{n^2}}"
+          ],
+          "answer": 0,
+          "explanation": "Each of the {{n}} bits is either correct or flipped: 2 choices per bit, so $|S| = 2^{{{n}}}$ = **{{2^n||5}}**. The error-free pattern 00…0 is one of the outcomes too."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The axioms",
+          "body": "All of probability theory follows from three rules:\n- $P(A) \\ge 0$ for every event\n- $P(S) = 1$: some outcome always occurs\n- if $A$ and $B$ cannot happen together ($A\\cap B = \\emptyset$), $P(A\\cup B) = P(A) + P(B)$\nConsequences: $P(A^c) = 1 - P(A)$, and for overlapping events the overlap must be subtracted once.",
+          "formula": "\\begin{aligned} P(A\\cup B) &= P(A) + P(B) \\\\ &\\quad {} - P(A\\cap B) \\end{aligned}"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "PA": [
+              0.03,
+              0.04,
+              0.05,
+              0.06
+            ],
+            "PB": [
+              0.02,
+              0.03,
+              0.05
+            ],
+            "PAB": [
+              0.005,
+              0.01
+            ]
+          },
+          "prompt": "In a batch of capacitors, $A$ = 'capacitance out of tolerance' has $P(A)$ = {{PA}}, $B$ = 'leakage too high' has $P(B)$ = {{PB}}, and $P(A\\cap B)$ = {{PAB}}. What is the probability that a capacitor has at least one of the two faults? (probability, 0–1)",
+          "answer": "PA + PB - PAB",
+          "unit": "",
+          "explanation": "'At least one fault' is $A\\cup B$. Adding $P(A)$ and $P(B)$ counts the capacitors with both faults twice, so subtract them once: $P(A\\cup B) = P(A) + P(B) - P(A\\cap B)$ = {{PA}} + {{PB}} − {{PAB}} = **{{PA+PB-PAB}}**."
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "For any two events $A$ and $B$, $P(A\\cup B) \\le P(A) + P(B)$.",
+          "answer": true,
+          "explanation": "Since $P(A\\cap B) \\ge 0$, $P(A\\cup B) = P(A) + P(B) - P(A\\cap B) \\le P(A) + P(B)$, with equality for mutually exclusive events. This **union bound** is often used to bound the probability that at least one of several errors occurs."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Counting equally likely outcomes",
+          "body": "If all outcomes are equally likely, $P(A)$ = (number of outcomes in $A$) / (number of outcomes in $S$). The number of ways to choose $k$ positions out of $n$, ignoring order, is the binomial coefficient. Example: a random byte has exactly two 1s with probability $\\binom{8}{2}/2^8$ = 28/256 = 0.109.",
+          "formula": "\\binom{n}{k} = \\frac{n!}{k!\\,(n-k)!}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "n": [
+              6,
+              8,
+              10,
+              12
+            ],
+            "k": [
+              2,
+              3,
+              4
+            ]
+          },
+          "prompt": "All $2^{{{n}}}$ words of {{n}} bits are equally likely. What is the probability that a random word contains exactly {{k}} ones? (probability, 0–1)",
+          "answer": "choose(n, k)/2^n",
+          "unit": "",
+          "explanation": "Count the words with {{k}} ones: choose which {{k}} of the {{n}} positions hold a 1, $\\binom{{{n}}}{{{k}}}$ = {{choose(n,k)}} ways. Divide by the $2^{{{n}}}$ = {{2^n||5}} equally likely words: {{choose(n,k)}}/{{2^n||5}} = **{{choose(n,k)/2^n}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "N": [
+              20,
+              25,
+              30
+            ],
+            "D": [
+              2,
+              3,
+              4
+            ],
+            "m": [
+              3,
+              4,
+              5
+            ]
+          },
+          "prompt": "A tray holds {{N}} voltage regulators, {{D}} of which are defective. You pick {{m}} at random without putting any back. What is the probability that none of them is defective? (probability, 0–1)",
+          "answer": "choose(N - D, m)/choose(N, m)",
+          "unit": "",
+          "explanation": "All $\\binom{{{N}}}{{{m}}}$ = {{choose(N,m)||6}} sets of {{m}} parts are equally likely. The good sets use only the {{N-D}} good parts: $\\binom{{{N-D}}}{{{m}}}$ = {{choose(N-D,m)||6}}. So $P$ = {{choose(N-D,m)||6}}/{{choose(N,m)||6}} = **{{choose(N-D,m)/choose(N,m)}}**. (Step by step gives the same: $\\frac{{{N-D}}}{{{N}}}\\cdot\\frac{{{N-D-1}}}{{{N-1}}}\\cdots$)"
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each term to its meaning",
+          "pairs": [
+            [
+              "Sample space $S$",
+              "The set of all possible outcomes"
+            ],
+            [
+              "Event",
+              "A subset of the sample space"
+            ],
+            [
+              "Mutually exclusive",
+              "$A\\cap B = \\emptyset$"
+            ],
+            [
+              "Complement $A^c$",
+              "All outcomes not in $A$"
+            ]
+          ],
+          "explanation": "The sample space collects every outcome of the experiment; an event is any collection of outcomes. Mutually exclusive (disjoint) events share no outcome, so they cannot happen together. The complement holds everything outside $A$, so $P(A^c) = 1 - P(A)$."
+        }
+      ]
+    },
+    {
+      "id": "pr-basics-2",
+      "title": "Conditional probability and Bayes' rule",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Conditional probability",
+          "body": "$P(A|B)$ is the probability of $A$ when we already know that $B$ happened. Only outcomes inside $B$ are still possible, so measure the part of $A$ that lies inside $B$ and renormalise by $P(B)$.",
+          "formula": "P(A|B) = \\frac{P(A\\cap B)}{P(B)}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "PB": [
+              0.04,
+              0.05,
+              0.08
+            ],
+            "PAB": [
+              0.01,
+              0.015,
+              0.02
+            ]
+          },
+          "prompt": "In a production test, {{100*PB}}% of op amps have a high offset voltage ($B$) and {{100*PAB}}% have both a high offset and high noise ($A\\cap B$). An op amp has a high offset. What is the probability that it also has high noise? (probability, 0–1)",
+          "answer": "PAB/PB",
+          "unit": "",
+          "explanation": "$P(A|B) = \\frac{P(A\\cap B)}{P(B)}$ = {{PAB}}/{{PB}} = **{{PAB/PB}}**. Among the high-offset parts, this fraction is also noisy; among all parts only {{100*PAB}}% are both."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "Independent events",
+          "body": "Events are **independent** when knowing one does not change the probability of the other: $P(A|B) = P(A)$. Then $P(A\\cap B) = P(A)P(B)$, and the product rule extends to any number of independent events. On a memoryless channel each bit is flipped independently with probability $p$, so all $n$ bits arrive correctly with probability $(1-p)^n$.",
+          "formula": "P(A\\cap B) = P(A)\\,P(B)"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "n": [
+              1000,
+              4000,
+              8000,
+              12000
+            ],
+            "p": [
+              1e-05,
+              5e-05,
+              0.0001,
+              0.0002
+            ]
+          },
+          "prompt": "A packet of {{n}} bits crosses a memoryless channel with bit-error probability $p$ = {{p}}.",
+          "ask": [
+            {
+              "prompt": "What is the probability that the packet arrives without any bit error? (probability, 0–1)",
+              "answer": "(1 - p)^n",
+              "unit": "",
+              "explanation": "Each bit is correct with probability $1 - p$, independently of the others, so $P = (1-p)^n$ = $(1 - {{p}})^{{{n}}}$ = **{{(1-p)^n}}**. For small $p$ this is close to $e^{-np}$ = {{exp(-n*p)}}."
+            },
+            {
+              "prompt": "What is the probability that the packet contains at least one bit error? (probability, 0–1)",
+              "answer": "1 - (1 - p)^n",
+              "unit": "",
+              "explanation": "'At least one error' is the complement of 'no error': $1 - (1-p)^n$ = 1 − {{(1-p)^n}} = **{{1-(1-p)^n}}**. The union bound $np$ = {{n*p}} is only close when $np \\ll 1$."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "trueFalse",
+          "prompt": "Two mutually exclusive events, each with a nonzero probability, are independent.",
+          "answer": false,
+          "explanation": "Mutually exclusive means $P(A\\cap B) = 0$, but independence needs $P(A\\cap B) = P(A)P(B) > 0$. Disjoint events are strongly **dependent**: if $A$ happens, $B$ certainly did not. ('0 sent' and '1 sent' are disjoint, not independent.)"
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Total probability and Bayes' rule",
+          "body": "Split the sample space into possible causes, e.g. $0_s$ = '0 sent' and $1_s$ = '1 sent'. The probability of an observation $R$ is the sum over the causes, each weighted by its prior (total probability). Bayes' rule then gives the probability of a cause **after** seeing the observation.",
+          "formula": "P(1_s|R) = \\frac{P(R|1_s)\\,P(1_s)}{\\sum_i P(R|i_s)\\,P(i_s)}"
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.3,
+              0.4,
+              0.6,
+              0.7
+            ],
+            "eps": [
+              0.01,
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "prompt": "A binary symmetric channel flips each bit with probability $\\varepsilon$ = {{eps}}. The source sends a 1 with probability {{p1}}. What is the probability that the receiver gets a 1? (probability, 0–1)",
+          "answer": "p1*(1 - eps) + (1 - p1)*eps",
+          "unit": "",
+          "explanation": "A 1 is received when a 1 is sent and not flipped, or a 0 is sent and flipped: $P(1_r) = P(1_r|1_s)P(1_s) + P(1_r|0_s)P(0_s)$ = {{1-eps}} × {{p1}} + {{eps}} × {{1-p1}} = **{{p1*(1-eps)+(1-p1)*eps}}**."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.2,
+              0.3,
+              0.5,
+              0.6
+            ],
+            "eps": [
+              0.02,
+              0.05,
+              0.1,
+              0.2
+            ]
+          },
+          "derived": {
+            "a": "p1*(1 - eps)",
+            "den": "p1*(1 - eps) + (1 - p1)*eps"
+          },
+          "prompt": "Another binary symmetric channel: $\\varepsilon$ = {{eps}} and $P(1\\text{ sent})$ = {{p1}}. A 1 is received. What is the probability that a 1 was sent? (probability, 0–1)",
+          "answer": "a/den",
+          "unit": "",
+          "tolerance": 0.005,
+          "explanation": "Bayes: $P(1_s|1_r) = \\frac{P(1_r|1_s)P(1_s)}{P(1_r)}$. Numerator: {{1-eps}} × {{p1}} = {{a}}. Denominator (total probability): {{a}} + {{eps}} × {{1-p1}} = {{den}}. Result: {{a}}/{{den}} = **{{a/den}}**."
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "params": {
+            "q": [
+              0.005,
+              0.01,
+              0.02
+            ],
+            "s": [
+              0.95,
+              0.99
+            ],
+            "fp": [
+              0.02,
+              0.03
+            ]
+          },
+          "derived": {
+            "post": "s*q/(s*q + fp*(1 - q))"
+          },
+          "prompt": "An automatic tester flags {{100*s}}% of faulty boards and wrongly flags {{100*fp}}% of good boards. {{100*q}}% of all boards are faulty. A board is flagged. What is the probability that it is really faulty?",
+          "options": [
+            "{{post}}",
+            "{{s}}",
+            "{{1-fp}}",
+            "{{s*q}}"
+          ],
+          "answer": 0,
+          "explanation": "Bayes: $P(F|\\text{flag}) = \\frac{P(\\text{flag}|F)P(F)}{P(\\text{flag}|F)P(F) + P(\\text{flag}|G)P(G)}$ = {{s}} × {{q}} / ({{s*q}} + {{fp}} × {{1-q}}) = **{{post}}**. Faulty boards are so rare that many flags are false alarms. {{s}} is $P(\\text{flag}|F)$, the reverse conditional probability: confusing $P(A|B)$ with $P(B|A)$ is the classic mistake."
+        }
+      ]
+    },
+    {
+      "id": "pr-basics-3",
+      "title": "Probability practice",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "p2": [
+              0.01,
+              0.03,
+              0.04
+            ]
+          },
+          "prompt": "Two independent links fail during a day with probabilities {{p1}} and {{p2}}.",
+          "ask": [
+            {
+              "prompt": "The connection needs **both** links (series). What is the probability that it fails? (probability, 0–1)",
+              "answer": "1 - (1 - p1)*(1 - p2)",
+              "unit": "",
+              "explanation": "The series connection works only if both links work: $(1-p_1)(1-p_2)$ = {{1-p1}} × {{1-p2}} = {{(1-p1)*(1-p2)}}. So it fails with probability **{{1-(1-p1)*(1-p2)}}**, slightly less than the union bound $p_1 + p_2$ = {{p1+p2}}."
+            },
+            {
+              "prompt": "Either link suffices (redundancy). What is the probability that the connection fails? (probability, 0–1)",
+              "answer": "p1*p2",
+              "unit": "",
+              "explanation": "The redundant connection fails only if both links fail. By independence $P = p_1p_2$ = {{p1}} × {{p2}} = **{{p1*p2}}**."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "n": [
+              8,
+              16,
+              32
+            ],
+            "p": [
+              0.001,
+              0.01,
+              0.02
+            ]
+          },
+          "prompt": "A {{n}}-bit word crosses a channel that flips each bit independently with probability {{p}}. What is the probability of exactly one bit error? (probability, 0–1)",
+          "answer": "n*p*(1 - p)^(n - 1)",
+          "unit": "",
+          "explanation": "One particular bit wrong and the other {{n-1}} right has probability $p(1-p)^{n-1}$. There are {{n}} positions for the wrong bit and these cases are mutually exclusive, so add them: $P = n\\,p\\,(1-p)^{n-1}$ = {{n}} × {{p}} × {{(1-p)^(n-1)}} = **{{n*p*(1-p)^(n-1)}}**."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "a1": [
+              0.5,
+              0.6
+            ],
+            "a2": [
+              0.2,
+              0.3
+            ],
+            "d1": [
+              0.01,
+              0.02
+            ],
+            "d2": [
+              0.03,
+              0.05
+            ],
+            "d3": [
+              0.04,
+              0.08
+            ]
+          },
+          "derived": {
+            "a3": "1 - a1 - a2",
+            "P": "a1*d1 + a2*d2 + a3*d3"
+          },
+          "prompt": "A distributor buys capacitors from three factories: {{100*a1}}% from factory 1, {{100*a2}}% from factory 2 and {{100*a3}}% from factory 3. Their defect rates are {{100*d1}}%, {{100*d2}}% and {{100*d3}}%.",
+          "ask": [
+            {
+              "prompt": "What is the probability that a randomly chosen capacitor is defective? (probability, 0–1)",
+              "answer": "P",
+              "unit": "",
+              "explanation": "Total probability over the three sources: $P(D) = \\sum_i P(D|F_i)P(F_i)$ = {{d1}}·{{a1}} + {{d2}}·{{a2}} + {{d3}}·{{a3}} = **{{P}}**."
+            },
+            {
+              "prompt": "A capacitor turns out to be defective. What is the probability that it came from factory 3? (probability, 0–1)",
+              "answer": "a3*d3/P",
+              "unit": "",
+              "explanation": "Bayes: $P(F_3|D) = \\frac{P(D|F_3)P(F_3)}{P(D)}$ = {{d3}} × {{a3}} / {{P}} = **{{a3*d3/P}}**, with $P(D)$ = {{P}} from total probability."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "multipleChoice",
+          "params": {
+            "PA": [
+              0.1,
+              0.2,
+              0.3
+            ],
+            "PB": [
+              0.2,
+              0.4,
+              0.5
+            ]
+          },
+          "prompt": "Events $A$ and $B$ are independent with $P(A)$ = {{PA}} and $P(B)$ = {{PB}}. What is $P(A\\cup B)$?",
+          "options": [
+            "{{PA+PB-PA*PB}}",
+            "{{PA+PB}}",
+            "{{PA*PB}}",
+            "{{1-PA*PB}}"
+          ],
+          "answer": 0,
+          "explanation": "Inclusion–exclusion with $P(A\\cap B) = P(A)P(B)$ for independent events: $P(A\\cup B)$ = {{PA}} + {{PB}} − {{PA}}·{{PB}} = **{{PA+PB-PA*PB}}**. Equivalently, $1 - P(A^c)P(B^c)$ = 1 − {{1-PA}}·{{1-PB}}. Simply adding ({{PA+PB}}) counts the overlap twice."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "p0": [
+              0.5,
+              0.6,
+              0.7
+            ],
+            "e01": [
+              0.02,
+              0.05
+            ],
+            "e10": [
+              0.1,
+              0.15,
+              0.2
+            ]
+          },
+          "derived": {
+            "a": "p0*(1 - e01)",
+            "b": "(1 - p0)*e10"
+          },
+          "prompt": "On an optical link a sent 0 is received as 1 with probability {{e01}}, and a sent 1 is received as 0 with probability {{e10}}. Zeros are sent with probability {{p0}}. A 0 is received. What is the probability that a 0 was sent? (probability, 0–1)",
+          "answer": "a/(a + b)",
+          "unit": "",
+          "tolerance": 0.005,
+          "explanation": "Bayes with the causes '0 sent' and '1 sent'. A correct 0: $P(0_r|0_s)P(0_s)$ = {{1-e01}} × {{p0}} = {{a}}. A missed 1: $P(0_r|1_s)P(1_s)$ = {{e10}} × {{1-p0}} = {{b}}. $P(0_s|0_r)$ = {{a}}/({{a}} + {{b}}) = **{{a/(a+b)}}**."
+        },
+        {
+          "id": "q6",
+          "type": "orderSteps",
+          "prompt": "Put the steps for finding $P(1\\text{ sent}\\,|\\,1\\text{ received})$ on a binary channel in order.",
+          "items": [
+            "Write down the priors $P(0_s)$, $P(1_s)$ and the transition probabilities $P(1_r|0_s)$, $P(1_r|1_s)$",
+            "Multiply them into the joint probabilities $P(1_r|1_s)P(1_s)$ and $P(1_r|0_s)P(0_s)$",
+            "Add the joint probabilities to get $P(1_r)$ (total probability)",
+            "Divide $P(1_r|1_s)\\,P(1_s)$ by $P(1_r)$"
+          ],
+          "explanation": "Bayes' rule needs the priors and the likelihoods first. Their products are the joint probabilities of each cause together with the observation, and their sum is the total probability $P(1_r)$ of the observation. The posterior is the share of that total that comes from the cause '1 sent'."
+        },
+        {
+          "id": "q7",
+          "type": "trueFalse",
+          "params": {
+            "p1": [
+              0.1,
+              0.2,
+              0.3,
+              0.6,
+              0.8
+            ],
+            "eps": [
+              0.05,
+              0.15,
+              0.25,
+              0.4
+            ]
+          },
+          "require": "abs(p1 - eps) - 0.04",
+          "prompt": "A binary symmetric channel has $\\varepsilon$ = {{eps}}, and a 1 is sent with probability {{p1}}. When a 1 is received, it is more likely that a 1 was sent than a 0.",
+          "answer": "p1*(1 - eps) - (1 - p1)*eps",
+          "explanation": "Compare the joint probabilities (the common denominator $P(1_r)$ cancels): '1 sent and kept' {{p1}} × {{1-eps}} = {{p1*(1-eps)}} versus '0 sent and flipped' {{1-p1}} × {{eps}} = {{(1-p1)*eps}}. The posterior of '1 sent' is {{p1*(1-eps)/(p1*(1-eps)+(1-p1)*eps)}}. A received 1 favours '1 sent' only when $P(1_s) > \\varepsilon$: rare symbols on a noisy channel stay unlikely even when received."
+        }
+      ]
+    },
+    {
+      "id": "pr-basics-4",
+      "title": "Channels, codes and diagnosis",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "p": [
+              0.001,
+              0.01,
+              0.02,
+              0.05,
+              0.1
+            ]
+          },
+          "prompt": "To protect a bit, it is sent three times over a binary symmetric channel with $\\varepsilon$ = {{p}} and decoded by majority vote.",
+          "ask": [
+            {
+              "prompt": "What is the probability that the decoded bit is wrong? (probability, 0–1)",
+              "answer": "3*p^2*(1 - p) + p^3",
+              "unit": "",
+              "explanation": "The vote fails when 2 or 3 of the 3 copies are flipped: $P_e = \\binom{3}{2}\\varepsilon^2(1-\\varepsilon) + \\varepsilon^3$ = 3 × {{p^2}} × {{1-p}} + {{p^3}} = **{{3*p^2*(1-p)+p^3}}**, compared with {{p}} without coding."
+            },
+            {
+              "prompt": "By what factor does the coding reduce the bit-error probability (ratio $\\varepsilon/P_e$)?",
+              "answer": "p/(3*p^2*(1 - p) + p^3)",
+              "unit": "",
+              "explanation": "$P_e = 3\\varepsilon^2(1-\\varepsilon) + \\varepsilon^3$ = {{3*p^2*(1-p)+p^3}}. The ratio is {{p}}/{{3*p^2*(1-p)+p^3}} = **{{p/(3*p^2*(1-p)+p^3)}}**: roughly $1/(3\\varepsilon)$, so coding helps most on good channels (at the cost of a 3× lower bit rate)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "e1": [
+              0.01,
+              0.02,
+              0.05
+            ],
+            "e2": [
+              0.01,
+              0.03,
+              0.1
+            ]
+          },
+          "prompt": "A bit crosses two binary symmetric links in cascade (a relay simply forwards what it receives). The links flip bits independently with probabilities {{e1}} and {{e2}}. What is the overall probability that the bit arrives flipped? (probability, 0–1)",
+          "answer": "e1*(1 - e2) + (1 - e1)*e2",
+          "unit": "",
+          "explanation": "The bit arrives wrong if exactly one link flips it; two flips cancel. $\\varepsilon = \\varepsilon_1(1-\\varepsilon_2) + (1-\\varepsilon_1)\\varepsilon_2$ = {{e1}} × {{1-e2}} + {{1-e1}} × {{e2}} = **{{e1*(1-e2)+(1-e1)*e2}}**, a little less than $\\varepsilon_1 + \\varepsilon_2$ = {{e1+e2}}."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "pS": [
+              0.5,
+              0.6
+            ],
+            "pI": [
+              0.2,
+              0.3
+            ],
+            "hS": [
+              0.2,
+              0.3
+            ],
+            "hI": [
+              0.7,
+              0.9
+            ],
+            "hC": [
+              0.5,
+              0.6
+            ]
+          },
+          "derived": {
+            "pC": "1 - pS - pI",
+            "den": "pS*hS + pI*hI + pC*hC"
+          },
+          "prompt": "A board that failed its test has exactly one of three faults: a solder defect (probability {{pS}}), a bad IC ({{pI}}) or a bad connector ({{pC}}). The symptom 'no output at all' appears with probability {{hS}}, {{hI}} and {{hC}} respectively for these faults. The board shows no output. What is the probability that the IC is bad? (probability, 0–1)",
+          "answer": "pI*hI/den",
+          "unit": "",
+          "explanation": "Total probability of the symptom: {{pS}} × {{hS}} + {{pI}} × {{hI}} + {{pC}} × {{hC}} = {{den}}. Bayes: $P(\\text{IC}|\\text{symptom})$ = {{pI*hI}}/{{den}} = **{{pI*hI/den}}**. The IC's probability rises from its prior {{pI}} because it explains the symptom best."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "n": [
+              31,
+              63,
+              127
+            ],
+            "p": [
+              0.002,
+              0.005,
+              0.01
+            ]
+          },
+          "derived": {
+            "P0": "(1 - p)^n",
+            "P1": "n*p*(1 - p)^(n - 1)"
+          },
+          "prompt": "A Hamming code corrects any single bit error in a block of {{n}} bits. Bits are flipped independently with probability {{p}}. What is the probability that a block is decoded wrongly (two or more errors)? (probability, 0–1)",
+          "answer": "1 - P0 - P1",
+          "unit": "",
+          "tolerance": 0.03,
+          "explanation": "The decoder succeeds with no error, $(1-p)^n$ = {{P0||6}}, or exactly one error, $np(1-p)^{n-1}$ = {{P1||6}}. Otherwise it fails: $P$ = 1 − {{P0||6}} − {{P1||6}} = **{{1-P0-P1}}**. The quick estimate $\\binom{n}{2}p^2$ = {{choose(n,2)*p^2}} is only accurate when $np \\ll 1$ (here $np$ = {{n*p}})."
+        },
+        {
+          "id": "q5",
+          "type": "slider",
+          "params": {
+            "p1": [
+              0.3,
+              0.5,
+              0.6
+            ],
+            "T": [
+              0.75,
+              0.8,
+              0.9
+            ]
+          },
+          "derived": {
+            "et": "p1*(1 - T)/(p1*(1 - T) + T*(1 - p1))"
+          },
+          "prompt": "A binary symmetric channel carries 1s with prior probability {{p1}}. Set the crossover probability $\\varepsilon$ so that a received 1 means '1 sent' with probability {{T}}.",
+          "plot": {
+            "x": {
+              "min": 0,
+              "max": 0.5,
+              "label": "ε"
+            },
+            "y": {
+              "min": 0,
+              "max": 1.05,
+              "label": "P(1 sent | 1 rcvd)"
+            },
+            "sliders": [
+              {
+                "name": "ep",
+                "label": "$\\varepsilon$",
+                "min": 0.005,
+                "max": 0.5,
+                "step": 0.005,
+                "value": 0.5
+              }
+            ],
+            "let": {
+              "post": "p1*(1 - ep)/(p1*(1 - ep) + (1 - p1)*ep)"
+            },
+            "curves": [
+              {
+                "f": "p1*(1 - x)/(p1*(1 - x) + (1 - p1)*x)",
+                "label": "posterior",
+                "labelAt": 0.35
+              }
+            ],
+            "hlines": [
+              {
+                "y": "T",
+                "label": "target",
+                "color": "orange"
+              }
+            ],
+            "points": [
+              {
+                "x": "ep",
+                "y": "post"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$P(1_s|1_r)$",
+                "value": "post",
+                "reveal": true
+              }
+            ]
+          },
+          "check": "0.02 - abs(post - T)",
+          "solution": "$\\varepsilon$ ≈ {{et}}",
+          "explanation": "Solve $\\frac{p_1(1-\\varepsilon)}{p_1(1-\\varepsilon) + (1-p_1)\\varepsilon} = T$ for $\\varepsilon$: $p_1(1-\\varepsilon)(1-T) = T(1-p_1)\\varepsilon$, so $\\varepsilon = \\frac{p_1(1-T)}{p_1(1-T) + T(1-p_1)}$ = {{p1*(1-T)}}/({{p1*(1-T)}} + {{T*(1-p1)}}) = **{{et}}**. Any noisier channel makes a received 1 less trustworthy."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "prompt": "Triple repetition with majority voting lowers the bit-error probability for every crossover probability $\\varepsilon < 0.5$.",
+          "answer": true,
+          "explanation": "$P_e = 3\\varepsilon^2 - 2\\varepsilon^3 < \\varepsilon$ ⟺ $2\\varepsilon^2 - 3\\varepsilon + 1 > 0$ ⟺ $(1-2\\varepsilon)(1-\\varepsilon) > 0$, which holds for every $\\varepsilon < 0.5$. The gain is large for small $\\varepsilon$ (0.01 → $3\\times10^{-4}$) and vanishes as $\\varepsilon \\to 0.5$; the price is a 3× lower data rate."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "p1": [
+              0.3,
+              0.5
+            ],
+            "eps": [
+              0.1,
+              0.2,
+              0.3
+            ]
+          },
+          "derived": {
+            "a": "p1*(1 - eps)^2",
+            "b": "(1 - p1)*eps^2"
+          },
+          "prompt": "A bit is sent twice over a binary symmetric channel with $\\varepsilon$ = {{eps}} (independent flips); a 1 is sent with probability {{p1}}. Both copies arrive as 1. What is the probability that a 1 was sent? (probability, 0–1)",
+          "answer": "a/(a + b)",
+          "unit": "",
+          "tolerance": 0.005,
+          "explanation": "Given the sent bit, the copies are independent: $P(11|1_s) = (1-\\varepsilon)^2$ = {{(1-eps)^2}} and $P(11|0_s) = \\varepsilon^2$ = {{eps^2}}. Bayes: {{p1}} × {{(1-eps)^2}} / ({{a}} + {{1-p1}} × {{eps^2}}) = **{{a/(a+b)}}**. A single received 1 would give only {{p1*(1-eps)/(p1*(1-eps)+(1-p1)*eps)}}: every independent observation sharpens the posterior."
+        }
+      ]
+    }
+  ]
+}

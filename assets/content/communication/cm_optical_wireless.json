@@ -1,0 +1,1151 @@
+{
+  "id": "cm-optical-wireless",
+  "title": "Fiber Optics & Wireless Systems",
+  "description": "Light guiding in fibers, optical power budgets and dispersion, sources and detectors, cellular networks and short-range wireless standards.",
+  "reference": "Frenzel ch. 19–21",
+  "study": [
+    {
+      "title": "Explore: refraction and total internal reflection",
+      "body": "Light travels at $v = c/n$ in a material with refractive index $n$ (about 1.45–1.5 for fiber glass). At a boundary the ray bends according to Snell's law, with angles measured from the normal. Going from the denser to the less dense medium ($n_1 > n_2$) it bends away from the normal; beyond the **critical angle** no light leaves and the ray is totally reflected. Drag the angle of incidence for glass to air ($\\theta_c$ = 41.8°): once $\\sin\\theta_2$ would exceed 1, only the reflected ray remains.",
+      "formula": "\\begin{aligned}& v = \\frac{c}{n}, \\qquad n_1\\sin\\theta_1 = n_2\\sin\\theta_2\\\\ & \\theta_c = \\arcsin\\frac{n_2}{n_1}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": -1.15,
+          "max": 1.15,
+          "label": "",
+          "ticks": []
+        },
+        "y": {
+          "min": -1.15,
+          "max": 1.15,
+          "label": "",
+          "ticks": []
+        },
+        "height": 300,
+        "sliders": [
+          {
+            "name": "t",
+            "label": "$\\theta_1$",
+            "min": 5,
+            "max": 85,
+            "step": 0.5,
+            "value": 30,
+            "unit": "°"
+          }
+        ],
+        "let": {
+          "s2": "1.5*sin(rad(t))/1.0"
+        },
+        "curves": [
+          {
+            "f": "-x/tan(rad(t))",
+            "from": -1.15,
+            "to": 0,
+            "color": "red"
+          },
+          {
+            "f": "-x/tan(asin(min(1, s2)))",
+            "from": 0,
+            "to": 1.15
+          },
+          {
+            "f": "x/tan(rad(t))",
+            "from": 0,
+            "to": 1.15,
+            "color": "grey",
+            "dash": true
+          }
+        ],
+        "hlines": [
+          {
+            "y": 0
+          }
+        ],
+        "vlines": [
+          {
+            "x": 0,
+            "label": "normal"
+          }
+        ],
+        "labels": [
+          {
+            "x": -1.1,
+            "y": 0.13,
+            "text": "glass, n = 1.5",
+            "color": "grey"
+          },
+          {
+            "x": -1.1,
+            "y": -0.13,
+            "text": "air, n = 1.0",
+            "color": "grey"
+          }
+        ],
+        "readouts": [
+          {
+            "label": "$\\sin\\theta_2 = (n_1/n_2)\\sin\\theta_1$",
+            "value": "s2"
+          },
+          {
+            "label": "$\\theta_2$",
+            "value": "deg(asin(min(1, s2)))",
+            "unit": "°"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Numerical aperture and fiber types",
+      "body": "Only light entering the fiber end within the **acceptance angle** $\\theta_A$ (half-angle of the acceptance cone, in air) is guided; $\\sin\\theta_A$ is the numerical aperture, typically 0.1–0.3. **Step-index multimode** fiber has a large core (up to 1 mm for plastic fiber) and strong modal dispersion. **Graded-index multimode** fiber (50 or 62.5 µm core, 125 µm cladding) equalises the path delays and serves LANs up to a few hundred metres at 10 Gb/s. **Single-mode** fiber (about 9 µm core) carries one mode and is used with lasers over long distances.",
+      "formula": "NA = \\sin\\theta_A = \\sqrt{n_1^2 - n_2^2}"
+    },
+    {
+      "title": "Attenuation and the power budget",
+      "body": "Fiber loss is given in dB/km and is lowest in three windows: **850 nm** (about 2–3 dB/km, cheap multimode links), **1310 nm** (about 0.35 dB/km, zero dispersion in standard single-mode fiber) and **1550 nm** (about 0.2 dB/km, where erbium-doped fiber amplifiers work). A power budget subtracts the fiber, connector (0.3–0.75 dB each) and splice (about 0.1 dB) losses from the transmitter power, all in dB. The received power must exceed the receiver sensitivity by a safety margin of a few dB for ageing and repairs.",
+      "formula": "\\begin{aligned}& P_{rx} = P_{tx} - \\alpha L - n_cL_c - n_sL_s\\\\ & M = P_{rx} - P_{sens}\\end{aligned}",
+      "plot": {
+        "x": {
+          "min": 8e-07,
+          "max": 1.7e-06,
+          "label": "λ",
+          "unit": "m"
+        },
+        "y": {
+          "min": 0,
+          "max": 2.5,
+          "label": "α (dB/km)"
+        },
+        "curves": [
+          {
+            "f": "1.04/(x*1e6)^4 + 7.81e11*exp(-48.48/(x*1e6)) + 0.4*exp(-((x*1e6-1.383)/0.025)^2)"
+          }
+        ],
+        "vlines": [
+          {
+            "x": 8.5e-07,
+            "label": "850"
+          },
+          {
+            "x": 1.31e-06,
+            "label": "1310"
+          },
+          {
+            "x": 1.55e-06,
+            "label": "1550"
+          }
+        ],
+        "labels": [
+          {
+            "x": 1.33e-06,
+            "y": 0.86,
+            "text": "OH peak",
+            "color": "grey"
+          }
+        ]
+      }
+    },
+    {
+      "title": "Dispersion and WDM",
+      "body": "Dispersion spreads the light pulses until they overlap. **Modal** dispersion (different ray paths) limits multimode fiber, which is specified by a bandwidth–distance product: 500 MHz·km gives 250 MHz over 2 km. **Chromatic** dispersion arises because the source's wavelengths travel at different speeds; standard single-mode fiber has $D$ ≈ 17 ps/(nm·km) at 1550 nm and almost none at 1310 nm. **WDM** sends many wavelengths through one fiber: CWDM with 20 nm spacing, DWDM with 100 GHz (≈ 0.8 nm) or closer spacing around 1550 nm.",
+      "formula": "\\begin{aligned}& B = \\frac{(B\\cdot L)}{L}, \\qquad \\Delta t = D\\,L\\,\\Delta\\lambda\\\\ & \\Delta\\lambda \\approx \\frac{\\lambda^2}{c}\\,\\Delta f\\end{aligned}"
+    },
+    {
+      "title": "Sources and detectors",
+      "body": "**LEDs** are cheap, with a broad spectrum (tens of nm) and little power coupled into the fiber; they suit short multimode links. **Laser diodes** are narrow-band and fast and couple milliwatts into single-mode fiber (VCSELs at 850 nm, DFB lasers at 1310 and 1550 nm). A **PIN photodiode** converts optical power into current with responsivity $R$ (0.5–0.9 A/W). An **APD** adds internal avalanche gain $M$ (10–100), which improves sensitivity but needs a high bias voltage and adds noise.",
+      "formula": "\\begin{aligned}& I_p = R\\,P_{opt}\\\\ & R = \\frac{\\eta q\\lambda}{hc} \\approx \\frac{\\eta\\,\\lambda_{\\mu m}}{1.24}\\ \\mathrm{A/W}\\end{aligned}"
+    },
+    {
+      "title": "Cellular systems",
+      "body": "A cellular network divides the area into cells, each with a base station. A **cluster** of $N$ cells shares the whole spectrum and the same channels return in the next cluster, at distance $D$: a larger $N$ means less co-channel interference but fewer channels per cell. A moving phone is passed to the next cell by **handoff**: break-before-make (hard) in GSM, make-before-break (soft) in CDMA. 2G GSM uses TDMA with 8 slots per 200 kHz carrier, 3G WCDMA spreads over 5 MHz, 4G LTE uses OFDMA (up to 20 MHz per carrier) with MIMO, and 5G NR adds mmWave bands and massive-MIMO beamforming.",
+      "formula": "\\begin{aligned}& N = i^2 + ij + j^2\\\\ & D = R\\sqrt{3N}\\end{aligned}"
+    },
+    {
+      "title": "Short-range wireless",
+      "body": "**Wi-Fi** (IEEE 802.11) uses the 2.4 GHz band, where only channels 1, 6 and 11 do not overlap, and the 5 GHz band with 20–160 MHz channels (802.11a/n/ac/ax). **Bluetooth** hops over 79 channels of 1 MHz at 2.4 GHz, 1600 times per second (FHSS). **ZigBee** (IEEE 802.15.4) is a low-power mesh network at 250 kb/s. **RFID** tags work at 125 kHz, 13.56 MHz (also NFC) and 860–960 MHz (UHF); **UWB** spreads short pulses over at least 500 MHz in the 3.1–10.6 GHz range, for example for precise ranging.",
+      "formula": "f_{ch} = 2407 + 5k\\ \\mathrm{MHz}\\quad (k = 1 \\ldots 13)"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "cm-optical-wireless-1",
+      "title": "Light in a fiber",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Light in glass",
+          "body": "Optical wavelengths are given in nanometres; fiber systems use the near infrared at 850, 1310 and 1550 nm. In a material with refractive index $n$ light is slower: $v = c/n$. At a boundary the ray changes direction according to **Snell's law**, with all angles measured from the normal.",
+          "formula": "\\begin{aligned}& v = \\frac{c}{n}\\\\ & n_1\\sin\\theta_1 = n_2\\sin\\theta_2\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "n": [
+              1.46,
+              1.47,
+              1.48,
+              1.5
+            ],
+            "L": [
+              1000.0,
+              5000.0,
+              10000.0,
+              50000.0
+            ]
+          },
+          "prompt": "How long does light take to travel through {{L|m}} of fiber with a core index of $n$ = {{n}}?",
+          "answer": "L*n/3e8",
+          "unit": "s",
+          "explanation": "$v = c/n$ = 3 × $10^8$ / {{n}} = {{3/n}} × $10^8$ m/s, so $t = L/v$ = {{L}} m / ({{3/n}} × $10^8$ m/s) = **{{L*n/3e8|s}}**: about 5 µs per kilometre."
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "n2": [
+              1.33,
+              1.45,
+              1.5
+            ],
+            "t1": [
+              20,
+              30,
+              45,
+              60
+            ]
+          },
+          "prompt": "A ray in air ($n$ = 1.00) hits a flat surface of a material with $n$ = {{n2}} at {{t1}}° from the normal. At what angle from the normal does it continue inside the material?",
+          "answer": "deg(asin(sin(rad(t1))/n2))",
+          "unit": "°",
+          "tolerance": 0.01,
+          "absTolerance": 0.15,
+          "explanation": "Snell: $\\sin\\theta_2 = \\frac{n_1}{n_2}\\sin\\theta_1$ = sin {{t1}}° / {{n2}} = {{sin(rad(t1))/n2}}, so $\\theta_2$ = **{{deg(asin(sin(rad(t1))/n2))}}°**. Entering the denser medium, the ray bends toward the normal."
+        },
+        {
+          "id": "i2",
+          "type": "info",
+          "title": "The critical angle",
+          "body": "When light goes from a higher to a lower index ($n_1 > n_2$) the refracted ray bends away from the normal. At the **critical angle** it just grazes the boundary; at larger angles of incidence all light is reflected (total internal reflection). A fiber core has a slightly higher index than its cladding, so rays that hit the core–cladding boundary at more than $\\theta_c$ stay trapped in the core.",
+          "formula": "\\theta_c = \\arcsin\\frac{n_2}{n_1}"
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "n1": [
+              1.46,
+              1.48,
+              1.5
+            ],
+            "dn": [
+              0.005,
+              0.01,
+              0.015,
+              0.02
+            ]
+          },
+          "derived": {
+            "n2": "n1-dn"
+          },
+          "prompt": "A fiber has a core index of {{n1}} and a cladding index of {{n2||4}}. Find the critical angle at the core–cladding boundary.",
+          "answer": "deg(asin(n2/n1))",
+          "unit": "°",
+          "tolerance": 0.01,
+          "absTolerance": 0.15,
+          "explanation": "$\\theta_c = \\arcsin(n_2/n_1)$ = arcsin({{n2||4}} / {{n1}}) = arcsin {{n2/n1||4}} = **{{deg(asin(n2/n1))}}°**. Only rays travelling almost parallel to the axis (within {{90-deg(asin(n2/n1))}}° of it) are guided."
+        },
+        {
+          "id": "q4",
+          "type": "trueFalse",
+          "prompt": "A ray that hits the core–cladding boundary at an angle **smaller** than the critical angle (measured from the normal) is totally reflected.",
+          "answer": false,
+          "explanation": "False. Total internal reflection needs an angle of incidence **larger** than $\\theta_c$. Below it, part of the light refracts into the cladding and is lost; that is why only rays nearly parallel to the fiber axis are guided."
+        },
+        {
+          "id": "i3",
+          "type": "info",
+          "title": "Numerical aperture",
+          "body": "Light must enter the fiber end within the **acceptance cone** to be guided. Its half-angle $\\theta_A$ (in air) follows from the two indices; $\\sin\\theta_A$ is the **numerical aperture** NA. A larger NA collects light more easily (useful with LEDs) but lets more modes propagate, which means more modal dispersion. (Frenzel also calls $\\theta_A$ the critical angle; here $\\theta_c$ is always the angle at the core–cladding boundary.)",
+          "formula": "NA = \\sin\\theta_A = \\sqrt{n_1^2 - n_2^2}"
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "n1": [
+              1.46,
+              1.48,
+              1.5
+            ],
+            "dn": [
+              0.005,
+              0.01,
+              0.015,
+              0.02,
+              0.03
+            ]
+          },
+          "derived": {
+            "n2": "n1-dn",
+            "NA": "sqrt(n1^2-n2^2)"
+          },
+          "prompt": "A fiber has $n_1$ = {{n1}} (core) and $n_2$ = {{n2||4}} (cladding).",
+          "ask": [
+            {
+              "prompt": "Find its numerical aperture.",
+              "answer": "NA",
+              "unit": "",
+              "explanation": "$NA = \\sqrt{n_1^2 - n_2^2}$ = √({{n1}}² − {{n2||4}}²) = √{{n1^2-n2^2||3}} = **{{NA}}**."
+            },
+            {
+              "prompt": "Find the acceptance half-angle in air.",
+              "answer": "deg(asin(NA))",
+              "unit": "°",
+              "tolerance": 0.01,
+              "absTolerance": 0.15,
+              "explanation": "$NA = \\sqrt{n_1^2 - n_2^2}$ = {{NA}}, so $\\theta_A = \\arcsin NA$ = **{{deg(asin(NA))}}°**; the full acceptance cone is {{2*deg(asin(NA))}}° wide."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "matchPairs",
+          "prompt": "Match each fiber type to its description.",
+          "pairs": [
+            [
+              "Single-mode",
+              "≈ 9 µm core, lasers, long distances"
+            ],
+            [
+              "Graded-index multimode",
+              "50/62.5 µm core, LANs and data centres"
+            ],
+            [
+              "Step-index multimode",
+              "Large core, strong modal dispersion"
+            ]
+          ],
+          "explanation": "Single-mode fiber is so thin that only one mode propagates: no modal dispersion, the choice for long links, but it needs a laser. Graded-index multimode equalises the delays of the modes and is used in buildings. Step-index multimode (including plastic fiber) is cheapest to couple into but has the most modal dispersion."
+        },
+        {
+          "id": "q7",
+          "type": "multipleChoice",
+          "prompt": "Why does graded-index fiber have much less modal dispersion than step-index multimode fiber?",
+          "options": [
+            "Rays on longer paths travel through lower-index glass, so they move faster",
+            "Its core is so small that only one mode can propagate",
+            "Its attenuation is lower",
+            "Its cladding absorbs the oblique rays"
+          ],
+          "answer": 0,
+          "explanation": "In graded-index fiber the index falls from the core centre outward. Oblique rays travel a longer zig-zag path, but mostly through lower-index glass where light is faster, so all modes arrive at about the same time. The single-mode answer describes single-mode fiber; attenuation does not spread pulses."
+        }
+      ]
+    },
+    {
+      "id": "cm-optical-wireless-2",
+      "title": "Fiber link calculations",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "Ptx": [
+              -3,
+              0,
+              3
+            ],
+            "al": [
+              0.2,
+              0.25,
+              0.35,
+              0.4
+            ],
+            "L": [
+              10000.0,
+              20000.0,
+              40000.0,
+              60000.0
+            ],
+            "nc": [
+              2,
+              4
+            ],
+            "ns": [
+              2,
+              4,
+              6,
+              10
+            ],
+            "S": [
+              -28,
+              -30,
+              -34
+            ]
+          },
+          "derived": {
+            "A": "al*L/1000+nc*0.5+ns*0.1",
+            "Prx": "Ptx-A",
+            "M": "Prx-S"
+          },
+          "require": "abs(M)-0.5",
+          "prompt": "A single-mode link of {{L|m}}: transmitter {{Ptx}} dBm, fiber {{al}} dB/km, {{nc}} connectors of 0.5 dB, {{ns}} splices of 0.1 dB, receiver sensitivity {{S}} dBm.",
+          "ask": [
+            {
+              "prompt": "What is the total loss?",
+              "answer": "A",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "Fiber {{al}} × {{L/1000}} = {{al*L/1000}} dB, connectors {{nc}} × 0.5 = {{nc*0.5}} dB, splices {{ns}} × 0.1 = {{ns*0.1}} dB. Total **{{A}} dB**."
+            },
+            {
+              "prompt": "What is the received power in dBm?",
+              "answer": "Prx",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "Total loss = {{al*L/1000}} + {{nc*0.5}} + {{ns*0.1}} = {{A}} dB. $P_{rx}$ = {{Ptx}} − {{A}} = **{{Prx}} dBm**."
+            },
+            {
+              "prompt": "What is the power margin above the receiver sensitivity?",
+              "answer": "M",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "Loss {{A}} dB, so $P_{rx}$ = {{Ptx}} − {{A}} = {{Prx}} dBm. Margin = {{Prx}} − ({{S}}) = **{{M}} dB** (a negative margin would mean the link fails)."
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "Ptx": [
+              -3,
+              0,
+              3
+            ],
+            "S": [
+              -20,
+              -25,
+              -30
+            ],
+            "M": [
+              3,
+              6
+            ],
+            "al": [
+              0.35,
+              0.5,
+              2.5,
+              3.5
+            ]
+          },
+          "require": "Ptx-S-M-1.5-1",
+          "prompt": "A link has a {{Ptx}} dBm transmitter, a receiver with {{S}} dBm sensitivity, two connectors of 0.75 dB and fiber with {{al}} dB/km. A {{M}} dB margin is required. What is the longest possible fiber?",
+          "answer": "1000*(Ptx-S-M-1.5)/al",
+          "unit": "m",
+          "explanation": "Available for the fiber: {{Ptx}} − ({{S}}) − {{M}} − 2 × 0.75 = {{Ptx-S-M-1.5}} dB. $L$ = {{Ptx-S-M-1.5}} / {{al}} dB/km = **{{1000*(Ptx-S-M-1.5)/al|m}}** (if dispersion does not limit it first)."
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "BL": [
+              200,
+              500,
+              2000
+            ],
+            "L": [
+              300,
+              500,
+              2000
+            ]
+          },
+          "prompt": "A multimode fiber has a bandwidth–distance product of {{BL}} MHz·km. What bandwidth does a {{L|m}} link offer?",
+          "answer": "BL*1e6/(L/1000)",
+          "unit": "Hz",
+          "explanation": "The bandwidth scales inversely with length: $B = (B\\cdot L)/L$ = {{BL}} MHz·km / {{L/1000}} km = **{{BL*1e6/(L/1000)|Hz}}**."
+        },
+        {
+          "id": "q4",
+          "type": "numeric",
+          "params": {
+            "D": [
+              17,
+              18
+            ],
+            "L": [
+              20000.0,
+              50000.0,
+              80000.0
+            ],
+            "dl": [
+              0.1,
+              0.2,
+              1,
+              2
+            ]
+          },
+          "prompt": "A single-mode fiber at 1550 nm has a chromatic dispersion of {{D}} ps/(nm·km). The source has a spectral width of {{dl}} nm. How much does a pulse spread over {{L|m}}?",
+          "answer": "D*1e-12*(L/1000)*dl",
+          "unit": "s",
+          "explanation": "$\\Delta t = D\\,L\\,\\Delta\\lambda$ = {{D}} ps/(nm·km) × {{L/1000}} km × {{dl}} nm = **{{D*1e-12*(L/1000)*dl|s}}**. A narrow-line laser keeps this small."
+        },
+        {
+          "id": "q5",
+          "type": "numeric",
+          "params": {
+            "eta": [
+              0.6,
+              0.7,
+              0.8,
+              0.9
+            ],
+            "lam": [
+              8.5e-07,
+              1.31e-06,
+              1.55e-06
+            ],
+            "P": [
+              1e-06,
+              5e-06,
+              2e-05,
+              0.0001
+            ]
+          },
+          "derived": {
+            "R": "eta*lam*1e6/1.24"
+          },
+          "prompt": "A PIN photodiode with quantum efficiency η = {{eta}} receives {{P|W}} of light at {{lam*1e9}} nm.",
+          "ask": [
+            {
+              "prompt": "Find its responsivity in A/W, using $R \\approx \\eta\\lambda_{\\mu m}/1.24$.",
+              "answer": "R",
+              "unit": "",
+              "explanation": "$R \\approx \\eta\\lambda_{\\mu m}/1.24$ = {{eta}} × {{lam*1e6}} / 1.24 = **{{R}} A/W**. Longer wavelengths give more electrons per watt, because each photon carries less energy."
+            },
+            {
+              "prompt": "Find the photocurrent.",
+              "answer": "R*P",
+              "unit": "A",
+              "explanation": "$R \\approx \\eta\\lambda_{\\mu m}/1.24$ = {{R}} A/W, so $I_p = R\\,P$ = {{R}} × {{P|W}} = **{{R*P|A}}**."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "type": "multipleChoice",
+          "prompt": "A 60 km single-mode link without amplifiers must have the lowest possible fiber loss. Which wavelength do you choose?",
+          "options": [
+            "1550 nm",
+            "1310 nm",
+            "850 nm",
+            "1383 nm"
+          ],
+          "answer": 0,
+          "explanation": "Silica fiber has its minimum loss, about 0.2 dB/km, near 1550 nm: 12 dB over 60 km. At 1310 nm (about 0.35 dB/km) it would be 21 dB, and 850 nm is for short multimode links. Around 1383 nm lies the water (OH) absorption peak."
+        },
+        {
+          "id": "q7",
+          "type": "numeric",
+          "params": {
+            "df": [
+              50000000000.0,
+              100000000000.0,
+              200000000000.0
+            ],
+            "lam": [
+              1.53e-06,
+              1.55e-06,
+              1.56e-06
+            ]
+          },
+          "derived": {
+            "dl": "lam^2*df/3e8"
+          },
+          "prompt": "A DWDM system has channels near {{lam*1e9}} nm.",
+          "ask": [
+            {
+              "prompt": "What wavelength spacing corresponds to a {{df|Hz}} channel spacing?",
+              "answer": "dl",
+              "unit": "m",
+              "explanation": "From $f = c/\\lambda$: $\\Delta\\lambda \\approx \\lambda^2\\Delta f/c$ = ({{lam*1e9}} nm)² × {{df|Hz}} / (3 × $10^8$ m/s) = **{{dl*1e9}} nm**."
+            },
+            {
+              "prompt": "What is the optical frequency of the carrier, in THz?",
+              "answer": "3e8/lam/1e12",
+              "unit": "",
+              "explanation": "$f = c/\\lambda$ = 3 × $10^8$ / {{lam*1e9}} nm = **{{3e8/lam/1e12}} THz**. A {{df|Hz}} grid is a tiny fraction of that."
+            }
+          ]
+        },
+        {
+          "id": "q8",
+          "type": "slider",
+          "params": {
+            "n1": [
+              1.45,
+              1.5,
+              1.6
+            ],
+            "n2": [
+              1.0,
+              1.33
+            ]
+          },
+          "derived": {
+            "tc": "deg(asin(n2/n1))"
+          },
+          "prompt": "Light travels from a material with $n_1$ = {{n1}} into one with $n_2$ = {{n2}}. Set the angle of incidence to the critical angle, where the refracted ray just grazes the boundary.",
+          "plot": {
+            "x": {
+              "min": -1.15,
+              "max": 1.15,
+              "label": "",
+              "ticks": []
+            },
+            "y": {
+              "min": -1.15,
+              "max": 1.15,
+              "label": "",
+              "ticks": []
+            },
+            "height": 325,
+            "sliders": [
+              {
+                "name": "t",
+                "label": "$\\theta_1$",
+                "min": 5,
+                "max": 85,
+                "step": 0.5,
+                "value": 25,
+                "unit": "°"
+              }
+            ],
+            "let": {
+              "s2": "n1*sin(rad(t))/n2"
+            },
+            "curves": [
+              {
+                "f": "-x/tan(rad(t))",
+                "from": -1.15,
+                "to": 0,
+                "color": "red"
+              },
+              {
+                "f": "-x/tan(asin(min(1, s2)))",
+                "from": 0,
+                "to": 1.15
+              },
+              {
+                "f": "x/tan(rad(t))",
+                "from": 0,
+                "to": 1.15,
+                "color": "grey",
+                "dash": true
+              }
+            ],
+            "hlines": [
+              {
+                "y": 0
+              }
+            ],
+            "vlines": [
+              {
+                "x": 0,
+                "label": "normal"
+              }
+            ],
+            "labels": [
+              {
+                "x": -1.1,
+                "y": 0.13,
+                "text": "n_1 = {{n1}}",
+                "color": "grey"
+              },
+              {
+                "x": -1.1,
+                "y": -0.13,
+                "text": "n_2 = {{n2}}",
+                "color": "grey"
+              }
+            ],
+            "readouts": [
+              {
+                "label": "$\\sin\\theta_2 = (n_1/n_2)\\sin\\theta_1$",
+                "value": "s2"
+              }
+            ]
+          },
+          "answer": {
+            "t": "tc"
+          },
+          "tolerance": 0.015,
+          "explanation": "$\\theta_c = \\arcsin(n_2/n_1)$ = arcsin({{n2}} / {{n1}}) = **{{tc}}°**. There $\\sin\\theta_2 = 1$ and $\\theta_2$ = 90°; any larger angle gives total internal reflection."
+        }
+      ]
+    },
+    {
+      "id": "cm-optical-wireless-3",
+      "title": "Cellular and short-range wireless",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "i1",
+          "type": "info",
+          "title": "Frequency reuse",
+          "body": "A cellular operator has a limited number of channels. They are divided over a **cluster** of $N$ cells, and the pattern repeats: the same channels come back in cells a distance $D$ away. To find the nearest co-channel cell, move $i$ cells in a straight line, turn 60° and move $j$ cells. A larger cluster puts co-channel cells further apart (less interference) but leaves fewer channels per cell.",
+          "formula": "\\begin{aligned}& N = i^2 + ij + j^2\\\\ & D = R\\sqrt{3N}\\end{aligned}"
+        },
+        {
+          "id": "q1",
+          "type": "numeric",
+          "params": {
+            "i": [
+              1,
+              2,
+              3
+            ],
+            "j": [
+              0,
+              1,
+              2
+            ]
+          },
+          "require": "i+j-1.5",
+          "prompt": "The nearest co-channel cell is reached with shift parameters $i$ = {{i}} and $j$ = {{j}}: $i$ cells in a straight line, a 60° turn, then $j$ cells. What is the cluster size $N$?",
+          "answer": "i^2+i*j+j^2",
+          "unit": "",
+          "explanation": "$N = i^2 + ij + j^2$ = {{i}}² + {{i}}·{{j}} + {{j}}² = **{{i^2+i*j+j^2}}**. Valid cluster sizes are 1, 3, 4, 7, 9, 12, 13, …"
+        },
+        {
+          "id": "q2",
+          "type": "numeric",
+          "params": {
+            "N": [
+              3,
+              4,
+              7,
+              9,
+              12
+            ],
+            "R": [
+              500,
+              1000.0,
+              2000.0,
+              5000.0
+            ]
+          },
+          "prompt": "A network uses hexagonal cells of radius {{R|m}} and cluster size $N$ = {{N}}.",
+          "ask": [
+            {
+              "prompt": "How far apart are co-channel cells?",
+              "answer": "R*sqrt(3*N)",
+              "unit": "m",
+              "explanation": "$D = R\\sqrt{3N}$ = {{R|m}} × √({{3*N}}) = **{{R*sqrt(3*N)|m}}**."
+            },
+            {
+              "prompt": "What is the co-channel reuse ratio $Q = D/R$?",
+              "answer": "sqrt(3*N)",
+              "unit": "",
+              "explanation": "$Q = D/R = \\sqrt{3N}$ = √{{3*N}} = **{{sqrt(3*N)}}**. It depends only on $N$, not on the cell size."
+            }
+          ]
+        },
+        {
+          "id": "q3",
+          "type": "numeric",
+          "params": {
+            "B": [
+              10000000.0,
+              15000000.0,
+              20000000.0,
+              25000000.0
+            ],
+            "N": [
+              3,
+              4,
+              7
+            ]
+          },
+          "derived": {
+            "nch": "floor(B/200e3/N)"
+          },
+          "prompt": "A GSM operator has {{B|Hz}} in each direction (uplink and downlink), split into 200 kHz carriers, with cluster size $N$ = {{N}}.",
+          "ask": [
+            {
+              "prompt": "How many whole carriers does each cell get?",
+              "answer": "nch",
+              "unit": "",
+              "explanation": "{{B|Hz}} / 200 kHz = {{B/200e3}} carriers, shared by {{N}} cells: {{B/200e3/N}}, so **{{nch}}** whole carriers per cell."
+            },
+            {
+              "prompt": "How many simultaneous full-rate calls can one cell carry (8 time slots per carrier, ignore control channels)?",
+              "answer": "8*nch",
+              "unit": "",
+              "explanation": "{{B/200e3}} carriers / {{N}} cells = {{nch}} whole carriers per cell; with TDMA each carries 8 calls: **{{8*nch}}** calls."
+            }
+          ]
+        },
+        {
+          "id": "q4",
+          "type": "matchPairs",
+          "prompt": "Match each cellular generation to its air interface.",
+          "pairs": [
+            [
+              "2G (GSM)",
+              "TDMA, 8 slots per 200 kHz carrier"
+            ],
+            [
+              "3G (UMTS)",
+              "WCDMA, 5 MHz carriers"
+            ],
+            [
+              "4G (LTE)",
+              "OFDMA, up to 20 MHz per carrier"
+            ],
+            [
+              "5G (NR)",
+              "OFDM up to mmWave, massive MIMO"
+            ]
+          ],
+          "explanation": "GSM shares each 200 kHz carrier between 8 users in time. UMTS spreads every user over 5 MHz with its own code. LTE gives each user a set of OFDM subcarriers (OFDMA) and uses MIMO. 5G NR keeps OFDM but adds wider channels, mmWave bands (24 GHz and up) and beamforming with many antennas."
+        },
+        {
+          "id": "q5",
+          "type": "multipleChoice",
+          "prompt": "What is a **soft** handoff?",
+          "options": [
+            "The phone connects to the new base station before the old link is released",
+            "The phone drops the call and redials through the new cell",
+            "The base station lowers its power so that the phone moves to a smaller cell",
+            "The phone moves to another time slot within the same cell"
+          ],
+          "answer": 0,
+          "explanation": "Soft handoff is make-before-break: in CDMA systems all cells use the same frequency, so the phone can talk to two base stations at once and drop the weaker one later. GSM uses hard handoff (break-before-make), because the new cell uses a different frequency."
+        },
+        {
+          "id": "q6",
+          "type": "trueFalse",
+          "params": {
+            "k1": [
+              1,
+              6
+            ],
+            "d": [
+              2,
+              3,
+              5,
+              6
+            ]
+          },
+          "derived": {
+            "k2": "k1+d"
+          },
+          "prompt": "Two 2.4 GHz Wi-Fi networks on channels {{k1}} and {{k2}} (20 MHz wide, centres at 2407 + 5k MHz) do not overlap.",
+          "answer": "5*d-22",
+          "explanation": "The centres are {{d}} × 5 = {{5*d}} MHz apart. A 20 MHz channel needs at least about 20–25 MHz separation, so they overlap when the spacing is smaller. That is why 1, 6 and 11 (25 MHz apart) are the standard non-overlapping channels."
+        },
+        {
+          "id": "q7",
+          "type": "matchPairs",
+          "prompt": "Match each short-range technology to its key feature.",
+          "pairs": [
+            [
+              "Bluetooth",
+              "FHSS over 79 × 1 MHz channels at 2.4 GHz"
+            ],
+            [
+              "ZigBee",
+              "IEEE 802.15.4 low-power mesh, 250 kb/s"
+            ],
+            [
+              "Passive UHF RFID",
+              "Backscatter tags at 860–960 MHz"
+            ],
+            [
+              "UWB",
+              "Pulses spread over ≥ 500 MHz, 3.1–10.6 GHz"
+            ],
+            [
+              "NFC",
+              "13.56 MHz inductive coupling over a few cm"
+            ]
+          ],
+          "explanation": "Bluetooth hops 1600 times per second over 79 channels. ZigBee networks of sensors relay each other's messages (mesh). A passive UHF tag has no battery: it reflects (backscatters) the reader's signal. UWB's very short pulses allow centimetre ranging. NFC is a near-field (magnetic) link at 13.56 MHz."
+        }
+      ]
+    },
+    {
+      "id": "cm-optical-wireless-4",
+      "title": "Designing links",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "c1",
+          "type": "numeric",
+          "params": {
+            "L": [
+              30000.0,
+              50000.0,
+              80000.0
+            ],
+            "al": [
+              0.2,
+              0.22,
+              0.25
+            ],
+            "Ptx": [
+              0,
+              3
+            ],
+            "S": [
+              -28,
+              -32
+            ]
+          },
+          "derived": {
+            "ns": "L/5000-1",
+            "A": "al*L/1000+2*0.5+ns*0.1",
+            "Prx": "Ptx-A",
+            "M": "Prx-S"
+          },
+          "require": "abs(M)-0.5",
+          "prompt": "A single-mode link of {{L|m}} at 1550 nm: fiber of {{al}} dB/km on 5 km reels joined by 0.1 dB fusion splices, a 0.5 dB connector at each end, a {{Ptx}} dBm laser and a receiver with {{S}} dBm sensitivity.",
+          "ask": [
+            {
+              "prompt": "What is the received power in dBm?",
+              "answer": "Prx",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "{{L/5000}} reels need {{ns}} splices. Loss: fiber {{al}} × {{L/1000}} = {{al*L/1000}} dB, connectors 1 dB, splices {{ns*0.1}} dB, total {{A}} dB. $P_{rx}$ = {{Ptx}} − {{A}} = **{{Prx}} dBm**."
+            },
+            {
+              "prompt": "What is the margin above the receiver sensitivity?",
+              "answer": "M",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "{{ns}} splices; loss = {{al*L/1000}} + 1 + {{ns*0.1}} = {{A}} dB, so $P_{rx}$ = {{Prx}} dBm. Margin = {{Prx}} − ({{S}}) = **{{M}} dB**."
+            }
+          ]
+        },
+        {
+          "id": "c2",
+          "type": "numeric",
+          "params": {
+            "Prx": [
+              -35,
+              -30,
+              -25
+            ],
+            "R": [
+              0.8,
+              0.9
+            ],
+            "M": [
+              10,
+              20,
+              40
+            ]
+          },
+          "derived": {
+            "P": "1e-3*10^(Prx/10)"
+          },
+          "prompt": "A receiver gets {{Prx}} dBm of light. Its photodiode has a responsivity of {{R}} A/W.",
+          "ask": [
+            {
+              "prompt": "What photocurrent does a PIN diode deliver?",
+              "answer": "R*P",
+              "unit": "A",
+              "explanation": "{{Prx}} dBm = 1 mW × 10^({{Prx}}/10) = {{P|W}}. $I_p = R\\,P$ = {{R}} × {{P|W}} = **{{R*P|A}}**."
+            },
+            {
+              "prompt": "What current does an APD with gain $M$ = {{M}} deliver?",
+              "answer": "M*R*P",
+              "unit": "A",
+              "explanation": "{{Prx}} dBm = {{P|W}}. The avalanche multiplies the primary photocurrent: $I = M\\,R\\,P$ = {{M}} × {{R}} × {{P|W}} = **{{M*R*P|A}}**."
+            }
+          ]
+        },
+        {
+          "id": "c3",
+          "type": "numeric",
+          "params": {
+            "L": [
+              40000.0,
+              80000.0,
+              100000.0
+            ],
+            "dl": [
+              0.1,
+              0.5,
+              1
+            ]
+          },
+          "derived": {
+            "dt": "17e-12*(L/1000)*dl"
+          },
+          "prompt": "A single-mode link of {{L|m}} at 1550 nm ($D$ = 17 ps/(nm·km)) uses a laser with {{dl}} nm spectral width. Allow the pulse spreading to take at most a quarter of the bit period.",
+          "ask": [
+            {
+              "prompt": "How much does a pulse spread?",
+              "answer": "dt",
+              "unit": "s",
+              "explanation": "$\\Delta t = D\\,L\\,\\Delta\\lambda$ = 17 × {{L/1000}} × {{dl}} = **{{dt|s}}**."
+            },
+            {
+              "prompt": "What is the highest bit rate?",
+              "answer": "1/(4*dt)",
+              "unit": "b/s",
+              "explanation": "$\\Delta t$ = 17 ps/(nm·km) × {{L/1000}} km × {{dl}} nm = {{dt|s}}. With $\\Delta t \\le T_b/4$: $R_{max} = 1/(4\\Delta t)$ = **{{1/(4*dt)|b/s}}**. A narrower laser or dispersion compensation raises the limit."
+            }
+          ]
+        },
+        {
+          "id": "c4",
+          "type": "multipleChoice",
+          "params": {
+            "T": [
+              12,
+              15,
+              18,
+              20
+            ]
+          },
+          "prompt": "With a path-loss exponent of 4 and six co-channel cells around each cell, the signal-to-interference ratio is $S/I \\approx (3N)^2/6$. The system needs $S/I$ ≥ {{T}} dB. What is the smallest standard cluster size that meets this?",
+          "options": [
+            "$N$ = 3",
+            "$N$ = 4",
+            "$N$ = 7",
+            "$N$ = 9",
+            "$N$ = 12"
+          ],
+          "shuffle": false,
+          "answer": "if(T-19, 3, if(T-14, 2, 1))",
+          "explanation": "$S/I = (3N)^2/6$: $N$ = 3 gives 13.5 (11.3 dB), $N$ = 4 gives 24 (13.8 dB), $N$ = 7 gives 73.5 (18.7 dB), $N$ = 9 gives 121.5 (20.8 dB), $N$ = 12 gives 216 (23.3 dB). The smallest $N$ with at least {{T}} dB is the answer. Analog AMPS, which needed about 18 dB, used $N$ = 7; GSM tolerates about 9–12 dB and uses $N$ = 3 or 4."
+        },
+        {
+          "id": "c5",
+          "type": "numeric",
+          "params": {
+            "A": [
+              100000000.0,
+              200000000.0,
+              400000000.0
+            ],
+            "R": [
+              1000.0,
+              2000.0
+            ],
+            "N": [
+              4,
+              7
+            ],
+            "C": [
+              280,
+              420,
+              560
+            ]
+          },
+          "derived": {
+            "cells": "A/(2.598*R^2)",
+            "nc": "ceil(cells)",
+            "cap": "nc*C/N"
+          },
+          "prompt": "A city of {{A/1e6}} km² is covered by hexagonal cells of radius {{R|m}} (area $2.6R^2$ each). The operator has {{C}} voice channels in total and uses cluster size $N$ = {{N}}.",
+          "ask": [
+            {
+              "prompt": "How many cells are needed (round up)?",
+              "answer": "nc",
+              "unit": "",
+              "explanation": "One hexagon covers $\\frac{3\\sqrt3}{2}R^2$ = 2.6 × ({{R/1000}} km)² = {{2.598*(R/1000)^2}} km², so {{A/1e6}} / {{2.598*(R/1000)^2}} = {{cells||4}}, so **{{nc}}** cells."
+            },
+            {
+              "prompt": "How many simultaneous calls can the whole city carry (use the rounded-up number of cells)?",
+              "answer": "cap",
+              "unit": "",
+              "explanation": "Cells: {{A/1e6}} km² / {{2.598*(R/1000)^2}} km² = {{cells||4}}, so {{nc}} cells. Each gets {{C}}/{{N}} = {{C/N}} channels, so the city carries {{nc}} × {{C/N}} = **{{cap||5}}** calls. Halving the cell radius quadruples this (cell splitting)."
+            }
+          ]
+        },
+        {
+          "id": "c6",
+          "type": "numeric",
+          "params": {
+            "Pt": [
+              15,
+              20
+            ],
+            "G": [
+              2,
+              3
+            ],
+            "f": [
+              2400000000.0,
+              5200000000.0
+            ],
+            "d": [
+              10,
+              20,
+              30
+            ],
+            "nw": [
+              1,
+              2,
+              3
+            ],
+            "S": [
+              -70,
+              -75
+            ]
+          },
+          "derived": {
+            "FS": "(32.44+20*log10(d/1000)+20*log10(f/1e6))",
+            "Pr": "Pt+2*G-FS-4*nw",
+            "M": "Pr-S"
+          },
+          "require": "abs(M)-0.5",
+          "prompt": "A Wi-Fi access point ({{Pt}} dBm, {{G}} dBi antenna) serves a laptop ({{G}} dBi) {{d|m}} away at {{f|Hz}}; the walls in between add {{4*nw}} dB of loss. Use free-space loss for the rest. The laptop needs {{S}} dBm for the highest data rate.",
+          "ask": [
+            {
+              "prompt": "Find the received power in dBm.",
+              "answer": "Pr",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "$FSPL$ = 32.44 + 20 log {{d/1000}} + 20 log {{f/1e6}} = {{FS||4}} dB. $P_r$ = {{Pt}} + 2 × {{G}} − {{FS||4}} − {{4*nw}} = **{{Pr}} dBm**."
+            },
+            {
+              "prompt": "Find the margin above the required level.",
+              "answer": "M",
+              "unit": "dB",
+              "tolerance": 0.01,
+              "absTolerance": 0.06,
+              "explanation": "$FSPL$ = {{FS||4}} dB, so $P_r$ = {{Pt}} + {{2*G}} − {{FS||4}} − {{4*nw}} = {{Pr}} dBm. Margin = {{Pr}} − ({{S}}) = **{{M}} dB**. At 5 GHz the same distance costs 6.7 dB more than at 2.4 GHz."
+            }
+          ]
+        },
+        {
+          "id": "c7",
+          "type": "orderSteps",
+          "prompt": "Put the steps of a fiber-link power budget in order.",
+          "items": [
+            "Express the transmitter power in dBm",
+            "Add up the losses: fiber (α × L), connectors and splices",
+            "Subtract the losses to find the received power",
+            "Subtract the receiver sensitivity to find the margin",
+            "Check that the margin covers the required safety margin"
+          ],
+          "explanation": "Working in dB turns the chain into additions: start from the transmitter power in dBm, subtract all losses, and compare the result with the sensitivity. The margin must be at least the few dB needed for ageing, repairs and temperature; then check the dispersion (bit-rate) limit as well."
+        }
+      ]
+    }
+  ]
+}

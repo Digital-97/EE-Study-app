@@ -1,0 +1,410 @@
+{
+  "id": "sd-transport",
+  "title": "Carrier Transport",
+  "description": "How electrons and holes move: drift in an electric field, mobility, conductivity, diffusion, the Einstein relation and the Hall effect.",
+  "reference": "Neamen §5.1–5.4",
+  "study": [
+    {
+      "title": "Drift and mobility",
+      "body": "In an electric field a carrier is accelerated, then scattered (by lattice vibrations or ionized impurities), accelerated again, and so on. On average it moves with a **drift velocity** proportional to the field; the constant is the **mobility** $\\mu$. A light effective mass and a long time between collisions give a high mobility. Low-doped Si at 300 K: $\\mu_n$ = 1350 and $\\mu_p$ = 480 cm²/V·s; GaAs: $\\mu_n$ = 8500 cm²/V·s.",
+      "formula": "v_d = \\mu E, \\qquad \\mu = \\frac{q\\tau_c}{m^*}"
+    },
+    {
+      "title": "Conductivity and resistivity",
+      "body": "Electrons drift against the field and holes with it, but both give current **in** the field direction, so their contributions add. In doped material the majority term dominates: $\\rho \\approx 1/(qN_d\\mu_n)$ for n-type. A bar of length $L$ and cross-section $A$ has $R = \\rho L/A$.\n**Example:** $N_d = 10^{16}$ cm⁻³, $\\mu_n$ = 1131 cm²/V·s: $\\rho$ = $1/(1.602\\times10^{-19}\\times10^{16}\\times1131)$ = 0.552 Ω·cm.",
+      "formula": "\\begin{aligned}& \\sigma = q(n\\mu_n + p\\mu_p)\\\\ & J_{drift} = \\sigma E, \\quad \\rho = \\frac{1}{\\sigma}\\end{aligned}"
+    },
+    {
+      "title": "Explore: mobility and doping",
+      "body": "Ionized dopant atoms scatter carriers, so mobility falls as doping rises: above about $10^{16}$ cm⁻³ the drop is significant. Mobility depends on the **total** ionized impurity concentration $N_d + N_a$, even in compensated material. The curves are an empirical fit to measured silicon data at 300 K. Drag the doping and watch the resistivity.",
+      "plot": {
+        "x": {"min": 13, "max": 19, "label": "log_{10} N (cm⁻³)"},
+        "y": {"min": 0, "max": 1500, "label": "µ (cm²/V·s)"},
+        "sliders": [{"name": "N", "label": "$N$", "min": 1e13, "max": 1e19, "log": true, "value": 1e16, "unit": "cm⁻³"}],
+        "let": {
+          "mn": "68.5 + 1281.5/(1+(N/9.2e16)^0.711)",
+          "mp": "44.9 + 435.1/(1+(N/2.23e17)^0.719)"
+        },
+        "curves": [
+          {"f": "68.5 + 1281.5/(1+(10^x/9.2e16)^0.711)", "label": "electrons", "labelAt": 0.12},
+          {"f": "44.9 + 435.1/(1+(10^x/2.23e17)^0.719)", "label": "holes", "color": "red", "labelAt": 0.12}
+        ],
+        "points": [
+          {"x": "log10(N)", "y": "mn", "guides": false},
+          {"x": "log10(N)", "y": "mp", "guides": false, "color": "red"}
+        ],
+        "readouts": [
+          {"label": "$\\mu_n$", "value": "mn", "unit": "cm²/V·s"},
+          {"label": "$\\mu_p$", "value": "mp", "unit": "cm²/V·s"},
+          {"label": "$\\rho$ (n-type)", "value": "1/(1.602e-19*N*mn)", "unit": "Ω·cm"},
+          {"label": "$\\rho$ (p-type)", "value": "1/(1.602e-19*N*mp)", "unit": "Ω·cm"}
+        ]
+      }
+    },
+    {
+      "title": "Temperature and scattering",
+      "body": "- **Lattice (phonon) scattering** grows as the crystal vibrates more: $\\mu_L \\propto T^{-3/2}$.\n- **Ionized-impurity scattering** weakens at high $T$, because fast carriers are deflected less: $\\mu_I \\propto T^{3/2}/N_I$.\nIndependent scattering rates add, so the inverse mobilities add (formula). In a simple model: lightly doped Si is lattice limited at all temperatures, heavily doped Si is impurity limited when cold.",
+      "formula": "\\frac{1}{\\mu} = \\frac{1}{\\mu_L} + \\frac{1}{\\mu_I}",
+      "plot": {
+        "x": {"min": 150, "max": 500, "label": "T", "unit": "K"},
+        "y": {"min": 0, "max": 4000, "label": "µ_n (cm²/V·s)"},
+        "curves": [
+          {"f": "1350*(x/300)^-1.5", "label": "N = 1e14", "labelAt": 0.15},
+          {"f": "1/(1/(1350*(x/300)^-1.5) + 1/(1333*(x/300)^1.5))", "label": "N = 1e17", "color": "red", "labelAt": 0.8}
+        ]
+      }
+    },
+    {
+      "title": "Explore: velocity saturation",
+      "body": "$v_d = \\mu E$ holds only at low fields. Once carriers gain energy faster than they can lose it to the lattice, the drift velocity **saturates** near $10^7$ cm/s in Si (for fields of roughly $10^4$ to $10^5$ V/cm and above). In a short MOSFET channel the field easily exceeds this, so transit times are set by $v_{sat}$, not by the mobility. The curves use a simple saturation model.",
+      "formula": "v_d \\approx \\frac{\\mu E}{1 + \\mu E/v_{sat}}",
+      "plot": {
+        "x": {"min": 100, "max": 1e6, "label": "E (V/cm)", "log": true},
+        "y": {"min": 1e4, "max": 1e8, "label": "v_d (cm/s)", "log": true},
+        "curves": [
+          {"f": "1350*x/(1+1350*x/1e7)", "label": "electrons", "labelAt": 0.3},
+          {"f": "480*x/(1+480*x/1e7)", "label": "holes", "color": "red", "labelAt": 0.55},
+          {"f": "1350*x", "color": "grey", "dash": true, "label": "µ_nE", "labelAt": 0.62}
+        ],
+        "hlines": [{"y": 1e7, "label": "v_{sat}"}]
+      }
+    },
+    {
+      "title": "Diffusion",
+      "body": "Carriers spread from high to low concentration by random thermal motion, even without any field. For holes the current flows the same way as the hole flux (down the gradient, hence the minus sign); electrons diffuse down their gradient too, but their negative charge makes the current point **up** the gradient. The total current is drift plus diffusion for both carriers.",
+      "formula": "\\begin{aligned}& J_{n,dif} = qD_n\\frac{dn}{dx}\\\\ & J_{p,dif} = -qD_p\\frac{dp}{dx}\\end{aligned}"
+    },
+    {
+      "title": "Einstein relation and graded doping",
+      "body": "Drift and diffusion both come from the same random motion, so $D$ and $\\mu$ are linked. Si at 300 K: $D_n$ = 0.0259 × 1350 = 35 cm²/s, $D_p$ = 12.4 cm²/s.\nIn equilibrium a doping gradient creates a built-in field that exactly balances diffusion: majority electrons diffuse away from the heavily doped side and leave positive donors behind. For $N_d \\propto e^{-x/L}$ the field is $(kT/q)/L$, constant.",
+      "formula": "\\begin{aligned}& \\frac{D}{\\mu} = \\frac{kT}{q}\\\\ & E_x = -\\frac{kT}{q}\\,\\frac{1}{N_d}\\frac{dN_d}{dx}\\end{aligned}"
+    },
+    {
+      "title": "The Hall effect",
+      "body": "Current $I_x$ flows along a bar of width $W$ and thickness $d$ in a magnetic field $B_z$. The Lorentz force pushes the carriers sideways (holes and electrons to the **same** side, because they move in opposite directions) until a transverse **Hall voltage** balances it. Its sign gives the carrier type (positive for p-type with the usual definition, negative for n-type) and its size the concentration. Use SI units: $p$ in m$^{-3}$, $d$ in m, $B$ in T. With the resistivity, $\\mu_p = 1/(qp\\rho)$.",
+      "formula": "V_H = \\frac{I_xB_z}{q\\,p\\,d} \\;\\Rightarrow\\; p = \\frac{I_xB_z}{q\\,d\\,V_H}"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sd-transport-1",
+      "title": "Drift and mobility",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Drift velocity",
+          "body": "An electric field accelerates carriers between collisions with the vibrating lattice and with ionized dopants. On average they drift at a velocity proportional to the field. For low-doped silicon at 300 K: $\\mu_n$ = 1350 cm²/V·s, $\\mu_p$ = 480 cm²/V·s. Electrons drift against the field, holes along it.",
+          "formula": "v_d = \\mu E"
+        },
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"E": [10, 50, 100, 500, 1000]},
+          "prompt": "A field of {{E}} V/cm is applied to lightly doped n-type silicon ($\\mu_n$ = 1350 cm²/V·s). Find the electron drift velocity.",
+          "answer": "1350*E",
+          "unit": "cm/s",
+          "explanation": "$v_d = \\mu_nE$ = 1350 cm²/V·s × {{E}} V/cm = **{{1350*E}} cm/s**. Compare the random thermal velocity of about $10^7$ cm/s: the drift is a small bias on a fast random motion."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"L": [5, 10, 20, 50], "E": [100, 500, 1000, 2000]},
+          "prompt": "Holes ($\\mu_p$ = 480 cm²/V·s) drift across a {{L}} µm long region in a field of {{E}} V/cm. How long does that take?",
+          "answer": "L*1e-4/(480*E)",
+          "unit": "s",
+          "absTolerance": 0,
+          "explanation": "$v_d = \\mu_pE$ = 480 × {{E}} = {{480*E}} cm/s. Then $t = L/v_d$ = {{L}}$\\times10^{-4}$ cm / {{480*E}} cm/s = **{{L*1e-4/(480*E)|s}}**. Convert µm to cm first."
+        },
+        {
+          "id": "i2", "type": "info", "title": "Conductivity",
+          "body": "Electrons move against the field but carry negative charge, so their current points along the field, just like the hole current. Both add up. In doped material one term dominates, e.g. $\\sigma \\approx qN_d\\mu_n$ for n-type.",
+          "formula": "\\sigma = q(n\\mu_n + p\\mu_p), \\quad \\rho = \\frac{1}{\\sigma}"
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"N": [1e14, 1e15, 1e16, 5e16, 1e17]},
+          "derived": {"mu": "round(68.5 + 1281.5/(1+(N/9.2e16)^0.711))"},
+          "prompt": "Silicon doped with $N_d$ = {{N}} cm⁻³ has $\\mu_n$ = {{mu||4}} cm²/V·s at 300 K. Find its resistivity. ($q = 1.602\\times10^{-19}$ C)",
+          "answer": "1/(1.602e-19*N*mu)",
+          "unit": "Ω·cm",
+          "explanation": "The holes ($p_0 = n_i^2/N_d$) contribute nothing noticeable, so $\\rho = 1/(qN_d\\mu_n)$ = 1 / (1.602$\\times10^{-19}$ × {{N}} × {{mu||4}}) = **{{1/(1.602e-19*N*mu)}} Ω·cm**."
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "prompt": "Why does the electron mobility of silicon drop from 1350 to about 700 cm²/V·s when the doping rises from $10^{14}$ to $10^{17}$ cm⁻³?",
+          "options": [
+            "The ionized dopant atoms scatter the electrons, shortening the time between collisions",
+            "The electrons' effective mass doubles at high doping",
+            "The band gap becomes larger, which slows the electrons",
+            "There are more electrons, so each one feels a smaller field"
+          ],
+          "answer": 0,
+          "explanation": "$\\mu = q\\tau_c/m^*$. Every ionized donor is a charged scattering centre; more of them means a shorter mean time between collisions $\\tau_c$, hence a lower mobility. The effective mass and the field per carrier do not change."
+        },
+        {
+          "id": "q5", "type": "trueFalse",
+          "prompt": "In intrinsic silicon the holes carry more of the current than the electrons, because there are more of them.",
+          "answer": false,
+          "explanation": "In intrinsic material $n = p = n_i$: equal numbers. Electrons have the higher mobility (1350 vs 480 cm²/V·s), so they carry 1350/(1350 + 480) = 74 % of the current."
+        },
+        {
+          "id": "q6", "type": "numeric",
+          "params": {"m": [0, 1, 2]},
+          "derived": {
+            "ni": "if(m-1.5, 1.8e6, if(m-0.5, 2.4e13, 1.5e10))",
+            "mn": "if(m-1.5, 8500, if(m-0.5, 3900, 1350))",
+            "mp": "if(m-1.5, 400, if(m-0.5, 1900, 480))"
+          },
+          "prompt": "A pure semiconductor has $n_i$ = {{ni}} cm⁻³, $\\mu_n$ = {{mn}} cm²/V·s and $\\mu_p$ = {{mp}} cm²/V·s at 300 K. Find its intrinsic resistivity.",
+          "answer": "1/(1.602e-19*ni*(mn+mp))",
+          "unit": "Ω·cm",
+          "explanation": "With $n = p = n_i$: $\\rho_i = 1/[qn_i(\\mu_n + \\mu_p)]$ = 1 / (1.602$\\times10^{-19}$ × {{ni}} × {{mn+mp}}) = **{{1/(1.602e-19*ni*(mn+mp))}} Ω·cm**. (Si: 2.3$\\times10^{5}$ Ω·cm, Ge: 45 Ω·cm, GaAs: 3.9$\\times10^{8}$ Ω·cm. The wider the gap, the better the insulator.)"
+        }
+      ]
+    },
+    {
+      "id": "sd-transport-2",
+      "title": "Diffusion and the Einstein relation",
+      "kind": "learn",
+      "steps": [
+        {
+          "id": "i1", "type": "info", "title": "Diffusion current",
+          "body": "Random thermal motion moves more carriers from a crowded region to an empty one than back: a net flux down the concentration gradient. For holes the current follows the flux, giving the minus sign. Electrons also diffuse down their gradient, but their current points the other way.",
+          "formula": "\\begin{aligned}& J_n = qD_n\\frac{dn}{dx}\\\\ & J_p = -qD_p\\frac{dp}{dx}\\end{aligned}"
+        },
+        {
+          "id": "q1", "type": "multipleChoice",
+          "params": {"s": [0, 1]},
+          "derived": {"a": "2*s - 1"},
+          "prompt": "The graph shows the electron concentration in a sample (no electric field). In which direction does the electron **diffusion current** flow?",
+          "plot": {
+            "x": {"min": 0, "max": 10, "label": "x", "unit": ""},
+            "y": {"min": 0, "max": 1.2, "label": "n(x) (a.u.)"},
+            "curves": [{"f": "0.55 + a*0.04*(x-5)", "label": "n(x)", "labelAt": 0.5}]
+          },
+          "options": ["In the +x direction", "In the −x direction", "No current flows without a field"],
+          "answer": "1-s",
+          "explanation": "Electrons diffuse **down** their gradient, towards lower $n$. Because their charge is negative the current points the opposite way, i.e. **up** the gradient: $J_n = qD_n\\,dn/dx$ has the sign of the slope. A rising $n(x)$ gives current in +x, a falling one in −x. Diffusion needs no field at all."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"n1": [1e16, 5e16, 1e17], "fr": [0.2, 0.5, 0.8], "W": [10, 20, 50, 100]},
+          "prompt": "In p-type silicon the excess electron concentration falls linearly from {{n1}} cm⁻³ to {{n1*(1-fr)}} cm⁻³ over {{W}} µm. With $D_n$ = 35 cm²/s, find the **magnitude** of the electron diffusion current density.",
+          "answer": "1.602e-19*35*fr*n1/(W*1e-4)",
+          "unit": "A/cm²",
+          "explanation": "Gradient: $|dn/dx|$ = {{fr*n1}} cm⁻³ / ({{W}}$\\times10^{-4}$ cm) = {{fr*n1/(W*1e-4)}} cm⁻⁴. Then $|J_n| = qD_n|dn/dx|$ = 1.602$\\times10^{-19}$ × 35 × {{fr*n1/(W*1e-4)}} = **{{1.602e-19*35*fr*n1/(W*1e-4)|A/cm²}}**. (It flows towards the high-concentration side.)"
+        },
+        {
+          "id": "i2", "type": "info", "title": "The Einstein relation",
+          "body": "Mobility and diffusion coefficient describe the same scattering process, so one follows from the other. At 300 K, $kT/q$ = 0.0259 V: $D_n$ = 35 cm²/s and $D_p$ = 12.4 cm²/s for low-doped Si.",
+          "formula": "\\frac{D}{\\mu} = \\frac{kT}{q}"
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"mu": [1350, 480, 8500, 400, 3900, 1900, 900]},
+          "prompt": "A carrier type has mobility $\\mu$ = {{mu}} cm²/V·s at 300 K. Find its diffusion coefficient.",
+          "answer": "0.0259*mu",
+          "unit": "cm²/s",
+          "explanation": "$D = (kT/q)\\,\\mu$ = 0.0259 V × {{mu}} cm²/V·s = **{{0.0259*mu||3}} cm²/s**."
+        },
+        {
+          "id": "q4", "type": "numeric",
+          "params": {"D": [10, 20, 35], "T": [250, 350, 400]},
+          "prompt": "At {{T}} K the electron diffusion coefficient in a sample is measured as {{D}} cm²/s. What is the electron mobility? ($k = 8.617\\times10^{-5}$ eV/K)",
+          "answer": "D/(8.617e-5*T)",
+          "unit": "cm²/V·s",
+          "explanation": "$kT/q$ = 8.617$\\times10^{-5}$ × {{T}} = {{8.617e-5*T||3}} V. Then $\\mu = D/(kT/q)$ = {{D}} / {{8.617e-5*T||3}} = **{{D/(8.617e-5*T)||3}} cm²/V·s**. Use the thermal voltage at the actual temperature, not 0.0259 V."
+        },
+        {
+          "id": "q5", "type": "multipleChoice",
+          "params": {"mu": [1350, 480, 1000]},
+          "prompt": "A carrier has $\\mu$ = {{mu}} cm²/V·s in silicon at 300 K. Which value is its diffusion coefficient?",
+          "options": ["{{0.0259*mu||3}} cm²/s", "{{mu/0.0259||3}} cm²/s", "{{25.9*mu||3}} cm²/s", "{{8.617e-5*mu||3}} cm²/s"],
+          "answer": 0,
+          "explanation": "$D = (kT/q)\\mu$ with $kT/q$ = 0.0259 **V** (not 25.9, which is in mV, and not $k$ = 8.617$\\times10^{-5}$ eV/K alone): $D$ = 0.0259 × {{mu}} = **{{0.0259*mu||3}} cm²/s**. Dividing instead of multiplying gives a value far too large."
+        },
+        {
+          "id": "q6", "type": "trueFalse",
+          "prompt": "The hole diffusion current flows in the direction in which the hole concentration decreases.",
+          "answer": true,
+          "explanation": "Holes diffuse from high to low concentration, and because they are positive the current follows them: $J_p = -qD_p\\,dp/dx$ is positive where $dp/dx < 0$. For electrons it is the other way round."
+        }
+      ]
+    },
+    {
+      "id": "sd-transport-3",
+      "title": "Resistivity in practice",
+      "kind": "practice",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"N": [1e15, 1e16, 5e16, 1e17, 5e17]},
+          "derived": {"mu": "round(44.9 + 435.1/(1+(N/2.23e17)^0.719))"},
+          "prompt": "Boron-doped silicon with $N_a$ = {{N}} cm⁻³ has $\\mu_p$ = {{mu}} cm²/V·s. Find its resistivity.",
+          "answer": "1/(1.602e-19*N*mu)",
+          "unit": "Ω·cm",
+          "explanation": "$\\rho = 1/(qN_a\\mu_p)$ = 1 / (1.602$\\times10^{-19}$ × {{N}} × {{mu}}) = **{{1/(1.602e-19*N*mu)}} Ω·cm**. For the same doping, p-type is about 2 to 3 times more resistive than n-type because $\\mu_p < \\mu_n$."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"N": [1e15, 1e16, 1e17], "L": [100, 200, 500], "W": [10, 20, 50], "t": [1, 2, 5]},
+          "derived": {"mu": "round(68.5 + 1281.5/(1+(N/9.2e16)^0.711))", "rho": "1/(1.602e-19*N*mu)"},
+          "prompt": "An integrated n-type resistor ($N_d$ = {{N}} cm⁻³, $\\mu_n$ = {{mu||4}} cm²/V·s) is {{L}} µm long, {{W}} µm wide and {{t}} µm thick. Find its resistance.",
+          "answer": "rho*L*1e-4/(W*1e-4*t*1e-4)",
+          "unit": "Ω",
+          "explanation": "$\\rho = 1/(qN_d\\mu_n)$ = {{rho}} Ω·cm. In cm: $L$ = {{L*1e-4}} cm and $A = Wt$ = {{W*t}}$\\times10^{-8}$ cm². $R = \\rho L/A$ = {{rho}} × {{L*1e-4}} / ({{W*t}}$\\times10^{-8}$) = **{{rho*L*1e-4/(W*1e-4*t*1e-4)|Ω}}**."
+        },
+        {
+          "id": "s1", "type": "slider",
+          "params": {"rt": [0.1, 0.5, 1, 5, 10, 50]},
+          "derived": {
+            "N1": "1/(1.602e-19*rt*1350)",
+            "N2": "1/(1.602e-19*rt*(68.5 + 1281.5/(1+(N1/9.2e16)^0.711)))",
+            "N3": "1/(1.602e-19*rt*(68.5 + 1281.5/(1+(N2/9.2e16)^0.711)))",
+            "N4": "1/(1.602e-19*rt*(68.5 + 1281.5/(1+(N3/9.2e16)^0.711)))",
+            "N5": "1/(1.602e-19*rt*(68.5 + 1281.5/(1+(N4/9.2e16)^0.711)))",
+            "N6": "1/(1.602e-19*rt*(68.5 + 1281.5/(1+(N5/9.2e16)^0.711)))",
+            "N7": "1/(1.602e-19*rt*(68.5 + 1281.5/(1+(N6/9.2e16)^0.711)))",
+            "Nt": "1/(1.602e-19*rt*(68.5 + 1281.5/(1+(N7/9.2e16)^0.711)))"
+          },
+          "prompt": "The curve shows the resistivity of n-type silicon versus doping (with the doping-dependent mobility). A wafer must have $\\rho$ = {{rt}} Ω·cm. Drag $N_d$ to the right doping (the readout gives the mobility at the doping you set).",
+          "plot": {
+            "x": {"min": 13, "max": 18, "label": "log_{10} N_d (cm⁻³)"},
+            "y": {"min": 0.01, "max": 1000, "label": "ρ (Ω·cm)", "log": true},
+            "sliders": [{"name": "N", "label": "$N_d$", "min": 1e13, "max": 1e18, "log": true, "value": 1e13, "unit": "cm⁻³"}],
+            "let": {"rho": "1/(1.602e-19*N*(68.5 + 1281.5/(1+(N/9.2e16)^0.711)))"},
+            "curves": [{"f": "1/(1.602e-19*10^x*(68.5 + 1281.5/(1+(10^x/9.2e16)^0.711)))", "label": "ρ(N_d)", "labelAt": 0.8}],
+            "hlines": [{"y": "rt", "label": "target", "color": "orange"}],
+            "points": [{"x": "log10(N)", "y": "rho", "guides": false}],
+            "readouts": [{"label": "$\\mu_n$ at this $N_d$", "value": "68.5 + 1281.5/(1+(N/9.2e16)^0.711)", "unit": "cm²/V·s"}, {"label": "$\\rho$", "value": "rho", "unit": "Ω·cm", "reveal": true}]
+          },
+          "answer": {"N": "Nt"},
+          "tolerance": 0.1,
+          "explanation": "You need $qN_d\\mu_n(N_d) = 1/\\rho$, which has to be solved iteratively because $\\mu_n$ depends on $N_d$ (or read from the curve): $N_d$ ≈ **{{Nt}} cm⁻³**, where $\\mu_n$ = {{68.5 + 1281.5/(1+(Nt/9.2e16)^0.711)||3}} cm²/V·s. A first guess with $\\mu_n$ = 1350 gives {{N1}} cm⁻³."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"Nd": [2e16, 5e16, 1e17], "fr": [0.25, 0.5, 0.75]},
+          "derived": {"Na": "fr*Nd", "mu": "round(68.5 + 1281.5/(1+((Nd+Na)/9.2e16)^0.711))"},
+          "prompt": "Silicon is doped with $N_d$ = {{Nd}} cm⁻³ and $N_a$ = {{Na}} cm⁻³. The electron mobility, set by the **total** ionized impurity concentration, is {{mu}} cm²/V·s. Find the resistivity.",
+          "answer": "1/(1.602e-19*(Nd-Na)*mu)",
+          "unit": "Ω·cm",
+          "explanation": "Only the net doping supplies carriers: $n_0 = N_d - N_a$ = {{Nd-Na}} cm⁻³. But all {{Nd+Na}} cm⁻³ ionized atoms scatter. $\\rho = 1/(qn_0\\mu_n)$ = 1 / (1.602$\\times10^{-19}$ × {{Nd-Na}} × {{mu}}) = **{{1/(1.602e-19*(Nd-Na)*mu)}} Ω·cm**. Compensated material is worse than uncompensated material with the same net doping."
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "params": {"N": [1e14, 1e15, 1e16, 1e17]},
+          "derived": {"mu": "10*round((68.5 + 1281.5/(1+(N/9.2e16)^0.711))/10)"},
+          "prompt": "n-type silicon has $N_d$ = {{N}} cm⁻³ and $\\mu_n$ = {{mu}} cm²/V·s. What is its resistivity?",
+          "options": ["{{1/(1.602e-19*N*mu)}} Ω·cm", "{{1.602e-19*N*mu}} Ω·cm", "{{1/(1.602e-19*N*mu)/100}} Ω·cm", "{{1/(1.602e-19*N*mu*1e-4)}} Ω·cm"],
+          "answer": 0,
+          "explanation": "$\\rho = 1/(qN_d\\mu_n)$ = 1 / (1.602$\\times10^{-19}$ × {{N}} × {{mu}}) = **{{1/(1.602e-19*N*mu)}} Ω·cm**. Typical mistakes: giving $\\sigma = qN\\mu$ instead of $1/\\sigma$, converting to Ω·m (divide by 100) and labelling it Ω·cm, or converting the mobility to m²/V·s while keeping $N$ in cm⁻³."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"muL": [1350, 1500], "muI": [2000, 5000, 10000]},
+          "prompt": "In a doped sample, lattice scattering alone would give $\\mu_L$ = {{muL}} cm²/V·s and impurity scattering alone $\\mu_I$ = {{muI}} cm²/V·s. Find the actual mobility.",
+          "answer": "1/(1/muL + 1/muI)",
+          "unit": "cm²/V·s",
+          "explanation": "Scattering rates add, so the inverse mobilities add (Matthiessen's rule): $1/\\mu$ = 1/{{muL}} + 1/{{muI}}, so $\\mu$ = **{{1/(1/muL + 1/muI)||3}} cm²/V·s**. The result is always below the smaller of the two."
+        },
+        {
+          "id": "q6", "type": "numeric",
+          "params": {"mu0": [1350, 480], "T": [200, 250, 350, 400]},
+          "prompt": "Lightly doped silicon has a lattice-limited mobility of {{mu0}} cm²/V·s at 300 K. Using $\\mu_L \\propto T^{-3/2}$, estimate it at {{T}} K.",
+          "answer": "mu0*(T/300)^(-1.5)",
+          "unit": "cm²/V·s",
+          "explanation": "$\\mu_L(T) = \\mu_L(300)\\,(T/300)^{-3/2}$ = {{mu0}} × ({{T}}/300)$^{-3/2}$ = **{{mu0*(T/300)^(-1.5)||3}} cm²/V·s**. Cooling raises the mobility because the lattice vibrates less."
+        },
+        {
+          "id": "q7", "type": "trueFalse",
+          "prompt": "Ionized-impurity scattering becomes **stronger** as the temperature rises.",
+          "answer": false,
+          "explanation": "Hotter carriers move faster and spend less time near each charged impurity, so they are deflected less: $\\mu_I \\propto T^{3/2}$ **rises** with $T$. It is lattice scattering that gets stronger ($\\mu_L \\propto T^{-3/2}$)."
+        }
+      ]
+    },
+    {
+      "id": "sd-transport-4",
+      "title": "Fields, saturation and the Hall effect",
+      "kind": "challenge",
+      "steps": [
+        {
+          "id": "q1", "type": "numeric",
+          "params": {"L": [0.1, 0.2, 0.5, 1, 2]},
+          "prompt": "In equilibrium, the donor concentration of a base region falls as $N_d(x) = N_0e^{-x/L}$ with $L$ = {{L}} µm. Find the magnitude of the built-in electric field at 300 K.",
+          "answer": "0.0259/(L*1e-4)",
+          "unit": "V/cm",
+          "explanation": "$E_x = -\\frac{kT}{q}\\frac{1}{N_d}\\frac{dN_d}{dx}$, and $\\frac{1}{N_d}\\frac{dN_d}{dx} = -1/L$. So $E_x = (kT/q)/L$ = 0.0259 V / ({{L}}$\\times10^{-4}$ cm) = **{{0.0259/(L*1e-4)|V/cm}}**, pointing in +x (towards the lightly doped side). Graded bases in bipolar transistors use this field to speed up minority electrons."
+        },
+        {
+          "id": "q2", "type": "numeric",
+          "params": {"n0": [1e15, 1e16], "E": [10, 20, 50], "L": [10, 50, 100]},
+          "derived": {"Jdr": "1.602e-19*n0*1350*E", "Jdf": "-1.602e-19*35*n0/(L*1e-4)"},
+          "require": "abs(Jdr + Jdf) - 0.2*abs(Jdr)",
+          "prompt": "At a point in n-type silicon, $n$ = {{n0}} cm⁻³, the field is $E$ = +{{E}} V/cm and the electron concentration **decreases** in +x with slope $dn/dx = -n/L$, $L$ = {{L}} µm. With $\\mu_n$ = 1350 cm²/V·s and $D_n$ = 35 cm²/s, find the total electron current density $J_n$ (positive in +x).",
+          "answer": "Jdr + Jdf",
+          "unit": "A/cm²",
+          "explanation": "Drift: $qn\\mu_nE$ = 1.602$\\times10^{-19}$ × {{n0}} × 1350 × {{E}} = {{Jdr|A/cm²}} (along the field, +x). Diffusion: $qD_n\\,dn/dx$ with $dn/dx$ = −{{n0}} / ({{L}}$\\times10^{-4}$ cm) gives {{Jdf|A/cm²}}. Total: $J_n$ = **{{Jdr+Jdf|A/cm²}}**."
+        },
+        {
+          "id": "q3", "type": "numeric",
+          "params": {"L": [0.05, 0.1, 0.25, 0.5]},
+          "prompt": "Electrons cross a {{L}} µm MOSFET channel at the saturation velocity $v_{sat} = 10^7$ cm/s. How long does the trip take?",
+          "answer": "L*1e-4/1e7",
+          "unit": "s",
+          "absTolerance": 0,
+          "explanation": "$t = L/v_{sat}$ = {{L}}$\\times10^{-4}$ cm / $10^7$ cm/s = **{{L*1e-4/1e7*1e12||3}} ps**. At such fields ($> 10^4$ V/cm) the low-field formula $\\mu E$ no longer applies, so the transit time no longer improves with higher voltage."
+        },
+        {
+          "id": "q4", "type": "multipleChoice",
+          "params": {"E": [5e4, 1e5, 2e5]},
+          "prompt": "Electrons in silicon ($\\mu_n$ = 1350 cm²/V·s) are in a field of {{E}} V/cm. What is their drift velocity, approximately?",
+          "options": ["About $10^7$ cm/s: the velocity has saturated", "{{1350*E}} cm/s, from $v = \\mu E$", "{{1350/E}} cm/s", "Zero: such fields cause breakdown"],
+          "answer": 0,
+          "explanation": "$\\mu E$ would give {{1350*E}} cm/s, but at such high fields the electrons lose energy to optical phonons as fast as they gain it, and the drift velocity saturates near $v_{sat} \\approx 10^7$ cm/s."
+        },
+        {
+          "id": "q5", "type": "numeric",
+          "params": {"I": [0.5, 1, 2], "B": [0.05, 0.1, 0.2], "d": [5, 10, 20], "p": [1e15, 5e15, 1e16, 5e16]},
+          "derived": {"VH": "I*1e-3*B/(1.602e-19*p*1e6*d*1e-6)"},
+          "prompt": "A p-type Hall sample is {{d}} µm thick. With $I_x$ = {{I}} mA and $B_z$ = {{B}} T the Hall voltage is {{VH|V}}. Find the hole concentration in cm⁻³.",
+          "answer": "I*1e-3*B/(1.602e-19*d*1e-6*VH)*1e-6",
+          "unit": "cm⁻³",
+          "explanation": "In SI units: $p = I_xB_z/(q\\,d\\,V_H)$ = ({{I}}$\\times10^{-3}$ × {{B}}) / (1.602$\\times10^{-19}$ × {{d}}$\\times10^{-6}$ × {{VH}}) = {{I*1e-3*B/(1.602e-19*d*1e-6*VH)}} m$^{-3}$. Divide by $10^6$ for cm⁻³: **{{I*1e-3*B/(1.602e-19*d*1e-6*VH)*1e-6}} cm⁻³**."
+        },
+        {
+          "id": "q6", "type": "numeric",
+          "params": {"p": [1e15, 1e16, 1e17]},
+          "derived": {"rho": "1/(1.602e-19*p*(44.9 + 435.1/(1+(p/2.23e17)^0.719)))"},
+          "prompt": "A Hall measurement gives $p$ = {{p}} cm⁻³ and a four-point probe gives $\\rho$ = {{rho}} Ω·cm on the same p-type sample. Find the hole mobility.",
+          "answer": "1/(1.602e-19*p*rho)",
+          "unit": "cm²/V·s",
+          "explanation": "$\\rho = 1/(qp\\mu_p)$, so $\\mu_p = 1/(qp\\rho)$ = 1 / (1.602$\\times10^{-19}$ × {{p}} × {{rho}}) = **{{1/(1.602e-19*p*rho)||3}} cm²/V·s**. Combining Hall and resistivity data is the standard way to measure mobility."
+        },
+        {
+          "id": "q7", "type": "multipleChoice",
+          "prompt": "In a Hall measurement both electrons and holes are deflected towards the **same** side of the bar. What, then, does the sign of the Hall voltage reveal?",
+          "options": [
+            "The sign of the charge of the majority carriers, so whether the sample is n-type or p-type",
+            "Nothing: it only depends on the direction of $B$",
+            "The direction of the current only",
+            "Whether the sample is degenerate"
+          ],
+          "answer": 0,
+          "explanation": "Holes moving in +x and electrons moving in −x feel a Lorentz force towards the same side. The charge that piles up there is positive for holes and negative for electrons, so for the same $I$ and $B$ the Hall voltage has opposite signs: p-type gives $V_H > 0$, n-type $V_H < 0$ (with the usual definition)."
+        },
+        {
+          "id": "q8", "type": "matchPairs",
+          "prompt": "Match each quantity with its usual unit in device physics",
+          "pairs": [
+            ["Mobility $\\mu$", "cm²/V·s"],
+            ["Diffusion coefficient $D$", "cm²/s"],
+            ["Resistivity $\\rho$", "Ω·cm"],
+            ["Current density $J$", "A/cm²"],
+            ["Drift velocity $v_d$", "cm/s"]
+          ],
+          "explanation": "$v_d = \\mu E$: (cm²/V·s)(V/cm) = cm/s. $D = (kT/q)\\mu$: V × cm²/V·s = cm²/s. $J = \\sigma E$ with $\\sigma$ in S/cm and $E$ in V/cm gives A/cm²."
+        }
+      ]
+    }
+  ]
+}
